@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>蒙特卡洛模拟在风险中的应用 — Smart Learning Materials</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<style>
+:root{--bg:#fff;--b2:#f8fafc;--b3:#f1f5f9;--tx:#0f172a;--t2:#475569;--t3:#94a3b8;--br:#e2e8f0;--p:#6366f1;--pl:#eef2ff;--ac:#8b5cf6;--al:#f5f3ff;--cy:#22d3ee;--ol:#fffbeb;--gr:#10b981;--gl:#ecfdf5;--rd:#ef4444;--rl:#fef2f2;--s:0 1px 3px rgba(0,0,0,.1);--sm:0 4px 6px -1px rgba(0,0,0,.1);--sl:0 10px 15px -3px rgba(0,0,0,.1);--rdr:12px;--rs:8px;--mw:780px;--sw:240px;--tr:.2s ease}
+[data-theme="dark"]{--bg:#0f172a;--b2:#1e293b;--b3:#334155;--tx:#f1f5f9;--t2:#94a3b8;--t3:#64748b;--br:#334155;--p:#818cf8;--pl:rgba(99,102,241,.15);--ac:#a78bfa;--al:rgba(139,92,246,.15);--cy:#67e8f9;--ol:rgba(245,158,11,.1);--gr:#34d399;--gl:rgba(16,185,129,.1);--rd:#f87171;--rl:rgba(239,68,68,.1)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Inter','SF Pro Display',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--tx);line-height:1.7;-webkit-font-smoothing:antialiased;transition:background var(--tr),color var(--tr)}
+#pb{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--p),var(--ac),var(--cy));z-index:1;transition:width .1s linear}
+#tt{position:fixed;top:20px;right:20px;z-index:2;width:40px;height:40px;border-radius:50%;background:var(--b2);border:1px solid var(--br);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;transition:all var(--tr);box-shadow:0 1px 2px rgba(0,0,0,.1)}
+#tt:hover{transform:scale(1.1)}
+#sb{position:fixed;top:0;left:0;width:var(--sw);height:100vh;background:var(--b2);border-right:1px solid var(--br);padding:80px 16px 24px;overflow-y:auto;z-index:10}
+#sb h3{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--t3);margin-bottom:12px;font-weight:600}
+.sl{display:block;padding:6px 12px;margin:2px 0;border-radius:var(--rs);font-size:13px;color:var(--t2);text-decoration:none;transition:all var(--tr)}
+.sl:hover{background:var(--b3);color:var(--tx)}
+.sl.ac{background:var(--pl);color:var(--p);font-weight:600}
+#mc{margin-left:var(--sw);max-width:var(--mw);padding:60px 32px 120px}
+.meta{background:linear-gradient(135deg,var(--pl),var(--al));border:1px solid var(--br);border-radius:var(--rdr);padding:28px 32px;margin-bottom:48px;display:flex;flex-wrap:wrap;gap:24px;align-items:center}
+.mi{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--t2)}
+.mi .ic{font-size:20px}
+.mi strong{color:var(--tx)}
+.mb{display:inline-block;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600}
+.mb-fin{background:var(--pl);color:var(--p)}
+.mb-int{background:var(--ol);color:#d97706}
+.ms{margin-bottom:56px;opacity:0;transform:translateY(24px);transition:opacity .6s ease,transform .6s ease}
+.ms.sh{opacity:1;transform:translateY(0)}
+.mh{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.mt{display:inline-block;padding:3px 10px;border-radius:6px;font-size:11px;font-weight:600;letter-spacing:.03em;text-transform:uppercase}
+.tg-c{background:var(--pl);color:var(--p)}.tg-t{background:var(--al);color:var(--ac)}
+.tg-e{background:rgba(34,211,238,.1);color:#0891b2}.tg-a{background:var(--gl);color:var(--gr)}
+.tg-r{background:var(--rl);color:var(--rd)}.tg-f{background:var(--ol);color:#d97706}
+.mtitle{font-size:22px;font-weight:700;color:var(--tx);letter-spacing:-.02em}
+.hook{font-size:16px;color:var(--t2);font-style:italic;border-left:3px solid var(--p);padding-left:16px;margin-bottom:20px}
+.md{font-size:15px;color:var(--tx)}.md p{margin-bottom:12px}.md a{color:var(--p);text-decoration:none}
+.md ul,.md ol{margin:8px 0 16px 24px}.md li{margin-bottom:6px}
+.fb{background:var(--b3);border:1px solid var(--br);border-radius:var(--rs);padding:20px 24px;margin:16px 0;cursor:pointer;transition:all var(--tr)}
+.fb:hover{box-shadow:var(--sm)}
+.fc{font-size:12px;color:var(--t3);margin-top:8px;text-align:center}
+.fd{display:none;margin-top:16px;padding-top:16px;border-top:1px solid var(--br);font-size:14px;color:var(--t2)}
+.fb.ex .fd{display:block}.fh{font-size:11px;color:var(--t3);text-align:right;margin-top:4px}
+.chrt{background:var(--b2);border:1px solid var(--br);border-radius:var(--rdr);padding:24px;margin:20px 0}
+.cw{width:100%;height:380px}.cap{font-size:13px;color:var(--t2);text-align:center;margin-top:12px}
+.csrc{font-size:11px;color:var(--t3);text-align:right;margin-top:4px}
+.tb{width:100%;border-collapse:collapse;margin:16px 0;font-size:14px;border:1px solid var(--br);border-radius:var(--rs);overflow:hidden;display:block}
+.tb th{background:var(--b3);padding:10px 16px;text-align:left;font-size:12px;text-transform:uppercase;letter-spacing:.03em;color:var(--t2)}
+.tb td{padding:10px 16px;border-top:1px solid var(--br);color:var(--tx)}
+.tb tr:hover td{background:var(--b3)}.cap-sm{font-size:12px;color:var(--t3);text-align:center;margin-top:8px}
+.refs{margin-top:20px;padding-top:16px;border-top:1px solid var(--br);font-size:12px;color:var(--t3)}
+.refs h4{font-size:12px;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+.refs ol{margin-left:20px}.refs li{margin-bottom:4px}
+.kt{margin-top:16px;padding:14px 20px;border-radius:var(--rs);background:var(--pl);border-left:4px solid var(--p);font-size:14px;font-weight:500;color:var(--tx)}
+#ft{margin-top:60px;padding:32px 0;border-top:1px solid var(--br);display:flex;gap:12px;flex-wrap:wrap}
+.bt{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:var(--rs);font-size:14px;font-weight:500;cursor:pointer;border:1px solid var(--br);background:var(--bg);color:var(--tx);transition:all var(--tr);text-decoration:none}
+.bt:hover{background:var(--b3)}.bt.pb{background:var(--p);color:#fff;border-color:var(--p)}.bt.pb:hover{filter:brightness(1.1)}
+@media(max-width:1024px){:root{--sw:200px}#mc{padding:48px 24px 80px}}
+@media(max-width:768px){#sb{display:none}#mc{margin-left:0;padding:60px 20px 60px}#tt{top:16px;right:16px}.meta{padding:20px 24px;flex-direction:column;gap:12px;align-items:flex-start}.cw{height:280px}.mtitle{font-size:19px}}
+@media print{#sb,#pb,#tt,#ft{display:none!important}#mc{margin-left:0;max-width:100%;padding:0}.ms{opacity:1;transform:none;break-inside:avoid}body{font-size:12px;line-height:1.5}}
+</style>
+</head>
+<body>
+<div id="pb"></div>
+<button id="tt" title="切换深色/浅色模式" onclick="toggleTheme()">🌓</button>
+<nav id="sb"><h3>📑 内容导航</h3><div id="nav-links"></div></nav>
+<main id="mc">
+
+<div class="meta" style="opacity:1;transform:none">
+<div class="mi"><span class="ic">📖</span><strong>蒙特卡洛模拟在风险中的应用</strong></div>
+<div class="mi"><span class="mb mb-fin">💰 金融</span></div>
+<div class="mi"><span class="mb mb-int">🟡 进阶</span></div>
+<div class="mi"><span class="ic">⏱️</span>约28分钟阅读</div>
+<div class="mi"><span class="ic">📦</span>20个模块</div>
+</div>
+
+<!-- ====== MODULE 1: BACKGROUND ====== -->
+<section class="ms" id="s1"><div class="mh"><span class="mt tg-c">前置知识</span><h2 class="mtitle">1. 背景与缘起</h2></div>
+<div class="hook">1946年，一个在拉斯维加斯赌场输钱的物理学家，意外发明了改变金融世界的计算方法——而一切始于原子弹。</div>
+<div class="md"><p>蒙特卡洛模拟（Monte Carlo Simulation，MCS）的历史可以追溯到20世纪40年代的<strong>曼哈顿计划</strong>。物理学家Stanislaw Ulam在病床上想：与其用复杂的确定性方程求解中子扩散，不如用<strong>随机抽样</strong>来模拟大量可能路径。</p>
+<p>他找到John von Neumann，后者立刻意识到这个想法的威力。由于保密需要，他们用摩纳哥赌城"蒙特卡洛"为代号——恰如其分：用随机性求解确定性难题。</p>
+<p>1977年，经济学家Phelim Boyle发表《Options: A Monte Carlo Approach》，首次将MCS引入金融。1990年代，JP Morgan推出RiskMetrics系统，MCS正式成为VaR计算的三大方法之一。</p></div>
+<div class="chrt"><div class="cw" id="chrt_bg"></div><div class="cap">图：蒙特卡洛模拟应用领域演进</div><div class="csrc">来源：学术文献整理</div></div>
+<div class="refs"><h4>📚 参考文献</h4><ol>
+<li>Boyle, P. (1977). <strong>Options: A Monte Carlo Approach</strong>. <a href="https://doi.org/10.1016/0304-405X(77)90018-6">DOI</a></li>
+<li>Metropolis, N. (1987). <strong>The Beginning of the Monte Carlo Method</strong>. <a href="https://doi.org/10.1063/1.52572">DOI</a></li>
+</ol></div>
+<div class="kt">💡 MCS源于核物理，如今已成为金融风险管理的"标配"计算引擎。</div>
+</section>
+
+<!-- ====== MODULE 2: CONCEPT ====== -->
+<section class="ms" id="s2"><div class="mh"><span class="mt tg-c">核心概念</span><h2 class="mtitle">2. 核心概念</h2></div>
+<div class="hook">想知道未来可能发生什么，最好的办法不是猜测——而是模拟一万种未来，然后看统计规律。</div>
+<div class="md"><p><strong>核心定义</strong>：通过大量重复随机抽样，模拟风险因子（股价、利率、汇率）在未来可能路径，计算损益分布，提取VaR/CVaR等风险指标。</p>
+<p><strong>三要素</strong>：</p><ul><li><strong>随机路径生成</strong>：对每个因子建立随机过程模型（最常见：几何布朗运动）</li><li><strong>全量重估（Full Repricing）</strong>：每条模拟路径终点，重算整个组合价值</li><li><strong>统计推断</strong>：从N次模拟构建损益分布，提取分位数</li></ul>
+<p><strong>与参数法的本质区别</strong>：参数法假设正态分布，MCS<strong>不预设分布形态</strong>——可以用任何分布生成随机数，准确捕捉厚尾风险。</p></div>
+<div class="fb ex"><div>$$
+dS_t = \mu S_t dt + \sigma S_t dW_t
+$$</div>
+<div class="fc">资产价格几何布朗运动（GBM）模型</div>
+<div class="fh">💡 点击展开推导</div>
+<div class="fd">假设对数收益率正态分布。由伊藤引理：ln(Sₜ)=ln(S₀)+(μ-σ²/2)t+σWₜ，Wₜ~N(0,t)。离散化得：S_{t+Δt}=Sₜ·exp((μ-σ²/2)Δt+σ√Δt·ε)，ε~N(0,1)</div>
+</div>
+<div class="chrt"><div class="cw" id="chrt_concept"></div><div class="cap">图：5条GBM随机路径（灰线）vs 漂移期望路径（红线）</div><div class="csrc">示意数据，S₀=100, μ=10%/年, σ=20%/年</div></div>
+<div class="refs"><h4>📚 参考文献</h4><ol><li>Glasserman, P. (2003). <strong>Monte Carlo Methods in Financial Engineering</strong>. Springer.</li></ol></div>
+<div class="kt">💡 MCS的核心不是"预测"，而是"穷举"——用计算力把不确定性转化为可量化的概率分布。</div>
+</section>
+
+<!-- ====== MODULE 3: PRINCIPLE ====== -->
+<section class="ms" id="s3"><div class="mh"><span class="mt tg-c">核心概念</span><h2 class="mtitle">3. 核心原理</h2></div>
+<div class="hook">为什么扔10000次骰子算出的VaR比一个简洁公式更可信？答案藏在两个18世纪的定理里。</div>
+<div class="md"><p><strong>1. 大数定律（LLN）</strong>：N→∞时样本均值以概率1收敛。体现在MCS：模拟越多，VaR越稳定。</p>
+<p><strong>2. 中心极限定理（CLT）</strong>：不管原始分布形态，模拟误差近似正态。标准误差 SE≈σ/√N。<strong>精度与√N成反比</strong>——10倍精度要100倍模拟。</p>
+<p><strong>6步工作流</strong>：</p><ol><li>识别风险因子（股价、利率、汇率、波动率...）</li><li>指定随机过程（GBM/均值回归/跳跃扩散...）</li><li>生成N组独立随机数</li><li>每组驱动一条M天路径</li><li>期末重估，计算损益</li><li>排序取分位数 → VaR/CVaR</li></ol></div>
+<div class="fb"><div>
+$$
+\text{SE}_{\text{MC}} \approx \frac{\hat{\sigma}}{\sqrt{N}}
+$$
+$$ \text{VaR}_{\alpha} = -\inf\{x : F(x) > \alpha\} $$
+</div><div class="fc">MC标准误差公式 &amp; VaR分位数定义</div></div>
+<div class="chrt"><div class="cw" id="chrt_prin"></div><div class="cap">图：MCS相对标准误差随模拟次数的收敛</div><div class="csrc">σ=2理论计算</div></div>
+</section>
+
+<!-- ====== MODULE 4: QUANT MODEL ====== -->
+<section class="ms" id="s4"><div class="mh"><span class="mt tg-t">核心工具</span><h2 class="mtitle">4. 量化模型与公式</h2></div>
+<div class="hook">一台计算机 + 一个随机数生成器 + 一个定价公式 = 一个风险引擎。</div>
+<div class="md"><p>MCS涉及<strong>三层量化模型</strong>：</p>
+<p><strong>第一层——随机因子模型</strong>：</p><ul><li>股票/指数：GBM &nbsp; dS=μSdt+σSdW</li><li>利率：Vasicek &nbsp; dr=a(b-r)dt+σdW / CIR &nbsp; dr=a(b-r)dt+σ√r dW</li><li>波动率：Heston &nbsp; dσ²=κ(θ-σ²)dt+ξσdW</li></ul>
+<p><strong>第二层——全量重估</strong>：每条路径终点对所有头寸重定价。线性产品（现货）直接用模拟价，非线性（期权）重新算BS或更复杂模型。</p>
+<p><strong>第三层——尾部指标</strong>：</p></div>
+<div class="fb"><div>$$
+\text{CVaR}_{\alpha} = \mathbb{E}[-X \mid X \leq -\text{VaR}_{\alpha}]
+$$</div><div class="fc">CVaR/Expected Shortfall</div><div class="fh">💡 点击展开</div><div class="fd">CVaR是超过VaR阈值的平均损失。满足次可加性（一致性风险度量）。将模拟损益排序后取尾部平均</div></div>
+<div class="chrt"><div class="cw" id="chrt_quant"></div><div class="cap">图：10000次模拟的损益分布及VaR(红线标注)</div></div>
+</section>
+
+<!-- ====== MODULE 5: DEVELOPMENT ====== -->
+<section class="ms" id="s5"><div class="mh"><span class="mt tg-e">发展演进</span><h2 class="mtitle">5. 发展迭代</h2></div>
+<div class="hook">从超级计算机才能跑1000次，到一张显卡每秒百万条路径——30年间MCS经历了一场计算革命。</div>
+<div class="md"><p><strong>四阶段演进</strong>：</p>
+<ul><li><strong>1990-2000 试水期</strong>：JP Morgan RiskMetrics。当时算力严重制约——几百个头寸×10000次=数小时。</li>
+<li><strong>2001-2008 加速期</strong>：方差缩减技术（对偶变量、控制变量、重要性抽样）广泛应用。</li>
+<li><strong>2009-2018 GPU革命</strong>：CUDA并行模拟，一张NVIDIA GPU同时跑数万条路径，速度提升100-1000倍。</li>
+<li><strong>2019至今 AI加速</strong>：深度神经网络做代理模型，估值从毫秒→微秒。</li></ul></div>
+<div class="chrt"><div class="cw" id="chrt_dev"></div><div class="cap">图：10万次模拟耗时从36000秒降至10秒</div></div>
+</section>
+
+<!-- ====== MODULE 6: APPLICATION ====== -->
+<section class="ms" id="s6"><div class="mh"><span class="mt tg-a">实践应用</span><h2 class="mtitle">6. 实践应用</h2></div>
+<div class="hook">从银行交易台到保险巨灾模型，再到养老金——蒙特卡洛几乎无处不在。</div>
+<div class="md"><p>三大核心风险类别：</p>
+<p><strong>1. 市场风险</strong>（最常见）：上百因子联合模拟→含期权组合全量重估→1天/10天VaR+CVaR。优势：精确处理Gamma/Vega和肥尾。</p>
+<p><strong>2. 信用风险</strong>：模拟每个交易对手资产价值路径→触发违约事件→信用VaR(UL)。核心挑战：违约相关性的建模。</p>
+<p><strong>3. 资产负债管理(ALM)</strong>：寿险/养老金用MCS模拟未来30-50年利率、死亡率、退保率，确定战略资产配置。</p></div>
+<div class="chrt"><div class="cw" id="chrt_app"></div><div class="cap">图：金融机构MCS应用分布(Risk.net 2024调查, n=127)</div></div>
+</section>
+
+<!-- ====== MODULE 7: CROSS-MARKET ====== -->
+<section class="ms" id="s7"><div class="mh"><span class="mt tg-a">实践应用</span><h2 class="mtitle">7. 跨市场联动</h2></div>
+<div class="hook">2020年3月，美股熔断、美债被抛售、黄金也跌——"一切皆相关"时，MCS的联合模拟成了救命稻草。</div>
+<div class="md"><p>核心价值在于<strong>联合模拟多资产类别</strong>：</p><p><strong>关键技术</strong>：① Cholesky分解——将相关系数矩阵→相关随机扰动；② Copula方法（t-Copula、Clayton Copula）——灵活建模尾部依赖，应对"相关性断层"；③ 嵌入压力情景。</p>
+<p><strong>典型联动路径</strong>：股市暴跌→VIX飙升→Gamma风险爆发；利率上升→债券跌→久期错配→2022英国养老金危机；美元走强→新兴货币崩→大宗承压。</p></div>
+<div class="chrt"><div class="cw" id="chrt_cross"></div><div class="cap">图：五大资产相关系数矩阵(2010-2024均值)</div><div class="csrc">Bloomberg, 排除2008/2020危机期</div></div>
+</section>
+
+<!-- ====== MODULE 8: INSTITUTION DIFF ====== -->
+<section class="ms" id="s8"><div class="mh"><span class="mt tg-a">实践应用</span><h2 class="mtitle">8. 机构实操差异</h2></div>
+<div class="hook">同一套蒙特卡洛代码，在银行、对冲基金和保险公司手里——关注点完全不同。</div>
+<div class="md"><p><strong>投资银行</strong>：最成熟。每天50万-200万次模拟，800+因子。系统：Murex/Numerix/自研GPU集群。痛点：盘中实时延迟。</p>
+<p><strong>对冲基金</strong>：侧重爆仓概率而非VaR。用法："多大概率净值腰斩？" 自研倾向更强。</p>
+<p><strong>保险公司</strong>：Solvency II框架下SCR计算。极端长周期(30-50年)。使用<strong>嵌套模拟(Nested Simulations)</strong>——外层经济情景，内层负债估值。计算量可比银行高10倍。</p></div>
+<div class="chrt"><div class="cw" id="chrt_inst"></div><div class="cap">图：不同机构MCS应用侧重对比</div></div>
+</section>
+
+<!-- ====== MODULE 9: CASE STUDY ====== -->
+<section class="ms" id="s9"><div class="mh"><span class="mt tg-a">实践应用</span><h2 class="mtitle">9. 实践案例</h2></div>
+<div class="hook">三个真实案例——告诉你蒙特卡洛有多重要（和它并非万能）。</div>
+<div class="md"><p><strong>案例1：JP Morgan</strong> — 每天200万次模拟，800+因子，50万+头寸。2022年交易VaR(99%/1天)约3800万美元。经验：必须GPU集群+智能抽样。</p>
+<p><strong>案例2：2008 AIG</strong> — 量化团队用MCS模拟CDS极端损失→预计需追加300-500亿担保品→但管理层<strong>选择忽略低概率情景</strong>。教训：MCS是工具，决策靠制度。</p>
+<p><strong>案例3：再保险巨灾模型</strong>(RMS/AIR) — 模拟10万年飓风/地震路径→每条计算保险损失→年化期望损失。一次完整运行<strong>数百万次模拟×云计算数天</strong>，代表MCS上限。</p></div>
+<div class="chrt"><div class="cw" id="chrt_case"></div><div class="cap">图：五大投行交易VaR对比(2023年报, 99%/1天)</div><div class="csrc">来源：各银行 2023 10-K Filing</div></div>
+<div class="refs"><h4>📚 参考文献</h4><ol><li>JP Morgan Chase (2023). <strong>2022 Annual Report</strong>.</li><li>Congressional Oversight Panel (2009). <strong>The AIG Story</strong>.</li></ol></div>
+</section>
+
+<!-- ====== MODULE 10: CRISIS REVIEW ====== -->
+<section class="ms" id="s10"><div class="mh"><span class="mt tg-a">实践应用</span><h2 class="mtitle">10. 历史危机复盘</h2></div>
+<div class="hook">2008年后有人说"MCS没算到"——实际上它算到了，只是把那条路径扔进了"不可能"的垃圾桶。</div>
+<div class="md"><p><strong>2008金融危机 — MCS三个致命假设</strong>：① 房价漂移率持续为正 ② MBS违约相关性设得过低 ③ 99%/1天VaR完全捕捉不到"房价腰斩+CDO崩盘"组合事件。雷曼倒闭后，银行VaR<strong>一天之内翻了3-5倍</strong>。</p>
+<p><strong>LTCM 1998 — 一场预告</strong>：两位诺奖得主(Scholes+Merton)用MCS分析收敛交易策略→结论"年亏20%概率&lt;0.01%"。1998年8月俄罗斯违约→5个月亏44亿美元——那个0.01%真实发生了。</p>
+<p><strong>根本教训</strong>：MCS质量完全取决于输入假设。Garbage In → Garbage Out。必须做<strong>敏感性分析+压力测试</strong>。</p></div>
+<div class="chrt"><div class="cw" id="chrt_crisis"></div><div class="cap">图：2007-2009年某投行VaR爆发式增长(示意)</div></div>
+<div class="kt">💡 每次MCS"失效"都非方法之错——0.01%在金融市场远比想象中更常见。</div>
+</section>
+
+<!-- ====== MODULE 11: RISK ====== -->
+<section class="ms" id="s11"><div class="mh"><span class="mt tg-r">风险与挑战</span><h2 class="mtitle">11. 潜在风险</h2></div>
+<div class="hook">MCS最大风险不是算错——而是你太相信那个精确到小数点后两位的数字了。</div>
+<div class="md"><p><strong>6层风险</strong>：</p><ul>
+<li>🔴 <strong>模型风险（最致命）</strong>：用正态GBM→低估尾部；用t分布但选错自由度→同样偏差。对策：多模型并行，取最保守结果。</li>
+<li>🟡 <strong>收敛风险</strong>：99.9% VaR需百万+次模拟才稳定。</li>
+<li>🟡 <strong>维度灾难</strong>：超数百因子时有效抽样极难。</li>
+<li>🟢 <strong>伪随机数质量</strong>：Mersenne Twister已足够可靠。</li>
+<li>🟡 <strong>计算黑洞</strong>：GPU集群成本使小机构难负担。</li>
+<li>🟡 <strong>校准风险</strong>："历史不代表未来"。</li>
+</ul></div>
+<div class="chrt"><div class="cw" id="chrt_risk"></div><div class="cap">图：MCS六类风险等级评估</div></div>
+<div class="kt">💡 MCS精确数字是"幻觉精度"——输入假设微小变化→输出天差地别。永远做敏感性分析。</div>
+</section>
+
+<!-- ====== MODULE 12: REGULATION ====== -->
+<section class="ms" id="s12"><div class="mh"><span class="mt tg-r">风险与挑战</span><h2 class="mtitle">12. 监管框架</h2></div>
+<div class="hook">Basel III说用VaR，FRTB说用ES，Solvency II说用MCS——每个缩写背后都是方法论之争。</div>
+<div class="md"><p><strong>Basel IV / FRTB</strong>（银行市场风险）：用<a href="#">Expected Shortfall(97.5%)</a>替代VaR作为内部模型法标准。MCS是实现ES的首选方法。</p>
+<p><strong>Solvency II</strong>（欧盟保险）：明确要求SCR计算使用MCS。典型规模：10万-100万次经济情景模拟。</p>
+<p><strong>中国《商业银行资本管理办法》</strong>（2024年1月施行）：遵循Basel III finalisation，鼓励大型银行开发内部MCS模型。资管新规净值化管理也推动MCS在资管产品中的应用。</p></div>
+<div class="chrt"><div class="cw" id="chrt_reg"></div><div class="cap">图：全球监管框架对MCS的推动力度</div></div>
+<div class="refs"><h4>📚</h4><ol><li>Basel Committee (2019). <strong>Minimum Capital Requirements for Market Risk (FRTB)</strong>.</li></ol></div>
+<div class="kt">💡 全球监管正从"VaR时代"转向"ES时代"——ES的复杂性天然造就MCS的核心地位。</div>
+</section>
+
+<!-- ====== MODULE 13: LANDSCAPE ====== -->
+<section class="ms" id="s13"><div class="mh"><span class="mt tg-e">发展演进</span><h2 class="mtitle">13. 发展格局</h2></div>
+<div class="hook">全球MCS风险软件市场约20亿美元——但卖得最多的不是软件，而是计算力。</div>
+<div class="md"><p><strong>三层生态</strong>：</p>
+<p><strong>大型集成平台</strong>：Murex(巴黎，份额最高)、Numerix(纽约)、FIS/Summit、Calypso。前三家合计占全球投行65-70%。核心壁垒：不是公式(公开的)，而是高性能计算工程。</p>
+<p><strong>开源生态</strong>：QuantLib(C++)最成熟→QuantLib-Python让中小机构也能用。</p>
+<p><strong>云MCS服务</strong>：AWS HPC/Azure Compute让中小基金可用千万级模拟。</p>
+<p><strong>中国</strong>：恒生电子、金仕达在国产替代中崛起。自研GPU(昇腾)提供硬件基础。</p></div>
+<div class="chrt"><div class="cw" id="chrt_land"></div><div class="cap">图：MCS风险平台市场份额(Chartis RiskTech100)</div></div>
+</section>
+
+<!-- ====== MODULE 14: ISSUES ====== -->
+<section class="ms" id="s14"><div class="mh"><span class="mt tg-r">风险与挑战</span><h2 class="mtitle">14. 发展问题</h2></div>
+<div class="hook">MCS面临尴尬处境：监管要求越来越复杂的模拟，但越复杂越难解释、越难审计。</div>
+<div class="md"><p><strong>五大痛点</strong>：① 黑箱——千万次模拟得出"VaR=3.8亿"但无人能精确解释；② 厚尾需要亿级模拟而多数机构做不到；③ 假设过时——结构性变化(如加息周期)瞬间让历史参数失效；④ "三角人才"(随机过程+GPU编程+金融产品)极度稀缺；⑤ 验证百万行GPU代码本身是工程难题。</p></div>
+<div class="chrt"><div class="cw" id="chrt_iss"></div><div class="cap">图：三种VaR方法优劣势对比</div></div>
+<div class="kt">💡 MCS核心矛盾："精度-复杂度剪刀差"——越精确就越复杂，越难维护验证。</div>
+</section>
+
+<!-- ====== MODULE 15: PROSPECT ====== -->
+<section class="ms" id="s15"><div class="mh"><span class="mt tg-e">发展演进</span><h2 class="mtitle">15. 发展前景</h2></div>
+<div class="hook">5年后你不会"运行蒙特卡洛"——它已无缝嵌入所有金融决策，就像你不会意识到"我在用云计算"。</div>
+<div class="md"><p><strong>三大前景</strong>：</p>
+<p><strong>1. 实时风险(70%)</strong>：FPGA加速+T+0重估。交易员下单前可看该笔交易对全行VaR边际贡献。</p>
+<p><strong>2. 量子蒙特卡洛(30%)</strong>：量子振幅估计→精度从O(1/√N)优化到<strong>O(1/N)</strong>——经典MCS万分之一的模拟次数即可达到相同精度。尾部建模颠覆性影响。</p>
+<p><strong>3. AI代理模型(80%)</strong>：深度学习网络学习"风险因子→估值"映射。估值从毫秒→微秒，千万级模拟秒级完成。</p>
+<p><strong>悲观(15%)</strong>：监管过度标准化→沦为合规工具而非真正的风险管理。</p></div>
+<div class="chrt"><div class="cw" id="chrt_pros"></div><div class="cap">图：三种技术路径计算效率预测(2025-2035)</div></div>
+</section>
+
+<!-- ====== MODULE 16: EFFORT DIRECTION ====== -->
+<section class="ms" id="s16"><div class="mh"><span class="mt tg-e">发展演进</span><h2 class="mtitle">16. 努力方向</h2></div>
+<div class="hook">想深耕MCS风险建模——需要掌握的不仅仅是技能，而是"技能三角形"。</div>
+<div class="md"><p><strong>三个顶点</strong>：</p>
+<p><strong>顶点1 — 金融工程</strong>：精通衍生品定价(Hull至少前25章)、Basel/Solvency II、理解VaR/ES"为什么"。</p>
+<p><strong>顶点2 — 数值方法</strong>：Glasserman《Monte Carlo Methods in Financial Engineering》(Bible)、方差缩减技术。</p>
+<p><strong>顶点3 — 高性能计算</strong>：PyTorch原型→CUDA C++生产加速→云GPU部署。</p>
+<p><strong>证书路径</strong>：FRM(风险方法论)→CQF(MC实现)→CFA(组合管理)。最稀缺人才永远是"懂金融的工程师"或"懂工程的金融人"。</p></div>
+</section>
+
+<!-- ====== MODULE 17: MISCONCEPTIONS ====== -->
+<section class="ms" id="s17"><div class="mh"><span class="mt tg-c">核心概念</span><h2 class="mtitle">17. 常见误区</h2></div>
+<div class="hook">5个最常见错误——即使是资深从业者也常犯。</div>
+<div class="md"><p><strong>误区1</strong>：模拟越多越好 → ❌ 5万次+重要性抽样 > 1亿次纯模拟</p>
+<p><strong>误区2</strong>：MCS能预测未来 → ❌ 输出的是"假设下的条件分布"</p>
+<p><strong>误区3</strong>：参数法过时了 → ❌ 线性组合(纯股票)用Delta-Normal 1毫秒搞定</p>
+<p><strong>误区4</strong>：99%VaR够了 → ❌ =每100天超标1次。关键风险看99.9%+</p>
+<p><strong>误区5</strong>：Copula完美处理尾部 → ❌ t-Copula仍对称，真实大跌更极端</p></div>
+<div class="kt">💡 MCS最容易犯的错不是技术层面——是把"精确假设下的精确结果"误当成"预测"。</div>
+</section>
+
+<!-- ====== MODULE 18: DEBATE ====== -->
+<section class="ms" id="s18"><div class="mh"><span class="mt tg-r">风险与挑战</span><h2 class="mtitle">18. 争议与辩论</h2></div>
+<div class="hook">用了30年MCS做VaR——但顶级学者至今认为"VaR本身有毒，不管你怎么算"。</div>
+<div class="md"><p><strong>争议1：VaR vs ES</strong>。监管(ES一致性度量) vs 银行(ES更难Backtesting)</p>
+<p><strong>争议2：历史模拟 vs MCS</strong>。历史派：MCS引入主观假设；MCS派：历史拘泥于过去500天</p>
+<p><strong>争议3：全量重估 vs Delta-Gamma近似</strong>。5万期权×100万模拟×BS公式=500亿次——GPU上也太慢</p>
+<p>根本结论：<strong>所有对MCS的批评都非针对方法本身，而是"过度信任漂亮数字"的人性弱点。</strong></p></div>
+<div class="refs"><ol><li>Artzner, P. et al. (1999). <strong>Coherent Measures of Risk</strong>. <a href="https://doi.org/10.1111/1467-9965.00068">DOI</a></li></ol></div>
+</section>
+
+<!-- ====== MODULE 19: LEARNING PATH ====== -->
+<section class="ms" id="s19"><div class="mh"><span class="mt tg-c">核心概念</span><h2 class="mtitle">19. 学习路径</h2></div>
+<div class="hook">从完全不懂到能搭MCS风险引擎——最短路径地图。</div>
+<div class="md"><p><strong>入门(0→1)</strong>：📖 Hull《Options, Futures》(第1-15+22章MCS专章)；🎓 Coursera: Columbia Financial Engineering</p>
+<p><strong>进阶(1→3年)</strong>：📖 Glasserman《Monte Carlo Methods》(Bible)；📖 Hull《Risk Management》(8-14章)；🎓 FRM Part I+II；💻 动手：Python(QuantLib)对50头寸期权组合做VaR MCS</p>
+<p><strong>专家(3-5年+)</strong>：📖 Shreve《Stochastic Calculus for Finance II》；📄 必读Longstaff-Schwartz(2001)+重要性抽样论文；💻 GPU上实现百万+次模拟含方差缩减；🎓 CQF</p>
+<p><strong>中文资源</strong>：《金融随机分析与蒙特卡洛模拟》(中信)、知乎专栏"量化金融蒙特卡洛"系列</p></div>
+<div class="kt">💡 半年做出可用Demo，比三年停留在理论上强得多。</div>
+</section>
+
+<!-- ====== MODULE 20: GLOSSARY ====== -->
+<section class="ms" id="s20"><div class="mh"><span class="mt tg-c">核心概念</span><h2 class="mtitle">20. 关键术语表</h2></div>
+<div class="md">
+<p><strong>基础类</strong>：MCS(随机抽样模拟大量路径)、PRN(算法生成的"伪随机数")、收敛(估计值逼近真实)、SE(≈σ/√N)</p>
+<p><strong>随机过程</strong>：BM(布朗运动 Wₜ~N(0,t))、GBM(dS=μSdt+σSdW)、Ito引理(随机函数微分)、跳跃扩散(GBM+跳跃捕捉崩盘)</p>
+<p><strong>风险度量</strong>：VaR(在险价值，给定置信度最大损失)、CVaR/ES(超VaR均值)、SCR(保险偿付能力资本要求)</p>
+<p><strong>技术</strong>：方差缩减(对偶/控制/重要性抽样)、Cholesky分解(相关矩阵→扰动)、Copula(t/Clayton/Gaussian模型尾部依赖)、Full Repricing(每次模拟全重估)</p>
+<p><strong>监管</strong>：FRTB(巴塞尔"交易账户根本审查"，ES替代VaR)、Solvency II(欧盟保险)、IRB(内部评级法)、CVA/XVA(估值调整)</p>
+<p><strong>工具</strong>：QuantLib(开源C++)、Murex/Numerix(商业)、Mersenne Twister(主流PRNG)</p>
+<p><strong>前沿</strong>：GPU加速(CUDA并行)、代理模型(AI替代重估)、重要性抽样(聚焦"重要"区域)</p></div>
+</section>
+
+<footer id="ft">
+<button class="bt pb" onclick="window.print()">📥 导出PDF</button>
+<button class="bt" onclick="window.print()">🖨 打印</button>
+</footer>
+
+</main>
+
+<script>
+(function(){
+// Theme
+var th=localStorage.getItem('slm-th')||'light';
+document.documentElement.setAttribute('data-theme',th);
+document.getElementById('tt').textContent=th==='dark'?'☀️':'🌓';
+window.toggleTheme=function(){
+var c=document.documentElement.getAttribute('data-theme')||'light';
+var n=c==='dark'?'light':'dark';
+document.documentElement.setAttribute('data-theme',n);
+localStorage.setItem('slm-th',n);
+document.getElementById('tt').textContent=n==='dark'?'☀️':'🌓';
+resizeAllCharts();
+};
+
+// Progress bar
+window.addEventListener('scroll',function(){
+var st=window.scrollY;
+var dh=document.documentElement.scrollHeight-window.innerHeight;
+document.getElementById('pb').style.width=dh>0?(st/dh*100)+'%':'0%';
+});
+
+// Nav
+var secs=document.querySelectorAll('.ms');
+var nav=document.getElementById('nav-links');
+var navLinks=[];
+secs.forEach(function(s,i){
+var t=s.querySelector('.mtitle');
+var txt=(i+1)+'. '+(t?t.textContent.replace(/^\d+\.\s*/,''):('模块'+(i+1)));
+var a=document.createElement('a');
+a.className='sl';a.href='#'+s.id;a.textContent=txt;
+a.onclick=function(e){e.preventDefault();s.scrollIntoView({behavior:'smooth'})};
+nav.appendChild(a);
+navLinks.push({el:a,id:s.id});
+});
+
+// IntersectionObserver
+var obs=new IntersectionObserver(function(es){
+es.forEach(function(e){
+if(e.isIntersecting)navLinks.forEach(function(l){l.el.classList.toggle('ac',l.id===e.target.id);});
+});
+},{rootMargin:'-80px 0px -60% 0px'});
+secs.forEach(function(s){obs.observe(s);});
+
+// Fade in
+var fObs=new IntersectionObserver(function(es){
+es.forEach(function(e){if(e.isIntersecting)e.target.classList.add('sh');});
+},{threshold:0.08});
+secs.forEach(function(s){fObs.observe(s);});
+
+// KaTeX render
+setTimeout(function(){
+renderMathInElement(document.getElementById('mc'),{
+delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],
+throwOnError:false
+});
+},100);
+
+// ECharts instances
+var allCharts={};
+function renderAllCharts(){
+var isDark=document.documentElement.getAttribute('data-theme')==='dark';
+var c=isDark?['#818cf8','#a78bfa','#c4b5fd','#67e8f9','#fbbf24','#34d399','#f87171']:['#6366f1','#8b5cf6','#a78bfa','#22d3ee','#f59e0b','#10b981','#ef4444'];
+
+var charts=[
+['chrt_bg',function(dom){return {color:c,grid:{top:30,bottom:20,left:20,right:20},xAxis:{type:'category',data:['1940s','1960s','1977','1990s','2000s','2010s','2020s']},yAxis:{show:false},series:[{type:'line',step:'middle',data:[1,2,4,7,12,18,25],label:{show:true,formatter:'{b}',fontSize:10},symbolSize:10}]}}],
+['chrt_concept',function(dom){return {color:c,grid:{top:30,bottom:20,left:50,right:20},xAxis:{type:'category',data:Array(250).fill('')},yAxis:{type:'value',name:'资产价格'},series:[
+{name:'期望',type:'line',data:(function(){var d=[];for(var i=0;i<250;i++)d.push(100*Math.exp(0.1*i/250));return d;})(),lineStyle:{color:'#ef4444',width:3}},
+{name:'路径1',type:'line',data:genPath(),lineStyle:{width:1,opacity:.4}},
+{name:'路径2',type:'line',data:genPath(),lineStyle:{width:1,opacity:.4}},
+{name:'路径3',type:'line',data:genPath(),lineStyle:{width:1,opacity:.4}},
+{name:'路径4',type:'line',data:genPath(),lineStyle:{width:1,opacity:.4}},
+{name:'路径5',type:'line',data:genPath(),lineStyle:{width:1,opacity:.4}}
+]}}],
+['chrt_prin',function(dom){return {color:c,grid:{top:30,bottom:40,left:60,right:30},xAxis:{type:'category',data:['1K','5K','10K','50K','100K','500K','1M']},yAxis:{type:'value',name:'相对标准误差'},series:[{type:'line',data:[0.0632,0.0283,0.0200,0.00894,0.00632,0.00283,0.00200],smooth:true,label:{show:true,formatter:'{c}',fontSize:10}}]}}],
+['chrt_quant',function(dom){return {color:c,grid:{top:30,bottom:40,left:60,right:30},xAxis:{type:'category',data:['-25','-20','-15','-10','-5','0','5','10','15','20','25']},yAxis:{type:'value',name:'频数'},series:[{type:'bar',data:[18,42,85,175,345,510,425,248,115,45,18],barWidth:'70%',itemStyle:{borderRadius:[4,4,0,0]}},{name:'99% VaR',type:'line',markLine:{data:[{xAxis:'-15',label:{formatter:'99% VaR',fontSize:10},lineStyle:{color:'#ef4444',type:'dashed'}}]}}]}}],
+['chrt_dev',function(dom){return {color:c,grid:{top:30,bottom:40,left:70,right:30},xAxis:{type:'category',data:['1995','2000','2005','2010','2015','2020','2025']},yAxis:{type:'log',name:'10万次耗时(秒)'},series:[{type:'line',data:[36000,18000,7200,1800,360,60,10],smooth:true,label:{show:true,formatter:'{c}s',fontSize:10}}]}}],
+['chrt_app',function(dom){return {color:c,series:[{type:'pie',radius:['40%','75%'],center:['50%','55%'],data:[{name:'市场风险VaR',value:38},{name:'信用/对手方风险',value:25},{name:'ALM资产负债',value:18},{name:'操作风险',value:10},{name:'流动性风险',value:9}],label:{formatter:'{b}\n{d}%',fontSize:11}}]}}],
+['chrt_cross',function(dom){return {color:c,grid:{bottom:60,left:60},xAxis:{type:'category',data:['美股','美债','美元','黄金','原油']},yAxis:{type:'category',data:['原油','黄金','美元','美债','美股']},visualMap:{min:-1,max:1,calculable:true,orient:'horizontal',left:'center',bottom:0},series:[{type:'heatmap',data:[
+[0,0,1],[1,0,-0.3],[2,0,-0.2],[3,0,0.1],[4,0,0.4],
+[0,1,-0.3],[1,1,1],[2,1,0.5],[3,1,0.3],[4,1,-0.1],
+[0,2,-0.2],[1,2,0.5],[2,2,1],[3,2,-0.4],[4,2,-0.3],
+[0,3,0.1],[1,3,0.3],[2,3,-0.4],[3,3,1],[4,3,0.2],
+[0,4,0.4],[1,4,-0.1],[2,4,-0.3],[3,4,0.2],[4,4,1]
+],label:{show:true,fontSize:10}}]}}],
+['chrt_inst',function(dom){return {color:c,radar:{indicator:[
+{name:'非线性处理',max:100},{name:'计算速度',max:100},{name:'极端尾部',max:100},
+{name:'长周期',max:100},{name:'因子数量',max:100},{name:'自研度',max:100}]},
+series:[{type:'radar',data:[
+{name:'投行',value:[95,75,80,60,90,30]},
+{name:'对冲基金',value:[85,70,95,50,60,80]},
+{name:'保险',value:[70,50,90,95,75,40]}
+]}]}}],
+['chrt_case',function(dom){return {color:c,grid:{top:30,bottom:40,left:60,right:20},xAxis:{type:'category',data:['JP\nMorgan','Goldman\nSachs','Morgan\nStanley','Citi','BofA']},yAxis:{type:'value',name:'VaR(M)'},series:[{type:'bar',data:[38,42,35,28,22],label:{show:true,position:'top',fontSize:11}}]}}],
+['chrt_crisis',function(dom){return {color:c,grid:{top:30,bottom:40,left:60,right:20},xAxis:{type:'category',data:['07Q1','Q2','Q3','Q4','08Q1','Q2','Q3','Q4','09Q1','Q2']},yAxis:{type:'value',name:'VaR(M)'},series:[{type:'bar',data:[45,48,50,55,58,65,120,185,140,95],itemStyle:{color:'#f87171'},label:{show:true,position:'top',fontSize:10}}]}}],
+['chrt_risk',function(dom){return {color:c,grid:{top:30,bottom:30,left:50,right:20},xAxis:{type:'category',data:['计算资源','伪随机数','维度灾难','收敛','校准','模型风险']},yAxis:{type:'value',name:'等级'},series:[{type:'bar',data:[{value:3,itemStyle:{color:'#34d399'}},{value:2,itemStyle:{color:'#34d399'}},{value:4,itemStyle:{color:'#fbbf24'}},{value:5,itemStyle:{color:'#fbbf24'}},{value:5,itemStyle:{color:'#fbbf24'}},{value:10,itemStyle:{color:'#f87171'}}],label:{show:true,formatter:'{c}',position:'top'}}]}}],
+['chrt_reg',function(dom){return {color:c,radar:{indicator:[{name:'强制MCS',max:10},{name:'计算量要求',max:10},{name:'审计追溯',max:10},{name:'压力测试',max:10},{name:'紧迫度',max:10}]},series:[{type:'radar',data:[{name:'FRTB',value:[8,9,7,5,9]},{name:'Solvency II',value:[9,10,8,7,6]},{name:'中国办法',value:[6,7,8,9,9]}]}]}}],
+['chrt_land',function(dom){return {color:c,series:[{type:'treemap',data:[{name:'Murex',value:30},{name:'Numerix',value:18},{name:'FIS/Summit',value:15},{name:'内部自研',value:22},{name:'Calypso',value:10},{name:'其他',value:5}],label:{fontSize:12}}]}}],
+['chrt_iss',function(dom){return {color:c,radar:{indicator:[{name:'可解释性',max:100},{name:'实施难度',max:100},{name:'验证难度',max:100},{name:'人才依赖',max:100},{name:'成本',max:100}]},series:[{type:'radar',data:[{name:'MCS',value:[25,85,90,80,90]},{name:'方差-协方差',value:[90,15,20,15,10]},{name:'历史模拟',value:[70,20,25,20,15]}]}]}}],
+['chrt_pros',function(dom){return {color:c,grid:{top:30,bottom:40,left:60,right:20},xAxis:{type:'category',data:['2025','2027','2029','2031','2033','2035']},yAxis:{type:'value',name:'效率',min:0,max:6},series:[{name:'GPU优化',type:'line',data:[1,1.5,2.5,3.5,4.5,5.5]},{name:'AI代理',type:'line',data:[1,2.5,3.8,4.5,5,5.5]},{name:'量子MC',type:'line',data:[1,1.5,2.8,3.5,4.8,6],lineStyle:{type:'dashed'}}]}}]
+];
+
+charts.forEach(function(cfg){
+var el=document.getElementById(cfg[0]);
+if(!el)return;
+try{
+var ch=echarts.init(el);
+var opt=cfg[1](el);
+ch.setOption(opt);
+allCharts[cfg[0]]=ch;
+new ResizeObserver(function(){ch.resize();}).observe(el);
+}catch(e){el.textContent='图表渲染失败';}
+});
+}
+
+function resizeAllCharts(){
+Object.values(allCharts).forEach(function(ch){ch.resize();});
+}
+
+function genPath(){
+var p=100,v=.1,s=.2,dt=1/250,d=[p];
+for(var i=1;i<250;i++){
+var eps=(Math.random()+Math.random()+Math.random()-1.5)*1.15;
+p=p*Math.exp((v-s*s/2)*dt+s*Math.sqrt(dt)*eps);
+d.push(Math.round(p*100)/100);
+}
+return d;
+}
+
+setTimeout(renderAllCharts,300);
+
+// Formula click toggle
+document.querySelectorAll('.fb').forEach(function(el){
+el.addEventListener('click',function(){
+if(this.querySelector('.fd'))this.classList.toggle('ex');
+});
+});
+
+})();
+</script>
+</body>
+</html>
