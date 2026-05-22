@@ -1,0 +1,228 @@
+{
+  "version": "1.0.0",
+  "generated_at": "2026-05-14T00:00:00+08:00",
+  "plans": [
+    {
+      "id": "sql-workplace-learning",
+      "title": "SQL在工作中的应用 系统学习方案",
+      "domain": "cross-domain",
+      "texture": "G8",
+      "depth": "标准学习",
+      "markdown_file": "SQL工作应用学习方案.md",
+      "html_file": "sql_learning.html",
+      "generated_at": "2026-05-14T00:00:00+08:00",
+      "topic_profile": {
+        "abstract": 0.37,
+        "systemic": 0.50,
+        "math_density": 0.39,
+        "temporal": 0.35
+      },
+      "phases": [
+        {
+          "id": "p1",
+          "title": "核心查询技能",
+          "weeks": "第1-4周",
+          "kps": [
+            {"id": "p1_1", "name": "SELECT与WHERE — 精准数据检索", "topic_id": null, "has_deep_dive": false},
+            {"id": "p1_2", "name": "JOIN与子查询 — 多表关联查询", "topic_id": null, "has_deep_dive": false},
+            {"id": "p1_3", "name": "GROUP BY与聚合函数 — 数据统计与分组", "topic_id": null, "has_deep_dive": false}
+          ]
+        },
+        {
+          "id": "p2",
+          "title": "综合实战应用",
+          "weeks": "第5-9周",
+          "kps": [
+            {"id": "p2_1", "name": "窗口函数 — 排名、累计与移动计算", "topic_id": null, "has_deep_dive": false},
+            {"id": "p2_2", "name": "复杂业务报表 — 多维度交叉分析", "topic_id": null, "has_deep_dive": false},
+            {"id": "p2_3", "name": "数据清洗与ETL — 脏数据处理实战", "topic_id": null, "has_deep_dive": false},
+            {"id": "p2_4", "name": "查询性能优化 — 索引、执行计划与SQL调优", "topic_id": null, "has_deep_dive": false}
+          ]
+        },
+        {
+          "id": "p3",
+          "title": "基础原理回顾",
+          "weeks": "第10-12周",
+          "kps": [
+            {"id": "p3_1", "name": "关系型数据库核心概念 — 表、行、列、主外键", "topic_id": null, "has_deep_dive": false},
+            {"id": "p3_2", "name": "数据库设计与范式 — 表结构设计原则", "topic_id": null, "has_deep_dive": false},
+            {"id": "p3_3", "name": "事务与并发控制 — ACID与隔离级别", "topic_id": null, "has_deep_dive": false}
+          ]
+        },
+        {
+          "id": "p4",
+          "title": "进阶与前沿",
+          "weeks": "第13-14周",
+          "kps": [
+            {"id": "p4_1", "name": "存储过程与函数 — 封装业务逻辑", "topic_id": null, "has_deep_dive": false},
+            {"id": "p4_2", "name": "SQL在数据分析中的现代应用 — 与BI/大数据工具的协作", "topic_id": null, "has_deep_dive": false}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "derivatives-learning",
+      "title": "金融衍生品及其定价 系统学习方案",
+      "domain": "finance",
+      "texture": "G1",
+      "depth": "标准学习",
+      "markdown_file": "金融衍生品及其定价学习方案.md",
+      "html_file": "derivatives_pricing_learning.html",
+      "generated_at": "2026-05-14T00:00:00+08:00",
+      "topic_profile": {
+        "abstract": 0.55,
+        "systemic": 0.65,
+        "math_density": 0.75,
+        "temporal": 0.30
+      },
+      "phases": [
+        {
+          "id": "p1",
+          "title": "衍生品市场全景与合约基础",
+          "weeks": "第1-4周",
+          "kps": [
+            {"id": "p1_1", "name": "金融衍生品概述", "topic_id": "derivatives", "has_deep_dive": false},
+            {"id": "p1_2", "name": "远期与期货合约", "topic_id": "derivatives", "has_deep_dive": false},
+            {"id": "p1_3", "name": "期权基础概念", "topic_id": "option-pricing", "has_deep_dive": false},
+            {"id": "p1_4", "name": "互换(Swap)基础", "topic_id": "derivatives", "has_deep_dive": false},
+            {"id": "p1_5", "name": "衍生品市场结构", "topic_id": "market-microstructure", "has_deep_dive": false}
+          ]
+        },
+        {
+          "id": "p2",
+          "title": "期权定价经典模型",
+          "weeks": "第5-7周",
+          "kps": [
+            {"id": "p2_1", "name": "无套利定价原理", "topic_id": "arbitrage", "has_deep_dive": true},
+            {"id": "p2_2", "name": "二叉树模型", "topic_id": "option-pricing", "has_deep_dive": true},
+            {"id": "p2_3", "name": "Black-Scholes-Merton模型", "topic_id": "black-scholes", "has_deep_dive": true},
+            {"id": "p2_4", "name": "期权希腊字母(Greeks)", "topic_id": "option-pricing", "has_deep_dive": true}
+          ]
+        },
+        {
+          "id": "p3",
+          "title": "数值方法与高级定价",
+          "weeks": "第8-10周",
+          "kps": [
+            {"id": "p3_1", "name": "蒙特卡洛模拟定价", "topic_id": "monte-carlo", "has_deep_dive": true},
+            {"id": "p3_2", "name": "有限差分法", "topic_id": "option-pricing", "has_deep_dive": false},
+            {"id": "p3_3", "name": "利率衍生品定价", "topic_id": "interest-rate-models", "has_deep_dive": false},
+            {"id": "p3_4", "name": "奇异期权定价", "topic_id": "option-pricing", "has_deep_dive": false}
+          ]
+        },
+        {
+          "id": "p4",
+          "title": "波动率、对冲与产品设计",
+          "weeks": "第11-12周",
+          "kps": [
+            {"id": "p4_1", "name": "波动率建模与微笑", "topic_id": "volatility-modeling", "has_deep_dive": false},
+            {"id": "p4_2", "name": "结构化产品设计", "topic_id": "derivatives", "has_deep_dive": false},
+            {"id": "p4_3", "name": "对冲策略与风险管理", "topic_id": "derivatives", "has_deep_dive": true}
+          ]
+        },
+        {
+          "id": "p5",
+          "title": "信用衍生品与现代定价技术",
+          "weeks": "第13-14周",
+          "kps": [
+            {"id": "p5_1", "name": "信用衍生品与CDS", "topic_id": "credit-risk", "has_deep_dive": false},
+            {"id": "p5_2", "name": "ML在衍生品定价中的应用", "topic_id": "monte-carlo", "has_deep_dive": false}
+          ]
+        }
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "id": "select-basics-deep",
+      "topic_id": null,
+      "topic_name": "SELECT与数据检索基础",
+      "depth": "理解",
+      "breadth": "标准",
+      "texture": "G8",
+      "html_file": "select_basics_deep.html",
+      "generated_at": "2026-05-13T00:00:00+08:00",
+      "belongs_to_plan": "sql-work-learning",
+      "belongs_to_phase": "p1",
+      "belongs_to_kp": "p1_1"
+    },
+    {
+      "id": "black-scholes-deep",
+      "topic_id": "black-scholes",
+      "topic_name": "Black-Scholes-Merton模型",
+      "depth": "理解",
+      "breadth": "标准",
+      "texture": "G1",
+      "html_file": "deri/black_scholes_deep.html",
+      "generated_at": "2026-05-14T00:00:00+08:00",
+      "belongs_to_plan": "derivatives-learning",
+      "belongs_to_phase": "p3",
+      "belongs_to_kp": "p3_3"
+    },
+    {
+      "id": "binomial-tree-deep",
+      "topic_id": "option-pricing",
+      "topic_name": "二叉树模型",
+      "depth": "理解",
+      "breadth": "标准",
+      "texture": "G1",
+      "html_file": "deri/binomial_tree_deep.html",
+      "generated_at": "2026-05-14T00:00:00+08:00",
+      "belongs_to_plan": "derivatives-learning",
+      "belongs_to_phase": "p2",
+      "belongs_to_kp": "p2_2"
+    },
+    {
+      "id": "option-greeks-deep",
+      "topic_id": "option-pricing",
+      "topic_name": "期权希腊字母(Greeks)",
+      "depth": "理解",
+      "breadth": "标准",
+      "texture": "G1",
+      "html_file": "deri/option_greeks_deep.html",
+      "generated_at": "2026-05-14T00:00:00+08:00",
+      "belongs_to_plan": "derivatives-learning",
+      "belongs_to_phase": "p2",
+      "belongs_to_kp": "p2_4"
+    },
+    {
+      "id": "monte-carlo-deep",
+      "topic_id": "monte-carlo",
+      "topic_name": "蒙特卡洛模拟定价",
+      "depth": "理解",
+      "breadth": "标准",
+      "texture": "G5",
+      "html_file": "deri/monte_carlo_deep.html",
+      "generated_at": "2026-05-14T00:00:00+08:00",
+      "belongs_to_plan": "derivatives-learning",
+      "belongs_to_phase": "p3",
+      "belongs_to_kp": "p3_1"
+    },
+    {
+      "id": "risk-neutral-pricing-deep",
+      "topic_id": "arbitrage",
+      "topic_name": "无套利定价原理",
+      "depth": "进阶深度",
+      "breadth": "标准",
+      "texture": "G1",
+      "html_file": "risk_neutral_pricing_deep_dive.html",
+      "generated_at": "2026-05-14T00:00:00+08:00",
+      "belongs_to_plan": "derivatives-learning",
+      "belongs_to_phase": "p2",
+      "belongs_to_kp": "p2_1"
+    },
+    {
+      "id": "hedging-risk-deep",
+      "topic_id": "derivatives",
+      "topic_name": "对冲策略与风险管理",
+      "depth": "理解",
+      "breadth": "标准",
+      "texture": "G6",
+      "html_file": "deri/hedging_risk_management_deep.html",
+      "generated_at": "2026-05-14T00:00:00+08:00",
+      "belongs_to_plan": "derivatives-learning",
+      "belongs_to_phase": "p4",
+      "belongs_to_kp": "p4_3"
+    }
+  ]
+}

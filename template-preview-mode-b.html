@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>知识仪表盘模板预览 (Mode-B)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.160/build/three.min.js"></script>
+<style>
+:root{
+--bg-deep:#050a10;--bg-primary:#0a1018;--bg-card:#0d1520cc;
+--bg-elevated:#111b28cc;--bg-input:#141e2d;
+--text-primary:#e2e8f0;--text-secondary:#94a3b8;--text-muted:#64748b;
+--accent-blue:#60a5fa;--accent-cyan:#38bdf8;--accent-purple:#a78bfa;
+--accent-green:#34d399;--accent-orange:#fb923c;--accent-pink:#f472b6;
+--border-subtle:rgba(255,255,255,0.06);--border-glow:rgba(96,165,250,0.25);
+--shadow-sm:0 1px 3px rgba(0,0,0,0.3);--shadow-md:0 4px 12px rgba(0,0,0,0.4);
+--radius-sm:6px;--radius-md:10px;--radius-lg:16px;
+--transition-fast:0.15s ease;--transition-smooth:0.3s ease;
+--panel-bg:rgba(13,21,32,0.85);--glass-blur:12px;
+}
+body.light{
+--bg-deep:#f8fafc;--bg-primary:#ffffff;--bg-card:#ffffffcc;
+--bg-elevated:#f1f5f9cc;--bg-input:#e2e8f0;
+--text-primary:#0f172a;--text-secondary:#475569;--text-muted:#94a3b8;
+--accent-blue:#3b82f6;--accent-cyan:#06b6d4;--accent-purple:#8b5cf6;
+--accent-green:#10b981;--accent-orange:#f59e0b;--accent-pink:#ec4899;
+--border-subtle:rgba(0,0,0,0.08);--border-glow:rgba(59,130,246,0.25);
+--panel-bg:rgba(255,255,255,0.85);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter','Noto Sans SC',-apple-system,sans-serif;background:var(--bg-deep);color:var(--text-primary);line-height:1.7;overflow:hidden;height:100vh}
+body.loading{opacity:0}body.loaded{opacity:1;transition:opacity 0.4s ease}
+
+#bg-canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none}
+@media(prefers-reduced-motion:reduce){#bg-canvas{display:none}}
+
+.topbar{position:fixed;top:0;left:0;right:0;z-index:100;padding:12px 20px;display:flex;align-items:center;gap:16px;background:var(--panel-bg);backdrop-filter:blur(var(--glass-blur));-webkit-backdrop-filter:blur(var(--glass-blur));border-bottom:1px solid var(--border-subtle)}
+.topbar .brand{font-weight:800;font-size:1.1rem;color:var(--accent-purple);white-space:nowrap}
+.topbar .search-box{flex:1;max-width:480px;position:relative}
+.topbar .search-box input{width:100%;padding:8px 16px 8px 38px;border-radius:50px;border:1px solid var(--border-subtle);background:var(--bg-input);color:var(--text-primary);font-size:0.85rem;outline:none;transition:border-color var(--transition-fast)}
+.topbar .search-box input:focus{border-color:var(--border-glow)}
+.topbar .search-box .search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:0.9rem}
+.view-switcher{display:flex;gap:4px;background:var(--bg-input);border-radius:50px;padding:3px}
+.view-switcher button{padding:6px 16px;border:none;background:transparent;color:var(--text-muted);font-size:0.78rem;font-weight:600;border-radius:50px;cursor:pointer;transition:all var(--transition-fast)}
+.view-switcher button.active{background:var(--accent-blue);color:#fff}
+.topbar .theme-toggle{width:36px;height:36px;border-radius:50%;border:1px solid var(--border-subtle);background:var(--bg-card);color:var(--text-muted);cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;transition:all var(--transition-fast);flex-shrink:0}
+.topbar .theme-toggle:hover{border-color:var(--border-glow);color:var(--accent-cyan)}
+
+.tag-filter{position:fixed;left:0;top:60px;bottom:0;width:200px;z-index:50;background:var(--panel-bg);backdrop-filter:blur(var(--glass-blur));-webkit-backdrop-filter:blur(var(--glass-blur));border-right:1px solid var(--border-subtle);padding:16px 12px;overflow-y:auto}
+.tag-filter h3{font-size:0.75rem;font-weight:700;color:var(--text-muted);margin-bottom:12px;text-transform:uppercase;letter-spacing:1px}
+.tag-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:var(--radius-sm);cursor:pointer;font-size:0.78rem;color:var(--text-secondary);transition:all var(--transition-fast);margin-bottom:3px}
+.tag-item:hover{background:rgba(96,165,250,0.06)}
+.tag-item.active{background:rgba(96,165,250,0.1);color:var(--accent-blue);font-weight:600}
+.tag-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.tag-dot.purple{background:var(--accent-purple)}.tag-dot.cyan{background:var(--accent-cyan)}
+.tag-dot.red{background:var(--accent-pink)}.tag-dot.orange{background:var(--accent-orange)}
+.tag-count{font-size:0.65rem;color:var(--text-muted);margin-left:auto}
+
+.main-view{position:fixed;top:60px;left:200px;right:0;bottom:0;z-index:10;overflow:hidden}
+.graph-view{width:100%;height:100%}
+.graph-view svg{width:100%;height:100%}
+.node circle{stroke-width:2px;cursor:pointer;transition:r 0.2s ease}
+.node:hover circle{filter:brightness(1.3)}
+.node text{font-size:11px;font-family:'Inter','Noto Sans SC',sans-serif;pointer-events:none;fill:#94a3b8}
+.link{stroke:rgba(255,255,255,0.06);stroke-opacity:0.4}
+
+.grid-view{display:none;padding:24px;overflow-y:auto;height:100%}
+.grid-view.active{display:flex;flex-wrap:wrap;gap:16px;align-content:flex-start}
+.grid-card{width:calc(25% - 12px);min-width:250px;background:var(--panel-bg);backdrop-filter:blur(var(--glass-blur));-webkit-backdrop-filter:blur(var(--glass-blur));border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:20px;cursor:pointer;transition:all var(--transition-smooth)}
+.grid-card:hover{border-color:var(--border-glow);transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.grid-card .card-tag{display:inline-block;padding:2px 10px;border-radius:50px;font-size:0.65rem;font-weight:700;margin-bottom:8px}
+.grid-card .card-tag.purple{background:rgba(139,92,246,0.1);color:var(--accent-purple)}
+.grid-card .card-tag.cyan{background:rgba(56,189,248,0.1);color:var(--accent-cyan)}
+.grid-card .card-tag.red{background:rgba(244,114,182,0.1);color:var(--accent-pink)}
+.grid-card .card-tag.orange{background:rgba(251,146,60,0.1);color:var(--accent-orange)}
+.grid-card h4{font-size:0.9rem;font-weight:700;margin-bottom:6px}
+.grid-card p{font-size:0.75rem;color:var(--text-muted);line-height:1.5;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+
+.timeline-view{display:none;padding:40px 24px;overflow-y:auto;height:100%}
+.timeline-view.active{display:block}
+.timeline-item{position:relative;padding:20px 20px 20px 44px;margin-bottom:0;border-left:2px solid var(--border-subtle)}
+.timeline-item:last-child{border-left-color:transparent}
+.timeline-item::before{content:'';position:absolute;left:-6px;top:26px;width:10px;height:10px;border-radius:50%;background:var(--accent-purple)}
+.timeline-item .tl-year{font-size:0.7rem;font-weight:700;color:var(--accent-cyan);margin-bottom:4px}
+.timeline-item h4{font-size:0.95rem;font-weight:700;margin-bottom:4px}
+.timeline-item p{font-size:0.8rem;color:var(--text-muted)}
+
+.detail-panel{position:fixed;right:-520px;top:60px;bottom:0;width:500px;z-index:150;background:var(--panel-bg);backdrop-filter:blur(var(--glass-blur));-webkit-backdrop-filter:blur(var(--glass-blur));border-left:1px solid var(--border-subtle);transition:right var(--transition-smooth);overflow-y:auto;box-shadow:-4px 0 24px rgba(0,0,0,0.3)}
+.detail-panel.open{right:0}
+.detail-panel .panel-close{position:absolute;right:16px;top:16px;width:32px;height:32px;border-radius:50%;border:1px solid var(--border-subtle);background:var(--bg-card);color:var(--text-muted);cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;transition:all var(--transition-fast)}
+.detail-panel .panel-close:hover{border-color:var(--border-glow);color:var(--accent-cyan)}
+.detail-panel .panel-content{padding:32px 28px}
+.detail-panel .panel-tag{display:inline-block;padding:4px 12px;border-radius:50px;font-size:0.68rem;font-weight:700;margin-bottom:12px;background:rgba(139,92,246,0.1);color:var(--accent-purple)}
+.detail-panel h2{font-size:1.3rem;font-weight:800;margin-bottom:12px}
+.detail-panel .panel-hook{font-size:0.85rem;color:var(--accent-cyan);font-style:italic;margin-bottom:20px}
+.detail-panel .panel-body{font-size:0.88rem;color:var(--text-secondary);line-height:1.8}
+.detail-panel .panel-body p{margin-bottom:12px}
+.detail-panel .panel-body h3{color:var(--accent-purple);font-size:1rem;margin:18px 0 8px}
+.detail-panel .panel-body ul,.detail-panel .panel-body ol{margin:12px 0;padding-left:20px}
+.detail-panel .panel-body li{margin-bottom:6px}
+.detail-panel .panel-body strong{color:var(--text-primary)}
+.detail-panel .panel-body em{color:var(--accent-orange)}
+.detail-panel .formula-box{background:var(--bg-elevated);border:1px solid var(--border-glow);border-radius:var(--radius-md);padding:16px;margin:16px 0;overflow-x:auto;text-align:center}
+.detail-panel .key-takeaway{background:linear-gradient(135deg,rgba(251,191,36,0.08),rgba(251,191,36,0.02));border-left:4px solid var(--accent-orange);padding:12px 16px;border-radius:0 var(--radius-sm) var(--radius-sm) 0;margin-top:16px;font-size:0.82rem}
+
+.legend{position:fixed;bottom:20px;left:220px;display:flex;gap:16px;z-index:80;background:var(--panel-bg);backdrop-filter:blur(var(--glass-blur));-webkit-backdrop-filter:blur(var(--glass-blur));border:1px solid var(--border-subtle);padding:8px 16px;border-radius:50px}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:0.7rem;color:var(--text-muted)}
+.legend-dot{width:8px;height:8px;border-radius:50%}
+
+@media(max-width:900px){.tag-filter{display:none}.main-view{left:0}.legend{left:20px}.detail-panel{width:100%;right:-100%}}
+@media(max-width:600px){.grid-card{width:100%}.view-switcher button{padding:6px 10px;font-size:0.7rem}}
+</style>
+</head>
+<body class="loading dark">
+
+<canvas id="bg-canvas"></canvas>
+
+<!-- 顶部导航 -->
+<div class="topbar">
+  <span class="brand">📊 深度学习 · 知识仪表盘</span>
+  <div class="search-box">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="searchInput" placeholder="搜索模块..." oninput="filterModules()">
+  </div>
+  <div class="view-switcher">
+    <button class="active" data-view="graph" onclick="switchView('graph')">图谱</button>
+    <button data-view="grid" onclick="switchView('grid')">网格</button>
+    <button data-view="timeline" onclick="switchView('timeline')">时间线</button>
+  </div>
+  <button class="theme-toggle" onclick="toggleTheme()" title="切换主题">🌓</button>
+</div>
+
+<!-- 左侧标签筛选 -->
+<div class="tag-filter">
+  <h3>标签筛选</h3>
+  <div class="tag-item active" data-tag="all" onclick="filterByTag('all')">
+    <span class="tag-dot purple"></span> 全部 <span class="tag-count">8</span>
+  </div>
+  <div class="tag-item" data-tag="concept" onclick="filterByTag('concept')">
+    <span class="tag-dot purple"></span> 核心概念 <span class="tag-count">3</span>
+  </div>
+  <div class="tag-item" data-tag="application" onclick="filterByTag('application')">
+    <span class="tag-dot cyan"></span> 实践应用 <span class="tag-count">2</span>
+  </div>
+  <div class="tag-item" data-tag="risk" onclick="filterByTag('risk')">
+    <span class="tag-dot red"></span> 风险挑战 <span class="tag-count">1</span>
+  </div>
+  <div class="tag-item" data-tag="frontier" onclick="filterByTag('frontier')">
+    <span class="tag-dot orange"></span> 前沿探索 <span class="tag-count">2</span>
+  </div>
+</div>
+
+<!-- 主视图 -->
+<div class="main-view">
+  <div class="graph-view active" id="graphView">
+    <svg id="graphSvg"></svg>
+    <div class="legend">
+      <div class="legend-item"><span class="legend-dot" style="background:var(--accent-purple)"></span>核心概念</div>
+      <div class="legend-item"><span class="legend-dot" style="background:var(--accent-cyan)"></span>实践应用</div>
+      <div class="legend-item"><span class="legend-dot" style="background:var(--accent-pink)"></span>风险挑战</div>
+      <div class="legend-item"><span class="legend-dot" style="background:var(--accent-orange)"></span>前沿探索</div>
+    </div>
+  </div>
+
+  <div class="grid-view" id="gridView">
+    <div class="grid-card" data-tag="concept" data-search="反向传播 梯度 链式法则" onclick="openModule('backprop')">
+      <span class="card-tag purple">核心概念</span>
+      <h4>反向传播算法</h4>
+      <p>通过链式法则将输出误差反向传递给网络各层，深度神经网络训练的核心数学机制。</p>
+    </div>
+    <div class="grid-card" data-tag="concept" data-search="梯度下降 优化器 Adam SGD" onclick="openModule('optimization')">
+      <span class="card-tag purple">核心概念</span>
+      <h4>优化算法家族</h4>
+      <p>从SGD到AdamW，不同的优化器如何影响模型的收敛速度和最终性能。</p>
+    </div>
+    <div class="grid-card" data-tag="concept" data-search="注意力机制 Transformer Self-Attention" onclick="openModule('attention')">
+      <span class="card-tag purple">核心概念</span>
+      <h4>注意力机制</h4>
+      <p>让模型学会"关注"输入中最重要的部分，Transformer架构的核心创新。</p>
+    </div>
+    <div class="grid-card" data-tag="application" data-search="计算机视觉 CNN 图像识别" onclick="openModule('cv')">
+      <span class="card-tag cyan">实践应用</span>
+      <h4>计算机视觉</h4>
+      <p>从AlexNet到Vision Transformer，图像理解技术的演进与应用场景。</p>
+    </div>
+    <div class="grid-card" data-tag="application" data-search="自然语言处理 NLP GPT BERT" onclick="openModule('nlp')">
+      <span class="card-tag cyan">实践应用</span>
+      <h4>自然语言处理</h4>
+      <p>大语言模型如何改变了机器理解和生成语言的方式。</p>
+    </div>
+    <div class="grid-card" data-tag="risk" data-search="过拟合 泛化 偏差方差" onclick="openModule('overfitting')">
+      <span class="card-tag red">风险挑战</span>
+      <h4>过拟合与泛化</h4>
+      <p>模型在训练集表现完美却在测试集崩溃——深度学习的核心陷阱。</p>
+    </div>
+    <div class="grid-card" data-tag="frontier" data-search="多模态 CLIP 文生图" onclick="openModule('multimodal')">
+      <span class="card-tag orange">前沿探索</span>
+      <h4>多模态学习</h4>
+      <p>让AI同时理解文本、图像、音频，实现真正的跨模态推理。</p>
+    </div>
+    <div class="grid-card" data-tag="frontier" data-search="对齐 RLHF 安全" onclick="openModule('alignment')">
+      <span class="card-tag orange">前沿探索</span>
+      <h4>AI对齐与安全</h4>
+      <p>如何让强大AI模型的价值观和行为与人类意图保持一致。</p>
+    </div>
+  </div>
+
+  <div class="timeline-view" id="timelineView">
+    <div class="timeline-item"><div class="tl-year">2012</div><h4>AlexNet 赢得 ImageNet</h4><p>深度学习在计算机视觉领域的首次重大突破，开启 CNN 时代</p></div>
+    <div class="timeline-item"><div class="tl-year">2014</div><h4>GAN（生成对抗网络）</h4><p>Ian Goodfellow 提出生成对抗网络，开创生成式AI新范式</p></div>
+    <div class="timeline-item"><div class="tl-year">2015</div><h4>ResNet 残差网络</h4><p>何恺明团队提出残差学习，让152层网络变得可行</p></div>
+    <div class="timeline-item"><div class="tl-year">2017</div><h4>Transformer 架构</h4><p>"Attention Is All You Need" 彻底重塑NLP与序列建模</p></div>
+    <div class="timeline-item"><div class="tl-year">2018</div><h4>BERT 预训练模型</h4><p>双向预训练 + 微调范式，NLP的ImageNet时刻</p></div>
+    <div class="timeline-item"><div class="tl-year">2020</div><h4>GPT-3 少样本学习</h4><p>1750亿参数模型展现令人惊叹的少样本和零样本能力</p></div>
+    <div class="timeline-item"><div class="tl-year">2022</div><h4>ChatGPT 发布</h4><p>RLHF技术让大语言模型成为可用的对话助手，引爆AI浪潮</p></div>
+    <div class="timeline-item"><div class="tl-year">2024</div><h4>多模态+Agent</h4><p>AI从单一模态走向多模态融合，从对话走向自主行动</p></div>
+  </div>
+</div>
+
+<!-- 详情面板 -->
+<div class="detail-panel" id="detailPanel">
+  <button class="panel-close" onclick="closePanel()">✕</button>
+  <div class="panel-content" id="panelContent"></div>
+</div>
+
+<script>
+function toggleTheme(){ document.body.classList.toggle('light'); document.body.classList.toggle('dark'); }
+
+var currentView='graph', activeTag='all';
+
+function switchView(v){
+  currentView=v;
+  document.querySelectorAll('.view-switcher button').forEach(function(b){b.classList.toggle('active',b.dataset.view===v);});
+  ['graph','grid','timeline'].forEach(function(k){
+    var el=document.getElementById(k+'View');if(el)el.style.display=(k===v)?(k==='grid'?'flex':'block'):'none';
+  });
+}
+
+function filterModules(){
+  var q=(document.getElementById('searchInput').value||'').toLowerCase();
+  if(currentView==='graph'){
+    d3.selectAll('.node').each(function(d){
+      var m=!q||d.label.toLowerCase().includes(q)||(d.description||'').toLowerCase().includes(q);
+      d3.select(this).style('opacity',m?1:0.15);
+    });
+    d3.selectAll('.link').each(function(d){
+      var m=!q||(d.source.label||'').toLowerCase().includes(q)||(d.target.label||'').toLowerCase().includes(q);
+      d3.select(this).style('opacity',m?0.4:0.05);
+    });
+  }else if(currentView==='grid'){
+    document.querySelectorAll('.grid-card').forEach(function(c){
+      var m=!q||(c.dataset.search||'').toLowerCase().includes(q);
+      c.style.display=m?'':'none';
+    });
+  }
+}
+
+function filterByTag(t){
+  activeTag=t;
+  document.querySelectorAll('.tag-item').forEach(function(e){e.classList.toggle('active',e.dataset.tag===t);});
+  var q=(document.getElementById('searchInput').value||'').toLowerCase();
+  if(currentView==='graph'){
+    d3.selectAll('.node').each(function(d){
+      var tm=t==='all'||d.tag===t, sm=!q||d.label.toLowerCase().includes(q);
+      d3.select(this).style('opacity',(tm&&sm)?1:0.15);
+    });
+  }else if(currentView==='grid'){
+    document.querySelectorAll('.grid-card').forEach(function(c){
+      var tm=t==='all'||c.dataset.tag===t, sm=!q||(c.dataset.search||'').toLowerCase().includes(q);
+      c.style.display=(tm&&sm)?'':'none';
+    });
+  }
+}
+
+var MODULES={
+  backprop:{tag:'核心概念',title:'反向传播算法',hook:'"让机器学会\'从错误中学习\'——这是深度学习的灵魂"',content:'<h3>核心思想</h3><p>反向传播通过<strong>链式法则</strong>将输出层的误差逐层反向传递到网络的每一层，计算每个参数对最终误差的贡献（梯度），然后沿梯度的<em>负方向</em>更新参数。</p><h3>关键公式</h3><div class="formula-box">$$\\frac{\\partial L}{\\partial w} = \\frac{\\partial L}{\\partial a} \\cdot \\frac{\\partial a}{\\partial z} \\cdot \\frac{\\partial z}{\\partial w}$$</div><p>这个看似简单的公式，使得训练<strong>任意深度</strong>的神经网络成为可能。在反向传播被广泛应用之前，多层网络的学习问题被认为是极其困难的。</p>',keyTakeaway:'反向传播是连接"浅层学习"与"深度学习"的关键算法桥梁，其数学本质是链式法则的高效实现。'},
+  optimization:{tag:'核心概念',title:'优化算法家族',hook:'SGD、Momentum、Adam、AdamW...选错优化器可能让你的模型收敛慢10倍',content:'<h3>从SGD到AdamW</h3><p>优化算法的演进反映了研究者对训练动力学的逐步理解：</p><ul><li><strong>SGD</strong>：最基础的随机梯度下降，收敛慢但泛化好</li><li><strong>Momentum</strong>：引入动量项，加速收敛、减少震荡</li><li><strong>Adam</strong>：自适应学习率，结合动量和RMSProp的优点</li><li><strong>AdamW</strong>：修正了Adam的权重衰减bug，目前最广泛使用的优化器</li></ul><p>最新研究表明，<em>AdamW配合Cosine学习率衰减</em>是大模型训练的事实标准。</p>',keyTakeaway:'优化器的选择直接影响训练效率和最终模型质量。不同任务可能需要不同的优化器配置。'},
+  attention:{tag:'核心概念',title:'注意力机制',hook:'"Attention Is All You Need"——七个字改变了AI的历史进程',content:'<h3>Self-Attention 的直觉</h3><p>传统的RNN逐个处理序列元素，而Self-Attention<strong>一次性考虑所有元素之间的关系</strong>。每个位置都会计算与所有其他位置的"注意力权重"——即当前元素应该"关注"其他元素的程度。</p><div class="formula-box">$$Attention(Q,K,V) = softmax\\left(\\frac{QK^T}{\\sqrt{d_k}}\\right)V$$</div><p>$Q$（Query）、$K$（Key）、$V$（Value）通过线性变换从输入获得。除以 $\\sqrt{d_k}$ 是为了防止点积过大导致softmax梯度消失。</p>',keyTakeaway:'注意力机制让每个Token都能直接获取全局上下文信息，解决了RNN的长程依赖问题。'},
+  cv:{tag:'实践应用',title:'计算机视觉',hook:'从猫狗分类到自动驾驶，卷积神经网络如何让机器"看见"世界',content:'<h3>视觉技术的发展</h3><p>计算机视觉经历了从手工特征（SIFT/HOG）到深度学习（CNN）再到Transformer的范式转变。关键里程碑包括：</p><ul><li><strong>2012 AlexNet</strong>：首次用GPU训练深度CNN，ImageNet错误率从26%降至15%</li><li><strong>2015 ResNet</strong>：残差连接让152层网络成为可能</li><li><strong>2020 ViT</strong>：用纯Transformer架构处理图像，打破CNN垄断</li><li><strong>2023 SAM</strong>：Meta推出的分割一切模型</li></ul>',keyTakeaway:'计算机视觉是深度学习最早取得突破性进展的领域，其方法正在从CNN转向Transformer。'},
+  nlp:{tag:'实践应用',title:'自然语言处理',hook:'GPT重塑了人机交互——我们不再需要学习"编程语言"，而是用自然语言和AI对话',content:'<h3>大语言模型革命</h3><p>自然语言处理领域经历了从<strong>专用模型到通用模型的范式转移</strong>。BERT学会了双向理解，GPT学会了单向生成。而GPT-3及后续模型证明：只要规模足够大，<em>涌现</em>出少样本学习、推理、代码生成等能力。</p><p>关键洞察：预训练提供"世界知识"，微调提供"任务能力"，RLHF提供"对齐"。</p>',keyTakeaway:'LLM标志着NLP从"为每个任务训练专用模型"转向"一个模型解决所有任务"的范式变革。'},
+  overfitting:{tag:'风险挑战',title:'过拟合与泛化',hook:'训练准确率99%，测试准确率60%——深度学习最经典的教训',content:'<h3>恶魔在细节里</h3><p>过拟合是深度学习模型最常见的陷阱。当模型过强地记忆了训练数据的<em>噪声而非信号</em>时，泛化能力急剧下降。防治策略：</p><ul><li><strong>Dropout</strong>：随机丢弃神经元，强制学习冗余表征</li><li><strong>数据增强</strong>：增加训练数据的多样性</li><li><strong>早停(Early Stopping)</strong>：监控验证集loss，在开始上升前停止训练</li><li><strong>权重正则化</strong>：L1/L2正则化限制参数规模</li></ul>',keyTakeaway:'过拟合是深度学习的阿喀琉斯之踵。好的模型不在于训练集上多完美，而在于新数据上多稳健。'},
+  multimodal:{tag:'前沿探索',title:'多模态学习',hook:'未来的AI不是"看"或"听"，而是像人类一样，同时理解所有感官信息',content:'<h3>跨模态融合</h3><p>多模态学习旨在让AI<strong>同时处理和理解多种类型的数据</strong>：文本、图像、音频、视频、3D、传感器数据等。代表模型：</p><ul><li><strong>CLIP</strong>：将文本和图像映射到统一语义空间</li><li><strong>GPT-4V</strong>：原生支持图像理解和生成</li><li><strong>Sora</strong>：文本到视频生成的里程碑</li></ul><p>核心挑战：如何在不同模态之间建立<em>语义对齐</em>——"猫"这个词和猫的图片指向同一概念。</p>',keyTakeaway:'多模态是实现AGI的关键路径之一。世界是多模态的，AI的感知也应当是多模态的。'},
+  alignment:{tag:'前沿探索',title:'AI对齐与安全',hook:'当AI比人类更聪明时，我们如何确保它做我们想让它做的事？',content:'<h3>对齐问题</h3><p>AI对齐（Alignment）研究如何让AI系统的<strong>目标与人类价值观一致</strong>。当前主要方法包括：</p><ul><li><strong>RLHF</strong>（基于人类反馈的强化学习）：让人类标注偏好来训练奖励模型，指导AI行为</li><li><strong>Constitutional AI</strong>：让AI遵循一套"宪法"规则自我修正</li><li><strong>红队测试</strong>：专门团队尝试诱导AI做出有害行为，发现漏洞</li></ul><p>这是通往<em>安全AGI</em>的关键前提。</p>',keyTakeaway:'AI对齐不是技术难题，而是生存问题——特别是在超级智能即将到来的时代。'}
+};
+
+var GRAPH_DATA={
+  nodes:[
+    {id:'backprop',label:'反向传播',tag:'concept',size:2.5,description:'深度学习的核心训练算法'},
+    {id:'optimization',label:'优化算法',tag:'concept',size:2,description:'SGD到AdamW的演进'},
+    {id:'attention',label:'注意力机制',tag:'concept',size:3,description:'Transformer的核心创新'},
+    {id:'cv',label:'计算机视觉',tag:'application',size:2.5,description:'让机器看见世界'},
+    {id:'nlp',label:'自然语言处理',tag:'application',size:3,description:'大语言模型革命'},
+    {id:'overfitting',label:'过拟合',tag:'risk',size:1.5,description:'深度学习的核心陷阱'},
+    {id:'multimodal',label:'多模态',tag:'frontier',size:2,description:'跨模态AI'},
+    {id:'alignment',label:'AI对齐',tag:'frontier',size:2,description:'价值观对齐'}
+  ],
+  links:[
+    {source:'backprop',target:'optimization'},{source:'backprop',target:'attention'},
+    {source:'attention',target:'nlp'},{source:'attention',target:'cv'},
+    {source:'attention',target:'multimodal'},{source:'optimization',target:'overfitting'},
+    {source:'nlp',target:'multimodal'},{source:'cv',target:'multimodal'},
+    {source:'nlp',target:'alignment'},{source:'multimodal',target:'alignment'}
+  ]
+};
+
+function openModule(id){
+  var m=MODULES[id];if(!m)return;
+  var h='<span class="panel-tag">'+m.tag+'</span><h2>'+m.title+'</h2><p class="panel-hook">'+m.hook+'</p><div class="panel-body">'+m.content+'</div>';
+  if(m.keyTakeaway)h+='<div class="key-takeaway"><strong>核心要点：</strong>'+m.keyTakeaway+'</div>';
+  document.getElementById('panelContent').innerHTML=h;
+  document.getElementById('detailPanel').classList.add('open');
+  setTimeout(function(){if(typeof renderMathInElement==='function')renderMathInElement(document.getElementById('panelContent'),{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});},100);
+}
+
+function closePanel(){document.getElementById('detailPanel').classList.remove('open');}
+
+function renderGraph(){
+  var svg=document.getElementById('graphSvg');if(!svg)return;
+  var W=svg.clientWidth||window.innerWidth-200, H=svg.clientHeight||window.innerHeight-60;
+  svg.setAttribute('viewBox',[0,0,W,H].join(' '));
+  var s=d3.select('#graphSvg');
+  s.selectAll('*').remove();
+  var g=s.append('g'), zoom=d3.zoom().scaleExtent([0.3,3]).on('zoom',function(e){g.attr('transform',e.transform);});
+  s.call(zoom);
+  var ns=GRAPH_DATA.nodes.map(function(n){return Object.assign({},n);});
+  var ls=GRAPH_DATA.links.map(function(l){return Object.assign({},l);});
+  var sim=d3.forceSimulation(ns).force('link',d3.forceLink(ls).id(function(d){return d.id;}).distance(140)).force('charge',d3.forceManyBody().strength(-500)).force('center',d3.forceCenter(W/2,H/2)).force('collision',d3.forceCollide().radius(45));
+  var link=g.append('g').selectAll('line').data(ls).join('line').attr('class','link').attr('stroke-width',1.5);
+  var node=g.append('g').selectAll('g').data(ns).join('g').attr('class','node').style('cursor','pointer').on('click',function(e,d){openModule(d.id);});
+  var cmap={concept:'#a78bfa',application:'#38bdf8',risk:'#f472b6',frontier:'#fb923c'};
+  node.append('circle').attr('r',function(d){return(d.size||1)*12+6;}).attr('fill',function(d){return cmap[d.tag]||'#60a5fa';}).attr('fill-opacity',0.85).attr('stroke',function(d){return cmap[d.tag]||'#60a5fa';}).attr('stroke-opacity',0.3).call(d3.drag().on('start',function(e,d){if(!e.active)sim.alphaTarget(0.3).restart();d.fx=d.x;d.fy=d.y;}).on('drag',function(e,d){d.fx=e.x;d.fy=e.y;}).on('end',function(e,d){if(!e.active)sim.alphaTarget(0);d.fx=null;d.fy=null;}));
+  node.append('text').text(function(d){return d.label;}).attr('dy',function(d){return((d.size||1)*12+6)+14;}).attr('text-anchor','middle').attr('font-size','11px').attr('fill','#94a3b8').attr('font-family',"'Inter','Noto Sans SC',sans-serif");
+  sim.on('tick',function(){link.attr('x1',function(d){return d.source.x;}).attr('y1',function(d){return d.source.y;}).attr('x2',function(d){return d.target.x;}).attr('y2',function(d){return d.target.y;});node.attr('transform',function(d){return'translate('+d.x+','+d.y+')';});});
+  s.call(zoom.transform,d3.zoomIdentity.translate(W/2,H/2).scale(0.7).translate(-W/2,-H/2));
+}
+
+function initBg(){
+  try{
+    var c=document.getElementById('bg-canvas');if(!c)return;
+    var r=new THREE.WebGLRenderer({canvas:c,alpha:true,antialias:false});
+    r.setPixelRatio(Math.min(window.devicePixelRatio,1.5));r.setSize(window.innerWidth,window.innerHeight);
+    var sc=new THREE.Scene(),ca=new THREE.PerspectiveCamera(60,window.innerWidth/window.innerHeight,1,1000);
+    ca.position.z=120;
+    var pg=new THREE.BufferGeometry(),cnt=window.innerWidth<768?200:500;
+    var pos=new Float32Array(cnt*3);
+    for(var i=0;i<cnt*3;i+=3){pos[i]=(Math.random()-0.5)*400;pos[i+1]=(Math.random()-0.5)*400;pos[i+2]=(Math.random()-0.5)*100;}
+    pg.setAttribute('position',new THREE.BufferAttribute(pos,3));
+    var pm=new THREE.PointsMaterial({color:0x8b5cf6,size:0.8,transparent:true,opacity:0.4,blending:THREE.AdditiveBlending,depthWrite:false});
+    var ps=new THREE.Points(pg,pm);sc.add(ps);
+    (function a(){requestAnimationFrame(a);ps.rotation.y+=0.0003;ps.rotation.x+=0.0001;r.render(sc,ca);})();
+    window.addEventListener('resize',function(){r.setSize(window.innerWidth,window.innerHeight);ca.aspect=window.innerWidth/window.innerHeight;ca.updateProjectionMatrix();});
+  }catch(e){var cc=document.getElementById('bg-canvas');if(cc)cc.style.display='none';}
+}
+
+document.addEventListener('DOMContentLoaded',function(){
+  document.body.classList.remove('loading');document.body.classList.add('loaded');
+  renderGraph();
+  if(typeof THREE!=='undefined')initBg();
+});
+</script>
+</body>
+</html>

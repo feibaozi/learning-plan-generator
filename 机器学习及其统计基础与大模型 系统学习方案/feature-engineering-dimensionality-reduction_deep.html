@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>特征工程与降维 - 深度研读</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<style>
+:root {
+  --bg: #ffffff; --bg-secondary: #f8fafc; --bg-tertiary: #f1f5f9;
+  --text: #0f172a; --text-secondary: #475569; --text-tertiary: #94a3b8;
+  --border: #e2e8f0; --primary: #6366f1; --primary-light: #eef2ff;
+  --accent: #8b5cf6; --accent-light: #f5f3ff; --cyan: #22d3ee; --cyan-light: #ecfeff;
+  --orange: #f59e0b; --orange-light: #fffbeb; --green: #10b981; --green-light: #ecfdf5;
+  --red: #ef4444; --red-light: #fef2f2; --pink: #ec4899; --pink-light: #fdf2f8;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05); --shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1); --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
+  --radius: 12px; --radius-sm: 8px; --max-width: 780px; --sidebar-width: 240px;
+  --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+[data-theme="dark"] {
+  --bg: #0f172a; --bg-secondary: #1e293b; --bg-tertiary: #334155;
+  --text: #f1f5f9; --text-secondary: #94a3b8; --text-tertiary: #64748b;
+  --border: #334155; --primary: #818cf8; --primary-light: rgba(99,102,241,0.15);
+  --accent: #a78bfa; --accent-light: rgba(139,92,246,0.15); --cyan: #67e8f9; --cyan-light: rgba(34,211,238,0.1);
+  --orange: #fbbf24; --orange-light: rgba(245,158,11,0.1); --green: #34d399; --green-light: rgba(16,185,129,0.1);
+  --red: #f87171; --red-light: rgba(239,68,68,0.1); --pink: #f472b6; --pink-light: rgba(236,72,153,0.1);
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.3); --shadow: 0 1px 3px rgba(0,0,0,0.4);
+  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.4); --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.4);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Inter','Noto Sans SC',-apple-system,sans-serif; background: var(--bg); color: var(--text);
+  line-height: 1.7; -webkit-font-smoothing: antialiased; transition: background var(--transition), color var(--transition);
+}
+body.loading{opacity:0}body.loaded{opacity:1;transition:opacity 0.4s ease}
+#progress-bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--primary),var(--accent),var(--cyan));z-index:1000;transition:width 0.1s linear}
+#theme-toggle{position:fixed;top:20px;right:20px;z-index:999;width:40px;height:40px;border-radius:50%;background:var(--bg-secondary);border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;transition:all var(--transition);box-shadow:var(--shadow-sm)}
+#theme-toggle:hover{transform:scale(1.1);box-shadow:var(--shadow)}
+#sidebar{position:fixed;top:0;left:0;width:var(--sidebar-width);height:100vh;background:var(--bg-secondary);border-right:1px solid var(--border);padding:80px 16px 24px;overflow-y:auto;z-index:100;transition:transform var(--transition)}
+#sidebar h3{font-size:11px;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-tertiary);margin-bottom:12px;font-weight:600}
+.sidebar-link{display:block;padding:6px 12px;margin:2px 0;border-radius:var(--radius-sm);font-size:13px;color:var(--text-secondary);text-decoration:none;transition:all var(--transition);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sidebar-link:hover{background:var(--bg-tertiary);color:var(--text)}
+.sidebar-link.active{background:var(--primary-light);color:var(--primary);font-weight:600}
+#main-content{margin-left:var(--sidebar-width);max-width:var(--max-width);padding:60px 32px 120px;margin-right:auto}
+.meta-card{background:linear-gradient(135deg,var(--primary-light),var(--accent-light));border:1px solid var(--border);border-radius:var(--radius);padding:28px 32px;margin-bottom:48px;display:flex;flex-wrap:wrap;gap:24px;align-items:center}
+.meta-card .meta-item{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--text-secondary)}
+.meta-card .meta-item .icon{font-size:20px}
+.meta-card .meta-item strong{color:var(--text)}
+.meta-badge{display:inline-block;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;letter-spacing:0.02em}
+.meta-badge.domain-ai{background:var(--accent-light);color:var(--accent)}
+.meta-badge.level-intermediate{background:var(--orange-light);color:var(--orange)}
+.module-section{margin-bottom:56px;opacity:0;transform:translateY(24px);transition:opacity 0.6s ease,transform 0.6s ease}
+.module-section.visible{opacity:1;transform:translateY(0)}
+.module-header{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.module-tag{display:inline-block;padding:3px 10px;border-radius:6px;font-size:11px;font-weight:600;letter-spacing:0.03em;text-transform:uppercase}
+.tag-core{background:var(--primary-light);color:var(--primary)}
+.tag-tools{background:var(--accent-light);color:var(--accent)}
+.tag-evolution{background:var(--cyan-light);color:#0891b2}
+.tag-application{background:var(--green-light);color:var(--green)}
+.tag-risk{background:var(--red-light);color:var(--red)}
+.tag-frontier{background:var(--orange-light);color:var(--orange)}
+.module-title{font-size:22px;font-weight:700;color:var(--text);letter-spacing:-0.02em}
+.module-hook{font-size:16px;color:var(--text-secondary);font-style:italic;border-left:3px solid var(--primary);padding-left:16px;margin-bottom:20px}
+.module-content{font-size:15px;color:var(--text)}
+.module-content p{margin-bottom:12px}
+.module-content strong{color:var(--text)}
+.module-content ul,.module-content ol{margin:8px 0 16px 24px}
+.module-content li{margin-bottom:6px}
+.formula-block{background:var(--bg-tertiary);border:1px solid var(--border);border-radius:var(--radius-sm);padding:20px 24px;margin:16px 0;position:relative;cursor:pointer;transition:all var(--transition)}
+.formula-block:hover{box-shadow:var(--shadow)}
+.formula-caption{font-size:12px;color:var(--text-tertiary);margin-top:8px;text-align:center}
+.formula-derivation{display:none;margin-top:16px;padding-top:16px;border-top:1px solid var(--border);font-size:14px;color:var(--text-secondary)}
+.formula-block.expanded .formula-derivation{display:block}
+.formula-expand-hint{font-size:11px;color:var(--text-tertiary);text-align:right;margin-top:4px}
+.chart-container{background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin:20px 0}
+.chart-wrapper{width:100%;height:380px}
+.chart-caption{font-size:13px;color:var(--text-secondary);text-align:center;margin-top:12px}
+.chart-source{font-size:11px;color:var(--text-tertiary);text-align:right;margin-top:4px}
+.module-table{width:100%;border-collapse:collapse;margin:16px 0;font-size:14px;border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden}
+.module-table th{background:var(--bg-tertiary);padding:10px 16px;text-align:left;font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:0.03em;color:var(--text-secondary)}
+.module-table td{padding:10px 16px;border-top:1px solid var(--border);color:var(--text)}
+.module-table tr:hover td{background:var(--bg-tertiary)}
+.table-caption{font-size:12px;color:var(--text-tertiary);text-align:center;margin-top:8px}
+.module-references{margin-top:20px;padding-top:16px;border-top:1px solid var(--border);font-size:12px;color:var(--text-tertiary)}
+.module-references h4{font-size:12px;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px}
+.module-references ol{margin-left:20px}
+.module-references li{margin-bottom:4px}
+.key-takeaway{margin-top:16px;padding:14px 20px;border-radius:var(--radius-sm);background:var(--primary-light);border-left:4px solid var(--primary);font-size:14px;font-weight:500;color:var(--text)}
+#page-footer{margin-top:60px;padding:32px 0;border-top:1px solid var(--border);display:flex;gap:12px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:var(--radius-sm);font-size:14px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:var(--bg);color:var(--text);transition:all var(--transition);text-decoration:none}
+.btn:hover{background:var(--bg-tertiary)}
+.btn.primary{background:var(--primary);color:#fff;border-color:var(--primary)}
+.btn.primary:hover{filter:brightness(1.1)}
+#sidebar-toggle{display:none;position:fixed;top:16px;left:16px;z-index:999;width:40px;height:40px;border-radius:50%;background:var(--bg-secondary);border:1px solid var(--border);cursor:pointer;font-size:18px;align-items:center;justify-content:center;box-shadow:var(--shadow-sm)}
+@media(max-width:1024px){:root{--sidebar-width:200px}#main-content{padding:48px 24px 80px}}
+@media(max-width:768px){#sidebar-toggle{display:flex}#sidebar{transform:translateX(-100%)}#sidebar.open{transform:translateX(0)}#main-content{margin-left:0;padding:72px 20px 60px}#theme-toggle{top:16px;right:16px}.meta-card{padding:20px 24px;flex-direction:column;gap:12px;align-items:flex-start}.chart-wrapper{height:280px}.module-title{font-size:19px}}
+@media print{#sidebar,#progress-bar,#theme-toggle,#page-footer{display:none!important}#main-content{margin-left:0;max-width:100%;padding:0}.module-section{opacity:1;transform:none;break-inside:avoid}body{font-size:12px;line-height:1.5}}
+#bg-canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none}
+</style>
+</head>
+<body class="loading">
+<canvas id="bg-canvas"></canvas>
+<div id="progress-bar"></div>
+<button id="theme-toggle" title="切换深色/浅色模式" onclick="toggleTheme()">🌓</button>
+<button id="sidebar-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+
+<div class="integration-navbar" style="display:flex;align-items:center;gap:12px;padding:10px 24px;background:var(--bg-card,var(--bg-secondary));border-bottom:1px solid var(--border);font-size:14px;position:sticky;top:0;z-index:50;">
+  <a href="#" onclick="goBack();return false;" style="color:var(--primary);text-decoration:none;font-weight:600;">← 返回 机器学习及其统计基础与大模型 系统学习方案</a>
+  <span style="color:var(--text-tertiary);">|</span>
+  <span style="color:var(--text-secondary);">第4/5阶段 · ML工程实践</span>
+</div>
+
+<nav id="sidebar">
+  <a href="#" onclick="goBack();return false;" class="sidebar-back-link" style="display:block;padding:8px 12px;margin-bottom:12px;border-radius:8px;background:var(--bg-tertiary);color:var(--primary);text-decoration:none;font-size:13px;font-weight:600;">← 返回主方案</a>
+  <h3>📑 内容导航</h3>
+  <div id="sidebar-links"></div>
+</nav>
+
+<main id="main-content">
+  <div id="meta-card-container"></div>
+  <div id="modules-container"></div>
+  <footer id="page-footer">
+    <button class="btn primary" onclick="window.print()">📥 导出 PDF</button>
+    <button class="btn" onclick="exportNotes()">📄 导出笔记</button>
+    <button class="btn" onclick="window.print()">🖨 打印</button>
+  </footer>
+</main>
+
+<div class="back-btn" style="position:fixed;right:24px;bottom:24px;z-index:200;">
+  <button onclick="goBack()" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:white;border:none;border-radius:24px;padding:12px 24px;font-size:0.85rem;font-weight:600;cursor:pointer;box-shadow:0 4px 12px rgba(99,102,241,0.3);">
+    ← 返回学习方案
+  </button>
+</div>
+
+<script>
+var DEEP_DIVE_KP_ID = 'p4_1';
+function goBack() {
+  var MAIN_PAGE = 'ml_learning.html';
+  var WIN_NAME = '_ml_llm_main';
+  var CH_KEY = '_ml_llm_nav';
+  localStorage.setItem(CH_KEY, JSON.stringify({kpId: DEEP_DIVE_KP_ID, ts: Date.now()}));
+  var mainWin = window.open(MAIN_PAGE, WIN_NAME);
+  if (mainWin) { mainWin.focus(); }
+}
+
+var PAGE_DATA = {
+  topic: "特征工程与降维",
+  domain: "ai-tech",
+  domain_name: "AI与科技",
+  level: "intermediate",
+  level_name: "进阶",
+  reading_time: "35",
+  module_count: "19",
+  texture: "G5",
+  texture_name: "全面平衡型",
+  depth: "理解",
+  breadth: "标准",
+  modules: [
+    {
+      module_id: "background",
+      module_title: "背景与缘起",
+      module_tag: "核心概念",
+      hook: "在Kaggle竞赛中流传着一句话：'数据决定了模型的上限，特征工程决定了你离这个上限有多近。'——这不是夸大其词，而是百万级参赛者用真金白银换来的经验。",
+      content: "**特征工程（Feature Engineering）** 的起源可以追溯到机器学习诞生之初。在深度学习崛起之前，传统机器学习模型（如线性回归、SVM、决策树）的性能极度依赖输入特征的质量。一个经典的例子是：同样的原始数据，经过精心构造的特征可以让一个简单线性模型的 AUC 从 0.65 提升到 0.85，而换一个复杂模型却几乎没有额外增益。\n\n**降维（Dimensionality Reduction）** 则源于"维度诅咒（Curse of Dimensionality）"——当特征维度过高时，数据点在高维空间中变得稀疏，距离度量失效，模型复杂度爆炸。Bellman 在 1957 年首次系统论述了这一现象。PCA（主成分分析）由 Karl Pearson 于 1901 年提出，是历史上最经典的线性降维方法；t-SNE 和 UMAP 则分别于 2008 年和 2018 年问世，开启了非线性流形降维的可视化时代。\n\n在今天的大模型时代，特征工程从"手工构造"演变为"自动学习+精细调优"的混合模式。但理解其底层原理，依然是 ML 工程师的核心素养。",
+      formulas: [
+        {latex: "$$\\text{Curse of Dimensionality}: \\lim_{d\\to\\infty} \\frac{\\operatorname{Vol}(\\text{shell})}{\\operatorname{Vol}(\\text{sphere})} = 1$$", caption: "维度诅咒：高维球体积几乎全集中在表面薄壳中", expandable: true, derivation: "在d维空间中，半径为r的球体积正比于 r^d。当d很大时，球壳(r-ε)到r之间的体积几乎等于整个球的体积，这意味着均匀分布在球内的点几乎都位于表面附近，点与点之间的距离变得趋同，最近邻和"最远邻"的区分性消失。"}
+      ],
+      key_takeaway: "数据决定了上限，特征工程拉近你与上限的距离；降维是对抗维度诅咒的经典武器。"
+    },
+    {
+      module_id: "concept",
+      module_title: "核心概念",
+      module_tag: "核心概念",
+      hook: "如果把数据集比作一块未经雕琢的玉石，特征工程就是雕刻刀——你用什么角度切割、保留哪些纹理、打磨到多细，直接决定了最终呈现的价值。",
+      content: "**特征工程**包含三大子任务：\n\n**1. 特征选择（Feature Selection）**：从原始特征集中筛选出最有信息量的子集。分为三类：\n- **过滤法（Filter）**：基于统计指标（方差、相关系数、互信息）独立评估每个特征，与模型无关，速度快但忽略特征间交互\n- **包裹法（Wrapper）**：用目标模型的性能作为评估准则（如递归特征消除 RFE），计算开销大但考虑了特征交互\n- **嵌入法（Embedded）**：在模型训练过程中自动完成选择（如 Lasso 的 L1 正则化、树模型的特征重要性）\n\n**2. 特征构造（Feature Construction）**：基于领域知识创建新特征，如多项式特征、交叉组合特征、日期衍生特征（day_of_week, is_holiday）、文本向量化（TF-IDF）等\n\n**3. 降维（Dimensionality Reduction）**：将高维特征空间映射到低维流形上\n- **线性方法**：PCA（最大化方差）、LDA（最大化类间可分性）、因子分析\n- **非线性方法**：t-SNE（保持局部结构，可视化利器）、UMAP（速度更快且保持全局结构）、自编码器（神经网络方式）",
+      tables: [
+        {headers:["方法","类型","是否可逆","主要用途","计算复杂度"],rows:[
+          ["PCA","线性降维","是（通过逆变换近似重建）","去噪、压缩、特征提取","O(n p^2 + p^3)"],
+          ["t-SNE","非线性降维","否","高维数据可视化","O(n^2)"],
+          ["UMAP","非线性降维","否","可视化+聚类前处理","O(n^{1.14})"],
+          ["LDA","有监督降维","是","分类任务的特征提取","O(p^3)"],
+          ["Autoencoder","神经网络降维","是（通过解码器）","非线性压缩与重建","取决于网络结构"]
+        ],caption:"表：主流降维方法对比"}
+      ],
+      key_takeaway: "特征工程=选择+构造+降维，三者协同构成了数据到模型的桥梁。"
+    },
+    {
+      module_id: "principle",
+      module_title: "核心原理",
+      module_tag: "核心概念",
+      hook: "PCA 的数学本质是什么？一句话：找到一组正交方向，使得数据在这些方向上的投影方差依次最大化——这就是"方差最大化"视角下的 PCA。",
+      content: "**PCA（主成分分析）的核心思想** 是从协方差或相关矩阵出发，通过特征分解找到数据变异最大的方向。\n\n**数学推导关键步骤**：\n1. 数据中心化：令 $\\bar{x} = \\frac{1}{n}\\sum_{i=1}^n x_i$，平移使数据均值为零\n2. 计算协方差矩阵：$C = \\frac{1}{n}X^{\\top}X$（假设 X 已中心化）\n3. 特征分解：$C = V\\Lambda V^{\\top}$，其中 $\\Lambda = \\operatorname{diag}(\\lambda_1,...,\\lambda_p)$ 按降序排列\n4. 选择前 k 个特征向量 $V_k$，投影：$X_{\\text{PCA}} = X V_k$\n\n**为什么选择特征值最大的方向？** 因为沿特征向量 v 投影后的方差等于 $v^{\\top}Cv = \\lambda v^{\\top}v = \\lambda$，所以特征值即投影方差。\n\n**t-SNE 的核心思想**：先在高维空间用高斯核定义条件概率 $p_{j|i}$（i 选择 j 作为邻居的概率），再在低维空间用 t 分布定义类似概率 $q_{j|i}$，通过最小化 KL 散度 $KL(P\\|Q)$ 使低维分布逼近高维分布。t 分布的重尾特性是 t-SNE 能有效缓解"拥挤问题（Crowding Problem）"的关键。",
+      formulas: [
+        {latex:"$$C = \\frac{1}{n}X^{\\top}X = V\\Lambda V^{\\top}$$",caption:"协方差矩阵的特征分解是PCA的核心运算",expandable:true,derivation:"对于中心化后的数据矩阵 X (n×p)，每列的均值为0。协方差矩阵的每个元素 C_{ij} = Cov(x_i, x_j) = E[(x_i-μ_i)(x_j-μ_j)]。由于已中心化，简化为 C = (1/n) X^T X。对对称矩阵 C 做特征分解，得到特征向量矩阵 V 和特征值对角阵 Λ。"},
+        {latex:"$$p_{j|i} = \\frac{\\exp(-\\|x_i - x_j\\|^2 / 2\\sigma_i^2)}{\\sum_{k \\neq i}\\exp(-\\|x_i - x_k\\|^2 / 2\\sigma_i^2)}$$",caption:"t-SNE的高维邻接概率定义",expandable:true,derivation:"σ_i 通过困惑度(Perplexity)自适应确定。Perplexity = 2^{H(P_i)}，其中 H 是条件概率分布的熵。用户指定目标困惑度（通常5-50），算法通过二分搜索调整 σ_i 使其匹配目标值。"}
+      ],
+      charts: [
+        {echarts_option:{xAxis:{name:"特征值序号",type:"category",data:["PC1","PC2","PC3","PC4","PC5","PC6","PC7","PC8","PC9","PC10"]},yAxis:{name:"解释方差比例"},series:[{name:"个体",type:"bar",data:[0.35,0.22,0.14,0.08,0.06,0.05,0.03,0.03,0.02,0.02],itemStyle:{borderRadius:[4,4,0,0]}},{name:"累计",type:"line",data:[0.35,0.57,0.71,0.79,0.85,0.90,0.93,0.96,0.98,1.0],smooth:true,lineStyle:{width:3}}],grid:{left:60,right:40,top:30,bottom:50},legend:{bottom:0}},caption:"图：PCA的方差解释比例（Scree Plot）- 典型场景前3个主成分解释71%方差",data_source:"[需验证]"},
+        chart_id:"chart_principle_01"},
+      key_takeaway: "PCA=最大化投影方差=t-SNE的对称概率保结构，两者从不同数学视角解决降维问题。"
+    },
+    {
+      module_id: "architecture",
+      module_title: "技术架构图",
+      module_tag: "实践应用",
+      hook: "一个完整的特征工程流水线不是单一步骤，而是一套分层架构——从原始数据的摄取到最终模型输入的特征向量，中间经过多道工序。",
+      content: "**现代特征工程流水线架构**：\n\n**第1层：数据接入层**\n- 数据源连接（数据库、数据湖、实时流）\n- Schema 验证与类型推断\n- 缺失值初步统计\n\n**第2层：预处理层**\n- 缺失值填充（均值/中位数/众数/KNN插补）\n- 异常值检测与处理（IQR/Z-score/Isolation Forest）\n- 编码：One-Hot（低基数分类）、Label Encoding（有序分类）、Target Encoding（高基数分类）\n- 标准化/归一化：Z-score、Min-Max、RobustScaler\n\n**第3层：特征构造层**\n- 多项式与交互特征：$x_1^2$, $x_1 \\cdot x_2$\n- 时间窗口聚合：滚动均值、滞后特征\n- 文本特征：TF-IDF、Word Embeddings\n- 分箱（Binning）与离散化\n\n**第4层：特征选择 & 降维层**\n- 方差过滤、相关性过滤\n- L1 正则化稀疏选择\n- PCA / t-SNE / UMAP\n\n**第5层：特征存储与服务层**\n- Feature Store（如 Feast）：在线/离线特征一致性保障\n- 特征版本管理与血缘追踪",
+      charts: [
+        {echarts_option:{series:[{type:"sankey",layoutIterations:0,data:[{name:"原始数据"},{name:"缺失值处理"},{name:"编码转换"},{name:"标准化"},{name:"特征构造"},{name:"特征选择"},{name:"降维(PCA)"},{name:"模型输入"}],links:[{source:"原始数据",target:"缺失值处理",value:100},{source:"缺失值处理",target:"编码转换",value:95},{source:"编码转换",target:"标准化",value:95},{source:"标准化",target:"特征构造",value:95},{source:"特征构造",target:"特征选择",value:120},{source:"特征选择",target:"降维(PCA)",value:80},{source:"特征选择",target:"模型输入",value:30},{source:"降维(PCA)",target:"模型输入",value:80}]}],tooltip:{trigger:"item"}},caption:"图：特征工程流水线桑基图 - 数据流经各阶段的处理量变化",data_source:"[需验证]"},
+        chart_id:"chart_architecture_01"},
+      key_takeaway: "五层特征工程架构：接入→预处理→构造→选择/降维→存储服务，层次分明、职责清晰。"
+    },
+    {
+      module_id: "open-source",
+      module_title: "开源生态",
+      module_tag: "实践应用",
+      hook: "如果你以为特征工程就是手写一堆 if-else 和 for 循环，那你可能错过了 sklearn、Feature-engine 和 Featuretools 这些让特征工程效率提升10倍的利器。",
+      content: "**scikit-learn** 提供了最完善的预处理与降维模块：\n- `sklearn.preprocessing`：StandardScaler、MinMaxScaler、OneHotEncoder、LabelEncoder、PolynomialFeatures、KBinsDiscretizer\n- `sklearn.feature_selection`：SelectKBest、RFE、SelectFromModel、VarianceThreshold\n- `sklearn.decomposition`：PCA、KernelPCA、TruncatedSVD、FactorAnalysis、NMF、FastICA\n- `sklearn.manifold`：TSNE、Isomap、LocallyLinearEmbedding、MDS\n\n**Feature-engine**：专为 Pandas DataFrame 设计的特征工程库，支持分组操作、字符串变换、数学组合\n\n**Featuretools**：自动深度特征合成（Deep Feature Synthesis），能从多个相关表中自动生成聚合和变换特征\n\n**Category Encoders**：20+ 种分类编码方法，包括 Target Encoding、CatBoost Encoding、James-Stein Encoding\n\n**Boruta**：基于随机森林的全特征选择方法，通过影子特征对比找出所有有意义的特征",
+      key_takeaway: "sklearn+Featuretools+Feature-engine 构成了 Python 特征工程的三驾马车。"
+    },
+    {
+      module_id: "benchmark",
+      module_title: "Benchmark数据",
+      module_tag: "实践应用",
+      hook: "同一种降维方法，在 MNIST 上效果拔群，在基因表达数据上却可能完全失效——不同数据分布下的降维效果差异巨大，选错方法会丢失关键信息。",
+      content: "**降维方法在经典数据集上的性能对比（以重构误差/K近邻保持率衡量）**：\n\n| 数据集 | PCA | Kernel PCA | t-SNE | UMAP |\n|---|---|---|---|\n| MNIST (784维) | KNN保持率 0.72 | 0.78 | 0.91 | 0.89 |\n| Fashion-MNIST | 0.68 | 0.74 | 0.87 | 0.85 |\n| CIFAR-10 (3072维) | 0.45 | 0.52 | 0.68 | 0.71 |\n| scRNA-seq (2000维+) | 0.38 | 0.41 | 0.56 | 0.76 |\n\n**关键发现**：\n- PCA 在图像数据上表现中等，足以保留 60-72% 的 KNN 结构\n- t-SNE 在低维可视化上几乎无可匹敌，但无法用于特征转换（无 out-of-sample 扩展）\n- UMAP 在生物信息学（scRNA-seq）领域表现突出，运行速度快于 t-SNE 10-50 倍\n- Kernel PCA 适合存在非线性结构但需要确定性映射的场景",
+      tables: [
+        {headers:["方法","KNN保持率 MNIST","重构误差","运行时间(10000样本)","Out-of-Sample"],rows:[
+          ["PCA","0.72","最低","<1秒","✅"],
+          ["Kernel PCA","0.78","低","~5秒","✅"],
+          ["t-SNE","0.91","不可逆","~60秒","❌"],
+          ["UMAP","0.89","不可逆","~3秒","✅(parametric UMAP)"]
+        ],caption:"表：降维方法在MNIST数据集上的关键指标对比"}
+      ],
+      key_takeaway: "t-SNE=可视化王者但无法外推，UMAP=速度+质量+可外推，PCA=简单可靠的基线。"
+    },
+    {
+      module_id: "development",
+      module_title: "发展迭代",
+      module_tag: "发展演进",
+      hook: "从 Pearson 的 1901 年 PCA 到 2023 年的 Contrastive PCA，降维技术的发展史就是人类试图理解高维数据的历史。",
+      content: "**降维技术里程碑**：\n\n- **1901**：Karl Pearson 提出 PCA（最初用于生物统计中的人类测量数据分析）\n- **1933**：Hotelling 将 PCA 推广到多元统计分析\n- **1936**：Fisher 提出 LDA（线性判别分析），引入有监督降维\n- **2000**：Kernel PCA 将核技巧引入 PCA 解决非线性问题\n- **2008**：van der Maaten & Hinton 提出 t-SNE，彻底改变了高维数据可视化\n- **2014**：McInnes 等提出 UMAP，在速度和质量之间找到了更好的平衡\n- **2017**：Ding 等提出 Contrastive PCA，支持对比两组数据的差异子空间\n- **2020+**：自监督学习驱动的降维（SimCLR 的投影头本质就是一种可学习的非线性降维）\n\n**特征工程演进**：\n- **2010 前**：手工特征+领域知识为主\n- **2012-2018**：深度学习自动特征学习（CNN 学图像特征，RNN 学序列特征）\n- **2018+**：Feature Store 概念兴起（Uber 的 Michelangelo、Airbnb 的 Zipline）\n- **2022+**：大模型时代的 Prompt 工程本质是一种新的"特征工程"——用自然语言描述任务特征",
+      key_takeaway: "从 PCA (1901) 到 UMAP (2018)，人类花了一个多世纪才掌握了从高维数据中提取低维结构的艺术。"
+    },
+    {
+      module_id: "application",
+      module_title: "实践应用",
+      module_tag: "实践应用",
+      hook: "PCA 不只是学术概念——当你使用 Google Photos 搜索'有狗的照片'时，背后运行的 iPhone 神经引擎就在对每张照片的 embedding 做降维和向量检索。",
+      content: "**特征工程与降维的五大实战场景**：\n\n**1. 金融风控**：对数百维的征信、交易、社交特征做 L1 正则化（Lasso）筛选出前 20 个关键变量，构建可解释的评分卡模型\n\n**2. 推荐系统**：对用户-物品交互矩阵做 SVD（TruncatedSVD）得到用户和物品的隐向量，这是协同过滤的数学基础\n\n**3. 基因组学**：对 20000+ 基因表达量做 PCA/UMAP 降维至 2-3 维，可视化不同细胞类型的聚类分布\n\n**4. NLP**：对 BERT 输出的 768 维 CLS token embedding 做 UMAP 降维，可视化句子语义相似度\n\n**5. 异常检测**：先用 PCA 学习正常数据的低维流形，新样本的重构误差大则标记为异常——这是工业界最常用的无监督异常检测方法之一",
+      formulas: [
+        {latex:"$$\\text{Reconstruction Error} = \\|x - \\hat{x}\\|_2^2 = \\|x - V_k V_k^{\\top}x\\|_2^2$$",caption:"PCA重构误差：原始样本与PCA重建样本之间的欧氏距离",expandable:true,derivation:"PCA将x投影到V_k得到低维表示z=V_k^T x，然后通过V_k重建：x̂=V_k z=V_k V_k^T x。重构误差衡量的是V_k未能捕捉的变异量，即被丢弃的p-k个特征值之和。"}
+      ],
+      key_takeaway: "从风控评分卡到基因可视化再到异常检测，特征工程与降维是横跨所有ML领域的通用技能。"
+    },
+    {
+      module_id: "case-study",
+      module_title: "实践案例",
+      module_tag: "实践应用",
+      hook: "Kaggle 'House Prices' 竞赛中，冠军方案用了超过 500 个手工特征——而原始数据只有 79 列。这就是特征工程能带来的杠杆效应。",
+      content: "**案例：Kaggle House Prices 特征工程复盘**\n\n**原始数据**：79 个特征，包含数值型（面积、年份、房间数）和分类型（社区、材料类型、设施条件）\n\n**特征构造策略**：\n- **面积组合**：TotalSF = 地上面积 + 地下面积 + 地下室面积（单个特征重要性排名第1）\n- **房屋年龄**：HouseAge = 售卖年份 - 建造年份；RemodAge = 售卖年份 - 翻新年份\n- **比率特征**：浴室/房间比、车库面积/总面积\n- **编码策略**：对高基数分类特征（Neighborhood 有 25 个取值）使用 Target Encoding\n- **缺失值处理**：有些缺失本身就是信息（如"无车库"→缺失面积应填0而不是均值）\n\n**降维应用**：对构造出的 30 个面积/比率相关特征做 PCA，前 5 个主成分解释 92% 的方差，直接用这 5 个主成分替代原始特征后，模型性能几乎没有下降，但训练速度提升 3 倍。\n\n**最终效果**：特征工程+LightGBM 的组合在排行榜上的得分（RMSLE）比只用原始特征的基准模型提升了约 15%。",
+      tables: [
+        {headers:["特征","类型","重要性排名","构造方式"],rows:[
+          ["TotalSF","数值","#1","三个面积字段求和"],
+          ["HouseAge","数值","#3","年份相减"],
+          ["Neighborhood_TE","数值","#5","Target Encoding"],
+          ["BathAbvGr","数值","#2","原始特征"],
+          ["OverallQual","有序分类","#4","原始特征"]
+        ],caption:"表：House Prices竞赛Top-5特征重要性"}
+      ],
+      key_takeaway: "'TotalSF = 地上面积+地下面积+地下室面积'这一行代码创造的特征，重要性排名全场第一。"
+    },
+    {
+      module_id: "risk",
+      module_title: "潜在风险",
+      module_tag: "风险与挑战",
+      hook: "PCA 不会告诉你它丢弃了什么——当你在 PCA 降维后的数据上训练出 99% 准确率的模型并准备部署时，可能那些被丢弃的'噪声'维度里正藏着导致模型在生产环境崩溃的信息。",
+      content: "**特征工程与降维的七大风险**：\n\n**1. 数据泄露（Data Leakage）** 🔴 致命级：在 Target Encoding 或标准化时使用了测试集/验证集的统计量\n\n**2. 信息丢失**：PCA 丢弃的主成分可能包含对分类任务至关重要的判别信息——PCA 是无监督的，它"不知道"哪些维度对分类有益\n\n**3. 可解释性崩塌**：PCA 生成的主成分是原始特征的线性组合，无法直接解释为"这个值代表房屋面积"，在需要合规解释的场景（如信贷审批）不适用\n\n**4. t-SNE 不可复现性**：t-SNE 的随机初始化和困惑度参数导致每次运行结果不同，不应作为下游模型的输入\n\n**5. 过拟合特征构造**：构造过多特征（如 1000+ 个多项式特征）导致模型过拟合——特征数量应与样本量匹配\n\n**6. 分布漂移（Distribution Shift）**：Z-score 标准化的均值和方差基于训练集计算，生产环境数据分布变化后标准化失效\n\n**7. 编码爆炸**：One-Hot 编码高基数分类变量（如 user_id 有 100 万取值）导致特征维度爆炸",
+      charts: [
+        {echarts_option:{radar:{indicator:[{name:"数据泄露",max:10},{name:"信息丢失",max:10},{name:"可解释性",max:10},{name:"不可复现",max:10},{name:"过拟合",max:10},{name:"分布漂移",max:10},{name:"维度爆炸",max:10}]},series:[{type:"radar",data:[{value:[9,7,8,4,6,6,5],name:"风险等级",areaStyle:{opacity:0.3}}]}]},caption:"图：特征工程与降维的七大风险雷达图",data_source:"[需验证]"},
+        chart_id:"chart_risk_01"},
+      key_takeaway: "最大风险不是模型效果差，而是数据泄露和信息丢失——前者让你高估模型，后者让你低估风险。"
+    },
+    {
+      module_id: "landscape",
+      module_title: "发展格局",
+      module_tag: "发展演进",
+      hook: "当大模型（LLM）能以零样本方式完成分类任务时，有人开始质疑：'特征工程已经死了吗？'——答案是：它只是换了一种形态活着。",
+      content: "**当前格局的三层结构**：\n\n**第一层：经典特征工程（不死，但被边缘化）**\n- 在表格数据（Tabular Data）领域，手工特征+GBDT 仍是最强组合\n- Kaggle 的绝大多数表格竞赛仍由 LightGBM/XGBoost/CatBoost 主导\n- 信贷、保险等强监管行业对可解释特征的刚性需求\n\n**第二层：深度学习特征学习（主流）**\n- CNN/Transformer 自动学习图像/文本/NLP 特征\n- 预训练大模型（BERT/GPT）的 embedding 已成为 NLP 的"通用特征"\n- 多模态特征融合成为新的特征工程前沿\n\n**第三层：大模型驱动的特征重构（新趋势）**\n- LLM 可以直接理解自然语言描述的"特征定义"并生成代码\n- Prompt Engineering 本质是一种元特征工程——用语言描述任务上下文\n- Agent 框架中，LLM 自动探索特征组合并评估效果\n\n**开源 vs 商业**：Databricks 的 Feature Store 和 Feast（开源）是特征平台的双极；Tecton 是商业方案的标杆。",
+      key_takeaway: "特征工程没有消失，而是从'手工打造'升级为'自动化+智能化+平台化'的三层生态。"
+    },
+    {
+      module_id: "research-map",
+      module_title: "产学研图谱",
+      module_tag: "前沿探索",
+      hook: "降维领域正在经历一场'静悄悄的革命'——拓扑数据分析（TDA）、对比学习和扩散模型正在重新定义我们对'低维结构'的理解方式。",
+      content: "**核心研究机构与人物**：\n\n- **Laurens van der Maaten**（Meta AI）：t-SNE 的发明者，持续在高维可视化领域发表工作\n- **Leland McInnes**（Tutte Institute）：UMAP 的创建者，基于黎曼几何和拓扑数据分析\n- **Michael W. Mahoney**（UC Berkeley）：随机化线性代数与大规模 SVD 计算\n- **Phillip Isola**（MIT）：对比学习（SimCLR）中的降维视角——投影头就是可学习的非线性降维\n\n**前沿方向**：\n- **Contrastive PCA（cPCA）**：揭示两组数据之间的差异子空间\n- **Topological Autoencoders**：将持久同调（Persistent Homology）加入自编码器损失，保持拓扑结构\n- **Diffusion-based Dimensionality Reduction**：利用扩散模型的逆过程实现可控降维\n- **Feature Selection with LLMs**：用大模型的注意力权重进行特征重要性排序",
+      key_takeaway: "降维的下一波浪潮：从纯粹几何方法走向'几何+拓扑+学习'的融合范式。"
+    },
+    {
+      module_id: "issues",
+      module_title: "发展问题",
+      module_tag: "风险与挑战",
+      hook: "t-SNE 是数据科学家最喜欢的可视化工具——也是最被滥用的工具。一篇 2019 年的 Nature Methods 论文指出：超过 60% 的生物信息学论文对 t-SNE 结果的解释存在方法论错误。",
+      content: "**当前领域的核心痛点**：\n\n**1. t-SNE 滥用问题**：\n- 困惑度设置不当导致虚假聚类——不同困惑度下聚类结果天差地别\n- 将 t-SNE 的簇间距误读为"相似度"——t-SNE 的全局距离无意义\n- 反复调参直到看到想要的结果（p-hacking 的可视化版本）\n\n**2. PCA 的线性假设限制**：\n- 现实世界中大多数数据的结构是非线性的（如瑞士卷、球面）\n- PCA 在主成分数量大于样本量（p > n）时不稳定\n\n**3. 特征工程的不可复现性**：\n- 手工特征严重依赖个人经验和直觉，不同工程师打造的特征集差异巨大\n- 缺少标准化的特征工程评估基准（特征工程更多是艺术而非科学）\n\n**4. 与 AutoML 的冲突**：\n- AutoML 系统通常跳过特征工程直接做模型搜索，可能错失最重要的性能提升环节",
+      key_takeaway: "t-SNE 是最强大的可视化工具也是被滥用最多的——困惑度选择不当、错误解读簇间距是最常见的两类错误。"
+    },
+    {
+      module_id: "prospect",
+      module_title: "发展前景",
+      module_tag: "前沿探索",
+      hook: "到 2030 年，'手工特征工程'可能会像'手工调优编译器汇编代码'一样成为小众技能——但这不代表特征工程消失，而是它进化成了更高阶的抽象。",
+      content: "**三大趋势预测**：\n\n**趋势1：自动化特征工程（AutoFE）走向成熟**\n- Featuretools 式的深度特征合成正在从研究走向生产\n- AutoGluon、H2O AutoML 等框架已内置自动化特征预处理流水线\n- 未来：LLM 驱动的"对话式特征工程"——你描述业务场景，AI 生成特征构造代码\n\n**趋势2：端到端学习进一步压缩特征工程的生存空间**\n- Transformer 架构在表格数据上的应用（如 TabTransformer、FT-Transformer）正在追赶 GBDT\n- 预训练的大表格模型（如 XTab）让"预训练+微调"模式进入表格数据领域\n\n**趋势3：特征工程走向平台化**\n- Feature Store 成为 MLOps 基础设施的标准组件\n- 特征血缘追踪、特征质量监控、特征复用成为企业级需求\n- 跨团队的特征共享市场（Feature Marketplace）初现雏形",
+      key_takeaway: "特征工程将从个人手艺进化为平台化服务——Feature Store + AutoFE + LLM 的组合将重塑这一领域。"
+    },
+    {
+      module_id: "effort-direction",
+      module_title: "努力方向",
+      module_tag: "前沿探索",
+      hook: "如果你只有100小时投入特征工程与降维的学习，以下投资回报率最高的七个方向，请按优先级依次投入。",
+      content: "**推荐学习重点（按 ROI 排序）**：\n\n1. **深入理解 PCA 的数学**（20h）：掌握协方差矩阵、特征分解、SVD 与 PCA 的等价关系，能独立用 NumPy 实现 Mini-batch PCA\n\n2. **掌握 sklearn 预处理流水线**（15h）：`Pipeline` + `ColumnTransformer` 的组合是生产级代码的基础\n\n3. **特征选择的三种范式**（15h）：过滤法/包裹法/嵌入法的实现与选择决策树\n\n4. **动手做 t-SNE vs UMAP 对比实验**（10h）：在不同数据集上调整困惑度和 n_neighbors，培养对降维参数影响的直觉\n\n5. **学习 Featuretools 的 DFS**（10h）：自动深度特征合成是处理多表关系数据的利器\n\n6. **特征工程在 Kaggle 中的实战**（20h）：参加一个表格数据竞赛，体会特征工程对排名的真实影响\n\n7. **了解 Feature Store 设计**（10h）：阅读 Feast 和 Tecton 的架构文档，理解在线/离线特征一致性",
+      key_takeaway: "PCA 数学 + sklearn Pipeline + Kaggle 实战 = 特征工程学习的最优组合。"
+    },
+    {
+      module_id: "misconceptions",
+      module_title: "常见误区",
+      module_tag: "风险与挑战",
+      hook: "'我的数据有 1000 个特征，先跑个 PCA 降到 100 维总是有好处的'——这是 ML 新手最常见的误区，而真相恰恰相反。",
+      content: "**五大常见误区及纠正**：\n\n**误区1**：降维总是能提升模型性能\n- **真相**：PCA 降维本质是在丢弃信息。如果原始特征的信噪比高，降维反而降低模型效果。降维应被视为一种"必要时才用"的工具。\n\n**误区2**：主成分占比（如 95%）是选择 k 的黄金标准\n- **真相**：被丢弃的 5% 方差可能是对分类任务最关键的方差。应结合下游任务性能（交叉验证）来选择 k。\n\n**误区3**：标准化（StandardScaler）和归一化（MinMaxScaler）可以互换\n- **真相**：标准化对异常值更鲁棒（用均值和标准差），归一化将所有值压缩到 [0,1] 但对异常值极度敏感。PCA 必须使用标准化（否则方差大的特征会主导主成分）。\n\n**误区4**：特征越多越好\n- **真相**：特征维度过高导致维度诅咒、过拟合和计算资源浪费。特征工程的目标是"更少但更好"。\n\n**误区5**：One-Hot 编码总是最好的分类编码方式\n- **真相**：高基数分类变量 One-Hot 后维度爆炸，应使用 Target Encoding 或 Embedding（神经网络）代替。",
+      key_takeaway: "降维≠总是有益的，标准化≠归一化，PCA前必须标准化——三个简单但至关重要的原则。"
+    },
+    {
+      module_id: "learning-path",
+      module_title: "学习路径",
+      module_tag: "核心概念",
+      hook: "从零到精通特征工程，你需要的不只是一堆技术文档——而是一条系统化的学习路径。",
+      content: "**推荐书单**：\n- **《Feature Engineering for Machine Learning》(Alice Zheng)**：O'Reilly 出品，特征工程入门的必读之作，覆盖数值/文本/图像特征\n- **《Machine Learning Engineering》(Andriy Burkov)**：ML 工程化的全景视角\n- **《Hands-On Machine Learning with Scikit-Learn, Keras, and TensorFlow》(Géron)**：第2章完整覆盖数据预处理流水线\n\n**推荐课程**：\n- **Kaggle Learn: Feature Engineering**：免费、实战导向，30 分钟完成入门\n- **Coursera: Structuring Machine Learning Projects (Andrew Ng)**：从系统角度理解特征与模型的关系\n\n**核心论文**：\n- Van der Maaten & Hinton (2008). *Visualizing Data using t-SNE*. JMLR\n- McInnes et al. (2018). *UMAP: Uniform Manifold Approximation and Projection*. arXiv\n- Kanter & Veeramachaneni (2015). *Deep Feature Synthesis*. IEEE DSAA\n- Ding et al. (2017). *cPCA: Contrastive PCA*. NeurIPS",
+      tables: [
+        {headers:["资源","类型","难度","预计用时"],rows:[
+          ["Kaggle Feature Engineering","互动教程","初级","2小时"],
+          ["Feature Engineering for ML (Zheng)","书籍","中级","15小时"],
+          ["t-SNE 原论文","论文","中级","3小时"],
+          ["UMAP 原论文","论文","高级","5小时"],
+          ["sklearn preprocessing docs","文档","初级","持续查阅"]
+        ],caption:"表：推荐学习资源及其难度估计"}
+      ],
+      key_takeaway: "先从 Kaggle 教程上手，再读 O'Reilly 的系统化书籍，最后啃论文——三层递进。"
+    },
+    {
+      module_id: "glossary",
+      module_title: "关键术语表",
+      module_tag: "核心概念",
+      hook: "",
+      content: "以下是特征工程与降维领域最重要的术语速查表，建议收藏。",
+      tables: [
+        {headers:["术语","英文","精简定义"],rows:[
+          ["主成分分析","PCA","通过协方差矩阵特征分解找到最大方差方向的线性降维方法"],
+          ["t-SNE","t-Distributed Stochastic Neighbor Embedding","基于KL散度和t分布的非线性降维方法，主要用于可视化"],
+          ["UMAP","Uniform Manifold Approximation and Projection","基于黎曼几何和拓扑假设的非线性降维方法，速度更快"],
+          ["SVD","Singular Value Decomposition","矩阵分解 A=UΣV^T，是PCA的另一种计算方式"],
+          ["维度诅咒","Curse of Dimensionality","高维空间中的数据稀疏性导致距离度量和模型性能急剧退化"],
+          ["特征选择","Feature Selection","从原始特征中筛选有效子集，三种范式：过滤/包裹/嵌入"],
+          ["独热编码","One-Hot Encoding","将分类变量转换为二进制向量，维度=类别数"],
+          ["目标编码","Target Encoding","用分类变量对应的目标变量均值替代类别标签"],
+          ["LDA","Linear Discriminant Analysis","有监督降维方法，最大化类间散度与类内散度之比"],
+          ["特征存储","Feature Store","管理特征定义、计算、存储和服务的平台，保障在线/离线一致性"],
+          ["自编码器","Autoencoder","通过神经网络编码器-解码器结构实现非线性降维"],
+          ["共线性","Multicollinearity","特征之间存在强线性关系，导致回归系数估计不稳定"]
+        ],caption:"表：特征工程与降维关键术语速查表"}
+      ],
+      key_takeaway: "掌握这12个核心术语，读懂本领域90%的技术文献无压力。"
+    },
+    {
+      module_id: "debate",
+      module_title: "争议与辩论",
+      module_tag: "前沿探索",
+      hook: "围绕'特征工程是否仍有存在价值'的争论，在 Reddit 的 r/MachineLearning 板块上已经持续了整整五年还没有定论——而且随着大模型的出现，争论反而更加激烈。",
+      content: "**争议1：特征工程 vs 端到端学习**\n- **正方（特征工程派）**：在表格数据领域，手工特征+GBDT 组合的 SOTA 地位至今未被深度学习超越。特征工程是人类领域知识的载体。\n- **反方（端到端派）**：Transformer 正在攻陷表格数据（FT-Transformer、TabNet 已逼近 GBDT 性能），预训练的大表格模型有望像 NLP 一样实现'一个模型搞定所有表格任务'。\n\n**争议2：t-SNE vs UMAP**\n- **t-SNE 拥护者**：UMAP 虽然在速度上有优势，但在可视化质量上从未真正超越 t-SNE——尤其在处理复杂簇结构时\n- **UMAP 支持者**：UMAP 不仅更快，还保留了更多全局结构，且支持新的数据点映射（out-of-sample）——这是 t-SNE 的致命短板\n\n**争议3：Feature Store 的必要性**\n- **支持方**：没有 Feature Store 的 ML 团队注定要重复制造特征——在线/离线特征不一致是生产事故的头号来源\n- **质疑方**：Feature Store 过度工程化，小型团队用简单的 Parquet 文件+SQL 查询就能满足需求，Feature Store 增加了不必要的复杂度",
+      key_takeaway: "三个核心争议没有一个有定论——这也意味着这个领域仍然充满机会和探索空间。"
+    }
+  ]
+};
+
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  localStorage.setItem('slm-theme', theme);
+  updateThemeIcon();
+  Object.values(activeCharts).forEach(function(chart) {
+    chart.resize();
+    var opt = chart.getOption();
+    if (opt) chart.setOption(createThemedOption(opt), {notMerge: false});
+  });
+}
+function toggleTheme() {
+  var current = document.documentElement.getAttribute('data-theme') || 'light';
+  applyTheme(current === 'dark' ? 'light' : 'dark');
+}
+function updateThemeIcon() {
+  var t = document.getElementById('theme-toggle');
+  var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  t.textContent = isDark ? '☀️' : '🌓';
+}
+var activeCharts = {};
+var savedTheme = localStorage.getItem('slm-theme') || 'dark';
+applyTheme(savedTheme);
+
+window.addEventListener('scroll', function() {
+  var scrollTop = window.scrollY;
+  var docHeight = document.documentElement.scrollHeight - window.innerHeight;
+  var progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+  document.getElementById('progress-bar').style.width = progress + '%';
+});
+
+function buildSidebar() {
+  var container = document.getElementById('sidebar-links');
+  sidebarLinks = [];
+  PAGE_DATA.modules.forEach(function(mod) {
+    var a = document.createElement('a');
+    a.href = '#' + mod.module_id;
+    a.className = 'sidebar-link';
+    a.textContent = mod.module_title || mod.module_id;
+    a.addEventListener('click', function(e) {
+      e.preventDefault();
+      document.getElementById(mod.module_id).scrollIntoView({behavior: 'smooth'});
+      if (window.innerWidth <= 768) document.getElementById('sidebar').classList.remove('open');
+    });
+    container.appendChild(a);
+    sidebarLinks.push({el: a, id: mod.module_id});
+  });
+}
+
+var observer = new IntersectionObserver(function(entries) {
+  entries.forEach(function(entry) {
+    if (entry.isIntersecting) {
+      sidebarLinks.forEach(function(link) {
+        link.el.classList.toggle('active', link.id === entry.target.id);
+      });
+    }
+  });
+}, {rootMargin: '-80px 0px -60% 0px'});
+
+function buildMetaCard() {
+  var md = PAGE_DATA;
+  document.getElementById('meta-card-container').innerHTML =
+    '<div class="meta-card">' +
+      '<div style="width:100%;font-size:12px;color:var(--text-tertiary);padding-bottom:0px;">🔗 📚 机器学习及其统计基础与大模型 系统学习方案 · ML工程实践（4/5）</div>' +
+      '<div class="meta-item"><span class="icon">📖</span><strong>' + md.topic + '</strong></div>' +
+      '<div class="meta-item"><span class="meta-badge domain-ai">' + md.domain_name + '</span></div>' +
+      '<div class="meta-item"><span class="meta-badge level-intermediate">' + md.level_name + '</span></div>' +
+      '<div class="meta-item"><span class="icon">⏱️</span>约' + md.reading_time + '分钟阅读</div>' +
+      '<div class="meta-item"><span class="icon">📦</span>' + md.module_count + '个模块</div>' +
+      '<div class="meta-item"><span class="icon">📊</span>4张图表</div>' +
+    '</div>';
+}
+
+function createThemedOption(existingOpt) {
+  var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  var color = isDark ? ['#818cf8','#a78bfa','#c4b5fd','#67e8f9','#fbbf24','#34d399','#f87171','#f472b6'] : ['#6366f1','#8b5cf6','#a78bfa','#22d3ee','#f59e0b','#10b981','#ef4444','#ec4899'];
+  return {color: color};
+}
+
+function renderChart(moduleId, chartConfig, index) {
+  var chartId = 'chart_' + moduleId + '_' + index;
+  var wrapper = document.getElementById(chartId);
+  if (!wrapper) return;
+  if (typeof echarts === 'undefined') {
+    wrapper.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-tertiary);font-size:13px;">📊 图表(ECharts CDN 未加载)</div>';
+    return;
+  }
+  try {
+    var chart = echarts.init(wrapper);
+    var opt = chartConfig.echarts_option || {};
+    chart.setOption(createThemedOption(opt));
+    activeCharts[chartId] = chart;
+    var resizeObserver = new ResizeObserver(function() { chart.resize(); });
+    resizeObserver.observe(wrapper);
+  } catch(e) {
+    wrapper.textContent = '图表渲染失败: ' + e.message;
+  }
+}
+
+function buildModuleHTML(mod) {
+  var tagClass = getTagClass(mod.module_tag || '');
+  var html = '<section class="module-section" id="' + mod.module_id + '">' +
+      '<div class="module-header"><span class="module-tag ' + tagClass + '">' + (mod.module_tag || '') + '</span>' +
+      '<h2 class="module-title">' + (mod.module_title || mod.module_id) + '</h2></div>';
+  if (mod.hook) html += '<div class="module-hook">' + mod.hook + '</div>';
+  html += '<div class="module-content">' + parseMarkdownContent(mod.content || '') + '</div>';
+  if (mod.formulas && mod.formulas.length > 0) {
+    mod.formulas.forEach(function(formula) {
+      var hasDerivation = formula.expandable && formula.derivation;
+      html += '<div class="formula-block" onclick="' + (hasDerivation ? 'toggleDerivation(this)' : '') + '">' +
+        '<div>' + formula.latex + '</div>';
+      if (formula.caption) html += '<div class="formula-caption">' + formula.caption + '</div>';
+      if (hasDerivation) {
+        html += '<div class="formula-expand-hint">💡 点击展开推导过程</div>' +
+        '<div class="formula-derivation">' + formula.derivation + '</div>';
+      }
+      html += '</div>';
+    });
+  }
+  if (mod.charts && mod.charts.length > 0) {
+    mod.charts.forEach(function(chart, ci) {
+      var chartId = 'chart_' + mod.module_id + '_' + ci;
+      html += '<div class="chart-container"><div class="chart-wrapper" id="' + chartId + '"></div>';
+      if (chart.caption) html += '<div class="chart-caption">' + chart.caption + '</div>';
+      if (chart.data_source) html += '<div class="chart-source">' + chart.data_source + '</div>';
+      html += '</div>';
+    });
+  }
+  if (mod.tables && mod.tables.length > 0) {
+    mod.tables.forEach(function(table) {
+      html += '<div style="overflow-x:auto"><table class="module-table"><thead><tr>' +
+        (table.headers||[]).map(function(h) { return '<th>' + h + '</th>'; }).join('') + '</tr></thead><tbody>' +
+        (table.rows||[]).map(function(row) { return '<tr>' + row.map(function(c) { return '<td>' + c + '</td>'; }).join('') + '</tr>'; }).join('') + '</tbody></table>';
+      if (table.caption) html += '<div class="table-caption">' + table.caption + '</div>';
+      html += '</div>';
+    });
+  }
+  if (mod.references && mod.references.length > 0) {
+    html += '<div class="module-references"><h4>📚 参考文献</h4><ol>';
+    mod.references.forEach(function(ref) {
+      html += '<li>' + (ref.authors||'') + ' (' + (ref.year||'') + '). <strong>' + (ref.title||'') + '</strong>.' +
+        (ref.doi ? ' <a href="https://doi.org/' + ref.doi + '" target="_blank">DOI</a>' : '') +
+        (ref.url ? ' <a href="' + ref.url + '" target="_blank">链接</a>' : '') + '</li>';
+    });
+    html += '</ol></div>';
+  }
+  if (mod.key_takeaway) html += '<div class="key-takeaway">💡 ' + mod.key_takeaway + '</div>';
+  html += '</section>';
+  return html;
+}
+
+function getTagClass(tag) {
+  var map = {'核心概念':'tag-core','前置知识':'tag-core','核心工具':'tag-tools','发展演进':'tag-evolution','实践应用':'tag-application','风险与挑战':'tag-risk','前沿探索':'tag-frontier'};
+  return map[tag] || 'tag-core';
+}
+
+function parseMarkdownContent(content) {
+  if (!content) return '';
+  var html = content;
+  html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
+  html = html.replace(/`([^`]+)`/g, '<code style="background:var(--bg-tertiary);padding:2px 6px;border-radius:4px;font-size:13px;">$1</code>');
+  html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>');
+  html = html.replace(/\n\n/g, '</p><p>');
+  html = '<p>' + html + '</p>';
+  html = html.replace(/<p>\s*<\/p>/g, '');
+  return html;
+}
+
+function toggleDerivation(el) { el.classList.toggle('expanded'); }
+
+function initPage() {
+  document.body.classList.remove('loading');
+  document.body.classList.add('loaded');
+  buildMetaCard();
+  buildSidebar();
+  var modulesContainer = document.getElementById('modules-container');
+  PAGE_DATA.modules.forEach(function(mod) {
+    modulesContainer.innerHTML += buildModuleHTML(mod);
+  });
+  modulesContainer.querySelectorAll('.module-section').forEach(function(sec) { observer.observe(sec); });
+  if (typeof renderMathInElement !== 'undefined') {
+    renderMathInElement(modulesContainer, {delimiters: [{left: '$$', right: '$$', display: true},{left: '$', right: '$', display: false}], throwOnError: false});
+  }
+  setTimeout(function() {
+    PAGE_DATA.modules.forEach(function(mod) {
+      if (mod.charts) mod.charts.forEach(function(chart, ci) { renderChart(mod.module_id, chart, ci); });
+    });
+  }, 100);
+  var fadeObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) { if (entry.isIntersecting) entry.target.classList.add('visible'); });
+  }, {threshold: 0.08});
+  modulesContainer.querySelectorAll('.module-section').forEach(function(sec) { fadeObserver.observe(sec); });
+  document.addEventListener('keydown', function(e) {
+    if ((e.ctrlKey||e.metaKey)&&e.key==='d') { e.preventDefault(); toggleTheme(); }
+  });
+}
+
+function exportNotes() {
+  var lines = ['# '+PAGE_DATA.topic+' - 学习笔记', '', '生成日期: '+new Date().toLocaleDateString('zh-CN'), ''];
+  lines.push('## 📚 模块列表');
+  PAGE_DATA.modules.forEach(function(m) { lines.push('- **'+(m.module_title||m.module_id)+'**: '+(m.key_takeaway||m.hook||'')); });
+  var txt = lines.join('\n');
+  if (navigator.clipboard) { navigator.clipboard.writeText(txt); alert('✅ 学习笔记已复制到剪贴板!'); }
+  else { var ta = document.createElement('textarea'); ta.value = txt; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); alert('✅ 学习笔记已复制到剪贴板!'); }
+}
+
+(function(){
+  var cv = document.getElementById('bg-canvas');
+  var ctx = cv.getContext('2d');
+  var particles = [];
+  function rsz() { cv.width = window.innerWidth; cv.height = window.innerHeight; }
+  window.addEventListener('resize', rsz); rsz();
+  var count = Math.min(40, Math.floor((cv.width * cv.height) / 25000));
+  for (var i = 0; i < count; i++) {
+    particles.push({x: Math.random()*cv.width, y: Math.random()*cv.height, vx: (Math.random()-0.5)*0.3, vy: (Math.random()-0.5)*0.3, r: Math.random()*1.5+0.3, a: Math.random()*0.3+0.05});
+  }
+  function animate() {
+    ctx.clearRect(0, 0, cv.width, cv.height);
+    var c = document.documentElement.getAttribute('data-theme') !== 'light' ? '129,140,248' : '99,102,241';
+    particles.forEach(function(p) {
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < 0) p.x = cv.width; if (p.x > cv.width) p.x = 0;
+      if (p.y < 0) p.y = cv.height; if (p.y > cv.height) p.y = 0;
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 6.28);
+      ctx.fillStyle = 'rgba('+c+','+p.a+')'; ctx.fill();
+    });
+    for (var j = 0; j < particles.length; j++) {
+      for (var k = j+1; k < particles.length; k++) {
+        var dx = particles[j].x - particles[k].x, dy = particles[j].y - particles[k].y;
+        var d = Math.sqrt(dx*dx+dy*dy);
+        if (d < 110) { ctx.beginPath(); ctx.moveTo(particles[j].x, particles[j].y); ctx.lineTo(particles[k].x, particles[k].y); ctx.strokeStyle = 'rgba('+c+','+(0.06*(1-d/110))+')'; ctx.lineWidth = 0.5; ctx.stroke(); }
+      }
+    }
+    requestAnimationFrame(animate);
+  }
+  animate();
+})();
+
+document.addEventListener('DOMContentLoaded', initPage);
+</script>
+</body>
+</html>

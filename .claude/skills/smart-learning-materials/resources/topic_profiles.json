@@ -1,0 +1,649 @@
+{
+  "_description": "主题4D预分类库 — 60个金融与AI主题的抽象度/系统性/数学密度/演化速度画像",
+  "_version": "2.0.0",
+  "_usage": "Phase 1输入解析时，用此库匹配用户提问的主题。匹配失败则使用 heuristic_rules.json 中的R1-R4规则推理。",
+  "_dimensions": {
+    "abstract": {
+      "key": "abstract",
+      "name": "抽象度",
+      "range": [0, 1],
+      "description": "0=高度具体/应用导向, 1=高度抽象/理论导向",
+      "affects": ["FORMULA_DENSITY", "content_style", "analogy_ratio"]
+    },
+    "systemic": {
+      "key": "systemic",
+      "name": "系统性",
+      "range": [0, 1],
+      "description": "0=孤立知识点, 1=高度互联/系统级话题",
+      "affects": ["CHART_PRIORITY", "cross_reference_ratio", "module_interlinking"]
+    },
+    "math_density": {
+      "key": "math_density",
+      "name": "数学密度",
+      "range": [0, 1],
+      "description": "0=几乎无公式, 1=公式驱动的纯数学话题",
+      "affects": ["FORMULA_DENSITY", "formula_count", "derivation_depth"]
+    },
+    "temporal": {
+      "key": "temporal",
+      "name": "演化速度",
+      "range": [0, 1],
+      "description": "0=经典稳定(>30年不变), 1=快速迭代(<2年大变化)",
+      "affects": ["CHART_PRIORITY", "prospect_weight", "development_depth"]
+    }
+  },
+
+  "topics": {
+    "finance": {
+      "option-pricing": {
+        "id": "option-pricing",
+        "name": "期权定价",
+        "aliases": ["期权", "option pricing", "衍生品定价", "权证定价", "期权估值"],
+        "tags": ["derivatives", "pricing", "quant-models", "risk-neutral"],
+        "domain": "finance",
+        "profile": {"abstract": 0.80, "systemic": 0.55, "math_density": 0.90, "temporal": 0.25},
+        "suggested_texture": "G1",
+        "texture_reason": "高数学密度+高抽象度→需要公式驱动的推导式表达"
+      },
+      "black-scholes": {
+        "id": "black-scholes",
+        "name": "Black-Scholes模型",
+        "aliases": ["BS模型", "BSM", "black scholes", "BS公式"],
+        "tags": ["derivatives", "pricing", "quant-models", "classic-models"],
+        "domain": "finance",
+        "profile": {"abstract": 0.85, "systemic": 0.50, "math_density": 0.95, "temporal": 0.15},
+        "suggested_texture": "G1",
+        "texture_reason": "极高数学密度+极高抽象度→纯粹推导驱动"
+      },
+      "monte-carlo": {
+        "id": "monte-carlo",
+        "name": "蒙特卡洛模拟",
+        "aliases": ["蒙特卡罗", "Monte Carlo", "MC模拟", "随机模拟", "蒙特卡洛方法"],
+        "tags": ["quant-models", "simulation", "numerical-methods", "risk"],
+        "domain": "finance",
+        "profile": {"abstract": 0.55, "systemic": 0.45, "math_density": 0.80, "temporal": 0.25},
+        "suggested_texture": "G5",
+        "texture_reason": "中高数学密度但较具体→平衡型(公式+可视化+案例)"
+      },
+      "risk-management": {
+        "id": "risk-management",
+        "name": "风险管理",
+        "aliases": ["风控", "Risk Management", "风险控制", "风险管理框架"],
+        "tags": ["risk", "regulation", "management", "system-wide"],
+        "domain": "finance",
+        "profile": {"abstract": 0.40, "systemic": 0.85, "math_density": 0.65, "temporal": 0.35},
+        "suggested_texture": "G6",
+        "texture_reason": "高系统性+中数学密度→系统-图解型表达"
+      },
+      "var-cvar": {
+        "id": "var-cvar",
+        "name": "VaR/CVaR风险度量",
+        "aliases": ["VaR", "CVaR", "在险价值", "条件在险价值", "Expected Shortfall", "ES"],
+        "tags": ["risk", "quant-models", "regulation", "measurement"],
+        "domain": "finance",
+        "profile": {"abstract": 0.55, "systemic": 0.55, "math_density": 0.85, "temporal": 0.30},
+        "suggested_texture": "G1",
+        "texture_reason": "中高数学密度→公式推导驱动"
+      },
+      "portfolio-theory": {
+        "id": "portfolio-theory",
+        "name": "投资组合理论",
+        "aliases": ["现代投资组合理论", "MPT", "马科维茨", "Markowitz", "资产组合", "分散化"],
+        "tags": ["asset-management", "quant-models", "classic-models", "optimization"],
+        "domain": "finance",
+        "profile": {"abstract": 0.70, "systemic": 0.65, "math_density": 0.80, "temporal": 0.20},
+        "suggested_texture": "G1",
+        "texture_reason": "高数学密度+高抽象度→公式推导驱动"
+      },
+      "capm": {
+        "id": "capm",
+        "name": "CAPM资本资产定价模型",
+        "aliases": ["CAPM", "资本资产定价", "beta系数", "证券市场线"],
+        "tags": ["asset-management", "pricing", "classic-models", "factor-models"],
+        "domain": "finance",
+        "profile": {"abstract": 0.75, "systemic": 0.60, "math_density": 0.75, "temporal": 0.20},
+        "suggested_texture": "G1",
+        "texture_reason": "高抽象度+中高数学密度→公式推导驱动"
+      },
+      "emh": {
+        "id": "emh",
+        "name": "有效市场假说",
+        "aliases": ["EMH", "有效市场", "市场效率", "随机游走", "Efficient Market Hypothesis"],
+        "tags": ["market-theory", "classic-models", "debate"],
+        "domain": "finance",
+        "profile": {"abstract": 0.85, "systemic": 0.75, "math_density": 0.35, "temporal": 0.15},
+        "suggested_texture": "G4",
+        "texture_reason": "高抽象度+高系统性+低数学密度→叙事驱动+争议辩论"
+      },
+      "behavioral-finance": {
+        "id": "behavioral-finance",
+        "name": "行为金融学",
+        "aliases": ["行为金融", "Behavioral Finance", "行为经济学", "心理偏差", "非理性"],
+        "tags": ["market-theory", "psychology", "cross-discipline", "debate"],
+        "domain": "finance",
+        "profile": {"abstract": 0.55, "systemic": 0.55, "math_density": 0.30, "temporal": 0.40},
+        "suggested_texture": "G4",
+        "texture_reason": "中抽象度+低数学密度→叙事驱动+案例为主"
+      },
+      "quant-trading": {
+        "id": "quant-trading",
+        "name": "量化交易",
+        "aliases": ["量化", "Quant Trading", "算法交易", "程序化交易", "系统化交易"],
+        "tags": ["trading", "quant-models", "technology", "systematic"],
+        "domain": "finance",
+        "profile": {"abstract": 0.35, "systemic": 0.55, "math_density": 0.70, "temporal": 0.65},
+        "suggested_texture": "G8",
+        "texture_reason": "具体应用+高演化速度→教程-实操型"
+      },
+      "hft": {
+        "id": "hft",
+        "name": "高频交易",
+        "aliases": ["HFT", "高频", "High Frequency Trading", "低延迟交易"],
+        "tags": ["trading", "technology", "micro-structure", "infrastructure"],
+        "domain": "finance",
+        "profile": {"abstract": 0.25, "systemic": 0.45, "math_density": 0.50, "temporal": 0.80},
+        "suggested_texture": "G6",
+        "texture_reason": "低抽象度+极高演化速度→系统图解+技术架构"
+      },
+      "factor-investing": {
+        "id": "factor-investing",
+        "name": "因子投资",
+        "aliases": ["因子", "Factor Investing", "smart beta", "因子模型", "多因子"],
+        "tags": ["asset-management", "factor-models", "quant-models", "systematic"],
+        "domain": "finance",
+        "profile": {"abstract": 0.50, "systemic": 0.60, "math_density": 0.70, "temporal": 0.50},
+        "suggested_texture": "G5",
+        "texture_reason": "中抽象度+中高数学密度→平衡型"
+      },
+      "asset-allocation": {
+        "id": "asset-allocation",
+        "name": "资产配置",
+        "aliases": ["配置", "Asset Allocation", "大类资产", "战略配置", "战术配置"],
+        "tags": ["asset-management", "portfolio", "management", "system-wide"],
+        "domain": "finance",
+        "profile": {"abstract": 0.35, "systemic": 0.80, "math_density": 0.45, "temporal": 0.30},
+        "suggested_texture": "G6",
+        "texture_reason": "高系统性+低抽象度→系统图解型"
+      },
+      "fixed-income": {
+        "id": "fixed-income",
+        "name": "固定收益",
+        "aliases": ["Fixed Income", "债券", "固收", "利率产品", "信用债"],
+        "tags": ["asset-management", "fixed-income", "pricing", "credit"],
+        "domain": "finance",
+        "profile": {"abstract": 0.45, "systemic": 0.65, "math_density": 0.70, "temporal": 0.25},
+        "suggested_texture": "G1",
+        "texture_reason": "中高数学密度→公式推导驱动"
+      },
+      "credit-risk": {
+        "id": "credit-risk",
+        "name": "信用风险",
+        "aliases": ["信用", "Credit Risk", "违约风险", "信用评级", "CDS"],
+        "tags": ["risk", "credit", "regulation", "pricing"],
+        "domain": "finance",
+        "profile": {"abstract": 0.45, "systemic": 0.70, "math_density": 0.65, "temporal": 0.35},
+        "suggested_texture": "G5",
+        "texture_reason": "中抽象度+中高数学密度→平衡型"
+      },
+      "market-microstructure": {
+        "id": "market-microstructure",
+        "name": "市场微观结构",
+        "aliases": ["微观结构", "Market Microstructure", "订单簿", "流动性", "做市商"],
+        "tags": ["micro-structure", "trading", "infrastructure", "academic"],
+        "domain": "finance",
+        "profile": {"abstract": 0.55, "systemic": 0.40, "math_density": 0.55, "temporal": 0.45},
+        "suggested_texture": "G3",
+        "texture_reason": "中抽象度+模型多→模型拆解型"
+      },
+      "derivatives": {
+        "id": "derivatives",
+        "name": "金融衍生品",
+        "aliases": ["衍生品", "Derivatives", "期货", "期权", "互换", "掉期"],
+        "tags": ["derivatives", "pricing", "risk", "structured-products"],
+        "domain": "finance",
+        "profile": {"abstract": 0.55, "systemic": 0.65, "math_density": 0.75, "temporal": 0.30},
+        "suggested_texture": "G1",
+        "texture_reason": "中高抽象度+中高数学密度→公式推导驱动"
+      },
+      "hedge-fund": {
+        "id": "hedge-fund",
+        "name": "对冲基金策略",
+        "aliases": ["对冲基金", "Hedge Fund", "绝对收益", "多空策略", "事件驱动"],
+        "tags": ["asset-management", "trading", "strategies", "practitioner"],
+        "domain": "finance",
+        "profile": {"abstract": 0.30, "systemic": 0.55, "math_density": 0.45, "temporal": 0.60},
+        "suggested_texture": "G8",
+        "texture_reason": "低抽象度+高演化速度→教程实操型"
+      },
+      "esg": {
+        "id": "esg",
+        "name": "ESG投资",
+        "aliases": ["ESG", "可持续投资", "绿色金融", "社会责任投资", "SRI"],
+        "tags": ["asset-management", "sustainability", "regulation", "trending"],
+        "domain": "finance",
+        "profile": {"abstract": 0.30, "systemic": 0.55, "math_density": 0.20, "temporal": 0.75},
+        "suggested_texture": "G4",
+        "texture_reason": "低抽象度+低数学密度+高演化速度→叙事驱动"
+      },
+      "crypto-defi": {
+        "id": "crypto-defi",
+        "name": "加密货币与DeFi",
+        "aliases": ["加密货币", "DeFi", "比特币", "区块链", "Crypto", "Web3"],
+        "tags": ["crypto", "technology", "innovation", "disruption"],
+        "domain": "finance",
+        "profile": {"abstract": 0.30, "systemic": 0.55, "math_density": 0.40, "temporal": 0.90},
+        "suggested_texture": "G7",
+        "texture_reason": "极高演化速度+中系统性→叙事+案例+趋势"
+      },
+      "financial-regulation": {
+        "id": "financial-regulation",
+        "name": "金融监管",
+        "aliases": ["监管", "Financial Regulation", "合规", "巴塞尔", "Basel", "Dodd-Frank"],
+        "tags": ["regulation", "policy", "system-wide", "compliance"],
+        "domain": "finance",
+        "profile": {"abstract": 0.35, "systemic": 0.90, "math_density": 0.25, "temporal": 0.50},
+        "suggested_texture": "G6",
+        "texture_reason": "极高系统性+低数学密度→系统图解型"
+      },
+      "basel": {
+        "id": "basel",
+        "name": "巴塞尔协议",
+        "aliases": ["Basel", "巴塞尔III", "资本充足率", "Basel III", "银行监管"],
+        "tags": ["regulation", "banking", "risk", "compliance"],
+        "domain": "finance",
+        "profile": {"abstract": 0.35, "systemic": 0.85, "math_density": 0.35, "temporal": 0.30},
+        "suggested_texture": "G6",
+        "texture_reason": "极高系统性+中低数学密度→系统图解型"
+      },
+      "macroeconomics": {
+        "id": "macroeconomics",
+        "name": "宏观经济学与金融市场",
+        "aliases": ["宏观经济", "Macroeconomics", "GDP", "通胀", "货币政策", "财政政策"],
+        "tags": ["economics", "system-wide", "policy", "fundamental"],
+        "domain": "finance",
+        "profile": {"abstract": 0.65, "systemic": 0.95, "math_density": 0.50, "temporal": 0.40},
+        "suggested_texture": "G6",
+        "texture_reason": "极高系统性+中高抽象度→系统图解型"
+      },
+      "interest-rate-models": {
+        "id": "interest-rate-models",
+        "name": "利率模型",
+        "aliases": ["利率建模", "Interest Rate Models", "Hull-White", "CIR", "Vasicek"],
+        "tags": ["quant-models", "pricing", "fixed-income", "academic"],
+        "domain": "finance",
+        "profile": {"abstract": 0.80, "systemic": 0.55, "math_density": 0.95, "temporal": 0.20},
+        "suggested_texture": "G1",
+        "texture_reason": "极高数学密度+高抽象度→纯粹推导驱动"
+      },
+      "volatility-modeling": {
+        "id": "volatility-modeling",
+        "name": "波动率建模",
+        "aliases": ["波动率", "Volatility", "GARCH", "随机波动率", "VIX", "隐含波动率"],
+        "tags": ["quant-models", "risk", "pricing", "econometrics"],
+        "domain": "finance",
+        "profile": {"abstract": 0.70, "systemic": 0.55, "math_density": 0.90, "temporal": 0.35},
+        "suggested_texture": "G1",
+        "texture_reason": "极高数学密度+高抽象度→公式推导驱动"
+      },
+      "arbitrage": {
+        "id": "arbitrage",
+        "name": "套利与市场中性策略",
+        "aliases": ["套利", "Arbitrage", "统计套利", "配对交易", "市场中性"],
+        "tags": ["trading", "strategies", "quant-models", "practitioner"],
+        "domain": "finance",
+        "profile": {"abstract": 0.40, "systemic": 0.50, "math_density": 0.60, "temporal": 0.55},
+        "suggested_texture": "G8",
+        "texture_reason": "中低抽象度+实操导向→教程实操型"
+      },
+      "liquidity-risk": {
+        "id": "liquidity-risk",
+        "name": "流动性风险",
+        "aliases": ["流动性", "Liquidity Risk", "流动性危机", "融资流动性", "市场流动性"],
+        "tags": ["risk", "micro-structure", "crisis", "system-wide"],
+        "domain": "finance",
+        "profile": {"abstract": 0.45, "systemic": 0.75, "math_density": 0.50, "temporal": 0.40},
+        "suggested_texture": "G5",
+        "texture_reason": "中抽象度+高系统性→平衡型"
+      },
+      "systemic-risk": {
+        "id": "systemic-risk",
+        "name": "系统性风险",
+        "aliases": ["系统风险", "Systemic Risk", "金融稳定", "too big to fail", "传染"],
+        "tags": ["risk", "system-wide", "crisis", "regulation"],
+        "domain": "finance",
+        "profile": {"abstract": 0.55, "systemic": 0.95, "math_density": 0.55, "temporal": 0.35},
+        "suggested_texture": "G6",
+        "texture_reason": "极高系统性→系统图解型"
+      },
+      "financial-crisis": {
+        "id": "financial-crisis",
+        "name": "金融危机历史",
+        "aliases": ["金融危机", "Financial Crisis", "2008", "次贷危机", "亚洲金融风暴"],
+        "tags": ["crisis", "history", "system-wide", "case-study"],
+        "domain": "finance",
+        "profile": {"abstract": 0.35, "systemic": 0.90, "math_density": 0.30, "temporal": 0.20},
+        "suggested_texture": "G4",
+        "texture_reason": "低抽象度+高系统性+历史话题→叙事驱动+案例复盘"
+      }
+    },
+
+    "ai-tech": {
+      "transformer": {
+        "id": "transformer",
+        "name": "Transformer架构",
+        "aliases": ["Transformer", "transformer模型", "注意力机制", "self-attention", "编码器解码器"],
+        "tags": ["deep-learning", "nlp", "architecture", "foundation"],
+        "domain": "ai-tech",
+        "profile": {"abstract": 0.60, "systemic": 0.55, "math_density": 0.60, "temporal": 0.30},
+        "suggested_texture": "G2",
+        "texture_reason": "中抽象度+中数学密度→公式+可视化型"
+      },
+      "attention-mechanism": {
+        "id": "attention-mechanism",
+        "name": "注意力机制",
+        "aliases": ["Attention", "注意力", "self-attention", "cross-attention", "多头注意力", "QKV"],
+        "tags": ["deep-learning", "nlp", "architecture", "mechanism"],
+        "domain": "ai-tech",
+        "profile": {"abstract": 0.55, "systemic": 0.45, "math_density": 0.60, "temporal": 0.25},
+        "suggested_texture": "G2",
+        "texture_reason": "中抽象度+中数学密度→公式+可视化型"
+      },
+      "llm": {
+        "id": "llm",
+        "name": "大语言模型",
+        "aliases": ["LLM", "大模型", "GPT", "语言模型", "Large Language Model", "预训练"],
+        "tags": ["deep-learning", "nlp", "llm", "foundation", "trending"],
+        "domain": "ai-tech",
+        "profile": {"abstract": 0.45, "systemic": 0.70, "math_density": 0.50, "temporal": 0.85},
+        "suggested_texture": "G7",
+        "texture_reason": "高系统性+极高演化速度→叙事案例趋势型"
+      },
+      "gpt": {
+        "id": "gpt",
+        "name": "GPT系列模型",
+        "aliases": ["GPT", "GPT-4", "GPT-3", "ChatGPT", "OpenAI"],
+        "tags": ["deep-learning", "nlp", "llm", "product", "trending"],
+        "domain": "ai-tech",
+        "profile": {"abstract": 0.35, "systemic": 0.55, "math_density": 0.35, "temporal": 0.90},
+        "suggested_texture": "G7",
+        "texture_reason": "低抽象度+极高演化速度→叙事案例趋势型"
+      },
+      "deep-learning": {
+        "id": "deep-learning",
+        "name": "深度学习基础",
+        "aliases": ["深度学习", "Deep Learning", "神经网络", "Neural Network", "反向传播"],
+        "tags": ["deep-learning", "foundation", "math-heavy", "classic"],
+        "domain": "ai-tech",
+        "profile": {"abstract": 0.55, "systemic": 0.60, "math_density": 0.75, "temporal": 0.20},
+        "suggested_texture": "G1",
+        "texture_reason": "中高数学密度→公式推导驱动"
+      },
+      "backpropagation": {
+        "id": "backpropagation",
+        "name": "反向传播算法",
+        "aliases": ["反向传播", "Backpropagation", "BP", "梯度下降", "链式法则"],
+        "tags": ["deep-learning", "optimization", "math-heavy", "classic"],
+        "domain": "ai-tech",
+        "profile": {"abstract": 0.60, "systemic": 0.40, "math_density": 0.85, "temporal": 0.10},
+        "suggested_texture": "G1",
+        "texture_reason": "极高数学密度→纯推导驱动"
+      },
+      "reinforcement-learning": {
+        "id": "reinforcement-learning",
+        "name": "强化学习",
+        "aliases": ["强化学习", "RL", "Reinforcement Learning", "Q-learning", "策略梯度", "PPO"],
+        "tags": ["deep-learning", "rl", "math-heavy", "decision-making"],
+        "domain": "ai-tech",
+        "profile": {"abstract": 0.65, "systemic": 0.55, "math_density": 0.80, "temporal": 0.45},
+        "suggested_texture": "G1",
+        "texture_reason": "高数学密度+中高抽象度→公式推导驱动"
+      },
+      "rlhf": {
+        "id": "rlhf",
+        "name": "RLHF人类反馈强化学习",
+        "aliases": ["RLHF", "人类反馈", "对齐", "alignment", "偏好优化", "DPO"],
+        "tags": ["deep-learning", "rl", "llm", "alignment", "trending"],
+        "domain": "ai-tech",
+        "profile": {"abstract": 0.55, "systemic": 0.50, "math_density": 0.55, "temporal": 0.80},
+        "suggested_texture": "G3",
+        "texture_reason": "多模型组件+高演化速度→模型拆解型"
+      },
+      "nlp": {
+        "id": "nlp",
+        "name": "自然语言处理",
+        "aliases": ["NLP", "自然语言", "文本处理", "语义理解", "命名实体识别"],
+        "tags": ["nlp", "deep-learning", "application", "broad"],
+        "domain": "ai-tech",
+        "profile": {"abstract": 0.45, "systemic": 0.60, "math_density": 0.50, "temporal": 0.55},
+        "suggested_texture": "G5",
+        "texture_reason": "中抽象度+中系统性→平衡型"
+      },
+      "cv": {
+        "id": "cv",
+        "name": "计算机视觉",
+        "aliases": ["CV", "Computer Vision", "图像识别", "目标检测", "CNN", "ViT"],
+        "tags": ["deep-learning", "cv", "application", "broad"],
+        "domain": "ai-tech",
+        "profile": {"abstract": 0.40, "systemic": 0.55, "math_density": 0.55, "temporal": 0.50},
+        "suggested_texture": "G2",
+        "texture_reason": "可视化需求高→公式+可视化型"
+      },
+      "gan": {
+        "id": "gan",
+        "name": "生成对抗网络",
+        "aliases": ["GAN", "生成对抗", "生成器", "判别器", "对抗训练"],
+        "tags": ["deep-learning", "generative", "cv", "architecture"],
+        "domain": "ai-tech",
+        "profile": {"abstract": 0.55, "systemic": 0.40, "math_density": 0.65, "temporal": 0.35},
+        "suggested_texture": "G3",
+        "texture_reason": "模型拆解需求高→模型拆解型"
+      },
+      "diffusion": {
+        "id": "diffusion",
+        "name": "扩散模型",
+        "aliases": ["扩散", "Diffusion Model", "DDPM", "Stable Diffusion", "去噪"],
+        "tags": ["deep-learning", "generative", "math-heavy", "trending"],
+        "domain": "ai-tech",
+        "profile": {"abstract": 0.65, "systemic": 0.40, "math_density": 0.80, "temporal": 0.75},
+        "suggested_texture": "G1",
+        "texture_reason": "高数学密度→公式推导驱动"
+      },
+      "aigc": {
+        "id": "aigc",
+        "name": "AIGC人工智能生成内容",
+        "aliases": ["AIGC", "AI生成", "生成式AI", "GenAI", "文生图", "文生视频"],
+        "tags": ["deep-learning", "generative", "application", "trending"],
+        "domain": "ai-tech",
+        "profile": {"abstract": 0.30, "systemic": 0.60, "math_density": 0.35, "temporal": 0.90},
+        "suggested_texture": "G7",
+        "texture_reason": "低抽象度+极高演化速度→叙事案例趋势型"
+      },
+      "prompt-engineering": {
+        "id": "prompt-engineering",
+        "name": "提示工程",
+        "aliases": ["提示工程", "Prompt Engineering", "提示词", "few-shot", "chain-of-thought"],
+        "tags": ["llm", "engineering", "practitioner", "technique"],
+        "domain": "ai-tech",
+        "profile": {"abstract": 0.20, "systemic": 0.30, "math_density": 0.15, "temporal": 0.85},
+        "suggested_texture": "G8",
+        "texture_reason": "极低抽象度+极低数学密度→纯教程实操型"
+      },
+      "rag": {
+        "id": "rag",
+        "name": "RAG检索增强生成",
+        "aliases": ["RAG", "检索增强", "向量数据库", "知识库", "文档问答"],
+        "tags": ["llm", "engineering", "application", "trending"],
+        "domain": "ai-tech",
+        "profile": {"abstract": 0.30, "systemic": 0.55, "math_density": 0.30, "temporal": 0.85},
+        "suggested_texture": "G8",
+        "texture_reason": "低抽象度+高演化速度→教程实操型"
+      },
+      "agent": {
+        "id": "agent",
+        "name": "AI Agent智能体",
+        "aliases": ["Agent", "智能体", "AI代理", "AutoGPT", "工具调用", "function calling"],
+        "tags": ["llm", "engineering", "application", "trending"],
+        "domain": "ai-tech",
+        "profile": {"abstract": 0.35, "systemic": 0.60, "math_density": 0.25, "temporal": 0.90},
+        "suggested_texture": "G7",
+        "texture_reason": "高系统性+极高演化速度→叙事案例趋势型"
+      },
+      "fine-tuning": {
+        "id": "fine-tuning",
+        "name": "模型微调",
+        "aliases": ["微调", "Fine-tuning", "LoRA", "PEFT", "指令微调", "SFT"],
+        "tags": ["deep-learning", "llm", "engineering", "technique"],
+        "domain": "ai-tech",
+        "profile": {"abstract": 0.35, "systemic": 0.45, "math_density": 0.40, "temporal": 0.70},
+        "suggested_texture": "G8",
+        "texture_reason": "低抽象度+实操导向→教程实操型"
+      },
+      "model-compression": {
+        "id": "model-compression",
+        "name": "模型压缩与推理优化",
+        "aliases": ["模型压缩", "量化", "剪枝", "蒸馏", "推理优化", "ONNX", "TensorRT"],
+        "tags": ["deep-learning", "engineering", "optimization", "deployment"],
+        "domain": "ai-tech",
+        "profile": {"abstract": 0.40, "systemic": 0.40, "math_density": 0.50, "temporal": 0.60},
+        "suggested_texture": "G5",
+        "texture_reason": "中抽象度+中数学密度→平衡型"
+      },
+      "mlops": {
+        "id": "mlops",
+        "name": "MLOps机器学习运维",
+        "aliases": ["MLOps", "机器学习运维", "模型部署", "CI/CD", "模型监控", "特征存储"],
+        "tags": ["engineering", "infrastructure", "deployment", "practitioner"],
+        "domain": "ai-tech",
+        "profile": {"abstract": 0.20, "systemic": 0.65, "math_density": 0.15, "temporal": 0.65},
+        "suggested_texture": "G6",
+        "texture_reason": "低抽象度+高系统性→系统图解型"
+      },
+      "ai-ethics": {
+        "id": "ai-ethics",
+        "name": "AI伦理与安全",
+        "aliases": ["AI伦理", "AI安全", "对齐", "bias", "公平性", "可解释性", "XAI"],
+        "tags": ["ethics", "safety", "alignment", "governance"],
+        "domain": "ai-tech",
+        "profile": {"abstract": 0.60, "systemic": 0.70, "math_density": 0.25, "temporal": 0.65},
+        "suggested_texture": "G4",
+        "texture_reason": "高抽象度+高系统性+低数学密度→叙事驱动+辩论"
+      },
+      "ai-governance": {
+        "id": "ai-governance",
+        "name": "AI治理与监管",
+        "aliases": ["AI治理", "AI监管", "AI policy", "AI regulation", "欧盟AI法案"],
+        "tags": ["governance", "policy", "regulation", "system-wide"],
+        "domain": "ai-tech",
+        "profile": {"abstract": 0.45, "systemic": 0.85, "math_density": 0.15, "temporal": 0.80},
+        "suggested_texture": "G6",
+        "texture_reason": "极高系统性+低数学密度→系统图解型"
+      },
+      "graph-neural-network": {
+        "id": "graph-neural-network",
+        "name": "图神经网络",
+        "aliases": ["GNN", "图神经网络", "Graph Neural Network", "GCN", "GAT", "消息传递"],
+        "tags": ["deep-learning", "architecture", "math-heavy", "graph"],
+        "domain": "ai-tech",
+        "profile": {"abstract": 0.70, "systemic": 0.45, "math_density": 0.80, "temporal": 0.40},
+        "suggested_texture": "G1",
+        "texture_reason": "高数学密度+高抽象度→公式推导驱动"
+      },
+      "self-supervised": {
+        "id": "self-supervised",
+        "name": "自监督学习",
+        "aliases": ["自监督", "Self-supervised", "对比学习", "SimCLR", "掩码预测"],
+        "tags": ["deep-learning", "training", "technique", "academic"],
+        "domain": "ai-tech",
+        "profile": {"abstract": 0.60, "systemic": 0.45, "math_density": 0.55, "temporal": 0.50},
+        "suggested_texture": "G3",
+        "texture_reason": "多方法对比→模型拆解型"
+      },
+      "multimodal": {
+        "id": "multimodal",
+        "name": "多模态学习",
+        "aliases": ["多模态", "Multimodal", "视觉语言", "CLIP", "图文理解", "视频理解"],
+        "tags": ["deep-learning", "multimodal", "architecture", "trending"],
+        "domain": "ai-tech",
+        "profile": {"abstract": 0.45, "systemic": 0.55, "math_density": 0.45, "temporal": 0.75},
+        "suggested_texture": "G2",
+        "texture_reason": "可视化需求高→公式+可视化型"
+      },
+      "transfer-learning": {
+        "id": "transfer-learning",
+        "name": "迁移学习",
+        "aliases": ["迁移学习", "Transfer Learning", "域适应", "domain adaptation", "预训练"],
+        "tags": ["deep-learning", "training", "technique", "broad"],
+        "domain": "ai-tech",
+        "profile": {"abstract": 0.50, "systemic": 0.45, "math_density": 0.45, "temporal": 0.35},
+        "suggested_texture": "G5",
+        "texture_reason": "中抽象度+中数学密度→平衡型"
+      },
+      "federated-learning": {
+        "id": "federated-learning",
+        "name": "联邦学习",
+        "aliases": ["联邦学习", "Federated Learning", "隐私计算", "分布式训练", "数据安全"],
+        "tags": ["deep-learning", "privacy", "training", "distributed"],
+        "domain": "ai-tech",
+        "profile": {"abstract": 0.50, "systemic": 0.55, "math_density": 0.50, "temporal": 0.55},
+        "suggested_texture": "G3",
+        "texture_reason": "多组件架构→模型拆解型"
+      },
+      "knowledge-graph": {
+        "id": "knowledge-graph",
+        "name": "知识图谱",
+        "aliases": ["知识图谱", "Knowledge Graph", "实体关系", "三元组", "本体"],
+        "tags": ["nlp", "graph", "data", "knowledge"],
+        "domain": "ai-tech",
+        "profile": {"abstract": 0.45, "systemic": 0.60, "math_density": 0.30, "temporal": 0.35},
+        "suggested_texture": "G6",
+        "texture_reason": "高系统性+图结构→系统图解型"
+      },
+      "recommender-system": {
+        "id": "recommender-system",
+        "name": "推荐系统",
+        "aliases": ["推荐", "Recommender System", "协同过滤", "推荐算法", "个性化"],
+        "tags": ["application", "engineering", "broad", "industry"],
+        "domain": "ai-tech",
+        "profile": {"abstract": 0.30, "systemic": 0.55, "math_density": 0.45, "temporal": 0.45},
+        "suggested_texture": "G8",
+        "texture_reason": "低抽象度+实操导向→教程实操型"
+      },
+      "time-series": {
+        "id": "time-series",
+        "name": "时间序列预测",
+        "aliases": ["时间序列", "Time Series", "时序预测", "LSTM", "Transformer时序"],
+        "tags": ["application", "forecasting", "math-heavy", "cross-domain"],
+        "domain": "ai-tech",
+        "profile": {"abstract": 0.40, "systemic": 0.45, "math_density": 0.70, "temporal": 0.45},
+        "suggested_texture": "G1",
+        "texture_reason": "中高数学密度→公式推导驱动"
+      }
+    }
+  },
+
+  "tag_index": {
+    "derivatives": ["option-pricing", "black-scholes", "derivatives"],
+    "pricing": ["option-pricing", "black-scholes", "derivatives", "fixed-income", "interest-rate-models", "volatility-modeling"],
+    "quant-models": ["option-pricing", "black-scholes", "monte-carlo", "var-cvar", "portfolio-theory", "factor-investing", "interest-rate-models", "volatility-modeling", "arbitrage"],
+    "risk": ["risk-management", "var-cvar", "credit-risk", "liquidity-risk", "systemic-risk", "monte-carlo", "financial-crisis"],
+    "asset-management": ["portfolio-theory", "capm", "factor-investing", "asset-allocation", "hedge-fund", "esg"],
+    "trading": ["quant-trading", "hft", "hedge-fund", "arbitrage"],
+    "regulation": ["financial-regulation", "basel", "ai-governance"],
+    "crisis": ["financial-crisis", "liquidity-risk", "systemic-risk"],
+    "deep-learning": ["transformer", "attention-mechanism", "deep-learning", "backpropagation", "reinforcement-learning", "gan", "diffusion", "graph-neural-network", "self-supervised", "transfer-learning", "federated-learning"],
+    "nlp": ["transformer", "attention-mechanism", "nlp", "knowledge-graph"],
+    "llm": ["llm", "gpt", "rlhf", "rag", "agent", "fine-tuning"],
+    "generative": ["gan", "diffusion", "aigc"],
+    "engineering": ["prompt-engineering", "rag", "fine-tuning", "model-compression", "mlops"],
+    "ethics": ["ai-ethics", "ai-governance"],
+    "trending": ["llm", "gpt", "aigc", "rag", "agent", "multimodal", "esg", "crypto-defi"]
+  },
+
+  "matching_rules": {
+    "exact_match": "topic name 或 aliases 精确匹配",
+    "substring_match": "用户输入包含 topic name 或 alias 的子串",
+    "tag_match": "用户输入中的关键词命中 tag_index 中的 tag → 推荐该 tag 下最相关 topic",
+    "keyword_overlap": "用户输入与 aliases 的 Jaccard 相似度 > 0.3 → 取最高分",
+    "fallback": "所有匹配均失败 → 使用 heuristic_rules.json 的 R1-R4 推理"
+  }
+}

@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Learning Materials - Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+<style>
+:root {
+  --bg: #0f172a;
+  --bg-secondary: rgba(30,41,59,0.8);
+  --bg-tertiary: rgba(51,65,85,0.6);
+  --text: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-tertiary: #64748b;
+  --border: rgba(51,65,85,0.5);
+  --primary: #818cf8;
+  --accent: #a78bfa;
+  --cyan: #67e8f9;
+  --orange: #fbbf24;
+  --green: #34d399;
+  --red: #f87171;
+  --glass-bg: rgba(15,23,42,0.85);
+  --glass-border: rgba(99,102,241,0.2);
+  --shadow: 0 8px 32px rgba(0,0,0,0.4);
+  --radius: 16px;
+  --radius-sm: 10px;
+  --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+[data-theme="light"] {
+  --bg: #f8fafc;
+  --bg-secondary: rgba(255,255,255,0.9);
+  --bg-tertiary: rgba(241,245,249,0.8);
+  --text: #0f172a;
+  --text-secondary: #475569;
+  --text-tertiary: #94a3b8;
+  --border: rgba(226,232,240,0.8);
+  --primary: #6366f1;
+  --accent: #8b5cf6;
+  --cyan: #22d3ee;
+  --orange: #f59e0b;
+  --green: #10b981;
+  --red: #ef4444;
+  --glass-bg: rgba(255,255,255,0.85);
+  --glass-border: rgba(99,102,241,0.15);
+  --shadow: 0 8px 32px rgba(0,0,0,0.08);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg); color: var(--text);
+  height: 100vh; overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  transition: background var(--transition), color var(--transition);
+}
+
+/* Canvas Background */
+#bg-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+
+/* Layout */
+#app { position: relative; z-index: 1; display: flex; height: 100vh; }
+
+/* Top Bar */
+#top-bar {
+  position: fixed; top: 0; left: 0; right: 0; height: 56px; z-index: 100;
+  background: var(--glass-bg); backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; padding: 0 20px; gap: 16px;
+}
+#search-box {
+  flex: 1; max-width: 360px; padding: 8px 16px; border-radius: 20px;
+  background: var(--bg-tertiary); border: 1px solid var(--border);
+  color: var(--text); font-size: 14px; outline: none;
+  transition: all var(--transition);
+}
+#search-box:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(99,102,241,0.15); }
+#search-box::placeholder { color: var(--text-tertiary); }
+.view-btn {
+  padding: 6px 14px; border-radius: 8px; font-size: 13px; font-weight: 500;
+  cursor: pointer; border: 1px solid var(--border); background: var(--bg-secondary);
+  color: var(--text-secondary); transition: all var(--transition);
+}
+.view-btn:hover, .view-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+#meta-info { display: flex; gap: 8px; align-items: center; font-size: 13px; color: var(--text-secondary); margin-left: auto; }
+#theme-btn {
+  padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 16px;
+  border: 1px solid var(--border); background: var(--bg-secondary);
+}
+#switch-mode-link {
+  color: var(--primary); text-decoration: none; font-size: 13px; font-weight: 500;
+  cursor: pointer;
+}
+
+/* Left Sidebar - Filters */
+#left-panel {
+  position: fixed; top: 56px; left: 0; bottom: 0; width: 200px;
+  background: var(--glass-bg); backdrop-filter: blur(20px);
+  border-right: 1px solid var(--border);
+  padding: 20px 16px; overflow-y: auto; z-index: 50;
+  transition: transform var(--transition);
+}
+.filter-group { margin-bottom: 20px; }
+.filter-group h4 {
+  font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-tertiary); margin-bottom: 8px; font-weight: 700;
+}
+.filter-tag {
+  display: block; padding: 6px 12px; margin: 3px 0; border-radius: 6px;
+  font-size: 12px; cursor: pointer; transition: all var(--transition);
+  color: var(--text-secondary); border: 1px solid transparent;
+}
+.filter-tag:hover { background: var(--bg-tertiary); }
+.filter-tag.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+/* Center - Graph / Grid */
+#center-panel {
+  position: fixed; top: 56px; left: 200px; right: 0; bottom: 0;
+  overflow: auto; z-index: 10;
+  transition: right var(--transition);
+}
+#center-panel.with-detail { right: 440px; }
+#graph-container { width: 100%; height: 100%; }
+#grid-container {
+  display: none; padding: 24px; gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+}
+.module-card {
+  background: var(--glass-bg); backdrop-filter: blur(10px);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 20px; cursor: pointer; transition: all var(--transition);
+}
+.module-card:hover { transform: translateY(-4px); box-shadow: var(--shadow); border-color: var(--primary); }
+.module-card .card-tag {
+  display: inline-block; padding: 2px 8px; border-radius: 4px;
+  font-size: 10px; font-weight: 600; margin-bottom: 8px;
+}
+.module-card .card-title { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
+.module-card .card-hook { font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
+#timeline-container {
+  display: none; padding: 48px 60px; height: 100%; overflow-x: auto;
+}
+.timeline-track {
+  position: relative; padding: 40px 0;
+}
+.timeline-line {
+  position: absolute; top: 50%; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--primary), var(--cyan));
+}
+.timeline-event {
+  position: relative; display: inline-block; width: 200px; margin-right: 60px;
+  vertical-align: top;
+}
+.timeline-dot {
+  width: 14px; height: 14px; border-radius: 50%; background: var(--primary);
+  margin: 0 auto 12px; border: 3px solid var(--bg);
+}
+.timeline-event .event-year { font-size: 13px; font-weight: 700; color: var(--primary); text-align: center; }
+.timeline-event .event-desc { font-size: 12px; color: var(--text-secondary); text-align: center; margin-top: 4px; }
+
+/* Right Detail Panel */
+#detail-panel {
+  position: fixed; top: 56px; right: -440px; bottom: 0; width: 440px;
+  background: var(--glass-bg); backdrop-filter: blur(20px);
+  border-left: 1px solid var(--border);
+  transition: right var(--transition); z-index: 60;
+  display: flex; flex-direction: column;
+}
+#detail-panel.open { right: 0; }
+#detail-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 20px; border-bottom: 1px solid var(--border);
+}
+#detail-close {
+  width: 32px; height: 32px; border-radius: 50%; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--bg-tertiary); border: none; color: var(--text);
+  font-size: 16px; transition: all var(--transition);
+}
+#detail-close:hover { background: var(--red); color: #fff; }
+#detail-scroll { flex: 1; overflow-y: auto; padding: 20px 24px; }
+#detail-content { }
+
+/* Stacked tabs */
+#stacked-tabs {
+  display: flex; gap: 4px; padding: 0 20px; border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+}
+.stacked-tab {
+  padding: 8px 14px; font-size: 12px; cursor: pointer; border-radius: 8px 8px 0 0;
+  background: transparent; border: none; color: var(--text-tertiary);
+  white-space: nowrap; transition: all var(--transition);
+}
+.stacked-tab:hover { color: var(--text); }
+.stacked-tab.active { background: var(--bg-secondary); color: var(--primary); font-weight: 600; }
+
+/* Detail content styles */
+.detail-module { }
+.detail-module h3 { font-size: 18px; margin-bottom: 12px; }
+.detail-hook { font-size: 14px; color: var(--text-secondary); font-style: italic; margin-bottom: 16px; border-left: 3px solid var(--primary); padding-left: 12px; }
+.formula-block {
+  background: var(--bg-tertiary); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 16px 20px; margin: 12px 0; cursor: pointer;
+}
+.formula-block .derivation { display: none; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+.formula-block.expanded .derivation { display: block; }
+.chart-mini { width: 100%; height: 220px; margin: 12px 0; }
+.module-table { width: 100%; font-size: 12px; border-collapse: collapse; margin: 12px 0; }
+.module-table th { background: var(--bg-tertiary); padding: 6px 10px; text-align: left; font-size: 11px; font-weight: 600; text-transform: uppercase; }
+.module-table td { padding: 6px 10px; border-top: 1px solid var(--border); }
+.key-takeaway { padding: 12px 16px; background: rgba(99,102,241,0.1); border-left: 3px solid var(--primary); margin-top: 16px; border-radius: 0 var(--radius-sm) var(--radius-sm) 0; }
+.ref-list { font-size: 11px; color: var(--text-tertiary); margin-top: 12px; }
+
+/* Graph tooltip */
+.graph-tooltip {
+  position: fixed; pointer-events: none; z-index: 200;
+  background: var(--glass-bg); backdrop-filter: blur(10px);
+  border: 1px solid var(--border); border-radius: 8px;
+  padding: 8px 14px; font-size: 13px; color: var(--text);
+  opacity: 0; transition: opacity 0.15s;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  #left-panel { width: 160px; }
+  #center-panel { left: 160px; }
+  #detail-panel { width: 380px; }
+  #center-panel.with-detail { right: 380px; }
+}
+@media (max-width: 768px) {
+  #left-panel { transform: translateX(-100%); width: 200px; }
+  #left-panel.open { transform: translateX(0); }
+  #center-panel { left: 0; }
+  #detail-panel { width: 100%; right: -100%; }
+  #center-panel.with-detail { right: 100%; }
+}
+
+@media print {
+  #bg-canvas, #left-panel, #top-bar, .mobile-bottom-nav, .help-overlay, #detail-panel { display: none !important; }
+  #center-panel { left: 0 !important; right: 0 !important; position: static !important; }
+  body { overflow: visible; }
+}
+
+/* Search Highlight */
+#search-box { transition: all var(--transition); }
+
+/* Help Overlay */
+.help-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 600; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
+[data-theme="light"] .help-overlay { background: rgba(15,23,42,0.3); }
+.help-overlay.open { opacity: 1; pointer-events: auto; }
+.help-dialog { padding: 28px 32px; border-radius: 16px; background: var(--bg-secondary); border: 1px solid var(--border); max-width: 400px; margin: 0 16px; box-shadow: var(--shadow); }
+.help-dialog h4 { font-size: 15px; margin-bottom: 14px; color: var(--green); }
+.help-dialog .kbd-row { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+.help-dialog .kbd-row:last-child { border-bottom: none; }
+.help-dialog .kbd-key { padding: 3px 8px; border-radius: 5px; background: var(--bg-tertiary); border: 1px solid var(--border); font-family: 'JetBrains Mono',monospace; font-size: 11px; color: var(--primary); min-width: 20px; text-align: center; white-space: nowrap; }
+.help-dialog .kbd-desc { color: var(--text-secondary); flex: 1; }
+
+/* Mobile Bottom Nav */
+.mobile-bottom-nav { display: none; position: fixed; bottom: 0; left: 0; right: 0; z-index: 300; background: var(--glass-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-top: 1px solid var(--border); padding: 6px 8px; padding-bottom: max(6px, env(safe-area-inset-bottom)); }
+.mobile-bottom-nav .mbn-inner { display: flex; justify-content: space-around; align-items: center; }
+.mobile-bottom-nav .mbn-item { display: flex; flex-direction: column; align-items: center; gap: 1px; color: var(--text-tertiary); cursor: pointer; font-size: 10px; font-weight: 500; background: transparent; border: none; padding: 4px; font-family: inherit; transition: color 0.2s; }
+.mobile-bottom-nav .mbn-item:hover { color: var(--green); }
+.mobile-bottom-nav .mbn-item .mbn-icon { font-size: 17px; }
+
+@media (max-width: 768px) {
+  .mobile-bottom-nav { display: block; }
+}
+
+/* Export btn in top bar */
+.export-btn { padding: 6px 14px; border-radius: 20px; font-size: 13px; cursor: pointer; border: 1px solid var(--green); background: transparent; color: var(--green); transition: all var(--transition); }
+.export-btn:hover { background: var(--green); color: #000; }
+</style>
+</head>
+<body>
+<canvas id="bg-canvas"></canvas>
+
+<div id="app">
+  <header id="top-bar">
+    <button class="view-btn" onclick="document.getElementById('left-panel').classList.toggle('open')">☰</button>
+    <input type="text" id="search-box" placeholder="🔍 搜索模块..." oninput="filterModules(this.value)">
+    <button class="view-btn active" data-view="graph" onclick="switchView('graph')">🧭 图谱</button>
+    <button class="view-btn" data-view="grid" onclick="switchView('grid')">📋 缩略</button>
+    <button class="view-btn" data-view="timeline" onclick="switchView('timeline')">📅 时间线</button>
+    <div id="meta-info">
+      <button class="export-btn" onclick="exportNotes()">📄 导出笔记</button>
+      <span><strong id="topic-label"></strong></span>
+      <button id="theme-btn" onclick="toggleTheme()">☀️</button>
+      <a class="view-btn" href="../web-mode-a/index.html">📖 长文模式</a>
+    </div>
+  </header>
+
+  <aside id="left-panel">
+    <div class="filter-group">
+      <h4>标签筛选</h4>
+      <div id="tag-filters"></div>
+    </div>
+    <div class="filter-group">
+      <h4>模块列表</h4>
+      <div id="module-list"></div>
+    </div>
+  </aside>
+
+  <div id="center-panel">
+    <div id="graph-container"><svg width="100%" height="100%"></svg></div>
+    <div id="grid-container"></div>
+    <div id="timeline-container"><div class="timeline-track"></div></div>
+  </div>
+
+  <div id="detail-panel">
+    <div id="stacked-tabs"></div>
+    <div id="detail-header">
+      <strong id="detail-title">模块详情</strong>
+      <button id="detail-close" onclick="closeDetail()">✕</button>
+    </div>
+    <div id="detail-scroll"><div id="detail-content"></div></div>
+  </div>
+</div>
+
+<div class="graph-tooltip" id="graph-tooltip"></div>
+
+<script>
+// ============ DATA INJECTION POINT ============
+const PAGE_DATA = {
+  topic: "{{TOPIC}}",
+  domain: "{{DOMAIN}}",
+  level: "{{LEVEL}}",
+  modules: [] // AI populates this
+};
+// =============================================
+
+// ============ THEME ============
+function applyTheme(t) {
+  document.documentElement.setAttribute('data-theme', t);
+  localStorage.setItem('slm-dash-theme', t);
+  document.getElementById('theme-btn').textContent = t === 'dark' ? '☀️' : '🌙';
+  if (currentGraph) renderGraph();
+}
+function toggleTheme() {
+  const c = document.documentElement.getAttribute('data-theme') || 'dark';
+  applyTheme(c === 'dark' ? 'light' : 'dark');
+}
+applyTheme(localStorage.getItem('slm-dash-theme') || 'dark');
+
+// ============ BACKGROUND ============
+const canvas = document.getElementById('bg-canvas');
+const ctx = canvas.getContext('2d');
+let particles = [];
+
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+function initParticles() {
+  particles = [];
+  const count = Math.min(80, Math.floor((canvas.width * canvas.height) / 15000));
+  for (let i = 0; i < count; i++) {
+    particles.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      vx: (Math.random() - 0.5) * 0.4,
+      vy: (Math.random() - 0.5) * 0.4,
+      r: Math.random() * 1.5 + 0.5,
+      alpha: Math.random() * 0.4 + 0.1
+    });
+  }
+}
+initParticles();
+
+function animateBg() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+  const primaryRGB = isDark ? '129,140,248' : '99,102,241';
+
+  particles.forEach(p => {
+    p.x += p.vx;
+    p.y += p.vy;
+    if (p.x < 0) p.x = canvas.width;
+    if (p.x > canvas.width) p.x = 0;
+    if (p.y < 0) p.y = canvas.height;
+    if (p.y > canvas.height) p.y = 0;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(${primaryRGB},${p.alpha})`;
+    ctx.fill();
+  });
+
+  // Draw connections
+  for (let i = 0; i < particles.length; i++) {
+    for (let j = i + 1; j < particles.length; j++) {
+      const dx = particles[i].x - particles[j].x;
+      const dy = particles[i].y - particles[j].y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < 120) {
+        ctx.beginPath();
+        ctx.moveTo(particles[i].x, particles[i].y);
+        ctx.lineTo(particles[j].x, particles[j].y);
+        ctx.strokeStyle = `rgba(${primaryRGB},${0.08 * (1 - dist / 120)})`;
+        ctx.lineWidth = 0.5;
+        ctx.stroke();
+      }
+    }
+  }
+  requestAnimationFrame(animateBg);
+}
+animateBg();
+
+// ============ FILTERS & SIDEBAR ============
+let activeTag = null;
+
+function buildFilters() {
+  const tags = [...new Set(PAGE_DATA.modules.map(m => m.module_tag).filter(Boolean))];
+  const container = document.getElementById('tag-filters');
+  container.innerHTML = '';
+  const allBtn = document.createElement('span');
+  allBtn.className = 'filter-tag active';
+  allBtn.textContent = '全部';
+  allBtn.onclick = () => { activeTag = null; updateFilters(); renderGraph(); renderGrid(); };
+  container.appendChild(allBtn);
+  tags.forEach(tag => {
+    const btn = document.createElement('span');
+    btn.className = 'filter-tag';
+    btn.textContent = tag;
+    btn.onclick = () => {
+      activeTag = tag;
+      updateFilters();
+      renderGraph();
+      renderGrid();
+    };
+    container.appendChild(btn);
+  });
+
+  const listContainer = document.getElementById('module-list');
+  listContainer.innerHTML = '';
+  PAGE_DATA.modules.forEach(mod => {
+    const item = document.createElement('span');
+    item.className = 'filter-tag';
+    item.textContent = mod.module_title || mod.module_id;
+    item.onclick = () => openDetail(mod);
+    listContainer.appendChild(item);
+  });
+}
+
+function updateFilters() {
+  document.querySelectorAll('#tag-filters .filter-tag').forEach(el => {
+    el.classList.toggle('active', el.textContent === (activeTag || '全部'));
+  });
+}
+
+function getFilteredModules() {
+  if (!activeTag) return PAGE_DATA.modules;
+  return PAGE_DATA.modules.filter(m => m.module_tag === activeTag);
+}
+
+// ============ VIEW SWITCHING ============
+let currentView = 'graph';
+let currentGraph = null;
+
+function switchView(view) {
+  currentView = view;
+  document.querySelectorAll('.view-btn[data-view]').forEach(b => b.classList.toggle('active', b.dataset.view === view));
+  document.getElementById('graph-container').style.display = view === 'graph' ? 'block' : 'none';
+  document.getElementById('grid-container').style.display = view === 'grid' ? 'grid' : 'none';
+  document.getElementById('timeline-container').style.display = view === 'timeline' ? 'block' : 'none';
+
+  if (view === 'graph') renderGraph();
+  if (view === 'grid') renderGrid();
+  if (view === 'timeline') renderTimeline();
+}
+
+function filterModules(query) {
+  if (currentView === 'grid') renderGrid(query);
+  if (currentView === 'graph') renderGraph();
+}
+
+// ============ GRAPH ============
+function renderGraph() {
+  const container = document.getElementById('graph-container');
+  const svg = container.querySelector('svg');
+  svg.innerHTML = '';
+  const width = container.clientWidth;
+  const height = container.clientHeight;
+
+  const filtered = getFilteredModules();
+  const nodes = filtered.map(m => ({
+    id: m.module_id,
+    title: m.module_title || m.module_id,
+    tag: m.module_tag || '',
+    group: getGroup(m.module_tag),
+    module: m
+  }));
+
+  const links = [];
+  for (let i = 0; i < nodes.length - 1; i++) {
+    links.push({ source: nodes[i].id, target: nodes[i + 1].id, value: 1 });
+  }
+
+  const colorMap = {
+    '核心概念': '#818cf8', '前置知识': '#818cf8', '核心工具': '#a78bfa',
+    '发展演进': '#67e8f9', '实践应用': '#34d399', '风险与挑战': '#f87171', '前沿探索': '#fbbf24'
+  };
+  const defaultColor = '#818cf8';
+
+  const simulation = d3.forceSimulation(nodes)
+    .force('link', d3.forceLink(links).id(d => d.id).distance(120))
+    .force('charge', d3.forceManyBody().strength(-400))
+    .force('center', d3.forceCenter(width / 2, height / 2))
+    .force('collision', d3.forceCollide(30));
+
+  const g = d3.select(svg);
+
+  const link = g.append('g')
+    .selectAll('line')
+    .data(links)
+    .join('line')
+    .attr('stroke', 'var(--border)')
+    .attr('stroke-width', 1.5)
+    .attr('stroke-opacity', 0.6);
+
+  const node = g.append('g')
+    .selectAll('g')
+    .data(nodes)
+    .join('g')
+    .attr('cursor', 'pointer')
+    .call(d3.drag()
+      .on('start', (e, d) => { if (!e.active) simulation.alphaTarget(0.3).restart(); d.fx = d.x; d.fy = d.y; })
+      .on('drag', (e, d) => { d.fx = e.x; d.fy = e.y; })
+      .on('end', (e, d) => { if (!e.active) simulation.alphaTarget(0); d.fx = null; d.fy = null; })
+    )
+    .on('click', (e, d) => openDetail(d.module))
+    .on('mouseenter', showTooltip)
+    .on('mouseleave', hideTooltip);
+
+  node.append('circle')
+    .attr('r', d => d.group === 0 ? 22 : 18)
+    .attr('fill', d => colorMap[d.tag] || defaultColor)
+    .attr('stroke', 'var(--bg)')
+    .attr('stroke-width', 3)
+    .attr('opacity', 0.9);
+
+  node.append('text')
+    .text(d => d.title.length > 6 ? d.title.slice(0, 6) + '..' : d.title)
+    .attr('text-anchor', 'middle')
+    .attr('dy', '0.35em')
+    .attr('fill', '#fff')
+    .attr('font-size', '10px')
+    .attr('font-weight', '600');
+
+  simulation.on('tick', () => {
+    link.attr('x1', d => d.source.x).attr('y1', d => d.source.y)
+        .attr('x2', d => d.target.x).attr('y2', d => d.target.y);
+    node.attr('transform', d => `translate(${d.x},${d.y})`);
+  });
+
+  function getGroup(tag) {
+    const g = { '核心概念': 0, '前置知识': 0, '核心工具': 1, '发展演进': 2, '实践应用': 2, '风险与挑战': 3, '前沿探索': 4 };
+    return g[tag] || 0;
+  }
+
+  function showTooltip(e, d) {
+    const tt = document.getElementById('graph-tooltip');
+    tt.textContent = d.title;
+    tt.style.opacity = '1';
+    tt.style.left = (e.pageX + 12) + 'px';
+    tt.style.top = (e.pageY - 30) + 'px';
+  }
+  function hideTooltip() {
+    document.getElementById('graph-tooltip').style.opacity = '0';
+  }
+
+  currentGraph = { svg, simulation, nodes, links, node, link };
+}
+
+// ============ GRID ============
+function renderGrid(query) {
+  const container = document.getElementById('grid-container');
+  let filtered = getFilteredModules();
+  if (query) {
+    const q = query.toLowerCase();
+    filtered = filtered.filter(m =>
+      (m.module_title || '').toLowerCase().includes(q) ||
+      (m.module_id || '').toLowerCase().includes(q) ||
+      (m.module_tag || '').toLowerCase().includes(q)
+    );
+  }
+  container.innerHTML = filtered.map(m => `
+    <div class="module-card" onclick="openDetail(PAGE_DATA.modules.find(x=>x.module_id==='${m.module_id}'))">
+      <div class="card-tag" style="background:var(--cyan);color:#0f172a">${m.module_tag||''}</div>
+      <div class="card-title">${m.module_title||m.module_id}</div>
+      <div class="card-hook">${m.hook||''}</div>
+    </div>
+  `).join('');
+}
+
+// ============ TIMELINE ============
+function renderTimeline() {
+  const dev = PAGE_DATA.modules.find(m => m.module_id === 'development');
+  const track = document.querySelector('#timeline-container .timeline-track');
+  if (!dev || !dev.tables) {
+    track.innerHTML = '<div style="color:var(--text-tertiary);text-align:center;padding:40px">无时间线数据</div>';
+    return;
+  }
+  const table = dev.tables[0];
+  if (!table || !table.rows) {
+    track.innerHTML = '<div style="color:var(--text-tertiary);text-align:center;padding:40px">无时间线数据</div>';
+    return;
+  }
+  track.innerHTML = '<div class="timeline-line"></div>' + table.rows.map(r => `
+    <div class="timeline-event" onclick="openDetail(PAGE_DATA.modules.find(m=>m.module_id==='development'))">
+      <div class="timeline-dot"></div>
+      <div class="event-year">${r[0]||''}</div>
+      <div class="event-desc">${r[1]||''}</div>
+    </div>
+  `).join('');
+}
+
+// ============ DETAIL PANEL ============
+let detailStack = [];
+
+function openDetail(mod) {
+  if (!mod) return;
+
+  // If already in stack, switch to it
+  const existingIdx = detailStack.findIndex(m => m.module_id === mod.module_id);
+  if (existingIdx >= 0) {
+    switchStackTab(existingIdx);
+    return;
+  }
+
+  detailStack.push(mod);
+  renderStackTabs();
+  switchStackTab(detailStack.length - 1);
+  document.getElementById('detail-panel').classList.add('open');
+  document.getElementById('center-panel').classList.add('with-detail');
+}
+
+function closeDetail() {
+  document.getElementById('detail-panel').classList.remove('open');
+  document.getElementById('center-panel').classList.remove('with-detail');
+}
+
+function renderStackTabs() {
+  const tabs = document.getElementById('stacked-tabs');
+  tabs.innerHTML = detailStack.map((m, i) =>
+    `<button class="stacked-tab" onclick="switchStackTab(${i})">${m.module_title||m.module_id}</button>`
+  ).join('');
+}
+
+function switchStackTab(idx) {
+  if (idx >= detailStack.length) return;
+  const mod = detailStack[idx];
+  document.querySelectorAll('.stacked-tab').forEach((t, i) => t.classList.toggle('active', i === idx));
+  renderDetail(mod);
+}
+
+function renderDetail(mod) {
+  document.getElementById('detail-title').textContent = mod.module_title || mod.module_id;
+  const content = document.getElementById('detail-content');
+
+  let html = `<div class="detail-module">`;
+  html += `<h3>${mod.module_title||mod.module_id}</h3>`;
+  if (mod.hook) html += `<div class="detail-hook">${mod.hook}</div>`;
+  html += `<div style="font-size:14px;line-height:1.7;color:var(--text-secondary)">${mod.content||''}</div>`;
+
+  if (mod.formulas && mod.formulas.length > 0) {
+    mod.formulas.forEach(f => {
+      html += `<div class="formula-block" onclick="this.classList.toggle('expanded')">
+        <div>${f.latex}</div>${f.caption?`<div style="font-size:11px;color:var(--text-tertiary);margin-top:6px">${f.caption}</div>`:''}
+        ${f.expandable&&f.derivation?`<div class="derivation">${f.derivation}</div><div style="font-size:10px;color:var(--text-tertiary);margin-top:4px">💡 点击展开推导</div>`:''}
+      </div>`;
+    });
+  }
+
+  if (mod.charts && mod.charts.length > 0) {
+    mod.charts.forEach((c, ci) => {
+      html += `<div class="chart-mini" id="detail_chart_${mod.module_id}_${ci}"></div>`;
+      if (c.caption) html += `<div style="font-size:11px;color:var(--text-tertiary);text-align:center;margin:4px 0">${c.caption}</div>`;
+    });
+  }
+
+  if (mod.tables && mod.tables.length > 0) {
+    mod.tables.forEach(t => {
+      html += `<table class="module-table"><thead><tr>${(t.headers||[]).map(h=>`<th>${h}</th>`).join('')}</tr></thead>
+        <tbody>${(t.rows||[]).map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+      if (t.caption) html += `<div style="font-size:11px;color:var(--text-tertiary);text-align:center">${t.caption}</div>`;
+    });
+  }
+
+  if (mod.key_takeaway) html += `<div class="key-takeaway">💡 ${mod.key_takeaway}</div>`;
+  if (mod.references && mod.references.length > 0) {
+    html += `<div class="ref-list"><strong>📚 参考文献:</strong><ol style="margin-left:16px;margin-top:4px">`;
+    mod.references.forEach(ref => {
+      html += `<li>${ref.authors||''} (${ref.year||''}). ${ref.title||''}. ${ref.doi?'DOI:'+ref.doi:''}</li>`;
+    });
+    html += `</ol></div>`;
+  }
+  html += `</div>`;
+
+  content.innerHTML = html;
+
+  // Render KaTeX
+  renderMathInElement(content, { delimiters: [{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}], throwOnError: false });
+
+  // Render charts in detail panel
+  setTimeout(() => {
+    if (mod.charts) {
+      mod.charts.forEach((c, ci) => {
+        const el = document.getElementById(`detail_chart_${mod.module_id}_${ci}`);
+        if (!el) return;
+        try {
+          const chart = echarts.init(el);
+          const opt = c.echarts_option || {};
+          const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+          chart.setOption({
+            color: isDark ? ['#818cf8','#a78bfa','#c4b5fd','#67e8f9','#fbbf24','#34d399','#f87171']
+                          : ['#6366f1','#8b5cf6','#a78bfa','#22d3ee','#f59e0b','#10b981','#ef4444'],
+            ...(typeof opt === 'string' ? JSON.parse(opt) : opt)
+          });
+          new ResizeObserver(() => chart.resize()).observe(el);
+        } catch(e) { el.textContent = '图表渲染失败'; }
+      });
+    }
+  }, 200);
+}
+
+// ============ INIT ============
+function initDashboard() {
+  document.getElementById('topic-label').textContent = PAGE_DATA.topic;
+  buildFilters();
+  renderGraph();
+  switchView('graph');
+}
+
+document.addEventListener('DOMContentLoaded', initDashboard);
+
+// Keyboard Shortcuts
+document.addEventListener('keydown', function(e) {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'k') { e.preventDefault(); document.getElementById('search-box').focus(); }
+  if ((e.ctrlKey || e.metaKey) && e.key === 'd') { e.preventDefault(); toggleTheme(); }
+  if (e.key === 'Escape') {
+    if (document.getElementById('helpOverlay').classList.contains('open')) { document.getElementById('helpOverlay').classList.remove('open'); return; }
+    if (document.getElementById('detail-panel').classList.contains('open')) { closePanel(); return; }
+  }
+  if (e.shiftKey && e.key === '?') { e.preventDefault(); document.getElementById('helpOverlay').classList.add('open'); }
+});
+
+document.getElementById('helpOverlay').addEventListener('click', function(e) { if (e.target === this) this.classList.remove('open'); });
+
+// Export Notes
+function exportNotes() {
+  var lines = ['# ' + PAGE_DATA.topic + ' - 学习笔记', '', '生成日期: ' + new Date().toLocaleDateString('zh-CN'), ''];
+  lines.push('## 📚 模块列表');
+  PAGE_DATA.modules.forEach(function(m) { lines.push('- **' + (m.module_title || m.module_id) + '**: ' + (m.key_takeaway || m.hook || '')); });
+  var txt = lines.join('\n');
+  if (navigator.clipboard) { navigator.clipboard.writeText(txt).then(function() { alert('✅ 学习笔记已复制到剪贴板!'); }); }
+  else { var ta = document.createElement('textarea'); ta.value = txt; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); alert('✅ 学习笔记已复制到剪贴板!'); }
+}
+
+// Sample data if empty
+if (PAGE_DATA.modules.length === 0) {
+  PAGE_DATA.modules = [
+    {
+      module_id: "background", module_title: "背景与缘起", module_tag: "前置知识",
+      hook: "一切伟大的思想都始于一个问题。", content: "这是**示例内容**。尝试点击不同节点探索。",
+      formulas: [{ latex: "$$x = \\frac{-b \\pm \\sqrt{b^2-4ac}}{2a}$$", caption: "二次方程求根公式", expandable: true, derivation: "由配方法推导..." }],
+      charts: [{ echarts_option: { xAxis:{type:'category',data:['A','B','C','D']}, yAxis:{}, series:[{type:'bar',data:[10,20,15,25]}] }, caption: "示例数据" }],
+      tables: [{ headers: ["项目", "值"], rows: [["Alpha", "0.05"],["Beta", "0.8"]], caption: "示例参数" }],
+      key_takeaway: "这是一个示例知识总结。"
+    },
+    {
+      module_id: "concept", module_title: "核心概念", module_tag: "核心概念",
+      hook: "理解一个概念，就是理解了整个领域的钥匙。", content: "核心概念是知识体系的基石。",
+      key_takeaway: "掌握了核心概念，后续学习事半功倍。"
+    },
+    {
+      module_id: "principle", module_title: "核心原理", module_tag: "核心概念",
+      hook: "知道'是什么'只是开始，理解'为什么'才是关键。", content: "原理揭示了事物运作的内在机制。",
+      key_takeaway: "原理是知识的内核。"
+    },
+    {
+      module_id: "development", module_title: "发展迭代", module_tag: "发展演进",
+      hook: "每一个里程碑背后都是一段精彩的故事。", content: "发展迭代展现了知识的进化路径。",
+      tables: [{ headers: ["年份", "里程碑"], rows: [["2020","突破1"],["2022","突破2"],["2024","突破3"]], caption: "关键里程碑" }],
+      key_takeaway: "了解历史才能预测未来。"
+    },
+    {
+      module_id: "risk", module_title: "潜在风险", module_tag: "风险与挑战",
+      hook: "任何强大的工具都是双刃剑。", content: "风险分析帮助我们安全使用知识。",
+      key_takeaway: "认识风险是成熟使用知识的前提。"
+    }
+  ];
+  PAGE_DATA.topic = "示例知识领域";
+  initDashboard();
+}
+</script>
+
+<div class="help-overlay" id="helpOverlay">
+  <div class="help-dialog">
+    <h4>⌨ 键盘快捷键</h4>
+    <div class="kbd-row"><span class="kbd-key">Ctrl+K</span><span class="kbd-desc">聚焦搜索框</span></div>
+    <div class="kbd-row"><span class="kbd-key">Ctrl+D</span><span class="kbd-desc">切换深色/浅色主题</span></div>
+    <div class="kbd-row"><span class="kbd-key">Esc</span><span class="kbd-desc">关闭弹窗</span></div>
+    <div class="kbd-row"><span class="kbd-key">Shift+?</span><span class="kbd-desc">显示此帮助</span></div>
+    <div style="text-align:center;margin-top:12px"><span style="font-size:12px;color:var(--text-tertiary)">点击背景或按 Esc 关闭</span></div>
+  </div>
+</div>
+
+<div class="mobile-bottom-nav" id="mobileBottomNav">
+  <div class="mbn-inner">
+    <button class="mbn-item" onclick="switchView('graph')"><span class="mbn-icon">🧭</span>图谱</button>
+    <button class="mbn-item" onclick="switchView('grid')"><span class="mbn-icon">📋</span>缩略</button>
+    <button class="mbn-item" onclick="switchView('timeline')"><span class="mbn-icon">📅</span>时间线</button>
+    <button class="mbn-item" onclick="document.getElementById('left-panel').classList.toggle('open')"><span class="mbn-icon">📂</span>筛选</button>
+    <button class="mbn-item" onclick="exportNotes()"><span class="mbn-icon">📄</span>导出</button>
+  </div>
+</div>
+</body>
+</html>

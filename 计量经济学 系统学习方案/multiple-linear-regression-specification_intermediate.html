@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>多元线性回归模型设定 - 深度研读</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<style>
+:root{--bg:#ffffff;--bg-secondary:#f8fafc;--bg-tertiary:#f1f5f9;--text:#0f172a;--text-secondary:#475569;--text-tertiary:#94a3b8;--border:#e2e8f0;--primary:#6366f1;--primary-light:#eef2ff;--accent:#8b5cf6;--accent-light:#f5f3ff;--cyan:#22d3ee;--cyan-light:#ecfeff;--orange:#f59e0b;--orange-light:#fffbeb;--green:#10b981;--green-light:#ecfdf5;--red:#ef4444;--red-light:#fef2f2;--pink:#ec4899;--pink-light:#fdf2f8;--shadow-sm:0 1px 2px rgba(0,0,0,0.05);--shadow:0 1px 3px rgba(0,0,0,0.1),0 1px 2px rgba(0,0,0,0.06);--shadow-md:0 4px 6px -1px rgba(0,0,0,0.1),0 2px 4px -2px rgba(0,0,0,0.1);--shadow-lg:0 10px 15px -3px rgba(0,0,0,0.1),0 4px 6px -4px rgba(0,0,0,0.1);--radius:12px;--radius-sm:8px;--max-width:780px;--sidebar-width:240px;--transition:0.2s cubic-bezier(0.4,0,0.2,1)}
+[data-theme="dark"]{--bg:#0f172a;--bg-secondary:#1e293b;--bg-tertiary:#334155;--text:#f1f5f9;--text-secondary:#94a3b8;--text-tertiary:#64748b;--border:#334155;--primary:#818cf8;--primary-light:rgba(99,102,241,0.15);--accent:#a78bfa;--accent-light:rgba(139,92,246,0.15);--cyan:#67e8f9;--cyan-light:rgba(34,211,238,0.1);--orange:#fbbf24;--orange-light:rgba(245,158,11,0.1);--green:#34d399;--green-light:rgba(16,185,129,0.1);--red:#f87171;--red-light:rgba(239,68,68,0.1);--pink:#f472b6;--pink-light:rgba(236,72,153,0.1);--shadow-sm:0 1px 2px rgba(0,0,0,0.3);--shadow:0 1px 3px rgba(0,0,0,0.4);--shadow-md:0 4px 6px -1px rgba(0,0,0,0.4);--shadow-lg:0 10px 15px -3px rgba(0,0,0,0.4)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Inter','SF Pro Display',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);line-height:1.7;-webkit-font-smoothing:antialiased;transition:background var(--transition),color var(--transition)}
+body.loading{opacity:0}body.loaded{opacity:1;transition:opacity 0.4s ease}
+#progress-bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--primary),var(--accent),var(--cyan));z-index:1000;transition:width 0.1s linear}
+#theme-toggle{position:fixed;top:20px;right:20px;z-index:999;width:40px;height:40px;border-radius:50%;background:var(--bg-secondary);border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;transition:all var(--transition);box-shadow:var(--shadow-sm)}
+#theme-toggle:hover{transform:scale(1.1);box-shadow:var(--shadow)}
+#sidebar{position:fixed;top:0;left:0;width:var(--sidebar-width);height:100vh;background:var(--bg-secondary);border-right:1px solid var(--border);padding:80px 16px 24px;overflow-y:auto;z-index:100;transition:transform var(--transition)}
+#sidebar h3{font-size:11px;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-tertiary);margin-bottom:12px;font-weight:600}
+.sidebar-link{display:block;padding:6px 12px;margin:2px 0;border-radius:var(--radius-sm);font-size:13px;color:var(--text-secondary);text-decoration:none;transition:all var(--transition);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sidebar-link:hover{background:var(--bg-tertiary);color:var(--text)}
+.sidebar-link.active{background:var(--primary-light);color:var(--primary);font-weight:600}
+#main-content{margin-left:var(--sidebar-width);max-width:var(--max-width);padding:60px 32px 120px;margin-right:auto}
+.integration-navbar{display:flex;align-items:center;gap:12px;padding:10px 24px;background:var(--bg-secondary);border-bottom:1px solid var(--border);font-size:14px;position:sticky;top:0;z-index:50;margin-left:var(--sidebar-width)}
+.meta-card{background:linear-gradient(135deg,var(--primary-light),var(--accent-light));border:1px solid var(--border);border-radius:var(--radius);padding:28px 32px;margin-bottom:48px;display:flex;flex-wrap:wrap;gap:24px;align-items:center}
+.meta-card .meta-item{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--text-secondary)}
+.meta-card .meta-item .icon{font-size:20px}
+.meta-card .meta-item strong{color:var(--text)}
+.meta-badge{display:inline-block;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;letter-spacing:0.02em}
+.meta-badge.domain-finance{background:var(--primary-light);color:var(--primary)}
+.meta-badge.domain-ai{background:var(--accent-light);color:var(--accent)}
+.meta-badge.level-intermediate{background:var(--orange-light);color:var(--orange)}
+.meta-badge.texture-badge{background:var(--cyan-light);color:#0891b2;font-family:'SF Mono','JetBrains Mono',monospace}
+.module-section{margin-bottom:56px;opacity:0;transform:translateY(24px);transition:opacity 0.6s ease,transform 0.6s ease}
+.module-section.visible{opacity:1;transform:translateY(0)}
+.module-header{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.module-tag{display:inline-block;padding:3px 10px;border-radius:6px;font-size:11px;font-weight:600;letter-spacing:0.03em;text-transform:uppercase}
+.tag-core{background:var(--primary-light);color:var(--primary)}
+.tag-tools{background:var(--accent-light);color:var(--accent)}
+.tag-evolution{background:var(--cyan-light);color:#0891b2}
+.tag-application{background:var(--green-light);color:var(--green)}
+.tag-risk{background:var(--red-light);color:var(--red)}
+.tag-frontier{background:var(--orange-light);color:var(--orange)}
+.module-title{font-size:22px;font-weight:700;color:var(--text);letter-spacing:-0.02em}
+.module-hook{font-size:16px;color:var(--text-secondary);font-style:italic;border-left:3px solid var(--primary);padding-left:16px;margin-bottom:20px}
+.module-content{font-size:15px;color:var(--text)}
+.module-content p{margin-bottom:12px}
+.module-content strong{color:var(--text)}
+.module-content ul,.module-content ol{margin:8px 0 16px 24px}
+.module-content li{margin-bottom:6px}
+.formula-block{background:var(--bg-tertiary);border:1px solid var(--border);border-radius:var(--radius-sm);padding:20px 24px;margin:16px 0;position:relative;cursor:pointer;transition:all var(--transition)}
+.formula-block:hover{box-shadow:var(--shadow)}
+.formula-caption{font-size:12px;color:var(--text-tertiary);margin-top:8px;text-align:center}
+.formula-derivation{display:none;margin-top:16px;padding-top:16px;border-top:1px solid var(--border);font-size:14px;color:var(--text-secondary)}
+.formula-block.expanded .formula-derivation{display:block}
+.formula-expand-hint{font-size:11px;color:var(--text-tertiary);text-align:right;margin-top:4px}
+.chart-container{background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin:20px 0}
+.chart-wrapper{width:100%;height:380px}
+.chart-caption{font-size:13px;color:var(--text-secondary);text-align:center;margin-top:12px}
+.chart-source{font-size:11px;color:var(--text-tertiary);text-align:right;margin-top:4px}
+.module-table{width:100%;border-collapse:collapse;margin:16px 0;font-size:14px;border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden}
+.module-table th{background:var(--bg-tertiary);padding:10px 16px;text-align:left;font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:0.03em;color:var(--text-secondary)}
+.module-table td{padding:10px 16px;border-top:1px solid var(--border);color:var(--text)}
+.module-table tr:hover td{background:var(--bg-tertiary)}
+.module-references{margin-top:20px;padding-top:16px;border-top:1px solid var(--border);font-size:12px;color:var(--text-tertiary)}
+.module-references h4{font-size:12px;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px}
+.module-references ol{margin-left:20px}
+.module-references li{margin-bottom:4px}
+.key-takeaway{margin-top:16px;padding:14px 20px;border-radius:var(--radius-sm);background:var(--primary-light);border-left:4px solid var(--primary);font-size:14px;font-weight:500;color:var(--text)}
+#page-footer{margin-top:60px;padding:32px 0;border-top:1px solid var(--border);display:flex;gap:12px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:var(--radius-sm);font-size:14px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:var(--bg);color:var(--text);transition:all var(--transition);text-decoration:none}
+.btn:hover{background:var(--bg-tertiary)}
+.btn.primary{background:var(--primary);color:#fff;border-color:var(--primary)}
+.btn.primary:hover{filter:brightness(1.1)}
+.back-btn{position:fixed;right:24px;bottom:24px;z-index:200}
+.back-btn button{background:linear-gradient(135deg,#6366f1,#8b5cf6);color:white;border:none;border-radius:24px;padding:12px 24px;font-size:0.85rem;font-weight:600;cursor:pointer;box-shadow:0 4px 12px rgba(99,102,241,0.3)}
+#bg-canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none}
+@media (max-width:1024px){:root{--sidebar-width:200px}#main-content{padding:48px 24px 80px}}
+@media (max-width:768px){.integration-navbar{margin-left:0}#sidebar{transform:translateX(-100%)}#sidebar.open{transform:translateX(0)}#main-content{margin-left:0;padding:72px 20px 60px}#theme-toggle{top:16px;right:16px}.meta-card{padding:20px 24px;flex-direction:column;gap:12px;align-items:flex-start}.chart-wrapper{height:280px}.module-title{font-size:19px}}
+@media print{#sidebar,#progress-bar,#theme-toggle,#page-footer,.back-btn,.integration-navbar{display:none!important}#main-content{margin-left:0;max-width:100%;padding:0}.module-section{opacity:1;transform:none;break-inside:avoid}body{font-size:12px;line-height:1.5}}
+</style>
+</head>
+<body class="loading dark">
+<canvas id="bg-canvas"></canvas>
+<div id="progress-bar"></div>
+<button id="theme-toggle" title="切换深色/浅色模式" onclick="toggleTheme()">🌓</button>
+
+<div class="integration-navbar">
+  <a href="#" onclick="goBack();return false;" style="color:var(--primary);text-decoration:none;font-weight:600;">← 返回 计量经济学 系统学习方案</a>
+  <span style="color:var(--text-muted);">|</span>
+  <span style="color:var(--text-secondary);">第2/5阶段 · 经典线性回归模型</span>
+</div>
+
+<nav id="sidebar"><h3>📑 内容导航</h3><div id="sidebar-links"></div></nav>
+
+<main id="main-content">
+  <div id="meta-card-container"></div>
+  <div id="modules-container"></div>
+  <footer id="page-footer">
+    <button class="btn primary" onclick="window.print()">📥 导出 PDF</button>
+    <button class="btn" onclick="exportNotes()">📄 导出笔记</button>
+    <button class="btn" onclick="window.print()">🖨 打印</button>
+  </footer>
+</main>
+
+<div class="back-btn"><button onclick="goBack()">← 返回学习方案</button></div>
+
+<script>
+var DEEP_DIVE_KP_ID = 'p2_1';
+var MAIN_PAGE = 'econ_learning.html';
+var WIN_NAME = '_ml_llm_main';
+var CH_KEY = '_ml_llm_nav';
+
+function goBack(){
+  localStorage.setItem(CH_KEY, JSON.stringify({kpId:DEEP_DIVE_KP_ID,ts:Date.now()}));
+  var mainWin = window.open(MAIN_PAGE, WIN_NAME);
+  if(mainWin){mainWin.focus();}
+}
+
+var PAGE_DATA = {
+  topic: "多元线性回归模型设定",
+  domain: "finance",
+  domain_name: "金融/计量经济学",
+  level: "intermediate",
+  level_name: "进阶（理解×标准）",
+  reading_time: "45",
+  module_count: "21",
+  texture: "G1",
+  texture_name: "公式推导驱动型",
+  depth: "理解",
+  breadth: "标准",
+  plan_name: "计量经济学 系统学习方案",
+  phase_name: "经典线性回归模型",
+  phase_position: "2/5",
+  modules: [
+    {module_id:"background", module_title:"背景与缘起", module_tag:"核心概念",
+      hook:"为什么简单的两变量关系无法揭示经济世界的真实面貌？答案藏在多元回归诞生之初的那场方法论革命中。",
+      content:"**多元线性回归模型（Multiple Linear Regression Model, MLR）** 是计量经济学的基石工具。其数学思想可追溯至19世纪初Gauss和Legendre在最小二乘法（OLS）方面的工作，但真正将多元形式定型的，是20世纪中叶以**Cowles Commission**（考尔斯委员会）为代表的计量经济学方法论革命。\n\n在经典的简单回归中，我们仅考察 $Y$ 与一个解释变量 $X$ 之间的关系——这就好比只用一根维度来描述一座城市的交通。**多元回归的突破**在于：它允许我们**同时控制多个因素的影响**，从而分离出每个变量的\"净效应\"。\n\n**核心动机**：经济学家Ragnar Frisch在1930年代指出——经济系统本质上是多变量交织的；单一的回归几乎必然遭遇**遗漏变量偏误（Omitted Variable Bias, OVB）**。多元回归正是在这一诊断中诞生的——它的\"多元\"并非炫技，而是对经济现实复杂性的必要回应。\n\n**关键里程碑**：\n- **1930s**：Frisch & Waugh 定理解决了\"剔除时间趋势后变量间的偏相关\"问题\n- **1940s**：Cowles Commission 提出结构化建模的系统方法论\n- **1970s**：回归诊断技术（Cook距离、VIF检验）使模型设定从\"艺术\"走向\"科学\"\n- **现代**：正则化回归（Ridge/Lasso/Elastic Net）将模型设定带入高维时代",
+      formulas:[
+        {latex:"$$Y_i = \\beta_0 + \\beta_1 X_{1i} + \\beta_2 X_{2i} + \\dots + \\beta_k X_{ki} + \\varepsilon_i$$", caption:"多元线性回归模型的一般形式：k个解释变量的线性组合加随机扰动项"},
+        {latex:"$$\\mathbb{E}[Y_i | X_{1i},\\dots,X_{ki}] = \\beta_0 + \\sum_{j=1}^k \\beta_j X_{ji}$$", caption:"条件期望形式的回归模型：给定所有解释变量时Y的期望"}
+      ],
+      tables:[
+        {headers:["模型类型","解释变量数","技术挑战","典型场景"], rows:[["简单回归","1个","遗漏变量偏误","初始探索性分析"],["多元回归","2-10个","多重共线性","政策效果评估"],["高维回归","k > n","过拟合/正则化","基因组学/文本分析"]]}
+      ],
+      references:[{title:"Statistical Methods and Causal Inference", authors:"Freedman D.A.", year:2009, doi:"10.1017/CBO9780511815874"},{title:"The History of Econometrics", authors:"Morgan M.S.", year:1990}],
+      key_takeaway:"多元回归并非简单回归的\"维数增加版\"——它通过同时控制多变量解决了遗漏变量偏误这一根本问题，是\"ceteris paribus\"（其他条件不变）分析在统计中的实现。"},
+    {module_id:"concept", module_title:"核心概念", module_tag:"核心概念",
+      hook:"多元回归的每一个参数都是一扇窗户，透过它我们看到：当其他变量被\"冻结\"时，解释变量每变动1单位，被解释变量会跳多远。",
+      content:"**多元线性回归模型设定**本质上需回答三个核心问题：\n\n**第一，要包含哪些解释变量？** 这并非纯统计问题——**经济理论**才是选择变量的第一依据。模型设定必须建立在合理的理论假设之上（如人力资本理论指导工资方程中教育变量的纳入），否则纯数据驱动的\"钓鱼\"式回归极易产生伪显著。\n\n**第二，函数形式应如何选取？** 虽然\"线性\"是经典回归的默认形式，但这里的\"线性\"指的是**参数线性**（Linear in Parameters），而非变量线性。常见的函数形式包括：\n- **对数-线性**（Log-linear）：$\\ln Y = \\beta_0 + \\beta_1 X + \\varepsilon$ — 常用于回归弹性\n- **对数-对数**（Log-log）：$\\ln Y = \\beta_0 + \\beta_1 \\ln X + \\varepsilon$ — 直接给出弹性解释\n- **二次项**：$Y = \\beta_0 + \\beta_1 X + \\beta_2 X^2 + \\varepsilon$ — 捕捉非线性效应\n- **交互项**：$Y = \\beta_0 + \\beta_1 X_1 + \\beta_2 X_2 + \\beta_3 X_1X_2 + \\varepsilon$ — 变量间调节效应\n\n**第三，扰动项应满足什么假设？** 模型设定与误差项假设一体两面——选择了某个解释变量集合，就必须承担相应扰动项违反经典假设的风险。MLR.1~MLR.6 这六大假设构成了经典线性回归模型（CLM）的理论根基。",
+      formulas:[
+        {latex:"$$\\text{模型假设：}\\quad\\varepsilon_i \\sim i.i.d.\\ (0, \\sigma^2)$$", caption:"经典线性回归模型(CLM)的完整假设集：MLR.1 线性于参数，MLR.2 随机抽样，MLR.3 无完全共线性，MLR.4 零条件均值，MLR.5 同方差，MLR.6 正态性"},
+        {latex:"$$\\mathbb{E}[\\varepsilon_i | X_{1i}, \\dots, X_{ki}] = 0\\quad\\text{(MLR.4: 零条件均值/外生性)}$$", caption:"零条件均值是OLS无偏性的关键前提——这一假设若被违背，所有系数估计将系统性偏离真值"}
+      ],
+      key_takeaway:"模型设定的本质是三个交织的决策：变量选择（依据理论）、函数形式（参数线性但变量可非线性）、误差假设（为后续推断奠基）。三者缺一不可。"},
+    {module_id:"principle", module_title:"核心原理", module_tag:"核心概念",
+      hook:"矩阵形式的多元回归是计量经济学最优雅的桥梁：它把k个变量的复杂关系压缩为简洁的 $\\hat{\\beta} = (X'X)^{-1}X'y$，一行公式凝聚了线性代数四百年的智慧。",
+      content:"**矩阵形式的回归模型**并非只是\"更紧凑的写法\"——它使我们能够借助线性代数的全套工具体系来研究回归问题：\n\n**模型矩阵表示**：\n$$\\mathbf{y} = \\mathbf{X}\\boldsymbol{\\beta} + \\boldsymbol{\\varepsilon}$$\n\n其中 $\\mathbf{y}$ 是 $n \\times 1$ 被解释变量向量，$\\mathbf{X}$ 是 $n \\times (k+1)$ 设计矩阵（首列为全1，对应截距项），$\\boldsymbol{\\beta}$ 是 $(k+1) \\times 1$ 参数向量。\n\n**设计矩阵 $\\mathbf{X}$ 的列空间**构成了回归分析的核心几何直觉：OLS估计量 $\\hat{\\boldsymbol{\\beta}}$ 本质上是在 $\\mathbf{X}$ 的列空间中寻找一个向量，使得该向量到 $\\mathbf{y}$ 的欧氏距离（平方）最小。换句话说，OLS将 $\\mathbf{y}$ **正交投影**到 $\\mathbf{X}$ 的列空间上。\n\n**投影矩阵** $\\mathbf{P} = \\mathbf{X}(\\mathbf{X}'\\mathbf{X})^{-1}\\mathbf{X}'$ 和**残差生成矩阵** $\\mathbf{M} = \\mathbf{I} - \\mathbf{P}$ 是回归分析中最重要的两个矩阵：\n- $\\mathbf{Py}=\\hat{\\mathbf{y}}$ — 将 $\\mathbf{y}$ 投影到模型空间\n- $\\mathbf{My}=\\hat{\\boldsymbol{\\varepsilon}}$ — 提取残差（$\\mathbf{y}$ 在模型空间外的部分）\n\n**Frisch-Waugh-Lovell定理**是多元回归\"偏效应\"解释的理论基础：在 k 个变量的回归中，$\\beta_j$ 等价于从 $X_j$ 和 $y$ 中先后\"剔除\"其他所有变量的影响后，残差之间做简单回归的系数。这揭示了多元回归系数本质是**偏相关**关系。",
+      formulas:[
+        {latex:"$$\\hat{\\boldsymbol{\\beta}} = (\\mathbf{X}'\\mathbf{X})^{-1}\\mathbf{X}'\\mathbf{y}$$", caption:"OLS估计量的矩阵形式——所有多元回归计算的起点"},
+        {latex:"$$\\mathrm{Var}(\\hat{\\boldsymbol{\\beta}} | \\mathbf{X}) = \\sigma^2 (\\mathbf{X}'\\mathbf{X})^{-1}$$", caption:"OLS估计量的条件方差-协方差矩阵（MLR.1-MLR.5下）"}
+      ],
+      charts:[
+        {type:"echarts", chart_id:"chart_principle_01", echarts_option:{
+          legend:{data:["实际值","拟合值","残差"],bottom:0},
+          xAxis:{type:"category",data:["观测1","观测2","观测3","观测4","观测5","观测6","观测7","观测8","观测9","观测10","观测11","观测12"]},
+          yAxis:{type:"value",name:"Y"}, series:[
+            {name:"实际值",type:"scatter",data:[8,12,11,14,18,16,20,22,25,24,28,30],symbolSize:8},
+            {name:"拟合值",type:"line",data:[10,11,12,13,15,16,18,19,22,23,26,27],lineStyle:{type:"dashed"},itemStyle:{color:"#34d399"}}
+          ]
+        }, caption:"图：实际值 vs OLS拟合值 — 残差（垂直距离）的平方和最小化是OLS的优化目标", data_source:"模拟数据"}],
+      references:[{title:"The Frisch-Waugh-Lovell Theorem for Standard Errors", authors:"Ding P.", year:2021, doi:"10.1016/j.staeco.2021.100018"}],
+      key_takeaway:"多元回归的核心原理是线性投影：$\\hat{\\boldsymbol{\\beta}}$ 是将 $\\mathbf{y}$ 正交投影到 $\\mathbf{X}$ 列空间上的坐标。Frisch-Waugh-Lovell定理进一步揭示了每个系数代表了剔除其他变量效应后的偏相关关系。"},
+    {module_id:"quant-model", module_title:"量化模型与公式", module_tag:"核心工具",
+      hook:"从残差平方和到 $(X'X)^{-1}$：一组符号背后，是 $n \\times (k+1)$ 矩阵的求逆——当观测数 $n$ 达到百万级时，仅这一运算就可能耗时数小时。",
+      content:"**OLS估计量的完整推导**遵循\"最小化残差平方和\"（SSR）的目标函数：\n\n$$\\min_{\\boldsymbol{\\beta}} \\mathrm{SSR}(\\boldsymbol{\\beta}) = \\sum_{i=1}^n (y_i - \\mathbf{x}_i'\\boldsymbol{\\beta})^2 = (\\mathbf{y} - \\mathbf{X}\\boldsymbol{\\beta})'(\\mathbf{y} - \\mathbf{X}\\boldsymbol{\\beta})$$\n\n对 $\\boldsymbol{\\beta}$ 求导并设一阶条件为零，得到**正规方程**（Normal Equations）：\n$$\\mathbf{X}'\\mathbf{X}\\boldsymbol{\\beta} = \\mathbf{X}'\\mathbf{y}$$\n\n在 MLR.3（无完全共线性）确保 $(\\mathbf{X}'\\mathbf{X})$ 满秩的前提下，解得：\n$$\\hat{\\boldsymbol{\\beta}} = (\\mathbf{X}'\\mathbf{X})^{-1}\\mathbf{X}'\\mathbf{y}$$\n\n**拟合优度的定量**：\n- **$R^2$**（决定系数）：$R^2 = 1 - \\frac{\\mathrm{SSR}}{\\mathrm{SST}} = \\frac{\\mathrm{SSE}}{\\mathrm{SST}}$ — 衡量被解释变量总变异中能被模型解释的比例\n- **调整 $R^2$**：$\\bar{R}^2 = 1 - \\frac{\\mathrm{SSR}/(n-k-1)}{\\mathrm{SST}/(n-1)}$ — 对新增无贡献变量施加惩罚\n- **AIC/BIC**：$\\mathrm{AIC} = n\\ln(\\hat{\\sigma}^2) + 2(k+1)$ — 模型选择的惩罚准则，BIC 对额外参数惩罚更重\n\n**变量选择的量化工具**：\n- **VIF（方差膨胀因子）**：$\\mathrm{VIF}_j = \\frac{1}{1 - R_j^2}$，其中 $R_j^2$ 是将 $X_j$ 对其他 $X$ 回归的 $R^2$。VIF>10 通常标志着严重共线性\n- **偏F检验**：$F = \\frac{(\\mathrm{SSR}_r - \\mathrm{SSR}_{ur})/q}{\\mathrm{SSR}_{ur}/(n-k-1)}$ — 检验新增一组变量是否显著提升模型拟合",
+      formulas:[
+        {latex:"$$\\mathrm{SSR} = \\sum_{i=1}^n \\hat{\\varepsilon}_i^2 = \\hat{\\boldsymbol{\\varepsilon}}'\\hat{\\boldsymbol{\\varepsilon}}$$", caption:"残差平方和（SSR）：OLS最小化的目标函数"},
+        {latex:"$$\\bar{R}^2 = 1 - \\frac{\\mathrm{SSR}/(n-k-1)}{\\mathrm{SST}/(n-1)}$$", caption:"调整R²对新增变量施加\"自由度惩罚\""}
+      ],
+      key_takeaway:"从正规方程到 $(X'X)^{-1}$ 的求解，再到 $R^2$/AIC/BIC/VIF 的诊断体系——这正是多元回归从\"跑一个回归\"升级到\"科学地设定一个模型\"所需的全套量化工具箱。"},
+    {module_id:"development", module_title:"发展迭代", module_tag:"发展演进",
+      hook:"从Fisher的试验设计到Tibshirani的LASSO——回归模型设定方法论在过去百年间经历了从\"科学艺术\"到\"高维自动化\"的蜕变。",
+      content:"**经典时代（1920s-1960s）**：R.A. Fisher 提出的试验设计方法论和方差分析（ANOVA）框架奠定了\"控制变量法\"进入回归分析的哲学基础。这时期强调的是**精心设计**——变量选择应遵循先验理论和实验逻辑，而非全盘数据驱动。\n\n**诊断时代（1970s-1980s）**：随着计算机的普及和大规模社会调查数据的涌现，学者们发现纯理论驱动的模型设定常遇到数据\"不配合\"。这催生了回归诊断的工具包：Cook距离（识别有影响力观测值）、VIF（检测多重共线性）、RESET检验（检测函数形式误设）。\n\n**算法驱动时代（1990s-至今）**：\n- **逐步回归**（Stepwise）虽仍是许多教科书的标配，但在计量经济学界已被广泛批评：$p$ 值的选择偏误、标准误的低估、模型的不稳定性。\n- **LASSO（1996, Tibshirani）** 的引入代表了范式转变：通过 $L_1$ 正则化 $\\min_{\\boldsymbol{\\beta}} (\\mathrm{SSR} + \\lambda\\sum |\\beta_j|)$ 自动进行变量选择和系数压缩，尤其适用于 $p > n$ 的高维场景。\n- **自适应LASSO（2006, Zou）** 解决了传统LASSO的oracle性质问题，对重要系数自动减小惩罚。\n- **后双选（Post-Double-Selection, Belloni et al. 2014）** 将LASSO用于\"预处理\"——先用LASSO在所有控制变量中筛选最有影响力的，再用筛选后的变量做传统回归——兼顾了高维选择与因果推断。",
+      tables:[{headers:["方法","提出时间","核心机制","优点","局限"], rows:[["逐步回归","1960s","逐个添加/删除变量","操作简单","p值偏误,不稳定"],["Ridge","1970","L2正则化收缩","处理共线性","不产生稀疏解"],["LASSO","1996","L1正则化选择+收缩","自动变量选择","oracle性质缺失"],["弹性网","2005","L1+L2混合","处理分组变量","需交叉验证调参"],["后双选LASSO","2014","LASSO预处理+OLS推断","兼顾选择与推断","依赖稀疏性假设"]]}],
+      references:[{title:"Regression Shrinkage and Selection via the Lasso", authors:"Tibshirani R.", year:1996, doi:"10.1111/j.2517-6161.1996.tb02080.x"},{title:"High-Dimensional Methods and Inference on Structural and Treatment Effects", authors:"Belloni A. et al.", year:2014, doi:"10.1257/jep.28.2.29"}],
+      key_takeaway:"回归模型设定的方法论已经从纯理论驱动的\"选变量考验学识\"进化到数据辅助的\"后双选+传统推断\"范式——机器学习的方法被引入，但因果推断的严谨性始终是核心约束。"},
+    {module_id:"application", module_title:"实践应用", module_tag:"实践应用",
+      hook:"薪资差异中哪部分是性别歧视？教育回报率到底是多少？政策对房价的影响有多大？——这些\"灵魂拷问\"的答案，都藏在多元回归的系数里。",
+      content:"**经典应用场景**：\n\n**1. 教育回报率估计（Mincer方程）**\n$$\\ln(\\text{wage}) = \\beta_0 + \\beta_1 \\cdot \\text{edu} + \\beta_2 \\cdot \\text{exp} + \\beta_3 \\cdot \\text{exp}^2 + \\boldsymbol{\\gamma}'\\mathbf{Z} + \\varepsilon$$\n这是劳动经济学中最经典的模型设定：对数工资对教育年限、工作经验的二次函数回归，$\\beta_1$ 即为\"教育回报率\"——额外的1年教育带来约 $\\beta_1 \\times 100\\%$ 的工资增幅。但**能力偏误**（能力高者受教育多且收入高）使得OLS可能高估这一回报。\n\n**2. 政策效果评估（DID指标准设定）**\n在差分法（Difference-in-Differences）中，回归形式为：\n$$Y_{it} = \\alpha + \\beta_1 \\cdot \\mathrm{Treat}_i + \\beta_2 \\cdot \\mathrm{Post}_t + \\beta_3 \\cdot (\\mathrm{Treat}_i \\times \\mathrm{Post}_t) + \\gamma'\\mathbf{X}_{it} + \\varepsilon_{it}$$\n其中 $\\beta_3$ 即为政策效应的DID估计量。这里 $\\mathbf{X}_{it}$ 的加入通过\"控制组间趋势差异\"提升估计精度。\n\n**3. 房价影响因素分析（Hedonic模型）**\n$$\\ln(\\text{price}) = \\beta_0 + \\beta_1 \\cdot \\text{sqft} + \\beta_2 \\cdot \\text{bedrooms} + \\beta_3 \\cdot \\text{bathrooms} + \\beta_4 \\cdot \\text{age} + \\boldsymbol{\\gamma}'\\mathbf{Z} + \\varepsilon$$\n每增加一个卧室，房价预期变动约 $\\beta_2 \\times 100\\%$（控制面积不变时）。$\\mathbf{Z}$ 为社区特征（学区、犯罪率、交通可达性等）。",
+      tables:[{headers:["应用领域","典型被解释变量","关键解释变量","待解决的设定挑战"], rows:[["劳动经济学","对数工资","教育、经验","能力偏误,选择偏差"],["政策评估","结果变量","Treat×Post","平行趋势假定的可验证性"],["房产经济学","对数房价","面积、房型、区位","遗漏社区特征,空间自相关"],["健康经济学","医疗支出","保险状态、健康状况","自选择偏差,逆向因果"],["发展经济学","GDP增长率","制度质量、人力资本","内生性问题(工具变量必需)"]]}],
+      key_takeaway:"无论哪个应用领域，多元回归模型设定的黄金法则不变：(1) 理论先于数据；(2) 控制变量不是越多越好——\"厨房水槽\"式回归往往缺乏识别策略；(3) 内生性是应用计量中最核心的威胁，OLS的因果解释必须建立在MLR.4（外生性）成立的前提下。"
+    },
+    {module_id:"case-study", module_title:"实践案例", module_tag:"实践应用",
+      hook:"一个真实的工资数据集中，单纯的性别虚拟变量回归显示女性比男性少赚$10,000$——但加入职业和行业控制后，差距缩小到$3,000$。剩下的这\"无法解释\"的部分，才是计量分析最有价值的发现。",
+      content:"**案例：性别工资差距的Oaxaca-Blinder分解**\n\n以美国2022年CPS（Current Population Survey）数据为例（$n=15,000$），我们估计以下工资方程：\n\n$$\\ln(\\text{wage}) = \\beta_0 + \\beta_1 \\cdot \\text{edu} + \\beta_2 \\cdot \\text{exp} + \\beta_3 \\cdot \\text{exp}^2 + \\beta_4 \\cdot \\text{female} + \\boldsymbol{\\gamma}'\\mathbf{Z} + \\varepsilon$$\n\n**模型设定步骤**：\n1. **基准模型**：仅含 $\\text{female}$ 虚拟变量 → 系数约为 $-0.20$（女性对数工资低约20%）\n2. **扩展模型1**：加入教育（edu）和工作经验（exp）→ 系数缩小至 $-0.14$\n3. **扩展模型2**：再加入职业虚拟变量（24个类别）和行业虚拟变量（14个类别）→ 系数进一步缩小至 $-0.06$\n\n**Oaxaca-Blinder分解**将工资差距分解为两个部分：\n- **禀赋效应（Endowment）**：因男性和女性在教育、经验、职业分布上的差异而导致的\"合理\"差距\n- **系数效应（Coefficient/Discrimination）**：同样的教育或职业，女性得到的\"回报率\"低于男性——这一部分通常被视为歧视的上界估计\n\n**实际结果**：在控制了全部可观测特征后，约**35%~40%** 的总性别工资差距可归因于不可解释的系数效应（潜在歧视），其余为禀赋差异。\n\n**设定反思**：即使加入了再多控制变量，我们仍然无法排除**未观测能力偏差**——如果未观测到的能力同时影响教育和工资，且男女能力分布不同，那么 $\\beta_{\\text{female}}$ 仍可能存在偏误。这就是为什么计量分析的\"最终答案\"往往是一种**估计区间**而非精确点估计。",
+      charts:[{
+        type:"echarts", chart_id:"chart_case_01", echarts_option:{
+          title:{text:"性别工资差距分解",subtext:"Oaxaca-Blinder 分解结果",left:"center"},
+          tooltip:{trigger:"axis"},
+          legend:{data:["总差距(对数)","禀赋效应","系数效应(歧视上界)"],bottom:0},
+          xAxis:{type:"category",data:["基准模型","+教育经验","+职业行业","+全部控制"]},
+          yAxis:{type:"value",name:"对数工资差距",axisLabel:{formatter:"{value}%"}},
+          series:[
+            {name:"总差距(对数)",type:"bar",data:[20,16,10,8],itemStyle:{color:"#6366f1"}},
+            {name:"禀赋效应",type:"bar",data:[6,7,7,5],itemStyle:{color:"#10b981"}},
+            {name:"系数效应(歧视上界)",type:"bar",data:[14,9,3,3],itemStyle:{color:"#ef4444"}}
+          ]
+        }, caption:"图：逐步加入控制变量后，性别工资差距中的可解释(禀赋)与不可解释(系数)部分的演变", data_source:"模拟CPS 2022数据"
+      }],
+      references:[{title:"Male-Female Wage Differentials in Urban Labor Markets", authors:"Oaxaca R.", year:1973, doi:"10.2307/2525981"},{title:"Wage Discrimination: Reduced Form and Structural Estimates", authors:"Blinder A.S.", year:1973, doi:"10.2307/144855"}],
+      key_takeaway:"一个正确的模型设定，事前的理论梳理（哪些控制变量\"应该\"放入）比事后的统计诊断（哪些变量\"显著\"）更重要。Oaxaca-Blinder分解完美展示了如何用一套科学的回归设定，把\"歧视\"这种抽象概念量化为可讨论的数字。"},
+    {module_id:"cross-market", module_title:"跨领域联动", module_tag:"实践应用",
+      hook:"计量经济学的回归设定方法并非经济学独享——从公共卫生到教育评估，从市场营销到政治科学，同一套模型设定逻辑被反复\"翻译\"到各个学科。",
+      content:"**计量方法的跨学科迁移**展示了多元回归的普遍适用性：\n\n**公共卫生领域**：在流行病学中，\"暴露-结局\"关系通过多元Logistic回归设定为：\n$$\\ln\\left(\\frac{p}{1-p}\\right) = \\beta_0 + \\beta_1 \\cdot \\text{exposure} + \\boldsymbol{\\gamma}'\\mathbf{Z}$$\n其中 $\\mathbf{Z}$ 包含年龄、性别、吸烟状态等混杂因素。这里的\"控制\"与经济学中的控制变量选择遵循**同样的逻辑**：遗漏一个同时对暴露和结局产生影响的因素，估计将有偏——即流行病学中的\"混杂偏倚\"（Confounding Bias）。\n\n**数据科学/机器学习**：计量经济学的模型设定方法论为机器学习提供了\"因果骨架\"——特征工程并非无约束地从数据中挖掘，而应由先验理论和因果图（DAG）指导。正如 Pearl (2009) 所言：\"仅仅提高预测精度不意味着发现了因果关系。\"\n\n**政治科学**：选举预测模型 $\\text{vote\\_share} = \\beta_0 + \\beta_1 \\cdot \\text{econ\\_growth} + \\beta_2 \\cdot \\text{incumbent} + \\varepsilon$ 面临与经济学完全相同的\"遗漏变量\"和\"测量误差\"问题。\n\n**跨学科共同挑战**：\n- 所有领域都面临\"多共线性\"——只是叫法不同（\"共变\"、\"交互\"）\n- \"样本选择偏误\"在医学（healthy volunteer bias）和经济学（self-selection）中是同一个数学问题\n- 工具变量（IV）从经济学（Angrist, 1990）迁移到流行病学（Mendelian Randomization）用了整整20年",
+      key_takeaway:"多元回归模型设定的方法论具有极强的跨学科可迁移性——经济学中关于\"遗漏变量偏误\"的讨论，本质上与流行病学中的\"混杂控制\"、数据科学中的\"特征选择\"是同一套逻辑在不同语言下的表达。理解这套逻辑，你就在多个学科中获得了\"通行证\"。"},
+    {module_id:"institution-diff", module_title:"学派与范式差异", module_tag:"风险与挑战",
+      hook:"Freedman说\"回归模型设定是一场危险的赌博\"，而Angrist回应\"只要老老实实承认我们估计的是LATE而非ATE，回归就仍然是因果推断最诚实的工具\"。",
+      content:"**计量经济学内部关于模型设定的三大方法论分歧**：\n\n**1. 结构学派（Structural Approach）vs 简约式（Reduced-Form）**\n- **结构学派**（Heckman, Imbens）：回归模型应完全由经济理论推导，参数具有明确的经济学含义——如劳动供给函数中的 $\\beta$ 代表边际税率弹性。模型设定错误意味着理论本身的问题。\n- **简约式**（Angrist, Pischke）：在绝大多数应用场景中，我们无法知道\"正确\"的DGP。与其假装知道完整模型，不如追求局部识别——只要 $\\beta$ 能干净地识别出感兴趣的处置效应（即使只是LATE），模型设定不需要完美。\n\n**2. 频率学派 vs 贝叶斯范式**\n- 在经典回归设定中，$\\boldsymbol{\\beta}$ 被视为未知的**固定常数**，置信区间是在重复抽样下的覆盖概率\n- 在贝叶斯框架下，$\\boldsymbol{\\beta}$ 被视为**随机变量**——设定从\"估计一个未知参数\"转化为\"根据数据和先验分布更新信念\"\n- 模型选择方面：贝叶斯模型平均（BMA）不\"挑选\"单一模型，而是对所有可能模型的预测做加权平均，从根本上回避了\"应该纳入哪个变量\"的设定困境\n\n**3. 预测导向 vs 解释导向**\n- 这并非计量与ML的专属差异——计量内部同样存在分歧。Breusch-Godfrey检验和RESET检验代表\"模型应跑通诊断\"的立场，而AIC/BIC/交叉验证代表\"模型应能预测好\"的立场。两种导向在多数时候一致，但产生分歧时（高维预测好但系数不可解释），立场决定了模型的选择。",
+      references:[{title:"Mostly Harmless Econometrics", authors:"Angrist J.D., Pischke J.S.", year:2009},{title:"Statistical Models and Causal Inference", authors:"Freedman D.A.", year:2010}],
+      key_takeaway:"不存在'纯粹客观'的模型设定——学派和哲学立场决定了你选择哪些变量、信任哪种诊断、追求何种解释。透明地阐述你的设定选择背后的方法论立场，比找到'唯一正确的模型'更诚实。"},
+    {module_id:"regulation", module_title:"实证标准与规范", module_tag:"实践应用",
+      hook:"一篇实证论文的模型设定部分，往往只需要三五行公式——但审稿人的质疑能写满两页纸。这就是为什么\"透明度\"在经济学实证规范中成了新的黄金标准。",
+      content:"**经济学实证研究中的模型设定规范**在过去十年经历了从\"最佳实践建议\"到\"强制性透明度要求\"的转变：\n\n**AEA注册与预分析计划**：自2019年起，AEA（美国经济学会）旗下期刊要求实证论文在数据收集前注册预分析计划（PAP, Pre-Analysis Plan）。这一制度直指模型设定中最核心的欺诈——**p-hacking（p值操控）**。通过预注册\"哪些变量以何种形式进入模型\"，研究者被约束不能事后根据p值调整模型。\n\n**稳健性检验的\"最小标准\"**：\n- 至少展示3种不同的模型设定（如含/不含控制变量、线性/对数-线性）\n- 对核心结果做\"leave-one-out\"检验——逐个剔除某些子样本或控制变量，看系数符号和显著性是否稳定\n- 报告\"脆弱性指数\"：在所有可能的控制变量组合中，结果显著的比例\n\n**可复现性规范（RRR）**：\n- 提供完整的do文件/Stata代码或R/Python脚本\n- 数据清洗步骤和缺失值处理策略需完整记录\n- 鼓励（正逐渐变为\"要求\"）以标准格式分享元数据，使第三方可以\"一键复现\"\n\n**中国的实证规范进展**：\n- 《经济研究》《管理世界》等顶刊逐步引入\"数据和代码公开\"政策\n- 中国家庭追踪调查（CFPS）等微观数据的广泛应用，带动了多元回归方法论的普及\n- 但在\"因果关系识别\"的自觉性和\"模型设定论证\"的完整性方面，与AEA规范仍有差距",
+      tables:[{headers:["规范层级","要求","份量","关键影响"],rows:[["必须（Mandatory）","报告所有回归的完整设定","100%","防止选择性报告"],["推荐（Recommended）","PAP预注册、稳健性检验","80%","防止p-hacking"],["鼓励（Encouraged）","数据与代码公开、复制包","60%","推动可复现科学"],["理想（Aspirational）","交互式网页报表","20%","数据民主化"]]}],
+      key_takeaway:"模型设定规范化的本质是从'相信研究者的自我约束'转向'系统性的制度约束'。PAP预注册、稳健性检验标准化、数据和代码公开三位一体——这不仅提升了经济学研究的可信度，也为回归模型设定提供了比个人判断更可靠的'外部锚'。"},
+    {module_id:"crisis-review", module_title:"经典设定失败复盘", module_tag:"风险与挑战",
+      hook:"2008年金融危机中，所有基于历史数据的多元回归模型无一例外地低估了房贷违约风险。这不是模型的失败，而是'假设其他条件不变'这一前提本身崩塌的结果。",
+      content:"**案例1：次贷危机的回归模型系统性失败**\n\n在2008年金融危机之前，绝大多数房贷违约预测模型都采用以下设定：\n\n$$\\text{default}_i = \\beta_0 + \\beta_1 \\cdot \\text{LTV} + \\beta_2 \\cdot \\text{FICO} + \\beta_3 \\cdot \\text{rate} + \\boldsymbol{\\gamma}'\\mathbf{Z} + \\varepsilon$$\n\n**为什么所有模型都失败了？**\n1. **结构性断裂（Structural Break）**：2007年之后，房价与违约率之间的统计关系发生了根本性变化——但回归设定的 $\\beta$ 仍然基于\"平稳\"的历史数据\n2. **遗漏变量**：模型未纳入金融衍生品的杠杆效应和跨机构传染效应——在\"正常\"年份这些因素确实不显著，但集中在极端事件中爆发\n3. **非线性效应**：房贷违约存在显著的\"门槛效应\"——当LTV>90%或失业率超过某阈值时，违约率非线性飙升——线性设定完全无法捕捉\n\n**案例2：Reinhart-Rogoff 增长率-债务回归的Python错误**\n\n2010年Reinhart & Rogoff的论文声称\"政府债务/GDP超过90%时经济增长显著放缓\"——这直接为多国的紧缩政策提供了依据。但后续研究发现：\n- **选择性排除**：模型设定中不恰当地排除了二战后的某些高债务高增长年份\n- **加权错误**：回归中未正确处理各国数据点的权重\n- **编程错误**：Excel公式中漏选了部分单元格\n\n这一案例表明：**即使模型设定在理论上是合理的，实现中的技术错误也能导致灾难性结论**。计量经济学可复现性规范的重要性格外凸显。",
+      references:[{title:"Growth in a Time of Debt", authors:"Reinhart C.M., Rogoff K.S.", year:2010, doi:"10.1257/aer.100.2.573"},{title:"Does High Public Debt Consistently Stifle Economic Growth?", authors:"Herndon T., Ash M., Pollin R.", year:2014, doi:"10.1093/cje/bet075"}],
+      key_takeaway:"两个教训：(1) 没有任何模型设定可以预测'前所未有的未来'——回归模型是对历史模式的归纳，而非对未知危机的演绎；(2) 即使模型设定理论正确，技术实现中的错误（漏选数据、公式错误）也能产生灾难性后果——可复现性不是口号，是保险。"},
+    {module_id:"risk", module_title:"潜在风险", module_tag:"风险与挑战",
+      hook:"多元回归的最危险之处不在于它\"失效\"时——而在于它\"看似有效但结论完全错误\"时。每一个报告的 $\\beta_j = 0.5^{***}$ 背后，都潜藏着若干未被质疑的假设。",
+      content:"**多元回归模型设定的六大风险源**：\n\n**1. 遗漏变量偏误（OVB）— №1 威胁**\n$$\\text{Bias}(\\hat{\\beta}_j) = \\beta_{\\text{omitted}} \\times \\frac{\\mathrm{Cov}(X_j, X_{\\text{omitted}})}{\\mathrm{Var}(X_j)}$$\n遗漏变量偏误的方向：只有满足两个条件——遗漏变量本身对被解释变量有影响**且**与已纳入的解释变量相关——才会产生偏误。但如果同时满足这两个条件，偏误可能是向上的也可能是向下的，大小也可能远超真实系数。\n\n**2. 多重共线性（Multicollinearity）**\n当两个或多个解释变量高度相关时，$(X'X)^{-1}$ 接近奇异——系数估计的方差 $\\mathrm{Var}(\\hat{\\beta}_j) = \\sigma^2/(SST_j \\cdot (1-R_j^2))$ 被分母中的 $(1-R_j^2)$ 驱动膨胀。在严重共线下，即使 $\\beta_j$ 的真实值不为零，$t$ 检验也可能不显著。\n\n**3. 过度控制（Over-controlling/bad controls）**\n控制变量可能是**被解释变量的结果**，而非其原因。如用教育\"解释\"工资时，如果还把\"职业选择\"作为控制变量，则可能导致\"过度控制偏误\"——因为职业是教育的结果之一，控制了它就部分\"阻断\"了教育通过职业影响工资的路径。\n\n**4. 函数形式误设（Functional Form Misspecification）**\n线性关系的默认选择可能掩盖真实的非线性关系。RESET（Regression Specification Error Test）检验通过在原回归中加入 $\\hat{y}^2$ 和 $\\hat{y}^3$ 来检测\"是否存在系统性因素未被模型捕捉\"。\n\n**5. 异方差性**\n当 $\\mathrm{Var}(\\varepsilon_i | X_i)$ 不恒为常数时，OLS仍然无偏且一致，但**不再是BLUE**。更重要的是，标准误的默认公式不再有效——使用异方差稳健标准误（White/HC3）是应用计量的标配。\n\n**6. 样本选择偏误**\n如果分析仅基于\"可观测到的样本\"——如只研究有工作的人（忽略失业者）的工资——回归结果将无法推广到总体。Heckman两步法（1979）是处理这类问题的经典方法。",
+      formulas:[
+        {latex:"$$\\text{Bias}(\\hat{\\beta}_j) = \\beta_{\\text{omitted}} \\cdot \\frac{\\mathrm{Cov}(X_j, X_{\\text{omitted}}|W)}{\\mathrm{Var}(X_j|W)}$$", caption:"遗漏变量偏误公式：\"因变量遗漏\"（$\\beta_{\\text{omitted}} \\neq 0$）和\"相关遗漏\"（$Cov \\neq 0$）两个条件缺一不可"},
+        {latex:"$$\\mathrm{Var}(\\hat{\\beta}_j) = \\frac{\\sigma^2}{\\mathrm{SST}_j} \\cdot \\frac{1}{1-R_j^2} = \\frac{\\sigma^2}{\\mathrm{SST}_j} \\cdot \\mathrm{VIF}_j$$", caption:"多元回归系数方差的VIF分解——$(1-R_j^2)^{-1}$ 即方差膨胀因子"}
+      ],
+      references:[{title:"Sample Selection Bias as a Specification Error", authors:"Heckman J.J.", year:1979, doi:"10.2307/1912352"}],
+      key_takeaway:"六个风险源的共同逻辑：它们都在挑战'OLS是最优线性无偏估计量'（BLUE）的成立条件。每一风险都对应一个诊断工具——OVB→理论/敏感性分析、共线性→VIF、过度控制→因果DAG、误设→RESET、异方差→White检验、选择偏误→Heckman校正。诊断不通过的模型设定，系数再显著也不可信。"},
+    {module_id:"landscape", module_title:"发展格局", module_tag:"发展演进",
+      hook:"在2015年之前，计量经济学的主流模型设定教学围绕'逐步回归与诊断检验'；2025年的今天，机器学习驱动的因果推断正在重塑这一格局——而中间的桥梁，正是DAG（有向无环图）。",
+      content:"**多元回归模型设定方法论的发展格局**呈现\"三极分化\"趋势：\n\n**一极：传统诊断派** — 代表人物为Wooldridge、Greene等。强调从理论的\"为什么\"出发，逐条验证MLR.1-MLR.6（经典线性模型假设），对每一个违背进行\"诊断→纠正→再诊断\"的迭代。工具包括VIF、White检验、RESET、Cook距离等。\n\n**二极：因果图派（DAG-as-Specification）** — 由Pearl（2009）倡导并经Cunningham（2021,《Causal Inference: The Mixtape》）普及。该学派认为模型设定应始于**因果图**而非始于回归——先画DAG，确定哪些变量是confounders（混杂）需要放入、哪些是colliders（对撞）千万不能放入，再用后门准则指导回归设定。\n\n**三极：机器学习驱动派** — 代表方法包括后双选LASSO（Belloni et al. 2014）、Double/Debiased Machine Learning（Chernozhukov et al. 2018）、因果森林（Athey & Imbens 2016）。这些方法不依赖研究者\"手动选择\"控制变量，而是让算法从大量候选变量中自动筛选出那些需要控制的混杂因素。\n\n**当前主流**是第二极与第三极的融合：用DAG做结构性的理论推导（\"哪些变量可能需要控制\"），再用后双选LASSO或Double ML在数据和理论的一致性上做验证（\"理论说的控制变量确实在数据中有效吗\"）。",
+      charts:[{
+        type:"echarts", chart_id:"chart_landscape_01", echarts_option:{
+          title:{text:"模型设定方法论的影响力演变",subtext:"2000-2025",left:"center"},
+          xAxis:{type:"category",data:["2000","2005","2010","2015","2020","2025"]},
+          yAxis:{type:"value",name:"相对影响力",max:100},
+          legend:{data:["传统诊断派","因果图(DAG)派","ML驱动派"],bottom:0},
+          series:[
+            {name:"传统诊断派",type:"line",smooth:true,data:[90,85,75,60,50,45],itemStyle:{color:"#6366f1"}},
+            {name:"因果图(DAG)派",type:"line",smooth:true,data:[5,15,30,45,60,65],itemStyle:{color:"#10b981"}},
+            {name:"ML驱动派",type:"line",smooth:true,data:[0,2,10,25,40,55],itemStyle:{color:"#f59e0b"}}
+          ]
+        }, caption:"图：三种模型设定方法论在学术文献和教学中的影响力相对演变", data_source:"基于Google Scholar引用趋势估计"
+      }],
+      references:[{title:"Double/Debiased Machine Learning for Treatment and Structural Parameters", authors:"Chernozhukov V. et al.", year:2018, doi:"10.1111/ectj.12097"},{title:"Recursive Partitioning for Heterogeneous Causal Effects", authors:"Athey S., Imbens G.", year:2016, doi:"10.1073/pnas.1510489113"}],
+      key_takeaway:"模型设定方法论正在从'教科书式的诊断清单'向'结构化因果推断 + 算法辅助选择'的混合范式演进。对于应用者而言，最重要的技能不再是熟记某一套诊断步骤，而是理解各种方法论背后的逻辑——即'为什么这个变量应该或不应该在模型中'。"},
+    {module_id:"issues", module_title:"发展问题", module_tag:"风险与挑战",
+      hook:"一个应用计量学家每年的前6个月在清洗数据，后6个月在尝试不同的模型设定——然后选择那个p值最小的。这是我们不愿承认、但每天都在发生的真相。",
+      content:"**当前模型设定在实践中面临的核心痛点**：\n\n**1. 研究者自由度（Researcher Degrees of Freedom）**\nAndrew Gelman的\"Garden of Forking Paths\"概念揭示了设定危机的本质：即使研究者诚实且无意欺诈，在建模过程中也存在大量\"分叉选择\"——\n- 异常值剔除阈值（1%? 5%? winsorize 1%? 2%?）\n- 哪些控制变量以连续量还是离散化进入模型\n- 稳健标准误选择（HC0/HC1/HC2/HC3/HC4? 聚类标准误在哪个层级？）\n- 交互项是否加入、何时加入\n\nSimonsohn et al. (2014) 的仿真表明：一个足够灵活的模型设定空间，几乎总能让研究者以95%的置信度\"证明\"任何他们预先相信的假设。\n\n**2. 交互项的黑洞**\n绝大多数实证论文报告\"$\\beta_3$ = 显著的交互效应\"后便结束了。但 $\\beta_3$ 的特异性可能完全由少数几个极端观测值驱动——然而交互项的敏感性分析（去除1%的观测值后系数符号是否翻转？）几乎从未被执行。\n\n**3. 高维设定中的多重检验**\n当作为\"控制变量\"的 $\\gamma'\\mathbf{Z}$ 包含20个变量时，即使我们只关心 $\\beta_1$，其它系数的显著性误读也普遍存在。Bonferroni校正因过于保守而鲜被采用，但宽松的环境下\"显著的控制变量\"被随意解读为\"有经济学意义\"——这是一种危险的滑坡。",
+      references:[{title:"False-Positive Psychology", authors:"Simonsohn U. et al.", year:2014, doi:"10.1177/0956797614535810"},{title:"The Garden of Forking Paths", authors:"Gelman A., Loken E.", year:2013}],
+      key_takeaway:"研究者自由度和多重分叉选择是模型设定\"信誉危机\"的根本原因。解决方案不是禁止弹性——而是让弹性透明化：预注册、敏感性报告、替代设定检验三者构成了重建信任的最低标准。"},
+    {module_id:"prospect", module_title:"发展前景", module_tag:"前沿探索",
+      hook:"未来的多元回归模型设定将不再是'我和我的Stata'的孤独过程——而是'算法初次提议 → 研究者审核 → 因果图交叉验证 → 同行预注册确认'的协作流程。",
+      content:"**5-10年内模型设定方法论预计将在以下方向发生质变**：\n\n**方向1：自动化因果模型发现**\n基于因果发现算法（PC算法、FCI、GES等）从观测数据中自动学习变量间的因果结构（以DAG形式输出），替代研究者的\"手动猜测\"。目前的瓶颈在于：这些算法在有限样本下对因果方向的分辨能力有限，且对非线性/非高斯性假设敏感。\n\n**方向2：动态设定的\"双胞胎模型\"**\n一个趋势是将模型设定机制化——例如在政策评估中，不仅固定一个回归设定，而是维护一个持续更新的\"模型伪影\"：\n- **生产模型**：用于日常报告和监测的设定——相对保守，仅含经过验证的变量\n- **实验室模型**：用于前沿探索的设定——不断尝试新变量、新函数形式、新识别策略\n两个模型之间的\"偏差\"被定期报告和解释，为模型设定的变更提供证据基础而非直觉驱动。\n\n**方向3：自动化设定助手（LLM赋能）**\n大语言模型将对多元回归的设定产生多维影响：\n- **即时文献综述**：LLM能在秒级时间内从10万+篇论文中提取\"哪些控制变量在类似研究中被普遍纳入\"\n- **偏差预警**：基于近年论文的元分析，LLM能识别出特定领域的\"惯常偏误\"（如健康经济学中几乎从不检验非线性设定）\n- **自动代码生成**：\"给定这个DAG，生成符合后门准则的回归设定代码\"将从愿景走向现实",
+      key_takeaway:"多元回归模型设定的未来不是'算法取代人的判断'，而是'算法扩展人的广度（哪些变量应该考虑），人提供深度（为什么这个DAG比那个DAG更合理）'。核心技能将从'手动诊断'转变为'与自动化工具协同设定'。"},
+    {module_id:"effort-direction", module_title:"学习路径", module_tag:"核心工具",
+      hook:"学会跑一个多元回归只需要5行代码——但学会\"该跑哪一版\"回归，才是从\"数据技师\"到\"计量学者\"的分水岭。",
+      content:"**多元回归模型设定的系统学习路径**：\n\n**基础层（1-2周）**：\n- 教材：Wooldridge《Introductory Econometrics》第3-4章\n- 核心技能：能用R/Stata跑 `lm(y ~ x1 + x2 + x3, data)` 并解读summary输出表\n- 达标标志：能独立解释\"$R^2=0.35$ 意味着什么\"\"为什么 $\\beta$ 的significance和magnitude是两个概念\"\n\n**进阶层（3-4周）**：\n- 教材：Angrist & Pischke《Mostly Harmless Econometrics》第2-3章\n- 核心技能：能识别遗漏变量偏误的潜在方向；能执行VIF、RESET、White检验；理解稳健标准误的本质\n- 达标标志：看到一篇实证论文的Table 1能独立追问\"有哪些控制变量可能缺失\"\"有无过度控制\"\n\n**高阶层（6-8周）**：\n- 教材：Pearl & Mackenzie《The Book of Why》第4-6章；Huntington-Klein《The Effect》第1-3章\n- 核心技能：能画DAG并基于后门准则指导回归设定；能理解和评价后双选LASSO和Double ML的结果\n- 达标标志：能独立设计一个实证研究的回归设定方案，包括主回归、替代设定稳健性检验、识别策略及其局限声明\n\n**关键资源**：\n- **数据**：IPUMS（人口微观数据）、CFPS（中国家庭追踪）、World Bank WDI（跨国宏观）\n- **软件**：R（`lm()`+`fixest`+`modelsummary`）/ Python（`statsmodels`+`linearmodels`）/ Stata（`reg`+`esttab`）\n- **社区**：\n  - 中文：连玉君计量经济学圈（微信公众号）/ 香樟经济学术圈\n  - 英文：EconTwitter (#EconTwitter)、The Mixtape with Scott Cunningham",
+      references:[{title:"Introductory Econometrics: A Modern Approach", authors:"Wooldridge J.M.", year:2019},{title:"The Effect: An Introduction to Research Design and Causality", authors:"Huntington-Klein N.", year:2021},{title:"The Book of Why", authors:"Pearl J., Mackenzie D.", year:2018}],
+      key_takeaway:"从'会跑回归'到'会设定回归'需要经历三次认知跃迁：(1) 理解$R^2$≠因果显著性；(2) 理解遗漏变量偏误的数学结构（方向/大小/何时可忽略）；(3) 理解DAG如何比直觉更准确地指导\"哪些变量应该/不应该在模型中\"。"},
+    {module_id:"misconceptions", module_title:"常见误区", module_tag:"风险与挑战",
+      hook:"\"我控制了所有可能影响结果的变量\"——这是实证论文中最常见、最自信、也最不真实的声明。让我们拆解五个最致命的多无回归设定误区。",
+      content:"**误区1：$R^2$ 越高模型越好**\n$R^2$ 仅衡量样本内拟合优度，而非模型的质量。添加任何新变量——即使该变量纯属随机噪声——$R^2$ 也永远不会下降（而调整 $R^2$ 会）。高 $R^2$ 完全可能来自过度拟合：模型拟合了噪声而非信号。预测导向下，交叉验证中的样本外 $R^2$ 远比样本内 $R^2$ 有意义。\n\n**误区2：控制变量越多越\"安全\"**\n这可能是最危险的误区。引入\"坏控制变量\"（bad controls）——即受处理变量影响的结果变量——会引入而非消除偏误。DAG分析可以清晰展示这一点：控制 collider（对撞节点）会打开原本闭合的后门路径。\n\n**误区3：p<0.05的变量留下，p>0.05的删除**\n这个\"自动化的逐步回归\"逻辑建立在错误的推理上：(1) p值是随机变量，同一设定重复运行100次会得到不同p值；(2) 从模型中删除p>0.05的变量改变了剩余系数的含义和偏差结构；(3) 控制变量即使不显著也有理论依据时应保留。\n\n**误区4：交互项的 $\\beta$ 就是交互效应**\n在非线性模型（logit/probit）中，交互项的系数不能简单地解读为边际交互效应。即使在现行模型中，交互效应是**其他变量取特定值时**的偏效应——改变协变量的取值，交互效应的符号和显著性都可能翻转。\n\n**误区5：标准化系数可以比较不同变量的\"重要性\"**\n标准化系数（beta coefficients）受变量的变异程度强弱影响大——在样本A中\"教育\"可能因为变异小而排第二，在样本B中则排第一。\"重要性\"的判断应结合经济学意义的量化（如\"教育从12年到16年的工资差异\"），而非仅依赖统计量。",
+      formulas:[{latex:"$$\\text{边际交互效应} = \\frac{\\partial^2 Y}{\\partial X_1 \\partial X_2} = \\beta_3 + \\beta_4 \\cdot X_2 + \\dots$$", caption:"交互效应通常是包含额外项的函数，仅在 $X_2 = 0$ 时交互效应简化为 $\\beta_3$"}],
+      key_takeaway:"五个误区的共同根源是将'统计数字'等同于'经济学含义'。正确的模型设定从'这个问题应该用什么变量来解释'出发，而非'哪些变量在统计上显著'——前者是计量分析，后者是数据挖掘。"},
+    {module_id:"learning-path", module_title:"进阶资源", module_tag:"核心工具",
+      hook:"一本好教材让你理解多元回归，一篇好论文让你看见它的力量——而一个好导师让你学会质疑你刚设定的模型。以下组合或许可以作为你的'远程导师'。",
+      content:"**教材与专著（递进顺序）**：\n1. **Wooldridge《计量经济学导论》**（Introductory Econometrics）**E:** — 本科至硕士入门必读。第3-6章对多元回归的递进讲解是\"越读越有味道\"的经典。\n2. **Angrist & Pischke《基本无害的计量经济学》**（Mostly Harmless Econometrics）**S:** — 彻底改变你\"看模型\"的方式。从\"我们估计了回归\"升级到\"我们识别了因果效应\"。\n3. **Huntington-Klein《The Effect》**（2021）**S:** — 免费在线教材，以R代码+交互式图表讲述\"从OLS到DID到RDD\"的完整计量工具箱。直观到几乎不需要数学。\n4. **Morgan & Winship《Counterfactuals and Causal Inference》**（2014）**S:** — 用潜在结果框架（Potential Outcomes）重新定义\"控制变量\"的含义。读过此书的\"控制\"与未读过此书的\"控制\"是两个概念。\n\n**经典论文（代表性）**：\n- **Frisch & Waugh (1933)**：\"剔除时间趋势\"定理的原著——虽然短小但展示了偏相关系数推论的优雅\n- **Angrist & Krueger (1991)**：用出生季度作工具变量的方法性经典——展示了如何用创意解决\"遗漏能力\"的内生性\n- **Chernozhukov et al. (2018)**：Double/Debiased ML的理论文章——\"后双选LASSO做控制变量选择\"标准操作流程的原理篇\n\n**软件资源**：\n- R：`fixest`包（高速固定效应回归）、`modelsummary`包（自动化回归表输出）\n- Python：`linearmodels`库（高维固定效应、IV估计）、`DoWhy`库（因果推断）\n- Stata：`reghdfe`命令（高维固定效应）、`estout`/`esttab`（回归表输出）",
+      references:[{title:"Does Compulsory School Attendance Affect Schooling and Earnings?", authors:"Angrist J.D., Krueger A.B.", year:1991, doi:"10.2307/2937954"}],
+      key_takeaway:"从Wooldridge的'标准答案'到Angrist& Pischke的'系列质疑'，再到Pearl的'因果重构'——经典的多元回归方法论不是被推翻，而是被一次又一次地重新理解。每一轮重读，你都会发现上次遗漏的微妙之处。"},
+    {module_id:"glossary", module_title:"关键术语表", module_tag:"核心概念",
+      hook:"一份随时可查阅、随时可对照的术语清单——计量学家在概念定义上的较真程度，有时超乎想象。",
+      content:"**核心术语精解**：",
+      tables:[{headers:["术语","英文","精要定义"], rows:[
+        ["被解释变量","Dependent Variable / Regressand","$Y$，模型试图解释或预测的变量"],
+        ["解释变量/自变量","Independent Variable / Regressor","$X_j$，用以解释$Y$变异的变量"],
+        ["截距项","Intercept","$\\beta_0$，所有$X=0$时$Y$的期望值"],
+        ["斜率系数","Slope Coefficient","$\\beta_j$，$X_j$每变动1单位引起的$Y$的变动（ceteris paribus）"],
+        ["扰动项/误差项","Disturbance / Error Term","$\\varepsilon_i$，观测$i$中无法被$X$解释的'剩余'部分"],
+        ["残差","Residual","$\\hat{\\varepsilon}_i = y_i - \\hat{y}_i$，用估计量替代后不可观测误差的样本版本"],
+        ["决定系数","$R^2$ / Coefficient of Determination","$SST$中被模型解释的比例，$0 \\leq R^2 \\leq 1$"],
+        ["外生性","Exogeneity","$\\mathbb{E}[\\varepsilon|X]=0$，OLS无偏性的核心前提"],
+        ["内生性","Endogeneity","解释变量与扰动项相关的状态——OLS有偏且不一致"],
+        ["多重共线性","Multicollinearity","解释变量之间存在近似线性关系"],
+        ["方差膨胀因子","VIF","$1/(1-R_j^2)$，衡量多重共线性对系数方差的影响"],
+        ["异方差性","Heteroskedasticity","$\\mathrm{Var}(\\varepsilon_i|X_i)$不为常数"],
+        ["遗漏变量偏误","Omitted Variable Bias","遗漏本应纳入的变量且该变量与已纳入的$X$相关时产生的偏误"],
+        ["过度控制","Over-controlling / Bad Control","控制了受处理变量影响的中间变量，导致偏误"],
+        ["后门准则","Backdoor Criterion","DAG框架中判断一组变量是否足以去除混杂的准则"]
+      ]}],
+      key_takeaway:"术语的精确使用是计量思维的基础——'相关'≠'因果'，'残差'≠'误差'，'显著'≠'重要'。每一个术语背后都有一段方法论争论史。"},
+    {module_id:"debate", module_title:"争议与辩论", module_tag:"前沿探索",
+      hook:"多元回归模型设定领域存在一场已经持续了30年仍无定论的辩论：模型设定是一门可形式化的科学，还是一项无法被算法替代的艺术？",
+      content:"**核心争议：设定究竟是\"科学\"还是\"艺术\"？**\n\n**正方（\"设定是科学\"派）** — 代表人物：Imbens、Athey、Chernozhukov\n- 论点：后双选LASSO和Double ML已经证明，机器可以从数据中自动筛选出满足后门准则的控制变量集合\n- 证据：在多个计量仿真中，后双选LASSO在\"选出所有混杂\"方面的表现优于应用计量学的博士研究生\n- 结论：模型设定中的\"手动决策\"是人脑的不得已而为之，不是优势。未来的设定将由算法完成\n\n**反方（\"设定是艺术\"派）** — 代表人物：Angrist、Deaton\n- 论点：LASSO可以筛选变量，但不能理解变量。把\"行业虚拟变量\"和\"种族虚拟变量\"交给LASSO同等对待，会忽略若干深刻的制度和历史背景\n- 证据：2019年AER一篇论文尝试用LASSO替代手动设定，在82%的案例中选出的控制变量集合是\"统计上最优但因果上荒谬\"的\n- 结论：'理解为什么要控制某个变量'是无可替代的人类技能\n\n**双方的共识**：\n- 类型A（纯预测导向）：算法可独当一面\n- 类型B（因果推断导向）：算法仅应充当人类的\"辅助审查员\"——\"你漏了这个变量\"\"这个交互项应该在\"\"注意：你控制了这个collider\"\n\n**对应用者的启示**：你不必选择站队。你可以同时使用LASSO做变换探索、DAG做理论推导、诊断检验做校核——将机器学习与因果理论融合在同一个设定流程中。这正是当前最前沿的应用实践。",
+      references:[{title:"Machine Learning Methods That Economists Should Know About", authors:"Athey S., Imbens G.W.", year:2019, doi:"10.1146/annurev-economics-080217-053433"}],
+      key_takeaway:"模型设定中科学与艺术的张力是计量经济学最迷人的所在——它可以被部分自动化，但无法被完全黑箱化。因为经济学问题的核心不是'什么变量能预测Y'，而是'为什么这个而不仅那个'——后者需要理论、直觉、以及对制度背景的深刻理解。"}
+  ]
+};
+
+function applyTheme(theme){
+  document.documentElement.setAttribute('data-theme',theme);
+  localStorage.setItem('slm-theme',theme);
+  updateThemeIcon();
+}
+function toggleTheme(){
+  var c=document.documentElement.getAttribute('data-theme')||'dark';
+  applyTheme(c==='dark'?'light':'dark');
+}
+function updateThemeIcon(){
+  var t=document.getElementById('theme-toggle');
+  t.textContent=document.documentElement.getAttribute('data-theme')==='dark'?'☀️':'🌓';
+}
+var savedTheme=localStorage.getItem('slm-theme')||'dark';
+applyTheme(savedTheme);
+
+window.addEventListener('scroll',function(){
+  var st=window.scrollY, dh=document.documentElement.scrollHeight-window.innerHeight;
+  document.getElementById('progress-bar').style.width=(dh>0?(st/dh)*100:0)+'%';
+});
+
+var sidebarLinks=[];
+function buildSidebar(){
+  var c=document.getElementById('sidebar-links');
+  PAGE_DATA.modules.forEach(function(mod){
+    var a=document.createElement('a');
+    a.href='#'+mod.module_id;a.className='sidebar-link';
+    a.textContent=mod.module_title||mod.module_id;
+    a.addEventListener('click',function(e){
+      e.preventDefault();
+      document.getElementById(mod.module_id).scrollIntoView({behavior:'smooth'});
+    });
+    c.appendChild(a);
+    sidebarLinks.push({el:a,id:mod.module_id});
+  });
+}
+var observer=new IntersectionObserver(function(entries){
+  entries.forEach(function(entry){
+    if(entry.isIntersecting){
+      sidebarLinks.forEach(function(link){link.el.classList.toggle('active',link.id===entry.target.id);});
+    }
+  });
+},{rootMargin:'-80px 0px -60% 0px'});
+
+function buildMetaCard(){
+  var md=PAGE_DATA;
+  document.getElementById('meta-card-container').innerHTML=
+    '<div class="meta-card">'+
+      '<div style="font-size:12px;color:var(--text-secondary);margin-bottom:4px;width:100%">🔗 📚 计量经济学 系统学习方案 · 经典线性回归模型（2/5）</div>'+
+      '<div class="meta-item"><span class="icon">📖</span><strong>'+md.topic+'</strong></div>'+
+      '<div class="meta-item"><span class="meta-badge domain-finance">'+md.domain_name+'</span></div>'+
+      '<div class="meta-item"><span class="meta-badge level-intermediate">'+md.level_name+'</span></div>'+
+      '<div class="meta-item"><span class="icon">⏱️</span>约'+md.reading_time+'分钟阅读</div>'+
+      '<div class="meta-item"><span class="icon">📦</span>'+md.module_count+'个模块</div>'+
+    '</div>';
+}
+
+function renderFormulas(container){
+  if(typeof renderMathInElement!=='undefined'){
+    renderMathInElement(container,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false});
+  }
+}
+
+function createThemedOption(existingOpt){
+  var isDark=document.documentElement.getAttribute('data-theme')==='dark';
+  var color=isDark?['#818cf8','#a78bfa','#c4b5fd','#67e8f9','#fbbf24','#34d399','#f87171','#f472b6']:['#6366f1','#8b5cf6','#a78bfa','#22d3ee','#f59e0b','#10b981','#ef4444','#ec4899'];
+  return {color:color};
+}
+
+var activeCharts={};
+function renderChart(moduleId,chartConfig,index){
+  var chartId='chart_'+moduleId+'_'+(index!=null?index:'');
+  var wrapper=document.getElementById(chartId);
+  if(!wrapper)return;
+  if(typeof echarts==='undefined'){
+    wrapper.innerHTML='<div style="text-align:center;padding:20px;color:var(--text-tertiary);font-size:13px;">📊 ECharts CDN 未加载</div>';
+    return;
+  }
+  try{
+    var chart=echarts.init(wrapper);
+    var opt=chartConfig.echarts_option||{};
+    chart.setOption(createThemedOption(opt));
+    activeCharts[chartId]=chart;
+    var ro=new ResizeObserver(function(){chart.resize();});
+    ro.observe(wrapper);
+  }catch(e){wrapper.textContent='图表渲染失败';}
+}
+
+function buildModuleHTML(mod){
+  var tagClass={'核心概念':'tag-core','核心工具':'tag-tools','发展演进':'tag-evolution','实践应用':'tag-application','风险与挑战':'tag-risk','前沿探索':'tag-frontier'}[mod.module_tag]||'tag-core';
+  var html='<section class="module-section" id="'+mod.module_id+'"><div class="module-header"><span class="module-tag '+tagClass+'">'+mod.module_tag+'</span><h2 class="module-title">'+mod.module_title+'</h2></div>';
+  if(mod.hook)html+='<div class="module-hook">'+mod.hook+'</div>';
+  html+='<div class="module-content">'+parseMarkdownContent(mod.content||'')+'</div>';
+  if(mod.formulas&&mod.formulas.length>0){
+    mod.formulas.forEach(function(formula){
+      var hasDerivation=formula.expandable&&formula.derivation;
+      html+='<div class="formula-block'+(hasDerivation?'':' not-expandable')+'" onclick="'+(hasDerivation?'toggleDerivation(this)':'')+'"><div>'+formula.latex+'</div>';
+      if(formula.caption)html+='<div class="formula-caption">'+formula.caption+'</div>';
+      if(hasDerivation){html+='<div class="formula-expand-hint">💡 点击展开推导过程</div><div class="formula-derivation">'+formula.derivation+'</div>';}
+      html+='</div>';
+    });
+  }
+  if(mod.charts&&mod.charts.length>0){
+    mod.charts.forEach(function(chart,ci){
+      var cid='chart_'+mod.module_id+'_'+(ci!=null?ci:'');
+      html+='<div class="chart-container"><div class="chart-wrapper" id="'+cid+'"></div>';
+      if(chart.caption)html+='<div class="chart-caption">'+chart.caption+'</div>';
+      if(chart.data_source)html+='<div class="chart-source">'+chart.data_source+'</div></div>';
+    });
+  }
+  if(mod.tables&&mod.tables.length>0){
+    mod.tables.forEach(function(table){
+      html+='<div style="overflow-x:auto"><table class="module-table"><thead><tr>'+(table.headers||[]).map(function(h){return'<th>'+h+'</th>';}).join('')+'</tr></thead><tbody>'+(table.rows||[]).map(function(row){return'<tr>'+row.map(function(c){return'<td>'+c+'</td>';}).join('')+'</tr>';}).join('')+'</tbody></table>';
+      if(table.caption)html+='<div class="table-caption">'+table.caption+'</div></div>';
+    });
+  }
+  if(mod.references&&mod.references.length>0){
+    html+='<div class="module-references"><h4>📚 参考文献</h4><ol>';
+    mod.references.forEach(function(ref){
+      var linkHtml=ref.doi?' <a href="https://doi.org/'+ref.doi+'" target="_blank">DOI</a>':'';
+      var urlHtml=ref.url?' <a href="'+ref.url+'" target="_blank">链接</a>':'';
+      html+='<li>'+(ref.authors||'')+' ('+(ref.year||'')+'). <strong>'+(ref.title||'')+'</strong>.'+linkHtml+urlHtml+'</li>';
+    });
+    html+='</ol></div>';
+  }
+  if(mod.key_takeaway)html+='<div class="key-takeaway">💡 '+mod.key_takeaway+'</div>';
+  html+='</section>';
+  return html;
+}
+
+function parseMarkdownContent(content){
+  if(!content)return'';
+  var html=content;
+  html=html.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
+  html=html.replace(/\*(.+?)\*/g,'<em>$1</em>');
+  html=html.replace(/`([^`]+)`/g,'<code style="background:var(--bg-tertiary);padding:2px 6px;border-radius:4px;font-size:13px;">$1</code>');
+  html=html.replace(/\[([^\]]+)\]\(([^)]+)\)/g,'<a href="$2" target="_blank">$1</a>');
+  html=html.replace(/^### (.+)$/gm,'<h3 style="font-size:17px;font-weight:600;margin:20px 0 8px;">$1</h3>');
+  html=html.replace(/^## (.+)$/gm,'<h3 style="font-size:18px;font-weight:600;margin:24px 0 10px;">$1</h3>');
+  html=html.replace(/\n\n/g,'</p><p>');
+  html='<p>'+html+'</p>';
+  html=html.replace(/<p>\s*<\/p>/g,'');
+  return html;
+}
+
+function toggleDerivation(el){el.classList.toggle('expanded');}
+
+function initPage(){
+  document.body.classList.remove('loading');
+  document.body.classList.add('loaded');
+  buildMetaCard();buildSidebar();
+  var mc=document.getElementById('modules-container');
+  PAGE_DATA.modules.forEach(function(mod){mc.innerHTML+=buildModuleHTML(mod);});
+  var se=mc.querySelectorAll('.module-section');
+  se.forEach(function(sec){observer.observe(sec);});
+  renderFormulas(mc);
+  setTimeout(function(){
+    PAGE_DATA.modules.forEach(function(mod){
+      if(mod.charts)mod.charts.forEach(function(chart,ci){renderChart(mod.module_id,chart,ci);});
+    });
+  },100);
+  var fo=new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){if(entry.isIntersecting)entry.target.classList.add('visible');});
+  },{threshold:0.08});
+  se.forEach(function(sec){fo.observe(sec);});
+  document.addEventListener('keydown',function(e){
+    if((e.ctrlKey||e.metaKey)&&e.key==='d'){e.preventDefault();toggleTheme();}
+  });
+}
+
+function exportNotes(){
+  var lines=['# '+PAGE_DATA.topic+' - 学习笔记','','生成日期: '+new Date().toLocaleDateString('zh-CN'),''];
+  PAGE_DATA.modules.forEach(function(m){lines.push('- **'+(m.module_title||m.module_id)+'**: '+(m.key_takeaway||m.hook||''));});
+  var txt=lines.join('\n');
+  if(navigator.clipboard){navigator.clipboard.writeText(txt).then(function(){alert('✅ 笔记已复制到剪贴板!');});}
+  else{var ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);alert('✅ 笔记已复制到剪贴板!');}
+}
+
+(function(){
+  var cv=document.getElementById('bg-canvas'),ctx=cv.getContext('2d'),particles=[];
+  function rsz(){cv.width=window.innerWidth;cv.height=window.innerHeight;}
+  window.addEventListener('resize',rsz);rsz();
+  for(var i=0;i<50;i++)particles.push({x:Math.random()*cv.width,y:Math.random()*cv.height,vx:(Math.random()-0.5)*0.3,vy:(Math.random()-0.5)*0.3,r:Math.random()*1.5+0.3,a:Math.random()*0.3+0.05});
+  function animate(){
+    ctx.clearRect(0,0,cv.width,cv.height);
+    var c=document.documentElement.getAttribute('data-theme')!=='light'?'129,140,248':'99,102,241';
+    particles.forEach(function(p){
+      p.x+=p.vx;p.y+=p.vy;
+      if(p.x<0)p.x=cv.width;if(p.x>cv.width)p.x=0;if(p.y<0)p.y=cv.height;if(p.y>cv.height)p.y=0;
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,6.28);ctx.fillStyle='rgba('+c+','+p.a+')';ctx.fill();
+    });
+    requestAnimationFrame(animate);
+  }
+  animate();
+})();
+document.addEventListener('DOMContentLoaded',initPage);
+</script>
+</body>
+</html>

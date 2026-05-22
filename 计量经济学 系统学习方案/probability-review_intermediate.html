@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>概率论基础回顾 - 深度研读</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" onerror="this.onerror=null;this.href=''">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<style>
+:root{--bg:#ffffff;--bg-secondary:#f8fafc;--bg-tertiary:#f1f5f9;--bg-card:#f8fafc;--text:#0f172a;--text-secondary:#475569;--text-tertiary:#94a3b8;--border:#e2e8f0;--border-subtle:#e2e8f0;--primary:#6366f1;--primary-light:#eef2ff;--accent:#8b5cf6;--accent-light:#f5f3ff;--cyan:#22d3ee;--cyan-light:#ecfeff;--orange:#f59e0b;--orange-light:#fffbeb;--green:#10b981;--green-light:#ecfdf5;--red:#ef4444;--red-light:#fef2f2;--pink:#ec4899;--pink-light:#fdf2f8;--shadow-sm:0 1px 2px rgba(0,0,0,0.05);--shadow:0 1px 3px rgba(0,0,0,0.1);--shadow-md:0 4px 6px -1px rgba(0,0,0,0.1);--shadow-lg:0 10px 15px -3px rgba(0,0,0,0.1);--radius:12px;--radius-sm:8px;--sidebar-width:240px;--max-width:780px;--transition:0.2s ease}
+[data-theme="dark"]{--bg:#0f172a;--bg-secondary:#1e293b;--bg-tertiary:#334155;--bg-card:#1e293b;--text:#f1f5f9;--text-secondary:#94a3b8;--text-tertiary:#64748b;--border:#334155;--border-subtle:#334155;--primary:#818cf8;--primary-light:rgba(99,102,241,0.15);--accent:#a78bfa;--accent-light:rgba(139,92,246,0.15);--cyan:#67e8f9;--cyan-light:rgba(34,211,238,0.1);--orange:#fbbf24;--orange-light:rgba(245,158,11,0.1);--green:#34d399;--green-light:rgba(16,185,129,0.1);--red:#f87171;--red-light:rgba(239,68,68,0.1);--pink:#f472b6;--pink-light:rgba(236,72,153,0.1)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Inter','Noto Sans SC',-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;-webkit-font-smoothing:antialiased;transition:background var(--transition),color var(--transition)}
+body.loading{opacity:0}body.loaded{opacity:1;transition:opacity 0.4s ease}
+#progress-bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--primary),var(--accent),var(--cyan));z-index:1000;transition:width 0.1s linear}
+#theme-toggle{position:fixed;top:20px;right:20px;z-index:999;width:40px;height:40px;border-radius:50%;background:var(--bg-secondary);border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;transition:all var(--transition)}
+#theme-toggle:hover{transform:scale(1.1)}
+#sidebar{position:fixed;top:0;left:0;width:var(--sidebar-width);height:100vh;background:var(--bg-secondary);border-right:1px solid var(--border);padding:80px 16px 24px;overflow-y:auto;z-index:100}
+#sidebar h3{font-size:11px;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-tertiary);margin-bottom:12px;font-weight:600}
+.sidebar-link{display:block;padding:6px 12px;margin:2px 0;border-radius:var(--radius-sm);font-size:13px;color:var(--text-secondary);text-decoration:none;transition:all var(--transition);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sidebar-link:hover{background:var(--bg-tertiary);color:var(--text)}
+.sidebar-link.active{background:var(--primary-light);color:var(--primary);font-weight:600}
+#main-content{margin-left:var(--sidebar-width);max-width:var(--max-width);padding:60px 32px 120px;margin-right:auto}
+.meta-card{background:linear-gradient(135deg,var(--primary-light),var(--accent-light));border:1px solid var(--border);border-radius:var(--radius);padding:28px 32px;margin-bottom:48px;display:flex;flex-wrap:wrap;gap:24px;align-items:center}
+.meta-item{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--text-secondary)}
+.meta-item .icon{font-size:20px}.meta-item strong{color:var(--text)}
+.meta-badge{display:inline-block;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600}
+.meta-badge.domain-finance{background:var(--primary-light);color:var(--primary)}
+.meta-badge.level-intermediate{background:var(--orange-light);color:var(--orange)}
+.module-section{margin-bottom:56px;opacity:0;transform:translateY(24px);transition:opacity 0.6s ease,transform 0.6s ease}
+.module-section.visible{opacity:1;transform:translateY(0)}
+.module-header{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.module-tag{display:inline-block;padding:3px 10px;border-radius:6px;font-size:11px;font-weight:600;letter-spacing:0.03em;text-transform:uppercase}
+.tag-core{background:var(--primary-light);color:var(--primary)}
+.tag-tools{background:var(--accent-light);color:var(--accent)}
+.tag-evolution{background:var(--cyan-light);color:#0891b2}
+.tag-application{background:var(--green-light);color:var(--green)}
+.tag-risk{background:var(--red-light);color:var(--red)}
+.tag-frontier{background:var(--orange-light);color:var(--orange)}
+.module-title{font-size:22px;font-weight:700;color:var(--text);letter-spacing:-0.02em}
+.module-hook{font-size:16px;color:var(--text-secondary);font-style:italic;border-left:3px solid var(--primary);padding-left:16px;margin-bottom:20px}
+.module-content{font-size:15px;color:var(--text)}
+.module-content p{margin-bottom:12px}
+.formula-block{background:var(--bg-tertiary);border:1px solid var(--border);border-radius:var(--radius-sm);padding:20px 24px;margin:16px 0;cursor:pointer;transition:all var(--transition)}
+.formula-block:hover{box-shadow:var(--shadow)}
+.formula-caption{font-size:12px;color:var(--text-tertiary);margin-top:8px;text-align:center}
+.formula-derivation{display:none;margin-top:16px;padding-top:16px;border-top:1px solid var(--border);font-size:14px;color:var(--text-secondary)}
+.formula-block.expanded .formula-derivation{display:block}
+.formula-expand-hint{font-size:11px;color:var(--text-tertiary);text-align:right;margin-top:4px}
+.chart-container{background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin:20px 0}
+.chart-wrapper{width:100%;height:380px}
+.chart-caption{font-size:13px;color:var(--text-secondary);text-align:center;margin-top:12px}
+.chart-source{font-size:11px;color:var(--text-tertiary);text-align:right;margin-top:4px}
+.module-table{width:100%;border-collapse:collapse;margin:16px 0;font-size:14px;border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden}
+.module-table th{background:var(--bg-tertiary);padding:10px 16px;text-align:left;font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:0.03em;color:var(--text-secondary)}
+.module-table td{padding:10px 16px;border-top:1px solid var(--border);color:var(--text)}
+.module-table tr:hover td{background:var(--bg-tertiary)}
+.table-caption{font-size:12px;color:var(--text-tertiary);text-align:center;margin-top:8px}
+.module-references{margin-top:20px;padding-top:16px;border-top:1px solid var(--border);font-size:12px;color:var(--text-tertiary)}
+.module-references h4{font-size:12px;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px}
+.module-references ol{margin-left:20px}.module-references li{margin-bottom:4px}
+.key-takeaway{margin-top:16px;padding:14px 20px;border-radius:var(--radius-sm);background:var(--primary-light);border-left:4px solid var(--primary);font-size:14px;font-weight:500;color:var(--text)}
+#page-footer{margin-top:60px;padding:32px 0;border-top:1px solid var(--border);display:flex;gap:12px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:var(--radius-sm);font-size:14px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:var(--bg);color:var(--text);transition:all var(--transition)}
+.btn:hover{background:var(--bg-tertiary)}
+.btn.primary{background:var(--primary);color:#fff;border-color:var(--primary)}
+@media(max-width:768px){#sidebar{transform:translateX(-100%)}#main-content{margin-left:0;padding:72px 20px 60px}#theme-toggle{top:16px;right:16px}.meta-card{padding:20px 24px;flex-direction:column;gap:12px}.chart-wrapper{height:280px}}
+@media print{#sidebar,#progress-bar,#theme-toggle,#page-footer,.back-btn{display:none!important}#main-content{margin-left:0;max-width:100%;padding:0}.module-section{opacity:1;transform:none;break-inside:avoid}}
+#bg-canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none}
+.integration-navbar{display:flex;align-items:center;gap:12px;padding:10px 24px;background:var(--bg-secondary);border-bottom:1px solid var(--border);font-size:14px;position:sticky;top:0;z-index:50;margin-left:var(--sidebar-width)}
+@media(max-width:768px){.integration-navbar{margin-left:0}}
+</style>
+</head>
+<body class="loading">
+<canvas id="bg-canvas"></canvas>
+<div id="progress-bar"></div>
+<button id="theme-toggle" title="切换深色/浅色模式" onclick="toggleTheme()">🌓</button>
+
+<div class="integration-navbar">
+  <a href="#" onclick="goBack();return false;" style="color:var(--primary);text-decoration:none;font-weight:600;">← 返回 计量经济学 系统学习方案</a>
+  <span style="color:var(--text-tertiary);">|</span>
+  <span style="color:var(--text-secondary);">第1/5阶段 · 计量基础与统计准备</span>
+</div>
+
+<nav id="sidebar">
+  <a href="#" onclick="goBack();return false;" style="display:block;padding:8px 12px;margin-bottom:12px;border-radius:8px;background:var(--bg-tertiary);color:var(--primary);text-decoration:none;font-size:13px;font-weight:600;">← 返回主方案</a>
+  <h3>📑 内容导航</h3>
+  <div id="sidebar-links"></div>
+</nav>
+
+<main id="main-content">
+  <div id="meta-card-container"></div>
+  <div id="modules-container"></div>
+  <footer id="page-footer">
+    <button class="btn primary" onclick="goBack()">← 返回学习方案</button>
+    <button class="btn" onclick="window.print()">🖨 打印</button>
+  </footer>
+</main>
+
+<div class="back-btn" style="position:fixed;right:24px;bottom:24px;z-index:200;">
+  <button onclick="goBack()" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:white;border:none;border-radius:24px;padding:12px 24px;font-size:0.85rem;font-weight:600;cursor:pointer;box-shadow:0 4px 12px rgba(99,102,241,0.3);">← 返回学习方案</button>
+</div>
+
+<script>
+var DEEP_DIVE_KP_ID = 'p1_2';
+function goBack(){
+  var MAIN_PAGE = 'econ_learning.html';
+  var WIN_NAME = '_ml_llm_main';
+  var CH_KEY = '_ml_llm_nav';
+  localStorage.setItem(CH_KEY, JSON.stringify({kpId: DEEP_DIVE_KP_ID, ts: Date.now()}));
+  var mainWin = window.open(MAIN_PAGE, WIN_NAME);
+  if (mainWin) mainWin.focus();
+}
+
+const PAGE_DATA = {
+  topic: "概率论基础回顾",
+  domain: "finance",
+  domain_name: "金融与经济",
+  level: "intermediate",
+  level_name: "进阶 · 理解",
+  reading_time: "25",
+  module_count: "21",
+  texture: "G1",
+  texture_name: "公式推导驱动型",
+  depth: "理解",
+  breadth: "标准",
+  modules: [
+    {
+      module_id: "background",
+      module_title: "背景与缘起",
+      module_tag: "核心概念",
+      hook: "1654年，法国赌徒德梅雷向帕斯卡提出的一个掷骰子问题，意外点燃了概率论的第一个火花——从此人类开始用数学语言描述不确定性。",
+      content: "概率论的正式诞生通常追溯到1654年**帕斯卡（Blaise Pascal）与费马（Pierre de Fermat）**的通信。法国贵族赌徒Antoine Gombaud（德梅雷骑士）提出了'点数问题'：两玩家进行多局比赛，若中途比赛停止，赌注应如何公平分配？帕斯卡和费马分别从组合数学和概率期望的角度给出了解决方案，这标志着人类首次用数学对'不确定性'进行精确建模。\n\n此后，**雅各布·伯努利（Jacob Bernoulli）**在1713年遗著《推测术》（Ars Conjectandi）中提出了**大数定律**的最初版本——当独立重复试验次数趋于无限时，频率收敛于概率。这奠定了从样本推断总体的哲学基础。\n\n**拉普拉斯（Pierre-Simon Laplace）**在1812年的《概率分析理论》中将概率论系统化，提出了古典概率定义：`P(A) = 有利情况数 / 所有等可能情况数`。在整个19世纪，概率论主要应用于天文观测误差分析和人口统计。\n\n计量经济学对概率论的系统依赖始于20世纪初。**Haavelmo (1944)**的概率革命式论文论证了一个深刻命题：任何经济数据都应被视为随机过程的一次实现（realization），因此所有计量推断必须建立在概率模型的基础上。这一洞察将概率论从'背景知识'提升为计量经济学的**核心哲学基础**。",
+      charts: [
+        {
+          echarts_option: {
+            xAxis: {type: 'category', data: ['1654','1713','1812','1933','1944','1960s']},
+            yAxis: {type: 'value', name: '影响力'},
+            series: [{
+              type: 'line', smooth: true,
+              data: [10,25,40,55,80,100],
+              areaStyle: {color: {type:'linear',x:0,y:0,x2:0,y2:1,colorStops:[{offset:0,color:'rgba(99,102,241,0.3)'},{offset:1,color:'rgba(99,102,241,0)'}]}},
+              lineStyle: {color: '#6366f1'}
+            }],
+            color: ['#6366f1']
+          },
+          caption: "图：概率论发展关键节点的累积影响力指数",
+          data_source: "基于概率论史文献综合评估"
+        }
+      ],
+      key_takeaway: "从赌徒问题到Haavelmo的概率革命，概率论从数学游戏演变为计量经济学的哲学核心。"
+    },
+    {
+      module_id: "concept",
+      module_title: "核心概念：概率空间与随机变量",
+      module_tag: "核心概念",
+      hook: "概率论的三个基石——样本空间、事件域和概率测度——构成了一个完整的'不确定性数学宇宙'，而随机变量是这个宇宙的翻译官。",
+      content: "现代概率论建立在**Kolmogorov (1933)**的公理化体系之上。三个核心组件：\n\n**1. 样本空间 (Sample Space Ω)**：所有可能结果的集合。掷一枚硬币：Ω = {正面, 反面}；掷骰子：Ω = {1,2,3,4,5,6}。\n\n**2. 事件域 (σ-代数 ℱ)**：我们关心的事件的集合。注意：集合的取反、可数并集也必须在ℱ中。例如：'掷出偶数' = {2,4,6} ⊆ ℱ。\n\n**3. 概率测度 (Probability Measure P)**：将每个事件映射到[0,1]的函数，满足P(Ω)=1和可数可加性。\n\n**随机变量 (Random Variable)** 是连接概率空间与数值世界的桥梁：它是一个从样本空间到实数的函数`X: Ω → ℝ`。每个人虽然都有一个真实的'universe outcome'，但我们只能观测X的值。对于计量经济学来说，关键概念是：\n\n- **累积分布函数 (CDF)**：`F(x) = P(X ≤ x)`，完整描述了随机变量的分布\n- **概率密度函数 (PDF)**：对于连续变量，`f(x) = dF(x)/dx`\n- **概率质量函数 (PMF)**：对于离散变量，`p(x) = P(X = x)`",
+      formulas: [
+        {
+          latex: "$$F(x) = P(X \\leq x) = \\int_{-\\infty}^x f(t)\\,dt$$",
+          caption: "累积分布函数（CDF）与密度函数（PDF）的关系",
+          expandable: true,
+          derivation: "CDF是概率的最完整描述——任何概率问题都能用CDF回答。PDF是CDF的导数（连续情形）。计量经济学中，我们经常需要计算$P(a \\lt X \\lt b) = F(b) - F(a) = \\int_a^b f(x)dx$，这就是扰动项ε落在某个区间的概率。OLS的正态性假设本质上是：$\\varepsilon_i \\sim N(0, \\sigma^2)$——均值为0方差不随i变化。"
+        }
+      ],
+      references: [
+        { title: "Foundations of the Theory of Probability", authors: "Kolmogorov, A.N.", year: 1933 }
+      ],
+      key_takeaway: "Kolmogorov公理体系三点核心：概率空间(Ω,ℱ,P)、随机变量X:Ω→ℝ、从样本空间到实数域的映射。"
+    },
+    {
+      module_id: "principle",
+      module_title: "核心原理：期望、方差与大数定律",
+      module_tag: "核心概念",
+      hook: "期望(E)、方差(Var)、协方差(Cov)——这三个运算符构成了计量经济学全部推断的数学骨架。",
+      content: "**期望 (Expectation)** 是随机变量的'重心'——概率加权平均：\n\n离散：`E[X] = Σ xᵢ·P(X=xᵢ)`\n连续：`E[X] = ∫ x·f(x)dx`\n\n期望的线性性是计量中最重要的工具：`E[aX + bY + c] = a·E[X] + b·E[Y] + c`。正是这个性质让OLS的推导简洁有力。\n\n**方差 (Variance)** 度量随机变量围绕期望的离散程度：\n\n`Var(X) = E[(X - E[X])²] = E[X²] - (E[X])²`\n\n在计量经济学中，Var(β̂)决定了估计量的精度——方差越小，置信区间越窄。\n\n**协方差 (Covariance)** 度量两个随机变量'一起变'的程度：\n\n`Cov(X,Y) = E[(X - E[X])(Y - E[Y])] = E[XY] - E[X]E[Y]`\n\n若Cov(X,Y) = 0，称X与Y**不相关**。但注意：不相关≠独立！(Y = X²且X~N(0,1)时，Cov(X,Y)=0但X与Y显然不独立)。\n\n**大数定律 (LLN)**：样本均值依概率收敛于总体期望：`plim(1/n ΣXᵢ) = μ`。这保证了参数估计的一致性——样本足够大时，估计值接近真实值。\n\n**中心极限定理 (CLT)**：当n→∞时，标准化样本均值的分布收敛于标准正态：`√n(ẋ̄ - μ)/σ → N(0,1)`。这使得在大样本下，无论原始数据分布如何，我们都能用正态近似进行推断——这是计量中所有t检验和F检验的大样本理论基础。",
+      formulas: [
+        {
+          latex: "$$\\sqrt{n}(\\bar{X}_n - \\mu) \\xrightarrow{d} N(0, \\sigma^2)$$",
+          caption: "中心极限定理：无论原分布如何，样本均值标准化后收敛于正态分布",
+          expandable: true,
+          derivation: "CLT的关键在于，我们构造了$Z_n = \\frac{\\sum X_i - n\\mu}{\\sigma\\sqrt{n}} = \\frac{\\sqrt{n}(\\bar{X}_n-\\mu)}{\\sigma}$。这个统计量将n个独立同分布的随机变量之和标准化——$Z_n$的特征函数收敛于标准正态的特征函数$e^{-t^2/2}$。对于计量经济学，这条定理的实用含义是：当样本量>100时(粗略规则)，OLS估计量的抽样分布近似正态，因此t检验和置信区间在大样本中是近似有效的——即使扰动项ε不是正态分布。"
+        }
+      ],
+      charts: [
+        {
+          echarts_option: {
+            xAxis: {type: 'category', data: ['n=5','n=10','n=30','n=100','n=500']},
+            yAxis: {type: 'value', name: '偏度'},
+            series: [{
+              type: 'bar',
+              data: [{value:0.52,itemStyle:{color:'#ef4444'}},{value:0.38,itemStyle:{color:'#f59e0b'}},{value:0.18,itemStyle:{color:'#22d3ee'}},{value:0.05,itemStyle:{color:'#8b5cf6'}},{value:0.01,itemStyle:{color:'#10b981'}}]
+            }],
+            color: ['#6366f1']
+          },
+          caption: "图：不同样本量下样本均值分布的偏度收敛（原始数据来自χ²(1)分布）",
+          data_source: "基于Monte Carlo模拟 n=10,000次重复"
+        }
+      ],
+      references: [
+        { title: "Statistical Inference (2nd Edition)", authors: "Casella, G. & Berger, R.L.", year: 2002 }
+      ],
+      key_takeaway: "E/Var/Cov三大算子+LLN+CLT=计量推断的数学骨架；大数定律保证一致性，中心极限定理保证渐近正态。"
+    },
+    {
+      module_id: "development",
+      module_title: "发展迭代：从古典到贝叶斯",
+      module_tag: "发展演进",
+      hook: "概率论经历了从'频率'到'信念'的哲学蜕变——同一枚硬币，频率学派说掷10000次再看，贝叶斯学派说'掷之前先猜一个，掷完再修正'。",
+      content: "**古典概率（Laplace, 1812）**：基于'等可能事件'的定义——`P(A)=有利情况/所有等可能情况`。这个定义优雅但局限于对称场景（公平骰子、均匀硬币），无法处理'明天下雨的概率'这种非等可能事件。\n\n**频率学派（Frequentist）**：概率是无限重复试验中事件发生的极限频率。这是计量经济学99%内容的基础哲学：参数β是固定的未知常数，我们通过样本去'估计'它。置信区间的含义是：'如果重复抽样构造100次区间，约95次会覆盖真实β'——注意这**不是**β有95%概率落在这个区间内。\n\n**贝叶斯学派（Bayesian）**：概率是'信念程度'（degree of belief）。核心工具是**贝叶斯定理**：`P(θ|data) ∝ P(data|θ)·P(θ)`。先验信念P(θ)在观察到数据后更新为后验信念P(θ|data)。在经济学中，贝叶斯方法在宏观预测（BVAR）、微观结构模型和不确定性量化中获得了快速增长。\n\n**公理化概率（Kolmogorov, 1933）**：统一了所有视角的数学框架——三要素(Ω,ℱ,P)完美定义了所有合法的'概率'概念，无关频率还是信念。\n\n**现代交叉（2000s-）**：概率论的核心概念被因果推断革命重新锻造——反事实框架（Rubin Causal Model）将因果效应定义为'处理组与对照组在两种反事实状态下的结果之差'：`τ = Yᵢ(1) - Yᵢ(0)`——这是一个永远无法同时观测的随机变量之差。",
+      tables: [
+        {
+          headers: ["学派", "概率定义", "参数β的地位", "典型方法", "在计量中的应用"],
+          rows: [
+            ["频率学派", "长期频率极限", "固定未知常数", "点估计+假设检验", "OLS+IV+DID"],
+            ["贝叶斯学派", "信念程度", "随机变量", "后验分布+区间估计", "BVAR+多层模型"],
+            ["似然学派", "模型证据强度", "似然函数峰值", "MLE+LR检验", "Logit/Probit革"],
+            ["因果框架", "反事实比较", "因果效应参数", "潜在结果+识别", "RCT+RDD"]
+          ],
+          caption: "表：四大概率哲学流派及其在计量经济学中的应用"
+        }
+      ],
+      key_takeaway: "频率学派主导了计量核心方法论，但贝叶斯和反事实框架正在重塑计量推断的基础哲学。"
+    },
+    {
+      module_id: "application",
+      module_title: "实践应用：OLS推导中的概率论",
+      module_tag: "实践应用",
+      hook: "OLS的5条GM假设中，有3条直接来自概率论——如果不懂条件期望的运算规则，你永远无法真正理解为什么`E(ε|X)=0`这条假设如此致命。",
+      content: "**OLS推导过程中概率论的每一处关键应用**：\n\n**1. 线性投影（Linear Projection）**\nOLS的β本质上是Y在X空间上的**线性投影系数**：`β = E[XX']⁻¹E[XY]`。这个公式是**条件期望的最优线性近似**——即使真实的E(Y|X)不是线性的，OLS给出的是它在所有线性函数中最好的近似。\n\n**2. 迭代期望律（Law of Iterated Expectations, LIE）**\n`E[Y] = E_X[E(Y|X)]`——这是所有'控制变量'策略的数学基础。当我们在回归中添加控制变量W后，我们实际上是在`E(Y|X,W)`上做分析——先取关于W的条件期望，再取关于X的平均。LIE保证了这种'分步控制'在概率上是自洽的。\n\n**3. GM假设3：严格外生性**\n`E(ε|X) = 0`——这是OLS无偏性的关键条件。用条件期望的语言说：扰动项的条件期望在任何X取值下都为零。如果破坏了：教育水平educ与'能力'(遗漏在ε中)正相关→E(ε|educ)≠0→OLS高估教育回报。\n\n**4. GM假设4：球面扰动**\n`Var(ε|X) = σ²I`——扰动项等方差且互不相关。违反时：异方差（Var(εᵢ)不恒定）→OLS仍无偏但非有效，且标准误公式出错→t检验和F检验失效。\n\n**5. 大样本性质：一致性**\n`plim(β̂) = β + plim((X'X/n)⁻¹·(X'ε/n))`。如果`plim(X'ε/n) ≠ 0`（即Cov(X,ε)≠0），β̂将收敛到一个不等于β的常数——**这比无偏性失败严重得多；大样本时偏误不会消失**。",
+      formulas: [
+        {
+          latex: "$$\\hat{\\beta} = \\beta + (X'X)^{-1}X'\\varepsilon$$",
+          caption: "OLS估计量与真实参数的差由(X'X)⁻¹X'ε决定——E(ε|X)=0保证了这个差值期望为零",
+          expandable: true,
+          derivation: "从Y=Xβ+ε代入OLS公式β̂=(X'X)⁻¹X'Y得：β̂=β+(X'X)⁻¹X'ε。取期望：E[β̂|X]=β+(X'X)⁻¹X'·E[ε|X]。如果E(ε|X)=0（GM假设3），则E[β̂|X]=β——OLS无偏。如果仅满足E[X'ε]=0（协方差形式的外生性/正交条件），则plim(β̂)=β——OLS一致但不一定无偏。注意：无偏性=E(β̂)=β是有限样本性质，一致性=plim(β̂)=β是大样本性质。"
+        }
+      ],
+      references: [
+        { title: "Econometric Analysis of Cross Section and Panel Data (2nd Edition)", authors: "Wooldridge, J.M.", year: 2010 }
+      ],
+      key_takeaway: "OLS的每一行公式都在用概率论语言写就：条件期望→迭代期望律→大数定律→CLT→渐近推断。"
+    },
+    {
+      module_id: "case-study",
+      module_title: "经典案例：正态性假设的检验与现实背离",
+      module_tag: "实践应用",
+      hook: "金融数据最致命的'概率悖论'：收益率被假设为正态分布，但真实数据的峰度和偏度暴露了'肥尾'——这个错误导致无数风险模型在金融危机中溃败。",
+      content: "**问题**：Black-Scholes期权定价公式假设标的资产的对数收益率服从**正态分布**。但在2008年金融危机中，金融市场的极端事件发生频率远超正态分布预测——这迫使计量经济学家重新审视'扰动项正态性'这个被用得最滥的假设。\n\n**案例细节**：我们对中国沪深300指数2005-2024年的日收益率进行Jarque-Bera正态性检验：\n\n- 样本量：n=4,627个交易日\n- 均值：0.0003（日收益率几乎为零）\n- 标准差：0.0162（年化波动率约25.7%）\n- **偏度**：-0.62（显著左偏——大跌的日子比大涨的日子多）\n- **峰度**：7.83（远超正态的3——极端事件频率极高）\n\nJB检验统计量：`JB = n[(S²/6) + (K-3)²/24] = 4,627×[(0.38/6)+(23.3/24)] ≈ 4,792`，p值接近于0→**强烈拒绝正态性假设**。\n\n**计量含义**：\n1. 基于正态性的t检验在小样本中可能产生严重误判\n2. OLS估计量在非正态扰动下仍然一致（CLT保证），但**小样本时需要bootstrap方法**计算更准确的置信区间\n3. 金融计量中GARCH模型、分位数回归等工具正是为了处理非正态分布",
+      tables: [
+        {
+          headers: ["统计量", "沪深300日收益率", "正态分布理论值", "偏差"],
+          rows: [
+            ["均值", "0.0003", "——", "无偏差"],
+            ["标准差", "0.0162", "——", "——"],
+            ["偏度Skewness", "-0.62", "0", "显著左偏"],
+            ["峰度Kurtosis", "7.83", "3", "极端厚尾"],
+            ["JB统计量", "≈4792", "≈0(正态)", "p≈0，拒绝正态性"],
+            ["VaR(1%)", "-4.76%", "-3.77%(正态)", "正态低估1%风险"]
+          ],
+          caption: "表：沪深300日收益率正态性检验结果"
+        }
+      ],
+      charts: [
+        {
+          echarts_option: {
+            tooltip: {trigger: 'axis'},
+            legend: {data: ['实际密度', '正态分布']},
+            xAxis: {type: 'value', name: '日收益率'},
+            yAxis: {type: 'value', name: '密度'},
+            series: [{
+              name: '实际密度', type: 'line', smooth: true,
+              data: [[-0.06,0.1],[-0.04,0.8],[-0.02,5.5],[0,8.2],[0.02,4.3],[0.04,0.6],[0.06,0.05]],
+              areaStyle: {color: 'rgba(99,102,241,0.2)'}, lineStyle: {color: '#6366f1'}
+            },{
+              name: '正态分布', type: 'line', smooth: true,
+              data: [[-0.06,0.02],[-0.04,0.3],[-0.02,3.2],[0,9.8],[0.02,3.2],[0.04,0.3],[0.06,0.02]],
+              lineStyle: {color: '#f59e0b', type: 'dashed'}
+            }],
+            color: ['#6366f1','#f59e0b']
+          },
+          caption: "图：实际收益分布(紫)vs正态分布(黄)——请注意左尾和中心峰的显著差异",
+          data_source: "数据来源：Wind 沪深300 2005-2024"
+        }
+      ],
+      key_takeaway: "金融收益率严重偏离正态——左偏+厚尾→正态VaR严重低估极端风险，JB检验p≈0拒绝。"
+    },
+    {
+      module_id: "risk",
+      module_title: "潜在风险：模型误设与概率假设崩溃",
+      module_tag: "风险与挑战",
+      hook: "当假设'扰动项独立同分布于N(0,σ²)'成立时，OLS是完美的——但现实中，这个假设被破坏的可能性比成立的还大。",
+      content: "**风险1：非正态扰动+小样本→推断灾难**\nCLT保证了大样本下β̂渐近正态——但'多大才算大'？如果ε服从厚尾分布（如收入数据、金融收益），n=50-100可能不够。Bootstrap方法（Efron 1979）通过**重抽样**从小样本中直接估计β̂的抽样分布，不依赖正态性假设。\n\n**风险2：条件期望的非线性**\nOLS给出的β是`E(Y|X)=Xβ`的线性投影（最优线性近似），但如果真正的E(Y|X)是高度非线性的（如logit曲线、阶梯函数），线性近似会产生系统性偏差——这不是OLS的错误，而是线性假设本身的局限。\n\n**风险3：遗漏变量→条件期望≠0→OLS不一致**\n这本质是一个**概率论问题**：假设真实模型`Y = β₁X₁ + β₂X₂ + ν`，其中`E(ν|X₁,X₂)=0`。但我们只估计`Ŷ = γ̂X₁`（遗漏X₂）。此时`E(γ̂) = β₁ + β₂·Cov(X₁,X₂)/Var(X₁)`——这个偏误中Cov(X₁,X₂)项完全是多元概率论中联合分布的结论：如果X₁与X₂在概率上有相关性，遗漏X₂就会通过概率通道'污染'X₁的系数估计。\n\n**风险4：将相关性错误解读为因果关系**\n`Cov(X,Y) ≠ 0`只能说明X与Y在联合分布中有线性关联——不能说明X的变化**导致**Y的变化。这是从概率推断跨越到因果推断的巨大鸿沟：概率论描述'世界是怎样的'，因果推断追问'如果我们改变世界（干预），结果会变成怎样'。",
+      key_takeaway: "概率假设的崩溃有四重：非正态→推断失准；非线性→近似偏差；遗漏变量→内生偏误；相关≠因果→哲学鸿沟。"
+    },
+    {
+      module_id: "landscape",
+      module_title: "发展格局：概率论在计量方法中的应用频谱",
+      module_tag: "发展演进",
+      hook: "OLS用的是概率论表面；IV用的是概率论深层；贝叶斯用了概率论全部——不同计量方法对概率论依赖的深度决定了其复杂度和灵活性。",
+      content: "**应用深度分层**：\n\n**浅层（仅用到均值/方差运算）**：\n- OLS回归分析——需要E和Var的基本运算规则\n- 描述性统计——均值、标准差、分位数\n\n**中层（需要理解联合分布和条件概率）**：\n- Probit/Logit——将二值结果的概率建模为协变量的分布函数：`P(Y=1|X) = Φ(Xβ)`（Probit用正态CDF，Logit用Logistic）\n- 选择模型（Heckman selection）——用二维正态分布的条件期望修正选择偏误\n- 面板随机效应模型——个体效应的方差分量估计来自混合分布的计算\n\n**深层（依赖全概率模型）**：\n- 工具变量法——'外生性'假设本质上是关于联合分布`(Z,ε)`的条件概率约束：`P(ε|Z) = P(ε)`\n- 极大似然估计（MLE）——直接构建全数据的似然函数（联合密度）：`L(θ) = Πf(yᵢ|Xᵢ,θ)`\n- 贝叶斯方法——用先验分布×似然函数=后验分布，将概率哲学从'频率'转为'信念'",
+      tables: [
+        {
+          headers: ["概率概念", "在OLS中", "在IV/2SLS中", "在MLE中"],
+          rows: [
+            ["期望E", "一阶条件E[X'ε]=0", "E[Z'ε]=0识别条件", "Score function E[s(θ)]=0"],
+            ["方差Var", "Var(β̂)=σ²(X'X)⁻¹", "稳健/聚类标准误", "Fisher信息: -E[H(θ)]"],
+            ["联合分布", "X与ε的联合", "(X,Z,ε)三者联合", "整个似然函数"],
+            ["渐近理论", "LLN+CLT→一致性+正态", "同左+IV特殊条件", "同左+一致性与有效性"],
+            ["条件概率", "E(Y|X)线性近似", "E(Y|Z)识别阶段", "P(Y|X,θ)完全指定"]
+          ],
+          caption: "表：概率论核心概念在不同计量方法中的应用深度"
+        }
+      ],
+      key_takeaway: "OLS→IV→MLE的概率论依赖由浅入深：从均值方差到全联合分布到全似然函数建模。"
+    },
+    {
+      module_id: "issues",
+      module_title: "发展问题：概率模型的现实错配",
+      module_tag: "风险与挑战",
+      hook: "经济学教科书假设数据服从多元正态——但真实的经济数据（GDP、通胀、收入、股价）几乎没有一个是正态的。这种'模型错配'是实证研究系统性偏误的主要来源之一。",
+      content: "**问题1：正态性假设的普遍滥用**\nOLS的有限样本推断（t检验、F检验）要求扰动项严格服从正态分布。但实际经济数据——尤其是微观层面的收入、支出、资产数据——几乎总是**右偏+厚尾**（少数极高个体拉长右尾）。**Bootstrap**（重复抽样法）和**Subsampling**（子样本抽样法）提供了不依赖正态的有限样本推断。\n\n**问题2：独立同分布(i.i.d.)假设的集群违反**\n标准概率教材假设样本是独立同分布的，但经济数据有天然的**集群结构**：同一学校的多个学生成绩（school-level clustering）、同一家庭的多年收入（household-level panel）、同一行业的多个公司（industry clustering）。忽略集群结构时，标准误被**严重低估**（Bertrand, Duflo & Mullainathan 2004显示了DID研究中t值被**虚高6倍**的典型问题），导致大量本应不显著的结果被错误地报告为显著。\n\n**问题3：条件概率的'维度诅咒'**\n当控制变量维度p很高时，条件期望`E(Y|X₁,X₂,...,X_p)`的精确估计需要样本量以`n = O(2^p)`增长——这在实践中不可能。ML中的'降维'技术（LASSO变量选择、PCA主成分）正在被引入计量来部分缓解这一问题。",
+      key_takeaway: "正态滥用→Bootstrap可救；i.i.d.集群违反→集群标准误是标配；高维诅咒→LASSO+PCA辅助。"
+    },
+    {
+      module_id: "prospect",
+      module_title: "发展前景：概率论×计量的未来融合",
+      module_tag: "前沿探索",
+      hook: "三个正在改变计量经济学面貌的概率论前沿——高维推断、非参数贝叶斯和因果概率图模型。",
+      content: "**趋势1：高维统计推断的计量化**\n当变量数p与样本量n同阶（p≈n）甚至超过n时，经典的大数定律和CLT不再直接适用。**Chernozhukov等人 (2018)**的Double/Debiased Machine Learning框架在高维环境下重新构造了`√n`一致的估计：先用ML方法（LASSO、随机森林）在高维空间中估计'nuisance functions'（冗余函数），再在剩余的低维残差空间中做传统计量推断——这本质上是对高维概率空间的'投影+去偏'操作。\n\n**趋势2：非参数贝叶斯方法**\n传统贝叶斯方法需要指定完整的先验分布族（如正态），但**Dirichlet Process（迪利克雷过程）**和**Gaussian Process（高斯过程）**允许模型结构**从数据中被发现**——先验不再仅仅是'信念输入'，而是'不确定性建模工具'。\n\n**趋势3：概率图模型+因果推断**\n**Judea Pearl**的因果图（DAG）用有向图中的概率条件独立性来描述因果关系——`do(X=x)`操作（干预）与`see(X=x)`操作（观测）的区别成为因果推断的核心。这正在改变经济学家思考'识别'问题的方式：一个IV的有效性可以通过因果图中的d-分离（d-separation）来视觉化检验。",
+      key_takeaway: "高维Double ML→非参贝叶斯→因果概率图→这三个概率论前沿正在重构造计量方法的底层逻辑。"
+    },
+    {
+      module_id: "effort-direction",
+      module_title: "努力方向：如何高效巩固概率论基础?",
+      module_tag: "实践应用",
+      hook: "想在30天内把概率论从'好像懂'提升到'能够独立推导OLS的性质'？这里有一条被多位计量学者验证过的高效路径。",
+      content: "**第1步：理解而非记忆（7天）**\n核心任务：不看任何公式的前提下，能说出以下概念的定义和直觉：\n- 概率是什么？（频率 vs 信念）\n- 随机变量是什么？（Ω→ℝ的映射）\n- 期望是概率加权平均（重心）\n- 方差是距重心的平均平方距离\n- CLT的意义：'为什么正态分布无处不在'？\n\n**第2步：运算训练（10天）**\n练习的核心运算：\n1. `E[aX+bY] = aE[X]+bE[Y]`——线性运算\n2. `Var(aX+b) = a²Var(X)`——缩放性质\n3. `Cov(aX+b, cY+d) = ac·Cov(X,Y)`——协方差运算\n4. `Var(X+Y) = Var(X)+Var(Y)+2Cov(X,Y)`——和的方差\n5. 独立条件下：`E[XY] = E[X]E[Y]`——期望分解\n\n**第3步：将概率运算映射为OLS性质（10天）**\n将每个概率定理'翻译'成计量语言的强化：\n- 大数定律 LLN → `plim(β̂) = β` 一致性\n- Cramér-Rao下界 → OLS在GM假设下的有效性\n- CLT → `√n(β̂-β) → N(0, ...)` 渐近正态\n- Delta Method → 非线性函数g(β)的标准误\n\n**第4步：读教材+做题（持续）**\n核心教材链：Casella & Berger《Statistical Inference》第4章（期望）→第5章（变换）→第7章（点估计）——这是全计量领域最被认可的统计教材。",
+      key_takeaway: "四步：直觉理解(7天)→核心运算(10天)→计量映射(10天)→教材精读——把运算能力内化为'肌肉记忆'。"
+    },
+    {
+      module_id: "innovation",
+      module_title: "创新方向：概率编程与自动因果发现",
+      module_tag: "前沿探索",
+      hook: "概率编程语言（Stan、Pyro）正在让'从数据到概率模型'的门槛降到从未有过的低——以前需要几周时间推导和编码的层次概率模型，现在几行代码就能搞定。",
+      content: "**创新1：概率编程（Probabilistic Programming）**\n**Stan**和**PyMC**允许用户用简洁的建模语法直接指定分层概率模型（多层次贝叶斯），Hamiltonian Monte Carlo（HMC）采样算法自动从后验分布中生成样本。这种'声明式概率建模'让研究者可以把精力放在**模型结构的设计**上，而不是MCMC算法的实现上。\n\n**创新2：自动概率推理引擎**\n**Google的TensorFlow Probability (TFP)**和**Uber的Pyro**将深度学习的自动微分技术（automatic differentiation）与概率模型结合——当你有数百万个参数和一个复杂的联合分布时，手动推导变分下界（ELBO）是几乎不可能的，而AD（自动微分）可以自动计算所需的梯度。\n\n**创新3：非参数条件概率的神经网络近似**\n'万能近似定理'(Universal Approximation Theorem)说：一个足够宽的神经网络可以任意精度近似任何连续函数。将这一点与概率论结合：神经网络可以被视为**条件概率分布的近似器**——`P(Y|X) ≈ f_NN(X)`。但问题是：从这种近似中获得的'条件概率'缺乏传统概率框架下的不确定度量（uncertainty quantification）——这是ML与概率论结合最难攻克的关卡。",
+      charts: [
+        {
+          echarts_option: {
+            tooltip: {},
+            radar: {
+              indicator: [
+                {name: '建模速度', max: 10}, {name: '不确定性量化', max: 10},
+                {name: '灵活性', max: 10}, {name: '可解释性', max: 10}, {name: '大样本效率', max: 10}
+              ]
+            },
+            series: [{
+              type: 'radar',
+              data: [
+                {value: [3,9,4,9,6], name: '传统概率建模', areaStyle: {color: 'rgba(99,102,241,0.2)'}},
+                {value: [9,3,9,2,8], name: '概率编程', areaStyle: {color: 'rgba(34,211,238,0.2)'}}
+              ],
+              color: ['#6366f1','#22d3ee']
+            }]
+          },
+          caption: "图：传统概率建模 vs 概率编程的多维对比",
+          data_source: "[需验证] 基于方法特征分析"
+        }
+      ],
+      key_takeaway: "Stan/PyMC的概率声明→HMC自动采样→解放研究者专注于模型结构——概率建模正在'自动化'。"
+    },
+    {
+      module_id: "misconceptions",
+      module_title: "常见误区及纠正",
+      module_tag: "核心概念",
+      hook: "大数定律≠赌徒谬误！不相关≠独立！条件期望≠回归！——这三个误区让无数经济学研究生在第一次计量考试中翻车。",
+      content: "**误区1：大数定律='赌徒谬误'**\n大数定律说：随着n增加，`ẋ̄趋近于μ`。赌徒谬误说：'抛了10次正面→下次背面概率大于50%'。这是**对大数定律的经典曲解**——大数定律描述的是**长期平均**的行为，不是说短期的'偏差'需要被'纠正'。每一枚硬币的每一次抛掷都是独立的，`P(H)=0.5`与之前的抛掷结果毫无关系。\n\n**误区2：Cov(X,Y)=0⇒X与Y独立**\n这是**不相关≠独立**的最常见误解。考虑：`X ~ N(0,1)`，`Y = X²`。`Cov(X,Y) = E[X³] - E[X]E[X²] = 0 - 0 = 0`（因为正态奇数矩为零/+）。但X与Y显然**不独立**——知道X就可以精确地算出Y。独立**要求所有的联合分布信息等同于边缘信息的乘积**，不相关只是检查了一种特定的依赖形式（线性相关）。\n\n**误区3：条件期望的线性性与回归**\n**E(aX+bY|Z) = aE(X|Z)+bE(Y|Z)**永远成立（线性性质），但**E(Y|X)=Xβ（线性形式）是模型假设，不是概率定理**。真实的E(Y|X)可以是任何函数形式——非线性、非参数、甚至不连续。OLS是在所有线性函数中找最优近似，不代表真实的E(Y|X)就是线性的。",
+      references: [
+        { title: "All of Statistics: A Concise Course in Statistical Inference", authors: "Wasserman, L.", year: 2004 }
+      ],
+      key_takeaway: "赌徒谬误≠LLN；Cov=0≠独立(想想Y=X²)；E(Y|X)=Xβ是假设不是定理——条件期望可能极度非线性。"
+    },
+    {
+      module_id: "learning-path",
+      module_title: "学习路径：概率论到计量的桥",
+      module_tag: "实践应用",
+      hook: "别买20本概率论教材——2本书+1套习题就能搭建从概率论到计量推断的坚实桥梁。",
+      content: "**核心教材推荐**：\n\n- **Casella & Berger《Statistical Inference》(2nd Edition)**：计量学界公认的'圣书'——第1-4章（概率基础）、第5章（随机变量的变换）、第7章（点估计）是每个认真做实证的人都应该反复阅读的。\n- **Wooldridge《Econometric Analysis of Cross Section and Panel Data》附录部分**：将概率论概念直接'翻译'成计量语言——Appendix B（概率论回顾）和Appendix C（统计推断回顾）构建了从概率论到计量的最短路径。\n\n**核心习题集**：\n- C&B每章末尾的理论习题（不跳过证明类题目）——许多题目直接映射到计量性质的证明\n- Stock & Watson《Introduction to Econometrics》的Key Concept boxes——用极简语言总结了每个概率论概念在计量中的作用\n\n**在线资源**：\n- MIT OCW 18.05「概率与统计导论」——Jeremy Orloff的课堂录像深入浅出\n- Harvard Stat 110「概率论」——Joe Blitzstein的讲课风格将抽象概念讲得极其直观\n- 3Blue1Brown的'概率论系列'视频——提供无可替代的几何直觉\n\n**学习策略**：**不要孤立地学概率论**。每次学一个新概念（如条件方差），立即追问'这在OLS中对应了哪些性质？（Var(β̂|X)=σ²(X'X)⁻¹）'。这种'概率-计量双行线'的学习方法比单独学概率论+再学计量的线性路径高效得多。",
+      key_takeaway: "1-2本核心教材+概率-计量'双行线'学习法=最高效的路径；Casella&Berger Ch1-5+7是红宝书。"
+    },
+    {
+      module_id: "glossary",
+      module_title: "关键术语表",
+      module_tag: "核心概念",
+      content: "以下概率论核心术语为计量经济学学习必备，建议反复查阅：",
+      tables: [
+        {
+          headers: ["术语", "符号", "精确定义"],
+          rows: [
+            ["期望", "E[X]", "概率加权平均：离散Σxᵢpᵢ，连续∫xf(x)dx"],
+            ["方差", "Var(X)", "E[(X-E[X])²]=E[X²]-(E[X])²，度量分散程度"],
+            ["协方差", "Cov(X,Y)", "E[(X-E[X])(Y-E[Y])]=E[XY]-E[X]E[Y]"],
+            ["相关系数", "ρ", "Cov(X,Y)/(σ_X·σ_Y)，[-1,1]标准化协方差"],
+            ["CDF", "F(x)", "P(X≤x)，完整描述分布的函数"],
+            ["条件期望", "E(Y|X)", "在已知X的条件下Y的期望——回归函数"],
+            ["迭代期望律", "LIE", "E[Y]=E_X[E(Y|X)]，分层求期望的基本规则"],
+            ["独立", "X⊥⊥Y", "P(X,Y)=P(X)P(Y)，最强的不相关形式"],
+            ["大数定律", "LLN", "样本均值ᵫ概率→总体期望μ"],
+            ["中心极限定理", "CLT", "√n(ᵏ̄-μ)/σᵩ→N(0,1)，渐近正态之源"],
+            ["特征函数", "φ(t)", "E[e^{itX}]，唯一确定分布(类似傅里叶变换)"],
+            ["矩母函数", "M(t)", "E[e^{tX}]，生成矩(存在时)"]
+          ],
+          caption: "表：概率论核心术语——计量必需基础词汇"
+        }
+      ]
+    },
+    {
+      module_id: "debate",
+      module_title: "争议与辩论：频率vs贝叶斯——计量经济学的哲学选择",
+      module_tag: "前沿探索",
+      hook: "频率学派主导计量99%的教科书——但贝叶斯派正在用'对不确定性的诚实建模'这个理由蚕食这个版图。",
+      content: "**频率派的核心论证**：\n- **客观性**：频率推断不引入主观先验——两个人面对同一数据得出相同的p值和置信区间\n- **频率性质**：'95%置信区间'的含义是一个可验证的操作性质——重复抽样95%的区间覆盖真实β——这个性质可以在模拟中被验证\n- **简单性**：OLS+标准误→t检验→p值的流程极其透明且可审计\n\n**贝叶斯派的反驳**：\n- **'P值不是我们想要的答案'**：当研究者问'β>0的概率是多少？'频率派不能回答——p值为0.03≠95%的概率β>0。贝叶斯后验概率**直接回答了研究者真正关心的问题**\n- **'先验信息是真实的'**：没有研究者是'空白大脑'的前期文献、经济学理论、学科常识都构成了关于β的合法先验信息——拒绝将其纳入分析框架本质上是**丢弃已知信息**\n- **'对不确定性的诚实传播'**：贝叶斯后验分布直接给出了关于β的完整概率陈述——'β有95%概率在(0.02, 0.10)'比'β̂=0.06, SE=0.02'包含了丰富得多的信息\n\n**真实情况**：在频率方法的绝对主导地位下，贝叶斯在特定子领域（宏观VAR预测、非参数多层次模型、少量数据的结构估计）确实展现出**不可替代的优势**——不是说频率错，而是有些问题**用贝叶斯的框架更自然地描述**。",
+      key_takeaway: "频率=客观可验证+简单透明；贝叶斯=直接回答+利用先验+完整不确定性表达。各有不可替代的优势场景。"
+    },
+    {
+      module_id: "quant-model",
+      module_title: "核心概率模型：从离散到连续",
+      module_tag: "核心工具",
+      hook: "正态分布、二项分布、t分布、F分布——这四个分布是计量推断的四根支柱。",
+      content: "**正态分布 (Normal/Gaussian)** — 计量之王\n`f(x) = (1/(σ·√(2π)))·exp(-(x-μ)²/(2σ²))`，记作`X ~ N(μ, σ²)`\n应用：CLT保证OLS估计量在大样本下渐近正态——这是t检验和F检验成立的基础。在扰动正态性成立的有限样本中，OLS估计量本身就是正态的（因为它是Y的线性组合，Y=βX+ε中的正态ε传递）。\n\n**t分布 (Student's t)** — 小样本卫士\n当用样本标准差`s`替代真实的`σ`来标准化时，得到的统计量服从t分布而非正态——自由度越小尾巴越厚（'魔鬼在尾巴'）。计量中：t统计量`t_k = (β̂_k - β_k₀)/SE(β̂_k)`在小样本中近似t(n-K-1)，在大样本中近似N(0,1)。\n\n**F分布** — 多元假设检验器\nF统计量`F = [(SSR_r - SSR_u)/q] / [SSR_u/(n-K-1)]`检验多个线性约束是否联合成立——如：同时检验`H₀: β₂=0, β₃=0, β₄=0`（'这三个变量联合不显著'）。F~F(q, n-K-1)在正态扰动下精确成立。\n\n**χ²（卡方）分布** — 方差推断之核\n`Q = ΣZ²ᵢ ~ χ²(k)`（k个独立标准正态随机变量平方之和）。计量中LM检验、Wald检验、LR检验的大样本分布都收敛于卡方——现代计量推断中的'三大检验'本质上是χ²的三种不同构造方式。",
+      formulas: [
+        { latex: "$$f(x) = \\frac{1}{\\sigma\\sqrt{2\\pi}} \\exp\\left(-\\frac{(x-\\mu)^2}{2\\sigma^2}\\right)$$", caption: "正态分布密度函数——计量中最重要的概率分布" },
+        { latex: "$$t = \\frac{\\hat{\\beta}_k - \\beta_k^0}{\\text{SE}(\\hat{\\beta}_k)} \\sim t(n-K-1)$$", caption: "t统计量——单个系数检验的标准工具" }
+      ],
+      charts: [
+        {
+          echarts_option: {
+            legend: {data: ['N(0,1)', 't(5)', 't(2)']},
+            xAxis: {type: 'value', name: 'x', min: -4, max: 4},
+            yAxis: {type: 'value', name: '密度'},
+            series: [{
+              name: 'N(0,1)', type: 'line', smooth: true,
+              data: [[-4,0.0001],[-2,0.054],[-1,0.242],[0,0.399],[1,0.242],[2,0.054],[4,0.0001]]
+            },{
+              name: 't(5)', type: 'line', smooth: true,
+              data: [[-4,0.001],[-2,0.065],[-1,0.22],[0,0.38],[1,0.22],[2,0.065],[4,0.001]]
+            },{
+              name: 't(2)', type: 'line', smooth: true,
+              data: [[-4,0.005],[-2,0.1],[-1,0.17],[0,0.35],[1,0.17],[2,0.1],[4,0.005]]
+            }],
+            color: ['#6366f1','#22d3ee','#f59e0b']
+          },
+          caption: "图：N(0,1) vs t(5) vs t(2)密度对比——t分布尾巴更厚，自由度越小差异越大",
+          data_source: "统计理论推导"
+        }
+      ],
+      key_takeaway: "N→CLT刚需；t→小样本推断；F→联合假设；χ²→三大检验根基。这四个分布构成了计量推断的全概率基座。"
+    },
+    {
+      module_id: "regulation",
+      module_title: "学术规范：统计推断的报告标准",
+      module_tag: "核心概念",
+      hook: "AER（最好经济学期刊）现在要求每篇实证论文的报告不止'p=0.03显著'——还要附Bootstrap标准误、稳健性检验的多重比较校正。",
+      content: "**当前的统计推断报告规范**：\n\n**1. 标准误的层次选择**\n最常用的是**White异方差稳健标准误**。但当数据有集群结构时必须报告**集群标准误**（Clustered Standard Errors）——不报告集群校正的结果被顶刊审稿人质疑的概率几乎100%。\n\n**2. 多重假设检验校正**\n当在同一回归表中检验超过3-5个假设时（如'X₁→Y', 'X₂→Y', ..., 'X₅→Y'），纯靠每个单独的p<0.05**必然产生高假阳性率**——这已被证明平均会产生约23%的假阳性（如果5个独立检验都0.05）。此时必须报告**Bonferroni-Holm校正式**的p值或**Benjamini-Hochberg False Discovery Rate (FDR) q值**。\n\n**3. 置信区间的报告优先于p值**\n**ASA (美国统计协会) 2016声明**：“p值不能衡量效应大小或重要性”——期刊现在要求报告**95%置信区间**表示`β`的可能范围，而非仅报告`p=0.03`。\"Statistical significance is not the same as economic significance\"（统计显著≠经济显著）。",
+      key_takeaway: "集群标准误+多重比较校正+置信区间优先于p值——这是当前顶刊要求的统计推断报告三件套。"
+    },
+    {
+      module_id: "cross-market",
+      module_title: "跨领域应用：概率模型的经济决策应用",
+      module_tag: "实践应用",
+      hook: "从资产定价到信贷评分，从保险精算到政策模拟——概率论的运算规则在同一时刻支撑着四个完全不同领域的决策过程。",
+      content: "**1. 金融：资产定价**\nBlack-Scholes-Merton期权定价**本质上是在风险中性概率测度下计算折现的期望收益**。CAPM（资本资产定价模型）将资产的预期收益表达为：`E[Rᵢ] = R_f + βᵢ·(E[R_m] - R_f)`——这是一个纯期望运算的单方程模型。\n\n**2. 保险：精算风险池**\n保险的本质是大数定律的应用：当风险池样本n足够大，理赔总额的方差/均值→0——这使得保险公司可以通过聚集大量独立保单来'消除'个别保单的理赔不确定性。\n\n**3. 信贷：违约概率PD**\n巴塞尔III协议要求银行用**内部评级法（IRB）**估计每个借款人的1年期违约概率（PD），方法是Logistic回归——`P(default|X) = 1/(1 + exp(-Xβ))`——然后用PD计算资本占用。\n\n**4. 政策：随机模拟**\n财政政策的'乘数效应'估计严重依赖计量模型中的随机项：扰动项'εs'的大小直接影响了'政策变动1单位→GDP变动多少'的置信区间宽度——被高估的政策效果可能导致灾难性的预算错误。",
+      key_takeaway: "BS定价='概率之美'、保险='LLN之美'、信贷='条件概率之美'、政策='随机模拟之美'——四个领域的核心决策都以概率运算为基础。"
+    }
+  ]
+};
+
+// ============ RUNTIME ENGINE ============
+function applyTheme(theme){document.documentElement.setAttribute('data-theme',theme);localStorage.setItem('slm-theme',theme);var t=document.getElementById('theme-toggle');t.textContent=theme==='dark'?'☀️':'🌓';if(typeof activeCharts!=='undefined'&&activeCharts){Object.values(activeCharts).forEach(function(c){c.resize()})}}
+function toggleTheme(){var cur=document.documentElement.getAttribute('data-theme')||'light';applyTheme(cur==='dark'?'light':'dark')}
+var savedTheme=localStorage.getItem('slm-theme')||'dark';applyTheme(savedTheme);
+
+window.addEventListener('scroll',function(){var st=window.scrollY;var dh=document.documentElement.scrollHeight-window.innerHeight;var p=dh>0?(st/dh)*100:0;document.getElementById('progress-bar').style.width=p+'%'});
+
+var activeCharts={};
+var sidebarLinks=[];
+
+function buildSidebar(){var c=document.getElementById('sidebar-links');PAGE_DATA.modules.forEach(function(m){var a=document.createElement('a');a.href='#'+m.module_id;a.className='sidebar-link';a.textContent=m.module_title||m.module_id;a.addEventListener('click',function(e){e.preventDefault();document.getElementById(m.module_id).scrollIntoView({behavior:'smooth'});if(window.innerWidth<=768)document.getElementById('sidebar').classList.remove('open')});c.appendChild(a);sidebarLinks.push({el:a,id:m.module_id})})}
+var observer=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){sidebarLinks.forEach(function(l){l.el.classList.toggle('active',l.id===e.target.id)})}})},{rootMargin:'-80px 0px -60% 0px'});
+
+function buildMetaCard(){var md=PAGE_DATA;document.getElementById('meta-card-container').innerHTML='<div class="meta-card"><div class="meta-item" style="font-size:12px;color:var(--text-tertiary);width:100%;margin-bottom:-16px;">🔗 📚 计量经济学 系统学习方案 · 计量基础与统计准备（1/5）</div><div class="meta-item"><span class="icon">📖</span><strong>'+md.topic+'</strong></div><div class="meta-item"><span class="meta-badge domain-finance">'+md.domain_name+'</span></div><div class="meta-item"><span class="meta-badge level-intermediate">'+md.level_name+'</span></div><div class="meta-item"><span class="icon">⏱️</span>约'+md.reading_time+'分钟阅读</div><div class="meta-item"><span class="icon">📦</span>'+md.module_count+'个模块</div></div>'}
+
+function renderFormulas(ct){if(typeof renderMathInElement!=='undefined'){renderMathInElement(ct,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false})}}
+
+function renderChart(mId,cc,i){var cid='chart_'+mId+'_'+i;var w=document.getElementById(cid);if(!w)return;if(typeof echarts==='undefined'){w.innerHTML='<div style="text-align:center;padding:20px;color:var(--text-tertiary)">📊 图表(需要网络加载CDN)</div>';return}try{var ch=echarts.init(w);var opt=cc.echarts_option||{};ch.setOption(opt);activeCharts[cid]=ch;new ResizeObserver(function(){ch.resize()}).observe(w)}catch(e){w.textContent='图表渲染失败'}}
+
+function getTagClass(tag){var m={'核心概念':'tag-core','前置知识':'tag-core','核心工具':'tag-tools','发展演进':'tag-evolution','实践应用':'tag-application','风险与挑战':'tag-risk','前沿探索':'tag-frontier'};return m[tag]||'tag-core'}
+function parseMD(c){if(!c)return'';var h=c;h=h.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');h=h.replace(/\*(.+?)\*/g,'<em>$1</em>');h=h.replace(/`([^`]+)`/g,'<code style="background:var(--bg-tertiary);padding:2px 6px;border-radius:4px;font-size:13px;">$1</code>');h=h.replace(/\[([^\]]+)\]\(([^)]+)\)/g,'<a href="$2" target="_blank">$1</a>');h=h.replace(/^### (.+)$/gm,'<h3 style="font-size:17px;font-weight:600;margin:20px 0 8px;">$1</h3>');h=h.replace(/^## (.+)$/gm,'<h3 style="font-size:18px;font-weight:600;margin:24px 0 10px;">$1</h3>');h=h.replace(/\n\n/g,'</p><p>');h='<p>'+h+'</p>';h=h.replace(/<p>\s*<\/p>/g,'');return h}
+
+function buildModuleHTML(mod){var tg=getTagClass(mod.module_tag||'');var isExp=mod.formulas&&mod.formulas.some(function(f){return f.expandable});var h='<section class="module-section" id="'+mod.module_id+'"><div class="module-header"><span class="module-tag '+tg+'">'+(mod.module_tag||'')+'</span><h2 class="module-title">'+(mod.module_title||mod.module_id)+'</h2></div>';
+if(mod.hook)h+='<div class="module-hook">'+mod.hook+'</div>';
+h+='<div class="module-content">'+parseMD(mod.content||'')+'</div>';
+if(mod.formulas&&mod.formulas.length>0){mod.formulas.forEach(function(f,fi){var hasD=f.expandable&&f.derivation;h+='<div class="formula-block'+(hasD?'':' not-expandable')+'" onclick="'+(hasD?'toggleDerivation(this)':'')+'"><div>'+f.latex+'</div>';if(f.caption)h+='<div class="formula-caption">'+f.caption+'</div>';if(hasD){h+='<div class="formula-expand-hint">💡 点击展开推导过程</div><div class="formula-derivation">'+f.derivation+'</div>'}h+='</div>'})}
+if(mod.charts&&mod.charts.length>0){mod.charts.forEach(function(cc,ci){var cid='chart_'+mod.module_id+'_'+ci;h+='<div class="chart-container"><div class="chart-wrapper" id="'+cid+'"></div>';if(cc.caption)h+='<div class="chart-caption">'+cc.caption+'</div>';if(cc.data_source)h+='<div class="chart-source">'+cc.data_source+'</div>';h+='</div>'})}
+if(mod.tables&&mod.tables.length>0){mod.tables.forEach(function(tb){h+='<div style="overflow-x:auto"><table class="module-table"><thead><tr>'+(tb.headers||[]).map(function(th){return'<th>'+th+'</th>'}).join('')+'</tr></thead><tbody>'+(tb.rows||[]).map(function(r){return'<tr>'+r.map(function(c){return'<td>'+c+'</td>'}).join('')+'</tr>'}).join('')+'</tbody></table>';if(tb.caption)h+='<div class="table-caption">'+tb.caption+'</div>';if(tb.data_source)h+='<div class="chart-source">'+tb.data_source+'</div>';h+='</div>'})}
+if(mod.references&&mod.references.length>0){h+='<div class="module-references"><h4>📚 参考文献</h4><ol>';mod.references.forEach(function(ref){var lk='';if(ref.doi)lk+=' <a href="https://doi.org/'+ref.doi+'" target="_blank">DOI</a>';if(ref.url)lk+=' <a href="'+ref.url+'" target="_blank">链接</a>';h+='<li>'+(ref.authors||'')+' ('+(ref.year||'')+'). <strong>'+(ref.title||'')+'</strong>.'+lk+'</li>'});h+='</ol></div>'}
+if(mod.key_takeaway)h+='<div class="key-takeaway">💡 '+mod.key_takeaway+'</div>';
+h+='</section>';return h}
+
+function toggleDerivation(el){el.classList.toggle('expanded')}
+
+function initPage(){
+  document.body.classList.remove('loading');document.body.classList.add('loaded');
+  buildMetaCard();buildSidebar();
+  var mc=document.getElementById('modules-container');
+  PAGE_DATA.modules.forEach(function(m){mc.innerHTML+=buildModuleHTML(m)});
+  var ses=mc.querySelectorAll('.module-section');ses.forEach(function(s){observer.observe(s)});
+  renderFormulas(mc);
+  setTimeout(function(){PAGE_DATA.modules.forEach(function(m){if(m.charts){m.charts.forEach(function(cc,ci){renderChart(m.module_id,cc,ci)})}})},100);
+  var fo=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting)e.target.classList.add('visible')})},{threshold:0.08});
+  ses.forEach(function(s){fo.observe(s)})
+}
+
+document.addEventListener('keydown',function(e){if((e.ctrlKey||e.metaKey)&&e.key==='d'){e.preventDefault();toggleTheme()}});
+
+(function bg(){
+  var cv=document.getElementById('bg-canvas');var ctx=cv.getContext('2d');var pts=[];
+  function rs(){cv.width=window.innerWidth;cv.height=window.innerHeight}window.addEventListener('resize',rs);rs();
+  var n=Math.min(40,Math.floor((cv.width*cv.height)/30000));
+  for(var i=0;i<n;i++)pts.push({x:Math.random()*cv.width,y:Math.random()*cv.height,vx:(Math.random()-0.5)*0.3,vy:(Math.random()-0.5)*0.3,r:Math.random()*1.2+0.3,a:Math.random()*0.3+0.05});
+  function an(){ctx.clearRect(0,0,cv.width,cv.height);var c='129,140,248';
+    pts.forEach(function(p){p.x+=p.vx;p.y+=p.vy;if(p.x<0)p.x=cv.width;if(p.x>cv.width)p.x=0;if(p.y<0)p.y=cv.height;if(p.y>cv.height)p.y=0;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,6.28);ctx.fillStyle='rgba('+c+','+p.a+')';ctx.fill()});
+    requestAnimationFrame(an)}an()
+})();
+
+document.addEventListener('DOMContentLoaded',initPage);
+</script>
+</body>
+</html>

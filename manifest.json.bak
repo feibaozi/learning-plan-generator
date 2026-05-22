@@ -1,0 +1,79 @@
+{
+  "version": "1.0.0",
+  "generated_at": "2026-05-13T00:00:00+08:00",
+  "plans": [
+    {
+      "id": "sql-work-learning",
+      "title": "SQL在工作中的应用 系统学习方案",
+      "domain": "cross-domain",
+      "texture": "G8",
+      "depth": "标准学习",
+      "markdown_file": "SQL在工作中的应用学习方案.md",
+      "html_file": "sql_work_learning.html",
+      "generated_at": "2026-05-13T00:00:00+08:00",
+      "topic_profile": {
+        "abstract": 0.25,
+        "systemic": 0.50,
+        "math_density": 0.30,
+        "temporal": 0.15
+      },
+      "phases": [
+        {
+          "id": "p1",
+          "title": "动手开写 — SQL核心查询快速上手",
+          "weeks": "第1-4周",
+          "kps": [
+            {"id": "p1_1", "name": "SELECT与数据检索基础", "topic_id": null, "has_deep_dive": true},
+            {"id": "p1_2", "name": "JOIN多表关联", "topic_id": null, "has_deep_dive": false},
+            {"id": "p1_3", "name": "聚合函数与GROUP BY", "topic_id": null, "has_deep_dive": false}
+          ]
+        },
+        {
+          "id": "p2",
+          "title": "项目实战 — 工作中SQL的综合应用",
+          "weeks": "第5-9周",
+          "kps": [
+            {"id": "p2_1", "name": "子查询", "topic_id": null, "has_deep_dive": false},
+            {"id": "p2_2", "name": "窗口函数", "topic_id": null, "has_deep_dive": false},
+            {"id": "p2_3", "name": "CTE公共表表达式", "topic_id": null, "has_deep_dive": false},
+            {"id": "p2_4", "name": "综合实战三张报表", "topic_id": null, "has_deep_dive": false}
+          ]
+        },
+        {
+          "id": "p3",
+          "title": "回补基础 — 数据库原理与SQL底层机制",
+          "weeks": "第10-12周",
+          "kps": [
+            {"id": "p3_1", "name": "SQL执行原理", "topic_id": null, "has_deep_dive": false},
+            {"id": "p3_2", "name": "索引原理B+树", "topic_id": null, "has_deep_dive": false},
+            {"id": "p3_3", "name": "事务与锁", "topic_id": null, "has_deep_dive": false}
+          ]
+        },
+        {
+          "id": "p4",
+          "title": "进阶精进 — 性能优化与现代数据技术栈",
+          "weeks": "第13-14周",
+          "kps": [
+            {"id": "p4_1", "name": "SQL性能调优", "topic_id": null, "has_deep_dive": false},
+            {"id": "p4_2", "name": "SQL在现代数据技术栈中的角色", "topic_id": null, "has_deep_dive": false}
+          ]
+        }
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "id": "select-basics-deep",
+      "topic_id": null,
+      "topic_name": "SELECT与数据检索基础",
+      "depth": "理解",
+      "breadth": "标准",
+      "texture": "G8",
+      "html_file": "select_basics_deep.html",
+      "generated_at": "2026-05-13T00:00:00+08:00",
+      "belongs_to_plan": "sql-work-learning",
+      "belongs_to_phase": "p1",
+      "belongs_to_kp": "p1_1"
+    }
+  ]
+}

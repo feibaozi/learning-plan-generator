@@ -1,0 +1,156 @@
+{
+  "plans": [
+    {
+      "id": "sql-work-learning",
+      "title": "SQL及其在工作中应用 系统学习方案",
+      "domain": "cross-domain",
+      "texture": "G8",
+      "depth": "标准学习",
+      "template_id": "graphite-studio",
+      "markdown_file": "SQL工作中应用学习方案.md",
+      "html_file": "sql_learning.html",
+      "generated_at": "2026-05-18",
+      "topic_profile": {
+        "abstract": 0.25,
+        "systemic": 0.55,
+        "math_density": 0.30,
+        "temporal": 0.30
+      },
+      "phases": [
+        {
+          "id": "p1",
+          "title": "SQL查询实战入门",
+          "weeks": "第1-4周",
+          "kps": [
+            {"id": "p1_1", "name": "SELECT查询基础", "topic_id": "select-fundamentals", "has_deep_dive": true},
+            {"id": "p1_2", "name": "数据过滤与排序", "topic_id": "filter-sort", "has_deep_dive": true},
+            {"id": "p1_3", "name": "聚合函数与分组", "topic_id": "group-aggregation", "has_deep_dive": true}
+          ]
+        },
+        {
+          "id": "p2",
+          "title": "工作中综合应用",
+          "weeks": "第5-9周",
+          "kps": [
+            {"id": "p2_1", "name": "多表JOIN查询", "topic_id": "multi-table-join", "has_deep_dive": true},
+            {"id": "p2_2", "name": "子查询与CTE", "topic_id": "subquery-cte", "has_deep_dive": true},
+            {"id": "p2_3", "name": "窗口函数实战", "topic_id": "window-functions", "has_deep_dive": true},
+            {"id": "p2_4", "name": "数据增删改与事务", "topic_id": "dml-transactions", "has_deep_dive": true}
+          ]
+        },
+        {
+          "id": "p3",
+          "title": "数据库理论基础",
+          "weeks": "第10-12周",
+          "kps": [
+            {"id": "p3_1", "name": "数据库设计范式", "topic_id": null, "has_deep_dive": false},
+            {"id": "p3_2", "name": "索引原理与优化", "topic_id": null, "has_deep_dive": false},
+            {"id": "p3_3", "name": "执行计划分析", "topic_id": null, "has_deep_dive": false}
+          ]
+        },
+        {
+          "id": "p4",
+          "title": "进阶优化与新特性",
+          "weeks": "第13-14周",
+          "kps": [
+            {"id": "p4_1", "name": "SQL性能调优", "topic_id": null, "has_deep_dive": false},
+            {"id": "p4_2", "name": "高级SQL与现代特性", "topic_id": null, "has_deep_dive": false}
+          ]
+        }
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "id": "select-fundamentals-intermediate",
+      "kp_id": "p1_1",
+      "topic_id": "select-fundamentals",
+      "topic_name": "SELECT查询基础",
+      "depth": "intermediate",
+      "html_file": "select-fundamentals_intermediate.html",
+      "generated_at": "2026-05-18T12:00:00Z",
+      "status": "ready",
+      "belongs_to_plan": "sql-work-learning",
+      "belongs_to_phase": "p1",
+      "belongs_to_kp": "p1_1"
+    },
+    {
+      "id": "filter-sort-intermediate",
+      "kp_id": "p1_2",
+      "topic_id": "filter-sort",
+      "topic_name": "数据过滤与排序",
+      "depth": "intermediate",
+      "html_file": "filter-sort_intermediate.html",
+      "generated_at": "2026-05-18T12:01:00Z",
+      "status": "ready",
+      "belongs_to_plan": "sql-work-learning",
+      "belongs_to_phase": "p1",
+      "belongs_to_kp": "p1_2"
+    },
+    {
+      "id": "group-aggregation-intermediate",
+      "kp_id": "p1_3",
+      "topic_id": "group-aggregation",
+      "topic_name": "聚合函数与分组",
+      "depth": "intermediate",
+      "html_file": "group-aggregation_intermediate.html",
+      "generated_at": "2026-05-18T12:02:00Z",
+      "status": "ready",
+      "belongs_to_plan": "sql-work-learning",
+      "belongs_to_phase": "p1",
+      "belongs_to_kp": "p1_3"
+    },
+    {
+      "id": "multi-table-join-intermediate",
+      "kp_id": "p2_1",
+      "topic_id": "multi-table-join",
+      "topic_name": "多表JOIN查询",
+      "depth": "intermediate",
+      "html_file": "multi-table-join_deep.html",
+      "generated_at": "2026-05-18T14:00:00Z",
+      "status": "ready",
+      "belongs_to_plan": "sql-work-learning",
+      "belongs_to_phase": "p2",
+      "belongs_to_kp": "p2_1"
+    },
+    {
+      "id": "subquery-cte-intermediate",
+      "kp_id": "p2_2",
+      "topic_id": "subquery-cte",
+      "topic_name": "子查询与CTE",
+      "depth": "intermediate",
+      "html_file": "subquery-cte_deep.html",
+      "generated_at": "2026-05-18T14:01:00Z",
+      "status": "ready",
+      "belongs_to_plan": "sql-work-learning",
+      "belongs_to_phase": "p2",
+      "belongs_to_kp": "p2_2"
+    },
+    {
+      "id": "window-functions-intermediate",
+      "kp_id": "p2_3",
+      "topic_id": "window-functions",
+      "topic_name": "窗口函数实战",
+      "depth": "intermediate",
+      "html_file": "window-functions_deep.html",
+      "generated_at": "2026-05-18T14:02:00Z",
+      "status": "ready",
+      "belongs_to_plan": "sql-work-learning",
+      "belongs_to_phase": "p2",
+      "belongs_to_kp": "p2_3"
+    },
+    {
+      "id": "dml-transactions-intermediate",
+      "kp_id": "p2_4",
+      "topic_id": "dml-transactions",
+      "topic_name": "数据增删改与事务",
+      "depth": "intermediate",
+      "html_file": "dml-transactions_deep.html",
+      "generated_at": "2026-05-18T14:03:00Z",
+      "status": "ready",
+      "belongs_to_plan": "sql-work-learning",
+      "belongs_to_phase": "p2",
+      "belongs_to_kp": "p2_4"
+    }
+  ]
+}

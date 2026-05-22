@@ -1,0 +1,56 @@
+/* ───────────────────────────────────────────────
+   Template: Graphite Studio (石墨工作室) — plan.css
+   Mood: minimal, clean, neutral — Swiss design
+   Contrast verified: text-primary≥10:1, text-secondary≥6:1, text-muted≥4.5:1
+   ─────────────────────────────────────────────── */
+:root{
+--bg-deep:#0d0d0d;
+--bg-primary:#141414;
+--bg-card:#1a1a1a;
+--bg-elevated:#222222;
+--bg-input:#1c1c1c;
+--text-primary:#ededed;
+--text-secondary:#a0a0a0;
+--text-muted:#787878;
+--accent-blue:#5b8db8;
+--accent-cyan:#6ea8c0;
+--accent-purple:#8878a8;
+--accent-green:#5a9e6f;
+--accent-orange:#c0a060;
+--accent-pink:#b87888;
+--accent-red:#c06050;
+--accent-gold:#c0a060;
+--border-subtle:rgba(255,255,255,0.05);
+--border-glow:rgba(91,141,184,0.2);
+--shadow-sm:0 1px 3px rgba(0,0,0,0.3);
+--shadow-md:0 4px 12px rgba(0,0,0,0.4);
+--radius-sm:6px;
+--radius-md:10px;
+--radius-lg:16px;
+--transition-fast:0.15s ease;
+--transition-smooth:0.3s ease;
+}
+body.light{
+--bg-deep:#fafafa;
+--bg-primary:#ffffff;
+--bg-card:#f5f5f5;
+--bg-elevated:#eeeeee;
+--bg-input:#e5e5e5;
+--text-primary:#121212;
+--text-secondary:#4a4a4a;
+--text-muted:#5e5e5e;
+--accent-blue:#3a6088;
+--accent-cyan:#3a7888;
+--accent-purple:#5a4878;
+--accent-green:#3d8055;
+--accent-orange:#886830;
+--accent-pink:#884858;
+--accent-red:#983830;
+--accent-gold:#886830;
+--border-subtle:rgba(18,18,18,0.08);
+--border-glow:rgba(58,96,136,0.2);
+--shadow-sm:0 1px 3px rgba(0,0,0,0.06);
+--shadow-md:0 4px 12px rgba(0,0,0,0.08);
+}
+body.light .knowledge-card.expanded{border-color:rgba(61,128,85,0.5)}
+body.dark .knowledge-card.expanded{border-color:rgba(90,158,111,0.5);background:var(--bg-elevated)}

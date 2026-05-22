@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>线性代数核心 - 深度研读</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<style>
+:root{--bg:#ffffff;--bg-secondary:#f8fafc;--bg-tertiary:#f1f5f9;--text:#0f172a;--text-secondary:#475569;--text-tertiary:#94a3b8;--border:#e2e8f0;--primary:#6366f1;--primary-light:#eef2ff;--accent:#8b5cf6;--accent-light:#f5f3ff;--cyan:#22d3ee;--cyan-light:#ecfeff;--orange:#f59e0b;--orange-light:#fffbeb;--green:#10b981;--green-light:#ecfdf5;--red:#ef4444;--red-light:#fef2f2;--pink:#ec4899;--pink-light:#fdf2f8;--shadow-sm:0 1px 2px rgba(0,0,0,0.05);--shadow:0 1px 3px rgba(0,0,0,0.1);--shadow-md:0 4px 6px -1px rgba(0,0,0,0.1);--shadow-lg:0 10px 15px -3px rgba(0,0,0,0.1);--radius:12px;--radius-sm:8px;--max-width:780px;--sidebar-width:240px;--transition:0.2s cubic-bezier(0.4,0,0.2,1)}
+[data-theme="dark"]{--bg:#0f172a;--bg-secondary:#1e293b;--bg-tertiary:#334155;--text:#f1f5f9;--text-secondary:#94a3b8;--text-tertiary:#64748b;--border:#334155;--primary:#818cf8;--primary-light:rgba(99,102,241,0.15);--accent:#a78bfa;--accent-light:rgba(139,92,246,0.15);--cyan:#67e8f9;--cyan-light:rgba(34,211,238,0.1);--orange:#fbbf24;--orange-light:rgba(245,158,11,0.1);--green:#34d399;--green-light:rgba(16,185,129,0.1);--red:#f87171;--red-light:rgba(239,68,68,0.1);--pink:#f472b6;--pink-light:rgba(236,72,153,0.1);--shadow-sm:0 1px 2px rgba(0,0,0,0.3);--shadow:0 1px 3px rgba(0,0,0,0.4);--shadow-md:0 4px 6px -1px rgba(0,0,0,0.4);--shadow-lg:0 10px 15px -3px rgba(0,0,0,0.4)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Inter','SF Pro Display',-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;-webkit-font-smoothing:antialiased;transition:background var(--transition),color var(--transition)}
+body.loading{opacity:0}body.loaded{opacity:1;transition:opacity 0.4s ease}
+#progress-bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--primary),var(--accent),var(--cyan));z-index:1000;transition:width 0.1s linear}
+#theme-toggle{position:fixed;top:20px;right:20px;z-index:999;width:40px;height:40px;border-radius:50%;background:var(--bg-secondary);border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;transition:all var(--transition);box-shadow:var(--shadow-sm)}
+#theme-toggle:hover{transform:scale(1.1);box-shadow:var(--shadow)}
+#sidebar{position:fixed;top:0;left:0;width:var(--sidebar-width);height:100vh;background:var(--bg-secondary);border-right:1px solid var(--border);padding:80px 16px 24px;overflow-y:auto;z-index:100;transition:transform var(--transition)}
+#sidebar h3{font-size:11px;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-tertiary);margin-bottom:12px;font-weight:600}
+.sidebar-link{display:block;padding:6px 12px;margin:2px 0;border-radius:var(--radius-sm);font-size:13px;color:var(--text-secondary);text-decoration:none;transition:all var(--transition);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sidebar-link:hover{background:var(--bg-tertiary);color:var(--text)}
+.sidebar-link.active{background:var(--primary-light);color:var(--primary);font-weight:600}
+#main-content{margin-left:var(--sidebar-width);max-width:var(--max-width);padding:60px 32px 120px;margin-right:auto}
+.meta-card{background:linear-gradient(135deg,var(--primary-light),var(--accent-light));border:1px solid var(--border);border-radius:var(--radius);padding:28px 32px;margin-bottom:48px;display:flex;flex-wrap:wrap;gap:24px;align-items:center}
+.meta-card .meta-item{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--text-secondary)}
+.meta-badge{display:inline-block;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;letter-spacing:0.02em}
+.meta-badge.domain-ai{background:var(--accent-light);color:var(--accent)}
+.meta-badge.level-intermediate{background:var(--orange-light);color:var(--orange)}
+.module-section{margin-bottom:56px;opacity:0;transform:translateY(24px);transition:opacity 0.6s ease,transform 0.6s ease}
+.module-section.visible{opacity:1;transform:translateY(0)}
+.module-header{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.module-tag{display:inline-block;padding:3px 10px;border-radius:6px;font-size:11px;font-weight:600;letter-spacing:0.03em;text-transform:uppercase}
+.tag-core{background:var(--primary-light);color:var(--primary)}
+.tag-tools{background:var(--accent-light);color:var(--accent)}
+.tag-evolution{background:var(--cyan-light);color:#0891b2}
+.tag-application{background:var(--green-light);color:var(--green)}
+.tag-risk{background:var(--red-light);color:var(--red)}
+.tag-frontier{background:var(--orange-light);color:var(--orange)}
+.module-title{font-size:22px;font-weight:700;color:var(--text);letter-spacing:-0.02em}
+.module-hook{font-size:16px;color:var(--text-secondary);font-style:italic;border-left:3px solid var(--primary);padding-left:16px;margin-bottom:20px}
+.module-content{font-size:15px;color:var(--text)}
+.module-content p{margin-bottom:12px}
+.module-content strong{color:var(--text)}
+.module-content ul,.module-content ol{margin:8px 0 16px 24px}
+.module-content li{margin-bottom:6px}
+.formula-block{background:var(--bg-tertiary);border:1px solid var(--border);border-radius:var(--radius-sm);padding:20px 24px;margin:16px 0;position:relative;cursor:pointer;transition:all var(--transition)}
+.formula-block:hover{box-shadow:var(--shadow)}
+.formula-caption{font-size:12px;color:var(--text-tertiary);margin-top:8px;text-align:center}
+.formula-derivation{display:none;margin-top:16px;padding-top:16px;border-top:1px solid var(--border);font-size:14px;color:var(--text-secondary)}
+.formula-block.expanded .formula-derivation{display:block}
+.formula-expand-hint{font-size:11px;color:var(--text-tertiary);text-align:right;margin-top:4px}
+.chart-container{background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin:20px 0}
+.chart-wrapper{width:100%;height:380px}
+.chart-caption{font-size:13px;color:var(--text-secondary);text-align:center;margin-top:12px}
+.module-table{width:100%;border-collapse:collapse;margin:16px 0;font-size:14px;border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden}
+.module-table th{background:var(--bg-tertiary);padding:10px 16px;text-align:left;font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:0.03em;color:var(--text-secondary)}
+.module-table td{padding:10px 16px;border-top:1px solid var(--border);color:var(--text)}
+.module-table tr:hover td{background:var(--bg-tertiary)}
+.module-references{margin-top:20px;padding-top:16px;border-top:1px solid var(--border);font-size:12px;color:var(--text-tertiary)}
+.module-references h4{font-size:12px;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px}
+.module-references ol{margin-left:20px}
+.module-references li{margin-bottom:4px}
+.key-takeaway{margin-top:16px;padding:14px 20px;border-radius:var(--radius-sm);background:var(--primary-light);border-left:4px solid var(--primary);font-size:14px;font-weight:500;color:var(--text)}
+#page-footer{margin-top:60px;padding:32px 0;border-top:1px solid var(--border);display:flex;gap:12px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:var(--radius-sm);font-size:14px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:var(--bg);color:var(--text);transition:all var(--transition);text-decoration:none}
+.btn:hover{background:var(--bg-tertiary)}
+.btn.primary{background:var(--primary);color:#fff;border-color:var(--primary)}
+.btn.primary:hover{filter:brightness(1.1)}
+@media(max-width:1024px){:root{--sidebar-width:200px}#main-content{padding:48px 24px 80px}}
+@media(max-width:768px){#sidebar{transform:translateX(-100%)}#sidebar.open{transform:translateX(0)}#main-content{margin-left:0;padding:72px 20px 60px}#theme-toggle{top:16px;right:16px}.meta-card{padding:20px 24px;flex-direction:column;gap:12px;align-items:flex-start}.chart-wrapper{height:280px}.module-title{font-size:19px}}
+@media print{#sidebar,#progress-bar,#theme-toggle,#page-footer{display:none!important}#main-content{margin-left:0;max-width:100%;padding:0}.module-section{opacity:1;transform:none;break-inside:avoid}body{font-size:12px}}
+#bg-canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none}
+</style>
+</head>
+<body class="loading">
+<canvas id="bg-canvas"></canvas>
+
+<div class="integration-navbar" style="display:flex;align-items:center;gap:12px;padding:10px 24px;background:var(--bg-card,var(--bg-secondary));border-bottom:1px solid var(--border);font-size:14px;position:sticky;top:0;z-index:50;">
+  <a href="#" onclick="goBack();return false;" style="color:var(--primary);text-decoration:none;font-weight:600;">← 返回 机器学习及其统计基础与大模型 系统学习方案</a>
+  <span style="color:var(--text-tertiary);">|</span>
+  <span style="color:var(--text-secondary);">第1/5阶段 · 统计与数学基础</span>
+</div>
+
+<div id="progress-bar"></div>
+<button id="theme-toggle" title="切换深色/浅色模式" onclick="toggleTheme()">🌓</button>
+
+<nav id="sidebar">
+  <a href="#" onclick="goBack();return false;" class="sidebar-back-link" style="display:block;padding:8px 12px;margin-bottom:12px;border-radius:8px;background:var(--bg-tertiary);color:var(--primary);text-decoration:none;font-size:13px;font-weight:600;">← 返回主方案</a>
+  <h3>📑 内容导航</h3>
+  <div id="sidebar-links"></div>
+</nav>
+
+<main id="main-content">
+  <div id="meta-card-container"></div>
+  <div id="modules-container"></div>
+  <footer id="page-footer">
+    <button class="btn primary" onclick="window.print()">📥 导出 PDF</button>
+    <button class="btn" onclick="exportNotes()">📄 导出笔记</button>
+  </footer>
+</main>
+
+<div class="back-btn" style="position:fixed;right:24px;bottom:24px;z-index:200;">
+  <button onclick="goBack()" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:white;border:none;border-radius:24px;padding:12px 24px;font-size:0.85rem;font-weight:600;cursor:pointer;box-shadow:0 4px 12px rgba(99,102,241,0.3);">← 返回学习方案</button>
+</div>
+
+<script>
+var DEEP_DIVE_KP_ID = 'p1_3';
+function goBack(){
+  var MAIN_PAGE = 'ml_learning.html';
+  var WIN_NAME = '_ml_llm_main';
+  var CH_KEY = '_ml_llm_nav';
+  localStorage.setItem(CH_KEY, JSON.stringify({kpId: DEEP_DIVE_KP_ID, ts: Date.now()}));
+  var mainWin = window.open(MAIN_PAGE, WIN_NAME);
+  if(mainWin){mainWin.focus();}
+}
+
+const PAGE_DATA = {
+  topic: "线性代数核心",
+  domain: "ai-tech", domain_name: "AI与科技",
+  level: "intermediate", level_name: "进阶",
+  reading_time: "30", module_count: "15",
+  texture: "G5", texture_name: "全面平衡型", depth: "理解", breadth: "标准",
+  modules: [
+    {
+      module_id: "background", module_title: "背景与缘起", module_tag: "发展演进",
+      hook: "线性代数从解方程组的实用工具，演变为现代AI的数学语言——每一层神经网络、每一次梯度更新、每一张被压缩的图像，都是线性代数的运算。",
+      content: "线性代数（Linear Algebra）的系统化始于19世纪，**Arthur Cayley**在1858年发表了第一篇关于矩阵理论的论文。但矩阵的实际使用更早——中国古代的《九章算术》（约公元1世纪）就已经用矩阵排列来解线性方程组（'方程章'）。\n\n20世纪初，**Hilbert空间**理论的建立将线性代数与泛函分析连接。**von Neumann**在1932年将Hilbert空间形式化，为量子力学提供了数学基础。\n\n真正将线性代数推向ML核心地位的是计算机的发展。矩阵乘法可以被GPU高度并行化——这正是深度学习得以运行的根本动力。今天，**Transformer中的QKV投影矩阵、CNN中的卷积核、PCA中的协方差矩阵分解、Word2Vec中的嵌入矩阵**——所有这些，本质上都是线性代数运算。\n\n**如果不懂线性代数，你永远无法理解深度学习的底层计算——你就只能是个API调用者。**",
+      key_takeaway: "从《九章算术》到Transformer，线性代数是贯穿2000年的数学语言。在GPU时代，它的重要性达到了前所未有的高度。"
+    },
+    {
+      module_id: "concept", module_title: "核心概念：向量、矩阵与线性变换", module_tag: "核心概念",
+      hook: "矩阵乘法不是一堆数字的排列游戏——它是空间的旋转、拉伸和投影。理解了这一点，你就理解了线性代数的一半。",
+      content: "**1. 向量（Vector）**：有大小和方向的一维数组。在ML中，一个数据样本的特征就是一个向量 $\\mathbf{x} \\in \\mathbb{R}^d$。\n\n**2. 矩阵（Matrix）**：二维数组。矩阵 $A \\in \\mathbb{R}^{m\\times n}$ 可以视为 $n$ 个 $m$ 维向量排列。\n\n**3. 线性变换的几何直觉**：\n矩阵 $A$ 乘以向量 $\\mathbf{x}$ 实际上是对 $\\mathbf{x}$ 执行一次线性变换：\n- **旋转**：改变方向但不改变长度（正交矩阵，如 $\\begin{bmatrix}\\cos\\theta & -\\sin\\theta \\\\ \\sin\\theta & \\cos\\theta\\end{bmatrix}$）\n- **缩放**：在某方向上拉伸或压缩（对角矩阵，如 $\\begin{bmatrix}2 & 0 \\\\ 0 & 0.5\\end{bmatrix}$）\n- **投影**：降到低维子空间\n- **剪切（Shear）**：如 $\\begin{bmatrix}1 & k \\\\ 0 & 1\\end{bmatrix}$\n\n**4. 关键运算**：\n- **内积** $\\mathbf{u}^T\\mathbf{v} = \\sum u_i v_i$ — 衡量两个向量的'相似度'（注意力机制的基础！）\n- **外积** $\\mathbf{u}\\mathbf{v}^T$ — 得到一个矩阵（LoRA低秩适应的基础！）\n- **矩阵乘法** $(AB)_{ij} = \\sum_k A_{ik}B_{kj}$ — 神经网络每一层都是矩阵乘法 $W\\mathbf{x} + \\mathbf{b}$\n\n**5. 范数（Norm）**：\n- $L_1$ 范数：$\\|\\mathbf{x}\\|_1 = \\sum |x_i|$ — 产生稀疏性（Lasso）\n- $L_2$ 范数：$\\|\\mathbf{x}\\|_2 = \\sqrt{\\sum x_i^2}$ — 欧氏距离（Ridge）\n- Frobenius范数：$\\|A\\|_F = \\sqrt{\\sum a_{ij}^2}$ — 矩阵的L2范数",
+      formulas: [
+        {latex: "$$A\\mathbf{x} = \\begin{bmatrix} a_{11} & a_{12} \\\\ a_{21} & a_{22} \\end{bmatrix}\\begin{bmatrix} x_1 \\\\ x_2 \\end{bmatrix} = x_1\\begin{bmatrix} a_{11} \\\\ a_{21} \\end{bmatrix} + x_2\\begin{bmatrix} a_{12} \\\\ a_{22} \\end{bmatrix}$$", caption: "矩阵-向量乘法 = A各列的线性组合"},
+        {latex: "$$\\mathbf{u}^T\\mathbf{v} = \\|\\mathbf{u}\\|\\|\\mathbf{v}\\|\\cos\\theta$$", caption: "内积的几何解释——矢量的投影长度乘积"}
+      ],
+      key_takeaway: "矩阵乘法=线性变换=空间的旋转/缩放/投影。内积度量相似度，外积构造矩阵，这是理解Attention和LoRA的根本。"
+    },
+    {
+      module_id: "principle", module_title: "核心原理：特征值与特征向量", module_tag: "核心概念",
+      hook: "如果只能选一个线性代数概念来理解深度学习，那就是特征值分解。PCA降维、PageRank排名、谱聚类——都建立在这一概念之上。",
+      content: "**定义**：对于方阵 $A \\in \\mathbb{R}^{n\\times n}$，若存在标量 $\\lambda$ 和非零向量 $\\mathbf{v}$ 满足：\n$$A\\mathbf{v} = \\lambda\\mathbf{v}$$\n则 $\\lambda$ 是特征值，$\\mathbf{v}$ 是特征向量。\n\n**几何意义**：特征向量是线性变换中方向不变的向量（仅被拉伸）。特征值是拉伸的倍数。\n\n**特征分解（Eigendecomposition）**：\n$$A = Q\\Lambda Q^{-1}$$\n其中 $Q$ 的列是特征向量，$\\Lambda$ 是对角特征值矩阵。\n\n**对称矩阵的特殊性质**：所有特征值都是实数，特征向量正交 → $A = Q\\Lambda Q^T$\n\n**在ML中的核心应用**：\n\n**PCA降维**：协方差矩阵 $\\Sigma = \\frac{1}{n}X^TX$ 的特征向量=主成分方向，特征值=各方向的方差。\n\n**图拉普拉斯谱分解**：图拉普拉斯 $L = D - W$ 的特征向量→谱聚类、图卷积网络(GCN)的基础。\n\n**Hessian矩阵分析**：损失函数的Hessian矩阵特征值→曲率信息，最大特征值=最陡方向。\n\n**Attention中的低秩近似**：通过特征值分解可以实现注意力的低秩近似，如Linformer。",
+      formulas: [
+        {latex: "$$A = Q\\Lambda Q^{-1} = \\sum_{i=1}^n \\lambda_i \\mathbf{q}_i \\mathbf{q}_i^{-1}$$", caption: "特征分解将矩阵表示为'特征方向'的加权和"},
+        {latex: "$$\\Sigma = \\frac{1}{n}X^TX = V\\Lambda V^T$$", caption: "协方差矩阵的谱分解——PCA的数学根基"}
+      ],
+      charts: [
+        {echarts_option: {title:{text:'特征值衰减曲线示意(前20主成分)',left:'center',textStyle:{fontSize:14}},tooltip:{trigger:'axis'},xAxis:{type:'category',name:'主成分序号',data:(function(){var d=[];for(var i=1;i<=20;i++)d.push(i);return d;})()},yAxis:{type:'value',name:'解释方差比例(%)'},series:[{name:'累计解释方差',type:'bar',data:(function(){var vals=[25,18,14,10,7,5,4,3,2.5,2,1.5,1.2,1,0.8,0.6,0.5,0.4,0.3,0.2,0.1];var cum=0;return vals.map(function(v){cum+=v;return+cum.toFixed(1);});})(),itemStyle:{color:'#6366f1'}},{name:'单个主成分',type:'line',data:[25,18,14,10,7,5,4,3,2.5,2,1.5,1.2,1,0.8,0.6,0.5,0.4,0.3,0.2,0.1],itemStyle:{color:'#22d3ee'}}]}, caption: "图：PCA中特征值（主成分方差）的典型衰减模式——前几个主成分捕获了大部分信息"}
+      ],
+      key_takeaway: "特征向量=变换中方向不变的轴，特征值=沿该轴的缩放强度。PCA的本质就是找出方差最大的那些方向。"
+    },
+    {
+      module_id: "svd", module_title: "奇异值分解(SVD)：矩阵分解之王", module_tag: "核心概念",
+      hook: "如果特征值分解是国王，SVD就是皇帝——任何矩阵（甚至非方阵）都可以被SVD分解，而且它在数值上更稳定。",
+      content: "**SVD定理**：任何矩阵 $A \\in \\mathbb{R}^{m\\times n}$ 都可以分解为：\n$$A = U\\Sigma V^T = \\sum_{i=1}^r \\sigma_i \\mathbf{u}_i \\mathbf{v}_i^T$$\n其中 $U \\in \\mathbb{R}^{m\\times m}$ 正交（左奇异向量），$\\Sigma \\in \\mathbb{R}^{m\\times n}$ 对角（奇异值），$V \\in \\mathbb{R}^{n\\times n}$ 正交（右奇异向量）。\n\n**SVD vs 特征分解**：\n- 特征分解要求方阵（最好对称），SVD适用任意矩阵\n- $A^TA$ 的特征向量=$V$的列，$AA^T$的特征向量=$U$的列\n- 奇异值 $\\sigma_i = \\sqrt{\\lambda_i(A^TA)}$\n\n**为什么SVD是王牌？**\n**1. 低秩近似（Eckart-Young定理）**：\n$$A_k = \\sum_{i=1}^k \\sigma_i \\mathbf{u}_i \\mathbf{v}_i^T$$\n是秩为 $k$ 的最佳近似（在Frobenius范数下）。这就是**数据压缩、图像去噪、推荐系统的理论基础**。\n\n**2. 伪逆与最小二乘**：\n$$A^+ = V\\Sigma^+ U^T$$\n这给出了欠定/超定线性系统的最小范数解。\n\n**3. 矩阵的数值秩**：有效秩 = $\\sigma_i > \\epsilon$ 的个数。",
+      formulas: [
+        {latex: "$$A = U\\Sigma V^T = \\sigma_1\\mathbf{u}_1\\mathbf{v}_1^T + \\sigma_2\\mathbf{u}_2\\mathbf{v}_2^T + ... + \\sigma_r\\mathbf{u}_r\\mathbf{v}_r^T$$", caption: "SVD = 秩-1矩阵(外积)的加权和", expandable: true, derivation: "将 $\\Sigma$ 对角线上的每个 $\\sigma_i$ 与对应的列-行外积相乘：$U\\Sigma V^T = \\sum_{i=1}^r \\sigma_i \\mathbf{u}_i\\mathbf{v}_i^T$。这是将矩阵分解为'基础模式'之和的核心表达式。"},
+        {latex: "$$\\|A - A_k\\|_F = \\sqrt{\\sum_{i=k+1}^r \\sigma_i^2}$$", caption: "秩k近似的误差=被丢弃的奇异值的平方和根"}
+      ],
+      tables: [
+        {headers: ["应用场景", "SVD的使用方式", "ML实例"], rows: [
+          ["降维(PCA)", "协方差矩阵$X^TX$的SVD", "sklearn.decomposition.PCA"],
+          ["推荐系统", "评分矩阵的截断SVD", "Netflix Prize的经典解法"],
+          ["图像压缩", "保留前k个奇异值", "JPEG的核心思想"],
+          ["词嵌入", "PMI矩阵的SVD", "GloVe词向量"],
+          ["模型压缩", "权重矩阵的低秩近似", "LoRA微调大模型"],
+          ["矩阵补全", "核范数最小化(奇异值和)", "Netflix矩阵补全"]
+        ], caption: "SVD在ML中的六大经典应用"}
+      ],
+      key_takeaway: "SVD是矩阵分解的终极工具——任何矩阵都能分解，任何低秩近似都受它支配。掌握SVD，你就掌握了降维、压缩和推荐的理论根基。"
+    },
+    {
+      module_id: "development", module_title: "发展迭代：从高斯消元到张量", module_tag: "发展演进",
+      hook: "线性代数的发展史，就是人类从'解三元一次方程组'到'在万亿维空间中操作'的进化史。",
+      content: "**阶段一：方程组的解法（古代-1800）**\n中国古代的'方程术'、Gauss的消元法——线性代数的实用起源。\n\n**阶段二：行列式与矩阵理论（1800-1920）**\nCauchy、Cayley、Sylvester建立了行列式和矩阵的严格理论。Cramer法则（1750）给出了方程组解的显式表达式。\n\n**阶段三：谱理论（1900-1950）**\nHilbert空间理论、特征值问题的深入研究。量子力学的发展极大地推动了谱理论——海森堡的矩阵力学完全建立在特征值之上。\n\n**阶段四：数值线性代数（1950-1990）**\n计算机的出现让大规模矩阵运算成为现实。Golub、Van Loan的经典著作奠定了数值线性代数的基础。SVD算法（Golub-Reinsch）、迭代法（CG、GMRES）、稀疏矩阵技术蓬勃发展。\n\n**阶段五：ML时代的线性代数（2010-至今）**\nGPU矩阵乘法成为阿基米德支点。随机化SVD、低秩近似、张量分解——线性代数在ML中获得了全新生命。",
+      key_takeaway: "线性代数从解方程的工具，进化为处理高维数据的通用语言。GPU让它从理论变成了现实——这是ML革命被忽视的硬件基石。"
+    },
+    {
+      module_id: "application", module_title: "在机器学习中的关键应用", module_tag: "实践应用",
+      hook: "PyTorch的每一行model(x)背后，都是成千上万次矩阵乘法在GPU上狂奔。让我们追踪一个batch的数据在神经网络中的线性代数之旅。",
+      content: "**1. 神经网络 = 矩阵乘法链**\n全连接层：$\\mathbf{h} = \\sigma(W\\mathbf{x} + \\mathbf{b})$\n- 输入 $\\mathbf{x} \\in \\mathbb{R}^{d}$，权重 $W \\in \\mathbb{R}^{h\\times d}$，输出 $\\mathbf{h} \\in \\mathbb{R}^h$\n- 一个batch：$H = \\sigma(XW^T + \\mathbf{b})$，其中 $X \\in \\mathbb{R}^{B\\times d}$\n\n**2. 卷积 = 特殊的矩阵乘法**\n卷积可以表示为一个稀疏的Toeplitz矩阵乘法——im2col技巧就是利用这一等价性。\n\n**3. Attention = 缩放内积的softmax**\n$$\\operatorname{Attention}(Q,K,V) = \\operatorname{softmax}\\left(\\frac{QK^T}{\\sqrt{d_k}}\\right)V$$\n- $QK^T$：N个query和M个key之间的内积矩阵（$N\\times M$）\n- $\\frac{1}{\\sqrt{d_k}}$：防止点积过大导致梯度消失\n- $\\operatorname{softmax}(...)V$：对values的加权平均\n\n**4. 矩阵分解与降维**\n- PCA：$X_{reduced} = XV_k$（$V_k$=前k个右奇异向量）\n- NMF：$X \\approx WH$（非负矩阵分解）\n\n**5. 线性系统的求解**\n- 线性回归闭式解：$\\hat{\\beta} = (X^TX)^{-1}X^Ty$\n- 岭回归：$\\hat{\\beta} = (X^TX + \\lambda I)^{-1}X^Ty$",
+      formulas: [
+        {latex: "$$\\operatorname{Attention}(Q,K,V) = \\operatorname{softmax}\\left(\\frac{QK^T}{\\sqrt{d_k}}\\right)V$$", caption: "Transformer注意力的线性代数形式"},
+        {latex: "$$H^{(l+1)} = \\sigma(H^{(l)}W^{(l)T} + \\mathbf{b}^{(l)})$$", caption: "神经网络第l层的batch矩阵形式"}
+      ],
+      key_takeaway: "全连接层=矩阵乘法，卷积=结构化矩阵乘法，注意力=带softmax的矩阵乘法——深度学习就是矩阵乘法的艺术。"
+    },
+    {
+      module_id: "case-study", module_title: "实战案例：用SVD压缩图像和推荐电影", module_tag: "实践应用",
+      hook: "一张1000×1000的灰度图像可以用30个奇异值重构到肉眼几乎无法分辨——这是SVD在数据压缩中的魔法。",
+      content: "**案例1：图像SVD压缩**\n一张 $m\\times n$ 的灰度图像是一个矩阵 $A$。对其做SVD后，保留前 $k$ 个奇异值：\n$$A_k = \\sum_{i=1}^k \\sigma_i \\mathbf{u}_i\\mathbf{v}_i^T$$\n存储量：原始 $mn$ 个数值 → 压缩后 $k(m+n+1)$ 个数值。\n当 $k=30$ 且 $m=n=1000$ 时，压缩比 = $10^6 / (30\\times2001) \\approx 16.7$。\n\n**案例2：基于SVD的电影推荐**\n用户-电影评分矩阵 $R \\in \\mathbb{R}^{m\\times n}$（极度稀疏）。SVD将用户和电影映射到同一个'潜在因子空间'：\n$$R \\approx U_k \\Sigma_k V_k^T$$\n- $U_k$ 的第 $i$ 行 = 用户 $i$ 的 $k$ 维偏好向量\n- $V_k$ 的第 $j$ 行 = 电影 $j$ 的 $k$ 维属性向量\n- 预测评分 = $\\mathbf{u}_i^T \\mathbf{v}_j$\n\n这就是**Funk-SVD**，在Netflix Prize中一战成名。\n\n**Python实现要点**：\n```python\nimport numpy as np\nU, S, Vt = np.linalg.svd(A, full_matrices=False)\nk = 30\nA_compressed = U[:,:k] @ np.diag(S[:k]) @ Vt[:k,:]\n```",
+      formulas: [
+        {latex: "$$\\text{Compression Ratio} = \\frac{mn}{k(m+n+1)}$$", caption: "SVD压缩比公式"},
+        {latex: "$$\\hat{r}_{ij} = \\mathbf{u}_i^T \\mathbf{v}_j = \\sum_{d=1}^k u_{id} \\cdot v_{jd}$$", caption: "SVD推荐系统的评分预测"}
+      ],
+      key_takeaway: "SVD将高维数据分解为'基础模式'的叠加——保留最重要的模式，丢弃噪声，这就是降维和压缩的本质。"
+    },
+    {
+      module_id: "risk", module_title: "潜在陷阱与数值问题", module_tag: "风险与挑战",
+      hook: "矩阵运算在数学上完美无瑕，但在计算机上却可能满目疮痍——条件数、数值溢出、病态矩阵，是ML实践中真实存在的幽灵。",
+      content: "**陷阱1：病态矩阵（Ill-conditioned Matrix）**\n条件数 $\\kappa(A) = \\sigma_{\\max}/\\sigma_{\\min}$。当 $\\kappa$ 很大时，$A$ 接近奇异，$A^{-1}$ 的微小扰动导致解的剧烈变化。\n- ML中的实例：当特征高度共线时，$(X^TX)^{-1}$ 近乎奇异 → Ridge回归中加入 $\\lambda I$ 正是为了降低条件数。\n\n**陷阱2：数值溢出**\n$QK^T$ 在大维度 $d_k$ 下内积值可能极大 → $\\frac{1}{\\sqrt{d_k}}$ 的缩放因子就是为了维持数值稳定。\n\n**陷阱3：矩阵求逆的灾难**\n永远不要直接求 $A^{-1}$！用 `np.linalg.solve(A, b)` 代替 `np.linalg.inv(A) @ b`。后者既慢又不稳定。\n\n**陷阱4：维度坍缩（Dimensional Collapse）**\n在深度学习中，如果权重矩阵的奇异值衰减极快（如 $\\sigma_1/\\sigma_d \\to \\infty$），表示矩阵几乎是秩-1的——所有输入被映射到同一个方向，这就是表示坍缩。\n\n**陷阱5：内存爆炸**\n$QK^T$ 是 $N \\times N$ 矩阵（$N$=序列长度）。当 $N=10^5$ 时，仅这一个矩阵就需要80GB显存！这就是为什么FlashAttention等优化如此重要。",
+      key_takeaway: "数学上的完美矩阵在计算机中可能条件数极大、数值不稳定。正则化、scaling、避免直接求逆——是线性代数在ML中的生存法则。"
+    },
+    {
+      module_id: "landscape", module_title: "矩阵分解全景图", module_tag: "发展演进",
+      hook: "SVD、QR、LU、Cholesky、NMF——这些矩阵分解方法有何区别？何时用哪个？",
+      content: "**1. LU分解**：$A = LU$（下三角×上三角）\n用途：解线性方程组 $Ax=b$。速度快，但不适用于奇异矩阵。\n\n**2. QR分解**：$A = QR$（正交×上三角）\n用途：最小二乘问题的数值稳定解法、特征值计算的QR算法。`np.linalg.qr`\n\n**3. Cholesky分解**：$A = LL^T$（正定对称矩阵）\n用途：求解正定系统最快的方法。当 $(X^TX+\\lambda I)$ 正定时，Ridge回归闭式解的最优算法。\n\n**4. 特征值分解（EVD）**：$A = Q\\Lambda Q^{-1}$\n用途：PCA、谱聚类、动力学系统分析。仅适用于方阵。\n\n**5. SVD**：$A = U\\Sigma V^T$\n用途：降维、压缩、伪逆、推荐系统。适用于任意矩阵，数值最稳定。\n\n**6. NMF（非负矩阵分解）**：$A \\approx WH$，$W,H \\ge 0$\n用途：主题建模、推荐系统（可解释性强——非负=可加性）",
+      tables: [
+        {headers: ["分解方法", "适用矩阵", "数值稳定性", "ML典型应用"], rows: [
+          ["LU", "方阵(非奇异)", "中等", "解线性方程组"],
+          ["QR", "任意矩阵", "高", "最小二乘、特征值算法"],
+          ["Cholesky", "正定对称", "高", "Ridge回归闭式解"],
+          ["EVD", "方阵", "中等", "PCA、谱聚类"],
+          ["SVD", "任意矩阵", "最高", "PCA、压缩、推荐、伪逆"],
+          ["NMF", "非负矩阵", "中等", "主题模型、可解释推荐"]
+        ], caption: "矩阵分解方法对比速查"}
+      ],
+      key_takeaway: "日常ML中用SVD就够了——它适用性最广、数值最稳定。但对于特定问题（如Ridge），Cholesky快10倍。"
+    },
+    {
+      module_id: "issues", module_title: "当前挑战：高维线性代数的困境", module_tag: "风险与挑战",
+      hook: "当矩阵维度是百万×百万时，$O(n^3)$ 的SVD和 $O(n^2)$ 的矩阵乘法都不是'刚好能跑'——而是'根本不可能跑'。",
+      content: "**挑战1：计算复杂度的物理极限**\n- 标准矩阵乘法：$O(n^3)$，n=100万时 ≈ $10^{18}$ 次运算\n- 标准SVD：$O(mn\\min(m,n))$，同样极其昂贵\n\n**解决方案趋势**：\n- **随机化SVD（Randomized SVD）**：用随机投影降维后再分解，$O(mn\\log k)$ 复杂度\n- **稀疏矩阵**：利用scipy.sparse只存储非零元素\n- **低精度计算**：FP16/BF16矩阵乘法，速度翻倍但精度可控\n\n**挑战2：分布式矩阵运算**\n当矩阵大到单机放不下时，需要分块并行——但矩阵乘法的通信成本 $\\gg$ 计算成本。模型并行/流水线并行的根本瓶颈在这里。\n\n**挑战3：Attention的二次复杂度**\n$$\\operatorname{Attention} = O(N^2 d)$$\nN=序列长度——这是Transformer处理长文本的阿克琉斯之踵。解决方案：\n- Linformer、Performer：用线性Attention替代（基于SVD低秩近似）\n- FlashAttention：重新设计计算模式以减少IO\n- Mamba（状态空间模型）：完全抛弃Attention",
+      key_takeaway: "高维线性代数的计算瓶颈是ML系统设计的核心约束。随机化SVD、稀疏矩阵、低精度计算——每一项都是对这一瓶颈的回应。"
+    },
+    {
+      module_id: "prospect", module_title: "发展前景：线性代数+DL的新疆域", module_tag: "前沿探索",
+      hook: "LoRA用低秩矩阵微调大模型、TensorNet用张量分解替代全连接层——线性代数的前沿正在重新定义深度学习的范式。",
+      content: "**1. LoRA与低秩适应**\n大模型微调时，参数更新矩阵 $\\Delta W$ 被分解为：\n$$\\Delta W = BA，\\quad B \\in \\mathbb{R}^{d\\times r}, A \\in \\mathbb{R}^{r\\times k}, r \\ll \\min(d,k)$$\n参数从 $dk$ 降到 $r(d+k)$ ——这可能是2023年以来最成功的低秩应用。\n\n**2. 张量分解（Tensor Decomposition）**\n矩阵是二维的，张量是高维的。CP分解、Tucker分解将高维张量分解为核心张量+因子矩阵——可用于压缩大模型的权重张量。\n\n**3. 等变神经网络（Equivariant NN）**\n利用群表示论设计对旋转/平移等变换具有结构的神经网络——这是几何深度学习的前沿。3D分子建模、蛋白质结构预测的核心。\n\n**4. 谱图神经网络**\n在图拉普拉斯的谱域中定义卷积——图信号处理与深度学习的融合。\n\n**5. 结构化状态空间模型（S4/Mamba）**\n用一个结构化的矩阵（HiPPO矩阵）来高效建模长序列——线性代数+控制论的产物。",
+      key_takeaway: "LoRA证明了低秩在DL中的巨大潜力。下一步是张量分解、等变结构和状态空间——线性代数远未发挥其全部能量。"
+    },
+    {
+      module_id: "effort-direction", module_title: "学习路径与推荐资源", module_tag: "实践应用",
+      hook: "线性代数不需要学成数学家——你需要的是一种'矩阵直觉'。以下是最高效的ML从业者学习路径。",
+      content: "**推荐学习路径（总时长：约2周，每天2-3小时）**：\n\n**Day 1-3：建立几何直觉**\n- 观看3Blue1Brown的'线性代数的本质'系列（B站/YouTube）——迄今为止最好的线性代数可视化\n- 用numpy动手：旋转一个正方形、投影到一条线、计算内积\n\n**Day 4-7：核心运算精通**\n- 矩阵乘法的4种理解方式（内积、外积、线性组合、分块）\n- SVD的手动实现（用numpy.linalg.svd读源码）\n- PCA的完整实现（从中心化到降维）\n\n**Day 8-10：ML中的矩阵微积分**\n- 标量对向量的导数（梯度）\n- 向量对向量的导数（Jacobian矩阵）\n- 标量对矩阵的导数（如 $\\frac{\\partial}{\\partial W}\\|Wx-y\\|^2$）\n\n**Day 11-14：实践加深**\n- 从零实现一个mini神经网络的反向传播（纯numpy）\n- 实现SVD图像压缩\n- 阅读LoRA论文的数学部分\n\n**核心资源**：\n- 📺 3Blue1Brown: Essentials of Linear Algebra（YouTube）\n- 📖 《Matrix Analysis and Applied Linear Algebra》(Carl D. Meyer)\n- 📖 《Mathematics for Machine Learning》第2-5章（Deisenroth et al., 2020）\n- 📄 The Matrix Cookbook — 矩阵微积分速查手册",
+      references: [
+        {title: "Mathematics for Machine Learning", authors: "Marc Peter Deisenroth, A. Aldo Faisal, Cheng Soon Ong", year: 2020, url: "https://mml-book.github.io/"},
+        {title: "The Matrix Cookbook", authors: "Kaare Brandt Petersen, Michael Syskind Pedersen", year: 2012, url: "https://www2.imm.dtu.dk/pubdb/edoc/imm3274.pdf"}
+      ],
+      key_takeaway: "先看3Blue1Brown建立几何直觉，再动手写numpy代码——'看懂'和'能写'之间差了一万次矩阵乘法。"
+    },
+    {
+      module_id: "misconceptions", module_title: "常见误区", module_tag: "风险与挑战",
+      hook: "以下对线性代数的误解，可能让你在阅读ML论文时代码写得出来、但道理想不通。",
+      content: "**误区1：'矩阵就是数字表格'**\n矩阵的本质是线性变换，而非简单的数字排列。当你看到 $Ax$，想象的是空间中的旋转和拉伸，而不是一堆数字的乘加。\n\n**误区2：'特征向量互相垂直的时候才最好'**\n只有**对称矩阵**的特征向量才保证正交。一般的非对称矩阵（如某些状态转移矩阵），特征向量可以是非正交甚至复数的。\n\n**误区3：'SVD和EVD是一回事'**\nEVD只适用于方阵（最好对称），SVD适用于任意矩阵。对于对称正定矩阵，两者等价（特征值=奇异值的平方），但含义不同。\n\n**误区4：'矩阵的秩就是非零奇异值的个数'**\n数值计算中，'数值秩'（numerical rank）才是真正有意义的——即显著的、大于某个阈值的奇异值个数。一对非常小的奇异值可能只是数值噪声。\n\n**误区5：'反向传播的梯度随便算算就行'**\n标量 $L$ 对矩阵 $W$ 的导数仍是一个矩阵（$\\frac{\\partial L}{\\partial W} \\in \\mathbb{R}^{\\text{shape}(W)}$）。维度必须匹配，否则更新公式 $W \\leftarrow W - \\eta \\nabla_W L$ 根本无法执行。",
+      key_takeaway: "矩阵不是数字的表格，而是空间的变换。理解了这一点，线性代数就从一个抽象工具变成了一个可感知的世界。"
+    },
+    {
+      module_id: "glossary", module_title: "关键术语表", module_tag: "核心概念",
+      hook: "",
+      content: "以下是线性代数最重要的25个术语，掌握它们将使你能够自如地阅读任何ML论文中的矩阵推导。",
+      tables: [
+        {headers: ["术语", "英文", "简要解释"], rows: [
+          ["向量", "Vector", "$\\mathbf{v}\\in\\mathbb{R}^n$，一维数据点"],
+          ["矩阵", "Matrix", "$A\\in\\mathbb{R}^{m\\times n}$，二维数组=线性变换"],
+          ["转置", "Transpose", "$A^T$，行列互换"],
+          ["内积", "Inner Product", "$\\mathbf{u}^T\\mathbf{v}$，向量相似度"],
+          ["外积", "Outer Product", "$\\mathbf{u}\\mathbf{v}^T$，得到矩阵"],
+          ["范数", "Norm", "$\\|\\mathbf{x}\\|_p$，向量的长度度量"],
+          ["行列式", "Determinant", "$\\det(A)$，面积/体积缩放因子"],
+          ["迹", "Trace", "$\\operatorname{tr}(A)=\\sum a_{ii}$，特征值之和"],
+          ["秩", "Rank", "线性无关列/行的最大数"],
+          ["逆矩阵", "Inverse", "$A^{-1}$，$AA^{-1}=I$"],
+          ["特征值", "Eigenvalue", "$\\lambda$，变换的缩放强度"],
+          ["特征向量", "Eigenvector", "$\\mathbf{v}$，方向不变的向量"],
+          ["奇异值", "Singular Value", "$\\sigma_i$，SVD中的缩放因子"],
+          ["正交矩阵", "Orthogonal Matrix", "$Q^TQ=I$，保距变换"],
+          ["正定矩阵", "Positive Definite", "$\\mathbf{x}^TA\\mathbf{x}>0$，凸优化的保证"],
+          ["条件数", "Condition Number", "$\\kappa(A)=\\sigma_{\\max}/\\sigma_{\\min}$"],
+          ["SVD", "Singular Value Decomposition", "$A=U\\Sigma V^T$"],
+          ["EVD", "Eigenvalue Decomposition", "$A=Q\\Lambda Q^{-1}$"],
+          ["PCA", "Principal Component Analysis", "协方差矩阵谱分解"],
+          ["梯度", "Gradient", "$\\nabla f$，导数向多维的推广"]
+        ], caption: "线性代数核心术语速查表"}
+      ],
+      key_takeaway: "掌握这20个术语，你就能无缝阅读Transformer论文中的矩阵推导。"
+    },
+    {
+      module_id: "debate", module_title: "争议与讨论：我们需要多深的线性代数？", module_tag: "前沿探索",
+      hook: "ML工程师到底需要学多深的线性代数？会调PyTorch就行了吗？学术界和工业界对此争执不休。",
+      content: "**'深度学习只需要API'派**：\n- PyTorch/TF已经封装了所有矩阵运算\n- 99%的ML工程师不需要手写SVD\n- 时间花在架构设计和调参上更高效\n- 代表人物：许多fast.ai社区成员\n\n**'数学是根本'派**：\n- 不理解线性代数就无法真正理解模型在做什么\n- 出现bug时（梯度NaN、数值不稳定），数学知识是唯一救生圈\n- 创新需要修改底层运算，不是调参\n- 代表人物：Yann LeCun、Christopher Bishop\n\n**我的实用主义看法**：\n你不需要成为数学家，但你需要：\n1. **几何直觉**：看到 $Wx$ 想到空间变换\n2. **运算感觉**：知道矩阵乘法的复杂度、内存模式\n3. **调试能力**：遇到NaN时能判断是条件数问题还是维度不匹配\n4. **阅读能力**：能跟着论文的线性代数推导走一遍\n\n比如，读LoRA论文时，你不需要自己发明低秩分解，但你需要理解 $\\Delta W = BA$ 中 $r$ 为什么能远小于 $d$ 和 $k$——因为这涉及到SVD低秩近似的核心思想。",
+      key_takeaway: "ML中需要的线性代数深度 = '能读懂论文推导' + '能debug数值问题' + '能直觉判断复杂度'。不需要成为数学家，但不能只会调包。"
+    }
+  ]
+};
+
+function applyTheme(theme){
+  document.documentElement.setAttribute('data-theme', theme);
+  localStorage.setItem('slm-theme', theme);
+  updateThemeIcon();
+  Object.values(activeCharts).forEach(function(chart){
+    var opt = chart.getOption();
+    chart.setOption(createThemedOption(opt), {notMerge: false});
+  });
+}
+function toggleTheme(){
+  var current = document.documentElement.getAttribute('data-theme') || 'light';
+  applyTheme(current === 'dark' ? 'light' : 'dark');
+}
+function updateThemeIcon(){
+  var t = document.getElementById('theme-toggle');
+  t.textContent = document.documentElement.getAttribute('data-theme') === 'dark' ? '☀️' : '🌓';
+}
+var activeCharts = {};
+var sidebarLinks = [];
+var savedTheme = localStorage.getItem('slm-theme') || 'dark';
+applyTheme(savedTheme);
+
+window.addEventListener('scroll', function(){
+  var scrollTop = window.scrollY;
+  var docHeight = document.documentElement.scrollHeight - window.innerHeight;
+  var progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+  document.getElementById('progress-bar').style.width = progress + '%';
+});
+
+function buildSidebar(){
+  var container = document.getElementById('sidebar-links');
+  sidebarLinks = [];
+  PAGE_DATA.modules.forEach(function(mod){
+    var a = document.createElement('a');
+    a.href = '#' + mod.module_id;
+    a.className = 'sidebar-link';
+    a.textContent = mod.module_title || mod.module_id;
+    a.addEventListener('click', function(e){
+      e.preventDefault();
+      document.getElementById(mod.module_id).scrollIntoView({behavior: 'smooth'});
+    });
+    container.appendChild(a);
+    sidebarLinks.push({el: a, id: mod.module_id});
+  });
+}
+
+var observer = new IntersectionObserver(function(entries){
+  entries.forEach(function(entry){
+    if(entry.isIntersecting){
+      sidebarLinks.forEach(function(link){link.el.classList.toggle('active', link.id === entry.target.id);});
+    }
+  });
+}, {rootMargin: '-80px 0px -60% 0px'});
+
+function buildMetaCard(){
+  var md = PAGE_DATA;
+  document.getElementById('meta-card-container').innerHTML =
+    '<div class="meta-card">'+
+    '<div style="width:100%"><span class="meta-badge domain-ai" style="margin-right:8px">🔗 📚 机器学习及其统计基础与大模型 系统学习方案 · 统计与数学基础（1/5）</span></div>'+
+    '<div class="meta-item"><span class="icon">📖</span><strong>'+md.topic+'</strong></div>'+
+    '<div class="meta-item"><span class="meta-badge domain-ai">'+md.domain_name+'</span></div>'+
+    '<div class="meta-item"><span class="meta-badge level-intermediate">'+md.level_name+'</span></div>'+
+    '<div class="meta-item"><span class="icon">⏱️</span>约'+md.reading_time+'分钟阅读</div>'+
+    '<div class="meta-item"><span class="icon">📦</span>'+md.module_count+'个模块</div></div>';
+}
+
+function renderFormulas(container){
+  if(typeof renderMathInElement !== 'undefined'){
+    renderMathInElement(container, {delimiters: [{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}], throwOnError: false});
+  }
+}
+function createThemedOption(existingOpt){
+  var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  var color = isDark ? ['#818cf8','#a78bfa','#c4b5fd','#67e8f9','#fbbf24','#34d399','#f87171','#f472b6'] : ['#6366f1','#8b5cf6','#a78bfa','#22d3ee','#f59e0b','#10b981','#ef4444','#ec4899'];
+  return {color: color};
+}
+function renderChart(moduleId, chartConfig, index){
+  var chartId = 'chart_' + moduleId + '_' + index;
+  var wrapper = document.getElementById(chartId);
+  if(!wrapper) return;
+  if(typeof echarts === 'undefined'){wrapper.innerHTML='<div style="text-align:center;padding:20px;color:var(--text-tertiary);font-size:13px;">📊 图表(静态模式)<br><small>加载CDN后可交互</small></div>';return;}
+  try{
+    var chart = echarts.init(wrapper);
+    chart.setOption(createThemedOption(chartConfig.echarts_option||{}));
+    activeCharts[chartId] = chart;
+    new ResizeObserver(function(){chart.resize();}).observe(wrapper);
+  }catch(e){wrapper.textContent = '图表渲染失败: ' + e.message;}
+}
+
+function buildModuleHTML(mod){
+  var tagClass = (function(t){
+    var m = {'核心概念':'tag-core','前置知识':'tag-core','核心工具':'tag-tools','发展演进':'tag-evolution','实践应用':'tag-application','风险与挑战':'tag-risk','前沿探索':'tag-frontier'};
+    return m[t] || 'tag-core';
+  })(mod.module_tag||'');
+  var html = '<section class="module-section" id="'+mod.module_id+'"><div class="module-header"><span class="module-tag '+tagClass+'">'+(mod.module_tag||'')+'</span><h2 class="module-title">'+(mod.module_title||mod.module_id)+'</h2></div>';
+  if(mod.hook) html += '<div class="module-hook">'+mod.hook+'</div>';
+  if(mod.content){
+    var c = mod.content;
+    c = c.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
+    c = c.replace(/`([^`]+)`/g,'<code style="background:var(--bg-tertiary);padding:2px 6px;border-radius:4px;font-size:13px;">$1</code>');
+    c = c.replace(/\n\n/g,'</p><p>');
+    c = '<p>' + c + '</p>';
+    html += '<div class="module-content">'+c+'</div>';
+  }
+  if(mod.formulas) mod.formulas.forEach(function(f){
+    html += '<div class="formula-block" onclick="if(this.querySelector(\'.formula-derivation\'))this.classList.toggle(\'expanded\')"><div>'+f.latex+'</div>'+
+      (f.caption?'<div class="formula-caption">'+f.caption+'</div>':'')+
+      (f.expandable&&f.derivation?'<div class="formula-expand-hint">💡 点击展开推导过程</div><div class="formula-derivation">'+f.derivation+'</div>':'')+'</div>';
+  });
+  if(mod.charts) mod.charts.forEach(function(c,i){html += '<div class="chart-container"><div class="chart-wrapper" id="chart_'+mod.module_id+'_'+i+'"></div>'+(c.caption?'<div class="chart-caption">'+c.caption+'</div>':'')+'</div>';});
+  if(mod.tables) mod.tables.forEach(function(t){
+    html += '<table class="module-table"><thead><tr>'+t.headers.map(function(h){return '<th>'+h+'</th>';}).join('')+'</tr></thead><tbody>'+
+      t.rows.map(function(r){return '<tr>'+r.map(function(c){return '<td>'+c+'</td>';}).join('')+'</tr>';}).join('')+'</tbody></table>'+
+      (t.caption?'<div class="table-caption" style="font-size:12px;color:var(--text-tertiary);text-align:center;margin-top:8px">'+t.caption+'</div>':'');
+  });
+  if(mod.references) html += '<div class="module-references"><h4>📚 参考文献</h4><ol>'+mod.references.map(function(r){
+    return '<li>'+(r.authors||'')+' ('+(r.year||'')+'). <strong>'+(r.title||'')+'</strong>.'+(r.url?' <a href="'+r.url+'" target="_blank" style="color:var(--primary)">链接</a>':'')+'</li>';
+  }).join('')+'</ol></div>';
+  if(mod.key_takeaway) html += '<div class="key-takeaway">💡 '+mod.key_takeaway+'</div>';
+  html += '</section>';
+  return html;
+}
+
+function initPage(){
+  document.body.classList.remove('loading');
+  document.body.classList.add('loaded');
+  buildMetaCard();
+  buildSidebar();
+  var mc = document.getElementById('modules-container');
+  PAGE_DATA.modules.forEach(function(mod){mc.innerHTML += buildModuleHTML(mod);});
+  var sections = mc.querySelectorAll('.module-section');
+  sections.forEach(function(sec){observer.observe(sec);});
+  renderFormulas(mc);
+  setTimeout(function(){
+    PAGE_DATA.modules.forEach(function(mod){
+      if(mod.charts) mod.charts.forEach(function(c,i){renderChart(mod.module_id,c,i);});
+    });
+  },100);
+  var fObs = new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting)e.target.classList.add('visible');});},{threshold:0.08});
+  sections.forEach(function(sec){fObs.observe(sec);});
+}
+document.addEventListener('DOMContentLoaded', initPage);
+
+function exportNotes(){
+  var lines = ['# '+PAGE_DATA.topic+' - 学习笔记','','生成日期: '+new Date().toLocaleDateString('zh-CN'),''];
+  PAGE_DATA.modules.forEach(function(m){lines.push('- **'+(m.module_title||m.module_id)+'**: '+(m.key_takeaway||m.hook||''));});
+  if(navigator.clipboard){navigator.clipboard.writeText(lines.join('\n')).then(function(){alert('✅ 学习笔记已复制到剪贴板!');});}
+  else{alert('复制失败，请手动选择复制');}
+}
+
+(function(){
+  var cv = document.getElementById('bg-canvas');
+  var ctx = cv.getContext('2d');
+  var particles=[];
+  function rsz(){cv.width=window.innerWidth;cv.height=window.innerHeight;}
+  window.addEventListener('resize',rsz);rsz();
+  var count = Math.min(60,Math.floor((cv.width*cv.height)/20000));
+  for(var i=0;i<count;i++) particles.push({x:Math.random()*cv.width,y:Math.random()*cv.height,vx:(Math.random()-0.5)*0.3,vy:(Math.random()-0.5)*0.3,r:Math.random()*1.5+0.3,a:Math.random()*0.3+0.05});
+  function animate(){
+    ctx.clearRect(0,0,cv.width,cv.height);
+    var isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+    var c = isDark?'129,140,248':'99,102,241';
+    particles.forEach(function(p){
+      p.x+=p.vx;p.y+=p.vy;
+      if(p.x<0)p.x=cv.width;if(p.x>cv.width)p.x=0;
+      if(p.y<0)p.y=cv.height;if(p.y>cv.height)p.y=0;
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,6.28);
+      ctx.fillStyle='rgba('+c+','+p.a+')';ctx.fill();
+    });
+    for(var j=0;j<particles.length;j++) for(var k=j+1;k<particles.length;k++){
+      var dx=particles[j].x-particles[k].x,dy=particles[j].y-particles[k].y,d=Math.sqrt(dx*dx+dy*dy);
+      if(d<110){ctx.beginPath();ctx.moveTo(particles[j].x,particles[j].y);ctx.lineTo(particles[k].x,particles[k].y);ctx.strokeStyle='rgba('+c+','+(0.06*(1-d/110))+')';ctx.lineWidth=0.5;ctx.stroke();}
+    }
+    requestAnimationFrame(animate);
+  }
+  animate();
+})();
+</script>
+</body>
+</html>

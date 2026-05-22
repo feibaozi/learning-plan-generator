@@ -1,0 +1,47 @@
+{
+  "version": "1.0.0",
+  "generated_at": "2026-05-16T12:00:00+08:00",
+  "plan_id": "econometrics-learning",
+  "plan_title": "计量经济学 系统学习方案",
+  "materials": [
+    {
+      "id": "endogeneity-diagnosis-intermediate",
+      "kp_id": "p4_1",
+      "topic_id": "endogeneity-diagnosis",
+      "topic_name": "内生性问题的诊断",
+      "depth": "intermediate",
+      "html_file": "endogeneity-diagnosis_intermediate.html",
+      "generated_at": "2026-05-16T12:00:00+08:00",
+      "status": "ready",
+      "belongs_to_plan": "econometrics-learning",
+      "belongs_to_phase": "p4",
+      "belongs_to_kp": "p4_1"
+    },
+    {
+      "id": "instrumental-variables-intermediate",
+      "kp_id": "p4_2",
+      "topic_id": "instrumental-variables",
+      "topic_name": "工具变量法",
+      "depth": "intermediate",
+      "html_file": "instrumental-variables_intermediate.html",
+      "generated_at": "2026-05-16T12:00:00+08:00",
+      "status": "ready",
+      "belongs_to_plan": "econometrics-learning",
+      "belongs_to_phase": "p4",
+      "belongs_to_kp": "p4_2"
+    },
+    {
+      "id": "panel-data-methods-intermediate",
+      "kp_id": "p4_3",
+      "topic_id": "panel-data-methods",
+      "topic_name": "面板数据方法入门",
+      "depth": "intermediate",
+      "html_file": "panel-data-methods_intermediate.html",
+      "generated_at": "2026-05-16T12:00:00+08:00",
+      "status": "ready",
+      "belongs_to_plan": "econometrics-learning",
+      "belongs_to_phase": "p4",
+      "belongs_to_kp": "p4_3"
+    }
+  ]
+}

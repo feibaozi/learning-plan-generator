@@ -1,0 +1,441 @@
+{
+  "_description": "学习方案生成器 v2 专属参数 — 定义阶段/周数/KP/练习的动态计算规则",
+  "_version": "2.1.0",
+  "_shared_configs": {
+    "topic_profiles": "../smart-learning-materials/resources/topic_profiles.json",
+    "heuristic_rules": "../smart-learning-materials/resources/heuristic_rules.json",
+    "texture_templates": "../smart-learning-materials/resources/texture_templates.json",
+    "module_weights": "../smart-learning-materials/resources/module_weights.json"
+  },
+
+  "phase_count_engine": {
+    "base_phases": 4,
+    "adders": [
+      {
+        "id": "multiple_paradigms",
+        "condition": "topic.tags 中包含综合性标签",
+        "trigger_tags": ["deep-learning", "quant-models", "generative", "multi-modal", "cross-domain"],
+        "add": 1.5,
+        "description": "领域包含多个并行核心范式"
+      },
+      {
+        "id": "requires_lab_practice",
+        "condition": "topic.tags 中包含实操/实验标签",
+        "trigger_tags": ["engineering", "practitioner", "application", "trading", "technique"],
+        "add": 1.0,
+        "description": "领域需要实验环境或动手实操"
+      },
+      {
+        "id": "high_math_prereq",
+        "condition": "profile.math_density > 0.75 或 topic.tags 包含 'math-heavy'",
+        "trigger_tags": ["math-heavy"],
+        "add": 1.0,
+        "description": "领域有较高的数学前置要求"
+      },
+      {
+        "id": "multi_subfield",
+        "condition": "profile.systemic > 0.75 或 topic.tags 包含 'broad'",
+        "trigger_tags": ["broad", "system-wide", "nlp"],
+        "add": 1.0,
+        "description": "领域横跨多个子方向"
+      },
+      {
+        "id": "tool_or_language",
+        "condition": "profile.abstract < 0.35 且 topic.tags 中包含工程/工具标签",
+        "trigger_tags": ["engineering", "technique", "deployment", "infrastructure"],
+        "add": -1.0,
+        "description": "工具/语言/框架学习话题 — 精简阶段数"
+      }
+    ],
+    "user_depth_adjustment": {
+      "快速概览": -1.5,
+      "标准学习": 0.0,
+      "深度掌握": 1.5
+    },
+    "continuous_engine": {
+      "description": "优先方案：用 profile 连续值直接驱动阶段数计算，比离散 adder 更精细地区分相似但不同的话题",
+      "priority": "primary",
+      "base_phases": 4,
+      "coefficients": {
+        "math_density": 2.0,
+        "systemic": 1.5,
+        "abstract": -1.5,
+        "temporal": 0.5
+      },
+      "formula": "PHASE_COUNT = round(clamp(base_phases + 2.0×(math_density-0.5) + 1.5×(systemic-0.5) - 1.5×(abstract-0.5) + 0.5×(temporal-0.5) + user_depth_adjustment, 3, 10))",
+      "fallback_to_adders": "当 profile 来自 heuristic 推断且置信度 < 0.6 时，退回到离散 adder 引擎"
+    },
+    "formula": "PHASE_COUNT = round(clamp(base_phases + Σadders + user_depth_adjustment, 3, 10))  [回退方案；优先使用 continuous_engine]"
+  },
+
+  "week_allocation_engine": {
+    "base_weeks_per_phase": 2.0,
+    "user_time_defaults": {
+      "快速概览": 8,
+      "标准学习": 14,
+      "深度掌握": 20,
+      "explicit_override": "用户明确指定的总周数优先于默认值"
+    },
+    "phase_weight_profiles": {
+      "G1_formula_driven": {
+        "foundation_weight": 1.4,
+        "core_toolkit_weight": 1.1,
+        "integration_weight": 0.9,
+        "advance_frontier_weight": 0.6,
+        "description": "理论/数学密集 → 基础阶段权重最高，前沿阶段精简"
+      },
+      "G2_formula_visual": {
+        "foundation_weight": 1.1,
+        "core_toolkit_weight": 1.2,
+        "integration_weight": 1.0,
+        "advance_frontier_weight": 0.7,
+        "description": "核心工具阶段重点(每个方法配图)"
+      },
+      "G3_model_dissection": {
+        "foundation_weight": 0.9,
+        "core_toolkit_weight": 1.4,
+        "integration_weight": 1.1,
+        "advance_frontier_weight": 0.6,
+        "description": "拆解为主 → 核心工具权重最高，最后组装"
+      },
+      "G4_narrative_driven": {
+        "foundation_weight": 1.1,
+        "core_toolkit_weight": 0.9,
+        "integration_weight": 1.3,
+        "advance_frontier_weight": 0.7,
+        "description": "叙事驱动 → 整合/案例阶段权重高，用故事串联知识"
+      },
+      "G5_balanced": {
+        "foundation_weight": 1.0,
+        "core_toolkit_weight": 1.0,
+        "integration_weight": 1.0,
+        "advance_frontier_weight": 0.8,
+        "description": "平衡型 → 各阶段权重均衡"
+      },
+      "G6_system_diagram": {
+        "foundation_weight": 1.2,
+        "core_toolkit_weight": 1.1,
+        "integration_weight": 1.2,
+        "advance_frontier_weight": 0.5,
+        "description": "系统图解 → 基础和整合阶段权重高，以系统图贯穿"
+      },
+      "G7_narrative_case_trend": {
+        "foundation_weight": 0.8,
+        "core_toolkit_weight": 1.0,
+        "integration_weight": 0.9,
+        "advance_frontier_weight": 1.3,
+        "description": "趋势型 → 前沿/动态阶段权重最高"
+      },
+      "G8_tutorial_hands_on": {
+        "foundation_weight": 0.7,
+        "core_toolkit_weight": 1.2,
+        "integration_weight": 1.4,
+        "advance_frontier_weight": 0.5,
+        "description": "实操型 → 基础和前沿精简，核心+整合阶段占大头"
+      }
+    },
+    "allocation_method": {
+      "name": "largest_remainder",
+      "description": "Hare Quota + 最大余数法：保证 Σweeks = TOTAL_WEEKS 精确成立，避免 round() 导致的舍入误差",
+      "procedure": [
+        "1. 计算 quotas[i] = TOTAL_WEEKS × phase_weight[phase_type[i]] / Σphase_weights，其中 phase_weight 来自 texture 对应的 phase_weight_profiles",
+        "2. weeks[i] = max(1, floor(quotas[i]))，确保每阶段至少 1 周",
+        "3. remainder = TOTAL_WEEKS - sum(weeks)",
+        "4. 按 (quotas[i] - floor(quotas[i])) 降序排列，将 remainder 个额外周数逐一分配给余数最大的阶段"
+      ],
+      "formula": "weeks = largest_remainder(quotas, TOTAL_WEEKS, min_per_phase=1)"
+    },
+  },
+
+  "phase_type_classifier": {
+    "types": {
+      "foundation": {
+        "id": "foundation",
+        "label": "基础奠基",
+        "typical_fraction": "前1/3",
+        "core_content": "概念+原理+背景+前置知识"
+      },
+      "core_toolkit": {
+        "id": "core_toolkit",
+        "label": "核心工具",
+        "typical_fraction": "前-中1/3",
+        "core_content": "方法+技术+工具+中间技能"
+      },
+      "integration": {
+        "id": "integration",
+        "label": "整合应用",
+        "typical_fraction": "中-后1/3",
+        "core_content": "综合+项目+案例+实战"
+      },
+      "advance_frontier": {
+        "id": "advance_frontier",
+        "label": "进阶前沿",
+        "typical_fraction": "后1/3",
+        "core_content": "前沿+趋势+展望+优化"
+      }
+    },
+    "phase_type_mapping": {
+      "description": "将 PHASE_COUNT 个阶段按比例分配到 4 种类型",
+      "3_phases": ["foundation", "core_toolkit", "integration"],
+      "4_phases": ["foundation", "core_toolkit", "integration", "advance_frontier"],
+      "5_phases": ["foundation", "core_toolkit", "core_toolkit", "integration", "advance_frontier"],
+      "6_phases": ["foundation", "foundation", "core_toolkit", "core_toolkit", "integration", "advance_frontier"],
+      "7_phases": ["foundation", "foundation", "core_toolkit", "core_toolkit", "integration", "integration", "advance_frontier"],
+      "8_phases": ["foundation", "foundation", "core_toolkit", "core_toolkit", "integration", "integration", "advance_frontier", "advance_frontier"],
+      "9_phases": ["foundation", "foundation", "core_toolkit", "core_toolkit", "core_toolkit", "integration", "integration", "advance_frontier", "advance_frontier"],
+      "10_phases": ["foundation", "foundation", "core_toolkit", "core_toolkit", "core_toolkit", "integration", "integration", "integration", "advance_frontier", "advance_frontier"]
+    },
+    "texture_phase_reordering": {
+      "G1_formula_driven": {"keep_default": true, "note": "标准顺序，基础理论阶段深度展开"},
+      "G2_formula_visual": {"keep_default": true, "note": "标准顺序，但核心工具阶段每个方法配图"},
+      "G3_model_dissection": {
+        "reorder": true,
+        "new_order": ["core_toolkit", "foundation", "integration", "advance_frontier"],
+        "note": "先全景拆解展示所有组件 → 再深入每个组件的基础 → 最后组装整合"
+      },
+      "G4_narrative_driven": {"keep_default": true, "note": "标准顺序，但用历史叙事串联各阶段"},
+      "G5_balanced": {"keep_default": true, "note": "标准顺序，各阶段权重均衡"},
+      "G6_system_diagram": {
+        "reorder": true,
+        "new_order": ["foundation", "core_toolkit", "integration", "advance_frontier"],
+        "note": "基础阶段以全景系统图开篇，后续逐层深入"
+      },
+      "G7_narrative_case_trend": {
+        "reorder": true,
+        "new_order": ["advance_frontier", "core_toolkit", "foundation", "integration"],
+        "note": "先以最新趋势案例抓眼球 → 回补核心工具 → 再补基础 → 最终整合"
+      },
+      "G8_tutorial_hands_on": {
+        "reorder": true,
+        "new_order": ["core_toolkit", "integration", "foundation", "advance_frontier"],
+        "note": "跳过冗长理论基础先动手 → 项目实践 → 按需回补基础 → 前沿选学"
+      }
+    }
+  },
+
+  "kp_count_engine": {
+    "kp_per_phase_base": 3.5,
+    "depth_multiplier": {
+      "快速概览": 0.6,
+      "标准学习": 1.0,
+      "深度掌握": 1.5
+    },
+    "texture_multiplier": {
+      "G1_formula_driven": 1.0,
+      "G2_formula_visual": 1.0,
+      "G3_model_dissection": 1.15,
+      "G4_narrative_driven": 1.2,
+      "G5_balanced": 1.0,
+      "G6_system_diagram": 0.9,
+      "G7_narrative_case_trend": 1.05,
+      "G8_tutorial_hands_on": 0.85,
+      "G4_reason": "叙事驱动需要更多KP来讲述完整知识故事",
+      "G6_reason": "系统图解型以图为主而非文字，KP略精简",
+      "G8_reason": "实操型学习重在动手而非知识密度，KP略精简"
+    },
+    "formula": "KP_COUNT = round(PHASE_COUNT × kp_per_phase_base × depth_multiplier × texture_multiplier)",
+    "range": [12, 50]
+  },
+
+  "exercise_engine": {
+    "exercises_per_phase_base": 2.5,
+    "formula": "EXERCISE_COUNT = round(PHASE_COUNT × exercises_per_phase_base × depth_multiplier)",
+    "range": [8, 35],
+    "difficulty_distribution": {
+      "theory_heavy": {
+        "condition": "profile.math_density > 0.70",
+        "easy_pct": 20,
+        "medium_pct": 35,
+        "hard_pct": 30,
+        "project_pct": 15,
+        "description": "理论推导型 — 中高难度推导题占多数"
+      },
+      "balanced": {
+        "condition": "默认(不满足其他条件时)",
+        "easy_pct": 25,
+        "medium_pct": 35,
+        "hard_pct": 25,
+        "project_pct": 15,
+        "description": "标准平衡型 — 沿用5:7:6:3近似比例"
+      },
+      "hands_on": {
+        "condition": "profile.abstract < 0.35 且 topic.tags 中包含 'practitioner'/'engineering'",
+        "easy_pct": 25,
+        "medium_pct": 35,
+        "hard_pct": 20,
+        "project_pct": 20,
+        "description": "实操型 — 项目占比最高，hard占比最低"
+      }
+    }
+  },
+
+  "formula_table_engine": {
+    "thresholds": {
+      "high": {
+        "math_density_min": 0.70,
+        "table_count": 5,
+        "concepts_per_table": 5,
+        "description": "完整5表×5概念 — 数学密度高的领域全面覆盖"
+      },
+      "medium": {
+        "math_density_min": 0.40,
+        "table_count": 3,
+        "concepts_per_table": 5,
+        "description": "精简3表×5概念 — 覆盖核心阶段的公式"
+      },
+      "low": {
+        "math_density_min": 0.15,
+        "table_count": 1,
+        "concepts_per_table": 4,
+        "description": "1张概述表×4概念 — 仅收录最核心公式"
+      },
+      "none": {
+        "math_density_max": 0.15,
+        "table_count": 0,
+        "description": "不设公式表 — 领域不适合公式表达(如王者荣耀打野位)"
+      }
+    }
+  },
+
+  "resource_count_engine": {
+    "base_resources": 10,
+    "per_phase": 1,
+    "temporal_decay": 0.3,
+    "formula": "RESOURCE_COUNT = round(base_resources + PHASE_COUNT × per_phase × (1 - temporal_decay × (profile.temporal > 0.70 ? 1 : 0)))",
+    "range": [8, 22],
+    "reason": "高演化速度的领域经典资源少，适当减少推荐数量"
+  },
+
+  "drawing_section_rule": {
+    "include_when": "profile.systemic > 0.50 或 texture ∈ {G2, G6}",
+    "exclude_when": "profile.systemic <= 0.50 且 texture ∉ {G2, G6}",
+    "replacement_for_excluded": {
+      "G1": "替换为'推导方法论'节(如何高效阅读和复现推导)",
+      "G4": "替换为'思辨方法论'节(如何构建论证框架)",
+      "G8": "替换为'项目驱动学习法'节(如何通过做项目学习)",
+      "G5": "保留但简化为1级(仅必画列表)",
+      "G7": "替换为'趋势追踪方法论'节(如何持续跟踪领域前沿)"
+    }
+  },
+
+  "html_feature_switches": {
+    "knowledge_graph_canvas": {
+      "condition": "profile.systemic > 0.50",
+      "reason": "系统性强→知识图谱展示关联结构有意义；工具型话题则可省"
+    },
+    "interactive_code_blocks": {
+      "condition": "profile.abstract < 0.55 或 topic.tags 中包含 'engineering'/'practitioner'",
+      "reason": "具体/实操领域需要代码示例"
+    },
+    "katex_formula_rendering": {
+      "condition": "profile.math_density > 0.30",
+      "reason": "中等以上数学密度才需要 KaTeX CDN"
+    },
+    "drawing_method_section": {
+      "condition": "同 drawing_section_rule",
+      "reason": "仅图解型纹理需要展示绘图方法论"
+    },
+    "search": {"condition": "always", "reason": "搜索功能始终启用"},
+    "theme_toggle": {"condition": "always", "reason": "明暗主题切换始终启用"}
+  },
+
+  "theme_defaults": {
+    "dark_default": ["G1", "G2", "G3", "G5", "G6", "G7"],
+    "light_default": ["G4", "G8"],
+    "user_preference_override": "用户可在CSS中切换，主题按钮始终可用"
+  },
+
+  "phase_colors": {
+    "foundation": "#4fc3f7",
+    "core_toolkit": "#66bb6a",
+    "integration": "#ab47bc",
+    "advance_frontier": "#ef5350",
+    "alternative_colors": {
+      "if_4_or_fewer": ["#4fc3f7", "#66bb6a", "#ab47bc", "#ef5350"],
+      "if_5_or_6": ["#4fc3f7", "#66bb6a", "#ffa726", "#ab47bc", "#ef5350", "#ec407a"],
+      "if_7_or_more": ["#4fc3f7", "#66bb6a", "#ffa726", "#ab47bc", "#ef5350", "#ec407a", "#26c6da", "#7e57c2", "#ff7043", "#42a5f5"]
+    }
+  },
+
+  "texture_learning_philosophies": {
+    "G1": "真正的理解藏在推导过程的每一步里，读完≠推导完≠掌握",
+    "G2": "一图胜千言——每个核心概念的最高效学习方式是为它画一张图",
+    "G3": "拆开看、逐个啃、再拼回来——复杂系统都是简单组件的精巧组合",
+    "G4": "知识从来不是孤立的——在历史的辩论和思想的碰撞中理解它",
+    "G5": "均衡是最好的学习策略——不要为了速度牺牲深度，也不必为了细节迷失方向",
+    "G6": "先看清森林，再走进树木——系统全景图是你所有学习的地图",
+    "G7": "站在趋势的前沿回头看——最新的案例是最好的老师",
+    "G8": "不要等到'准备好'才开始——最好的学习方式是立即动手做项目"
+  },
+
+  "ux_interaction_config": {
+    "_version": "2.1.0",
+    "_description": "HTML交互行为配置 — 控制知识卡片、导航跳转、图解密度等UX行为",
+
+    "diagram_density_rules": {
+      "_description": "根据数学密度决定KP中SVG图解的最低覆盖比例",
+      "high_math": { "threshold": 0.70, "coverage": 0.80, "label": "高数学密度 → 80%KP含图解" },
+      "medium_math": { "threshold": 0.40, "coverage": 0.50, "label": "中等数学密度 → 50%KP含图解" },
+      "low_math": { "threshold": 0.15, "coverage": 0.20, "label": "低数学密度 → 20%KP含图解" },
+      "no_math": { "threshold": 0.00, "coverage": 0.00, "label": "无数学 → 不强制图解" },
+      "calculation_formula": "target_diagram_count = round(KP_COUNT × max(coverage_rule, coverage_rule + texture_boost))"
+    },
+
+    "texture_diagram_boost": {
+      "_description": "学习纹理对图解覆盖率的加成 (叠加到基础覆盖率上)",
+      "G1_formula_driven": { "boost": 0.15, "reason": "公式推导型: 核心公式需配图理解" },
+      "G2_formula_visual": { "boost": 0.30, "reason": "公式+图解型: 所有KP应配图" },
+      "G3_model_dissection": { "boost": 0.10, "reason": "模型拆解型: 关键组件需配图" },
+      "G4_narrative_driven": { "boost": 0.05, "reason": "叙事驱动型: 插图辅助故事表达" },
+      "G5_balanced": { "boost": 0.15, "reason": "均衡型: 与G1相同, 核心公式配图" },
+      "G6_system_diagram": { "boost": 0.30, "reason": "系统图解型: 强制全部KP配图" },
+      "G7_narrative_case_trend": { "boost": 0.05, "reason": "趋势型: 案例配图即可" },
+      "G8_tutorial_hands_on": { "boost": 0.00, "reason": "实操型: 以代码/项目为主, 不需要图解" }
+    },
+
+    "svg_diagram_spec": {
+      "viewBox": "0 0 420 150",
+      "colors_source": "resources/js_templates/diagram_guide.txt",
+      "color_mapping": {
+        "primary_flow": "#4fc3f7",
+        "success_correct": "#66bb6a",
+        "warning_intermediate": "#ffa726",
+        "transform_mapping": "#ab47bc",
+        "error_danger": "#ef5350",
+        "decision_boundary": "#26c6da",
+        "grid_axis": "#6080a8",
+        "label_text": "#a0b8d8"
+      },
+      "required_layers": ["标题区 (左上)", "主视觉区 (图形+箭头+数据)", "底部总结 (居中一行)"],
+      "constraints": [
+        "禁止使用 JavaScript 或 CSS animation",
+        "禁止引用外部字体/资源",
+        "属性值用双引号, JS字符串外层用单引号",
+        "> 必须替换为 &gt;",
+        "& 必须替换为 &amp;"
+      ]
+    },
+
+    "card_interaction": {
+      "header_click_to_expand_collapse": { "enabled": true, "ref": "IX1", "handler": "tKCT(id)" },
+      "expand_all_toggle": { "enabled": true, "ref": "IX3", "handler": "eAK()", "texts": ["📖 展开全部", "📕 全部收起"] },
+      "phase_tag_clickable": { "enabled": true, "ref": "IX2", "handler": "gP(phase_id)", "stop_propagation": true },
+      "rel_links_clickable": { "enabled": true, "ref": "IX2", "handler": "kfP(rel_id)", "stop_propagation": true },
+      "skill_chip_clickable": { "enabled": true, "ref": "IX2", "handler": "kfP(topic_id)", "stop_propagation": true },
+      "auto_open_phase_on_kp_expand": { "enabled": true, "ref": "IX2", "action": "在 tKCT() 内部调用 gP(kp.p)" }
+    },
+
+    "exercise_counter": {
+      "always_show_global_total": true,
+      "ref": "AP5 + IX4",
+      "format": "已打卡 X/[EXERCISE_COUNT] 题",
+      "note": "不受筛选影响, EXERCISE_COUNT 是全局数组长度"
+    },
+
+    "scroll_handler": {
+      "max_registrations": 1,
+      "ref": "AP3",
+      "note": "所有scroll逻辑合并到一个window.addEventListener"
+    }
+  }
+}

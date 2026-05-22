@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>机器学习 — 14周系统学习方案 v2 · G5 平衡型</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<style>
+:root{
+  --bg-deep:#050a10;--bg-card:#0a1220;--bg-card-hover:#0f1a2e;--bg-elevated:#142038;
+  --border-subtle:#1a3050;--border-glow:#2a5080;--text-primary:#eef5ff;--text-secondary:#a0b8d8;--text-muted:#6080a8;
+  --gradient-hero:linear-gradient(135deg,#4fc3f7 0%,#26c6da 50%,#66bb6a 100%);
+  --gradient-dna:linear-gradient(90deg,#4fc3f7,#26c6da,#66bb6a);
+  --accent-blue:#4fc3f7;--accent-indigo:#5c6bc0;--accent-purple:#7e57c2;--accent-deep:#1a237e;
+  --accent-green:#66bb6a;--accent-cyan:#26c6da;--accent-orange:#ffa726;
+  --nav-bg:rgba(5,10,16,0.85);--overlay-bg:rgba(0,0,0,0.7);
+  --shadow-glow:0 0 30px rgba(79,195,247,0.12);--shadow-elevated:0 8px 32px rgba(0,0,0,0.5);
+  --radius-sm:8px;--radius-md:14px;--radius-lg:22px;
+  --transition-fast:0.15s ease;--transition-smooth:0.3s cubic-bezier(0.4,0,0.2,1);
+}
+body.light{
+  --bg-deep:#f5f8fc;--bg-card:#ffffff;--bg-card-hover:#edf2fa;--bg-elevated:#e4ecf5;
+  --border-subtle:#d0dde8;--border-glow:#a0b8d8;--text-primary:#0a1520;--text-secondary:#405868;--text-muted:#688098;
+  --nav-bg:rgba(245,248,252,0.9);--overlay-bg:rgba(0,0,0,0.35);
+  --shadow-glow:0 0 30px rgba(79,195,247,0.08);--shadow-elevated:0 8px 32px rgba(0,0,0,0.06);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-padding-top:100px}
+body{font-family:'Noto Sans SC','Microsoft YaHei',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg-deep);color:var(--text-primary);line-height:1.7;overflow-x:hidden;transition:background var(--transition-smooth),color var(--transition-smooth)}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg-elevated)}::-webkit-scrollbar-thumb{background:var(--border-glow);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--accent-blue)}
+#bg-canvas{position:fixed;top:0;left:0;z-index:0;pointer-events:none}
+.top-nav{position:fixed;top:0;left:0;right:0;z-index:100;background:transparent;padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:56px;transition:all var(--transition-smooth)}
+.top-nav.scrolled{background:var(--nav-bg);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);box-shadow:0 2px 20px rgba(0,0,0,0.3)}
+.light .top-nav.scrolled{box-shadow:0 2px 20px rgba(0,0,0,0.06)}
+.nav-brand{font-weight:800;font-size:1.05rem;background:var(--gradient-hero);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:-0.02em}
+.nav-links{display:flex;gap:8px;align-items:center}
+.nav-links a{color:var(--text-secondary);text-decoration:none;font-size:0.78rem;font-weight:600;padding:6px 12px;border-radius:50px;transition:all var(--transition-fast)}
+.nav-links a:hover,.nav-links a.active{color:var(--accent-blue);background:rgba(79,195,247,0.08)}
+.nav-actions{display:flex;gap:6px;align-items:center}
+.nav-actions button{background:transparent;border:1px solid var(--border-subtle);color:var(--text-secondary);padding:6px 14px;border-radius:50px;font-size:0.75rem;cursor:pointer;font-weight:600;transition:all var(--transition-fast);font-family:inherit}
+.nav-actions button:hover{border-color:var(--accent-blue);color:var(--accent-blue)}
+.theme-btn{padding:6px!important;width:34px;height:34px;display:flex;align-items:center;justify-content:center;font-size:1rem!important}
+.hamburger{display:none;flex-direction:column;gap:4px;cursor:pointer;background:transparent;border:none;padding:4px}
+.hamburger span{display:block;width:22px;height:2px;background:var(--text-secondary);border-radius:2px;transition:all var(--transition-fast)}
+.mobile-menu{position:fixed;top:56px;left:0;right:0;z-index:99;background:var(--nav-bg);backdrop-filter:blur(20px);padding:20px 32px;display:flex;flex-direction:column;gap:6px;opacity:0;pointer-events:none;transform:translateY(-8px);transition:all var(--transition-smooth)}
+.mobile-menu.open{opacity:1;pointer-events:auto;transform:translateY(0)}
+.mobile-menu a{color:var(--text-secondary);text-decoration:none;font-size:0.85rem;font-weight:600;padding:8px 12px;border-radius:8px;transition:all var(--transition-fast)}
+.mobile-menu a:hover{color:var(--accent-blue);background:rgba(79,195,247,0.08)}
+.scroll-progress{position:fixed;top:0;left:0;height:3px;background:var(--gradient-hero);z-index:101;transition:width 0.3s;width:0%}
+.hero{position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:120px 32px 80px;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at center,var(--accent-cyan) 0%,transparent 70%);opacity:0.12}
+.hero-content{position:relative;z-index:1;max-width:800px}
+.hero h1{font-size:clamp(2rem,5vw,3.5rem);font-weight:900;background:var(--gradient-hero);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.2;margin-bottom:20px;letter-spacing:-0.02em}
+.hero p{font-size:clamp(0.95rem,1.5vw,1.15rem);color:var(--text-secondary);max-width:600px;margin:0 auto 40px}
+.hero-stats{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+.hero-stat{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:20px 28px;min-width:130px;box-shadow:var(--shadow-elevated);transition:all var(--transition-smooth)}
+.hero-stat:hover{border-color:var(--accent-blue);transform:translateY(-4px);box-shadow:var(--shadow-glow)}
+.hero-stat .num{display:block;font-size:2.2rem;font-weight:900;background:var(--gradient-hero);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-stat .lbl{display:block;font-size:0.78rem;color:var(--text-muted);margin-top:4px;font-weight:500}
+.section{padding:80px 32px;max-width:1200px;margin:0 auto;position:relative;z-index:1}
+.section-header{text-align:center;margin-bottom:48px}
+.section-tag{display:inline-block;font-size:0.65rem;font-weight:700;color:var(--accent-blue);letter-spacing:0.15em;padding:4px 12px;border:1px solid rgba(79,195,247,0.25);border-radius:50px;margin-bottom:12px}
+.section-header h2{font-size:clamp(1.5rem,3vw,2.2rem);font-weight:800;margin-bottom:8px;letter-spacing:-0.01em}
+.subtitle{font-size:0.9rem;color:var(--text-muted);font-weight:400}
+.roadmap-container{position:relative;padding-left:60px}
+.roadmap-container::before{content:'';position:absolute;left:28px;top:0;bottom:0;width:2px;background:linear-gradient(180deg,#4fc3f7,#66bb6a,#ffa726,#ab47bc,#ef5350,#ec407a,#26c6da)}
+.roadmap-item{position:relative;margin-bottom:28px;opacity:0;transform:translateX(-20px);transition:all 0.6s cubic-bezier(0.4,0,0.2,1)}
+.roadmap-item.visible{opacity:1;transform:translateX(0)}
+.roadmap-marker{position:absolute;left:-45px;top:4px;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:0.85rem;color:#fff;border:3px solid;box-shadow:0 0 20px rgba(79,195,247,0.15);z-index:1}
+.roadmap-content{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:22px 26px;cursor:pointer;transition:all var(--transition-smooth);box-shadow:var(--shadow-elevated)}
+.roadmap-content:hover{border-color:var(--accent-blue);transform:translateX(4px);box-shadow:var(--shadow-glow)}
+.roadmap-content h3{font-size:1.1rem;font-weight:700;margin-bottom:6px}
+.rm-week{font-size:0.75rem;color:var(--accent-blue);font-weight:600;margin-bottom:8px}
+.rm-desc{font-size:0.82rem;color:var(--text-secondary)}
+.graph-section{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-lg);padding:10px 10px 20px;overflow:hidden}
+.graph-canvas{width:100%;display:block;cursor:pointer}
+.graph-legend{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;padding:8px 10px 0}
+.graph-legend-item{font-size:0.68rem;color:var(--text-secondary);cursor:pointer;padding:4px 10px;border-radius:50px;transition:all var(--transition-fast);display:flex;align-items:center;gap:5px;border:1px solid transparent;font-weight:600}
+.graph-legend-item:hover{border-color:var(--border-subtle);background:var(--bg-elevated)}
+.graph-legend-item.active-highlight{border-color:var(--accent-blue)!important;background:rgba(79,195,247,0.08)!important;color:var(--accent-blue)!important}
+.graph-legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.phase-container{display:flex;flex-direction:column;gap:14px}
+.phase-detail{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);overflow:hidden;transition:all var(--transition-smooth)}
+.phase-detail:hover{border-color:var(--border-subtle)}
+.phase-detail-header{cursor:pointer;padding:20px 24px;display:flex;gap:16px;align-items:center;user-select:none;transition:all var(--transition-fast)}
+.phase-detail-header:hover{background:var(--bg-card-hover)}
+.phase-detail-header .icon{width:42px;height:42px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0}
+.phase-detail-header .info{flex:1;min-width:0}
+.phase-detail-header h4{font-size:1.05rem;font-weight:700;margin-bottom:2px}
+.ph-week{font-size:0.72rem;color:var(--text-muted)}
+.phase-detail-header .arrow{font-size:0.7rem;color:var(--text-muted);transition:transform var(--transition-smooth);flex-shrink:0}
+.phase-detail.open .arrow{transform:rotate(180deg)}
+.phase-body{max-height:0;overflow:hidden;transition:max-height 0.5s cubic-bezier(0.4,0,0.2,1)}
+.phase-detail.open .phase-body{max-height:2000px}
+.phase-body-inner{padding:0 24px 22px;display:flex;flex-direction:column;gap:16px}
+.skill-list{display:flex;flex-wrap:wrap;gap:8px}
+.skill-chip{display:inline-block;font-size:0.72rem;padding:5px 12px;border-radius:50px;background:rgba(255,255,255,0.03);border:1px solid var(--border-subtle);color:var(--text-secondary);font-weight:600;transition:all var(--transition-fast)}
+.skill-link{cursor:pointer;border-color:rgba(79,195,247,0.3);color:var(--accent-blue)}
+.skill-link:hover{background:rgba(79,195,247,0.1);transform:translateY(-1px)}
+.drawing-method{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.dm-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:24px 20px;text-align:center;transition:all var(--transition-smooth)}
+.dm-card:hover{border-color:var(--accent-blue);box-shadow:var(--shadow-glow);transform:translateY(-2px)}
+.dm-card h4{font-size:0.95rem;font-weight:700;margin-bottom:8px;color:var(--accent-blue)}
+.dm-card p{font-size:0.78rem;color:var(--text-secondary)}
+.math-tag{display:inline-block;font-size:0.62rem;padding:3px 8px;border-radius:3px;font-weight:700;border:1px solid;cursor:pointer;transition:all var(--transition-fast)}
+.math-tag:hover{transform:scale(1.08);filter:brightness(1.2)}
+.tag-p1{color:#4fc3f7;border-color:rgba(79,195,247,0.35);background:rgba(79,195,247,0.06)}
+.tag-p2{color:#66bb6a;border-color:rgba(102,187,106,0.35);background:rgba(102,187,106,0.06)}
+.tag-p3{color:#ffa726;border-color:rgba(255,167,38,0.35);background:rgba(255,167,38,0.06)}
+.tag-p4{color:#ab47bc;border-color:rgba(171,71,188,0.35);background:rgba(171,71,188,0.06)}
+.tag-p5{color:#ef5350;border-color:rgba(239,83,80,0.35);background:rgba(239,83,80,0.06)}
+.tag-p6{color:#ec407a;border-color:rgba(236,64,122,0.35);background:rgba(236,64,122,0.06)}
+.tag-p7{color:#26c6da;border-color:rgba(38,198,218,0.35);background:rgba(38,198,218,0.06)}
+.math-tags-grid{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.draw-levels-title{text-align:center;font-size:0.85rem;font-weight:700;color:var(--text-secondary);margin:20px 0 12px}
+.draw-level-list{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.draw-level-item{font-size:0.72rem;padding:5px 12px;border-radius:50px;background:var(--bg-elevated);color:var(--text-secondary)}
+.knowledge-filter-bar,.phase-filter-row{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:18px}
+.knowledge-filter,.phase-filter-btn{background:var(--bg-elevated);border:1px solid var(--border-subtle);color:var(--text-secondary);padding:6px 16px;border-radius:50px;font-size:0.72rem;cursor:pointer;font-weight:600;transition:all var(--transition-fast);font-family:inherit}
+.knowledge-filter:hover,.phase-filter-btn:hover{border-color:var(--accent-blue);color:var(--accent-blue)}
+.knowledge-filter.active,.phase-filter-btn.active{background:rgba(79,195,247,0.1);border-color:var(--accent-blue);color:var(--accent-blue)}
+.knowledge-count{text-align:center;font-size:0.78rem;color:var(--text-muted);margin-bottom:16px}
+.ks-expand-all{background:transparent;border:1px solid var(--border-subtle);color:var(--accent-cyan);padding:3px 10px;border-radius:50px;font-size:0.68rem;cursor:pointer;font-weight:600;transition:all var(--transition-fast);font-family:inherit;margin-left:8px}
+.ks-expand-all:hover{border-color:var(--accent-cyan);background:rgba(38,198,218,0.08)}
+.knowledge-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;align-items:start}
+.knowledge-grid.has-expanded .knowledge-card{will-change:transform}
+.knowledge-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);cursor:pointer;transition:all var(--transition-smooth);display:flex;flex-direction:column}
+.knowledge-card:hover{border-color:var(--border-glow);box-shadow:var(--shadow-glow)}
+.knowledge-card.expanded{grid-column:1/-1;cursor:default}
+.knowledge-card.expanded:hover{border-color:var(--border-subtle);box-shadow:var(--shadow-elevated)}
+.card-header{display:flex;align-items:center;gap:8px;padding:14px 16px;background:var(--bg-card-hover);border-bottom:1px solid var(--border-subtle);flex-wrap:wrap;position:sticky;top:56px;z-index:10;min-height:50px}
+.knowledge-card.expanded .card-header{cursor:pointer}
+.knowledge-card.expanded .card-header:hover{background:rgba(79,195,247,0.06)}
+.card-title{font-size:0.82rem;font-weight:700;flex:1;min-width:0;line-height:1.3}
+.card-icon{font-size:1rem;flex-shrink:0}
+.card-back{background:transparent;border:1px solid var(--border-subtle);color:var(--text-muted);padding:2px 8px;border-radius:50px;font-size:0.62rem;cursor:pointer;transition:all var(--transition-fast);font-family:inherit;white-space:nowrap}
+.card-back:hover{border-color:var(--accent-blue);color:var(--accent-blue)}
+.card-detail{max-height:0;overflow:hidden;transition:max-height 0.35s ease;padding:0 16px}
+.knowledge-card.open .card-detail{max-height:2000px;padding:16px}
+.card-detail p{font-size:0.8rem;color:var(--text-secondary);line-height:1.65;margin-bottom:12px}
+.card-formula{background:rgba(255,255,255,0.02);border:1px solid var(--border-subtle);border-radius:var(--radius-sm);padding:12px 16px;font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:var(--accent-blue);margin-bottom:12px;word-break:break-all}
+.card-sum{font-size:0.75rem;color:var(--text-muted);font-style:italic;padding:10px 14px;background:rgba(79,195,247,0.04);border-left:3px solid var(--accent-blue);border-radius:0 var(--radius-sm) var(--radius-sm) 0;margin-bottom:12px}
+.card-diagram{background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:var(--radius-sm);padding:16px;margin-bottom:12px;text-align:center;overflow-x:auto}
+.card-diagram svg{max-width:100%;height:auto;display:block;margin:0 auto}
+.card-diagram .dg-title{font-size:0.68rem;font-weight:700;color:var(--text-muted);margin-top:6px;text-align:center}
+.card-related{margin-top:4px;margin-bottom:8px;padding:12px 14px;background:rgba(255,255,255,0.015);border:1px dashed var(--border-subtle);border-radius:var(--radius-sm)}
+.cr-title{font-size:0.72rem;font-weight:700;color:var(--text-secondary);margin-bottom:8px}
+.cr-links{display:flex;flex-wrap:wrap;gap:6px}
+.cr-link{font-size:0.68rem;padding:4px 10px;border-radius:50px;border:1px solid var(--border-subtle);color:var(--accent-cyan);cursor:pointer;transition:all var(--transition-fast)}
+.cr-link:hover{background:rgba(38,198,218,0.1);border-color:var(--accent-cyan)}
+.formula-tabs{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:20px}
+.formula-tab{background:var(--bg-elevated);border:1px solid var(--border-subtle);color:var(--text-secondary);padding:8px 20px;border-radius:50px;font-size:0.8rem;cursor:pointer;font-weight:600;transition:all var(--transition-fast);font-family:inherit}
+.formula-tab:hover{border-color:var(--accent-cyan);color:var(--accent-cyan)}
+.formula-tab.active{background:rgba(38,198,218,0.1);border-color:var(--accent-cyan);color:var(--accent-cyan)}
+.formula-panel{display:none}
+.formula-panel.active{display:block}
+.formula-table{width:100%;border-collapse:collapse;font-size:0.8rem}
+.formula-table thead{background:rgba(255,255,255,0.02)}
+.formula-table th{text-align:left;padding:12px 16px;font-size:0.72rem;font-weight:700;color:var(--accent-blue);border-bottom:2px solid var(--border-subtle);text-transform:uppercase;letter-spacing:0.05em}
+.formula-table td{padding:10px 16px;border-bottom:1px solid var(--border-subtle);color:var(--text-secondary);font-family:'JetBrains Mono',monospace;font-size:0.73rem}
+.formula-table td:first-child{color:var(--text-primary);font-weight:600;font-family:'Noto Sans SC','Microsoft YaHei',sans-serif}
+.exercise-filters{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:16px}
+.exercise-filter{background:var(--bg-elevated);border:1px solid var(--border-subtle);color:var(--text-secondary);padding:6px 16px;border-radius:50px;font-size:0.72rem;cursor:pointer;font-weight:600;transition:all var(--transition-fast);font-family:inherit}
+.exercise-filter:hover{border-color:var(--accent-green);color:var(--accent-green)}
+.exercise-filter.active{background:rgba(102,187,106,0.08);border-color:var(--accent-green);color:var(--accent-green)}
+.exercise-counter{text-align:center;font-size:0.75rem;color:var(--text-muted);margin-bottom:12px}
+.exercise-list{display:flex;flex-direction:column;gap:8px}
+.exercise-item{display:flex;align-items:flex-start;gap:12px;background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:16px 18px;cursor:pointer;transition:all var(--transition-smooth)}
+.exercise-item:hover{border-color:var(--border-glow);box-shadow:var(--shadow-glow)}
+.exercise-num{font-family:'JetBrains Mono',monospace;font-size:0.7rem;font-weight:700;color:var(--accent-blue);flex-shrink:0;width:36px;text-align:center;padding-top:2px}
+.ei-content{flex:1;min-width:0}
+.ei-title{display:flex;gap:10px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap}
+.ei-title-text{font-size:0.85rem;font-weight:600;flex:1;min-width:200px;line-height:1.45}
+.diff{font-size:0.6rem;padding:2px 8px;border-radius:4px;font-weight:700;flex-shrink:0;white-space:nowrap}
+.diff.easy{background:rgba(102,187,106,0.12);color:#66bb6a;border:1px solid rgba(102,187,106,0.3)}
+.diff.medium{background:rgba(255,167,38,0.12);color:#ffa726;border:1px solid rgba(255,167,38,0.3)}
+.diff.hard{background:rgba(239,83,80,0.12);color:#ef5350;border:1px solid rgba(239,83,80,0.3)}
+.diff.project{background:rgba(171,71,188,0.12);color:#ab47bc;border:1px solid rgba(171,71,188,0.3)}
+.ei-check{width:32px;height:32px;border-radius:50%;border:2px solid var(--border-subtle);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all var(--transition-fast);font-size:0.8rem;align-self:flex-start;margin-top:2px}
+.ei-check:hover{border-color:var(--accent-green)}
+.ei-check.done{background:var(--accent-green);border-color:var(--accent-green);color:#fff}
+.resource-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px}
+.resource-card{display:block;background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:20px 22px;text-decoration:none;color:inherit;transition:all var(--transition-smooth)}
+.resource-card:hover{border-color:var(--accent-blue);box-shadow:var(--shadow-glow);transform:translateY(-2px)}
+.resource-card h4{font-size:0.9rem;font-weight:700;margin-bottom:6px;color:var(--text-primary)}
+.resource-card p{font-size:0.78rem;color:var(--text-secondary);margin-bottom:8px}
+.res-tag{display:inline-block;font-size:0.62rem;padding:2px 8px;border-radius:4px;background:rgba(79,195,247,0.08);color:var(--accent-blue);border:1px solid rgba(79,195,247,0.2);font-weight:600}
+.tracker-list{display:flex;flex-direction:column;gap:8px}
+.tracker-row{display:flex;align-items:center;gap:14px;background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:14px 18px;transition:all var(--transition-smooth)}
+.tracker-row:hover{border-color:var(--border-glow)}
+.tracker-check{width:28px;height:28px;border-radius:50%;border:2px solid var(--border-subtle);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all var(--transition-fast);font-size:0.7rem}
+.tracker-check:hover{border-color:var(--accent-green)}
+.tracker-check.done{background:var(--accent-green);border-color:var(--accent-green);color:#fff}
+.tracker-info{flex:1;display:flex;flex-direction:column;gap:2px}
+.tracker-info strong{font-size:0.85rem;font-weight:700}
+.tracker-info span{font-size:0.72rem;color:var(--text-muted)}
+.tracker-total{text-align:center;font-size:0.85rem;color:var(--text-secondary);margin-top:14px;font-weight:600}
+.search-overlay{position:fixed;inset:0;z-index:200;background:var(--overlay-bg);backdrop-filter:blur(10px);display:flex;align-items:flex-start;justify-content:center;padding-top:20vh;opacity:0;pointer-events:none;transition:opacity var(--transition-smooth)}
+.search-overlay.open{opacity:1;pointer-events:auto}
+.search-box{width:90%;max-width:600px;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow-elevated)}
+.search-input-wrap{padding:16px 20px;border-bottom:1px solid var(--border-subtle);display:flex;gap:12px;align-items:center}
+.search-input-wrap input{flex:1;background:transparent;border:none;color:var(--text-primary);font-size:1.1rem;outline:none;font-family:inherit}
+.search-input-wrap input::placeholder{color:var(--text-muted)}
+.search-close{background:transparent;border:none;color:var(--text-muted);font-size:1.3rem;cursor:pointer;padding:4px}
+.search-results{max-height:50vh;overflow-y:auto;padding:8px}
+.search-result-item{padding:12px 16px;cursor:pointer;border-radius:var(--radius-sm);transition:all var(--transition-fast);border:1px solid transparent}
+.search-result-item:hover{background:var(--bg-elevated);border-color:var(--border-subtle)}
+.sr-title{font-size:0.85rem;font-weight:700;margin-bottom:4px}
+.sr-title mark{background:rgba(79,195,247,0.2);color:var(--accent-blue);padding:1px 4px;border-radius:2px}
+.sr-snippet{font-size:0.72rem;color:var(--text-muted)}
+.confirm-overlay{position:fixed;inset:0;z-index:300;background:var(--overlay-bg);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity var(--transition-smooth)}
+.confirm-overlay.open{opacity:1;pointer-events:auto}
+.confirm-box{background:var(--bg-card);border:1px solid var(--border-glow);border-radius:var(--radius-lg);padding:32px;text-align:center;max-width:400px;box-shadow:var(--shadow-elevated)}
+.confirm-box h4{font-size:1.05rem;margin-bottom:8px}
+.confirm-box p{font-size:0.82rem;color:var(--text-muted);margin-bottom:20px}
+.confirm-btns{display:flex;gap:10px;justify-content:center}
+.confirm-btns button{padding:8px 24px;border-radius:50px;font-size:0.8rem;font-weight:700;cursor:pointer;transition:all var(--transition-fast);font-family:inherit}
+.btn-cancel{background:var(--bg-elevated);border:1px solid var(--border-subtle);color:var(--text-secondary)}
+.btn-danger{background:rgba(239,83,80,0.1);border:1px solid rgba(239,83,80,0.3);color:#ef5350}
+.btn-danger:hover{background:rgba(239,83,80,0.2)}
+.help-overlay{position:fixed;inset:0;z-index:250;background:var(--overlay-bg);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity var(--transition-smooth)}
+.help-overlay.open{opacity:1;pointer-events:auto}
+.help-box{background:var(--bg-card);border:1px solid var(--border-glow);border-radius:var(--radius-lg);padding:28px 32px;max-width:480px;width:90%;box-shadow:var(--shadow-elevated);text-align:center}
+.help-box h4{font-size:1rem;margin-bottom:16px;color:var(--accent-blue)}
+.kbd-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);font-size:0.78rem;color:var(--text-secondary)}
+.kbd-key{background:var(--bg-elevated);border:1px solid var(--border-subtle);padding:2px 10px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:0.68rem;color:var(--accent-cyan);font-weight:600}
+.kbd-desc{font-size:0.78rem;color:var(--text-secondary)}
+.toast{position:fixed;bottom:40px;left:50%;transform:translateX(-50%) translateY(20px);z-index:400;background:var(--accent-green);color:#000;padding:10px 24px;border-radius:50px;font-size:0.82rem;font-weight:700;opacity:0;transition:all 0.3s cubic-bezier(0.4,0,0.2,1);white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.side-progress{position:fixed;right:24px;top:50%;transform:translateY(-50%);z-index:50;display:flex;flex-direction:column;gap:10px}
+.progress-dot{width:10px;height:10px;border-radius:50%;background:var(--border-subtle);cursor:pointer;transition:all var(--transition-fast);position:relative}
+.progress-dot:hover,.progress-dot.active{background:var(--accent-blue);box-shadow:0 0 8px var(--accent-blue)}
+.progress-dot:hover::after{content:attr(data-label);position:absolute;right:18px;top:50%;transform:translateY(-50%);background:var(--bg-elevated);color:var(--text-primary);font-size:0.65rem;padding:3px 10px;border-radius:4px;white-space:nowrap;border:1px solid var(--border-subtle)}
+.back-to-top{position:fixed;bottom:100px;right:28px;z-index:50;width:40px;height:40px;border-radius:50%;background:var(--bg-card);border:1px solid var(--border-glow);color:var(--text-secondary);display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:0;pointer-events:none;transition:all var(--transition-smooth);font-size:1.1rem}
+.back-to-top.visible{opacity:1;pointer-events:auto}
+.back-to-top:hover{background:var(--accent-blue);color:#000;border-color:var(--accent-blue)}
+.mobile-bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:102;background:var(--nav-bg);backdrop-filter:blur(20px);border-top:1px solid var(--border-subtle);padding:6px 0;justify-content:space-around}
+.mbn-item{display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:4px 10px;border-radius:8px;transition:all var(--transition-fast);text-decoration:none;font-size:0.6rem;color:var(--text-muted);border:1px solid transparent}
+.mbn-item .mbn-icon{font-size:1rem}
+.mbn-item.mbn-active{color:var(--accent-blue)}
+.footer{padding:40px 32px;text-align:center;border-top:1px solid var(--border-subtle);color:var(--text-muted);font-size:0.72rem;position:relative;z-index:1}
+@media(max-width:768px){
+  .nav-links{display:none}.hamburger{display:flex}.hero-stats{flex-direction:column;align-items:center;gap:10px}.hero-stat{min-width:200px}
+  .roadmap-container{padding-left:40px}.roadmap-container::before{left:18px}.roadmap-marker{left:-32px;width:28px;height:28px;font-size:0.7rem}
+  .drawing-method{grid-template-columns:1fr}.knowledge-grid{grid-template-columns:1fr}
+  .resource-list{grid-template-columns:1fr}.section{padding:50px 18px}.top-nav{padding:0 16px}
+  .side-progress{display:none}.back-to-top{bottom:80px;right:16px}
+  .mobile-bottom-nav{display:flex}
+  .search-box{width:95%}
+}
+@media print{
+  .top-nav,.side-progress,.back-to-top,.mobile-bottom-nav,.scroll-progress,.search-overlay,.confirm-overlay,.help-overlay,#bg-canvas{display:none!important}
+  body{background:#fff;color:#000}*{color:#000!important;background:#fff!important;box-shadow:none!important;border-color:#ddd!important}
+}
+</style>
+</head>
+<body>
+<div class="scroll-progress" id="scrollProgressBar"></div>
+<canvas id="bg-canvas"></canvas>
+
+<nav class="top-nav" id="topNav">
+  <div class="nav-brand">ML · 机器学习 v2</div>
+  <div class="nav-links">
+    <a href="#roadmap">路线图</a><a href="#graph">知识图谱</a><a href="#drawing">图解学习法</a><a href="#knowledge">知识点</a><a href="#phases">阶段详情</a>
+    <a href="#formulas">公式速查</a><a href="#exercises">练习</a><a href="#resources">资料</a><a href="#tracker">进度</a>
+  </div>
+  <div class="nav-actions">
+    <button onclick="oS()">🔍</button>
+    <button class="theme-btn" id="themeBtn" onclick="window._toggleTheme()">🌙</button>
+    <button class="hamburger" onclick="tMM()"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#roadmap" onclick="tMM()">🗺 路线图</a><a href="#graph" onclick="tMM()">🔬 知识图谱</a>
+  <a href="#drawing" onclick="tMM()">📊 图解学习法</a><a href="#knowledge" onclick="tMM()">📎 知识点</a>
+  <a href="#phases" onclick="tMM()">📑 阶段详情</a><a href="#formulas" onclick="tMM()">📋 公式速查</a>
+  <a href="#exercises" onclick="tMM()">✏ 练习</a><a href="#resources" onclick="tMM()">📚 资料</a><a href="#tracker" onclick="tMM()">✅ 进度</a>
+</div>
+
+<div class="search-overlay" id="searchOverlay">
+  <div class="search-box">
+    <div class="search-input-wrap">
+      <input type="text" id="searchInput" placeholder="搜索知识点、公式、练习..." oninput="doSearch()">
+      <button class="search-close" onclick="cS()">✕</button>
+    </div>
+    <div class="search-results" id="searchResults"></div>
+  </div>
+</div>
+
+<div class="side-progress" id="sideProgress"></div>
+<div class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</div>
+
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-box"><h4>⚠️ 重置所有进度</h4><p>这将清除所有练习打卡和阶段完成状态，此操作不可撤销。</p>
+    <div class="confirm-btns"><button class="btn-cancel" onclick="cC()">取消</button><button class="btn-danger" onclick="rA()">确认重置</button></div></div>
+</div>
+
+<div class="help-overlay" id="helpOverlay">
+  <div class="help-box"><h4>⌨ 键盘快捷键</h4>
+    <div class="kbd-row"><span class="kbd-key">Ctrl+K</span><span class="kbd-desc">打开搜索</span></div>
+    <div class="kbd-row"><span class="kbd-key">Esc</span><span class="kbd-desc">关闭弹窗 / 收起知识点卡片</span></div>
+    <div style="text-align:center;margin-top:14px"><span style="font-size:0.72rem;color:var(--text-muted)">按 Esc 关闭</span></div></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<header class="hero">
+  <div class="hero-content">
+    <p style="font-size:0.8rem;color:var(--accent-blue);font-weight:700;margin-bottom:8px;letter-spacing:0.1em">MACHINE LEARNING · G5 BALANCED</p>
+    <h1>机器学习<br>14周系统学习方案 v2</h1>
+    <p>均衡是最好的学习策略——每个阶段融合公式推导+可视化理解+动手实践三种学习方式</p>
+    <div class="hero-stats">
+      <div class="hero-stat"><span class="num" data-count="14">0</span><div class="lbl">学习周数</div></div>
+      <div class="hero-stat"><span class="num" data-count="7">0</span><div class="lbl">学习阶段</div></div>
+      <div class="hero-stat"><span class="num" data-count="18">0</span><div class="lbl">实操练习</div></div>
+      <div class="hero-stat"><span class="num" data-count="25">0</span><div class="lbl">知识要点</div></div>
+    </div>
+  </div>
+</header>
+
+<section class="section" id="roadmap"><div class="section-header"><span class="section-tag">ROADMAP</span><h2>🗺 总体学习路线图</h2><p class="subtitle">7阶段 · 14周 · G5全面平衡型</p></div><div class="roadmap-container" id="roadmapContainer"></div></section>
+
+<section class="section" id="graph"><div class="section-header"><span class="section-tag">KNOWLEDGE GRAPH</span><h2>🔬 机器学习知识图谱</h2><p class="subtitle">点击节点跳转到对应阶段或知识点</p></div>
+  <div class="graph-section"><canvas class="graph-canvas" id="graphCanvas" width="960" height="550"></canvas><div class="graph-legend" id="graphLegend"></div></div></section>
+
+<section class="section" id="drawing"><div class="section-header"><span class="section-tag">LEARNING METHOD</span><h2>📊 三层学习法（G5 平衡型）</h2><p class="subtitle">直觉理解→公式推导→代码验证 · 三种学习方式融合贯穿全程</p></div>
+  <div class="drawing-method" id="drawingMethod"></div>
+  <div class="draw-levels-title">📐 必画核心图解清单</div>
+  <div class="draw-level-list" id="drawingLevels"></div>
+  <div class="draw-levels-title">🏷 知识标注体系</div>
+  <div class="math-tags-grid" id="mathTags"></div></section>
+
+<section class="section" id="knowledge"><div class="section-header"><span class="section-tag">KNOWLEDGE POINTS</span><h2>📎 知识点详解</h2><p class="subtitle">共 <strong>25</strong> 个核心知识点 · 点击卡片展开详情</p></div>
+  <div class="knowledge-filter-bar" id="knowledgeFilterBar"></div><div class="knowledge-count" id="knowledgeCount">共 <strong>25</strong> 个知识点</div>
+  <div class="knowledge-grid" id="knowledgeContainer"></div></section>
+
+<section class="section" id="phases"><div class="section-header"><span class="section-tag">PHASE DETAILS</span><h2>📑 阶段详情</h2><p class="subtitle">7个阶段完整展开 · 点击跳转到对应知识点</p></div><div class="phase-container" id="phaseContainer"></div></section>
+
+<section class="section" id="formulas"><div class="section-header"><span class="section-tag">FORMULA REFERENCE</span><h2>📋 核心公式速查表</h2><p class="subtitle">3张速查表 · 线性与优化/非线性与集成/深度学习基础</p></div>
+  <div class="formula-tabs" id="formulaTabs"></div><div id="formulaPanels"></div></section>
+
+<section class="section" id="exercises"><div class="section-header"><span class="section-tag">PRACTICE</span><h2>✏ 分层练习</h2><p class="subtitle">基础5题 · 进阶6题 · 挑战4题 · 项目3题</p></div>
+  <div class="exercise-filters" id="exerciseFilters"></div><div class="exercise-counter" id="exerciseCounter"></div><div class="exercise-list" id="exerciseList"></div></section>
+
+<section class="section" id="resources"><div class="section-header"><span class="section-tag">RESOURCES</span><h2>📚 学习资料</h2><p class="subtitle">教材 · 课程 · 实践 · 论文 · 共17个推荐资源</p></div><div class="resource-list" id="resourceList"></div></section>
+
+<section class="section" id="tracker"><div class="section-header"><span class="section-tag">PROGRESS</span><h2>✅ 进度追踪</h2><p class="subtitle">7阶段 · 勾选完成 · 进度自动保存</p></div>
+  <div class="tracker-list" id="trackerList"></div><div class="tracker-total" id="trackerTotal">0/7</div>
+  <div style="text-align:center;margin-top:16px"><button style="background:var(--bg-elevated);border:1px solid var(--border-subtle);color:var(--text-secondary);padding:8px 20px;border-radius:50px;font-size:0.75rem;cursor:pointer;font-weight:600;transition:all var(--transition-fast)" onclick="oC()">🔄 重置数据</button></div></section>
+
+<div class="mobile-bottom-nav" id="mobileBottomNav">
+  <div class="mbn-item" onclick="document.getElementById('roadmap').scrollIntoView({behavior:'smooth'})"><span class="mbn-icon">🗺</span>路线图</div>
+  <div class="mbn-item" onclick="document.getElementById('knowledge').scrollIntoView({behavior:'smooth'})"><span class="mbn-icon">📎</span>知识点</div>
+  <div class="mbn-item" onclick="document.getElementById('exercises').scrollIntoView({behavior:'smooth'})"><span class="mbn-icon">✏</span>练习</div>
+  <div class="mbn-item" onclick="document.getElementById('tracker').scrollIntoView({behavior:'smooth'})"><span class="mbn-icon">✅</span>进度</div>
+</div>
+
+<footer class="footer">
+  ML · 7阶段14周 v2 — G5全面平衡型 · learning-plan-generator v2 · 2026
+</footer>
+
+<script>
+(function(){
+var cv=document.getElementById('bg-canvas'),ctx=cv.getContext('2d'),pts=[];
+function rs(){cv.width=window.innerWidth;cv.height=window.innerHeight}
+rs();window.addEventListener('resize',rs);
+var colors=['rgba(79,195,247,','rgba(38,198,218,','rgba(102,187,106,','rgba(255,167,38,'];
+for(var i=0;i<60;i++)pts.push({x:Math.random()*window.innerWidth,y:Math.random()*window.innerHeight,r:Math.random()*1.5+0.5,vx:(Math.random()-0.5)*0.3,vy:(Math.random()-0.5)*0.3,a:Math.random()*0.3+0.1,c:Math.floor(Math.random()*4)});
+function draw(){ctx.clearRect(0,0,cv.width,cv.height);
+  pts.forEach(function(p,i){
+    p.x+=p.vx;p.y+=p.vy;if(p.x<0)p.x=cv.width;if(p.x>cv.width)p.x=0;if(p.y<0)p.y=cv.height;if(p.y>cv.height)p.y=0;
+    ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,6.28);ctx.fillStyle=colors[p.c]+p.a+')';ctx.fill();
+    for(var j=i+1;j<pts.length;j++){var d=Math.hypot(p.x-pts[j].x,p.y-pts[j].y);
+      if(d<100){ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(pts[j].x,pts[j].y);ctx.strokeStyle='rgba(79,195,247,'+(0.05*(1-d/100))+')';ctx.lineWidth=0.5;ctx.stroke()}}
+  });requestAnimationFrame(draw);}
+draw();
+})();
+</script>
+
+<script>
+var PHASES=[
+  {id:'p1',week:'第1-2周',title:'数学基础奠基',sub:'线性代数·概率统计·微积分·NumPy',color:'#4fc3f7',icon:'🧮',cls:'c1',
+   skills:[{n:'SVD&PCA',t:'p1_1'},{n:'贝叶斯&MLE',t:'p1_2'},{n:'链式法则',t:'p1_3'},{n:'NumPy',t:'p1_4'}],
+   codes:['SVD分解验证','PCA手写实现'],drawings:['PCA降维几何','贝叶斯更新']},
+  {id:'p2',week:'第3-4周',title:'机器学习入门',sub:'梯度下降·偏差方差·过拟合·模型评估',color:'#66bb6a',icon:'🎯',cls:'c2',
+   skills:[{n:'梯度下降',t:'p2_1'},{n:'偏差-方差',t:'p2_2'},{n:'过拟合诊断',t:'p2_3'},{n:'ML流水线',t:'p2_4'}],
+   codes:['梯度下降实现','偏差方差实验'],drawings:['学习率对比','偏差方差曲线']},
+  {id:'p3',week:'第5-6周',title:'线性模型',sub:'线性回归·逻辑回归·正则化·GLM',color:'#ffa726',icon:'📈',cls:'c3',
+   skills:[{n:'线性回归',t:'p3_1'},{n:'逻辑回归',t:'p3_2'},{n:'正则化',t:'p3_3'},{n:'sklearn实践',t:'p3_4'}],
+   codes:['OLS/Ridge/Lasso对比'],drawings:['L1vsL2几何','Sigmoid决策边界']},
+  {id:'p4',week:'第7-8周',title:'非线性模型',sub:'SVM·核方法·决策树·贝叶斯',color:'#ab47bc',icon:'🔮',cls:'c4',
+   skills:[{n:'SVM推导',t:'p4_1'},{n:'核技巧',t:'p4_2'},{n:'决策树',t:'p4_3'},{n:'朴素贝叶斯',t:'p4_4'}],
+   codes:['SVM核对比','决策树可视化'],drawings:['SVM最大间隔','决策树分裂']},
+  {id:'p5',week:'第9-10周',title:'集成学习',sub:'Bagging·Boosting·随机森林·XGBoost',color:'#ef5350',icon:'🌲',cls:'c5',
+   skills:[{n:'Bagging',t:'p5_1'},{n:'Boosting',t:'p5_2'},{n:'XGBoost',t:'p5_3'},{n:'集成对比',t:'p5_4'}],
+   codes:['RF/Ada/GBDT/XGB对比'],drawings:['BaggingvsBoosting','随机森林']},
+  {id:'p6',week:'第11-12周',title:'实战整合',sub:'特征工程·交叉验证·超参调优·Kaggle',color:'#ec407a',icon:'🔧',cls:'c6',
+   skills:[{n:'特征工程',t:'p6_1'},{n:'交叉验证',t:'p6_2'},{n:'超参调优',t:'p6_3'},{n:'模型选择',t:'p6_4'}],
+   codes:['ML流水线','Optuna贝叶斯优化'],drawings:['k-fold CV','调优效率对比']},
+  {id:'p7',week:'第13-14周',title:'深度学习入门',sub:'神经网络·反向传播·CNN/RNN·Transformer',color:'#26c6da',icon:'🧠',cls:'c7',
+   skills:[{n:'NN基础',t:'p7_1'},{n:'反向传播',t:'p7_2'},{n:'架构对比',t:'p7_3'},{n:'PyTorch',t:'p7_4'}],
+   codes:['SimpleMLP','手写BP'],drawings:['ML→DL演进','BP计算图']}
+];
+var KPS=[
+  {id:'p1_1',n:'SVD与特征分解',p:'p1',d:'向量空间→矩阵乘法→特征值与特征向量。PCA推导中协方差矩阵的特征分解 Σ=VΛVᵀ。几何直觉：SVD=旋转×缩放×旋转。任意矩阵可分解为UΣVᵀ。',
+   f:'\\Sigma=\\frac{1}{n}X^{\\top}X=V\\Lambda V^{\\top}',s:'SVD是ML数据降维的数学核心——理解SVD=理解PCA=理解数据压缩的本质。',
+   diagram:'<svg viewBox="0 0 440 130" xmlns="http://www.w3.org/2000/svg"><text x="10" y="35" font-size="22" font-weight="bold" fill="#66bb6a">A</text><text x="50" y="35" font-size="11" fill="#a0b8d8">m×n</text><text x="110" y="35" font-size="11" fill="#a0b8d8">=</text><rect x="135" y="8" width="40" height="40" rx="3" fill="rgba(79,195,247,.15)" stroke="#4fc3f7"/><text x="155" y="33" font-size="14" font-weight="bold" fill="#4fc3f7" text-anchor="middle">U</text><text x="155" y="60" font-size="10" fill="#a0b8d8" text-anchor="middle">m×m</text><text x="195" y="35" font-size="18" fill="#ffa726">×</text><rect x="210" y="15" width="30" height="25" rx="2" fill="rgba(255,167,38,.15)" stroke="#ffa726"/><text x="225" y="32" font-size="12" fill="#ffa726" text-anchor="middle">Σ</text><text x="260" y="35" font-size="18" fill="#ab47bc">×</text><rect x="280" y="8" width="40" height="40" rx="3" fill="rgba(171,71,188,.15)" stroke="#ab47bc"/><text x="300" y="33" font-size="14" font-weight="bold" fill="#ab47bc" text-anchor="middle">Vᵀ</text><text x="300" y="60" font-size="10" fill="#a0b8d8" text-anchor="middle">n×n</text><text x="350" y="95" font-size="10" fill="#688098">旋转 × 缩放 × 旋转</text><text x="350" y="112" font-size="10" fill="#688098">→ PCA = 取前k列U</text></svg>'
+  },
+  {id:'p1_2',n:'贝叶斯与MLE/MAP',p:'p1',d:'贝叶斯定理 P(θ|D)∝P(D|θ)P(θ)，MLE vs MAP的对立统一。推导"为什么MSE损失等价于高斯误差的极大似然"——正态分布对数→MSE。',
+   f:'P(\\theta|D)=\\frac{P(D|\\theta)P(\\theta)}{P(D)}',s:'后验∝似然×先验——你看到的数据+你已有的信念=你的新信念。',
+   diagram:'<svg viewBox="0 0 420 150" xmlns="http://www.w3.org/2000/svg"><defs><filter id="blur1"><feGaussianBlur stdDeviation="1.5"/></filter></defs><text x="8" y="22" font-size="10" fill="#66bb6a" font-weight="bold">先验 P(θ)</text><path d="M30,110 Q60,110 80,100 Q110,80 130,80 Q160,80 180,100 Q200,110 230,110" fill="none" stroke="#66bb6a" stroke-width="2" filter="url(#blur1)"/><path d="M30,110 Q60,110 80,100 Q110,80 130,80 Q160,80 180,100 Q200,110 230,110" fill="none" stroke="#66bb6a" stroke-width="1.5"/><text x="250" y="35" font-size="10" fill="#ffa726">×</text><text x="260" y="22" font-size="10" fill="#ffa726" font-weight="bold">似然 P(D|θ)</text><path d="M260,110 Q280,100 300,70 Q315,45 330,45 Q345,45 360,70 Q380,100 400,110" fill="none" stroke="#ffa726" stroke-width="1.5"/><text x="40" y="145" font-size="10" fill="#4fc3f7">↓</text><text x="8" y="145" font-size="10" fill="#4fc3f7" font-weight="bold">后验 P(θ|D)</text><path d="M30,130 Q60,130 80,120 Q110,100 130,100 Q160,100 180,120 Q200,130 230,130" fill="none" stroke="#4fc3f7" stroke-width="2"/><path d="M260,130 Q280,120 300,90 Q315,65 330,65 Q345,65 360,90 Q380,120 400,130" fill="none" stroke="#4fc3f7" stroke-width="1" opacity="0.4"/><circle cx="280" cy="85" r="2" fill="#4fc3f7"/><text x="288" y="88" font-size="9" fill="#4fc3f7">MLE</text><circle cx="140" cy="106" r="2" fill="#26c6da"/><text x="148" y="109" font-size="9" fill="#26c6da">MAP</text></svg>'},
+  {id:'p1_3',n:'链式法则与Jacobi矩阵',p:'p1',d:'链式法则 ∂f/∂x=∂f/∂g·∂g/∂x 是反向传播的前身。Jacobian矩阵追踪维度变化。理解梯度→理解所有优化算法的核心。',
+   f:'\\frac{\\partial L}{\\partial x}=\\frac{\\partial L}{\\partial g}\\cdot\\frac{\\partial g}{\\partial x}',s:'链式法则=反向传播的数学前身——一个公式串联ML的整个优化理论体系。',
+   diagram:'<svg viewBox="0 0 420 145" xmlns="http://www.w3.org/2000/svg"><rect x="30" y="50" width="50" height="30" rx="6" fill="rgba(79,195,247,.15)" stroke="#4fc3f7" stroke-width="1.5"/><text x="55" y="70" font-size="12" fill="#4fc3f7" text-anchor="middle" font-weight="bold">x</text><text x="55" y="100" font-size="9" fill="#a0b8d8" text-anchor="middle">输入</text><line x1="80" y1="65" x2="138" y2="65" stroke="#26c6da" stroke-width="2" marker-end="url(#arrowBlue)"/><text x="109" y="58" font-size="9" fill="#26c6da" text-anchor="middle">∂g/∂x</text><rect x="140" y="50" width="50" height="30" rx="6" fill="rgba(255,167,38,.15)" stroke="#ffa726" stroke-width="1.5"/><text x="165" y="70" font-size="12" fill="#ffa726" text-anchor="middle" font-weight="bold">g</text><text x="165" y="100" font-size="9" fill="#a0b8d8" text-anchor="middle">中间</text><line x1="190" y1="65" x2="248" y2="65" stroke="#26c6da" stroke-width="2" marker-end="url(#arrowBlue)"/><text x="219" y="58" font-size="9" fill="#26c6da" text-anchor="middle">∂L/∂g</text><rect x="250" y="50" width="50" height="30" rx="6" fill="rgba(239,83,80,.15)" stroke="#ef5350" stroke-width="1.5"/><text x="275" y="70" font-size="12" fill="#ef5350" text-anchor="middle" font-weight="bold">L</text><text x="275" y="100" font-size="9" fill="#a0b8d8" text-anchor="middle">损失</text><path d="M55,85 Q165,125 275,85" fill="none" stroke="#ab47bc" stroke-width="1.5" stroke-dasharray="6,3" marker-end="url(#arrowPurple)"/><text x="165" y="140" font-size="10" fill="#ab47bc" text-anchor="middle" font-weight="bold">∂L/∂x = ∂L/∂g · ∂g/∂x  (链式法则)</text><defs><marker id="arrowBlue" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#26c6da"/></marker><marker id="arrowPurple" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#ab47bc"/></marker></defs></svg>'},
+  {id:'p1_4',n:'NumPy与ML数学工具',p:'p1',d:'NumPy矩阵运算、广播机制、向量化计算。SVD/linalg模块应用。数学概念代码化是ML实践的必须第一步。',
+   f:'U,S,Vt={\\rm linalg.svd}(A)',s:'从纸上公式到代码实现的第一步——NumPy是ML从业者的基本工具语言。'},
+  {id:'p2_1',n:'梯度下降全推导',p:'p2',d:'从一阶泰勒展开f(θ+Δθ)≈f(θ)+∇fᵀΔθ→令Δθ=−α∇f→θ:=θ−α∇J(θ)。对比BGD/SGD/Mini-batch的方差-收敛速度权衡。',
+   f:'\\theta_{t+1}=\\theta_t-\\alpha\\nabla J(\\theta_t)',s:'梯度即方向——沿负梯度走一步，重复直至收敛。唯一超参α控制步长。',
+   diagram:'<svg viewBox="0 0 400 140" xmlns="http://www.w3.org/2000/svg"><path d="M30,110 Q120,30 220,90 Q320,20 370,60" fill="none" stroke="#6080a8" stroke-width="2"/><circle cx="70" cy="85" r="6" fill="#4fc3f7"/><circle cx="105" cy="55" r="5" fill="#4fc3f7" opacity=".8"/><circle cx="135" cy="38" r="4" fill="#26c6da" opacity=".6"/><text x="60" y="105" font-size="9" fill="#4fc3f7">θ₀</text><text x="130" y="22" font-size="9" fill="#26c6da">θ*</text><text x="230" y="120" font-size="9" fill="#a0b8d8">α适中→收敛</text><text x="230" y="133" font-size="9" fill="#ef5350">α太大→震荡发散</text></svg>'},
+  {id:'p2_2',n:'偏差-方差分解',p:'p2',d:'E[(y−f̂)²]=Bias²+Variance+σ²。理解"复杂模型=低偏差高方差，简单模型=高偏差低方差"是ML最重要的诊断直觉。',
+   f:'E[(y-\\hat{f})^{2}]={\\rm Bias}^{2}+{\\rm Var}+\\sigma^{2}',s:'ML最重要的恒等式——误差=偏差²+方差+噪声。了解三者关系=知道该增加还是减少模型复杂度。',
+   diagram:'<svg viewBox="0 0 400 130" xmlns="http://www.w3.org/2000/svg"><text x="10" y="18" font-size="10" fill="#688098">误差</text><path d="M50,100 Q180,20 350,15" fill="none" stroke="#eef5ff" stroke-width="2"/><text x="340" y="10" font-size="9" fill="#eef5ff">Total</text><path d="M50,85 L350,25" fill="none" stroke="#4fc3f7" stroke-width="1.5" stroke-dasharray="5,3"/><text x="30" y="80" font-size="9" fill="#4fc3f7">Bias²</text><path d="M50,20 Q180,35 350,85" fill="none" stroke="#ef5350" stroke-width="1.5" stroke-dasharray="5,3"/><text x="340" y="95" font-size="9" fill="#ef5350">Var</text><line x1="50" y1="100" x2="50" y2="55" stroke="#ffa726" stroke-width="1" stroke-dasharray="3,3"/><text x="15" y="60" font-size="8" fill="#ffa726">噪声</text><line x1="200" y1="100" x2="200" y2="48" stroke="#26c6da" stroke-width="1"/><text x="195" y="115" font-size="9" fill="#26c6da">最优复杂度 ↑</text></svg>'},
+  {id:'p2_3',n:'过拟合诊断与防御',p:'p2',d:'学习曲线(train/cv gap)→诊断过拟合。正则化(L1/L2)、早停(Early Stopping)、数据增强、Dropout——四种武器对比。',
+   f:'J_{reg}(\\theta)={\\rm MSE}(\\theta)+\\lambda R(\\theta)',s:'过拟合不是bug而是特征——复杂模型天生过拟合，关键是用正则化驯服它。',
+   diagram:'<svg viewBox="0 0 420 150" xmlns="http://www.w3.org/2000/svg"><text x="15" y="15" font-size="9" fill="#ef5350" font-weight="bold">欠拟合</text><line x1="40" y1="120" x2="100" y2="40" stroke="#ef5350" stroke-width="2"/><circle cx="50" cy="100" r="2.5" fill="#ef5350"/><circle cx="70" cy="80" r="2.5" fill="#ef5350"/><circle cx="85" cy="55" r="2.5" fill="#ef5350"/><text x="75" y="20" font-size="9" fill="#ef5350" text-anchor="middle">偏差高</text><line x1="115" y1="135" x2="115" y2="5" stroke="#6080a8" stroke-width="0.5" stroke-dasharray="2,4"/><text x="155" y="15" font-size="9" fill="#66bb6a" font-weight="bold">正常拟合</text><path d="M140,115 Q160,75 180,65 Q200,55 220,65 Q240,75 255,60" fill="none" stroke="#66bb6a" stroke-width="2"/><circle cx="155" cy="100" r="2.5" fill="#66bb6a"/><circle cx="175" cy="70" r="2.5" fill="#66bb6a"/><circle cx="195" cy="62" r="2.5" fill="#66bb6a"/><circle cx="215" cy="70" r="2.5" fill="#66bb6a"/><circle cx="235" cy="58" r="2.5" fill="#66bb6a"/><text x="200" y="20" font-size="9" fill="#66bb6a" text-anchor="middle">泛化好</text><line x1="270" y1="135" x2="270" y2="5" stroke="#6080a8" stroke-width="0.5" stroke-dasharray="2,4"/><text x="310" y="15" font-size="9" fill="#ffa726" font-weight="bold">过拟合</text><path d="M300,110 Q315,85 330,90 Q345,100 350,50 Q355,20 365,60 Q375,90 385,30 Q395,80 405,70" fill="none" stroke="#ffa726" stroke-width="2"/><circle cx="310" cy="100" r="2.5" fill="#ffa726"/><circle cx="330" cy="88" r="2.5" fill="#ffa726"/><circle cx="350" cy="55" r="2.5" fill="#ffa726"/><circle cx="365" cy="65" r="2.5" fill="#ffa726"/><circle cx="385" cy="35" r="2.5" fill="#ffa726"/><text x="355" y="20" font-size="9" fill="#ffa726" text-anchor="middle">方差高</text><text x="200" y="148" font-size="9" fill="#a0b8d8" text-anchor="middle">四种武器: L1/L2正则化 | 早停 | 数据增强 | Dropout</text></svg>'},
+  {id:'p2_4',n:'ML流水线入门',p:'p2',d:'数据加载→EDA探索→train/test划分→模型训练→评估(Accuracy/F1/RMSE)→可视化预测。第一个端到端实践。',
+   f:'{\\rm Accuracy}=\\frac{TP+TN}{TP+TN+FP+FN}',s:'纸上得来终觉浅——从读到第一个准确率分数开始，ML才真正"活"了起来。'},
+  {id:'p3_1',n:'线性回归四种视角',p:'p3',d:'代数导(梯度=0→正规方程)、几何导(y在col(X)投影)、概率导(高斯MLE→MSE)、优化导(凸函数全局最优)。理解四条=真正掌握。',
+   f:'\\hat{\\theta}=(X^{\\top}X)^{-1}X^{\\top}y',s:'几何意义上，OLS解就是y在X的列空间上的投影——\\hat{y}=Hy=XX⁺y。',
+   diagram:'<svg viewBox="0 0 420 150" xmlns="http://www.w3.org/2000/svg"><polygon points="20,140 20,20 200,20 200,140" fill="rgba(79,195,247,.06)" stroke="#4fc3f7" stroke-width="1"/><text x="110" y="35" font-size="10" fill="#4fc3f7" text-anchor="middle">col(X)</text><line x1="20" y1="130" x2="180" y2="30" stroke="#4fc3f7" stroke-width="1" opacity=".4"/><line x1="25" y1="135" x2="170" y2="160" stroke="#4fc3f7" stroke-width="1" opacity=".4"/><circle cx="155" cy="52" r="2" fill="#4fc3f7"/><text x="162" y="52" font-size="9" fill="#4fc3f7">ŷ</text><circle cx="158" cy="130" r="2" fill="#4fc3f7"/><text x="165" y="133" font-size="9" fill="#4fc3f7">Hy</text><line x1="155" y1="52" x2="240" y2="110" stroke="#ffa726" stroke-width="2"/><circle cx="240" cy="110" r="3" fill="#ffa726"/><text x="250" y="110" font-size="10" fill="#ffa726" font-weight="bold">y</text><line x1="155" y1="52" x2="240" y2="110" stroke="#ef5350" stroke-width="1.5" stroke-dasharray="5,3"/><text x="200" y="70" font-size="9" fill="#ef5350">e=y-ŷ</text><text x="200" y="148" font-size="9" fill="#26c6da" text-anchor="middle">OLS=最小化‖e‖²=垂直投影到col(X)</text></svg>'},
+  {id:'p3_2',n:'逻辑回归与GLM',p:'p3',d:'伯努利→指数族→规范链接logit→Sigmoid。交叉熵=负对数似然。Sigmoid不是"设计出来的"而是"指数族推导出来的"。',
+   f:'h_\\theta(x)=\\frac{1}{1+e^{-\\theta^\\top x}}',s:'逻辑回归的本质是广义线性模型——选择伯努利=选择Sigmoid=选择交叉熵。三者等价。',
+   diagram:'<svg viewBox="0 0 420 150" xmlns="http://www.w3.org/2000/svg"><line x1="40" y1="110" x2="40" y2="10" stroke="#6080a8" stroke-width="0.5"/><line x1="40" y1="60" x2="380" y2="60" stroke="#6080a8" stroke-width="0.5"/><text x="15" y="55" font-size="9" fill="#a0b8d8">1</text><text x="15" y="115" font-size="9" fill="#a0b8d8">0</text><path d="M42,105 Q100,100 160,85 Q220,55 280,20 Q320,6 340,5" fill="none" stroke="#ffa726" stroke-width="2.5"/><rect x="190" y="10" width="140" height="45" fill="rgba(102,187,106,.1)" stroke="#66bb6a" stroke-width="1" rx="4" opacity=".7"/><text x="260" y="35" font-size="9" fill="#66bb6a" text-anchor="middle">P(y=1|x) → 1</text><rect x="45" y="115" width="140" height="35" fill="rgba(239,83,80,.1)" stroke="#ef5350" stroke-width="1" rx="4" opacity=".7"/><text x="115" y="137" font-size="9" fill="#ef5350" text-anchor="middle">P(y=0|x) → 1</text><line x1="250" y1="110" x2="250" y2="5" stroke="#26c6da" stroke-width="1.5" stroke-dasharray="4,4"/><text x="255" y="100" font-size="9" fill="#26c6da">θᵀx=0</text><circle cx="250" cy="60" r="2.5" fill="#26c6da"/><text x="340" y="80" font-size="9" fill="#a0b8d8">决策边界→</text><text x="200" y="148" font-size="9" fill="#ab47bc" text-anchor="middle">伯努利分布 → Sigmoid(规范链接) → 交叉熵</text></svg>'},
+  {id:'p3_3',n:'正则化贝叶斯解释',p:'p3',d:'高斯先验→L2(Ridge)→收缩但不稀疏。拉普拉斯先验→L1(Lasso)→菱形约束→坐标轴交点→稀疏解。',
+   f:'J_{L1}={\\rm MSE}+\\lambda\\Vert\\theta\\Vert_1,\\; \\hat{\\theta}_{Ridge}=(X^{\\top}X+\\lambda I)^{-1}X^{\\top}y',s:'L1产生稀疏解的几何原因：菱形约束的"尖角"让等高线在坐标轴上相切。',
+   diagram:'<svg viewBox="0 0 400 150" xmlns="http://www.w3.org/2000/svg"><text x="8" y="20" font-size="10" fill="#ef5350" font-weight="bold">L1 (Lasso)</text><rect x="130" y="5" width="130" height="70" fill="rgba(255,255,255,.02)" stroke="#6080a8"/><polygon points="195,10 260,45 195,75 130,45" fill="none" stroke="#ef5350" stroke-width="2"/><circle cx="195" cy="45" r="22" fill="none" stroke="#4fc3f7" stroke-width="1" opacity=".6"/><circle cx="195" cy="45" r="2" fill="#26c6da"/><text x="195" y="92" font-size="8" fill="#26c6da" text-anchor="middle">稀疏解!</text><text x="8" y="115" font-size="10" fill="#4fc3f7" font-weight="bold">L2 (Ridge)</text><rect x="130" y="100" width="130" height="45" fill="rgba(255,255,255,.02)" stroke="#6080a8"/><circle cx="195" cy="122" r="20" fill="none" stroke="#4fc3f7" stroke-width="2"/><circle cx="205" cy="118" r="2" fill="#4fc3f7"/><text x="195" y="155" font-size="8" fill="#4fc3f7" text-anchor="middle">非稀疏收缩</text></svg>'},
+  {id:'p3_4',n:'OLS/Ridge/Lasso对比',p:'p3',d:'同一数据集上对比三种模型的系数路径。λ变化→系数被压缩/消失。交叉验证选最优λ。',
+   f:'R^{2}=1-\\frac{SS_{res}}{SS_{tot}}',s:'sklearn.linear_model一行切换——但理解三者的贝叶斯区别才是真正掌握。',rel:['p1_2','p3_3']},
+  {id:'p4_1',n:'SVM推导全链路',p:'p4',d:'硬间隔→拉格朗日→对偶→核技巧→软间隔。支持向量本质：只有α_i>0的样本影响决策边界。Slater条件保证强对偶。',
+   f:'\\max\\sum\\alpha_i-\\frac12\\sum\\alpha_i\\alpha_j y_i y_j K(x_i,x_j)',s:'SVM最妙的是——原始空间不可分→映射高维→只需求内积→核函数在低维算。',
+   diagram:'<svg viewBox="0 0 400 130" xmlns="http://www.w3.org/2000/svg"><circle cx="80" cy="40" r="5" fill="#4fc3f7"/><circle cx="120" cy="30" r="5" fill="#4fc3f7"/><circle cx="60" cy="80" r="5" fill="#4fc3f7"/><circle cx="320" cy="40" r="5" fill="#ef5350"/><circle cx="340" cy="80" r="5" fill="#ef5350"/><circle cx="300" cy="90" r="5" fill="#ef5350"/><line x1="200" y1="20" x2="200" y2="110" stroke="#26c6da" stroke-width="3"/><line x1="170" y1="20" x2="170" y2="110" stroke="#26c6da" stroke-width="1" stroke-dasharray="4,4" opacity=".5"/><line x1="230" y1="20" x2="230" y2="110" stroke="#26c6da" stroke-width="1" stroke-dasharray="4,4" opacity=".5"/><circle cx="140" cy="65" r="5" fill="#4fc3f7" stroke="#26c6da" stroke-width="2"/><circle cx="260" cy="55" r="5" fill="#ef5350" stroke="#26c6da" stroke-width="2"/><text x="140" y="125" font-size="9" fill="#26c6da" text-anchor="middle">支持向量 (α&gt;0)</text><text x="290" y="125" font-size="9" fill="#a0b8d8">最大间隔</text></svg>'},
+  {id:'p4_2',n:'核方法与Mercer定理',p:'p4',d:'K(x,z)=⟨φ(x),φ(z)⟩→在原始空间计算内积=高维线性分类。RBF核exp(-γ‖x-z‖²)展开→无穷维！Mercer：Gram半正定⇔合法核。',
+   f:'K(x,z)=\\exp(-\\gamma\\Vert x-z\\Vert^{2})',s:'RBF核=无穷维特征空间——你完全不需要显式计算φ(x)，只在低维算内积。',
+   diagram:'<svg viewBox="0 0 420 150" xmlns="http://www.w3.org/2000/svg"><rect x="15" y="10" width="120" height="110" rx="4" fill="rgba(255,255,255,.015)" stroke="#6080a8"/><text x="75" y="30" font-size="9" fill="#a0b8d8" text-anchor="middle">原始空间(2D)</text><circle cx="55" cy="60" r="4" fill="#4fc3f7"/><circle cx="85" cy="55" r="4" fill="#4fc3f7"/><circle cx="70" cy="85" r="4" fill="#4fc3f7"/><circle cx="110" cy="85" r="4" fill="#ef5350"/><circle cx="95" cy="100" r="4" fill="#ef5350"/><circle cx="50" cy="100" r="4" fill="#ef5350"/><text x="75" y="130" font-size="8" fill="#ef5350" text-anchor="middle">非线性可分!</text><text x="145" y="80" font-size="22" fill="#ab47bc" font-weight="bold">φ</text><text x="155" y="95" font-size="9" fill="#ab47bc">→</text><rect x="175" y="10" width="160" height="110" rx="4" fill="rgba(255,255,255,.015)" stroke="#6080a8"/><text x="255" y="30" font-size="9" fill="#a0b8d8" text-anchor="middle">高维特征空间(3D+)</text><circle cx="220" cy="50" r="4" fill="#4fc3f7"/><circle cx="250" cy="45" r="4" fill="#4fc3f7"/><circle cx="280" cy="50" r="4" fill="#4fc3f7"/><circle cx="260" cy="80" r="4" fill="#ef5350"/><circle cx="240" cy="105" r="4" fill="#ef5350"/><line x1="210" y1="35" x2="295" y2="110" stroke="#26c6da" stroke-width="2"/><text x="255" y="125" font-size="8" fill="#66bb6a" text-anchor="middle">线性可分!</text><text x="70" y="148" font-size="9" fill="#ffa726" text-anchor="middle">K(x,z)=⟨φ(x),φ(z)⟩</text><text x="330" y="148" font-size="9" fill="#26c6da" text-anchor="middle">无需显式计算φ!</text></svg>'},
+  {id:'p4_3',n:'决策树与信息论',p:'p4',d:'信息熵H=−Σp_k log₂p_k→信息增益→选IG最大特征分裂。CART用基尼系数G=1−Σp_k²替代。贪心最优解=NP-hard的近似。',
+   f:'H=-\\sum p_k\\log_2 p_k,\\; IG(A)=H(D)-\\sum\\frac{|D_v|}{|D|}H(D_v)',s:'决策树在每一步都做局部最优选择——贪心，但总体能产生可解释性极强的规则。',
+   diagram:'<svg viewBox="0 0 420 150" xmlns="http://www.w3.org/2000/svg"><rect x="175" y="6" width="70" height="24" rx="6" fill="rgba(79,195,247,.12)" stroke="#4fc3f7" stroke-width="1.2"/><text x="210" y="23" font-size="10" fill="#4fc3f7" text-anchor="middle" font-weight="bold">H=0.97</text><line x1="210" y1="30" x2="145" y2="55" stroke="#6080a8" stroke-width="1"/><line x1="210" y1="30" x2="275" y2="55" stroke="#6080a8" stroke-width="1"/><rect x="100" y="55" width="90" height="24" rx="6" fill="rgba(102,187,106,.12)" stroke="#66bb6a" stroke-width="1.2"/><text x="145" y="72" font-size="9" fill="#66bb6a" text-anchor="middle">H=0.0</text><rect x="230" y="55" width="90" height="24" rx="6" fill="rgba(255,167,38,.12)" stroke="#ffa726" stroke-width="1.2"/><text x="275" y="72" font-size="9" fill="#ffa726" text-anchor="middle">H=0.72</text><line x1="145" y1="79" x2="145" y2="100" stroke="#6080a8" stroke-width="1"/><line x1="275" y1="79" x2="235" y2="100" stroke="#6080a8" stroke-width="1"/><line x1="275" y1="79" x2="315" y2="100" stroke="#6080a8" stroke-width="1"/><rect x="100" y="100" width="90" height="24" rx="6" fill="rgba(239,83,80,.12)" stroke="#ef5350" stroke-width="1.2" opacity=".8"/><text x="145" y="117" font-size="8" fill="#ef5350" text-anchor="middle">叶子: 类别A</text><rect x="190" y="100" width="90" height="24" rx="6" fill="rgba(171,71,188,.12)" stroke="#ab47bc" stroke-width="1.2" opacity=".8"/><text x="235" y="117" font-size="8" fill="#ab47bc" text-anchor="middle">叶子: 类别B</text><rect x="270" y="100" width="90" height="24" rx="6" fill="rgba(239,83,80,.12)" stroke="#ef5350" stroke-width="1.2" opacity=".8"/><text x="315" y="117" font-size="8" fill="#ef5350" text-anchor="middle">叶子: 类别A</text><text x="90" y="52" font-size="8" fill="#26c6da">IG最大</text><text x="340" y="52" font-size="8" fill="#a0b8d8">IG次大</text><text x="210" y="145" font-size="9" fill="#a0b8d8" text-anchor="middle">贪心策略: 每步选IG最大的特征进行分裂</text></svg>'},
+  {id:'p4_4',n:'朴素贝叶斯',p:'p4',d:'条件独立假设P(y|x)∝P(y)∏P(x_j|y)——几乎从不成立但效果奇好。分类只需后验排序正确，不需要概率值精确。',
+   f:'P(y|x)\\propto P(y)\\prod P(x_j|y)',s:'"朴素"的条件独立假设是错的——但贝叶斯魔法的关键是：排序对就行，概率值不重要。'},
+  {id:'p5_1',n:'Bagging数学分析',p:'p5',d:'并行独立训练B棵树→Var[f̄]=ρσ²+(1−ρ)σ²/B→B↑→Var↓但Bias不变→适合高方差低偏差模型(如深度树)。',
+   f:'{\\rm Var}[\\bar{f}_{Bag}]=\\rho\\sigma^{2}+\\frac{(1-\\rho)\\sigma^{2}}{B}',s:'Bagging=投票降低方差——越多不相关的模型参与投票，结果越稳定。'},
+  {id:'p5_2',n:'Boosting原理推导',p:'p5',d:'串行拟合残差→降低偏差但方差递增。F_m(x)=F_{m-1}(x)+η·h_m(x)。需要早停或l2正则化控制方差。',
+   f:'F_m(x)=F_{m-1}(x)+\\eta\\cdot h_m(x)',s:'Boosting=让每个新模型修正前一个的错误——偏差越来越低，但要警惕方差膨胀。',
+   diagram:'<svg viewBox="0 0 420 145" xmlns="http://www.w3.org/2000/svg"><rect x="15" y="15" width="90" height="50" rx="6" fill="rgba(79,195,247,.1)" stroke="#4fc3f7" stroke-width="1.2"/><text x="60" y="36" font-size="10" fill="#4fc3f7" text-anchor="middle" font-weight="bold">模型 F₀</text><text x="60" y="52" font-size="8" fill="#a0b8d8" text-anchor="middle">偏差大</text><line x1="105" y1="40" x2="132" y2="40" stroke="#26c6da" stroke-width="1.5" marker-end="url(#arB)"/><text x="118" y="32" font-size="7" fill="#26c6da">残差</text><rect x="135" y="15" width="90" height="50" rx="6" fill="rgba(255,167,38,.1)" stroke="#ffa726" stroke-width="1.2"/><text x="180" y="36" font-size="10" fill="#ffa726" text-anchor="middle" font-weight="bold">模型 F₁</text><text x="180" y="52" font-size="8" fill="#a0b8d8" text-anchor="middle">偏差↓</text><line x1="225" y1="40" x2="252" y2="40" stroke="#26c6da" stroke-width="1.5" marker-end="url(#arB)"/><text x="238" y="32" font-size="7" fill="#26c6da">残差</text><rect x="255" y="15" width="90" height="50" rx="6" fill="rgba(102,187,106,.1)" stroke="#66bb6a" stroke-width="1.2"/><text x="300" y="36" font-size="10" fill="#66bb6a" text-anchor="middle" font-weight="bold">模型 F₂</text><text x="300" y="52" font-size="8" fill="#a0b8d8" text-anchor="middle">偏差低!</text><line x1="345" y1="40" x2="330" y2="65" stroke="#6080a8" stroke-width="0.5"/><text x="210" y="95" font-size="10" fill="#4fc3f7" text-anchor="middle">F₁ = F₀ + η·h₁</text><text x="210" y="115" font-size="10" fill="#ffa726" text-anchor="middle">F₂ = F₁ + η·h₂</text><text x="300" y="80" font-size="8" fill="#ef5350">方差↑!</text><text x="210" y="140" font-size="9" fill="#ab47bc" text-anchor="middle">⚠ 需要早停 / L2正则化平衡偏差-方差</text><defs><marker id="arB" markerWidth="6" markerHeight="4" refX="5" refY="2" orient="auto"><polygon points="0 0, 6 2, 0 4" fill="#26c6da"/></marker></defs></svg>'},
+  {id:'p5_3',n:'XGBoost二阶推导',p:'p5',d:'加法模型→二阶泰勒展开→令∂L̂/∂w_j=0→w_j*=−Σg_i/(Σh_i+λ)叶子权重闭式解！这是GBDT→XGBoost的精髓进化。',
+   f:'w_j^{*}=-\\frac{\\sum g_i}{\\sum h_i+\\lambda}',s:'二阶泰勒展开=精确闭合解+内置正则化——XGBoost成为Kaggle之王的数学原因。',
+   diagram:'<svg viewBox="0 0 420 150" xmlns="http://www.w3.org/2000/svg"><rect x="15" y="8" width="175" height="55" rx="4" fill="rgba(79,195,247,.04)" stroke="#4fc3f7" stroke-width="1" stroke-dasharray="4,3"/><text x="102" y="28" font-size="9" fill="#4fc3f7" text-anchor="middle">GBDT (一阶)</text><text x="102" y="48" font-size="8" fill="#a0b8d8" text-anchor="middle">负梯度方向 ≈ 拟合残差</text><text x="200" y="42" font-size="14" fill="#26c6da" font-weight="bold">→</text><rect x="225" y="8" width="180" height="55" rx="4" fill="rgba(38,198,218,.06)" stroke="#26c6da" stroke-width="2"/><text x="315" y="28" font-size="9" fill="#26c6da" text-anchor="middle">XGBoost (二阶)</text><text x="315" y="48" font-size="8" fill="#a0b8d8" text-anchor="middle">牛顿方向 + 内置正则化</text><line x1="50" y1="75" x2="370" y2="75" stroke="#6080a8" stroke-width="0.5"/><text x="30" y="95" font-size="9" fill="#ffa726">w*</text><text x="55" y="95" font-size="10" fill="#ffa726" font-weight="bold">= - Σgᵢ / (Σhᵢ + λ)</text><text x="55" y="115" font-size="8" fill="#a0b8d8">一阶梯度求和 二阶Hessian+正则</text><circle cx="35" cy="112" r="2" fill="#ffa726"/><circle cx="50" cy="112" r="2" fill="#26c6da"/><text x="280" y="110" font-size="8" fill="#66bb6a">闭式解!</text><text x="280" y="125" font-size="8" fill="#ef5350">λ控制复杂度</text><text x="210" y="145" font-size="9" fill="#a0b8d8" text-anchor="middle">二阶泰勒: 损失≈loss + gᵢ·w + ½hᵢ·w² → 令导数为0 = 闭式解</text></svg>'},
+  {id:'p5_4',n:'集成四模型对比',p:'p5',d:'RandomForest/AdaBoost/GradientBoosting/XGBoost在同一数据集全方位对比精度/速度/特征重要性。理解何时选哪个。',
+   s:'竞赛中集成总是赢——但知道每个集成的数学假设才能解释为什么你的模型work。',rel:['p2_2','p5_1','p5_2']},
+  {id:'p6_1',n:'特征工程方法论',p:'p6',d:'缺失值(均值/模型预测/插值)、类别编码(One-Hot/Label/Target Encoding)、缩放(Standardization/Normalization)、构造(交叉/比率/时间窗)。',
+   s:'数据决定了模型的上限，特征工程决定了你能多接近这个上限。',rel:['p3_4']},
+  {id:'p6_2',n:'交叉验证策略',p:'p6',d:'k-fold本质：数据重复划分→无偏估计泛化误差。LOOCV无偏but高方差，5/10-fold是Goldilocks折中。时间序列需特殊CV。',
+   f:'CV_{(k)}=\\frac{1}{k}\\sum_{i=1}^{k}{\\rm err}_i',s:'不要在测试集上调参——交叉验证是你唯一诚实的朋友。'},
+  {id:'p6_3',n:'超参调优三策略',p:'p6',d:'Grid Search(O(dⁿ)) vs Random Search(O(n)) vs Bayesian Opt(高斯过程代理+采集函数)。高维空间随机搜索远优于网格！',
+   s:'Bergstra&Bengio 2012证明：在你最关心的维度上，随机搜索已经足够。贝叶斯优化是效率和效果的帕累托最优。'},
+  {id:'p6_4',n:'模型选择框架',p:'p6',d:'Baseline(均值/Dummy)→线性→树→集成→(可选)NN。每步记录性能/时间/可解释性。理解AUC/PR曲线/F1的选择逻辑。',
+   s:'从简单到复杂——不是因为复杂模型更好，而是你需要知道复杂模型的代价。',rel:['p2_4','p5_4']},
+  {id:'p7_1',n:'从浅层到深层NN',p:'p7',d:'单隐藏层NN通过万能逼近定理证明有能力逼近任意连续函数。深层优势在参数效率——浅层需指数级节点，深层只需多项式。',
+   f:'\\forall f,\\;\\exists{\\rm NN}:\\Vert f-{\\rm NN}\\Vert<\\varepsilon',s:'万能逼近定理告诉我们"存在性"，但没说"如何找到"——深层网络回答的是效率问题。'},
+  {id:'p7_2',n:'反向传播手推',p:'p7',d:'前向a^(l)=σ(W^(l)a^(l−1)+b^(l))→Loss→反向δ^(L)=∇_aJ⊙σ\'(z^(L))→∂L/∂W^(l)=δ^(l)(a^(l−1))ᵀ。',
+   f:'\\delta^{(l)}=(W^{(l+1)})^{\\top}\\delta^{(l+1)}\\odot\\sigma\'(z^{(l)})',s:'BP核心=从输出层逐层"归因"每参数的贡献——误差反向流动×权重转置×激活导数。',
+   diagram:'<svg viewBox="0 0 420 145" xmlns="http://www.w3.org/2000/svg"><rect x="15" y="50" width="80" height="30" rx="5" fill="rgba(79,195,247,.12)" stroke="#4fc3f7" stroke-width="1.2"/><text x="55" y="70" font-size="11" fill="#4fc3f7" text-anchor="middle" font-weight="bold">a₀</text><line x1="95" y1="65" x2="140" y2="65" stroke="#26c6da" stroke-width="2" marker-end="url(#arrF)"/><text x="115" y="58" font-size="9" fill="#26c6da">W₁</text><rect x="145" y="50" width="80" height="30" rx="5" fill="rgba(255,167,38,.12)" stroke="#ffa726" stroke-width="1.2"/><text x="185" y="70" font-size="11" fill="#ffa726" text-anchor="middle" font-weight="bold">a₁</text><line x1="225" y1="65" x2="270" y2="65" stroke="#26c6da" stroke-width="2" marker-end="url(#arrF)"/><text x="245" y="58" font-size="9" fill="#26c6da">W₂</text><rect x="275" y="50" width="80" height="30" rx="5" fill="rgba(239,83,80,.12)" stroke="#ef5350" stroke-width="1.2"/><text x="315" y="70" font-size="11" fill="#ef5350" text-anchor="middle" font-weight="bold">Loss</text><text x="315" y="35" font-size="8" fill="#a0b8d8" text-anchor="middle">前向→</text><line x1="305" y1="85" x2="270" y2="115" stroke="#ab47bc" stroke-width="2" marker-end="url(#arrB2)"/><text x="265" y="108" font-size="9" fill="#ab47bc">δ₂=∇Loss</text><rect x="225" y="105" width="80" height="30" rx="5" fill="rgba(255,167,38,.12)" stroke="#ab47bc" stroke-width="1.2" stroke-dasharray="4,3"/><text x="265" y="125" font-size="10" fill="#ffa726" text-anchor="middle" font-weight="bold">∇W₂</text><line x1="215" y1="120" x2="180" y2="115" stroke="#ab47bc" stroke-width="2" marker-end="url(#arrB2)"/><text x="175" y="108" font-size="9" fill="#ab47bc">δ₁=W₂ᵀδ₂⊙σ\'</text><rect x="135" y="105" width="80" height="30" rx="5" fill="rgba(79,195,247,.12)" stroke="#ab47bc" stroke-width="1.2" stroke-dasharray="4,3"/><text x="175" y="125" font-size="10" fill="#4fc3f7" text-anchor="middle" font-weight="bold">∇W₁</text><text x="195" y="143" font-size="9" fill="#ab47bc" text-anchor="middle">← 反向传播 →</text><defs><marker id="arrF" markerWidth="6" markerHeight="4" refX="5" refY="2" orient="auto"><polygon points="0 0, 6 2, 0 4" fill="#26c6da"/></marker><marker id="arrB2" markerWidth="6" markerHeight="4" refX="5" refY="2" orient="auto"><polygon points="0 0, 6 2, 0 4" fill="#ab47bc"/></marker></defs></svg>'},
+  {id:'p7_3',n:'CNN/RNN/Transformer',p:'p7',d:'CNN=局部感受野+权值共享→空间不变性。RNN=循环连接→序列记忆→梯度消失。Transformer=Self-Attention全局依赖无距离衰减。',
+   f:'{\\rm Attention}(Q,K,V)={\\rm softmax}(\\frac{QK^{\\top}}{\\sqrt{d_k}})V',s:'Attention的精髓：让序列中任意两个位置直接"对话"——不用RNN一步步传信息。',
+   diagram:'<svg viewBox="0 0 420 150" xmlns="http://www.w3.org/2000/svg"><rect x="8" y="5" width="120" height="60" rx="4" fill="rgba(79,195,247,.06)" stroke="#4fc3f7" stroke-width="1"/><text x="68" y="22" font-size="9" fill="#4fc3f7" text-anchor="middle" font-weight="bold">CNN</text><rect x="20" y="32" width="20" height="16" rx="2" fill="#4fc3f7" opacity=".3"/><rect x="40" y="32" width="20" height="16" rx="2" fill="#4fc3f7" opacity=".5"/><rect x="60" y="32" width="20" height="16" rx="2" fill="#4fc3f7" opacity=".7"/><rect x="80" y="32" width="20" height="16" rx="2" fill="#4fc3f7" opacity=".5"/><rect x="100" y="32" width="20" height="16" rx="2" fill="#4fc3f7" opacity=".3"/><text x="68" y="60" font-size="7" fill="#a0b8d8" text-anchor="middle">局部感受野 · 权值共享</text><rect x="148" y="5" width="120" height="60" rx="4" fill="rgba(255,167,38,.06)" stroke="#ffa726" stroke-width="1"/><text x="208" y="22" font-size="9" fill="#ffa726" text-anchor="middle" font-weight="bold">RNN</text><rect x="162" y="40" width="16" height="14" rx="3" fill="#ffa726" opacity=".4"/><rect x="183" y="40" width="16" height="14" rx="3" fill="#ffa726" opacity=".6"/><rect x="204" y="40" width="16" height="14" rx="3" fill="#ffa726" opacity=".8"/><rect x="225" y="40" width="16" height="14" rx="3" fill="#ffa726" opacity=".6"/><line x1="178" y1="47" x2="183" y2="47" stroke="#ef5350" stroke-width="0.8"/><line x1="199" y1="47" x2="204" y2="47" stroke="#ef5350" stroke-width="0.8"/><line x1="220" y1="47" x2="225" y2="47" stroke="#ef5350" stroke-width="0.8"/><text x="208" y="60" font-size="7" fill="#a0b8d8" text-anchor="middle">串行传递 · 梯度消失</text><rect x="288" y="5" width="125" height="60" rx="4" fill="rgba(38,198,218,.06)" stroke="#26c6da" stroke-width="1.5"/><text x="350" y="22" font-size="9" fill="#26c6da" text-anchor="middle" font-weight="bold">Transformer</text><rect x="300" y="36" width="14" height="14" rx="2" fill="#26c6da" opacity=".6"/><rect x="320" y="36" width="14" height="14" rx="2" fill="#26c6da" opacity=".6"/><rect x="340" y="36" width="14" height="14" rx="2" fill="#26c6da" opacity=".6"/><rect x="360" y="36" width="14" height="14" rx="2" fill="#26c6da" opacity=".6"/><line x1="307" y1="40" x2="327" y2="40" stroke="#26c6da" stroke-width="0.6" opacity=".6"/><line x1="307" y1="44" x2="367" y2="44" stroke="#26c6da" stroke-width="0.6" opacity=".3"/><line x1="307" y1="48" x2="347" y2="48" stroke="#26c6da" stroke-width="0.6" opacity=".5"/><text x="350" y="60" font-size="7" fill="#a0b8d8" text-anchor="middle">全局Attention · 并行</text><line x1="210" y1="75" x2="210" y2="140" stroke="#6080a8" stroke-width="0.5"/><text x="60" y="90" font-size="8" fill="#ef5350">空间数据</text><text x="188" y="90" font-size="8" fill="#ef5350">序列数据</text><text x="330" y="90" font-size="8" fill="#ef5350">全局依赖</text><rect x="20" y="100" width="4" height="4" fill="#4fc3f7"/><rect x="28" y="100" width="10" height="4" fill="#4fc3f7" opacity=".3"/><rect x="42" y="100" width="4" height="4" fill="#4fc3f7"/><text x="68" y="115" font-size="7" fill="#a0b8d8" text-anchor="middle">滑动窗口</text><text x="208" y="115" font-size="7" fill="#a0b8d8" text-anchor="middle">时间步展开</text><text x="365" y="115" font-size="7" fill="#a0b8d8" text-anchor="middle">Q·Kᵀ=直接"对话"</text><text x="210" y="145" font-size="8" fill="#66bb6a" text-anchor="middle">三种架构 → 三种归纳偏置 → 选择正确的结构就是选择正确的先验</text></svg>'},
+  {id:'p7_4',n:'PyTorch入门实战',p:'p7',d:'定义MLP→加载DataLoader→训练循环→验证→TensorBoard监控。从sklearn到PyTorch的关键mindset shift。',
+   s:'PyTorch定义网络=搭积木，自动求导=不用手推BP。但理解BP原理才能debug训练不收敛。',rel:['p7_2']}
+];
+var MATH_TAGS_DATA=[
+  {id:'📐',label:'公式推导',color:'#4fc3f7'},{id:'📊',label:'可视化',color:'#66bb6a'},{id:'💻',label:'代码实践',color:'#ffa726'},
+  {id:'💡',label:'核心概念',color:'#ab47bc'},{id:'⚠️',label:'常见误区',color:'#ef5350'},{id:'🔗',label:'关联知识',color:'#ec407a'}
+];
+var FORMULA_TABS=[
+  {id:'ft1',label:'表1：线性模型与优化'},
+  {id:'ft2',label:'表2：非线性模型与集成'},
+  {id:'ft3',label:'表3：深度学习基础'}
+];
+var FORMULAS={
+  ft1:[
+    {n:'OLS闭式解',f:'\\hat{\\theta}=(X^{\\top}X)^{-1}X^{\\top}y',i:'几何意义：y在col(X)上的投影'},
+    {n:'梯度下降',f:'\\theta:=\\theta-\\alpha\\nabla J(\\theta)',i:'学习率α是唯一超参，α太大发散太小慢收敛'},
+    {n:'交叉熵损失',f:'J=-\\Sigma[y\\log(h)+(1-y)\\log(1-h)]',i:'等价于伯努利分布的负对数似然'},
+    {n:'L1正则(Lasso)',f:'J+\\lambda\\Vert\\theta\\Vert_1',i:'拉普拉斯先验→菱形约束→稀疏解'},
+    {n:'L2正则(Ridge)',f:'J+\\frac{\\lambda}{2}\\Vert\\theta\\Vert_2^2',i:'高斯先验→圆形约束→收缩但不为零'},
+    {n:'R²决定系数',f:'R^{2}=1-\\frac{SS_{res}}{SS_{tot}}',i:'模型解释的方差比例，越接近1越好'}
+  ],
+  ft2:[
+    {n:'Sigmoid',f:'\\sigma(z)=\\frac{1}{1+e^{-z}}',i:'不是设计的，是从伯努利指数族推导的'},
+    {n:'SVM对偶',f:'\\max\\sum\\alpha_i-\\frac12\\sum\\alpha_i\\alpha_j y_i y_j K(x_i,x_j)',i:'只有α>0的支持向量影响决策边界'},
+    {n:'RBF核',f:'K(x,z)=\\exp(-\\gamma\\Vert x-z\\Vert^{2})',i:'对应无穷维特征空间！γ控相似度衰减半径'},
+    {n:'信息熵',f:'H=-\\sum p_k\\log_2 p_k',i:'均匀分布最大熵，确定事件=0'},
+    {n:'Bagging方差',f:'{\\rm Var}[\\bar{f}]=\\rho\\sigma^{2}+\\frac{(1-\\rho)\\sigma^{2}}{B}',i:'增加B棵树=降低方差，ρ越小降越多'},
+    {n:'XGBoost叶子权重',f:'w_j^{*}=-\\frac{\\sum g_i}{\\sum h_i+\\lambda}',i:'二阶泰勒展开令导数为0→闭式解'},
+    {n:'偏差-方差',f:'E[(y-\\hat{f})^{2}]={\\rm Bias}^{2}+{\\rm Var}+\\sigma^{2}',i:'ML最重要的恒等式'}
+  ],
+  ft3:[
+    {n:'前向传播',f:'a^{(l)}=\\sigma(W^{(l)}a^{(l-1)}+b^{(l)})',i:'逐层：矩阵乘+偏置+激活'},
+    {n:'输出层误差',f:'\\delta^{(L)}=\\nabla_a J\\odot\\sigma\'(z^{(L)})',i:'反向传播起点——损失对输出的梯度'},
+    {n:'隐藏层BP',f:'\\delta^{(l)}=(W^{(l+1)})^{\\top}\\delta^{(l+1)}\\odot\\sigma\'(z^{(l)})',i:'误差反向流动×权重转置×激活导数'},
+    {n:'权重梯度',f:'\\frac{\\partial L}{\\partial W^{(l)}}=\\delta^{(l)}(a^{(l-1)})^{\\top}',i:'梯度=当前层误差×上层激活'},
+    {n:'Self-Attention',f:'{\\rm Attention}={\\rm softmax}(\\frac{QK^{\\top}}{\\sqrt{d_k}})V',i:'查询和键的相似度→加权聚合→无距离衰减'}
+  ]
+};
+var EXERCISES=[
+  {n:'1',t:'在f(x,y)=x²+2y²上实现梯度下降，对比学习率，画路径图',d:'easy',p:'p2'},
+  {n:'2',t:'MLE推导正态分布μ̂和σ̂²，用numpy验证',d:'easy',p:'p1'},
+  {n:'3',t:'OLS/Ridge/Lasso在同一数据集上对比系数变化与预测误差',d:'easy',p:'p3'},
+  {n:'4',t:'10个样本手算信息增益，画决策树，与sklearn对照',d:'easy',p:'p4'},
+  {n:'5',t:'多项式回归degree=1-20拟合sin(x)+noise，分解Bias²/Var/Noise',d:'easy',p:'p2'},
+  {n:'6',t:'硬间隔SVM→拉格朗日→KKT→对偶→互补松弛，5个点手算',d:'medium',p:'p4'},
+  {n:'7',t:'numpy实现高斯朴素贝叶斯，手算一个样本的各类后验',d:'medium',p:'p4'},
+  {n:'8',t:'加性模型→二阶泰勒→最优叶子w*闭式解，小例子验证',d:'medium',p:'p5'},
+  {n:'9',t:'坐标下降法求解LASSO，画系数路径，观察特征归零顺序',d:'medium',p:'p3'},
+  {n:'10',t:'构造核函数K(x,z)=(xᵀz+1)²，验证Gram半正定，核SVM测试',d:'medium',p:'p4'},
+  {n:'11',t:'RF/Ada/GBDT/XGBoost/LightGBM精度/速度/特征重要性三元对比',d:'medium',p:'p5'},
+  {n:'12',t:'SVM强对偶证明(Slater条件)，推导SV的KKT条件',d:'hard',p:'p4'},
+  {n:'13',t:'2→3→1网络手写BP全过程，标注维度，与PyTorch对照',d:'hard',p:'p7'},
+  {n:'14',t:'从指数族推导自定义损失函数(Huber/Focal)，理解分布→损失映射',d:'hard',p:'p3'},
+  {n:'15',t:'不同batch size(1/16/64/256/全量)SGD收敛曲线+时间对比',d:'hard',p:'p2'},
+  {n:'16',t:'Kaggle入门：Titanic/House Prices→EDA→特征→4模型→调优→提交',d:'project',p:'p6'},
+  {n:'17',t:'Kaggle进阶：结构化数据→自动化特征→Stacking→2页项目报告',d:'project',p:'p6'},
+  {n:'18',t:'自选项目：金融/医疗/推荐/时序→采集→建模→调优→部署API',d:'project',p:'p7'}
+];
+var RESOURCES=[
+  {n:'统计学习方法(李航,第2版)',d:'中文经典，公式推导密度高，适合精读。每章一个算法完整推导','t':'核心教材'},
+  {n:'The Elements of Statistical Learning',d:'统计学习圣经，偏统计视角，PDF免费获取','t':'核心教材'},
+  {n:'ML: A Probabilistic Perspective',d:'概率图模型视角，覆盖面极广，公式推导清晰，适合进阶','t':'核心教材'},
+  {n:'Pattern Recognition and ML (Bishop)',d:'ML理论最深处，贝叶斯视角，需要较强数学基础','t':'核心教材'},
+  {n:'Hands-On ML (Géron, 第3版)',d:'实操最佳伴侣，TF/Keras+sklearn双轨','t':'核心教材'},
+  {n:'CS229: ML (Stanford, Andrew Ng)',d:'数学推导最完整的ML课程，YouTube免费','t':'在线课程'},
+  {n:'CS229 讲义',d:'比视频更精炼的推导版本，强烈推荐配合阅读','t':'在线课程'},
+  {n:'Math for ML (Coursera/Imperial)',d:'三件套：线性代数→多变量微积分→PCA','t':'在线课程'},
+  {n:'CS229 历年习题集',d:'每道题都是完整推导训练','t':'在线课程'},
+  {n:'Scikit-learn 官方文档',d:'每个算法User Guide含数学公式说明','t':'实践资源'},
+  {n:'Kaggle Learn',d:'免费微课程：Intro/Intermediate/Feature Engineering','t':'实践资源'},
+  {n:'Approaching Almost Any ML Problem',d:'实战方法论圣经：特征工程/交叉验证/模型选择','t':'实践资源'},
+  {n:'Made With ML',d:'端到端ML：设计→开发→部署的完整教程','t':'实践资源'},
+  {n:'Random Forests (Breiman, 2001)',d:'RF原论文，Bagging与特征随机性的数学动机','t':'经典论文'},
+  {n:'XGBoost (Chen & Guestrin, 2016)',d:'GBDT→XGBoost的优化链路完整推导','t':'经典论文'},
+  {n:'A Few Useful Things (Domingos)',d:'十二条ML从业者必读经验法则','t':'经典论文'},
+  {n:'ImageNet Classification (Krizhevsky)',d:'AlexNet论文，DL在CV爆发的里程碑','t':'经典论文'}
+];
+var TRACKER_ITEMS=[
+  {n:'第1阶段：数学基础奠基',t:'第1-2周 · 线性代数/概率统计/微积分/NumPy'},
+  {n:'第2阶段：机器学习入门',t:'第3-4周 · 梯度下降/偏差方差/过拟合/ML流水线'},
+  {n:'第3阶段：线性模型',t:'第5-6周 · 线性回归/逻辑回归/正则化/GLM'},
+  {n:'第4阶段：非线性模型',t:'第7-8周 · SVM/核方法/决策树/贝叶斯'},
+  {n:'第5阶段：集成学习',t:'第9-10周 · Bagging/Boosting/随机森林/XGBoost'},
+  {n:'第6阶段：实战整合',t:'第11-12周 · 特征工程/交叉验证/超参调优/Kaggle'},
+  {n:'第7阶段：深度学习入门',t:'第13-14周 · NN/BP/CNN/RNN/Transformer'}
+];
+var LS_PREFIX='ml14_';
+
+function hPS(){
+  var n=PHASES.map(function(p,i){
+    return '<div class="phase-detail" id="phase-'+p.id+'"><div class="phase-detail-header" onclick="tP(this)"><div class="icon" style="background:'+p.color+'22;color:'+p.color+'">'+p.icon+'</div><div class="info"><h4>'+p.title+'</h4><span class="ph-week">'+p.week+'</span></div><span class="arrow">▼</span></div><div class="phase-body"><div class="phase-body-inner"><div class="skill-list">'+p.skills.map(function(s){return '<span class="skill-chip skill-link" onclick="event.stopPropagation();kfP(\''+s.t+'\')">'+s.n+'</span>'}).join('')+'</div><div style="display:flex;gap:8px;flex-wrap:wrap"><span style="font-size:0.68rem;color:var(--text-muted)">💻 代码: '+p.codes.join(', ')+'</span></div><div style="display:flex;gap:8px;flex-wrap:wrap"><span style="font-size:0.68rem;color:var(--text-muted)">📊 图示: '+p.drawings.join(', ')+'</span></div></div></div></div>'
+  }).join('');document.getElementById('phaseContainer').innerHTML=n
+}
+function tP(hdr){var d=hdr.parentElement;d.classList.toggle('open')}
+
+function hRD(){
+  var n='';PHASES.forEach(function(p,i){
+    n+='<div class="roadmap-item" id="rm-'+p.id+'"><div class="roadmap-marker" style="background:'+p.color+';border-color:'+p.color+'">'+(i+1)+'</div><div class="roadmap-content" onclick="gP(\''+p.id+'\')"><h3>'+p.icon+' '+p.title+'</h3><div class="rm-week">'+p.week+' · '+p.sub.split('·').length+'个知识方向</div><div class="rm-desc">'+p.sub+'</div></div></div>'
+  });document.getElementById('roadmapContainer').innerHTML=n
+}
+function gP(id){var s=document.getElementById('phase-'+id);if(s){s.scrollIntoView({behavior:'smooth'});setTimeout(function(){s.classList.add('open')},400)}}
+
+function hKS(){
+  var h='<span class="knowledge-filter active" onclick="kf(\'all\')" data-kp="all">📎 全部 (25)</span>';
+  PHASES.forEach(function(p){
+    var cnt=KPS.filter(function(k){return k.p===p.id}).length;
+    h+='<span class="knowledge-filter" onclick="kf(\''+p.id+'\')" data-kp="'+p.id+'" style="border-bottom:3px solid '+p.color+'">'+p.icon+' '+p.title.split('：')[0]+' ('+cnt+')</span>'
+  })
+  h+='<button class="ks-expand-all" onclick="eAK()">📖 展开全部</button>';
+  document.getElementById('knowledgeFilterBar').innerHTML=h;
+  kf('all')
+}
+
+var cK='all';
+function kf(pid){
+  cK=pid;var cnt=document.getElementById('knowledgeCount');
+  var fil=KPS.filter(function(k){return pid==='all'||k.p===pid});
+  var h='';fil.forEach(function(kp){
+    var relH='';if(kp.rel){relH='<div class="card-related"><div class="cr-title">🔗 关联知识</div><div class="cr-links">'+kp.rel.map(function(r){var rk=KPS.find(function(x){return x.id===r});return '<span class="cr-link" onclick="event.stopPropagation();kfP(\''+r+'\')">'+(rk?rk.n:r)+'</span>'}).join('')+'</div></div>'}
+    var fH='';if(kp.f){fH='<div class="card-formula">💰 '+kp.f+'</div>'}
+    var dgH='';if(kp.diagram){dgH='<div class="card-diagram">'+kp.diagram+'</div>'}
+    h+='<div class="knowledge-card" id="kc-'+kp.id+'" data-p="'+kp.p+'"><div class="card-header" onclick="tKCT(\''+kp.id+'\')"><span class="card-icon">📐</span><span class="card-title">'+kp.n+'</span><span class="math-tag tag-'+kp.p+'" onclick="event.stopPropagation();gP(\''+kp.p+'\')" title="跳转到阶段详情">P'+(PHASES.findIndex(function(x){return x.id===kp.p})+1)+'</span><span class="card-back" onclick="event.stopPropagation();tKC_bk(\''+kp.id+'\')">← 收起</span></div><div class="card-detail"><p>'+kp.d+'</p>'+dgH+fH+'<div class="card-sum">💡 '+kp.s+'</div>'+relH+'</div></div>'
+  });
+  document.getElementById('knowledgeContainer').innerHTML=h;
+  cnt.innerHTML='<strong>'+fil.length+'</strong> 个知识点（共25）';
+  var b=document.querySelectorAll('.knowledge-filter');b.forEach(function(el){el.classList.remove('active')});
+  var act=document.querySelector('.knowledge-filter[data-kp="'+pid+'"]');if(act)act.classList.add('active')
+}
+function kfP(id){tKC_go(id)}
+
+function tKCT(id){
+  var el=document.getElementById('kc-'+id);if(!el)return;
+  if(el.classList.contains('expanded')){collapseCard(el);return}
+  if(el.classList.contains('open')&&!el.classList.contains('expanded')){el.classList.remove('open');return}
+  var kp=KPS.find(function(x){return x.id===id});if(!kp)return;
+  var g=el.parentElement;
+  el.classList.add('expanded');el.classList.add('open');g.classList.add('has-expanded');
+  setTimeout(function(){var det=el.querySelector('.card-detail');if(det){var fk=det.querySelector('.card-formula');if(fk)renderFormula(fk)}},150);
+  var pd=document.getElementById('phase-'+kp.p);if(pd)pd.classList.add('open');
+  el.scrollIntoView({behavior:'smooth',block:'nearest'})
+}
+function collapseCard(el){el.classList.remove('expanded');el.classList.remove('open');var g=el.parentElement;if(g){var anyExpanded=g.querySelector('.knowledge-card.expanded');if(!anyExpanded)g.classList.remove('has-expanded')}}
+function tKC_go(id){
+  cK='all';var b=document.querySelectorAll('.knowledge-filter');b.forEach(function(e){e.classList.remove('active')});
+  var a=document.querySelector('.knowledge-filter[data-kp="all"]');if(a)a.classList.add('active');kf('all');
+  setTimeout(function(){var el=document.getElementById('kc-'+id);if(!el)return;
+    var g=el.parentElement;
+    el.classList.add('expanded');el.classList.add('open');g.classList.add('has-expanded');
+    setTimeout(function(){var det=el.querySelector('.card-detail');if(det){var fk=det.querySelector('.card-formula');if(fk)renderFormula(fk)}},150);
+    var kp=KPS.find(function(x){return x.id===id});if(kp){var pd=document.getElementById('phase-'+kp.p);if(pd)pd.classList.add('open')}
+    el.scrollIntoView({behavior:'smooth',block:'center'})
+  },100)}
+function tKC_bk(id){var el=document.getElementById('kc-'+id);if(el)collapseCard(el)}
+function eAK(){
+  var all=document.querySelectorAll('.knowledge-card');var btn=document.querySelector('.ks-expand-all');
+  var isExp=btn&&btn.textContent.indexOf('收起')>=0;
+  if(isExp){
+    all.forEach(function(c){collapseCard(c)});
+    if(btn)btn.textContent='📖 展开全部';
+  }else{
+    all.forEach(function(c){c.classList.add('open');c.classList.add('expanded');c.parentElement.classList.add('has-expanded');
+      var fk=c.querySelector('.card-formula');if(fk)renderFormula(fk)});
+    if(btn)btn.textContent='📕 全部收起';
+  }
+}
+
+var renderFormula=function(fk){if(typeof katex==='undefined')return;if(fk.querySelector('.katex'))return;var txt=fk.textContent.replace('💰 ','');if(!txt)return;try{katex.render(txt,fk,{throwOnError:false})}catch(e){}};
+function hDW(){
+  var dm=[{icon:'1️⃣',t:'直觉理解',d:'一图胜千言——画出模型的数据流和决策面。图形化思维比纯粹公式记忆深刻10倍。'},
+   {icon:'2️⃣',t:'公式推导',d:'关键公式动手推演——从一阶泰勒展开到SVM对偶。每推一次理解深一层。'},
+   {icon:'3️⃣',t:'代码验证',d:'用NumPy/scikit-learn实现——检验理解。纸上推出来的东西必须能在电脑上跑出结果。'}];
+  document.getElementById('drawingMethod').innerHTML=dm.map(function(x){return '<div class="dm-card"><h4>'+x.icon+' '+x.t+'</h4><p>'+x.d+'</p></div>'}).join('');
+  var lvs=['梯度下降轨迹图 (P2): 损失曲面+不同学习率路径','偏差-方差权衡曲线 (P2): Total Error = Bias²+Var+Noise',
+   '正则化几何解释 (P3): L1菱形 vs L2圆形 vs 等高线','SVM最大间隔示意图 (P4): 支持向量+超平面+间隔边界',
+   'Bagging vs Boosting对比 (P5): 并行投票 vs 串行残差','学习曲线诊断图 (P6): train/cv gap诊断过/欠拟合',
+   '全连接网络结构图 (P7): 输入→隐藏→输出+激活函数'];
+  document.getElementById('drawingLevels').innerHTML=lvs.map(function(x){return '<span class="draw-level-item">📐 '+x+'</span>'}).join('');
+  document.getElementById('mathTags').innerHTML=MATH_TAGS_DATA.map(function(t){return '<span class="math-tag" style="color:'+t.color+';border-color:'+t.color+'44;background:'+t.color+'11">'+t.id+' '+t.label+'</span>'}).join('')
+}
+
+function hFS(){
+  var tH='';FORMULA_TABS.forEach(function(t,i){
+    tH+='<button class="formula-tab'+(i===0?' active':'')+'" onclick="sFT(\''+t.id+'\',this)">'+t.label+'</button>'
+  });document.getElementById('formulaTabs').innerHTML=tH;
+  var pH='';for(var tid in FORMULAS){
+    pH+='<div class="formula-panel'+(tid===FORMULA_TABS[0].id?' active':'')+'" id="fp-'+tid+'"><table class="formula-table"><thead><tr><th>概念</th><th>公式</th><th>核心洞察</th></tr></thead><tbody>'
+    +FORMULAS[tid].map(function(f){return '<tr><td>'+f.n+'</td><td>💰 '+f.f+'</td><td>'+f.i+'</td></tr>'}).join('')+'</tbody></table></div>'
+  }
+  document.getElementById('formulaPanels').innerHTML=pH;
+  setTimeout(function(){
+    if(typeof katex==='undefined')return;
+    document.querySelectorAll('.formula-table td:nth-child(2)').forEach(function(td){
+      if(td.querySelector('.katex'))return;
+      var txt=td.textContent;
+      if(txt.startsWith('💰 '))try{katex.render(txt.replace('💰 ',''),td,{throwOnError:false})}catch(e){}
+    })
+  },200)
+}
+function sFT(id,btn){document.querySelectorAll('.formula-tab').forEach(function(e){e.classList.remove('active')});btn.classList.add('active');
+  document.querySelectorAll('.formula-panel').forEach(function(e){e.classList.remove('active')});document.getElementById('fp-'+id).classList.add('active')}
+
+function hES(){
+  var fH='<span class="exercise-filter active" onclick="fE(\'all\')">全部 (18)</span>';
+  fH+='<span class="exercise-filter" onclick="fE(\'easy\')">🟢 基础 (5)</span>';
+  fH+='<span class="exercise-filter" onclick="fE(\'medium\')">🟡 进阶 (6)</span>';
+  fH+='<span class="exercise-filter" onclick="fE(\'hard\')">🔴 挑战 (4)</span>';
+  fH+='<span class="exercise-filter" onclick="fE(\'project\')">📦 项目 (3)</span>';
+  document.getElementById('exerciseFilters').innerHTML=fH;fE('all')
+}
+function fE(diff){
+  var d=LS_PREFIX+'done',dr=JSON.parse(localStorage.getItem(d)||'[]');
+  var fil=diff==='all'?EXERCISES:EXERCISES.filter(function(e){return e.d===diff});
+  document.getElementById('exerciseCounter').innerHTML='显示 <strong>'+fil.length+'</strong> 道 · 已完成 <strong>'+dr.length+'</strong>/18';
+  var h='';fil.forEach(function(e){
+    var isD=dr.indexOf(parseInt(e.n))>=0;
+    var dCls='diff '+e.d;var dLbl={'easy':'基础','medium':'进阶','hard':'挑战','project':'项目'};
+    h+='<div class="exercise-item"><span class="exercise-num">#'+e.n+'</span><div class="ei-content"><div class="ei-title"><span class="ei-title-text">'+e.t+'</span><span class="'+dCls+'">'+dLbl[e.d]+'</span></div></div><div class="ei-check'+(isD?' done':'')+'" onclick="tE('+e.n+',this)">'+(isD?'✓':'')+'</div></div>'
+  });document.getElementById('exerciseList').innerHTML=h;
+  document.querySelectorAll('.exercise-filter').forEach(function(el){el.classList.remove('active')});
+  var a=document.querySelector('.exercise-filter[onclick="fE(\''+diff+'\')"]');if(a)a.classList.add('active')
+}
+function tE(n,el){
+  var d=LS_PREFIX+'done',dr=JSON.parse(localStorage.getItem(d)||'[]');
+  var idx=dr.indexOf(n);if(idx>=0){dr.splice(idx,1);el.classList.remove('done');el.textContent=''}
+  else{dr.push(n);el.classList.add('done');el.textContent='✓'}
+  localStorage.setItem(d,JSON.stringify(dr));uEC();sT('练习 #'+n+' '+(idx>=0?'已取消':'已完成'))
+}
+function uEC(){var cnt=document.getElementById('exerciseCounter');if(cnt){var d=LS_PREFIX+'done',dr=JSON.parse(localStorage.getItem(d)||'[]');var total=EXERCISES.length;cnt.innerHTML='已打卡 <strong>'+dr.length+'</strong>/'+total+' 题'}}
+
+function hRS(){
+  document.getElementById('resourceList').innerHTML=RESOURCES.map(function(r){return '<div class="resource-card"><h4>'+r.n+'</h4><p>'+r.d+'</p><span class="res-tag">'+r.t+'</span></div>'}).join('')
+}
+
+function hTR(){
+  var d=LS_PREFIX+'tr',tr=JSON.parse(localStorage.getItem(d)||'[]');
+  var h='';TRACKER_ITEMS.forEach(function(t,i){
+    h+='<div class="tracker-row"><div class="tracker-check'+(tr.indexOf(i)>=0?' done':'')+'" onclick="tTR('+i+',this)">'+(tr.indexOf(i)>=0?'✓':'')+'</div><div class="tracker-info"><strong>'+t.n+'</strong><span>'+t.t+'</span></div></div>'
+  });document.getElementById('trackerList').innerHTML=h;uTR()
+}
+function tTR(i,el){
+  var d=LS_PREFIX+'tr',tr=JSON.parse(localStorage.getItem(d)||'[]');
+  var idx=tr.indexOf(i);if(idx>=0){tr.splice(idx,1);el.classList.remove('done');el.textContent=''}
+  else{tr.push(i);el.classList.add('done');el.textContent='✓'}
+  localStorage.setItem(d,JSON.stringify(tr));uTR();sT('阶段'+(i+1)+' '+(idx>=0?'已取消':'已完成'))
+}
+function uTR(){var d=LS_PREFIX+'tr',tr=JSON.parse(localStorage.getItem(d)||'[]');var t=document.getElementById('trackerTotal');if(t)t.textContent=tr.length+'/7'}
+
+function hSP(){
+  var h='';PHASES.forEach(function(p,i){
+    h+='<div class="progress-dot" data-label="P'+(i+1)+': '+p.title+'" onclick="gP(\''+p.id+'\')"></div>'
+  });document.getElementById('sideProgress').innerHTML=h
+}
+
+function sT(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show')},2000)}
+
+function oS(){var o=document.getElementById('searchOverlay');o.classList.add('open');setTimeout(function(){document.getElementById('searchInput').focus()},100)}
+function cS(){document.getElementById('searchOverlay').classList.remove('open');document.getElementById('searchResults').innerHTML='';document.getElementById('searchInput').value=''}
+
+function doSearch(){
+  var q=document.getElementById('searchInput').value.trim().toLowerCase();
+  var r=document.getElementById('searchResults');if(!q){r.innerHTML='';return}
+  var results=[];
+  KPS.forEach(function(k){if(k.n.toLowerCase().indexOf(q)>=0||k.d.toLowerCase().indexOf(q)>=0||k.s.toLowerCase().indexOf(q)>=0){results.push({type:'kp',id:k.id,t:k.n,s:k.s.substring(0,80),p:k.p})}});
+  for(var tid in FORMULAS){FORMULAS[tid].forEach(function(f){if(f.n.toLowerCase().indexOf(q)>=0||f.i.toLowerCase().indexOf(q)>=0){results.push({type:'fm',id:'fp-'+tid,t:f.n,s:f.i,p:null})}})};
+  EXERCISES.forEach(function(e){if(e.t.toLowerCase().indexOf(q)>=0){results.push({type:'ex',id:'ex-'+e.n,t:'练习#'+e.n,s:e.t,p:null})}});
+  if(results.length===0){r.innerHTML='<div style="padding:20px;text-align:center;color:var(--text-muted);font-size:0.82rem">未找到结果</div>';return}
+  r.innerHTML=results.slice(0,15).map(function(re){
+    var hl=t=>t.replace(new RegExp('('+q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi'),'<mark>$1</mark>');
+    return '<div class="search-result-item" onclick="sR(\''+re.type+'\',\''+re.id+'\',\''+(re.p||'')+'\')"><div class="sr-title">'+(re.type==='kp'?'📐 ':'')+hl(re.t)+'</div><div class="sr-snippet">'+hl(re.s)+'</div></div>'
+  }).join('')
+}
+function sR(type,id,pid){
+  cS();setTimeout(function(){
+    if(type==='kp'){setTimeout(function(){tKC_go(id)},150)}
+    else if(type==='fm'){var fp=document.getElementById(id);if(fp){document.querySelectorAll('.formula-panel').forEach(function(e){e.classList.remove('active')});fp.classList.add('active');
+      document.querySelectorAll('.formula-tab').forEach(function(e){e.classList.remove('active')});
+      var ftId=id.replace('fp-','');var ft=document.querySelector('.formula-tab[onclick*="'+ftId+'"]');if(ft)ft.classList.add('active');
+      document.getElementById('formulas').scrollIntoView({behavior:'smooth'})}}
+    else if(type==='ex'){document.getElementById('exercises').scrollIntoView({behavior:'smooth'})}
+  },300)
+}
+
+var graphPhaseFilter='all';
+function hGV(){
+  var gc=document.getElementById('graphCanvas');if(!gc)return;
+  var W=gc.width,H=gc.height;var ctx=gc.getContext('2d');ctx.clearRect(0,0,W,H);
+  var cx=80,cy=50,cw=(W-120)/7,ch=H-100;
+  var nodes=[];PHASES.forEach(function(p,i){
+    var x=cx+i*cw+cw/2,col=[],nKps=KPS.filter(function(k){return k.p===p.id});
+    var rowH=Math.min(ch/nKps.length,45);
+    nKps.forEach(function(k,ri){
+      var y=cy+30+ri*rowH+rowH/2;
+      nodes.push({id:k.id,x:x,y:y,r:18,color:p.color,phase:p.id,row:ri})
+    })
+  });
+  ctx.strokeStyle='rgba(160,184,216,0.15)';ctx.lineWidth=1;
+  nodes.forEach(function(a){nodes.forEach(function(b){
+    if(a.id!==b.id){
+      var rA=KPS.find(function(k){return k.id===a.id}),rB=KPS.find(function(k){return k.id===b.id});
+      if(rA&&rB&&rA.rel&&rA.rel.indexOf(b.id)>=0||rB&&rB.rel&&rB.rel.indexOf(a.id)>=0){
+        ctx.strokeStyle='rgba(79,195,247,0.3)';ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke()
+      }
+    }
+  })});
+  ctx.strokeStyle='rgba(160,184,216,0.08)';ctx.lineWidth=0.5;
+  nodes.forEach(function(a){nodes.forEach(function(b){if(a.phase===b.phase&&Math.abs(a.row-b.row)===1){ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke()}})});
+  PHASES.forEach(function(p,i){
+    var x=cx+i*cw;ctx.fillStyle='rgba(255,255,255,0.02)';ctx.fillRect(x+5,cy+5,cw-10,ch-10);
+    ctx.fillStyle=p.color+'44';ctx.strokeStyle=p.color;ctx.lineWidth=1;ctx.strokeRect(x+5,cy+5,cw-10,ch-10);
+    ctx.fillStyle=p.color;ctx.font='bold 11px "Noto Sans SC","Microsoft YaHei",sans-serif';ctx.textAlign='center';ctx.fillText(p.title.split('：')[0],x+cw/2,cy+20)
+  });
+  nodes.forEach(function(nd){if(graphPhaseFilter!=='all'&&nd.phase!==graphPhaseFilter)return;
+    ctx.beginPath();ctx.arc(nd.x,nd.y,nd.r,0,6.28);ctx.fillStyle=nd.color+'33';ctx.fill();ctx.strokeStyle=nd.color;ctx.lineWidth=2;ctx.stroke();
+    ctx.fillStyle='#fff';ctx.font='bold 7px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+    var rK=KPS.find(function(k){return k.id===nd.id});if(rK){var lbl=rK.n.length>5?rK.n.substring(0,4)+'…':rK.n;ctx.fillText(lbl,nd.x,nd.y)}
+  });
+  var legH='';PHASES.forEach(function(p,i){
+    legH+='<div class="graph-legend-item '+(graphPhaseFilter===p.id?'active-highlight':'')+'" onclick="gPFL(\''+p.id+'\')"><span class="graph-legend-dot" style="background:'+p.color+'"></span>'+p.title.split('：')[0]+'</div>'
+  });
+  legH+='<div class="graph-legend-item '+(graphPhaseFilter==='all'?'active-highlight':'')+'" onclick="gPFL(\'all\')"><span class="graph-legend-dot" style="background:#fff44"></span>全部</div>';
+  document.getElementById('graphLegend').innerHTML=legH;
+  gc.onclick=function(e){var r=gc.getBoundingClientRect();var mx=e.clientX-r.left,my=e.clientY-r.top;
+    for(var j=0;j<nodes.length;j++){var nd=nodes[j];if((graphPhaseFilter==='all'||nd.phase===graphPhaseFilter)&&Math.hypot(mx-nd.x,my-nd.y)<nd.r+5){setTimeout(function(){tKC_go(nd.id)},100);break}}
+  }
+}
+function gPFL(pf){graphPhaseFilter=pf;hGV()}
+
+function tMM(){document.getElementById('mobileMenu').classList.toggle('open')}
+
+function oC(){document.getElementById('confirmOverlay').classList.add('open')}
+function cC(){document.getElementById('confirmOverlay').classList.remove('open')}
+function rA(){localStorage.removeItem(LS_PREFIX+'done');localStorage.removeItem(LS_PREFIX+'tr');
+  document.querySelectorAll('.ei-check').forEach(function(el){el.classList.remove('done');el.textContent=''});
+  document.querySelectorAll('.tracker-check').forEach(function(el){el.classList.remove('done');el.textContent=''});
+  document.getElementById('trackerTotal').textContent='0/7';uEC();cC();sT('数据已重置')}
+
+window._toggleTheme=function(){
+  document.body.classList.toggle('light');
+  var isLight=document.body.classList.contains('light');
+  document.getElementById('themeBtn').textContent=isLight?'☀️':'🌙';
+  localStorage.setItem(LS_PREFIX+'theme',isLight?'light':'dark')
+};
+
+(function(){
+  var sv=localStorage.getItem(LS_PREFIX+'theme')||'dark';
+  if(sv==='light'){document.body.classList.add('light');document.getElementById('themeBtn').textContent='☀️'}
+  hPS();hRD();hDW();hKS();hES();hRS();hTR();hSP();hFS();hGV();
+})();
+
+var navAs=document.querySelectorAll('.nav-links a');
+window.addEventListener('scroll',function(){
+  var pct=Math.min(100,Math.round((window.scrollY/(document.documentElement.scrollHeight-window.innerHeight))*100));
+  document.getElementById('scrollProgressBar').style.width=pct+'%';
+  var tn=document.getElementById('topNav');if(window.scrollY>50)tn.classList.add('scrolled');else tn.classList.remove('scrolled');
+  var b2t=document.getElementById('backToTop');if(window.scrollY>500)b2t.classList.add('visible');else b2t.classList.remove('visible');
+  var secs=document.querySelectorAll('section[id]');var idx=-1;
+  secs.forEach(function(s,i){if(window.scrollY>=s.offsetTop-200)idx=i});
+  document.querySelectorAll('.progress-dot').forEach(function(d,i){d.classList.toggle('active',i===idx)});
+  var sc=window.scrollY+100;
+  document.querySelectorAll('section[id]').forEach(function(s){
+    if(sc>=s.offsetTop&&sc<s.offsetTop+s.offsetHeight){
+      var id=s.getAttribute('id');navAs.forEach(function(a){a.classList.toggle('active',a.getAttribute('href')==='#'+id)})
+    }
+  })
+});
+
+document.addEventListener('keydown',function(e){
+  if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();oS()}
+  if(e.key==='Escape'){
+    var so=document.getElementById('searchOverlay');if(so.classList.contains('open')){cS();return}
+    var co=document.getElementById('confirmOverlay');if(co.classList.contains('open')){cC();return}
+    var ho=document.getElementById('helpOverlay');if(ho.classList.contains('open')){ho.classList.remove('open');return}
+    var exp=document.querySelector('.knowledge-card.expanded');
+    if(exp){exp.classList.remove('expanded');exp.classList.remove('open');var pg=exp.parentElement;if(pg){var ae=pg.querySelector('.knowledge-card.expanded');if(!ae)pg.classList.remove('has-expanded')}}
+  }
+});
+
+(function(){
+  var obs=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target)}})},{threshold:0.1});
+  setTimeout(function(){document.querySelectorAll('.roadmap-item').forEach(function(el){obs.observe(el)})},200)
+})();
+
+(function(){var nums=document.querySelectorAll('.hero-stat .num');nums.forEach(function(el){var t=parseInt(el.getAttribute('data-count'));if(!t)return;var c=0,d=Math.max(20,Math.floor(1200/t));var iv=setInterval(function(){c+=Math.max(1,Math.ceil((t-c)/10));if(c>=t){c=t;clearInterval(iv)}el.textContent=c},d)})})();
+</script>
+</body>
+</html>

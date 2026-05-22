@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>%PAGE_TITLE%</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+%KAETX_CDN%
+<style>
+%TEMPLATE_CSS%
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter','Noto Sans SC',-apple-system,sans-serif;background:var(--bg-deep);color:var(--text-primary);line-height:1.6;overflow-x:hidden}
+body.loading{opacity:0}body.loaded{opacity:1;transition:opacity 0.4s ease}
+.container{max-width:1200px;margin:0 auto;padding:0 24px}
+
+.hero{text-align:center;padding:80px 0 60px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;
+  background:radial-gradient(ellipse at 50% 0%,%HERO_GRADIENT_COLOR1% 0%,transparent 50%),radial-gradient(ellipse at 80% 50%,%HERO_GRADIENT_COLOR2% 0%,transparent 40%);
+  opacity:0.15;z-index:0}
+.hero>*{position:relative;z-index:1}
+.hero h1{font-size:2.6rem;font-weight:900;letter-spacing:-0.02em;margin-bottom:16px;background:linear-gradient(135deg,%HERO_GRADIENT_COLOR1%,%HERO_GRADIENT_COLOR2%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{font-size:1.05rem;color:var(--text-secondary);max-width:700px;margin:0 auto 32px}
+.hero-stats{display:flex;gap:24px;justify-content:center;flex-wrap:wrap}
+.hero-stat{background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:16px 28px;text-align:center;min-width:100px}
+.hero-stat .num{font-size:2rem;font-weight:800;color:var(--accent-blue)}
+.hero-stat .lbl{font-size:0.75rem;color:var(--text-muted);margin-top:4px}
+
+.topbar{position:sticky;top:0;z-index:100;background:rgba(5,10,16,0.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border-subtle);padding:10px 0}
+.topbar .container{display:flex;gap:12px;align-items:center;overflow-x:auto}
+.topbar a{color:var(--text-secondary);text-decoration:none;font-size:0.78rem;font-weight:600;padding:6px 14px;border-radius:50px;transition:all var(--transition-fast);white-space:nowrap}
+.topbar a:hover{color:var(--accent-cyan);background:rgba(56,189,248,0.08)}
+.topbar .theme-toggle,.topbar .search-toggle{background:var(--bg-elevated);border:1px solid var(--border-subtle);color:var(--text-secondary);font-size:0.78rem;padding:6px 14px;border-radius:50px;cursor:pointer;font-family:inherit;font-weight:600;transition:all var(--transition-fast)}
+.topbar .theme-toggle:hover,.topbar .search-toggle:hover{color:var(--accent-cyan);border-color:var(--border-glow)}
+
+.search-overlay{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px)}
+.search-overlay.show{display:flex;align-items:flex-start;justify-content:center;padding-top:120px}
+.search-box{background:var(--bg-card);border:1px solid var(--border-glow);border-radius:var(--radius-md);padding:20px;width:90%;max-width:600px;box-shadow:0 16px 48px rgba(0,0,0,0.5)}
+.search-box input{width:100%;background:var(--bg-input);border:1px solid var(--border-subtle);border-radius:var(--radius-sm);padding:12px 16px;color:var(--text-primary);font-size:0.95rem;font-family:inherit;outline:none}
+.search-box input:focus{border-color:var(--accent-cyan)}
+.search-results{margin-top:12px;max-height:300px;overflow-y:auto}
+.search-result{padding:10px 14px;border-radius:var(--radius-sm);cursor:pointer;font-size:0.82rem;transition:background var(--transition-fast)}
+.search-result:hover{background:rgba(56,189,248,0.08)}
+.search-result .sr-title{font-weight:700;color:var(--accent-cyan)}
+.search-result .sr-detail{color:var(--text-muted);font-size:0.72rem;margin-top:2px}
+
+.section{padding:60px 0}
+.section-title{font-size:1.5rem;font-weight:800;margin-bottom:28px;display:flex;align-items:center;gap:10px}
+
+.phase-list{display:flex;flex-direction:column;gap:16px}
+.phase-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-lg);overflow:hidden;transition:all var(--transition-smooth)}
+.phase-card:hover{border-color:var(--border-glow)}
+.phase-card.open{border-color:var(--border-glow)}
+.phase-header{padding:20px 24px;cursor:pointer;display:flex;align-items:center;gap:14px;transition:background var(--transition-fast);user-select:none}
+.phase-header:hover{background:rgba(96,165,250,0.03)}
+.phase-icon{width:42px;height:42px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0}
+.phase-info{flex:1}.phase-info h3{font-size:1.05rem;font-weight:700}.phase-info .phase-week{font-size:0.72rem;color:var(--text-muted);margin-top:2px}.phase-sub{font-size:0.72rem;padding:3px 10px;border-radius:50px;font-weight:600}
+.phase-arrow{font-size:1.1rem;color:var(--text-muted);transition:transform var(--transition-smooth)}.phase-card.open .phase-arrow{transform:rotate(90deg)}
+.phase-body{display:none;padding:0 24px 20px;border-top:1px solid var(--border-subtle)}
+.phase-card.open .phase-body{display:block}
+.phase-body-inner{padding-top:16px}
+.phase-skills{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.skill-chip{padding:3px 12px;background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:50px;font-size:0.72rem;color:var(--text-secondary)}
+.phase-desc{font-size:0.82rem;color:var(--text-muted);margin-bottom:12px;line-height:1.7}
+.phase-codes{margin-top:8px}.phase-codes pre{background:rgba(0,0,0,0.3);border-radius:var(--radius-sm);padding:12px 16px;overflow-x:auto;font-size:0.72rem;font-family:'JetBrains Mono',monospace;color:var(--accent-cyan)}
+.footer{text-align:center;padding:40px 0;color:var(--text-muted);font-size:0.72rem;border-top:1px solid var(--border-subtle)}
+
+.knowledge-toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px}
+.knowledge-filters{display:flex;gap:6px;flex-wrap:wrap}
+.knowledge-filter{background:var(--bg-elevated);border:1px solid var(--border-subtle);color:var(--text-secondary);padding:4px 14px;border-radius:50px;cursor:pointer;font-size:0.72rem;font-weight:600;font-family:inherit;transition:all var(--transition-fast)}
+.knowledge-filter:hover{color:var(--accent-cyan);border-color:var(--border-glow)}
+.knowledge-filter.active{background:rgba(56,189,248,0.12);color:var(--accent-cyan);border-color:var(--accent-cyan)}
+.knowledge-count{font-size:0.68rem;color:var(--text-muted)}
+.knowledge-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px}
+@media(max-width:768px){.knowledge-grid{grid-template-columns:1fr}}
+
+.knowledge-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);overflow:hidden;cursor:default;transition:all var(--transition-smooth);position:relative}
+.knowledge-card:hover{border-color:var(--border-glow);box-shadow:var(--shadow-sm)}
+.knowledge-card.open{border-color:var(--border-glow)}
+.knowledge-card.expanded{grid-column:1/-1;border-color:var(--accent-green);box-shadow:var(--shadow-md)}
+.card-header{padding:14px 18px;cursor:pointer;display:flex;align-items:center;gap:10px;flex-wrap:wrap;transition:background var(--transition-fast);user-select:none}
+.card-header:hover{background:rgba(124,92,231,0.03)}
+.card-icon{font-size:1.1rem;flex-shrink:0}.card-title{font-weight:700;font-size:0.85rem;flex:1}
+.math-tag{padding:2px 10px;border-radius:50px;font-size:0.6rem;font-weight:700;cursor:pointer;transition:all var(--transition-fast);color:#fff}
+.math-tag:hover{opacity:0.8}
+%PHASE_TAG_CSS%
+.card-back{display:none;font-size:0.65rem;color:var(--text-muted);cursor:pointer;padding:2px 8px;border-radius:50px;background:var(--bg-elevated)}
+.knowledge-card.expanded .card-back,.knowledge-card.open .card-back{display:inline}
+.card-detail{display:none;padding:0 18px 16px;font-size:0.82rem;color:var(--text-secondary);line-height:1.7}
+.knowledge-card.open .card-detail,.knowledge-card.expanded .card-detail{display:block}
+.card-detail p{margin-bottom:8px}
+.card-formula{background:var(--bg-elevated);border:1px solid var(--border-glow);border-radius:var(--radius-sm);padding:14px 18px;margin-bottom:12px;font-size:0.95rem;text-align:center;color:var(--accent-blue);overflow-x:auto}
+.card-sum{background:rgba(251,191,36,0.06);border-left:3px solid var(--accent-orange);padding:10px 14px;margin-bottom:10px;border-radius:0 var(--radius-sm) var(--radius-sm) 0;font-size:0.78rem;color:var(--accent-orange)}
+.card-related{margin-top:4px;margin-bottom:8px;padding:12px 14px;background:rgba(255,255,255,0.015);border:1px dashed var(--border-subtle);border-radius:var(--radius-sm)}
+.cr-title{font-size:0.72rem;font-weight:700;color:var(--text-secondary);margin-bottom:8px}
+.cr-links{display:flex;flex-wrap:wrap;gap:6px}
+.cr-link{font-size:0.68rem;padding:4px 10px;border-radius:50px;border:1px solid var(--border-subtle);color:var(--accent-cyan);cursor:pointer;transition:all var(--transition-fast)}
+.cr-link:hover{background:rgba(38,198,218,0.1);border-color:var(--accent-cyan)}
+.skill-link{cursor:pointer;border-color:rgba(79,195,247,0.3);color:var(--accent-blue)}
+.skill-link:hover{background:rgba(79,195,247,0.1);transform:translateY(-1px)}
+.ks-expand-all{background:transparent;border:1px solid var(--border-subtle);color:var(--accent-cyan);padding:3px 10px;border-radius:50px;font-size:0.68rem;cursor:pointer;font-weight:600;transition:all var(--transition-fast);font-family:inherit;margin-left:8px}
+.ks-expand-all:hover{border-color:var(--accent-cyan);background:rgba(38,198,218,0.08)}
+@media(max-width:768px){.knowledge-card.expanded{grid-column:auto}}
+.deep-dive-bar{padding:0 0 8px;text-align:right;display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+.deep-dive-btn{background:linear-gradient(135deg,rgba(139,92,246,0.15),rgba(99,102,241,0.1));border:1px solid rgba(139,92,246,0.3);color:var(--accent-purple);padding:6px 16px;border-radius:50px;cursor:pointer;font-size:0.78rem;font-weight:600;font-family:inherit;transition:all var(--transition-smooth)}
+.deep-dive-btn:hover{border-color:rgba(139,92,246,0.6);box-shadow:0 0 16px rgba(139,92,246,0.15);transform:translateY(-1px)}
+.dd-ready .deep-dive-btn{background:rgba(16,185,129,0.1);border-color:rgba(16,185,129,0.3);color:var(--accent-green)}
+.dd-hint{font-size:0.65rem;color:var(--text-muted);opacity:0.7}
+.deep-dive-open-btn{background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);color:var(--accent-green);border-radius:50px;width:26px;height:26px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;font-size:0.75rem;font-weight:700;font-family:inherit;transition:all var(--transition-fast)}
+.deep-dive-open-btn:hover{background:rgba(16,185,129,0.25)}
+.dd-toast{animation:ddToastIn 0.3s ease}
+@keyframes ddToastIn{from{opacity:0;transform:translate(-50%,20px)}to{opacity:1;transform:translate(-50%,0)}}
+.phase-dd-batch{padding-top:16px;border-top:1px solid var(--border-subtle);display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.batch-deep-dive-btn{background:var(--bg-elevated);border:1px dashed var(--border-glow);color:var(--text-secondary);padding:8px 20px;border-radius:50px;cursor:pointer;font-size:0.82rem;font-weight:600;font-family:inherit;transition:all var(--transition-smooth)}
+.batch-deep-dive-btn:hover{border-style:solid;border-color:rgba(139,92,246,0.5);color:var(--accent-purple)}
+
+.method-steps{display:grid;gap:16px;max-width:800px}
+.method-step{display:flex;gap:16px;align-items:flex-start}
+.method-step-num{width:36px;height:36px;border-radius:50%;background:var(--accent-purple);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:0.9rem;flex-shrink:0}
+.method-step-text h4{font-size:0.9rem;color:var(--text-primary);margin-bottom:4px}
+.method-step-text p{font-size:0.78rem;color:var(--text-secondary);line-height:1.6}
+
+.formula-tabs{display:flex;gap:6px;margin-bottom:20px;flex-wrap:wrap}
+.formula-tab{background:var(--bg-elevated);border:1px solid var(--border-subtle);color:var(--text-secondary);padding:6px 16px;border-radius:50px;cursor:pointer;font-size:0.72rem;font-weight:600;font-family:inherit;transition:all var(--transition-fast)}
+.formula-tab:hover{color:var(--accent-cyan);border-color:var(--border-glow)}
+.formula-tab.active{background:rgba(56,189,248,0.12);color:var(--accent-cyan);border-color:var(--accent-cyan)}
+.formula-panel{display:none}
+.formula-panel.active{display:block}
+.formula-table{width:100%;border-collapse:collapse;font-size:0.78rem}
+.formula-table th{text-align:left;padding:10px 14px;background:var(--bg-elevated);color:var(--accent-cyan);font-weight:700;border-bottom:2px solid var(--border-glow)}
+.formula-table td{padding:9px 14px;border-bottom:1px solid var(--border-subtle);color:var(--text-secondary);font-family:'JetBrains Mono',monospace}
+
+.exercise-filters{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.exercise-filter{padding:4px 14px;border-radius:50px;font-size:0.68rem;cursor:pointer;font-weight:600;border:1px solid var(--border-subtle);color:var(--text-secondary);background:var(--bg-elevated);font-family:inherit;transition:all var(--transition-fast)}
+.exercise-filter:hover{color:var(--accent-cyan);border-color:var(--border-glow)}
+.exercise-filter.active{background:rgba(56,189,248,0.12);color:var(--accent-cyan);border-color:var(--accent-cyan)}
+.exercise-count{font-size:0.68rem;color:var(--text-muted);margin-bottom:12px}
+.exercise-list{display:flex;flex-direction:column;gap:8px}
+.exercise-item{display:flex;gap:12px;align-items:center;background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:12px 16px;transition:all var(--transition-fast)}
+.exercise-item:hover{border-color:var(--border-glow)}
+.exercise-num{font-size:0.7rem;color:var(--text-muted);font-family:'JetBrains Mono',monospace;min-width:28px}
+.ei-content{flex:1}.ei-title{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.ei-title-text{font-size:0.84rem;font-weight:600}
+.diff{padding:2px 8px;border-radius:50px;font-size:0.6rem;font-weight:700}
+.diff.easy{background:rgba(16,185,129,0.1);color:var(--accent-green)}
+.diff.medium{background:rgba(251,191,36,0.1);color:var(--accent-orange)}
+.diff.hard{background:rgba(239,68,68,0.1);color:#ef4444}
+.diff.project{background:rgba(139,92,246,0.1);color:var(--accent-purple)}
+.ei-check{width:28px;height:28px;border-radius:50%;border:2px solid var(--border-subtle);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:0.75rem;transition:all var(--transition-fast);flex-shrink:0}
+.ei-check:hover{border-color:var(--accent-green)}
+.ei-check.done{background:var(--accent-green);border-color:var(--accent-green);color:#fff}
+
+.resource-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.resource-item{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:16px 18px;transition:all var(--transition-fast)}
+.resource-item:hover{border-color:var(--border-glow)}
+.resource-item .ri-type{font-size:0.6rem;font-weight:700;padding:2px 8px;border-radius:50px;display:inline-block;margin-bottom:8px}
+.ri-type.book{background:rgba(96,165,250,0.1);color:var(--accent-blue)}
+.ri-type.paper{background:rgba(251,191,36,0.1);color:var(--accent-orange)}
+.ri-type.site{background:rgba(16,185,129,0.1);color:var(--accent-green)}
+.ri-type.tool{background:rgba(139,92,246,0.1);color:var(--accent-purple)}
+.resource-item h4{font-size:0.85rem;font-weight:700;margin-bottom:4px}.resource-item p{font-size:0.72rem;color:var(--text-muted);line-height:1.5}
+.resource-item a{font-size:0.68rem;color:var(--accent-cyan);text-decoration:none;font-weight:600}
+.resource-item a:hover{text-decoration:underline}
+
+.tracker-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+.tracker-item{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:14px 16px;cursor:pointer;transition:all var(--transition-fast);display:flex;align-items:center;gap:10px;user-select:none}
+.tracker-item:hover{border-color:var(--border-glow)}
+.tracker-check{width:24px;height:24px;border-radius:50%;border:2px solid var(--border-subtle);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all var(--transition-fast)}
+.tracker-item.done .tracker-check{background:var(--accent-green);border-color:var(--accent-green)}
+.tracker-check::after{content:'✓';color:transparent;font-size:0.7rem;font-weight:700}
+.tracker-item.done .tracker-check::after{color:#fff}
+.tracker-item.done .tracker-label{text-decoration:line-through;opacity:0.5}
+.tracker-label{font-size:0.78rem;font-weight:600}
+
+.progress-bar-container{width:100%;height:6px;background:var(--bg-elevated);border-radius:3px;margin:20px 0;overflow:hidden}
+.progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--accent-blue),var(--accent-green));border-radius:3px;transition:width 0.4s ease}
+
+.deep-floating-back{position:fixed;right:20px;bottom:20px;z-index:10000}
+.deep-floating-back button{padding:12px 20px;background:linear-gradient(135deg,var(--accent-color,#4a90d9),var(--accent-dark,#2d6cb0));color:white;border:none;border-radius:24px;font-size:0.85rem;font-weight:600;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.15);transition:transform 0.2s,box-shadow 0.2s}
+.deep-floating-back button:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,0.2)}
+@media(max-width:768px){.deep-floating-back{right:15px;bottom:15px}.deep-floating-back button{padding:10px 16px;font-size:0.8rem}}
+
+/* Drawing Section */
+.drawing-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.drawing-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:18px;transition:all var(--transition-fast)}
+.drawing-card:hover{border-color:var(--border-glow)}
+.drawing-card h4{font-size:0.85rem;font-weight:700;margin-bottom:8px;color:var(--accent-purple)}
+.drawing-card p{font-size:0.75rem;color:var(--text-muted);line-height:1.6}
+</style>
+</head>
+<body class="loading %THEME_DEFAULT%">
+
+<div class="topbar">
+  <div class="container">
+    <a href="#phases">📋 阶段</a><a href="#knowledge">💡 知识点</a>
+    <!-- CONDITIONAL: HAS_GRAPH --><a href="#graph">🧠 图谱</a><!-- /CONDITIONAL -->
+    <!-- CONDITIONAL: HAS_METHOD --><a href="#method">📐 方法论</a><!-- /CONDITIONAL -->
+    <!-- CONDITIONAL: HAS_FORMULAS --><a href="#formulas">📋 公式</a><!-- /CONDITIONAL -->
+    <a href="#exercises">✏️ 练习</a><a href="#resources">📚 资料</a><a href="#tracker">✅ 进度</a>
+    <button class="theme-toggle" onclick="toggleTheme()" title="切换主题">🌓</button>
+    <button class="search-toggle" onclick="searchOpen()" title="搜索 (Ctrl+K)">🔍</button>
+  </div>
+</div>
+
+<div class="search-overlay" id="searchOverlay" onclick="event.target===this&&searchClose()">
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="搜索知识点..." oninput="searchKPs()" onkeydown="if(event.key==='Escape')searchClose()">
+    <div class="search-results" id="searchResults"></div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="hero">
+    <h1>%HERO_TITLE%</h1>
+    <p>%HERO_SUBTITLE%</p>
+    <div class="hero-stats">
+      %HERO_STATS_HTML%
+    </div>
+  </div>
+</div>
+
+<div class="container">
+<section class="section" id="phases">
+  <div class="section-title">📋 学习阶段</div>
+  <div class="phase-list" id="phaseList"></div>
+</section>
+
+<section class="section" id="knowledge">
+  <div class="section-title">💡 知识要点</div>
+  <div class="knowledge-toolbar">
+    <div class="knowledge-filters" id="knowledgeFilters"></div>
+    <div><span class="knowledge-count" id="knowledgeCount"></span><button class="ks-expand-all" onclick="eAK()">📖 展开全部</button></div>
+  </div>
+  <div class="knowledge-grid" id="knowledgeContainer"></div>
+</section>
+
+<!-- CONDITIONAL: HAS_GRAPH -->
+<section class="section" id="graph">
+  <div class="section-title">🧠 知识图谱</div>
+  <canvas id="graphCanvas" width="1000" height="400"></canvas>
+</section>
+<!-- /CONDITIONAL -->
+
+<!-- CONDITIONAL: HAS_METHOD -->
+<section class="section" id="method">
+  <div class="section-title">📐 推导方法论</div>
+  %METHOD_STEPS_HTML%
+</section>
+<!-- /CONDITIONAL -->
+
+<!-- CONDITIONAL: HAS_FORMULAS -->
+<section class="section" id="formulas">
+  <div class="section-title">📋 公式速查</div>
+  <div class="formula-tabs" id="formulaTabs"></div>
+  <div id="formulaPanels"></div>
+</section>
+<!-- /CONDITIONAL -->
+
+<!-- CONDITIONAL: HAS_DRAWING -->
+<section class="section" id="drawing">
+  <div class="section-title">🎨 图表推导指南</div>
+  <div class="drawing-grid" id="drawingGrid"></div>
+</section>
+<!-- /CONDITIONAL -->
+
+<section class="section" id="exercises">
+  <div class="section-title">✏️ 练习题库</div>
+  <div class="exercise-filters" id="exerciseFilters"></div>
+  <div class="exercise-count" id="exerciseCount"></div>
+  <div class="exercise-list" id="exerciseList"></div>
+</section>
+
+<section class="section" id="resources">
+  <div class="section-title">📚 资料清单</div>
+  <div class="resource-grid" id="resourceGrid"></div>
+</section>
+
+<section class="section" id="tracker">
+  <div class="section-title">✅ 进度追踪</div>
+  <div class="progress-bar-container"><div class="progress-bar-fill" id="progressBar" style="width:0%"></div></div>
+  <div class="tracker-grid" id="trackerGrid"></div>
+</section>
+</div>
+
+<footer class="footer">%FOOTER_TEXT%</footer>
+
+<div id="ddToast" style="display:none;position:fixed;bottom:30px;left:50%;transform:translateX(-50%);z-index:10000;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:8px;padding:14px 24px;box-shadow:0 4px 16px rgba(0,0,0,0.15);font-size:0.85rem;"><span id="ddToastMsg"></span></div>
+
+<script>
+// ============================================================
+// DATA SECTION — REPLACE ALL %PLACEHOLDER% MARKERS
+// ============================================================
+var STORAGE_KEY = '%STORAGE_KEY%';
+var PLAN = %PLAN_JSON%;
+var LS_PREFIX = STORAGE_KEY;
+
+var PHASES = %PHASES_JSON%;
+
+var KPS = %KPS_JSON%;
+
+// ============================================================
+// C8: FORMULA TABS + FORMULAS (set to [] if no formula section)
+// ============================================================
+var FORMULA_TABS = %FORMULA_TABS_JSON%;
+var FORMULAS = %FORMULAS_JSON%;
+
+// ============================================================
+// C6: EXERCISES
+// ============================================================
+var EXERCISES = %EXERCISES_JSON%;
+
+// ============================================================
+// C7: RESOURCES
+// ============================================================
+var RESOURCES = %RESOURCES_JSON%;
+
+// ============================================================
+// C8: TRACKER
+// ============================================================
+var TRACKER_ITEMS = %TRACKER_ITEMS_JSON%;
+
+function safeGetLS(key,fallback){
+  try{var v=localStorage.getItem(key);return v!==null?v:fallback;}catch(e){return fallback;}
+}
+function safeSetLS(key,val){
+  try{localStorage.setItem(key,val);}catch(e){}
+}
+
+// ============================================================
+// CORE RENDERING FUNCTIONS (VERIFIED — DO NOT MODIFY)
+// ============================================================
+
+function renderFormula(fk){
+  if(typeof katex==='undefined')return;
+  if(fk.querySelector('.katex'))return;
+  var txt=fk.textContent.replace('💰 ','');
+  if(!txt)return;
+  try{katex.render(txt,fk,{throwOnError:false});}
+  catch(e){fk.textContent='⚠ '+txt;}
+}
+
+function renderAllFormulas(){
+  if(typeof katex==='undefined'){setTimeout(renderAllFormulas,300);return;}
+  var all=document.querySelectorAll('.card-formula,.ft-formula');
+  for(var i=0;i<all.length;i++){
+    if(all[i].querySelector('.katex'))continue;
+    var txt=all[i].textContent.replace('💰 ','');
+    if(!txt)continue;
+    try{katex.render(txt,all[i],{throwOnError:false});}
+    catch(e){all[i].textContent='⚠ '+txt;}
+  }
+}
+
+function collapseCard(el){el.classList.remove('expanded');el.classList.remove('open');var g=el.parentElement;if(g){var anyExpanded=g.querySelector('.knowledge-card.expanded');if(!anyExpanded)g.classList.remove('has-expanded');}}
+
+function kf(pid){
+  var cnt=document.getElementById('knowledgeCount');
+  var fil=pid==='all'?KPS:KPS.filter(function(k){return k.p===pid;});
+  var h='';
+  fil.forEach(function(kp){
+    var fh=kp.f?'<div class="card-formula">💰 '+kp.f+'</div>':'';
+    var sh=kp.s?'<div class="card-sum">💡 '+kp.s+'</div>':'';
+    var rh='';
+    if(kp.rel&&kp.rel.length){rh='<div class="card-related"><div class="cr-title">🔗 关联知识</div><div class="cr-links">';
+      kp.rel.forEach(function(r){var rk=KPS.find(function(x){return x.id===r;});
+        rh+='<span class="cr-link" onclick="event.stopPropagation();kfP(\''+r+'\')">'+(rk?rk.n:r)+'</span>';});
+      rh+='</div></div>';}
+    var ddSection='';
+    if(kp.deep_dive){
+      var ddStatus=kp.deep_dive.status||'none';
+      var ddArrow='';var ddBtnTxt='📖 深度研读';var ddHint='点击复制提示词';
+      if(ddStatus==='ready'&&kp.deep_dive.html_file){
+        ddArrow='<button class="deep-dive-open-btn" onclick="event.stopPropagation();ddOpen(\''+kp.id+'\')" title="打开深度研读资料">↗</button>';
+        ddBtnTxt='✅ 查看深度研读';
+        ddHint='点击 ↗ 打开资料';
+      }
+      ddSection='<div class="deep-dive-bar dd-'+ddStatus+'">'+ddArrow+
+        '<button class="deep-dive-btn" onclick="event.stopPropagation();ddTrigger(\''+kp.id+'\')">'+ddBtnTxt+'</button>'+
+        '<span class="dd-hint">'+ddHint+'</span></div>';
+    }
+    h+='<div class="knowledge-card" id="kc-'+kp.id+'" data-p="'+kp.p+'">'+
+      '<div class="card-header" onclick="tKCT(\''+kp.id+'\')">'+
+      '<span class="card-icon">📘</span>'+
+      '<span class="card-title">'+kp.n+'</span>'+
+      '<span class="math-tag" style="background:'+((PHASES.find(function(x){return x.id===kp.p;})||{color:'#6366f1'}).color)+'" onclick="event.stopPropagation();gP(\''+kp.p+'\')">'+
+      (PHASES.findIndex(function(x){return x.id===kp.p;})>=0?'P'+(PHASES.findIndex(function(x){return x.id===kp.p;})+1):'')+
+      '</span>'+
+      '<span class="card-back" onclick="event.stopPropagation();tKC_bk(\''+kp.id+'\')">收起 ✕</span>'+
+      '</div><div class="card-detail"><p>'+kp.d+'</p>'+fh+sh+rh+ddSection+'</div></div>';
+  });
+  document.getElementById('knowledgeContainer').innerHTML=h;
+  document.getElementById('knowledgeCount').textContent='显示 '+fil.length+'/'+KPS.length;
+  var btns=document.querySelectorAll('.knowledge-filter');
+  for(var i=0;i<btns.length;i++)btns[i].classList.remove('active');
+  var act=document.querySelector('.knowledge-filter[data-kp="'+pid+'"]');
+  if(act)act.classList.add('active');
+}
+
+function kfP(id){tKC_go(id);}
+
+function AHDS(ph){
+  var el=document.getElementById('phase-'+ph.id);if(!el)return;
+  var inner=el.querySelector('.phase-body-inner');if(!inner)return;
+  var sh='';
+  if(ph.skills&&ph.skills.length>0){
+    sh='<div class="phase-skills">'+
+      ph.skills.map(function(s,idx){var kpId=(ph.phase_kps&&ph.phase_kps[idx])?ph.phase_kps[idx]:'';
+        return '<span class="skill-chip skill-link" onclick="event.stopPropagation();kfP(\''+kpId+'\')">'+s+'</span>';}).join('')+
+      '</div>';
+  }
+  var ch='';
+  if(ph.codes&&ph.codes.length>0){ch='<div class="phase-codes">'+
+    ph.codes.map(function(c){return '<pre><code>'+c+'</code></pre>';}).join('')+'</div>';}
+  var bh='';
+  if(ph.deep_dive_batch){
+    bh='<div class="phase-dd-batch">'+
+      '<button class="batch-deep-dive-btn" onclick="event.stopPropagation();ddBatch(\''+ph.id+'\')">📦 生成本阶段全部深度资料</button>'+
+      '<span class="dd-hint">一键复制本阶段所有知识点的生成提示词</span></div>';
+  }
+  inner.innerHTML=sh+'<div class="phase-desc">深入了解核心概念与技巧。</div>'+ch+bh;
+}
+
+// ============================================================
+// CORE INTERACTION FUNCTIONS (v3.6 — multi-expand support)
+// ============================================================
+
+function tKCT(id){
+  var el=document.getElementById('kc-'+id);
+  if(!el)return;
+  if(el.classList.contains('expanded')){collapseCard(el);return;}
+  if(el.classList.contains('open')&&!el.classList.contains('expanded')){el.classList.remove('open');return;}
+  var kp=KPS.find(function(x){return x.id===id;});
+  if(!kp)return;
+  var g=el.parentElement;
+  el.classList.add('expanded');
+  el.classList.add('open');
+  g.classList.add('has-expanded');
+  setTimeout(function(){
+    var det=el.querySelector('.card-detail');
+    if(det){var fk=det.querySelector('.card-formula');if(fk)renderFormula(fk);}
+  },150);
+  var pd=document.getElementById('phase-'+kp.p);
+  if(pd)pd.classList.add('open');
+  el.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function tKC_go(id){
+  var b=document.querySelectorAll('.knowledge-filter');
+  for(var i=0;i<b.length;i++)b[i].classList.remove('active');
+  var a=document.querySelector('.knowledge-filter[data-kp="all"]');
+  if(a)a.classList.add('active');
+  kf('all');
+  setTimeout(function(){
+    var el=document.getElementById('kc-'+id);
+    if(!el)return;
+    var g=el.parentElement;
+    el.classList.add('expanded');
+    el.classList.add('open');
+    g.classList.add('has-expanded');
+    setTimeout(function(){
+      var det=el.querySelector('.card-detail');
+      if(det){var fk=det.querySelector('.card-formula');if(fk)renderFormula(fk);}
+    },150);
+    var kp=KPS.find(function(x){return x.id===id;});
+    if(kp){var pd=document.getElementById('phase-'+kp.p);if(pd)pd.classList.add('open');}
+    el.scrollIntoView({behavior:'smooth',block:'center'});
+  },100);
+}
+
+function tKC_bk(id){var el=document.getElementById('kc-'+id);if(el)collapseCard(el);}
+
+function eAK(){
+  var all=document.querySelectorAll('.knowledge-card');
+  var btn=document.querySelector('.ks-expand-all');
+  var isExp=btn&&btn.textContent.indexOf('收起')>=0;
+  if(isExp){
+    for(var i=0;i<all.length;i++)collapseCard(all[i]);
+    if(btn)btn.textContent='📖 展开全部';
+  }else{
+    for(var i=0;i<all.length;i++){
+      all[i].classList.add('open');all[i].classList.add('expanded');
+      all[i].parentElement.classList.add('has-expanded');
+      var fk=all[i].querySelector('.card-formula');if(fk)renderFormula(fk);
+    }
+    if(btn)btn.textContent='📕 全部收起';
+  }
+}
+
+function gP(id){
+  var s=document.getElementById('phase-'+id);
+  if(s){s.scrollIntoView({behavior:'smooth'});setTimeout(function(){s.classList.add('open');},400);}
+}
+
+function sFT(id,btn){
+  var tabs=document.querySelectorAll('.formula-tab');
+  for(var i=0;i<tabs.length;i++)tabs[i].classList.remove('active');
+  btn.classList.add('active');
+  var panels=document.querySelectorAll('.formula-panel');
+  for(var i=0;i<panels.length;i++)panels[i].classList.remove('active');
+  document.getElementById('fp-'+id).classList.add('active');
+}
+
+var DEEP_DIVE_WINDOWS={};
+function ddOpen(kpId){
+  var kp=KPS.find(function(k){return k.id===kpId;});
+  if(!kp||!kp.deep_dive||!kp.deep_dive.html_file)return;
+  var winName='dd_'+kpId;
+  if(DEEP_DIVE_WINDOWS[kpId]&&!DEEP_DIVE_WINDOWS[kpId].closed){DEEP_DIVE_WINDOWS[kpId].focus();return;}
+  var w=window.open(kp.deep_dive.html_file,winName);
+  if(w){DEEP_DIVE_WINDOWS[kpId]=w;setInterval(function(){if(w.closed)DEEP_DIVE_WINDOWS[kpId]=null;},1000);}
+}
+
+function encodeForContext(value){
+  if(typeof value!=='string')value=String(value||'');
+  return value.replace(/"/g,'\\"').replace(/;/g,'\\;').replace(/\[/g,'\\[').replace(/\]/g,'\\]');
+}
+
+function buildKPDeepDivePrompt(kp,ph,plan){
+  var prereqList=(kp.prerequisites||[]).join(',');
+  var nextKpList=(kp.next_kps||[]).join(',');
+  var phIndex=PHASES.findIndex(function(x){return x.id===ph.id;})+1;
+  var contextMarker='[context_plan: '+
+    'plan_id="'+encodeForContext(plan.id)+'"; '+
+    'plan_name="'+encodeForContext(plan.title)+'"; '+
+    'plan_file="'+encodeForContext(plan.html_file)+'"; '+
+    'template_id="'+encodeForContext(plan.template_id||'indigo-night')+'"; '+
+    'phase_id="'+encodeForContext(ph.id)+'"; '+
+    'phase_name="'+encodeForContext(ph.title)+'"; '+
+    'phase_position="'+phIndex+'/'+PHASES.length+'"; '+
+    'kp_id="'+encodeForContext(kp.id)+'"; '+
+    'kp_name="'+encodeForContext(kp.n||kp.name)+'"; '+
+    'prerequisites="'+encodeForContext(prereqList)+'"; '+
+    'next_kps="'+encodeForContext(nextKpList)+'"'+
+  ']\n\n';
+  return contextMarker+'请为以下知识点生成 理解×标准 的深度研读资料：\n知识点：'+(kp.n||kp.name)+'\n（已在上方提供完整上下文信息）';
+}
+
+var DD_TOAST_TIMEOUT;
+function ddTrigger(kpId){
+  var kp=KPS.find(function(k){return k.id===kpId;});
+  if(!kp)return;
+  var ph=PHASES.find(function(p){return p.id===kp.p;});
+  if(!ph)ph={id:kp.p,title:'未知阶段'};
+  var promptText=typeof PLAN!=='undefined'?buildKPDeepDivePrompt(kp,ph,PLAN):
+    '请为"'+(kp.n||kp.name)+'"生成 理解×标准 的深度研读资料';
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(promptText).then(function(){showDDToast('✅ 提示词已复制！粘贴到对话中生成深度资料',kp);})
+    .catch(function(){fallbackCopy(promptText);showDDToast('✅ 提示词已复制！',kp);});
+  }else{fallbackCopy(promptText);showDDToast('✅ 提示词已复制！',kp);}
+}
+
+function fallbackCopy(text){
+  var ta=document.createElement('textarea');ta.value=text;
+  document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
+}
+
+function showDDToast(msg,kp){
+  var toastEl=document.getElementById('ddToast');
+  var toastMsgEl=document.getElementById('ddToastMsg');
+  if(!toastEl||!toastMsgEl)return;
+  toastMsgEl.innerHTML=msg;
+  if(kp&&kp.deep_dive&&kp.deep_dive.status==='ready'&&kp.deep_dive.html_file){
+    toastMsgEl.innerHTML+='<br>📄 已有深度资料: <a href="#" onclick="event.preventDefault();ddOpen(\''+kp.id+'\')" style="color:var(--accent-color);text-decoration:underline;">点击打开</a>';
+  }
+  toastEl.style.display='block';
+  if(DD_TOAST_TIMEOUT)clearTimeout(DD_TOAST_TIMEOUT);
+  DD_TOAST_TIMEOUT=setTimeout(function(){toastEl.style.display='none';},4000);
+}
+
+function ddBatch(phaseId){
+  var phaseKps=KPS.filter(function(k){return k.p===phaseId&&k.deep_dive;});
+  if(phaseKps.length===0)return;
+  var ph=PHASES.find(function(p){return p.id===phaseId;});
+  if(!ph)ph={id:phaseId,title:'未知阶段'};
+  var batchText='📦 批量生成深度资料 - '+(ph.title||phaseId)+'\n\n';
+  phaseKps.forEach(function(kp){
+    if(typeof PLAN!=='undefined'){batchText+=buildKPDeepDivePrompt(kp,ph,PLAN)+'\n\n---\n\n';}
+    else{batchText+='请为"'+(kp.n||kp.name)+'"生成 理解×标准 的深度研读资料\n\n---\n\n';}
+  });
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(batchText).then(function(){showDDToast('✅ '+phaseKps.length+' 个提示词已复制到剪贴板！');})
+    .catch(function(){fallbackCopy(batchText);showDDToast('✅ '+phaseKps.length+' 个提示词已复制！');});
+  }else{fallbackCopy(batchText);showDDToast('✅ '+phaseKps.length+' 个提示词已复制！');}
+}
+
+// ============================================================
+// EXERCISE FUNCTIONS (VERIFIED — DO NOT MODIFY)
+// ============================================================
+
+function hES(){
+  var fH='<span class="exercise-filter active" onclick="fE(\'all\')">全部 ('+EXERCISES.length+')</span>';
+  fH+='<span class="exercise-filter" onclick="fE(\'easy\')">🟢 基础 ('+EXERCISES.filter(function(e){return e.d==='easy';}).length+')</span>';
+  fH+='<span class="exercise-filter" onclick="fE(\'medium\')">🟡 进阶 ('+EXERCISES.filter(function(e){return e.d==='medium';}).length+')</span>';
+  fH+='<span class="exercise-filter" onclick="fE(\'hard\')">🔴 挑战 ('+EXERCISES.filter(function(e){return e.d==='hard';}).length+')</span>';
+  fH+='<span class="exercise-filter" onclick="fE(\'project\')">📦 项目 ('+EXERCISES.filter(function(e){return e.d==='project';}).length+')</span>';
+  document.getElementById('exerciseFilters').innerHTML=fH;
+  fE('all');
+}
+
+function fE(diff){
+  var d=LS_PREFIX+'_done',dr=JSON.parse(safeGetLS(d,'[]'));
+  var fil=diff==='all'?EXERCISES:EXERCISES.filter(function(e){return e.d===diff;});
+  var h='';
+  fil.forEach(function(e){
+    var isD=dr.indexOf(parseInt(e.n))>=0;
+    var dCls='diff '+e.d;var dLbl={easy:'基础',medium:'进阶',hard:'挑战',project:'项目'};
+    h+='<div class="exercise-item"><span class="exercise-num">#'+e.n+'</span>'+
+      '<div class="ei-content"><div class="ei-title">'+
+      '<span class="ei-title-text">'+e.t+'</span>'+
+      '<span class="'+dCls+'">'+dLbl[e.d]+'</span></div></div>'+
+      '<div class="ei-check'+(isD?' done':'')+'" onclick="tE('+e.n+',this)">'+(isD?'✓':'')+'</div></div>';
+  });
+  document.getElementById('exerciseList').innerHTML=h;
+  uEC();
+  var btns=document.querySelectorAll('.exercise-filter');
+  for(var i=0;i<btns.length;i++)btns[i].classList.remove('active');
+  var a=document.querySelector('.exercise-filter[onclick="fE(\''+diff+'\')"]');
+  if(a)a.classList.add('active');
+}
+
+function tE(n,el){
+  var d=LS_PREFIX+'_done',dr=JSON.parse(safeGetLS(d,'[]'));
+  var idx=dr.indexOf(n);
+  if(idx>=0){dr.splice(idx,1);el.classList.remove('done');el.textContent='';}
+  else{dr.push(n);el.classList.add('done');el.textContent='✓';}
+  safeSetLS(d,JSON.stringify(dr));
+  uEC();
+}
+
+function uEC(){
+  var d=LS_PREFIX+'_done',dr=JSON.parse(safeGetLS(d,'[]'));
+  document.getElementById('exerciseCount').innerHTML='已完成 <strong>'+dr.length+'</strong>/'+EXERCISES.length;
+}
+
+// ============================================================
+// GRAPH FUNCTIONS (use only if HAS_GRAPH)
+// ============================================================
+
+function drawGraph(){
+  var canvas=document.getElementById('graphCanvas');
+  if(!canvas)return;
+  var ctx=canvas.getContext('2d');
+  var dpr=window.devicePixelRatio||1;
+  var rect=canvas.parentElement.getBoundingClientRect();
+  canvas.width=rect.width*dpr;canvas.height=380*dpr;
+  canvas.style.width=rect.width+'px';canvas.style.height='380px';
+  ctx.scale(dpr,dpr);
+  var W=rect.width,H=380;
+  var cols=PHASES.length;var colW=W/(cols+0.5);var padding=40;
+  for(var i=0;i<PHASES.length;i++){var p=PHASES[i];
+    var cx=padding+colW*(i+0.3);
+    ctx.fillStyle=p.color+'22';ctx.fillRect(cx-colW*0.35,20,colW*0.7,H-40);
+    ctx.strokeStyle=p.color+'44';ctx.strokeRect(cx-colW*0.35,20,colW*0.7,H-40);
+    ctx.fillStyle=p.color;ctx.font='bold 13px "Noto Sans SC","Microsoft YaHei",sans-serif';ctx.textAlign='center';
+    ctx.fillText(p.icon+' '+p.title,cx,H-10);
+  }
+  var kpPos={};
+  for(var i=0;i<KPS.length;i++){var kp=KPS[i];
+    var pi=PHASES.findIndex(function(x){return x.id===kp.p;});if(pi<0)continue;
+    var hash=0;for(var c=0;c<kp.id.length;c++){hash=((hash<<5)-hash)+kp.id.charCodeAt(c);hash|=0;}
+    var ny=60+Math.abs(hash%(H-120));
+    var nx=padding+colW*(pi+0.3);var r=4;
+    ctx.beginPath();ctx.arc(nx,ny,r,0,Math.PI*2);ctx.fillStyle=PHASES[pi].color;ctx.fill();
+    ctx.strokeStyle=PHASES[pi].color+'88';ctx.lineWidth=0.5;ctx.stroke();
+    kpPos[kp.id]={x:nx,y:ny};
+  }
+  for(var i=0;i<KPS.length;i++){var kp2=KPS[i];if(!kp2.rel)continue;
+    var srcPos=kpPos[kp2.id];if(!srcPos)continue;
+    kp2.rel.forEach(function(rid){
+      var dstPos=kpPos[rid];if(!dstPos)return;
+      ctx.beginPath();ctx.moveTo(srcPos.x,srcPos.y);ctx.lineTo(dstPos.x,dstPos.y);
+      ctx.strokeStyle='#6366f122';ctx.lineWidth=0.5;ctx.setLineDash([2,4]);ctx.stroke();ctx.setLineDash([]);
+    });
+  }
+}
+
+// ============================================================
+// RESOURCE RENDER
+// ============================================================
+
+function hRS(){
+  var h='';
+  for(var i=0;i<RESOURCES.length;i++){var r=RESOURCES[i];
+    h+='<div class="resource-item"><span class="ri-type '+r.t+'">'+r.t+'</span><h4>'+r.n+'</h4><p>'+r.d+'</p></div>';
+  }
+  document.getElementById('resourceGrid').innerHTML=h;
+}
+
+// ============================================================
+// TRACKER
+// ============================================================
+
+function hTR(){
+  var h='';var d=LS_PREFIX+'_tracker';var dr=JSON.parse(safeGetLS(d,'[]'));
+  for(var i=0;i<TRACKER_ITEMS.length;i++){var t=TRACKER_ITEMS[i];var done=dr.indexOf(t.id)>=0;
+    h+='<div class="tracker-item'+(done?' done':'')+'" onclick="tTR(\''+t.id+'\',this)">'+
+      '<div class="tracker-check"></div><span class="tracker-label">'+t.n+'</span></div>';
+  }
+  document.getElementById('trackerGrid').innerHTML=h;
+  uPB();
+}
+
+function tTR(id,el){
+  var d=LS_PREFIX+'_tracker';var dr=JSON.parse(safeGetLS(d,'[]'));
+  var idx=dr.indexOf(id);
+  if(idx>=0){dr.splice(idx,1);el.classList.remove('done');}
+  else{dr.push(id);el.classList.add('done');}
+  safeSetLS(d,JSON.stringify(dr));
+  uPB();
+}
+
+function uPB(){
+  var d=LS_PREFIX+'_tracker';var dr=JSON.parse(safeGetLS(d,'[]'));
+  var pct=TRACKER_ITEMS.length>0?Math.round(dr.length/TRACKER_ITEMS.length*100):0;
+  document.getElementById('progressBar').style.width=pct+'%';
+}
+
+// ============================================================
+// FORMULA RENDER
+// ============================================================
+
+function hFs(){
+  var tabsEl=document.getElementById('formulaTabs');if(!tabsEl)return;
+  var th='';
+  for(var i=0;i<FORMULA_TABS.length;i++){
+    th+='<span class="formula-tab'+(i===0?' active':'')+'" onclick="sFT(\'ft'+(i+1)+'\',this)">'+FORMULA_TABS[i].n+'</span>';
+  }
+  tabsEl.innerHTML=th;
+  var panelsEl=document.getElementById('formulaPanels');if(!panelsEl)return;
+  var ph='';
+  for(var i=0;i<FORMULAS.length;i++){
+    var f=FORMULAS[i];var fr='';
+    for(var j=0;j<f.r.length;j++){fr+='<tr><td>'+f.r[j][0]+'</td><td class="ft-formula">'+f.r[j][1]+'</td></tr>';}
+    ph+='<div class="formula-panel'+(i===0?' active':'')+'" id="fp-ft'+(i+1)+'">'+
+      '<table class="formula-table"><thead><tr><th>名称</th><th>公式</th></tr></thead><tbody>'+fr+'</tbody></table></div>';
+  }
+  panelsEl.innerHTML=ph;
+}
+
+// ============================================================
+// DRAWING SECTION RENDER
+// ============================================================
+
+function hDS(){
+  var grid=document.getElementById('drawingGrid');if(!grid)return;
+  var h='';
+  for(var i=0;i<PHASES.length;i++){var ph=PHASES[i];
+    if(ph.drawings&&ph.drawings.length){
+      for(var j=0;j<ph.drawings.length;j++){
+        h+='<div class="drawing-card"><h4>'+ph.drawings[j]+'</h4><p>阶段'+(i+1)+'：'+ph.title+'</p></div>';
+      }
+    }
+  }
+  grid.innerHTML=h||'<p style="color:var(--text-muted);font-size:0.85rem">各阶段的图表推导要点将在此展示。</p>';
+}
+
+// ============================================================
+// SEARCH
+// ============================================================
+
+function searchOpen(){document.getElementById('searchOverlay').classList.add('show');document.getElementById('searchInput').focus();}
+function searchClose(){document.getElementById('searchOverlay').classList.remove('show');}
+function searchKPs(){
+  var q=document.getElementById('searchInput').value.toLowerCase();
+  var res=KPS.filter(function(k){return k.n.toLowerCase().indexOf(q)>=0||(k.d||'').toLowerCase().indexOf(q)>=0;});
+  var h='';
+  for(var i=0;i<Math.min(res.length,10);i++){
+    h+='<div class="search-result" onclick="searchClose();tKC_go(\''+res[i].id+'\')">'+
+      '<div class="sr-title">'+res[i].n+'</div><div class="sr-detail">'+(res[i].d||'').substring(0,60)+'</div></div>';
+  }
+  document.getElementById('searchResults').innerHTML=h||'<div style="color:var(--text-muted);padding:10px">无结果</div>';
+}
+
+// ============================================================
+// THEME
+// ============================================================
+
+function loadTheme(){var t=safeGetLS(STORAGE_KEY+'_theme','%THEME_DEFAULT%');
+  if(t==='light'){document.body.classList.add('light');document.body.classList.remove('dark');}
+  else{document.body.classList.add('dark');document.body.classList.remove('light');}}
+function toggleTheme(){var t=safeGetLS(STORAGE_KEY+'_theme','%THEME_DEFAULT%');t=t==='dark'?'light':'dark';
+  safeSetLS(STORAGE_KEY+'_theme',t);loadTheme();}
+
+// ============================================================
+// L2 RUNTIME MANIFEST SYNC (NEW v3.4 — fallback for deep dive linkage)
+// ============================================================
+// When deep_dive materials are generated AFTER this plan, Step 5.1.4 of
+// smart-learning-materials updates the KPS data in this HTML file. But if
+// that step fails or is skipped, this runtime sync reads manifest.json and
+// updates KP states in memory + UI. This is the L2 fallback mechanism.
+
+function syncKPsFromManifest(){
+  try{
+    fetch('manifest.json').then(function(r){
+      if(!r.ok)return;
+      return r.json();
+    }).then(function(manifest){
+      if(!manifest||!manifest.materials||!manifest.plans)return;
+      var currentPlan=null;
+      for(var i=0;i<manifest.plans.length;i++){
+        if(manifest.plans[i].html_file===STORAGE_KEY+'_learning.html'){
+          currentPlan=manifest.plans[i];break;
+        }
+      }
+      if(!currentPlan)return;
+      for(var i=0;i<manifest.materials.length;i++){
+        var mat=manifest.materials[i];
+        if(mat.belongs_to_plan!==currentPlan.id)continue;
+        if(!mat.html_file)continue;
+        var kpIndex=-1;
+        for(var j=0;j<KPS.length;j++){
+          if(KPS[j].id===mat.belongs_to_kp){kpIndex=j;break;}
+        }
+        if(kpIndex<0)continue;
+        var dd=KPS[kpIndex].deep_dive;
+        if(!dd){KPS[kpIndex].deep_dive={status:'ready',html_file:mat.html_file};}
+        else{dd.status='ready';dd.html_file=dd.html_file||mat.html_file;}
+        var kcEl=document.getElementById('kc-'+mat.belongs_to_kp);
+        if(!kcEl)continue;
+        var ddBtn=kcEl.querySelector('.deep-dive-btn');
+        if(ddBtn)ddBtn.textContent='✅ 查看深度研读';
+        var ddHint=kcEl.querySelector('.dd-hint');
+        if(ddHint)ddHint.textContent='点击 ↗ 打开资料';
+        var ddOpenBtn=kcEl.querySelector('.deep-dive-open-btn');
+        if(!ddOpenBtn){
+          var ddBar=kcEl.querySelector('.deep-dive-bar');
+          if(ddBar){
+            var btn=document.createElement('button');
+            btn.className='deep-dive-open-btn';
+            btn.title='打开深度研读资料';
+            btn.textContent='↗';
+            btn.onclick=function(kpId){return function(e){e.stopPropagation();ddOpen(kpId);};}(mat.belongs_to_kp);
+            ddBar.insertBefore(btn,ddBar.firstChild);
+          }
+        }
+      }
+    }).catch(function(){});
+  }catch(e){}
+}
+
+// ============================================================
+// INIT (verified — conditional section removal handled by agent)
+// ============================================================
+
+function init(){
+  loadTheme();
+  var pl=document.getElementById('phaseList');
+  for(var i=0;i<PHASES.length;i++){var ph=PHASES[i];
+    var c=document.createElement('div');c.className='phase-card';c.id='phase-'+ph.id;
+    c.innerHTML='<div class="phase-header" onclick="event.stopPropagation();this.parentElement.classList.toggle(\'open\')">'+
+      '<div class="phase-icon" style="background:'+ph.color+'22;color:'+ph.color+'">'+ph.icon+'</div>'+
+      '<div class="phase-info"><h3>'+ph.title+'</h3><div class="phase-week">'+ph.week+'</div></div>'+
+      '<span class="phase-sub" style="background:'+ph.color+'22;color:'+ph.color+'">'+ph.sub+'</span>'+
+      '<span class="phase-arrow">▶</span>'+
+      '</div><div class="phase-body"><div class="phase-body-inner"></div></div>';
+    pl.appendChild(c);
+    AHDS(ph);
+  }
+  var fd=document.getElementById('knowledgeFilters');
+  fd.innerHTML='<button class="knowledge-filter active" data-kp="all" onclick="kf(\'all\')">全部</button>';
+  for(var i=0;i<PHASES.length;i++){fd.innerHTML+='<button class="knowledge-filter" data-kp="'+PHASES[i].id+'" onclick="kf(\''+PHASES[i].id+'\')">阶段'+(i+1)+'</button>';}
+  kf('all');
+  // CONDITIONAL: HAS_FORMULAS -> call hFs()
+  hFs();
+  // CONDITIONAL: HAS_EXERCISES -> call hES()
+  hES();
+  hRS();
+  hTR();
+  // CONDITIONAL: HAS_DRAWING -> call hDS()
+  hDS();
+  // CONDITIONAL: HAS_GRAPH -> call drawGraph() in animation loop
+  if(document.getElementById('graphCanvas')){drawGraph();window.addEventListener('resize',drawGraph);}
+  document.body.classList.remove('loading');document.body.classList.add('loaded');
+  syncKPsFromManifest();
+  setTimeout(renderAllFormulas,100);
+}
+
+init();
+
+// ============================================================
+// KEYBOARD + HASH ROUTING
+// ============================================================
+
+document.addEventListener('keydown',function(e){if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();searchOpen();}});
+
+(function(){var hash=location.hash;if(hash&&hash.indexOf('#kc-')===0){
+  var kid=hash.replace('#kc-','');setTimeout(function(){tKC_go(kid);},300);}})();
+
+// ============================================================
+// GRAPH CANVAS CLICK HANDLER
+// ============================================================
+var gc=document.getElementById('graphCanvas');if(gc){gc.addEventListener('click',function(){drawGraph();});}
+
+// ============================================================
+// CROSS-WINDOW NAVIGATION LISTENER (_ml_llm_nav)
+// Receives navigation signals from deep-dive materials when user
+// clicks "返回学习方案". Locates and expands the target KP card.
+// ============================================================
+(function() {
+  var CH_KEY = '_ml_llm_nav';
+
+  function processNav() {
+    var raw = localStorage.getItem(CH_KEY);
+    if (!raw) return;
+    try {
+      var data = JSON.parse(raw);
+      if (Date.now() - data.ts > 10000) {
+        localStorage.removeItem(CH_KEY);
+        return;
+      }
+      if (data.kpId) {
+        localStorage.removeItem(CH_KEY);
+        if (typeof kf === 'function') kf('all');
+        setTimeout(function() {
+          if (typeof tKC_go === 'function') tKC_go(data.kpId);
+        }, 200);
+      }
+    } catch(e) {
+      localStorage.removeItem(CH_KEY);
+    }
+  }
+
+  window.addEventListener('storage', function(e) {
+    if (e.key === CH_KEY) processNav();
+  });
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+      setTimeout(processNav, 300);
+    });
+  } else {
+    setTimeout(processNav, 300);
+  }
+})();
+</script>
+</body>
+</html>

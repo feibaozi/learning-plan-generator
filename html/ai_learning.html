@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 与大模型 · 金融方向完整学习方案</title>
+<meta name="description" content="AI与大模型金融方向完整学习方案 - 15周从零到AI工程师">
+<meta name="theme-color" content="#0a0520">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-deep: #0a0520; --bg-card: #100830; --bg-card-hover: #181048; --bg-elevated: #1e1058;
+  --border-subtle: #2a1570; --border-glow: #3d20a0;
+  --text-primary: #e8e4f8; --text-secondary: #9d8fd4; --text-muted: #6858a8;
+  --accent-cyan: #00e5ff; --accent-teal: #00bfa5; --accent-blue: #448aff;
+  --accent-purple: #b388ff; --accent-pink: #ff4081; --accent-amber: #ffab00; --accent-green: #00e676;
+  --gradient-hero: linear-gradient(135deg, #b388ff 0%, #00e5ff 40%, #448aff 100%);
+  --gradient-ai: linear-gradient(135deg, #b388ff 0%, #448aff 50%, #00e5ff 100%);
+  --radius-sm: 8px; --radius-md: 14px; --radius-lg: 22px;
+  --shadow-glow: 0 0 40px rgba(179,136,255,0.1), 0 0 80px rgba(0,229,255,0.06);
+  --transition-fast: 150ms cubic-bezier(0.4,0,0.2,1);
+  --transition-smooth: 350ms cubic-bezier(0.4,0,0.2,1);
+  --transition-bounce: 500ms cubic-bezier(0.34,1.56,0.64,1);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:80px}
+body{font-family:'Noto Sans SC',sans-serif;background:var(--bg-deep);color:var(--text-primary);line-height:1.7;overflow-x:hidden}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--bg-deep)}
+::-webkit-scrollbar-thumb{background:var(--border-glow);border-radius:3px}
+#bg-canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:0.35}
+.top-nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,5,32,0.9);backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--border-subtle);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between}
+.top-nav.scrolled{box-shadow:0 4px 30px rgba(179,136,255,0.15)}
+.nav-logo{font-family:'Orbitron',monospace;font-size:1.05rem;font-weight:700;background:var(--gradient-ai);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:1px;cursor:pointer}
+.nav-links{display:flex;gap:16px;list-style:none}
+.nav-links a{color:var(--text-secondary);text-decoration:none;font-size:0.78rem;font-weight:500;transition:color var(--transition-fast);position:relative}
+.nav-links a:hover,.nav-links a.active{color:var(--accent-purple)}
+.nav-links a::after{content:'';position:absolute;bottom:-4px;left:0;width:0;height:2px;background:var(--accent-purple);transition:width var(--transition-smooth);border-radius:1px}
+.nav-links a:hover::after,.nav-links a.active::after{width:100%}
+.nav-right-group{display:flex;align-items:center;gap:12px}
+.nav-search-btn{width:34px;height:34px;border-radius:50%;border:1px solid var(--border-subtle);background:transparent;color:var(--text-muted);cursor:pointer;font-size:0.95rem;display:flex;align-items:center;justify-content:center;transition:all var(--transition-fast)}
+.nav-search-btn:hover{border-color:var(--accent-purple);color:var(--accent-purple)}
+.nav-cta{padding:7px 18px;border-radius:var(--radius-sm);background:var(--gradient-ai);border:none;color:#fff;font-weight:700;font-size:0.78rem;cursor:pointer;transition:all var(--transition-smooth);font-family:'Noto Sans SC',sans-serif}
+.nav-cta:hover{transform:scale(1.04);box-shadow:0 0 30px rgba(179,136,255,0.3)}
+.hamburger{display:none;flex-direction:column;gap:4px;background:transparent;border:none;cursor:pointer;padding:4px;z-index:110}
+.hamburger span{display:block;width:22px;height:2px;background:var(--text-primary);border-radius:1px;transition:all var(--transition-smooth)}
+.hamburger.open span:nth-child(1){transform:rotate(45deg) translate(4px,4px)}
+.hamburger.open span:nth-child(2){opacity:0}
+.hamburger.open span:nth-child(3){transform:rotate(-45deg) translate(4px,-4px)}
+.mobile-menu{position:fixed;top:0;left:0;right:0;bottom:0;z-index:105;background:rgba(10,5,32,0.98);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;opacity:0;pointer-events:none;transition:opacity var(--transition-smooth)}
+.mobile-menu.open{opacity:1;pointer-events:auto}
+.mobile-menu a{color:var(--text-secondary);text-decoration:none;font-size:1.15rem;font-weight:600}
+.search-overlay{position:fixed;top:0;left:0;right:0;bottom:0;z-index:200;background:rgba(10,5,32,0.95);display:flex;flex-direction:column;align-items:center;padding-top:120px;opacity:0;pointer-events:none;transition:opacity var(--transition-smooth)}
+.search-overlay.open{opacity:1;pointer-events:auto}
+.search-input-wrap{width:90%;max-width:560px;position:relative}
+.search-input-wrap input{width:100%;padding:16px 50px;border-radius:var(--radius-lg);border:2px solid var(--border-glow);background:var(--bg-elevated);color:var(--text-primary);font-size:1.1rem;outline:none;font-family:'Noto Sans SC',sans-serif;transition:border-color var(--transition-fast)}
+.search-input-wrap input:focus{border-color:var(--accent-purple)}
+.search-icon{position:absolute;left:18px;top:50%;transform:translateY(-50%);color:var(--accent-purple)}
+.search-close{position:absolute;right:18px;top:50%;transform:translateY(-50%);background:transparent;border:none;color:var(--text-muted);font-size:1.3rem;cursor:pointer}
+.search-results{width:90%;max-width:560px;margin-top:16px;max-height:400px;overflow-y:auto}
+.search-result-item{padding:14px 18px;margin-bottom:6px;border-radius:var(--radius-md);background:var(--bg-card);border:1px solid var(--border-subtle);cursor:pointer}
+.search-result-item:hover{border-color:var(--accent-purple);background:var(--bg-card-hover)}
+.sr-title{font-weight:600;font-size:0.9rem;color:var(--accent-purple)}
+.sr-snippet{font-size:0.76rem;color:var(--text-muted);margin-top:4px}
+.side-progress{position:fixed;right:20px;top:50%;transform:translateY(-50%);z-index:90;display:flex;flex-direction:column;gap:10px}
+.progress-dot{width:10px;height:10px;border-radius:50%;background:var(--text-muted);cursor:pointer;transition:all var(--transition-bounce);position:relative}
+.progress-dot.active{background:var(--accent-purple);box-shadow:0 0 16px var(--accent-purple);width:14px;height:14px}
+.progress-tooltip{position:absolute;right:22px;top:50%;transform:translateY(-50%);background:var(--bg-elevated);color:var(--text-primary);padding:4px 12px;border-radius:var(--radius-sm);font-size:0.66rem;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity var(--transition-fast);border:1px solid var(--border-glow)}
+.progress-dot:hover .progress-tooltip{opacity:1}
+.back-to-top{position:fixed;bottom:28px;right:20px;z-index:95;width:42px;height:42px;border-radius:50%;background:var(--bg-elevated);border:1px solid var(--border-glow);color:var(--text-muted);cursor:pointer;font-size:1.2rem;display:flex;align-items:center;justify-content:center;opacity:0;transform:translateY(20px);pointer-events:none;transition:all var(--transition-bounce)}
+.back-to-top.visible{opacity:1;transform:translateY(0);pointer-events:auto}
+.back-to-top:hover{border-color:var(--accent-purple);color:var(--accent-purple)}
+.hero{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:120px 24px 80px}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;padding:6px 18px;border-radius:50px;border:1px solid var(--border-glow);background:rgba(179,136,255,0.08);font-size:0.8rem;color:var(--accent-purple);margin-bottom:28px;animation:fadeInUp 0.8s ease-out}
+.hero-badge .dot{width:7px;height:7px;border-radius:50%;background:var(--accent-purple);animation:pulse 2s infinite}
+.hero h1{font-family:'Orbitron',monospace;font-size:clamp(2rem,5vw,3.8rem);font-weight:900;line-height:1.2;max-width:860px;animation:fadeInUp 0.8s ease-out 0.1s both}
+.hero h1 .gradient-text{background:var(--gradient-hero);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{color:var(--text-secondary);font-size:1.05rem;max-width:640px;margin:20px 0 36px;animation:fadeInUp 0.8s ease-out 0.2s both}
+.hero-stats{display:flex;gap:40px;margin-bottom:40px;animation:fadeInUp 0.8s ease-out 0.3s both}
+.hero-stat{text-align:center}
+.hero-stat .num{font-family:'Orbitron',monospace;font-size:1.8rem;font-weight:700;background:var(--gradient-hero);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-stat .lbl{font-size:0.76rem;color:var(--text-muted);margin-top:4px}
+.hero-btns{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;animation:fadeInUp 0.8s ease-out 0.4s both}
+.btn-primary{padding:14px 36px;border-radius:var(--radius-md);border:none;background:var(--gradient-ai);color:#fff;font-weight:700;font-size:0.95rem;cursor:pointer;transition:all var(--transition-smooth);font-family:'Noto Sans SC',sans-serif}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 40px rgba(179,136,255,0.3)}
+.btn-outline{padding:14px 36px;border-radius:var(--radius-md);border:1.5px solid var(--border-glow);color:var(--text-primary);background:transparent;font-weight:600;font-size:0.95rem;cursor:pointer;transition:all var(--transition-smooth);font-family:'Noto Sans SC',sans-serif}
+.btn-outline:hover{border-color:var(--accent-purple);color:var(--accent-purple)}
+.btn-danger{padding:10px 22px;border-radius:var(--radius-sm);background:transparent;border:1px solid rgba(255,64,129,0.4);color:var(--accent-pink);cursor:pointer;font-size:0.78rem;font-weight:600;transition:all var(--transition-fast);font-family:'Noto Sans SC',sans-serif}
+.btn-danger:hover{background:rgba(255,64,129,0.1)}
+.hero-scroll-indicator{position:absolute;bottom:40px;left:50%;transform:translateX(-50%);cursor:pointer;animation:float 2.5s ease-in-out infinite;color:var(--text-muted);font-size:1.6rem;z-index:2}
+.section{position:relative;z-index:1;padding:80px 24px}
+.section-header{text-align:center;margin-bottom:60px}
+.section-tag{display:inline-block;padding:4px 14px;border-radius:50px;background:rgba(179,136,255,0.1);color:var(--accent-purple);font-size:0.7rem;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;margin-bottom:16px;font-family:'Orbitron',monospace}
+.section-header h2{font-family:'Orbitron',monospace;font-size:1.9rem;font-weight:700}
+.section-header h2 span{background:var(--gradient-hero);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.section-header .subtitle{color:var(--text-muted);font-size:0.9rem;margin-top:10px;max-width:500px;margin-left:auto;margin-right:auto}
+.roadmap-section{max-width:1000px;margin:0 auto}
+.roadmap-track{position:relative;padding-left:40px}
+.roadmap-track::before{content:'';position:absolute;left:16px;top:0;bottom:0;width:2px;background:linear-gradient(to bottom,var(--accent-cyan),var(--accent-teal),var(--accent-blue),var(--accent-purple),var(--accent-pink),var(--accent-amber),var(--accent-green));border-radius:1px}
+.roadmap-item{position:relative;margin-bottom:36px;opacity:0;transform:translateY(30px);transition:opacity .6s,transform .6s}
+.roadmap-item.visible{opacity:1;transform:translateY(0)}
+.roadmap-dot{position:absolute;left:-30px;top:20px;width:14px;height:14px;border-radius:50%;border:3px solid var(--bg-deep);z-index:2}
+.roadmap-item:nth-child(1) .roadmap-dot{background:var(--accent-cyan)}
+.roadmap-item:nth-child(2) .roadmap-dot{background:var(--accent-teal)}
+.roadmap-item:nth-child(3) .roadmap-dot{background:var(--accent-blue)}
+.roadmap-item:nth-child(4) .roadmap-dot{background:var(--accent-purple)}
+.roadmap-item:nth-child(5) .roadmap-dot{background:var(--accent-pink)}
+.roadmap-item:nth-child(6) .roadmap-dot{background:var(--accent-amber)}
+.roadmap-item:nth-child(7) .roadmap-dot{background:var(--accent-green)}
+.roadmap-content{padding:24px;border-radius:var(--radius-lg);background:var(--bg-card);border:1px solid var(--border-subtle);cursor:pointer;transition:all var(--transition-smooth)}
+.roadmap-content:hover{background:var(--bg-card-hover);border-color:var(--border-glow);transform:translateX(6px);box-shadow:var(--shadow-glow)}
+.phase-badge{display:inline-block;padding:3px 10px;border-radius:50px;font-size:0.66rem;font-weight:700;font-family:'Orbitron',monospace;letter-spacing:1px;margin-bottom:8px}
+.phase-badge.c1{background:rgba(0,229,255,0.12);color:var(--accent-cyan)}
+.phase-badge.c2{background:rgba(0,191,165,0.12);color:var(--accent-teal)}
+.phase-badge.c3{background:rgba(68,138,255,0.12);color:var(--accent-blue)}
+.phase-badge.c4{background:rgba(179,136,255,0.12);color:var(--accent-purple)}
+.phase-badge.c5{background:rgba(255,64,129,0.12);color:var(--accent-pink)}
+.phase-badge.c6{background:rgba(255,171,0,0.12);color:var(--accent-amber)}
+.phase-badge.c7{background:rgba(0,230,118,0.12);color:var(--accent-green)}
+.roadmap-content h3{font-size:1.15rem;font-weight:700;margin-bottom:4px}
+.roadmap-content .week{font-size:0.8rem;color:var(--text-muted);margin-bottom:10px}
+.roadmap-content ul{list-style:none;display:flex;flex-wrap:wrap;gap:6px}
+.roadmap-content ul li{font-size:0.72rem;padding:2px 10px;border-radius:50px;background:var(--bg-elevated);color:var(--text-secondary);border:1px solid var(--border-subtle)}
+.goto-link{display:inline-block;margin-top:12px;font-size:0.76rem;color:var(--accent-purple);font-weight:600}
+.phase-container{max-width:900px;margin:0 auto}
+.phase-detail{margin-bottom:12px;border-radius:var(--radius-lg);background:var(--bg-card);border:1px solid var(--border-subtle);overflow:hidden;transition:all var(--transition-smooth)}
+.phase-detail.open{border-color:var(--border-glow);box-shadow:0 0 30px rgba(179,136,255,0.08)}
+.phase-detail-header{padding:20px 24px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:background var(--transition-fast);gap:16px;user-select:none}
+.phase-detail-header:hover{background:var(--bg-card-hover)}
+.phase-detail-header .left{display:flex;align-items:center;gap:16px;flex:1;min-width:0}
+.phase-detail-header .icon{width:48px;height:48px;border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0}
+.phase-detail-header h3{font-size:1rem;font-weight:700}
+.phase-detail-header .meta{font-size:0.75rem;color:var(--text-muted);margin-top:2px}
+.phase-arrow{font-size:0.8rem;color:var(--text-muted);transition:transform var(--transition-smooth);flex-shrink:0}
+.phase-detail.open .phase-arrow{transform:rotate(180deg)}
+.phase-body{display:grid;grid-template-rows:0fr;transition:grid-template-rows var(--transition-smooth)}
+.phase-detail.open .phase-body{grid-template-rows:1fr}
+.phase-body-inner{overflow:hidden;padding:0 24px}
+.phase-detail.open .phase-body-inner{padding:6px 24px 24px}
+.skill-grid{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.skill-chip{padding:6px 14px;border-radius:var(--radius-sm);background:var(--bg-elevated);border:1px solid var(--border-subtle);font-size:0.78rem;transition:all var(--transition-fast);display:inline-flex;align-items:center;white-space:nowrap}
+.skill-chip code{color:var(--accent-cyan);font-family:'JetBrains Mono',monospace;font-size:0.76rem;font-weight:600}
+.skill-chip:hover{border-color:var(--accent-purple)}
+.skill-chip.skill-link{cursor:pointer;padding-right:10px;border-color:var(--border-glow)}
+.skill-chip.skill-link:hover{border-color:var(--accent-purple);background:rgba(179,136,255,0.08);transform:translateY(-1px);box-shadow:0 2px 8px rgba(179,136,255,0.15)}
+.skill-chip.skill-link:hover code{color:var(--accent-purple)}
+.skill-chip .chip-arrow{font-size:0.6rem;margin-left:5px;color:var(--accent-purple);font-weight:700;opacity:0.7}
+.skill-chip.skill-link:hover .chip-arrow{opacity:1}
+.code-block{margin:12px 0;border-radius:var(--radius-md);overflow:hidden;background:rgba(0,0,0,0.5);border:1px solid var(--border-subtle)}
+.code-header{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;background:rgba(10,5,32,0.8);border-bottom:1px solid var(--border-subtle)}
+.code-lang{font-size:0.72rem;color:var(--text-muted);font-family:'JetBrains Mono',monospace}
+.copy-btn{padding:4px 14px;border-radius:var(--radius-sm);background:transparent;border:1px solid var(--border-subtle);color:var(--text-secondary);cursor:pointer;font-size:0.72rem;font-weight:500;transition:all var(--transition-fast)}
+.copy-btn:hover{border-color:var(--accent-purple);color:var(--accent-purple)}
+.copy-btn.copied{color:var(--accent-green)!important;border-color:var(--accent-green)!important}
+.code-block pre{padding:16px;overflow-x:auto;font-size:0.77rem;line-height:1.65}
+.code-block code{font-family:'JetBrains Mono',monospace;color:var(--text-primary)}
+.code-block code .kw{color:var(--accent-purple)}
+.code-block code .bn{color:var(--accent-cyan)}
+.code-block code .st{color:var(--accent-green)}
+.code-block code .nu{color:var(--accent-amber)}
+.code-block code .cm{color:var(--text-muted);font-style:italic}
+.code-block code .fn{color:var(--accent-blue)}
+.code-block code .cl{color:var(--accent-pink)}
+.phase-drawing-tag{display:inline-block;padding:3px 10px;border-radius:50px;font-size:0.66rem;margin:4px;font-weight:700}
+.draw-must{border:1px solid #ff4081;color:var(--accent-pink);background:rgba(255,64,129,0.08)}
+.draw-suggest{border:1px solid #ffab00;color:var(--accent-amber);background:rgba(255,171,0,0.08)}
+.draw-optional{border:1px solid rgba(0,229,255,0.4);color:var(--accent-cyan);background:rgba(0,229,255,0.05)}
+.diagram-section{max-width:900px;margin:0 auto}
+.diagram-intro{text-align:center;margin-bottom:40px}
+.diagram-intro h2{font-family:'Orbitron',monospace;font-size:1.8rem;margin-bottom:12px}
+.diagram-intro h2 span{background:var(--gradient-hero);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.diagram-intro p{color:var(--text-muted);max-width:620px;margin:0 auto;font-size:0.9rem}
+.drawing-method{display:flex;gap:20px;margin-bottom:40px;flex-wrap:wrap}
+.method-card{flex:1;min-width:220px;padding:28px 20px;border-radius:var(--radius-lg);background:var(--bg-card);border:1px solid var(--border-subtle);text-align:center;transition:all var(--transition-smooth)}
+.method-card:hover{border-color:var(--border-glow);transform:translateY(-4px)}
+.method-card .step-num{font-family:'Orbitron',monospace;font-size:1.6rem;font-weight:900;color:var(--accent-purple);margin-bottom:6px}
+.method-card h4{font-size:1rem;margin-bottom:6px}
+.method-card p{font-size:0.76rem;color:var(--text-muted)}
+.math-tags{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:18px}
+.math-tag{padding:6px 16px;border-radius:50px;font-size:0.74rem;font-weight:600;display:inline-flex;align-items:center;gap:5px;font-family:'Noto Sans SC',sans-serif}
+.tag-linalg{background:rgba(0,229,255,0.12);color:var(--accent-cyan);border:1px solid rgba(0,229,255,0.25)}
+.tag-prob{background:rgba(255,171,0,0.12);color:var(--accent-amber);border:1px solid rgba(255,171,0,0.25)}
+.tag-calc{background:rgba(255,64,129,0.12);color:var(--accent-pink);border:1px solid rgba(255,64,129,0.25)}
+.tag-optim{background:rgba(0,230,118,0.12);color:var(--accent-green);border:1px solid rgba(0,230,118,0.25)}
+.tag-info{background:rgba(179,136,255,0.12);color:var(--accent-purple);border:1px solid rgba(179,136,255,0.25)}
+.draw-levels{display:flex;gap:14px;margin-top:32px;flex-wrap:wrap;justify-content:center}
+.draw-level{padding:10px 20px;border-radius:var(--radius-md);font-size:0.8rem;font-weight:600;text-align:center;min-width:140px;transition:all var(--transition-fast)}
+.draw-level.must{background:rgba(255,64,129,0.1);border:1.5px solid #ff4081;color:var(--accent-pink)}
+.draw-level.suggest{background:rgba(255,171,0,0.1);border:1.5px solid #ffab00;color:var(--accent-amber)}
+.draw-level.optional{background:rgba(0,229,255,0.07);border:1.5px solid rgba(0,229,255,0.3);color:var(--accent-cyan)}
+.formula-section{max-width:1000px;margin:0 auto}
+.formula-tabs{display:flex;gap:0;margin-bottom:24px;border-radius:var(--radius-md);overflow:hidden;border:1px solid var(--border-subtle);flex-wrap:wrap}
+.formula-tab{flex:1;min-width:100px;padding:12px 10px;text-align:center;background:var(--bg-card);color:var(--text-muted);cursor:pointer;font-size:0.78rem;font-weight:600;border:none;transition:all var(--transition-fast);font-family:'Noto Sans SC',sans-serif;white-space:nowrap}
+.formula-tab:hover{color:var(--text-primary)}
+.formula-tab.active{background:var(--bg-elevated);color:var(--accent-purple)}
+.formula-tab:nth-child(1).active{color:var(--accent-cyan)}
+.formula-tab:nth-child(2).active{color:var(--accent-amber)}
+.formula-tab:nth-child(3).active{color:var(--accent-pink)}
+.formula-tab:nth-child(4).active{color:var(--accent-green)}
+.formula-tab:nth-child(5).active{color:var(--accent-purple)}
+.formula-panel{display:none}
+.formula-panel.active{display:block}
+.knowledge-section{max-width:900px;margin:0 auto}
+.knowledge-filter-bar{display:flex;gap:6px;margin-bottom:20px;flex-wrap:wrap}
+.knowledge-filter{padding:5px 14px;border-radius:50px;background:transparent;border:1px solid var(--border-subtle);color:var(--text-muted);cursor:pointer;font-size:0.72rem;font-weight:600;transition:all var(--transition-fast);font-family:'Noto Sans SC',sans-serif}
+.knowledge-filter:hover,.knowledge-filter.active{color:var(--accent-purple);border-color:var(--accent-purple)}
+.knowledge-card{margin-bottom:12px;border-radius:var(--radius-md);background:var(--bg-card);border:1px solid var(--border-subtle);overflow:hidden;transition:all var(--transition-smooth)}
+.knowledge-card.open{border-color:var(--border-glow);box-shadow:0 0 24px rgba(179,136,255,0.06)}
+.knowledge-card-header{padding:14px 18px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;gap:10px;user-select:none;transition:background var(--transition-fast)}
+.knowledge-card-header:hover{background:var(--bg-card-hover)}
+.knowledge-card-header .kl{display:flex;align-items:center;gap:10px;flex:1;min-width:0}
+.knowledge-card-header .kl h4{font-size:0.88rem;font-weight:700;color:var(--text-primary)}
+.knowledge-card-header .k-arrow{font-size:0.65rem;color:var(--text-muted);transition:transform var(--transition-smooth);flex-shrink:0}
+.knowledge-card.open .k-arrow{transform:rotate(180deg)}
+.knowledge-card-body{display:grid;grid-template-rows:0fr;transition:grid-template-rows var(--transition-smooth)}
+.knowledge-card.open .knowledge-card-body{grid-template-rows:1fr}
+.knowledge-card-inner{overflow:hidden;padding:0 18px}
+.knowledge-card.open .knowledge-card-inner{padding:6px 18px 18px}
+.knowledge-card-inner .k-concept{font-size:0.76rem;color:var(--text-secondary);line-height:1.7;margin-bottom:12px}
+.knowledge-card-inner .k-formula{display:inline-block;padding:6px 14px;margin:4px 4px 4px 0;border-radius:var(--radius-sm);background:var(--bg-elevated);border:1px solid var(--border-glow);font-family:'JetBrains Mono',monospace;font-size:0.74rem;color:var(--accent-cyan)}
+.diagram-box{margin:12px 0;padding:16px;border-radius:var(--radius-sm);background:rgba(0,0,0,0.45);border:1px solid var(--border-subtle);font-family:'JetBrains Mono',monospace;font-size:0.64rem;line-height:1.4;color:var(--accent-cyan);overflow-x:auto;white-space:pre}
+.diagram-box.tag-linalg{border-left:3px solid var(--accent-cyan)}
+.diagram-box.tag-prob{border-left:3px solid var(--accent-amber)}
+.diagram-box.tag-calc{border-left:3px solid var(--accent-pink)}
+.diagram-box.tag-optim{border-left:3px solid var(--accent-green)}
+.diagram-box.tag-info{border-left:3px solid var(--accent-purple)}
+.k-financial{font-size:0.73rem;color:var(--accent-amber);margin-top:10px;padding:8px 12px;border-radius:var(--radius-sm);background:rgba(255,171,0,0.06);border:1px dashed rgba(255,171,0,0.2)}
+.k-summary{font-size:0.74rem;color:var(--accent-purple);font-weight:600;margin-top:8px}
+.knowledge-summary-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px}
+.knowledge-summary-bar .ks-count{font-size:0.78rem;color:var(--text-muted)}
+.knowledge-summary-bar .ks-count strong{color:var(--accent-purple)}
+.knowledge-summary-bar .ks-expand-all{padding:5px 14px;border-radius:50px;background:transparent;border:1px solid var(--border-subtle);color:var(--text-muted);cursor:pointer;font-size:0.7rem;font-weight:600;transition:all var(--transition-fast)}
+.knowledge-summary-bar .ks-expand-all:hover{border-color:var(--accent-purple);color:var(--accent-purple)}
+.formula-table{width:100%;border-collapse:collapse;font-size:0.84rem}
+.formula-table th{padding:12px 16px;text-align:left;font-weight:600;border-bottom:2px solid var(--border-glow);color:var(--accent-purple);font-family:'Orbitron',monospace;font-size:0.66rem;letter-spacing:1.5px;text-transform:uppercase}
+.formula-table td{padding:10px 16px;border-bottom:1px solid var(--border-subtle)}
+.formula-table td:first-child{font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:var(--accent-cyan)}
+.formula-table tr:hover{background:var(--bg-card-hover)}
+.exercise-section{max-width:780px;margin:0 auto}
+.exercise-filters{display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap;justify-content:center}
+.exercise-filter{padding:7px 18px;border-radius:50px;background:transparent;border:1px solid var(--border-subtle);color:var(--text-muted);cursor:pointer;font-size:0.76rem;font-weight:600;transition:all var(--transition-fast);font-family:'Noto Sans SC',sans-serif}
+.exercise-filter:hover{color:var(--text-primary)}
+.exercise-filter.active{background:var(--gradient-ai);color:#fff;border-color:transparent}
+.exercise-counter{margin-bottom:16px;text-align:center;font-size:0.82rem;color:var(--text-muted)}
+.exercise-counter strong{color:var(--accent-purple)}
+.exercise-item{display:flex;align-items:flex-start;gap:14px;padding:18px;margin-bottom:10px;border-radius:var(--radius-md);background:var(--bg-card);border:1px solid var(--border-subtle);cursor:pointer;transition:all var(--transition-smooth)}
+.exercise-item:hover{background:var(--bg-card-hover);border-color:var(--border-glow)}
+.exercise-item.expanded{background:var(--bg-card-hover);border-color:var(--accent-purple)}
+.exercise-num{font-family:'Orbitron',monospace;font-size:0.85rem;font-weight:700;color:var(--text-muted);min-width:34px;padding-top:2px}
+.ei-content{flex:1;min-width:0}
+.ei-title{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.ei-title-text{font-size:0.88rem;font-weight:500}
+.diff{padding:2px 8px;border-radius:50px;font-size:0.64rem;font-weight:700;white-space:nowrap}
+.diff-easy{background:rgba(0,230,118,0.12);color:var(--accent-green)}
+.diff-medium{background:rgba(68,138,255,0.12);color:var(--accent-blue)}
+.diff-hard{background:rgba(255,171,0,0.12);color:var(--accent-amber)}
+.diff-project{background:rgba(255,64,129,0.12);color:var(--accent-pink)}
+.ei-answer{display:none;margin-top:10px;padding:12px;border-radius:var(--radius-sm);background:var(--bg-elevated);border:1px solid var(--border-subtle);font-size:0.76rem;color:var(--text-secondary)}
+.exercise-item.expanded .ei-answer{display:block}
+.ei-check{width:26px;height:26px;border-radius:50%;border:2px solid var(--border-subtle);cursor:pointer;flex-shrink:0;transition:all var(--transition-bounce);display:flex;align-items:center;justify-content:center;font-size:0.66rem;margin-top:3px}
+.ei-check:hover{border-color:var(--accent-green)}
+.ei-check.done{background:var(--accent-green);border-color:var(--accent-green);color:var(--bg-deep)}
+.resources-section{max-width:900px;margin:0 auto}
+.resource-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px}
+.resource-card{padding:20px;border-radius:var(--radius-md);background:var(--bg-card);border:1px solid var(--border-subtle);transition:all var(--transition-smooth);cursor:pointer;text-decoration:none;color:inherit;display:block}
+.resource-card:hover{transform:translateY(-4px);border-color:var(--border-glow);box-shadow:0 8px 36px rgba(179,136,255,0.1)}
+.resource-card h4{font-size:0.92rem;margin-bottom:4px}
+.resource-card p{font-size:0.74rem;color:var(--text-muted);line-height:1.5}
+.res-domain{display:inline-block;margin-top:8px;padding:2px 8px;border-radius:50px;font-size:0.64rem;font-weight:600;background:rgba(179,136,255,0.1);color:var(--accent-purple)}
+.tracker-section{max-width:700px;margin:0 auto}
+.tracker-list{margin-bottom:24px}
+.tracker-row{display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid var(--border-subtle);font-size:0.82rem}
+.tracker-check{width:24px;height:24px;border-radius:50%;border:2px solid var(--border-subtle);cursor:pointer;flex-shrink:0;transition:all var(--transition-bounce);display:flex;align-items:center;justify-content:center;font-size:0.62rem}
+.tracker-check:hover{border-color:var(--accent-purple)}
+.tracker-check.done{background:var(--accent-purple);border-color:var(--accent-purple);color:#fff}
+.tracker-bar{flex:1;min-width:0;height:6px;border-radius:3px;background:var(--bg-elevated);overflow:hidden}
+.tracker-bar-fill{height:100%;background:var(--gradient-ai);border-radius:3px;transition:width var(--transition-smooth)}
+.tracker-summary{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+.tracker-summary .total{font-family:'Orbitron',monospace;font-size:1.2rem;color:var(--accent-purple)}
+.confirm-overlay{position:fixed;top:0;left:0;right:0;bottom:0;z-index:300;background:rgba(10,5,32,0.9);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity var(--transition-smooth)}
+.confirm-overlay.open{opacity:1;pointer-events:auto}
+.confirm-dialog{padding:36px;border-radius:var(--radius-lg);background:var(--bg-card);border:1px solid var(--border-glow);text-align:center;max-width:380px;margin:0 16px}
+.confirm-dialog h4{font-size:1.1rem;margin-bottom:8px;color:var(--accent-pink)}
+.confirm-dialog p{font-size:0.85rem;color:var(--text-muted);margin-bottom:20px}
+.confirm-btns{display:flex;gap:10px;justify-content:center}
+.toast{position:fixed;bottom:40px;left:50%;transform:translateX(-50%) translateY(20px);z-index:400;padding:12px 28px;border-radius:50px;background:var(--bg-elevated);color:var(--text-primary);border:1px solid var(--border-glow);font-size:0.85rem;font-weight:600;opacity:0;pointer-events:none;transition:all var(--transition-bounce);white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.footer{padding:36px 24px;text-align:center;border-top:1px solid var(--border-subtle);z-index:1;position:relative}
+.footer a{color:var(--text-muted);text-decoration:none;font-size:0.78rem;margin:0 12px;transition:color var(--transition-fast)}
+.footer a:hover{color:var(--accent-purple)}
+@media(max-width:768px){
+  .nav-links,.side-progress{display:none}
+  .hamburger{display:flex}
+  .hero-stats{gap:20px}
+  .hero-stat .num{font-size:1.3rem}
+  .roadmap-track{padding-left:28px}
+  .roadmap-track::before{left:10px}
+  .roadmap-dot{left:-24px}
+  .drawing-method{flex-direction:column}
+  .phase-detail-header{padding:16px}
+  .phase-detail-header .icon{width:38px;height:38px;font-size:1.1rem}
+  .resource-grid{grid-template-columns:1fr}
+}
+@media print{
+  #bg-canvas,.top-nav,.side-progress,.back-to-top,.toast,.confirm-overlay,.hero-scroll-indicator,.search-overlay,.mobile-menu{display:none!important}
+  .hero{min-height:auto;padding:30px 24px}
+  .section{padding:24px 24px}
+  .roadmap-item{opacity:1;transform:none}
+  .phase-detail .phase-body{grid-template-rows:1fr}
+  .phase-body-inner{overflow:visible;padding:6px 24px 24px!important}
+  body{background:#fff;color:#1a1a2e}
+  .code-block{break-inside:avoid}
+}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+@keyframes float{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(10px)}}
+</style>
+</head>
+<body>
+
+<canvas id="bg-canvas"></canvas>
+
+<!-- NAV -->
+<nav class="top-nav" id="topNav">
+  <div class="nav-logo" onclick="window.scrollTo({top:0,behavior:'smooth'})">AI::FIN</div>
+  <ul class="nav-links">
+    <li><a href="#roadmap">路线图</a></li>
+    <li><a href="#drawing">图解法</a></li>
+    <li><a href="#knowledge">知识点</a></li>
+    <li><a href="#phases">阶段</a></li>
+    <li><a href="#formulas">公式</a></li>
+    <li><a href="#exercises">练习</a></li>
+    <li><a href="#resources">资料</a></li>
+    <li><a href="#tracker">进度</a></li>
+  </ul>
+  <div class="nav-right-group">
+    <button class="nav-search-btn" onclick="openSearch()" title="搜索 Ctrl+K" aria-label="搜索">🔍</button>
+    <button class="nav-cta" onclick="document.getElementById('roadmap').scrollIntoView({behavior:'smooth'})">开始</button>
+    <button class="hamburger" id="hamburgerBtn" onclick="toggleMobileMenu()" aria-label="菜单"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#roadmap" onclick="toggleMobileMenu()">路线图</a>
+  <a href="#drawing" onclick="toggleMobileMenu()">图解法</a>
+  <a href="#knowledge" onclick="toggleMobileMenu()">知识点详解</a>
+  <a href="#phases" onclick="toggleMobileMenu()">阶段详情</a>
+  <a href="#formulas" onclick="toggleMobileMenu()">公式速查</a>
+  <a href="#exercises" onclick="toggleMobileMenu()">练习题库</a>
+  <a href="#resources" onclick="toggleMobileMenu()">学习资料</a>
+  <a href="#tracker" onclick="toggleMobileMenu()">进度跟踪</a>
+</div>
+<div class="search-overlay" id="searchOverlay">
+  <div class="search-input-wrap">
+    <span class="search-icon">🔍</span>
+    <input id="searchInput" placeholder="搜索概念、函数、阶段..." oninput="doSearch()" type="text">
+    <button class="search-close" onclick="closeSearch()" aria-label="关闭">✕</button>
+  </div>
+  <div class="search-results" id="searchResults"></div>
+</div>
+<div class="side-progress" id="sideProgress"></div>
+<button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="回到顶部">↑</button>
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-dialog">
+    <h4>⚠ 确认重置</h4>
+    <p>这将清除所有学习进度和练习完成记录</p>
+    <div class="confirm-btns">
+      <button class="btn-outline" onclick="closeConfirm()" style="padding:10px 24px">取消</button>
+      <button class="btn-danger" onclick="resetAll()">确认重置</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="hero-badge"><span class="dot"></span>v2.0 深度原理版 · 图解学习</div>
+  <h1>AI 与大模型<br><span class="gradient-text">金融方向完整学习方案</span></h1>
+  <p>从线性代数到大模型部署 · 15周建立 AI 底层直觉 · 30+必画图示</p>
+  <div class="hero-stats">
+    <div class="hero-stat"><span class="num" data-count="15">0</span><div class="lbl">学习周数</div></div>
+    <div class="hero-stat"><span class="num" data-count="7">0</span><div class="lbl">学习阶段</div></div>
+    <div class="hero-stat"><span class="num" data-count="21">0</span><div class="lbl">实操练习</div></div>
+    <div class="hero-stat"><span class="num" data-count="30">0</span><div class="lbl">必画图示</div></div>
+  </div>
+  <div class="hero-btns">
+    <button class="btn-primary" onclick="document.getElementById('roadmap').scrollIntoView({behavior:'smooth'})">查看完整路线图</button>
+    <button class="btn-outline" onclick="document.getElementById('resources').scrollIntoView({behavior:'smooth'})">学习资料清单</button>
+  </div>
+  <div class="hero-scroll-indicator" onclick="document.getElementById('roadmap').scrollIntoView({behavior:'smooth'})">⌄</div>
+</header>
+
+<!-- ROADMAP -->
+<section class="section" id="roadmap">
+  <div class="section-header">
+    <div class="section-tag">LEARNING ROADMAP</div>
+    <h2><span>7 阶段 · 15 周</span> 从零到 AI 工程</h2>
+    <p class="subtitle">点击任意阶段跳转查看完整内容与代码示例</p>
+  </div>
+  <div class="roadmap-section" id="roadmapContainer"></div>
+</section>
+
+<!-- DRAWING METHOD -->
+<section class="section" id="drawing">
+  <div class="diagram-section">
+    <div class="diagram-intro">
+      <div class="section-tag">VISUAL LEARNING</div>
+      <h2><span>图解学习法</span></h2>
+      <p>AI 的底层逻辑天然是几何的、可视的——"一张好图胜过千行代码"</p>
+    </div>
+    <div class="drawing-method" id="drawingMethod"></div>
+    <div class="math-tags" id="mathTags"></div>
+    <div class="draw-levels" id="drawLevels"></div>
+  </div>
+</section>
+
+<!-- KNOWLEDGE POINTS -->
+<section class="section" id="knowledge">
+  <div class="section-header">
+    <div class="section-tag">DEEP DIVE</div>
+    <h2><span>知识点详解</span></h2>
+    <p class="subtitle">每个关键概念配有图解、数学注释、金融场景——点击展开深入理解</p>
+  </div>
+  <div class="knowledge-section">
+    <div class="knowledge-filter-bar" id="knowledgeFilterBar"></div>
+    <div class="knowledge-summary-bar">
+      <span class="ks-count" id="knowledgeCount">共 <strong>0</strong> 个知识点</span>
+      <button class="ks-expand-all" onclick="toggleAllKnowledge()">展开全部</button>
+    </div>
+    <div id="knowledgeContainer"></div>
+  </div>
+</section>
+
+<!-- PHASE DETAILS -->
+<section class="section" id="phases">
+  <div class="section-header">
+    <div class="section-tag">PHASE DETAILS</div>
+    <h2><span>阶段详情</span></h2>
+    <p class="subtitle">展开查看每阶段完整内容（含代码+画图标记）</p>
+  </div>
+  <div class="phase-container" id="phaseContainer"></div>
+</section>
+
+<!-- FORMULAS -->
+<section class="section" id="formulas">
+  <div class="section-header">
+    <div class="section-tag">QUICK REFERENCE</div>
+    <h2><span>核心公式</span>速查</h2>
+    <p class="subtitle">按 5 大学科分类——所有公式都有 PyTorch 等价</p>
+  </div>
+  <div class="formula-section">
+    <div class="formula-tabs" id="formulaTabs"></div>
+    <div id="formulaPanels"></div>
+  </div>
+</section>
+
+<!-- EXERCISES -->
+<section class="section" id="exercises">
+  <div class="section-header">
+    <div class="section-tag">PRACTICE</div>
+    <h2><span>实操练习</span>题库</h2>
+    <p class="subtitle">21 道分级练习 · 点击标记完成</p>
+  </div>
+  <div class="exercise-section">
+    <div class="exercise-filters" id="exerciseFilters"></div>
+    <div class="exercise-counter" id="exerciseCounter"></div>
+    <div id="exerciseList"></div>
+  </div>
+</section>
+
+<!-- RESOURCES -->
+<section class="section" id="resources">
+  <div class="section-header">
+    <div class="section-tag">MATERIALS</div>
+    <h2><span>学习资料</span>推荐</h2>
+    <p class="subtitle">书籍 · 在线平台 · 论文 · 图示资源</p>
+  </div>
+  <div class="resources-section"><div class="resource-grid" id="resourceList"></div></div>
+</section>
+
+<!-- TRACKER -->
+<section class="section" id="tracker">
+  <div class="section-header">
+    <div class="section-tag">PROGRESS</div>
+    <h2><span>学习进度</span>跟踪</h2>
+    <p class="subtitle">数据保存在浏览器本地 (localStorage)</p>
+  </div>
+  <div class="tracker-section">
+    <div class="tracker-list" id="trackerList"></div>
+    <div class="tracker-summary">
+      <span>已完成: <strong class="total" id="trackerTotal">0/7</strong></span>
+      <div class="tracker-bar" style="max-width:260px"><div class="tracker-bar-fill" id="trackerBarFill" style="width:0%"></div></div>
+      <button class="btn-danger" onclick="openConfirm()">重置进度</button>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div>
+    <a href="#roadmap">路线图</a><a href="#phases">阶段</a><a href="#formulas">公式</a>
+    <a href="#exercises">练习</a><a href="#resources">资料</a><a href="#tracker">进度</a>
+  </div>
+  <p style="color:var(--text-muted);font-size:0.72rem;margin-top:16px">AI 与大模型 · 金融方向 v2.0 · 2026-05-07</p>
+</footer>
+
+<script>
+// ====== CANVAS BG ======
+(function(){const c=document.getElementById('bg-canvas'),ctx=c.getContext('2d');let w,h,p=[];
+function rs(){w=c.width=window.innerWidth;h=c.height=window.innerHeight}rs();window.addEventListener('resize',rs);
+for(let i=0;i<60;i++)p.push({x:Math.random()*w,y:Math.random()*h,vx:(Math.random()-.5)*.35,vy:(Math.random()-.5)*.35,r:Math.random()*2+.5});
+function d(){ctx.clearRect(0,0,w,h);for(let i=0;i<p.length;i++){const o=p[i];o.x+=o.vx;o.y+=o.vy;if(o.x<0)o.x=w;if(o.x>w)o.x=0;if(o.y<0)o.y=h;if(o.y>h)o.y=0;ctx.beginPath();ctx.arc(o.x,o.y,o.r,0,6.28);ctx.fillStyle='rgba(179,136,255,'+(o.r/3)+')';ctx.fill();
+for(let j=i+1;j<p.length;j++){const q=p[j],dx=o.x-q.x,dy=o.y-q.y,ds=Math.sqrt(dx*dx+dy*dy);if(ds<120){ctx.beginPath();ctx.moveTo(o.x,o.y);ctx.lineTo(q.x,q.y);ctx.strokeStyle='rgba(179,136,255,'+(.06*(1-ds/120))+')';ctx.lineWidth=.5;ctx.stroke()}}}requestAnimationFrame(d)}d()})();
+
+// ====== DATA ======
+const KP={k01:{phase:'p1',tag:'linalg',lvl:'must',title:'维度层级：标量→向量→矩阵→张量',d:`标量(Scalar,rank=0) 是一个数，如一只股票的当日收益率。向量(Vector,rank=1,shape=(n,)) 是一列数，如一只股票的5日收益率序列。矩阵(Matrix,rank=2,shape=(m,n)) 是二维表，如100只股票×30天的收益率面板。张量(Tensor,rank≥3) 是更高维的容器，如32只股票×30天×10个因子。`,f:'rank递增: 0→1→2→3+',diagram:`
+标量 rank=0      向量 rank=1        矩阵 rank=2         张量 rank=3+
+   3            [3, 7, 2]        [[1,2,3],          [[[1,2],[3,4]],
+                                   [4,5,6],            [[5,6],[7,8]],
+                                   [7,8,9]]            [[9,0],[1,2]]]
+                shape=(3,)        shape=(3,3)          shape=(3,2,2)
+`,fin:'金融中：一只股票的PE是一个标量；30只股票的PE构成一个向量(30,)；30只股票×20个因子是矩阵(30,20)；多只股票×多天×多因子是三维张量。一句话：一切数据都是张量。',sum:'在AI中一切数据都是张量——这是理解所有模型的第一块基石'},
+k02:{phase:'p1',tag:'linalg',lvl:'must',title:'矩阵乘法的几何直觉',d:`矩阵乘法 y=Wx 是神经网络的最基本运算。从几何视角看，矩阵W对输入向量x同时做了三件事：旋转（改变方向）、拉伸（改变模长）、可能降维/升维。每个输出 y_i = Σw_ij×x_j，本质上是对输入特征的加权混合。`,f:'y=Wx   y_i=Σ_j w_ij·x_j',diagram:`
+输入向量 x (n×1)    ×     权重矩阵 W (m×n)      =     输出向量 y (m×1)
+┌     ┐              ┌              ┐              ┌      ┐
+│ x₁  │              │ w₁₁ w₁₂ w₁₃ │              │  y₁  │
+│ x₂  │      ×       │ w₂₁ w₂₂ w₂₃ │      =       │  y₂  │
+│ x₃  │              │ w₃₁ w₃₂ w₃₃ │              │  y₃  │
+└     ┘              └              ┘              └      ┘
+
+几何：W 像一个"黑盒"，把输入箭头 x 旋转+拉伸→ 新箭头 y
+`,fin:'多因子选股模型的本质！10个因子(PE/ROE/波动率...)作为x，W的每一行就是"这个输出位置对哪些因子敏感"。如果W可逆则信息无损，但深度学习中的W通常是矩形的→不可逆=信息压缩/扩展。',sum:'神经网络的基本运算=矩阵乘法，本质是空间的线性变换'},
+k03:{phase:'p1',tag:'linalg',lvl:'must',title:'特征值与特征向量',d:`特征值分解回答了"矩阵在什么方向上作用最强"。给定方阵C，若Cv=λv（v非零），则λ是特征值，v是特征向量。特征向量是矩阵作用下方向不变的"主轴"，特征值是对应方向上的拉伸倍数。`,f:'Cv=λv  →  C=VΛV^T',diagram:`
+数据散点              →      特征向量=数据"骨架"
+  ·  ·                           ┌────────┐
+·   ·  ·                         │  /     │ v₁(主方向,λ₁大)
+  ·  · ·                        │ /      │
+                                  └────────┘ v₂(次方向,λ₂小)
+λ大的方向=方差大=最重要的信息方向！
+`,fin:'PCA因子分析的核心！100只股票收益率→协方差矩阵→特征值分解→前3个特征向量=Fama-French三因子(市场/规模/价值)。最大特征值方向=系统性风险方向。',sum:'找到数据的"骨架"方向——哪些维度包含最多变化信息'},
+k04:{phase:'p1',tag:'prob',lvl:'must',title:'三大核心概率分布',d:`高斯分布(正态分布) N(μ,σ²) 由均值μ和方差σ²决定，钟形曲线，自然界最常见的分布。伯努利分布 B(p) 只有0/1两种结果，p是成功的概率。类别分布 Cat(p₁,...,pₖ) 是伯努利的推广，K个类别各有一个概率。`,f:'高斯: f(x)=exp(-(x-μ)²/(2σ²))/√(2πσ²)',diagram:`
+高斯 N(μ,σ²)                        伯努利 B(p)
+   ╱ ╲                                   ■
+  ╱ · ╲    μ=中心，σ=宽度               ■ ■  p=0.7
+ ╱  │  ╲                              ■ ■
+╱───┴───╲                          ────────
+                                       0   1
+
+AI中：高斯=权重初始化/噪声   伯努利=二分类输出
+`,fin:'金融中高斯分布用于假设资产收益率分布（虽有肥尾但仍是基础）。伯努利用于违约/不违约建模。中心极限定理：无数小独立随机因素叠加→总和趋于正态，解释了为什么收益率≈正态。',sum:'理解不确定性的"形状"——不同问题需要不同的概率分布来描述'},
+k05:{phase:'p1',tag:'prob',lvl:'must',title:'贝叶斯定理',d:`贝叶斯定理是"学习=更新信念"的数学描述。P(A|B)=P(B|A)×P(A)/P(B)。先验P(A)是一开始的信念，似然P(B|A)是新数据的证据力，后验P(A|B)是看过数据后更新的信念。这是所有概率机器学习的哲学根基。`,f:'P(A|B) = P(B|A)·P(A) / P(B)',diagram:`
+先验 P(A)          新数据 B         后验 P(A|B)
+"违约率 5%"    →   "按时还款3月"   →   "违约率降到2%"
+  ■■■■■              证据              ■■
+
+信念被数据更新——这就是"学习"的数学定义！
+`,fin:'信用评分动态更新：客户初始违约概率5%→观察还款行为→后验概率更新。反欺诈中，先验是历史欺诈率，新交易特征作为数据更新风险判断。',sum:'机器学习=从数据中更新信念——贝叶斯定理是这一切的数学根基'},
+k06:{phase:'p1',tag:'calc',lvl:'must',title:'梯度与链式法则',d:`梯度∇L是损失函数对所有参数的方向导数向量，指向Loss增长最快的方向。梯度下降的核心思想：每次向负梯度方向走一小步(-lr×∇L)，逐步逼近最低点。链式法则：复合函数f(g(x))的导数=f'(g(x))×g'(x)，是把复杂导数拆成简单导数乘积的规则。`,f:'梯度下降: θ←θ - lr×∇L(θ)',diagram:`
+梯度下降=小球从山顶滚到谷底
+   ╲    /
+    ╲  /     Loss曲面
+     ╲/      →小球沿负梯度方向移动
+     ╱ ╲     
+    ╱   ╲    
+   ╱     ╲___最小值
+每次更新: θ_new = θ_old - lr × (切线斜率)
+`,fin:'投资组合优化中的梯度下降：收益率和风险是目标函数，各资产权重是参数→梯度下降自动找到最优权重。深度学习中的所有训练都基于梯度+链式法则。',sum:'梯度下降是AI优化的引擎，链式法则是它运转的齿轮'},
+k07:{phase:'p2',tag:'prob',lvl:'must',title:'机器学习三要素',d:`所有监督学习的本质：1)模型 g(x;θ)——长什么样？(线性/树/神经网络)；2)损失函数 L(g(x),y)——怎么衡量好坏？(MSE/交叉熵)；3)优化算法——怎么找最佳θ？(梯度下降/牛顿法)。三个要素选对，模型就好。`,f:'目标: min_θ L(g(x;θ), y)',diagram:`
+真实规律 f(x)  →  产生数据 (xᵢ,yᵢ)  →  学习算法找 g≈f
+                                      ↓
+                             模型 g(x;θ) = 你的"近似答案"
+
+三大核心问题: ①g长什么样？②怎么衡量g≈f？③怎么找最佳θ？
+`,fin:'信用评分中：g=逻辑回归，L=交叉熵，优化=梯度下降。选股模型中：g=多因子打分，L=MSE，优化=最小二乘。三要素选对=模型就对了。',sum:'所有机器学习的统一框架——模型+损失+优化三要素'},
+k08:{phase:'p2',tag:'linalg',lvl:'must',title:'线性回归：最小二乘法',d:`线性回归 y=Wx+b 是最基础的监督学习模型。最小二乘解 W=(X^TX)⁻¹X^Ty 可以从数学上一把算出最优参数（不需要迭代）。从几何视角看，这是把y投影到X张成的子空间上→找到距离最近的点。`,f:'最优解: W = (X^TX)⁻¹ X^T y',diagram:`
+y ↑                ·  ·
+  │            ·       ·     找到一条穿过数据"中心"的最优直线
+  │         ·    ·直线   ·   使所有点到直线的垂直距离平方和最小
+  │      ·   ·  ╱    ·
+  │   ·    ·  ╱  ·           W=(X^TX)⁻¹X^Ty  (一把算出！)
+  │     ╱   
+  └──────────────────────→ x
+`,fin:'CAPM模型就是一元线性回归：个股收益=α+β×市场收益+ε。Fama-French是多因子线性回归：收益=α+β₁×市场+β₂×规模+β₃×价值+ε。',sum:'最基础的监督学习模型——线性回归=把点投影到子空间'},
+k09:{phase:'p2',tag:'prob',lvl:'must',title:'逻辑回归与Sigmoid',d:`逻辑回归不预测0/1，而是预测"是1的概率"。Sigmoid函数 σ(z)=1/(1+e^{-z}) 把(-∞,+∞)压缩到[0,1]，z=0时σ=0.5（最不确定）。z>0→偏1，z<0→偏0。log-odds=log(P/(1-P))=Wx+b，把概率映射回线性空间。`,f:'P(y=1|x) = σ(wx+b) = 1/(1+e^{-(wx+b)})',diagram:`
+Sigmoid曲线:
+1 ┤                    ┌──────
+  │                 ┌──┘        z=wx+b
+  │               ┌─┘
+0.5┤ ←z=0→0.5(最不确定)     z>0 → 偏向1
+  │            ┌─┘            z<0 → 偏向0
+  │         ┌──┘
+0 ┤────────┘
+`,fin:'信用评分卡的核心算法！逻辑回归输出违约概率→通过log-odds变换→映射到300-850信用分。KS和AUC是衡量评分卡好坏的最重要指标。每个特征的系数=对log-odds的贡献量。',sum:'不是预测0/1而是预测概率——逻辑回归是金融风控的标配算法'},
+k10:{phase:'p2',tag:'info',lvl:'must',title:'决策树：贪心的if-else',d:`决策树用"哪个特征+哪个切割点"让左右子树最"纯"。纯度用基尼不纯度 Gini=1-Σp_i² 或信息熵 H=-Σp_i log p_i 衡量，越小越纯。每次分裂选信息增益最大的切分（父节点熵-加权子节点熵）。但单棵树容易过拟合。`,f:'信息增益 = H(父) - Σ(n_child/n)·H(child)',diagram:`
+            全部客户 1000
+            违约率 10%
+         debt_ratio < 0.5?
+           ╱           ╲
+       是 ╱             ╲ 否
+    600人 违约3%     400人 违约21%
+   age<30?            past_default?
+   ╱    ╲              ╱     ╲
+ 年轻8% 年长2%     有过35% 从未15%
+
+每层用贪心选择最佳分裂→越往下越"纯"
+`,fin:'信贷审批决策树：收入>X→负债率<Y→年龄>Z→批准/拒绝。可解释性强（能看到每条审批路径），但单棵易过拟合→Random Forest用100棵树平均消除过拟合。',sum:'决策树=递归地找最佳if-else切分——可解释但容易过拟合'},
+k11:{phase:'p2',tag:'optim',lvl:'must',title:'XGBoost：梯度提升',d:`XGBoost不是简单平均100棵树(Bagging)，而是"一棵棵地种树，每棵新树专门修正前几棵的残差"。数学本质：在函数空间做梯度下降——每棵新树≈拟合当前预测的负梯度方向(-∂Loss/∂pred)。这是Boosting的核心思想。`,f:'第m棵: tree_m ≈ -∂Loss/∂F_{m-1}, F_m=F_{m-1}+lr×tree_m',diagram:`
+第1棵树→残差1→第2棵树→残差2→第3棵树→...
+F₁     -∇L    tree₂  -∇L   tree₃
+
+Round 1:  预测≈真实值的60%  (残差40%)
+Round 2:  学习残差→预测≈80% (残差20%)  
+Round 3:  学习残差→预测≈93% (残差7%)
+...100轮→最终预测=Σ所有树的加权和
+`,fin:'XGBoost是Kaggle竞赛和金融风控的王牌算法。信用评分、反欺诈、客户流失预测几乎所有表格数据场景的首选。AUC通常比逻辑回归高3-8个百分点。',sum:'梯度提升=在函数空间做梯度下降——XGBoost是表格数据建模的终极武器'},
+k12:{phase:'p2',tag:'linalg',lvl:'suggest',title:'PCA主成分分析',d:`PCA(主成分分析)找数据方差最大的方向(主成分)。步骤：①数据中心化(减均值) ②算协方差矩阵 ③对协方差矩阵做特征值分解 ④取前k个特征向量作为新的坐标系→降维到k维。第一主成分包含最多信息。`,f:'步骤: center(X) → C=X^TX/(n-1) → C=VΛV^T → X_new=X·V[:,:k]',diagram:`
+  ·  ·                        ↑ PC1 (方差最大方向)
+·   ·  ·    →PCA→              │  ╱
+  ·  · ·                       │ ╱
+    ·  ·                       │╱_______→ PC2
+原始散点           PC1=主方向(市场因子), PC2=次方向(规模因子)
+`,fin:'100只股票收益矩阵→PCA→前3个主成分对应Fama-French三因子。PC1对所有权重为正=市场因子；PC2大市值正小市值负=规模因子；PC3高PB负低PB正=价值因子。PCA也用于降噪和特征提取。',sum:'找到数据的主轴方向——PCA是降维和因子分析的核心工具'},
+k13:{phase:'p2',tag:'prob',lvl:'must',title:'ROC曲线与AUC解读',d:`ROC曲线画的是不同阈值下真阳性率(TPR)与假阳性率(FPR)的关系。AUC=ROC曲线下面积。统计含义：AUC=P(模型对随机正样本打分>对随机负样本打分)。AUC=0.85意味着随机抽一对好坏样本，85%的概率模型给好样本更高分。`,f:'TPR=TP/(TP+FN), FPR=FP/(FP+TN), AUC∈[0.5,1]',diagram:`
+TPR ↑
+1.0 ┤                ┌── 完美 (AUC=1.0)
+    │             ┌──┘
+    │          ┌─┘      ╱ 好模型 (AUC=0.85)
+    │        ┌─┘      ╱
+    │      ┌─┘      ╱
+    │   ┌─┘       ╱
+0.0 ┤───────────┴─── 随机 (AUC=0.5)=对角线
+    0.0             1.0 → FPR
+`,fin:'信用评分卡必看指标！AUC<0.6=不能用，0.6-0.7=勉强，0.7-0.8=良好，>0.8=优秀。KS=max|TPR-FPR|是另一个关键指标，衡量模型"在最优点"的区分力。',sum:'AUC衡量模型区分好坏的能力——0.5是随机，1.0是完美'},
+k14:{phase:'p3',tag:'linalg',lvl:'must',title:'为什么深度网络"深"比"宽"强',d:`深度网络(多层)比浅层网络(一层宽)表达能力指数级增强。浅层=只能学习低级特征组合；深层=逐层抽象——第1层学边缘，第2层学形状，第3层学物体，……每层在前一层基础上构建更高层语义。没有非线性激活=多层退化为单层。`,f:'浅层: y=f(Wx)  深层: y=f_n(...f_2(f_1(x))...)',diagram:`
+浅层(1隐层):                   深层(多层):
+输入→[隐层]→输出              输入→[L1]→[L2]→[L3]→输出
+                                  边缘→形状→物体→决策
+
+为什么非线性激活必不可少？
+两层线性: W₂(W₁x) = (W₂W₁)x ←还是一个矩阵=一层！
+两层+ReLU: ReLU(W₂·ReLU(W₁x)) ←真正的非线性！
+`,fin:'金融文本分析需要深层网络：L1识别词汇特征(涨/跌/利好)，L2识别短语模式(营收增长超预期)，L3识别篇章语义(业绩向好)。深度让模型能理解复杂的层级结构。',sum:'深度=逐层抽象=从低级特征组合到高级语义理解'},
+k15:{phase:'p3',tag:'calc',lvl:'must',title:'反向传播：计算图上的链式法则',d:`反向传播是深度学习训练的核心机制。Forward: x→W₁→ReLU→W₂→...→Loss。Backward: 从Loss反推每个参数的梯度，通过链式法则自动执行。每个参数的梯度=从Loss到该参数一路上所有"局部导数"的乘积。PyTorch的autograd就是自动构建计算图并执行反向传播。`,f:'∂Loss/∂W₁ = ∂Loss/∂a₁ × ∂a₁/∂z₁ × ∂z₁/∂W₁',diagram:`
+Forward:
+x →[×W₁]→ z₁ →[ReLU]→ a₁ →[×W₂]→ z₂ →[SM]→ ŷ →[CE]→ Loss
+
+Backward:
+Loss梯度 ← ŷ梯度 ← z₂梯度 ← a₁梯度 ← z₁梯度 ← x梯度
+                   ↑W₂梯度          ↑W₁梯度
+
+每一步=链式法则的局部应用
+`,fin:'理解反向传播才能理解为什么模型会训练失败（梯度消失/爆炸）。梯度消失：深层网络中靠近输入层的梯度变得极小→浅层几乎不更新→训练卡住。BatchNorm和残差连接的发明就是为了解决这个问题。',sum:'反向传播=链式法则的自动执行——深度学习的发动机'},
+k16:{phase:'p3',tag:'optim',lvl:'suggest',title:'Adam优化器详解',d:`Adam=Adaptive Moment Estimation，结合了Momentum(惯性)和RMSprop(自适应学习率)的优点。维护两个估计：m_t(一阶矩=梯度的指数移动平均，方向)和v_t(二阶矩=梯度平方的指数移动平均，尺度)。更新时用m_t/√(v_t+ε)自适应调节每个参数的学习率。`,f:'m_t=β₁m_{t-1}+(1-β₁)g_t, v_t=β₂v_{t-1}+(1-β₂)g_t², θ←θ-lr×m_t/(√v_t+ε)',diagram:`
+参数更新: θ_new = θ_old - lr × (方向信号/尺度信号)
+                             m_t(一阶矩)    √(v_t+ε)(二阶矩)
+指标              SGD       Momentum      Adam
+震荡             大        中            小
+收敛速度         慢        中            快
+需要调参         lr        lr+β         lr+β₁+β₂(默认很好)
+`,fin:'金融AI建模首选优化器！默认参数lr=0.001, β₁=0.9, β₂=0.999通常不需要调整。当模型不收敛时先检查数据和损失函数，再考虑调Adam参数。',sum:'Adam=动量+自适应学习率——深度学习最常用的优化器'},
+k17:{phase:'p4',tag:'linalg',lvl:'must',title:'Embedding：语义的向量表示',d:`Embedding把离散符号(词/句子/文档)映射到连续高维向量空间。本质上是一个|V|×d的查表矩阵(|V|=词表大小, d=维度)，输入token_id→查表取出第token_id行=O(1)。语义相似的词向量靠近，支持加减运算（国王-男人+女人≈女王）。`,f:'emb = Embedding_Matrix[token_id]  (查表, O(1))',diagram:`
+语义空间2D投影:
+         · 上涨    · 利润           ←正面词簇
+    · 涨停 ·  · 盈利
+  · 牛市   · 营收 
+                         ←方向=从正面到负面
+        · 下跌   · 亏损
+     · 利空·  · 违约  · 爆雷      ←负面词簇
+
+向量方向有含义！"涨幅"→"跌幅"方向=情绪变化
+`,fin:'金融Embedding应用：把"营收增长20%"和"净利润超预期"的向量相近→模型知道这两句都说"好消息"。bge-large-zh-v1.5是中文金融Embedding的推荐模型，1024维。',sum:'Embedding=把符号变成空间中的点——语义相似的词在空间中靠近'},
+k18:{phase:'p4',tag:'linalg',lvl:'must',title:'Self-Attention 四步精析',d:`Self-Attention让每个词能看到整句话的所有词。四步走：①生成Q(Query"我在关注什么")、K(Key"我有什么特征")、V(Value"输出什么")，三个矩阵来自同一个输入但参数不同；②Q@K^T算每对词的相关性得分；③除以√d_k做缩放(防梯度消失)后Softmax→注意力权重(每行和为1)；④用权重加权平均V→每个位置的输出=整个句子的加权融合。`,f:'Attention(Q,K,V)=Softmax(QK^T/√d_k)·V',diagram:`
+句子: "The cat sat on the mat"
+
+Step1: 每个词→ Q×W_Q → q_i
+                   K×W_K → k_i
+                   V×W_V → v_i
+
+Step2: Score=Q@K^T  → (6×6)矩阵，每个(i,j)=词i对词j的相关性
+
+Step3: Softmax(Scores/√d_k) → 每行=该词对所有词的关注权重
+
+Step4: Output=AttnWeights@V → 每个位置的输出=所有V的加权混合
+`,fin:'Self-Attention的核心价值：同一个词在不同上下文中获得不同的向量表示。"苹果"在"吃苹果"中偏向水果，在"苹果发布新品"中偏向公司。这种动态表示能力是Transformer超越RNN/LSTM的关键。',sum:'Attention=让每个词"看到"并"选择性地融合"整个上下文'},
+k19:{phase:'p4',tag:'info',lvl:'must',title:'Transformer全景：数据流动轨迹',d:`Transformer由Encoder和Decoder两个对称结构组成，各重复N层(N=6在原论文中)。Encoder处理输入语句，Decoder基于Encoder输出逐词生成。GPT只用Decoder(自回归生成)，BERT只用Encoder(双向理解)。核心创新：完全摒弃RNN，纯Attention+FFN+残差连接，可并行计算→训练快100倍。`,f:'Layer = MultiHeadAttn → Add&Norm → FFN → Add&Norm',diagram:`
+Input → Embed+PosEnc → [Encoder×N] → Encoder Output
+                                          ↓
+                  Output ← [Decoder×N] ← (Cross-Attn用Encoder输出)
+                     ↑
+              (自回归,一次生成一个token)
+
+核心模块: ①Multi-Head Attention(多个"视角"同时关注)
+          ②Add & LayerNorm(残差连接防梯度消失)
+          ③Feed Forward(逐位置独立变换)
+`,fin:'金融Transformer应用：BERT→合同审查/舆情分类(理解)；GPT→研报生成/客户沟通(生成)。输入128K tokens≈一本小说，可处理整个招股说明书。FlashAttention优化了长文本推理速度。',sum:'Transformer=AI的分水岭——理解这个架构就是理解所有现代大模型的基石'},
+k20:{phase:'p4',tag:'linalg',lvl:'must',title:'Multi-Head Attention',d:`Multi-Head Attention用多组Q/K/V并行计算，每组关注不同类型的关系。例如Head1关注语法(主谓关系)、Head2关注语义(地点关联)、Head3关注位置(相邻词)。每个头维度降低(d_model/heads数)，最后拼接所有头的输出再线性变换回到d_model维。`,f:'MultiHead = Concat(head_1,...,head_h)·W_O  where head_i=Attn(QW_Qi, KW_Ki, VW_Vi)',diagram:`
+┌─Head1(语法)─→ h₁ ─┐
+│─Head2(语义)─→ h₂ ─│
+│─Head3(位置)─→ h₃ ─┼→Concat→×W_O→Output
+│    ...           │      (d_model维)
+└─Head_h       ─→ h_h┘
+
+每个头在低维子空间中学习不同的关注模式
+`,fin:'在金融文本中，不同头可能关注：Head1→法规条款号，Head2→金额数字关系，Head3→日期时间关系。模型自动学习这些模式，不需要人工指定。',sum:'多头=多个视角同时看——每个头学会关注不同类型的关系'},
+k21:{phase:'p5',tag:'linalg',lvl:'must',title:'RAG全链路解析',d:`RAG(Retrieval-Augmented Generation)让LLM能查知识库再回答。离线阶段：文档→分块(512tokens)→Embedding模型(bge-large)→向量数据库(FAISS/Milvus)存储。在线阶段：用户问题→Embedding→余弦相似度检索Top-K文档→拼入Prompt→LLM生成回答。关键点：检索质量决定回答质量——检索错文档=LLM只能胡编乱造。`,f:'检索: top_k = argmax cos_sim(q_emb, doc_embs)',diagram:`
+[离线] 文档→分块→Embedding→向量数据库(Chroma/FAISS/Pinecone)
+
+[在线] 问题→Embedding→检索Top-K→Prompt拼装→LLM→回答
+
+Prompt模板:
+"你是金融专家。基于以下参考资料回答问题：
+[文档片段1] ...(来自知识库)
+[文档片段2] ...
+问题: {用户问题}
+如果资料不够，请说明。"
+`,fin:'金融RAG应用：上传1000份研报→用户问"Q4银行净息差走势"→检索相关研报片段→LLM基于真实数据生成分析报告。合规RAG：上传所有监管文件→问"能否向普通投资者推荐该产品"→检索相关条款→生成合规判断。',sum:'RAG=先检索再生成——让LLM基于真实知识库回答而非凭记忆编造'},
+k22:{phase:'p5',tag:'optim',lvl:'must',title:'LoRA：参数高效微调',d:`LoRA(Low-Rank Adaptation)不更新预训练模型的全部权重，而是加一个低秩旁路。原全连接层 y=Wx(W冻结)，LoRA改为 y=Wx+BAx。B(d×r)初始化为0，A(r×k)随机初始化，其中r<<min(d,k)通常取8-64。可训练参数减少99%以上！r=(d+k)×r  vs 原始d×k。`,f:'LoRA: y = W_冻结·x + B·A·x    B(d×r低秩) A(r×k低秩)',diagram:`
+原始层(冻结):         LoRA旁路(可训练):
+┌──────────┐       ┌──B(d×r)──┐
+│  W 冻结   │   +   │           │  只有这些需要训练
+│  d×k     │       │──A(r×k)──┘
+└──────────┘       └──────────┘
+
+实际效果: 4096×4096=16.7M参数 → LoRA(r=16)=131K参数
+节省 99.2%！一张RTX4090就能微调70B大模型
+`,fin:'金融微调场景：在Llama-3基础上用100份内部研报做LoRA微调→模型学会公司的研究风格和术语偏好。QLoRA进一步引入4-bit量化，单个消费显卡即可微调。',sum:'LoRA=冻结原权重+低秩旁路——用极少参数实现全量微调效果'},
+k23:{phase:'p5',tag:'prob',lvl:'suggest',title:'Softmax温度：控制LLM"脑洞"',d:`Temperature T控制Softmax输出的"平滑度"。T→0(接近0.1)→概率全集中在最高分→输出确定但无多样性。T=1→正常分布。T>1.5→概率趋于均匀→输出随机性大增→容易胡言乱语。这是一个控制"创造力vs准确性"的关键参数。`,f:'Softmax_T(z)_i = exp(z_i/T) / Σ exp(z_j/T)',diagram:`
+ T=0.1       T=1.0       T=5.0
+┌──┐       ┌──┐        ┌──┐
+│█ │       │█ │        │█ │    █ = 最高概率输出
+│█▐│       │█▒│        │█▒│    ▒ = 次高概率
+└──┘       └──┘        └──┘    ░ = 其他
+确定选最高    正常分布    接近随机
+
+金融建议: 合规审查→T=0.1(要准确)；研报→T=0.7(要可读)
+`,fin:'金融LLM温度设置：合同条款审查→T=0.1(逐字准确)；市场评论撰写→T=0.5-0.7(有风格但不离谱)；脑暴分析→T=0.8(要创意)；永远不要T>1.5！',sum:'Temperature=创造力旋钮——T低=准确,T高=多样,T过高=胡编'},
+k24:{phase:'p6',tag:'prob',lvl:'must',title:'风控建模全流程',d:`完整风控建模流水线：数据清洗(缺失值/异常/标准化)→特征工程(WOE/IV分箱)→模型训练(XGBoost/LR)→模型评估(AUC/KS/PSI)→概率→评分转换(300-850)→上线部署→持续监控(PSI漂移检测)。每一步都有金融合规要求。`,f:'Score = offset - factor×ln(odds)  odds=(1-p)/p',diagram:`
+数据→特征→建模→评估→评分→部署→监控
+ ↓      ↓     ↓     ↓     ↓     ↓    ↓
+ 清洗  WOE  XGBoost KS  300-850  API  PSI
+      分箱  LR     AUC                监控
+`,fin:'银行风控必须可解释：XGBoost用SHAP解释每个特征贡献；逻辑回归天然可解释(每个系数=对log-odds的贡献)。评分卡(P(违约)→300-850分)是监管要求的标准输出格式。PDO(Points to Double the Odds)通常设为50。',sum:'风控=数据→特征→模型→评分→部署→监控的完整闭环'},
+k25:{phase:'p7',tag:'optim',lvl:'must',title:'Agent：LLM的"知行合一"',d:`AI Agent=LLM+工具调用+记忆+规划。核心循环：Thought(思考下一步怎么做)→Action(调用工具:搜索/计算/API)→Observation(观察工具返回结果)→...→最终Answer。ReAct框架：将推理和行动交替进行，让LLM在"想"和"做"之间迭代找到最佳方案。`,f:'Agent循环: Think→Act→Observe→Think→...→Answer',diagram:`
+用户: "分析A公司Q3财报风险"
+  ↓
+Think: 需要获取财报数据→
+Act:   [调用API获取财报]→
+Obs:   得到营收-5%, 负债率62%→
+Think: 负债率较高+营收下滑=风险信号→
+Act:   [调用计算器] [查行业均值]→
+Obs:   行业负债率均值45%→
+Think: 综合判断→
+→ 生成风险报告
+`,fin:'金融Agent应用：自动研报生成(获取数据→分析→总结→输出)；反欺诈Agent(规则初筛→模型判断→Agent综合决策→生成审核报告)；智能客服(意图识别→知识检索→合规校验→回复)。',sum:'Agent=LLM有了手和眼——能从"想"到"做"再到"观察"循环迭代'},
+k26:{phase:'p7',tag:'optim',lvl:'must',title:'MLOps：从实验到生产',d:`MLOps=把模型从Jupyter Notebook搬运到生产环境的工程化方法。核心组件：实验追踪(MLflow/W&B)、数据版本控制(DVC)、模型注册(MLflow Registry)、容器化包装(Docker)、API服务(FastAPI)、监控告警(Prometheus+Grafana)、CI/CD流水线(GitHub Actions)。`,f:'MLOps = 数据版本 + 实验追踪 + 模型注册 + 部署 + 监控',diagram:`
+Notebook实验→MLflow记录→模型注册→Docker打包→FastAPI服务→Prometheus监控
+                                    ↓
+                            CI/CD自动部署流水线
+`,fin:'金融MLOps特殊要求：模型版本必须严格记录(监管审计)；模型上线前需通过压力测试；PSI>0.1自动告警→触发模型重训练；推理延迟<100ms(实时风控场景)；A/B测试框架验证新模型效果。',sum:'MLOps=AI工程化的"最后一公里"——把模型从实验台搬上生产线的全套方法'},
+k27:{phase:'p7',tag:'prob',lvl:'suggest',title:'SHAP：模型可解释性',d:`SHAP(SHapley Additive exPlanations)基于博弈论中的Shapley值，公平地分配每个特征对预测结果的"贡献"。SHAP Waterfall图：从基线(Base Value,如所有客户平均违约率)开始，每个特征向上/向下推动→最终到达该样本的预测值。满足可加性: f(x)=φ₀+Σφᵢ(每个特征贡献之和)。`,f:'f(x) = φ₀ + Σ_{i=1}^{M} φᵢ(x)  (可加性)',diagram:`
+SHAP Waterfall图:
+基线 ──→ -0.5(年龄大)──→ +0.3(收入高)──→ -0.2(负债率)──→ 最终预测
+φ₀=0.1     φ₁=-0.5       φ₂=+0.3        φ₃=-0.2      f(x)=-0.3
+(平均违约)                            
+`,fin:'信贷被拒解释：基线下调由于年龄偏大(-0.5)→虽收入很高(+0.3)但负债率偏高(-0.2)→综合评分为负→拒绝。监管要求可解释AI——SHAP是金融行业最广泛使用的解释工具。',sum:'SHAP=公平量化每个特征的贡献——金融AI"可解释性"的事实标准'},
+k28:{phase:'p3',tag:'calc',lvl:'suggest',title:'激活函数全家桶',d:`ReLU(z)=max(0,z): 最常用，导数0或1，计算快但可能"死神经元"(输入恒<0→梯度=0→永不更新)。Sigmoid(z)=1/(1+e^{-z}): 输出[0,1]，输出层二分类，但梯度饱和问题(两边导数≈0)。Tanh(z)=(e^z-e^{-z})/(e^z+e^{-z}): 输出[-1,1]，以0为中心比Sigmoid好但还是饱和。GELU=zΦ(z): GPT/BERT默认，近似=z*σ(1.702z)。`,f:'ReLU: a=max(0,z)   GELU: a≈0.5z(1+tanh(√(2/π)(z+0.044715z³)))',diagram:`
+ReLU:         Sigmoid:        Tanh:
+   ╱         ┌────            ────
+  ╱        ┌─┘               ╱    ╲
+ ╱        ┌─┘               ╱      ╲
+━━━━━    ─┘               ─╱        ╲─
+负→0               [0,1]               [-1,1]
+`,fin:'隐藏层一律用ReLU/GELU，输出层二分类用Sigmoid，多分类用Softmax。遇到死神经元问题→换LeakyReLU(负半轴有小斜率)。金融模型首选ReLU(计算快速，工业验证充分)。',sum:'激活函数=给神经网络注入非线性的灵魂——不同层用不同的激活'},
+k29:{phase:'p1',tag:'calc',lvl:'suggest',title:'损失函数全景',d:`MSE(均方误差)=Σ(y-ŷ)²/n: 回归任务，对异常值敏感→放大误差。MAE(平均绝对误差)=Σ|y-ŷ|/n: 回归，对异常值鲁棒。交叉熵CE=-Σy_log(ŷ): 分类任务，衡量两个分布的距离。CrossEntropy=负对数似然→最大化似然等价于最小化CE。`,f:'MSE=Σ(y-ŷ)²/n  CE=-Σ y_i log(ŷ_i)',diagram:`
+回归任务: MSE/MAE        分类任务: 交叉熵(CE)
+误差²求和→大误差惩罚重    分布距离→让预测分布逼近真实分布
+
+为什么不用MSE做分类?
+→ 分类用MSE梯度会非常小→收敛极慢
+→ CE配合Softmax梯度漂亮→收敛快
+`,fin:'股价预测→MSE(关注预测偏差)；信用违约分类→CE(关注概率分布匹配)。金融场景：预测VaR→适合分位数损失(不对称，高估比低估好)；异常检测→适合Focal Loss(关注难样本)。',sum:'损失函数=告诉模型"你偏了多少"——不同任务需要不同损失函数'},
+k30:{phase:'p5',tag:'info',lvl:'suggest',title:'大模型幻觉问题',d:`LLM幻觉(Hallucination)指模型生成看似合理但实际错误的回答。根源：模型本质上是在预测"下一个最可能的token"而非核查事实。缓解手段：①RAG(先检索真实资料再生成)；②CoT(Chain-of-Thought让模型一步步推理)；③输出校验(用规则/另一个模型检查)。`,f:'幻觉率 ≈ 在无外部知识时编造事实的概率',diagram:`
+用户问:      无RAG→LLM凭记忆→可能编造
+"A公司Q3营收?  "去年大概X亿"  ← 可能是幻觉！
+
+有RAG→LLM先查知识库→基于真实资料回答  
+         "Q3营收Y亿, 同比+5%"   ← 基于真实数据
+`,fin:'金融场景对幻觉零容忍！财报数据→必须RAG先检索真实数字再回答。合同条款→用BM25精确匹配原文再生成解释。所有LLM输出建议加后处理校验（数字范围检查、日期格式检查、引文匹配）。',sum:'LLM会"自信地胡说"——RAG+后处理是金融场景幻觉的防火墙'},
+k31:{phase:'p6',tag:'info',lvl:'suggest',title:'AI量化：LSTM时序预测',d:`LSTM(Long Short-Term Memory)通过"门控机制"(遗忘门/输入门/输出门)解决普通RNN的长距离依赖问题。遗忘门决定扔掉什么旧记忆，输入门决定记住什么新信息，输出门决定基于当前记忆输出什么。在金融中适合捕捉股价时序模式。`,f:'LSTM: f_t=σ(W_f·[h_{t-1},x_t]+b_f)  i_t=σ(W_i·[...])  o_t=σ(W_o·[...])',diagram:`
+时间 t-1          时间 t            时间 t+1
+[收盘, 量, ...]→ [收盘, 量, ...]→ [收盘, 量, ...]
+  ↓                ↓                 ↓
+LSTM_cell ───→ LSTM_cell ───→ LSTM_cell
+记忆传来          更新记忆         输出预测
+
+三个门: ①遗忘门:扔掉什么  ②输入门:记住什么  ③输出门:输出什么
+`,fin:'涨/跌/平三分类预测→LSTM+DataLoader+验证集。输入:过去60天(OHLCV+技术指标) 输出:明天涨/跌/平概率。注意:纯LSTM很难打败XGBoost+手工特征，优势在于自动提取时序模式。',sum:'LSTM=有"记忆"和"遗忘"能力的RNN——适合捕捉金融时序的长期依赖'},
+k32:{phase:'p6',tag:'linalg',lvl:'suggest',title:'反欺诈+异常检测',d:`金融反欺诈需要多重防线：规则引擎(单笔>X万→人工审核) + 机器学习(Isolation Forest/自编码器检测异常模式) + 图神经网络(检测团伙欺诈/资金环形流转) + Agent(综合判断→生成审核报告)。分层防御每层关注不同颗粒度。`,f:'Isolation Forest: 异常点=用极少切分就能隔离的点',diagram:`
+防线1: 规则引擎       → "单笔>50万,触发检查"
+防线2: ML异常检测     → "交易模式偏离正常行为3σ"
+防线3: GNN图检测      → "账户A→B→C→A环形交易(洗钱)"
+防线4: LLM Agent      → "综合以上→生成审核报告"
+`,fin:'反洗钱(AML)：监控异常大额交易→图网络发现环形转账→Agent判断是否为洗钱→生成可疑交易报告提交监管。信用卡欺诈：实时评分(毫秒级)→分数>阈值→拦截交易→发送验证。',sum:'反欺诈=规则+ML+GNN+Agent的四层防御体系'},
+k33:{phase:'p5',tag:'linalg',lvl:'suggest',title:'向量数据库选型',d:`向量数据库是RAG的核心基础设施。FAISS(Facebook开源)适合单机百万级，纯C++极快。Chroma轻量易上手适合原型验证。Milvus分布式集群适合生产级10亿+向量。Pinecone全托管云服务免运维。选型：实验→Chroma；生产→Milvus/Pinecone；超大→FAISS+自定义索引。`,f:'检索: Top-K ANN (近似最近邻) via HNSW/IVF索引',diagram:`
+选择路径:
+小项目(PoC)          生产(10亿向量+)        企业
+└─Chroma              └─Milvus              └─Pinecone
+  Python库              Docker部署            全托管
+  <10万向量            <10亿                   SaaS
+
+核心指标: QPS(每秒查询数), 召回率@K, 索引构建速度
+`,fin:'金融RAG推荐Milvus：开源可审计、支持混合检索(向量+标量过滤)、分布式架构。重要：所有金融文档的向量和原文都必须加密存储→合规要求。',sum:'向量数据库=让LLM能"查资料"的记忆引擎——Chroma实验,Milvus生产'},
+k34:{phase:'p7',tag:'optim',lvl:'suggest',title:'金融AI合规特殊考量',d:`金融AI的合规红线：①不能自动做授信决策(必须有"人"最终审批)；②模型必须有可解释的输出(不能是黑箱)；③训练数据不能有歧视性偏差(种族/性别/地域)；④模型上线前需通过监管压力测试；⑤推理日志保存≥5年(可审计)。`,f:'合规=可解释+无偏见+可审计+有人审批',diagram:`
+金融AI合规检查清单:
+☑ 模型可解释(SHAP/LIME输出)→   监管可查
+☑ 训练数据审计→                  无歧视偏差
+☑ 推理日志→                      保存5年+
+☑ 有人工复核环节→                不"全自动"放贷
+☑ 压力测试→                      极端场景不崩溃
+☑ 模型版本管理→                  任何时刻可回滚
+`,fin:'实操建议：信用模型输出概率+评分而非直接"批准/拒绝"→让信贷官做最终决定。所有AI决策留日志：输入特征+输出分数+最终决策人→审计追溯。定期做公平性测试：不同人群的通过率差异是否在合理范围。',sum:'金融AI不是"技术做得好就行"——合规是可解释+无偏见+可审计'},
+k35:{phase:'p7',tag:'optim',lvl:'suggest',title:'部署架构：FastAPI+Docker',d:`最简部署：FastAPI(Python异步Web框架)+uvicorn(ASGI服务器)→Docker容器化→Nginx反向代理→HTTPS加密。核心API设计：POST /predict(单条推理)、POST /batch_predict(批量推理)、GET /health(健康检查)、GET /metrics(Prometheus监控端点)。`,f:'API: @app.post("/predict") → validate → preprocess → model → output',diagram:`
+请求流:
+客户端→Nginx(HTTPS)→FastAPI→预处理→模型推理→后处理→响应
+
+Dockerfile要点:
+FROM python:3.10-slim
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+COPY . .
+CMD ["uvicorn","app:app","--host","0.0.0.0","--port", "8000"]
+`,fin:'金融部署要点：推理延迟<100ms(实时风控)，模型预加载到内存(启动时加载不用每次读文件)，请求队列+限流(防突发流量打垮服务)，双模部署(灰度发布：新模型10%流量→观察→全量)。',sum:'部署=FastAPI+Docker+Nginx——Python的金融AI标准交付方式'},
+k36:{phase:'p3',tag:'linalg',lvl:'must',title:'CNN卷积层：局部感知的智慧',d:`CNN(卷积神经网络)的核心创新是用"卷积核"替代全连接——不再让每个输出连接所有输入，而是用一个小窗口(如3×3)在输入上滑动，每次只处理局部区域。这带来了两大优势：①参数共享(同一个卷积核扫遍全图→参数量暴降)；②局部感知(先学边缘→纹理→物体，符合视觉认知层级)。`,f:'Output[x,y] = Σ_{i,j} Input[x+i, y+j] × Kernel[i,j] + bias',diagram:`
+输入 6×6           卷积核 3×3          输出 4×4
+┌──────────┐      ┌─────┐         ┌──────────┐
+│1 2 3 1 0 2│     │1 0 -1│        │ 3  1 -2  │
+│4 5 6 2 1 3│  ⊗  │1 0 -1│   =    │ 6  2 -1  │
+│7 8 9 3 2 1│     │1 0 -1│        │ 8  3  0  │
+│1 2 3 4 5 6│     └─────┘         │ 4  1 -2  │
+└──────────┘                      └──────────┘
+     步长(stride)=1  公式: (n-f)/stride+1=输出size
+
+卷积核=特征检测器：这个3×3核检测"水平边缘"
+`,fin:'金融应用：用CNN处理K线图→自动识别"头肩顶""双底"等形态。1D-CNN处理时间序列→从原始OHLCV中自动提取局部时序模式(比手工特征更灵活)。CNN+LSTM组合：CNN提取局部模式→LSTM捕捉长程依赖。',sum:'CNN=用滑动窗口局部感知→参数共享+层级特征提取'},
+k37:{phase:'p3',tag:'calc',lvl:'must',title:'池化层：压缩与不变性',d:`池化(Pooling)层在卷积层之后对特征图做下采样。最大池化(Max Pooling)：在每个小窗口取最大值→保留最强响应；平均池化(Avg Pooling)：取平均值→平滑输出。作用：①降维(减少计算量)②提供平移不变性(物体偏移一小段不影响检测)③控制过拟合。典型配置：2×2窗口、步长2→特征图尺寸减半。`,f:'MaxPool(2×2, stride=2): output = max(input[2i:2i+2, 2j:2j+2])',diagram:`
+输入 4×4          MaxPool(2×2)        输出 2×2
+┌──────────┐      取每块最大       ┌──────┐
+│1  3  2  4│                      │ 6  8 │
+│5  6  7  8│      →               │13 15 │
+│9 10 11 12│                      └──────┘
+│13 14 15 16│
+└──────────┘
+
+另一个视角：池化像是"粗粒度化"——就像看地图时从街区级缩放到城市级
+`,fin:'金融时序应用：1D-MaxPool在LSTM输出上→提取每个时间段最关键的特征→输入到分类器。自适应池化(AdaptivePool)→不管输入多长都输出固定维度→处理变长金融文本。',sum:'池化=对特征图"缩略图"化——降维+平移不变+防过拟合'},
+k38:{phase:'p3',tag:'calc',lvl:'must',title:'全连接层内部向量计算',d:`全连接层(Fully Connected / nn.Linear)是神经网络最基本单元：y=Wx+b。设输入x是512维向量，输出y是256维向量→W是(256,512)矩阵。计算时：y=W@x(矩阵乘法)+b(偏置向量)。PyTorch会自动处理batch维度：输入(batch,512)→输出(batch,256)，内部做(batch,512)@(512,256)^T→(batch,256)。`,f:'y = Wx + b    计算量: O(d_in × d_out)',diagram:`
+单个全连接层的数据流：
+┌───────────┐         ┌─────────────────┐         ┌───────────┐
+│ x(512维)  │ ──W(256×512)──→ │ z=Wx+b         │ ────→  │ y(256维)  │
+│ 输入向量  │         │ 线性变换          │         │ 输出向量  │
+└───────────┘         └─────────────────┘         └───────────┘
+
+Batch推理：输入(32,512) → W(256,512) → 输出(32,256)
++32个样本同时计算，一次性矩阵乘法
+注意：如果W是方阵(512×512)且可逆则信息无损变换
+    但通常是矩形→信息压缩(降维)或扩展(升维)
+`,fin:'金融因子变换：20个原始因子(x)→全连接层→压缩为8个核心因子→下一层继续压缩为1个违约分。第一层W的每一行都学到了一组因子的"敏感度模式"。全连接层参数量=d_in×d_out-->512×256=131K--这点参数很小。',sum:'全连接层=矩阵乘法y=Wx+b——神经网络的最小运算单元'},
+k39:{phase:'p3',tag:'linalg',lvl:'must',title:'从RNN到LSTM到GRU的演进',
+d:'在每个时间步输出h_t=tanh(W_h·[h_{t-1},x_t])，信息通过隐藏状态h传递。但普通RNN有梯度消失问题：长序列中早期信息被"稀释"到接近0。LSTM(1997)引入门控机制：遗忘门(扔掉什么)、输入门(记住什么)、输出门(输出什么)，解决了长距离依赖。GRU(2014)是简化版，合并了遗忘门和输入门为"更新门"，参数更少但效果接近。',
+f:'LSTM: f_t=σ(...), i_t=σ(...), c_t=f_t*c_{t-1}+i_t*tanh(...), o_t=σ(...), h_t=o_t*tanh(c_t)',diagram:`
+演进路线:
+RNN(1986)          LSTM(1997)           GRU(2014)         Transformer(2017)
+h_t = f(h_{t-1},x)  加了3个门控        简化为2个门控       弃用循环,全Attention
+ ↓                    ↓                   ↓                  ↓
+能处理时序          能处理长时序        参数更少            并行+全局视野
+但长序列失忆        金融时序标配        接近LSTM            当前SOTA
+
+LSTM细胞内部:
+ 遗忘门 σ ─→ 决定扔掉旧记忆c_{t-1}中的哪些
+ 输入门 σ ─→ 决定新信息哪些写入记忆
+ 输出门 σ ─→ 决定当前记忆c_t的哪些部分输出为h_t
+`,fin:'金融LSTM：输入过去60天(OHLCV+技术指标)→预测明天涨/跌/平。注意力：纯LSTM单独很难打败XGBoost+手工特征；优势在自动提取非线性时序模式。GRU适合数据量少时使用(参数约为LSTM的75%)。在金融中通常LSTM效果略好于GRU。',sum:'RNN→LSTM→GRU是循环网络的进化史——门控机制解决了"长程记忆"难题'},
+k40:{phase:'p4',tag:'linalg',lvl:'must',title:'BERT：双向理解的力量',d:`BERT(Bidirectional Encoder Representations from Transformers)只用Transformer的Encoder部分，核心创新是双向看上下文。预训练任务：①MLM(Masked Language Model)——随机遮盖15%的token让模型猜（如"[MASK]发布了新iPhone"→模型猜"苹果"）；②NSP(Next Sentence Prediction)——判断两句是否连续。BERT输出每个token的上下文表示+一个特殊的[CLS]向量代表整句语义。`,f:'BERT预训练: Loss = MLM_Loss + NSP_Loss',diagram:`
+BERT输入: [CLS] 苹果 发布 了 新 iPhone [SEP]
+              ↓    ↓   ↓  ↓  ↓    ↓
+          Embedding + Position Encoding
+              ↓    ↓   ↓  ↓  ↓    ↓
+        [Transformer Encoder × N层(双向)]
+              ↓    ↓   ↓  ↓  ↓    ↓
+输出:    C  T₁  T₂  T₃ T₄  T₅    (每个=上下文感知的768维向量)
+
+MLM: "苹果 [MASK] 了 新 iPhone" → 模型需要输出"发布"
+NSP: 判断句A和句B是否真的相邻
+`,fin:'金融BERT应用：①舆情分析：新闻标题→BERT→正面/负面/中性分类→量化为情绪指数；②合同审查：条款→BERT→判断是否包含"无限担保"等风险条款；③命名实体识别(NER)：财报→BERT→自动提取公司名/金额/日期。预训练模型：bert-base-chinese适用于通用中文金融文本。',sum:'BERT=双向理解——每个词都看到了左右两边的完整上下文'},
+k41:{phase:'p4',tag:'prob',lvl:'must',title:'GPT：自回归语言模型',d:`GPT(Generative Pre-trained Transformer)只用Transformer的Decoder部分。核心是"因果注意力"(Causal/Masked Attention)：每个token只能看到它之前的内容（用三角形mask遮住后面的）。训练任务：预测下一个token。推理时自回归生成——一个token一个token地生成，每生成一个token就把它拼回输入，继续预测下一个。这就是为什么ChatGPT是一个字一个字"流式"输出的原因。`,f:'自回归: P(w₁,...,w_n)=Π_i P(w_i|w₁,...,w_{i-1})',diagram:`
+GPT生成过程 (自回归):
+Step1: [提示词"分析工商"] →
+       GPT看到 [提示词] → 预测下一个token "银行"
+Step2: [提示词"分析工商银行"] → 
+       预测下一个token "2024"
+Step3: [提示词"分析工商银行2024"] →
+       预测下一个token "年"
+...逐token生成 → "分析工商银行2024年年报..." 
+
+Masked Attention矩阵 (只看左边):
+     t₁ t₂ t₃ t₄
+t₁ [ ✓  ✗  ✗  ✗ ]  ← t₁只能看自己
+t₂ [ ✓  ✓  ✗  ✗ ]  ← t₂可以看t₁和自己
+t₃ [ ✓  ✓  ✓  ✗ ]  ← ...
+t₄ [ ✓  ✓  ✓  ✓ ]
+`,fin:'金融GPT应用：①研报自动生成(提示词"基于以下数据生成投资分析"→GPT逐段生成)；②客户沟通邮件(提示词+客户信息→GPT生成个性化回复)；③数据解读(输入"营收+5%,净利润-3%"→GPT自动分析原因)。金融生成物的合规要求：所有AI生成内容必须有"AI生成"标识。',sum:'GPT=自回归逐token生成——每个新token都基于之前生成的所有内容'},
+k42:{phase:'p2',tag:'prob',lvl:'suggest',title:'交叉验证与正则化',d:`交叉验证(Cross-Validation)解决"模型在训练集表现好但上线就崩"的问题。K-Fold：把数据分成K份→每次用K-1份训练+1份验证→重复K次取平均。正则化(L1/L2)给损失函数加惩罚项防止ω过大→L1=Σ|ω|(产生稀疏解，自动选特征)；L2=Σω²(防止ω个别维度爆炸)。λ控制惩罚力度→太大=欠拟合，太小=过拟合。`,f:'L2正则: Loss_reg = Loss + λ·Σω²   L1正则: Loss_reg = Loss + λ·Σ|ω|',diagram:`
+K-Fold交叉验证 (K=5):
+Fold1: [测][训][训][训][训]
+Fold2: [训][测][训][训][训]
+Fold3: [训][训][测][训][训]
+Fold4: [训][训][训][测][训]
+Fold5: [训][训][训][训][测]
+            ↓
+    5次AUC取平均=最终评估→比单次切分可靠得多
+
+L1 vs L2:
+L1: Loss面上加菱形等高线→最优解常在坐标轴上→产生稀疏
+L2: Loss面上加圆形等高线→最优解在中间→参数都小但不为0
+`,fin:'金融建模标准流程：5折交叉验证评估AUC稳定性和方差→正则化防止模型在训练集上AUC=0.95但上线后AUC=0.65(过拟合)。信用评分卡通常用L1(logistic regression+L1)自动选出最有预测力的几个因子。',sum:'交叉验证+正则化=防止"训练集王者、测试集青铜"的保险机制'},
+k43:{phase:'p3',tag:'prob',lvl:'suggest',title:'Dropout：随机失活',d:`Dropout在训练时以概率p随机"关闭"一部分神经元(置0)，相当于每次训练都在一个"阉割版"的网络上进行。测试时所有神经元都活跃但输出要乘(1-p)做补偿。原理：强制网络学习冗余表示→每个神经元不能依赖特定同伴→提升泛化力。本质是一种隐式的Bagging集成——训练了2^n个不同子网络的组合。`,f:'训练: h=Bernoulli(1-p)·h   测试: h_normal = (1-p)×h',diagram:`
+无Dropout:          有Dropout(p=0.5):
+ ●─●─●─●            ●─✕─●─✕     (✕=被丢弃)
+ │╲│╱│╱│             │╲   ╱
+ ●─●─●─●            ●─●─✕      每次随机关闭不同神经元
+ 所有连接都在用        →网络必须学"冗余"→泛化
+
+类比：考试前随机撕掉半本笔记→
+必须真正理解而非死记硬背每个细节
+`,fin:'金融NN标配：在nn.Linear后面加nn.Dropout(0.3)→训练时30%神经元随机失活→上线后AUC更稳定。典型配置：输入层p=0.2、隐藏层p=0.3-0.5、输出层不用Dropout。注意：Dropout会让训练变慢(需要更多epoch)，但测试时不增加开销。',sum:'Dropout=随机关闭神经元→强迫网络学"冗余表示"→泛化力提升'},
+k44:{phase:'p4',tag:'linalg',lvl:'must',title:'Word2Vec与词向量',d:`Word2Vec(2013)是NLP从符号到向量的里程碑。两种架构：①CBOW——用周围词预测中心词（快，适合小数据）；②Skip-gram——用中心词预测周围词（慢但效果好，适合大数据）。核心洞察：不是直接学习词向量本身，而是让词"预测上下文"这个任务迫使向量学会编码语义。著名的"国王-男人+女人≈女王"就是Word2Vec发现的。`,f:'Skip-gram目标: max Σ log P(w_context | w_center)',diagram:`
+CBOW:                          Skip-gram:
+周围词→SUM→→[中心词]          中心词→→[周围词₁]
+"我  []  苹果"                 "苹果"→→[周围词₂]
+ ↑预测↑                        预测多个周围词
+
+输出: 每个词获得一个dense vector(300维)
+→ 向量空间中语义相关的词靠近
+→ 支持加减运算: "上市" - "过去" + "未来" ≈ "IPO"
+`,fin:'金融Word2Vec：用10年财报训练→"营收""利润""EBITDA"向量靠近→组成的"盈利概念簇"。"暴雷""违约""ST"靠近→组成"风险概念簇"。从Word2Vec到BERT：词向量是"静态的"(一个词只有一个向量)→BERT是"动态的"(同一个词不同上下文不同向量)。',sum:'Word2Vec=让词学会"看上下文"→语义相近的词向量自动靠近'},
+k45:{phase:'p3',tag:'calc',lvl:'must',title:'深度学习训练全流程',d:`深度学习一次完整的参数更新包含四个步骤。①前向传播Forward：输入经过所有层得到预测ŷ。②计算损失Loss：ŷ与真实标签y比较→标量。③反向传播Backward：autograd自动计算每个参数的梯度∂Loss/∂W。④参数更新Update：optimizer用梯度更新参数(W←W-lr×∂Loss/∂W)。这4步重复N个epoch，每个epoch遍历训练集一遍(分批进行，每批叫一个batch)。`,f:'一个batch: Forward → Loss → Backward → Update (4步)',diagram:`
+完整训练循环:
+for epoch in range(N):
+  for batch_x, batch_y in DataLoader:
+    ① Forward: ŷ = model(batch_x)          → 获取预测
+    ② Loss:    L = criterion(ŷ, batch_y)   → 计算偏差
+    ③ Backward: L.backward()               → 求所有梯度
+    ④ Update:   optimizer.step()           → 更新参数
+       optimizer.zero_grad()               → 清空梯度(必须!)
+
+关键术语:
+Epoch:    完整过一遍训练集
+Batch:    每次更新用的样本数(通常32/64/128)
+Iteration: 一个batch=一次参数更新
++过一遍10000样本用batch=32→每epoch=313次iteration
+`,fin:'金融训练技巧：batch_size=64是甜点(太小→梯度噪声大；太大→GPU内存不够)。epoch数通过EarlyStopping确定——验证集loss不再下降就停。信用评分数据常不均衡(违约率5%)→用class_weight或Focal Loss。',sum:'训练=Forward→Loss→Backward→Update四步循环——理解这四步就理解了所有DL训练'},
+k46:{phase:'p3',tag:'calc',lvl:'must',title:'残差连接与批归一化',d:`残差连接(Residual Connection)是ResNet/Transformer的核心技巧：y=x+F(x)而不是y=F(x)。原输出x直接跳过F(x)加到结果上→梯度可以走"高速公路"直传回前面层→解决深层梯度消失。BatchNorm对每个batch的激活值做标准化(减均值除标准差再缩放)→稳定训练→允许更大学习率。LayerNorm在特征维度做归一化→适合NLP(不依赖batch大小)。`,f:'残差: y = x + Sublayer(x)    BN: (x-μ_batch)/σ_batch×γ+β    LN: (x-μ_feat)/σ_feat×γ+β',diagram:`
+无残差:                    有残差:
+x → [F] → y               x → [F] → + → y
+梯度: ∂y/∂x=∂F/∂x         ↑___________↑
+太深→连乘n次趋近于0      梯度: ∂y/∂x=I+∂F/∂x
+                          恒等项I→梯度永不消失!
+
+BatchNorm vs LayerNorm:
+BN: 在batch维度归一化→每个特征独立标准化
+    → 需要足够大的batch(≥16)
+LN: 在特征维度归一化→每个样本独立标准化
+    → 不依赖batch大小→NLP/Transformer标配
+`,fin:'金融模型：深层MLP(>5层)必须加残差→否则梯度消失导致浅层完全不更新。Transformer的Add&Norm=残差+LayerNorm的组合→每个子层后都做。BatchNorm适合CV和表格数据，LayerNorm适合文本和序列。',sum:'残差+归一化=深层网络的"护身符"——防止梯度消失+训练更稳定'},
+k47:{phase:'p4',tag:'linalg',lvl:'must',title:'位置编码 Positional Encoding',d:`Transformer没有RNN的先后顺序→必须显式告诉模型"哪个词在第几个位置"。原始论文用正弦位置编码：PE(pos,2i)=sin(pos/10000^(2i/d))，PE(pos,2i+1)=cos(pos/10000^(2i/d))。每个位置获得一个d_model维的唯一编码→直接加在token embedding上。现代模型也用可学习的位置编码(Learned PE)或RoPE(Rotary PE，旋转位置编码，Llama/GPT-NeoX使用)。`,f:'PE(pos, 2i) = sin(pos / 10000^{2i/d_model})',diagram:`
+位置编码热力图 (横轴=维度, 纵轴=位置):
+维度→
+0 ┤████░░░░████░░░░████      ← 位置1的高频正弦波
+1 ┤██░░██░░██░░██░░██        ← 位置2
+2 ┤█░░█░░█░░█░░█░░█░         ← 位置3 
+...
+每一行是一个位置在d_model维空间中的"指纹"→永不重复
+
+为什么用sin/cos？因为sin(α+β)=sinαcosβ+cosαsinβ
+→ PE(pos+k) 可以由 PE(pos) 线性变换得到→支持相对位置
+`,fin:'绝对位置vs相对位置：在"他买入了100股"中，绝对位置告诉我们"买入"在第3个位置；相对位置告诉我们"买了"在"100股"之前2个位置——后者对理解"买入 100 股"的语义更重要。RoPE(旋转位置编码)是目前金融LLM的首选位置编码方式。',sum:'位置编码=给每个位置贴上"时间戳"——让Transformer知道词的先后顺序'}};
+const PHASES=[{id:'p1',week:'第1-2周',title:'Python + 数学基础',sub:'从标量到张量，构建AI世界观',color:'#00e5ff',icon:'🧮',cls:'c1',skills:[{code:'NumPy',kp:'k01'},{code:'Pandas'},{code:'Matplotlib'},{code:'Colab'},{code:'Jupyter'}],codes:[{lang:'bash — 环境搭建',code:`conda create -n ai_finance python=3.10
+conda activate ai_finance
+pip install numpy pandas matplotlib torch jupyter
+jupyter lab`},{lang:'python — 向量化收益率',code:`import numpy as np
+prices = np.array([100,102,98,103,105])
+returns = (prices[1:]-prices[:-1])/prices[:-1]
+# [线代] 向量化比 for 循环快 50 倍！`}],drawings:[{lvl:'must',text:'[必画] 维度层级: 标量→向量→矩阵→张量'},{lvl:'must',text:'[必画] 矩阵乘法的几何直觉: 旋转+拉伸'},{lvl:'must',text:'[必画] 贝叶斯更新: 先验→似然→后验'}]},{id:'p2',week:'第3-4周',title:'机器学习核心算法',sub:'从概率视角理解7大算法',color:'#00bfa5',icon:'📊',cls:'c2',skills:[{code:'sklearn',kp:'k07'},{code:'XGBoost',kp:'k11'},{code:'LightGBM',kp:'k11'},{code:'AUC/KS',kp:'k13'},{code:'交叉验证',kp:'k42'}],codes:[{lang:'python — XGBoost信用评分卡',code:`import xgboost as xgb
+model=xgb.XGBClassifier(n=200,max_depth=5,lr=0.05)
+model.fit(X_train,y_train)
+# [概率] prob→score via odds-based transform
+probs=model.predict_proba(X_test)[:,1]
+auc=roc_auc_score(y_test,probs)`}],drawings:[{lvl:'must',text:'[必画] 机器学习核心循环'},{lvl:'must',text:'[必画] 决策树分裂一棵树'},{lvl:'must',text:'[必画] ROC曲线三线对比'},{lvl:'suggest',text:'[建议画图] K-Means迭代过程'}]},{id:'p3',week:'第5-6周',title:'深度学习与神经网络',sub:'计算图+链式法则',color:'#448aff',icon:'🧠',cls:'c3',skills:[{code:'PyTorch',kp:'k15'},{code:'nn.Linear',kp:'k38'},{code:'ReLU',kp:'k28'},{code:'Dropout',kp:'k43'},{code:'Adam',kp:'k16'},{code:'反向传播',kp:'k15'},{code:'CNN',kp:'k36'},{code:'池化层',kp:'k37'},{code:'LSTM',kp:'k39'},{code:'训练循环',kp:'k45'},{code:'残差连接',kp:'k46'},{code:'BatchNorm',kp:'k46'}],codes:[{lang:'python — 手写3层MLP',code:`class SimpleNN(nn.Module):
+ def __init__(self,ind,hid,outd):
+  super().__init__()
+  self.net=nn.Sequential(
+   nn.Linear(ind,hid),  # [线代] z=Wx+b
+   nn.ReLU(),           # [微积] a=max(0,z)
+   nn.Dropout(0.3),     # [概率]
+   nn.Linear(hid,hid),nn.ReLU(),nn.Dropout(0.3),
+   nn.Linear(hid,outd)
+  )
+ def forward(self,x):return self.net(x)`}],drawings:[{lvl:'must',text:'[必画] 数据流: 输入→W₁→ReLU→W₂→...→输出'},{lvl:'must',text:'[必画] 反向传播计算图'},{lvl:'must',text:'[必画] Loss曲线+训练过程'},{lvl:'must',text:'[必画] CNN: 卷积核滑动示意图'},{lvl:'suggest',text:'[建议画图] LSTM细胞内部3门'}]},{id:'p4',week:'第7-8周',title:'NLP与Transformer核心',sub:'{核心分水岭} 图解注意力的力量',color:'#b388ff',icon:'⚡',cls:'c4',skills:[{code:'Self-Attn',kp:'k18'},{code:'QKV',kp:'k18'},{code:'Multi-Head',kp:'k20'},{code:'BERT',kp:'k40'},{code:'GPT',kp:'k41'},{code:'残差',kp:'k46'},{code:'LayerNorm',kp:'k46'},{code:'位置编码',kp:'k47'},{code:'Word2Vec',kp:'k44'},{code:'Transformer全架构',kp:'k19'}],codes:[{lang:'python — 手写Self-Attention',code:`def self_attention(X,W_Q,W_K,W_V):
+ Q=X@W_Q; K=X@W_K; V=X@W_V   # [线代]
+ d_k=Q.shape[-1]
+ scores=Q@K.T/np.sqrt(d_k)   # [线代] Scaled
+ attn=F.softmax(scores,-1)   # [概率] 权重
+ return attn@V,attn`}],drawings:[{lvl:'must',text:'[必画] ★Transformer全景架构'},{lvl:'must',text:'[必画] Self-Attn 4步详解'},{lvl:'must',text:'[必画] 注意力热力图矩阵'},{lvl:'must',text:'[必画] Multi-Head拼接图'},{lvl:'must',text:'[必画] BERT vs GPT对比'},{lvl:'suggest',text:'[建议画图] 位置编码正弦波热力图'}]},{id:'p5',week:'第9-10周',title:'大语言模型深入',sub:'Prompt+RAG+LoRA',color:'#ff4081',icon:'🤖',cls:'c5',skills:[{code:'Prompt Eng',kp:'k23'},{code:'RAG全链路',kp:'k21'},{code:'LoRA微调',kp:'k22'},{code:'HuggingFace'},{code:'向量数据库',kp:'k33'},{code:'幻觉问题',kp:'k30'},{code:'Softmax温度',kp:'k23'}],codes:[{lang:'python — RAG最小实现',code:`from sentence_transformers import SentenceTransformer
+enc=SentenceTransformer('BAAI/bge-large-zh-v1.5')
+# [线代] chunk→1024维向量
+docs_emb=enc.encode(chunks)
+q_emb=enc.encode(question)
+# [线代] 余弦相似度检索 Top-K
+sim=np.dot(q_emb,docs_emb.T)`}],drawings:[{lvl:'must',text:'[必画] Embedding空间2D投影'},{lvl:'must',text:'[必画] RAG全链路(离线+在线)'},{lvl:'must',text:'[必画] LoRA: W冻结+B×A旁路'}]},{id:'p6',week:'第11-13周',title:'金融AI实战大案例',sub:'6个全链路项目',color:'#ffab00',icon:'🏦',cls:'c6',skills:[{code:'信用风控',kp:'k24'},{code:'量化LSTM',kp:'k31'},{code:'舆情BERT',kp:'k40'},{code:'智能投顾',kp:'k25'},{code:'合同审查',kp:'k40'},{code:'反欺诈',kp:'k32'}],codes:[{lang:'python — 智能投顾打分',code:`weights={'pe':0.15,'roe':0.25,
+ 'growth':0.25,'momentum':0.15,'debt':0.2}
+df['total']=sum(df[k]*w for k,w in weights.items())
+top3=df.sort_values('total').head(3)
+# → LLM生成投顾日报`}],drawings:[{lvl:'must',text:'[必画] Agent: Thought→Action→Obs→...'},{lvl:'must',text:'[必画] 智能投顾Pipeline'}]},{id:'p7',week:'第14-15周',title:'前沿技术与生产落地',sub:'Agent+部署+MLOps+XAI',color:'#00e676',icon:'🚀',cls:'c7',skills:[{code:'FastAPI',kp:'k35'},{code:'Docker',kp:'k35'},{code:'MLflow',kp:'k26'},{code:'SHAP',kp:'k27'},{code:'Prometheus',kp:'k26'},{code:'MLOps',kp:'k26'},{code:'Agent',kp:'k25'},{code:'合规',kp:'k34'}],codes:[{lang:'python — FastAPI服务化',code:`@app.post("/predict")
+def predict(req:CreditRequest):
+ prob=model.predict_proba(f)[0,1]
+ score=600-50*np.log(prob/(1-prob))
+ risk='低' if prob<.05 else ('中' if prob<.15 else '高')
+ return {'prob':prob,'score':score,'risk':risk}`}],drawings:[{lvl:'must',text:'[必画] 部署全链路: Jupyter→API→Docker'},{lvl:'must',text:'[必画] SHAP Waterfall单样本解释'}]}];
+
+const MATH_TAGS_DATA=[{cls:'tag-linalg',code:'[线代]',label:'线性代数'},{cls:'tag-prob',code:'[概率]',label:'概率论'},{cls:'tag-calc',code:'[微积]',label:'微积分'},{cls:'tag-optim',code:'[优化]',label:'最优化'},{cls:'tag-info',code:'[信息]',label:'信息论'}];
+
+const FORMULA_TABS=[{label:'[线代] 线性代数'},{label:'[概率] 概率分布'},{label:'[微积] 优化'},{label:'[信息] 信息论'},{label:'LLM参数'}];
+
+const FORMULAS=[[{c:'全连接',f:'y=Wx+b',t:'nn.Linear'},{c:'Attention',f:'Q@K^T/√d_k',t:'torch.matmul'},{c:'Embedding',f:'E[id]',t:'nn.Embedding'},{c:'SVD分解',f:'C=VΛV^T',t:'eigh(C)'},{c:'余弦',f:'u·v/‖u‖‖v‖',t:'cosine_sim'}],[{c:'伯努利',f:'B(p)',t:'二分类输出'},{c:'高斯',f:'N(μ,σ²)',t:'init.normal_'},{c:'类别',f:'Cat(p)',t:'Softmax'}],[{c:'GD',f:'θ-=lr∇L',t:'梯度下降'},{c:'Momentum',f:'v=βv+(1-β)g',t:'惯性'},{c:'Adam',f:'自适应',t:'自适应lr'}],[{c:'熵',f:'H=-Σp log p',t:'不确定性'},{c:'CE',f:'-Σp log q',t:'分类Loss'},{c:'KL',f:'Σp log(p/q)',t:'分布相似'}],[{c:'Temp',f:'T:0-2',t:'随机性'},{c:'Top-p',f:'p:0-1',t:'核采样'},{c:'Max Tokens',f:'输出上限',t:'研报2000t'}]];
+
+var EX_FILTER_MAP=['all','easy','medium','hard','project'],_cef=0;
+const EXERCISES=[{id:'e1',diff:'easy',text:'NumPy计算100只股票对数收益率矩阵和协方差（向量化）'},{id:'e2',diff:'easy',text:'写数据清洗Pipeline：缺失值/异常值/标准化'},{id:'e3',diff:'easy',text:'sklearn逻辑回归做信用评分卡，输出KS和AUC'},{id:'e4',diff:'easy',text:'生成10000条模拟交易(含欺诈)，训练随机森林'},{id:'e5',diff:'easy',text:'PCA降维，画前3个主成分3D散点图'},{id:'e6',diff:'easy',text:'画图：线性回归最小二乘的几何解释'},{id:'e7',diff:'medium',text:'从零实现3层MLP：W@x+b+ReLU+CE Loss'},{id:'e8',diff:'medium',text:'PyTorch LSTM预测涨停跌(3分类)+DataLoader'},{id:'e9',diff:'medium',text:'★★★ 手写 Self-Attn（逐step验证shape）'},{id:'e10',diff:'medium',text:'写3组Prompt 对比 T=0.1/0.7/1.5 输出差异'},{id:'e11',diff:'medium',text:'用bge-large-zh构建50段文档向量库+RAG Pipeline'},{id:'e12',diff:'medium',text:'画图：Transformer全架构+标注每个模块shape'},{id:'e13',diff:'hard',text:'完整评分Pipeline→WOE→LR→SHAP→FastAPI'},{id:'e14',diff:'hard',text:'舆情系统：爬取新闻→BERT分类→汇总→存储'},{id:'e15',diff:'hard',text:'AI研报生成器：RAG+Prompt→LLM→结构化输出'},{id:'e16',diff:'hard',text:'反欺诈Agent：规则→模型→Agent→审核报告'},{id:'e17',diff:'hard',text:'端到端MLOps：MLflow+DVC+FastAPI+Prometheus'},{id:'e18',diff:'hard',text:'画图：最终项目的完整数据流图'},{id:'e19',diff:'project',text:'智能投顾：画像→多因子→组合优化→LLM建议'},{id:'e20',diff:'project',text:'风控引擎：申请+行为+催收"三联动"'},{id:'e21',diff:'project',text:'合规AI助手：合同PDF→解析→监管库→审查报告'}];
+
+const RESOURCES=[{t:'动手学深度学习（李沐）',d:'PyTorch·代码驱动·在线免费',dm:'深度学习',u:'https://d2l.ai/'},{t:'Attention Is All You Need',d:'Transformer开山·必读5遍',dm:'论文',u:'https://arxiv.org/abs/1706.03762'},{t:'3Blue1Brown',d:'线代/微积最佳可视化',dm:'图示学习',u:'https://www.youtube.com/@3blue1brown'},{t:'The Illustrated Transformer',d:'Jay Alammar·图解',dm:'图示学习',u:'https://jalammar.github.io/illustrated-transformer/'},{t:'HuggingFace Course',d:'Transformer/NLP免费',dm:'课程',u:'https://huggingface.co/learn'},{t:'DeepLearning.AI Short Courses',d:'Prompt/RAG/Agent微课',dm:'课程',u:'https://www.deeplearning.ai/short-courses/'},{t:'Kaggle Learn',d:'免费微课+金融数据集',dm:'课程',u:'https://www.kaggle.com/learn'},{t:'李宏毅 ML/GenAI课程',d:'中文·幽默·节奏好',dm:'课程',u:'https://www.youtube.com/@HungyiLeeNTU'},{t:'《大规模语言模型》2024',d:'国内团队·数学充分',dm:'书籍',u:'https://llmbook-zh.github.io/'},{t:'Papers With Code',d:'论文+代码一站式',dm:'论文',u:'https://paperswithcode.com/'},{t:'BERTviz',d:'实时Attention热力图',dm:'图示学习',u:'https://github.com/jessevig/bertviz'},{t:'TensorFlow Playground',d:'交互式NN调参',dm:'图示学习',u:'https://playground.tensorflow.org/'}];
+
+const TRACKER_ITEMS=[{id:'t1',p:'P1',w:'1-2周',d:'Python+数学+AI全景'},{id:'t2',p:'P2',w:'3-4周',d:'ML七大核心算法'},{id:'t3',p:'P3',w:'5-6周',d:'DL+反向传播'},{id:'t4',p:'P4',w:'7-8周',d:'★Transformer核心'},{id:'t5',p:'P5',w:'9-10周',d:'LLM+RAG+LoRA'},{id:'t6',p:'P6',w:'11-13周',d:'金融AI实战大案例'},{id:'t7',p:'P7',w:'14-15周',d:'部署+MLOps+XAI'}];
+
+// ====== RENDER ======
+function hR(){
+  document.getElementById('roadmapContainer').innerHTML='<div class="roadmap-track">'+PHASES.map(p=>`
+    <div class="roadmap-item" id="ri-${p.id}">
+      <div class="roadmap-dot"></div>
+      <div class="roadmap-content" onclick="document.getElementById('phase-${p.id}').scrollIntoView({behavior:'smooth'});setTimeout(()=>{var e=document.getElementById('phase-${p.id}');if(!e.classList.contains('open'))e.classList.add('open');},400)">
+        <span class="phase-badge ${p.cls}">${p.id.toUpperCase()}</span>
+        <h3>${p.title}</h3>
+        <div class="week">${p.week} · ${p.sub}</div>
+        <ul>${p.skills.map(s=>'<li>'+s.code+'</li>').join('')}</ul>
+        <span class="goto-link">点击查看详情 →</span>
+      </div>
+    </div>
+  `).join('')+'</div>';
+}
+function hPD(){
+  var c=document.getElementById('phaseContainer');
+  c.innerHTML=PHASES.map(p=>`
+    <div class="phase-detail" id="phase-${p.id}">
+      <div class="phase-detail-header" onclick="tP('phase-${p.id}')" tabindex="0" role="button" aria-expanded="false">
+        <div class="left"><div class="icon" style="background:${p.color}22;color:${p.color}">${p.icon}</div><div><h3 style="color:${p.color}">${p.title}</h3><div class="meta">${p.week} · ${p.sub}</div></div></div>
+        <span class="phase-arrow">▼</span>
+      </div>
+      <div class="phase-body"><div class="phase-body-inner">
+        <div class="skill-grid">${p.skills.map(s=>s.kp?'<span class="skill-chip skill-link" onclick="goK(\''+s.kp+'\')" title="点击查看详细知识: '+s.code+'"><code>'+s.code+'</code><span class="chip-arrow">›</span></span>':'<span class="skill-chip"><code>'+s.code+'</code></span>').join('')}</div>
+        ${p.drawings.map(d=>`<span class="phase-drawing-tag ${d.lvl==='must'?'draw-must':d.lvl==='suggest'?'draw-suggest':'draw-optional'}">${d.text}</span>`).join('')}
+        ${p.codes.map(cd=>`<div class="code-block"><div class="code-header"><span class="code-lang">${cd.lang}</span><button class="copy-btn" onclick="cpC(this)">复制</button></div><pre><code>${cd.code.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</code></pre></div>`).join('')}
+      </div></div>
+    </div>
+  `).join('');
+  // open first
+  setTimeout(function(){var f=document.querySelector('.phase-detail');if(f)f.classList.add('open');},200);
+}
+function hDS(){
+  document.getElementById('drawingMethod').innerHTML=[
+    {num:'01',t:'抄图',d:'照着教材画一遍 → 理解有什么组件'},
+    {num:'02',t:'默图',d:'不看资料凭理解画 → 检验真的懂了吗'},
+    {num:'03',t:'讲图',d:'指着图讲给别人听 → 能讲清楚才是真理解'}
+  ].map(m=>'<div class="method-card"><div class="step-num">'+m.num+'</div><h4>'+m.t+'</h4><p>'+m.d+'</p></div>').join('');
+  document.getElementById('mathTags').innerHTML=MATH_TAGS_DATA.map(t=>'<span class="math-tag '+t.cls+'">'+t.code+' '+t.label+'</span>').join('');
+  document.getElementById('drawLevels').innerHTML=[
+    {cls:'must',t:'[必画] 核心概念',a:'必须手绘'},
+    {cls:'suggest',t:'[建议画图] 重要概念',a:'强烈建议'},
+    {cls:'optional',t:'[可选画图] 辅助理解',a:'充裕时画'}
+  ].map(d=>'<div class="draw-level '+d.cls+'">'+d.t+'<br><small style="font-weight:400;font-size:0.66rem">'+d.a+'</small></div>').join('');
+}
+function hFs(){
+  document.getElementById('formulaTabs').innerHTML=FORMULA_TABS.map((t,i)=>'<button class="formula-tab'+(i===0?' active':'')+'" onclick="sFT('+i+')">'+t.label+'</button>').join('');
+  document.getElementById('formulaPanels').innerHTML=FORMULAS.map((fs,i)=>'<div class="formula-panel'+(i===0?' active':'')+'" id="fp-'+i+'"><table class="formula-table"><thead><tr><th>概念</th><th>公式</th><th>PyTorch</th></tr></thead><tbody>'+fs.map(f=>'<tr><td>'+f.c+'</td><td>'+f.f+'</td><td>'+f.t+'</td></tr>').join('')+'</tbody></table></div>').join('');
+}
+function sFT(i){
+  document.querySelectorAll('.formula-tab').forEach((t,x)=>t.classList.toggle('active',x===i));
+  document.querySelectorAll('.formula-panel').forEach((p,x)=>p.classList.toggle('active',x===i));
+}
+function hEx(){
+  document.getElementById('exerciseFilters').innerHTML='全部,初级,中级,高级,综合大作业'.split(',').map((f,i)=>'<button class="exercise-filter'+(i===0?' active':'')+'" onclick="fEx('+i+',this)">'+f+'</button>').join('');
+  fEx(0);
+}
+function fEx(i,btn){
+  _cef=i;
+  if(btn){document.querySelectorAll('.exercise-filter').forEach(b=>b.classList.remove('active'));btn.classList.add('active')}
+  var t=EX_FILTER_MAP[i]||'all',fl=t==='all'?EXERCISES:EXERCISES.filter(e=>e.diff===t);
+  var dn=JSON.parse(localStorage.getItem('ail_done')||'[]'),dc=fl.filter(e=>dn.includes(e.id)).length;
+  document.getElementById('exerciseCounter').innerHTML='共 <strong>'+fl.length+'</strong> 题 · 已完成 <strong>'+dc+'</strong>';
+  var dl={easy:'初级',medium:'中级',hard:'高级',project:'大作业'},dc2={easy:'diff-easy',medium:'diff-medium',hard:'diff-hard',project:'diff-project'};
+  document.getElementById('exerciseList').innerHTML=fl.map(e=>{
+    var is=dn.includes(e.id);
+    return '<div class="exercise-item" id="ei-'+e.id+'" onclick="tEx(\'ei-'+e.id+'\')"><div class="ei-check'+(is?' done':'')+'" onclick="event.stopPropagation();tExCk(\''+e.id+'\')">'+(is?'✓':'')+'</div><div class="ei-content"><div class="ei-title"><span class="ei-title-text">'+e.text+'</span><span class="diff '+dc2[e.diff]+'">'+dl[e.diff]+'</span></div><div class="ei-answer">点击展开/收起 · 点击⭕标记完成</div></div></div>';
+  }).join('');
+}
+function tEx(id){document.getElementById(id).classList.toggle('expanded')}
+function tExCk(id){
+  var dn=JSON.parse(localStorage.getItem('ail_done')||'[]');
+  if(dn.includes(id)){dn=dn.filter(x=>x!==id);sT('已取消标记')}else{dn.push(id);sT('✓ 练习完成！')}
+  localStorage.setItem('ail_done',JSON.stringify(dn));
+  fEx(_cef);
+}
+function hRes(){
+  document.getElementById('resourceList').innerHTML=RESOURCES.map(r=>'<a class="resource-card" href="'+r.u+'" target="_blank" rel="noopener"><h4>'+r.t+'</h4><p>'+r.d+'</p><span class="res-domain">'+r.dm+'</span></a>').join('');
+}
+function hTr(){
+  var dn=JSON.parse(localStorage.getItem('ail_tr')||'[]');
+  document.getElementById('trackerList').innerHTML=TRACKER_ITEMS.map(t=>{
+    var is=dn.includes(t.id);
+    return '<div class="tracker-row"><span style="font-size:0.7rem;color:var(--text-muted);min-width:38px">'+t.w+'</span><span style="min-width:36px;font-weight:700">'+t.p+'</span><div class="tracker-check'+(is?' done':'')+'" onclick="tTr(\''+t.id+'\')">'+(is?'✓':'')+'</div><span style="flex:1;font-size:0.78rem;color:var(--text-secondary)">'+t.d+'</span></div>';
+  }).join('');
+  uTS();
+}
+function tTr(id){
+  var dn=JSON.parse(localStorage.getItem('ail_tr')||'[]');
+  if(dn.includes(id)){dn=dn.filter(x=>x!==id);sT('已取消该阶段')}else{dn.push(id);sT('✓ 阶段完成！')}
+  localStorage.setItem('ail_tr',JSON.stringify(dn));hTr();
+}
+function uTS(){
+  var dn=JSON.parse(localStorage.getItem('ail_tr')||'[]');
+  document.getElementById('trackerTotal').textContent=dn.length+'/7';
+  document.getElementById('trackerBarFill').style.width=(dn.length/7*100)+'%';
+}
+function hSP(){
+  document.getElementById('sideProgress').innerHTML=PHASES.map((p,i)=>'<div class="progress-dot" onclick="document.getElementById(\'phase-'+p.id+'\').scrollIntoView({behavior:\'smooth\'})"><span class="progress-tooltip">'+p.title.substring(0,6)+'</span></div>').join('');
+}
+var _kf='all',_ka=false;
+function hK(){
+  var ks=Object.values(KP),tags=[{v:'all',l:'全部'},{v:'linalg',l:'[线代]'},{v:'prob',l:'[概率]'},{v:'calc',l:'[微积]'},{v:'optim',l:'[优化]'},{v:'info',l:'[信息]'}];
+  document.getElementById('knowledgeFilterBar').innerHTML=tags.map(t=>'<button class="knowledge-filter'+(t.v===_kf?' active':'')+'" onclick="fK(\''+t.v+'\',this)">'+t.l+'</button>').join('');
+  fK(_kf);
+}
+function fK(tag,btn){
+  _kf=tag;if(btn){document.querySelectorAll('.knowledge-filter').forEach(b=>b.classList.remove('active'));btn.classList.add('active')}
+  var map={linalg:'[线代]',prob:'[概率]',calc:'[微积]',optim:'[优化]',info:'[信息]'},fl=tag==='all'?Object.values(KP):Object.values(KP).filter(k=>k.tag===tag);
+  document.getElementById('knowledgeCount').innerHTML='共 <strong>'+fl.length+'</strong> 个知识点';
+  document.getElementById('knowledgeContainer').innerHTML=fl.map(k=>{
+    var tls={linalg:'tag-linalg',prob:'tag-prob',calc:'tag-calc',optim:'tag-optim',info:'tag-info'},tcl=tls[k.tag]||'';
+    return '<div class="knowledge-card" id="kc-'+k.title.replace(/[^a-z\u4e00-\u9fa5]/g,'').substring(0,6)+'"><div class="knowledge-card-header" onclick="tK(this)"><div class="kl"><span class="math-tag '+tcl+'" style="font-size:0.62rem;padding:3px 8px">'+map[k.tag]+'</span><h4>'+k.title+'</h4></div><span class="k-arrow">▼</span></div><div class="knowledge-card-body"><div class="knowledge-card-inner"><div class="k-concept">'+k.d+'</div>'+(k.f?'<span class="k-formula">'+k.f.replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</span>':'')+(k.diagram?'<div class="diagram-box '+tcl+'">'+k.diagram+'</div>':'')+(k.fin?'<div class="k-financial">🏦 金融场景：'+k.fin+'</div>':'')+(k.sum?'<div class="k-summary">💡 '+k.sum+'</div>':'')+'</div></div></div>';
+  }).join('');
+  if(_ka){setTimeout(function(){document.querySelectorAll('.knowledge-card').forEach(function(c){c.classList.add('open')})},50)}
+}
+function tK(h){h.closest('.knowledge-card').classList.toggle('open')}
+function toggleAllKnowledge(){
+  _ka=!_ka;var btn=document.querySelector('.ks-expand-all');btn.textContent=_ka?'收起全部':'展开全部';
+  document.querySelectorAll('.knowledge-card').forEach(function(c){c.classList.toggle('open',_ka)});
+}
+function goK(kpId){
+  var k=KP[kpId];if(!k)return;
+  document.getElementById('knowledge').scrollIntoView({behavior:'smooth'});
+  setTimeout(function(){
+    var els=document.querySelectorAll('.knowledge-card'),tgt=null;
+    els.forEach(function(el){
+      var h4=el.querySelector('h4');
+      if(h4&&h4.textContent===k.title)tgt=el;
+    });
+    if(tgt){tgt.classList.add('open');tgt.scrollIntoView({behavior:'smooth',block:'center'});}
+  },500);
+}
+function cpC(btn){
+  var cd=btn.closest('.code-block').querySelector('code').textContent;
+  navigator.clipboard.writeText(cd).then(function(){btn.textContent='已复制 ✓';btn.classList.add('copied');setTimeout(function(){btn.textContent='复制';btn.classList.remove('copied');},1800);}).catch(function(){
+    var ta=document.createElement('textarea');ta.value=cd;ta.style.position='fixed';ta.style.left='-9999px';document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
+    btn.textContent='已复制 ✓';btn.classList.add('copied');setTimeout(function(){btn.textContent='复制';btn.classList.remove('copied');},1800);
+  });
+}
+
+function tP(id){var e=document.getElementById(id);e.classList.toggle('open');e.querySelector('.phase-detail-header').setAttribute('aria-expanded',e.classList.contains('open'));}
+
+function oS(){document.getElementById('searchOverlay').classList.add('open');document.getElementById('searchInput').focus()}
+function cS(){document.getElementById('searchOverlay').classList.remove('open');document.getElementById('searchInput').value='';document.getElementById('searchResults').innerHTML=''}
+function doSearch(){
+  var q=document.getElementById('searchInput').value.toLowerCase().trim(),rs=document.getElementById('searchResults');
+  if(!q){rs.innerHTML='';return}
+  var h=[];PHASES.forEach(p=>{var t=(p.title+p.sub+p.skills.map(s=>s.code).join(' ')).toLowerCase();if(t.includes(q))h.push({id:p.id,t:p.week+' · '+p.title,s:p.sub});});
+  EXERCISES.forEach(e=>{if(e.text.toLowerCase().includes(q))h.push({t:'练习: '+e.text.substring(0,28),s:e.id});});
+  RESOURCES.forEach(r=>{if((r.t+r.d).toLowerCase().includes(q))h.push({u:r.u,t:r.t,s:r.dm});});
+  Object.values(KP).forEach(k=>{if((k.title+k.d+k.sum).toLowerCase().includes(q))h.push({t:'知识点: '+k.title,s:k.tag+': '+k.sum.substring(0,32)});});
+  if(!h.length){rs.innerHTML='<p style="text-align:center;color:var(--text-muted);padding:20px">无匹配</p>';return}
+  rs.innerHTML=h.slice(0,12).map(x=>'<div class="search-result-item" onclick="'+(x.id?'document.getElementById(\'phase-'+x.id+'\').scrollIntoView({behavior:\'smooth\'});cS()':x.u?'window.open(\''+x.u+'\',\'_blank\');cS()':'cS()')+'" tabindex="0"><div class="sr-title">'+x.t+'</div><div class="sr-snippet">'+x.s+'</div></div>').join('');
+}
+function tMM(){document.getElementById('mobileMenu').classList.toggle('open');document.getElementById('hamburgerBtn').classList.toggle('open')}
+function oC(){document.getElementById('confirmOverlay').classList.add('open')}
+function cC(){document.getElementById('confirmOverlay').classList.remove('open')}
+function rA(){localStorage.removeItem('ail_done');localStorage.removeItem('ail_tr');hTr();fEx(0);cC();sT('已重置所有进度')}
+var openSearch=oS,closeSearch=cS,toggleMobileMenu=tMM,openConfirm=oC,closeConfirm=cC,resetAll=rA;
+var tt;
+function sT(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(tt);tt=setTimeout(function(){t.classList.remove('show')},2200)}
+function onScroll(){
+  document.getElementById('topNav').classList.toggle('scrolled',window.scrollY>60);
+  document.getElementById('backToTop').classList.toggle('visible',window.scrollY>500);
+  document.querySelectorAll('.roadmap-item').forEach(function(e){var r=e.getBoundingClientRect();if(r.top<window.innerHeight*.85&&r.bottom>0)e.classList.add('visible')});
+  var ai=-1;document.querySelectorAll('.phase-detail').forEach(function(e,i){if(e.getBoundingClientRect().top<window.innerHeight*.5)ai=i});
+  document.querySelectorAll('.progress-dot').forEach(function(d,i){d.classList.toggle('active',i===ai)});
+  document.querySelectorAll('.nav-links a').forEach(function(a){var id=a.getAttribute('href').replace('#',''),el=document.getElementById(id);if(el){var r=el.getBoundingClientRect();a.classList.toggle('active',r.top<120&&r.bottom>60)}});
+}
+function cUp(){
+  document.querySelectorAll('.hero-stat .num[data-count]').forEach(function(el){new IntersectionObserver(function([entry],obs){if(entry.isIntersecting){var tg=parseInt(el.dataset.count),st=performance.now();function step(ts){var p=Math.min((ts-st)/1600,1);el.textContent=Math.floor(p*tg);if(p<1)requestAnimationFrame(step);else el.textContent=tg}requestAnimationFrame(step);obs.disconnect()}},{threshold:.3}).observe(el)});
+}
+
+(function init(){
+  hR();hPD();hDS();hK();hFs();hEx();hRes();hTr();hSP();cUp();
+  window.addEventListener('scroll',onScroll,{passive:true});onScroll();
+  document.addEventListener('keydown',function(e){if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();oS()}if(e.key==='Escape'){cS();cC()}});
+  document.getElementById('confirmOverlay').addEventListener('click',function(e){if(e.target===this)cC()});
+  document.getElementById('searchOverlay').addEventListener('click',function(e){if(e.target===this)cS()});
+})();
+</script>
+</body>
+</html>

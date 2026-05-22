@@ -1,0 +1,1135 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>二叉树模型 - 学习资料</title>
+  <style>
+    :root {
+      --bg-primary: #fafbff;
+      --bg-card: #ffffff;
+      --bg-elevated: #f5f6fa;
+      --text-primary: #1a1b2e;
+      --text-secondary: #4a4b6e;
+      --text-muted: #8e8fa6;
+      --accent-purple: #6366f1;
+      --accent-gold: #f59e0b;
+      --accent-cyan: #22d3ee;
+      --accent-red: #ef4444;
+      --accent-green: #10b981;
+      --border-subtle: #e8e9f0;
+      --border-glow: #c4c5f0;
+      --shadow-card: 0 1px 3px rgba(0,0,0,0.06);
+      --shadow-elevated: 0 4px 20px rgba(0,0,0,0.08);
+      --shadow-glow: 0 0 0 1px rgba(99,102,241,0.15), 0 2px 12px rgba(99,102,241,0.12);
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --transition-smooth: 0.25s cubic-bezier(0.4,0,0.2,1);
+    }
+    [data-theme="dark"] {
+      --bg-primary: #0f1119;
+      --bg-card: #1a1b2e;
+      --bg-elevated: #1f2137;
+      --text-primary: #e8e9f0;
+      --text-secondary: #b0b2c8;
+      --text-muted: #6e7098;
+      --border-subtle: #2a2c44;
+      --border-glow: #4a4c7a;
+      --shadow-card: 0 1px 3px rgba(0,0,0,0.3);
+      --shadow-elevated: 0 4px 20px rgba(0,0,0,0.5);
+      --shadow-glow: 0 0 0 1px rgba(99,102,241,0.3), 0 2px 12px rgba(99,102,241,0.2);
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans SC",sans-serif;background:var(--bg-primary);color:var(--text-primary);line-height:1.75;transition:background var(--transition-smooth),color var(--transition-smooth)}
+    #progress-bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--accent-purple),var(--accent-cyan),var(--accent-gold));z-index:1000;transition:width 0.1s linear;border-radius:0 2px 2px 0}
+    .navbar{position:fixed;top:3px;left:0;right:0;z-index:999;background:var(--bg-card);backdrop-filter:blur(20px);border-bottom:1px solid var(--border-subtle);padding:10px 24px;display:flex;align-items:center;justify-content:space-between;transition:background var(--transition-smooth)}
+    .navbar h2{font-size:1.05rem;font-weight:700;color:var(--accent-purple);white-space:nowrap}
+    .navbar-right{display:flex;align-items:center;gap:12px}
+    .theme-btn{width:36px;height:36px;border-radius:50%;border:1px solid var(--border-subtle);background:var(--bg-elevated);cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center;transition:all var(--transition-smooth)}
+    .theme-btn:hover{box-shadow:var(--shadow-glow)}
+    .container{max-width:900px;margin:0 auto;padding:70px 20px 40px}
+    .hero{margin:20px 0 32px;padding:28px 32px;background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-lg);box-shadow:var(--shadow-card)}
+    .hero h1{font-size:2rem;font-weight:800;margin-bottom:8px;background:linear-gradient(135deg,var(--accent-purple),var(--accent-cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .hero-meta{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:12px;font-size:0.82rem;color:var(--text-secondary)}
+    .hero-meta span{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;background:var(--bg-elevated);border-radius:20px;border:1px solid var(--border-subtle)}
+    .hero-meta .meta-tag{color:var(--accent-purple);font-weight:600}
+    .section{margin:20px 0;padding:28px 28px 24px;background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);box-shadow:var(--shadow-card);transition:all var(--transition-smooth);opacity:0;transform:translateY(24px)}
+    .section.visible{opacity:1;transform:translateY(0)}
+    .section:hover{box-shadow:var(--shadow-glow)}
+    .section-header{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+    .section-tag{padding:3px 10px;border-radius:20px;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px}
+    .tag-concept{background:rgba(99,102,241,0.12);color:var(--accent-purple)}
+    .tag-evolution{background:rgba(34,211,238,0.12);color:var(--accent-cyan)}
+    .tag-app{background:rgba(16,185,129,0.12);color:var(--accent-green)}
+    .tag-risk{background:rgba(239,68,68,0.12);color:var(--accent-red)}
+    .tag-tool{background:rgba(139,92,246,0.12);color:#8b5cf6}
+    .tag-explore{background:rgba(245,158,11,0.12);color:var(--accent-gold)}
+    .section-title{font-size:1.35rem;font-weight:700}
+    .section-time{font-size:0.72rem;color:var(--text-muted);margin-left:auto}
+    .hook{font-size:0.95rem;color:var(--text-secondary);font-style:italic;padding:10px 16px;border-left:3px solid var(--accent-purple);background:var(--bg-elevated);border-radius:0 var(--radius-sm) var(--radius-sm) 0;margin-bottom:18px}
+    .content{font-size:0.93rem;color:var(--text-primary)}
+    .content p{margin-bottom:14px}
+    .content strong{color:var(--accent-purple)}
+    .formula-block{margin:18px 0;padding:18px 20px;background:var(--bg-elevated);border-radius:var(--radius-sm);overflow-x:auto;font-size:0.95rem;color:var(--text-primary);border:1px solid var(--border-subtle);position:relative}
+    .formula-block .formula-latex{display:block;text-align:center;padding:8px 0;font-family:"KaTeX_Main","Times New Roman",serif;font-size:1.1rem;letter-spacing:1px}
+    .formula-block .formula-caption{font-size:0.75rem;color:var(--text-muted);text-align:center;margin-top:4px}
+    .formula-expand{font-size:0.75rem;color:var(--accent-purple);cursor:pointer;text-align:right;margin-top:4px;user-select:none}
+    .formula-derivation{display:none;margin-top:12px;padding:12px 16px;background:var(--bg-card);border-radius:var(--radius-sm);font-size:0.82rem;color:var(--text-secondary);border:1px dashed var(--border-subtle);line-height:1.8}
+    .formula-derivation.open{display:block}
+    .chart-container{margin:18px 0;padding:12px;background:var(--bg-elevated);border-radius:var(--radius-sm);border:1px solid var(--border-subtle);min-height:250px;position:relative}
+    .chart-container canvas{display:block;width:100%!important}
+    .chart-caption{font-size:0.75rem;color:var(--text-muted);text-align:center;margin-top:8px}
+    table{width:100%;border-collapse:collapse;margin:16px 0;font-size:0.85rem}
+    th,td{padding:10px 14px;text-align:left;border-bottom:1px solid var(--border-subtle)}
+    th{background:var(--bg-elevated);font-weight:700;color:var(--text-primary);font-size:0.78rem}
+    tr:hover td{background:var(--bg-elevated)}
+    .ref-list{margin-top:12px;font-size:0.78rem;color:var(--text-secondary)}
+    .ref-list li{margin-bottom:4px;list-style:none;padding-left:16px;position:relative}
+    .ref-list li::before{content:"·";position:absolute;left:0;color:var(--accent-purple)}
+    .key-takeaway{margin-top:16px;padding:12px 18px;background:linear-gradient(135deg,rgba(99,102,241,0.08),rgba(34,211,238,0.06));border-radius:var(--radius-sm);font-size:0.82rem;font-weight:600;color:var(--accent-purple);border-left:3px solid var(--accent-purple)}
+    .sidebar-nav{position:fixed;right:16px;top:50%;transform:translateY(-50%);z-index:50;display:flex;flex-direction:column;gap:8px}
+    .sidebar-dot{width:10px;height:10px;border-radius:50%;background:var(--text-muted);opacity:0.35;cursor:pointer;transition:all var(--transition-smooth);position:relative}
+    .sidebar-dot:hover,.sidebar-dot.active{opacity:1;background:var(--accent-purple);transform:scale(1.4);box-shadow:0 0 8px rgba(99,102,241,0.5)}
+    .sidebar-dot:hover::after{content:attr(data-title);position:absolute;right:18px;top:50%;transform:translateY(-50%);white-space:nowrap;font-size:0.68rem;color:var(--text-secondary);background:var(--bg-card);padding:3px 10px;border-radius:4px;border:1px solid var(--border-subtle)}
+    footer{text-align:center;padding:40px 32px 60px;opacity:0.7}
+    footer p{font-size:0.78rem;color:var(--text-muted)}
+    .export-btns{display:flex;gap:10px;justify-content:center;margin-top:16px}
+    .export-btns button{padding:8px 20px;border-radius:20px;border:1px solid var(--border-subtle);background:var(--bg-card);color:var(--text-secondary);cursor:pointer;font-size:0.8rem;transition:all var(--transition-smooth)}
+    .export-btns button:hover{box-shadow:var(--shadow-glow);color:var(--accent-purple)}
+    .search-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:2000;align-items:flex-start;justify-content:center;padding-top:15vh}
+    .search-overlay.open{display:flex}
+    .search-box{width:550px;max-width:90vw;background:var(--bg-card);border-radius:var(--radius-md);box-shadow:var(--shadow-elevated);overflow:hidden}
+    .search-box input{width:100%;padding:16px 20px;border:none;background:transparent;color:var(--text-primary);font-size:1rem;outline:none}
+    .search-results{max-height:50vh;overflow-y:auto}
+    .search-results .sr-item{padding:12px 20px;cursor:pointer;border-top:1px solid var(--border-subtle);font-size:0.85rem;transition:background var(--transition-smooth)}
+    .search-results .sr-item:hover{background:var(--bg-elevated)}
+    .search-results mark{background:rgba(245,158,11,0.25);color:var(--text-primary);padding:0 2px;border-radius:2px}
+    @media(max-width:768px){.container{padding:60px 16px 30px}.sidebar-nav{display:none}.hero{padding:20px 16px}.hero h1{font-size:1.5rem}.section{padding:20px 16px 18px}.navbar h2{font-size:0.9rem}}
+    @media print{.navbar,.sidebar-nav,#progress-bar,.export-btns,.theme-btn,.search-overlay{display:none!important}.section{box-shadow:none;border:1px solid #ddd;break-inside:avoid}.container{max-width:100%;padding:0}}
+    /* Navigation: journey-bar, journey-footer, floating-back */
+    .journey-bar{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:12px 20px;margin:0 auto 20px;max-width:900px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:.82rem;box-shadow:var(--shadow-elevated)}
+    .journey-path{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+    .journey-plan{color:var(--accent-purple);font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+    .journey-plan:hover{color:var(--accent-gold)}
+    .journey-sep{color:var(--text-muted);font-size:.7rem}
+    .journey-footer{text-align:center;padding:40px 32px 60px;opacity:.8}
+    .back-to-plan{display:inline-flex;align-items:center;gap:8px;padding:10px 24px;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:50px;color:var(--text-secondary);text-decoration:none;font-size:.85rem;font-weight:600;transition:all var(--transition-smooth)}
+    .back-to-plan:hover{background:var(--bg-elevated);border-color:var(--accent-purple);color:var(--accent-purple)}
+    @media(max-width:768px){.journey-bar{flex-direction:column;align-items:flex-start}.deep-floating-back{right:15px;bottom:15px}.deep-floating-back button{padding:10px 16px;font-size:.8rem}}
+    @media print{.journey-bar,.journey-footer,.deep-floating-back{display:none!important}}
+  </style>
+</head>
+<body data-theme="light">
+  <div id="progress-bar" style="width:0%"></div>
+  <nav class="navbar">
+    <h2>📖 二叉树模型</h2>
+    <div class="navbar-right">
+      <button class="theme-btn" id="themeToggle" title="切换主题 (Ctrl+D)">🌙</button>
+    </div>
+  </nav>
+
+  <div class="sidebar-nav" id="sidebarNav"></div>
+
+  <div class="container" id="contentContainer">
+    <div class="hero">
+      <h1>二叉树模型</h1>
+      <p style="color:var(--text-secondary);font-size:0.9rem;margin-top:4px">Binomial Tree Model — 从离散树到连续极限的期权定价数值方法</p>
+      <div class="hero-meta">
+        <span>🏷️ <span class="meta-tag">金融</span></span>
+        <span>🎯 理解 × 标准</span>
+        <span>🎨 G1 公式推导驱动型</span>
+        <span>⏱️ 约45分钟阅读</span>
+        <span>📦 16个模块</span>
+        <span>📊 9张图表</span>
+        <span>📐 18条公式</span>
+      </div>
+    </div>
+
+    <div class="journey-bar">
+      <div class="journey-path">
+        <span>📍</span>
+        <span class="journey-plan" onclick="var w=window.open('derivatives_pricing_learning.html#kc-p2_2','plan_main');if(w)w.focus()">金融衍生品及其定价 系统学习方案</span>
+        <span class="journey-sep">〉</span>
+        <span>阶段2: 期权定价经典模型</span>
+        <span class="journey-sep">〉</span>
+        <span>二叉树模型 (第2个知识点)</span>
+      </div>
+    </div>
+
+    <!-- MODULE: background -->
+    <section class="section" id="sec-background" data-module="background">
+      <div class="section-header">
+        <span class="section-tag tag-concept">前置知识</span>
+        <span class="section-title">1. 背景与缘起</span>
+        <span class="section-time">⏱ 约3分钟</span>
+      </div>
+      <div class="hook">1979年，三位学者在一篇不到10页的论文中，用一个看似简单的"涨跌二选一"树状结构，撬动了整个衍生品定价的数值革命。</div>
+      <div class="content">
+        <p>在<strong>Black-Scholes模型</strong>诞生（1973年）之后，金融学界拥有了一个优雅的欧式期权解析定价公式。但它有一个致命的局限：<strong>无法处理美式期权</strong>——那种可以在到期前随时行权的合约，恰恰是交易所中最主流的品种。</p>
+        <p>1979年，<strong>Cox、Ross和Rubinstein</strong>（简称CRR）在《Journal of Financial Economics》上发表了题为"Option Pricing: A Simplified Approach"的论文，提出了<strong>二叉树模型（Binomial Tree Model）</strong>。其核心思想极具启发性：</p>
+        <p style="padding-left:16px;border-left:2px solid var(--accent-purple)">将连续时间中的股价随机过程<strong>离散化</strong>——在每个微小的时间步长中，股价只有"上涨"或"下跌"两种可能。当时间步数趋近无穷时，二项分布收敛于正态分布，二叉树模型的结果收敛于Black-Scholes公式。</p>
+        <p>这一突破的意义远不止于期权定价：它提供了一种<strong>通用的数值定价框架</strong>，可以灵活处理美式行权、股息支付、障碍期权、乃至利率衍生品，至今仍是量化金融教学和实践中不可或缺的工具。</p>
+      </div>
+      <div class="chart-container" id="chart-background-timeline"></div>
+      <div class="chart-caption">图1：期权定价数值方法演进时间线</div>
+      <div class="ref-list">
+        <li>Cox, J.C., Ross, S.A. & Rubinstein, M. (1979). Option pricing: A simplified approach. <em>Journal of Financial Economics</em>, 7(3), 229-263.</li>
+      </div>
+      <div class="key-takeaway">💡 二叉树模型诞生于对美式期权定价的迫切需求，核心思路是将连续随机过程离散化为涨跌二叉树。</div>
+    </section>
+
+    <!-- MODULE: concept -->
+    <section class="section" id="sec-concept" data-module="concept">
+      <div class="section-header">
+        <span class="section-tag tag-concept">核心概念</span>
+        <span class="section-title">2. 核心概念</span>
+        <span class="section-time">⏱ 约3分钟</span>
+      </div>
+      <div class="hook">如果股价在每个瞬间只能"涨"或"跌"——这个世界比连续随机游走简单得多，却神奇地通向同一个答案。</div>
+      <div class="content">
+        <p><strong>二叉树模型</strong>是一种离散时间的<strong>期权定价数值方法</strong>，其建立在一组精确定义的概念之上：</p>
+        <table>
+          <tr><th>概念</th><th>符号</th><th>定义</th></tr>
+          <tr><td>上行因子</td><td>u</td><td>一个时间步长中股价上涨的倍数（u > 1）</td></tr>
+          <tr><td>下行因子</td><td>d</td><td>一个时间步长中股价下跌的倍数（0 < d < 1）</td></tr>
+          <tr><td>风险中性概率</td><td>p</td><td>在风险中性测度下，股价上涨的概率（并非真实概率）</td></tr>
+          <tr><td>无风险利率</td><td>r</td><td>连续复利的无风险年利率</td></tr>
+          <tr><td>波动率</td><td>σ</td><td>标的资产年化波动率</td></tr>
+          <tr><td>时间步长</td><td>Δt = T/n</td><td>将到期期限T等分为n段，每段长度为Δt</td></tr>
+          <tr><td>风险中性定价</td><td>—</td><td>在风险中性世界中，所有资产以无风险利率增长，期权价值=期望收益的贴现值</td></tr>
+          <tr><td>逆向归纳</td><td>—</td><td>从到期日终端回报出发，逐层向前折现，直至得到当前期权价值</td></tr>
+        </table>
+        <p>二叉树模型的<strong>边界条件</strong>是：到期日每个终端节点的期权回报是已知的（例如看涨期权 max(S-K, 0)）。然后通过<strong>逆向归纳法</strong>（Backward Induction），从最后一列节点向前递推，每一步计算持有价值和立即行权价值，取其较大者（美式期权）或仅折现（欧式期权）。</p>
+        <p>这个框架的优雅之处在于：它在离散设定下严格遵循<strong>无套利定价原理</strong>，且当 n→∞ 时收敛于连续时间的 Black-Scholes 公式。</p>
+      </div>
+      <div class="chart-container" id="chart-concept-tree"></div>
+      <div class="chart-caption">图2：三步二叉树结构示意 — 每个节点有两个子节点，股价路径随步数指数增长</div>
+      <div class="key-takeaway">💡 二叉树的核心是将不确定性压缩为"每月/每天/每秒只有两种可能"，然后用逆向归纳从未来倒推今天。</div>
+    </section>
+
+    <!-- MODULE: principle -->
+    <section class="section" id="sec-principle" data-module="principle">
+      <div class="section-header">
+        <span class="section-tag tag-concept">核心概念</span>
+        <span class="section-title">3. 核心原理</span>
+        <span class="section-time">⏱ 约5分钟</span>
+      </div>
+      <div class="hook">构建一棵树，从末梢反向折叠到根部——这不是植物学，而是二叉树定价的完整数学推导。</div>
+      <div class="content">
+        <p>二叉树模型的完整推导从<strong>标的资产动态</strong>的离散化开始。在连续时间中，股价服从几何布朗运动：</p>
+        <div class="formula-block">
+          <span class="formula-latex">dS = μS dt + σS dW</span>
+          <span class="formula-caption">连续时间股价随机微分方程（SDE）</span>
+          <span class="formula-expand" onclick="this.nextElementSibling.classList.toggle('open');this.textContent=this.nextElementSibling.classList.contains('open')?'收起推导 ▴':'展开推导 ▾'">展开推导 ▾</span>
+          <div class="formula-derivation">
+            <p>S 为标的资产价格，μ 为漂移率（真实世界期望收益），σ 为波动率，dW 为标准布朗运动增量。</p>
+            <p>在风险中性测度下，漂移率 μ 被替换为无风险利率 r：dS = rS dt + σS dW<sup>Q</sup></p>
+            <p>这一替换是资产定价基本定理的直接推论——在无套利市场中存在唯一的等价鞅测度。</p>
+          </div>
+        </div>
+
+        <p>CRR模型将 Δt 区间内的股价变化建模为二项分布，要求离散模型的<strong>均值和方差</strong>与连续模型在 Δt 内的对应量匹配（矩匹配方法）：</p>
+        <div class="formula-block">
+          <span class="formula-latex">E[S_{t+Δt}/S_t] = e^{rΔt} = pu + (1-p)d</span>
+          <span class="formula-caption">一阶矩匹配：期望增长率等于无风险收益率</span>
+        </div>
+        <div class="formula-block">
+          <span class="formula-latex">Var[S_{t+Δt}/S_t] = σ²Δt = pu² + (1-p)d² - (pu + (1-p)d)²</span>
+          <span class="formula-caption">二阶矩匹配：方差等于连续模型的方差</span>
+        </div>
+
+        <p>CRR经典参数化通过引入第三个条件 <strong>ud = 1</strong>（即树的重合性）得到解析解：</p>
+        <div class="formula-block">
+          <span class="formula-latex">u = e^{σ√Δt} &emsp; d = e^{-σ√Δt} &emsp; p = (e^{rΔt} - d) / (u - d)</span>
+          <span class="formula-caption">CRR标准参数化 — 三个方程，三个未知数(u,d,p)，唯一解</span>
+          <span class="formula-expand" onclick="this.nextElementSibling.classList.toggle('open');this.textContent=this.nextElementSibling.classList.contains('open')?'收起推导 ▾':'展开推导 ▾'">展开推导 ▾</span>
+          <div class="formula-derivation">
+            <p><strong>推导步骤：</strong></p>
+            <p>1. 由 ud = 1 得：d = 1/u</p>
+            <p>2. 代入期望方程：pu + (1-p)/u = e<sup>rΔt</sup></p>
+            <p>3. 代入方差方程并利用期望关系化简，在 Δt 很小时，利用 e<sup>σ√Δt</sup> ≈ 1 + σ√Δt + σ²Δt/2</p>
+            <p>4. 得到 u = e<sup>σ√Δt</sup>，d = e<sup>-σ√Δt</sup></p>
+            <p>5. p 直接由期望方程解出：p = (e<sup>rΔt</sup> - d) / (u - d)</p>
+            <p><strong>关键验证：</strong>当 0 < p < 1 时，该参数化在 Δt 足够小时满足无套利条件 d < e<sup>rΔt</sup> < u。</p>
+          </div>
+        </div>
+
+        <p>构建树的步骤完成后，<strong>逆向归纳定价</strong>如下：</p>
+        <p><strong>Step 1 — 终端条件：</strong>到期日第 n 步，节点 (n, j) 的期权价值（j 为上涨次数）：</p>
+        <div class="formula-block">
+          <span class="formula-latex">V_{n,j} = max(S₀·u^j·d^{n-j} - K, 0) &emsp;（看涨期权）</span>
+          <span class="formula-caption">终端回报 — 第j个节点股价为 S₀·uʲ·dⁿ⁻ʲ</span>
+        </div>
+        <p><strong>Step 2 — 逆向递推：</strong>从第 i+1 层向第 i 层，对每个节点：</p>
+        <div class="formula-block">
+          <span class="formula-latex">欧式：V_{i,j} = e^{-rΔt}[p·V_{i+1,j+1} + (1-p)·V_{i+1,j}]</span>
+        </div>
+        <div class="formula-block">
+          <span class="formula-latex">美式：V_{i,j} = max(S_{i,j} - K, e^{-rΔt}[p·V_{i+1,j+1} + (1-p)·V_{i+1,j}])</span>
+          <span class="formula-caption">美式期权需每一步比较"立即行权价值"与"继续持有价值"</span>
+        </div>
+      </div>
+      <div class="chart-container" id="chart-principle-induction"></div>
+      <div class="chart-caption">图3：逆向归纳法的可视化——从右端（到期日）向左端（今天）逐层折现</div>
+      <div class="key-takeaway">💡 CRR参数化的精髓在于矩匹配：让离散树的均值和方差精确重现连续SDE的统计性质，从而保证收敛。</div>
+    </section>
+
+    <!-- MODULE: quant_model -->
+    <section class="section" id="sec-quant_model" data-module="quant_model">
+      <div class="section-header">
+        <span class="section-tag tag-tool">核心工具</span>
+        <span class="section-title">4. 量化模型与公式</span>
+        <span class="section-time">⏱ 约4分钟</span>
+      </div>
+      <div class="hook">CRR只是起点。真实的量化世界需要更精细的树——更快的收敛、更稳定的希腊字母、以及对奇异期权的适应。</div>
+      <div class="content">
+        <p>本节系统对比二叉树模型的几种主流参数化，并给出<strong>收敛性分析</strong>和<strong>希腊字母计算</strong>公式。</p>
+        <table>
+          <tr><th>参数化</th><th>u</th><th>d</th><th>p</th><th>特点</th></tr>
+          <tr><td><strong>CRR</strong></td><td>e<sup>σ√Δt</sup></td><td>e<sup>-σ√Δt</sup></td><td>(e<sup>rΔt</sup>-d)/(u-d)</td><td>树的重合性最好，但收敛有振荡</td></tr>
+          <tr><td><strong>Jarrow-Rudd</strong></td><td>e<sup>(r-σ²/2)Δt+σ√Δt</sup></td><td>e<sup>(r-σ²/2)Δt-σ√Δt</sup></td><td>1/2</td><td>概率恒定为0.5，计算简洁</td></tr>
+          <tr><td><strong>Tian</strong></td><td>见公式</td><td>见公式</td><td>见公式</td><td>精确匹配前三阶矩</td></tr>
+          <tr><td><strong>Leisen-Reimer</strong></td><td>见公式</td><td>见公式</td><td>见公式</td><td>使用反演公式，收敛极快且平滑</td></tr>
+        </table>
+        <p><strong>Tian参数化</strong>在三阶矩匹配下推出：</p>
+        <div class="formula-block">
+          <span class="formula-latex">u = ½e^{rΔt}V(V+1+√(V²+2V-3)) &emsp; d = ½e^{rΔt}V(V+1-√(V²+2V-3))</span>
+          <span class="formula-caption">其中 V = e^{σ²Δt}，满足前三阶矩精确匹配</span>
+        </div>
+        <p><strong>期权价格收敛公式</strong>——对于欧式期权，当步数 n 足够大时：</p>
+        <div class="formula-block">
+          <span class="formula-latex">C_n ≈ C_{BS} + A/n + O(1/n²)</span>
+          <span class="formula-caption">CRR方法的收敛速率为 O(1/n)，可通过 Richardson 外推加速至 O(1/n²)</span>
+          <span class="formula-expand" onclick="this.nextElementSibling.classList.toggle('open');this.textContent=this.nextElementSibling.classList.contains('open')?'收起推导 ▾':'展开推导 ▾'">展开推导 ▾</span>
+          <div class="formula-derivation">
+            <p><strong>Richardson外推加速：</strong></p>
+            <p>设 C(n) 为 n 步树的价格，C(n/2) 为 n/2 步树的价格：</p>
+            <p>C<sub>extrapolated</sub> = 2·C(n) - C(n/2)</p>
+            <p>这将误差从 O(1/n) 降至 O(1/n²)，是实践中极为有效的加速技巧。</p>
+            <p>更一般地，对于收敛序列，可用 Romberg 型外推多次迭代进一步提高精度。</p>
+          </div>
+        </div>
+        <p><strong>希腊字母的树方法计算：</strong></p>
+        <div class="formula-block">
+          <span class="formula-latex">Δ = (V_{1,1} - V_{1,0}) / (S₀u - S₀d) &emsp; Γ = (Δ_u - Δ_d) / (½S₀(u²-d²))</span>
+          <span class="formula-caption">Delta和Gamma通过树的第一/二层节点值直接计算</span>
+        </div>
+        <div class="formula-block">
+          <span class="formula-latex">Θ ≈ (V_{2,1} - V_{0,0}) / (2Δt) &emsp; Vega ≈ (C_{σ+Δσ} - C_{σ-Δσ}) / (2Δσ)</span>
+          <span class="formula-caption">Theta用二步差分；Vega需扰动波动率重算整棵树</span>
+        </div>
+      </div>
+      <div class="chart-container" id="chart-quant-convergence"></div>
+      <div class="chart-caption">图4：不同参数化的收敛速度对比 — Leisen-Reimer方法以极快步数消除振荡</div>
+      <div class="ref-list">
+        <li>Leisen, D.P.J. & Reimer, M. (1996). Binomial models for option valuation — examining and improving convergence. <em>Applied Mathematical Finance</em>, 3(4), 319-346.</li>
+        <li>Tian, Y. (1993). A modified lattice approach to option pricing. <em>Journal of Futures Markets</em>, 13(5), 563-577.</li>
+      </div>
+      <div class="key-takeaway">💡 标准CRR收敛有振荡，Leisen-Reimer方法通过反演正态分布大幅改善收敛平滑度，是实际工程中的推荐选择。</div>
+    </section>
+
+    <!-- MODULE: development -->
+    <section class="section" id="sec-development" data-module="development">
+      <div class="section-header">
+        <span class="section-tag tag-evolution">发展演进</span>
+        <span class="section-title">5. 发展迭代</span>
+        <span class="section-time">⏱ 约3分钟</span>
+      </div>
+      <div class="hook">从1979年的单资产单因子树，到如今的多资产、随机波动率、跳跃扩散树——这一路上每个关键突破都在拓展数值定价的边界。</div>
+      <div class="content">
+        <p>二叉树模型的发展史可以清晰地划分为四个阶段：</p>
+        <table>
+          <tr><th>阶段</th><th>时间</th><th>关键进展</th><th>代表性工作</th></tr>
+          <tr><td><strong>奠基期</strong></td><td>1979</td><td>CRR二叉树、风险中性定价框架</td><td>Cox-Ross-Rubinstein (1979)</td></tr>
+          <tr><td><strong>参数化优化</strong></td><td>1983-1996</td><td>Jarrow-Rudd(1983)、Tian(1993)三阶矩匹配、Leisen-Reimer(1996)反演法</td><td>多种u/d/p参数化方案</td></tr>
+          <tr><td><strong>多维扩展</strong></td><td>1988-2000</td><td>双资产二叉树、三叉树、利率期限结构模型（Ho-Lee, BDT）</td><td>Boyle(1988)多维格点法</td></tr>
+          <tr><td><strong>现代融合</strong></td><td>2010至今</td><td>GPU加速、隐式树、跳跃扩散树、随机波动率树、与ML的交叉</td><td>自适应网格、深度学习定价</td></tr>
+        </table>
+        <p>一个关键的<strong>范式转移</strong>发生在1990年代：人们意识到二叉树不仅是定价工具，更是一种<strong>离散鞅表示</strong>——每个节点的价格变动可以看作一个有限状态马尔可夫链在风险中性测度下的转移。</p>
+        <p>这促成了<strong>利率树模型</strong>的爆发式发展。Black-Derman-Toy (BDT) 和 Hull-White 三叉树将二叉树的逻辑移植到整个收益率曲线的演化中，成为固定收益定价的工业标准长达二十年。</p>
+        <p>在计算层面，<strong>GPU并行化</strong>使得百万步级别的树成为可能，而<strong>自适应网格</strong>技术让树在关键区域（如障碍附近）自动加密，大幅提升了计算精度比。</p>
+      </div>
+      <div class="chart-container" id="chart-development-timeline"></div>
+      <div class="chart-caption">图5：二叉树模型关键发展里程碑与引用网络</div>
+      <div class="ref-list">
+        <li>Boyle, P.P. (1988). A lattice framework for option pricing with two state variables. <em>Journal of Financial and Quantitative Analysis</em>, 23(1), 1-12.</li>
+        <li>Black, F., Derman, E. & Toy, W. (1990). A one-factor model of interest rates and its application to treasury bond options. <em>Financial Analysts Journal</em>, 46(1), 33-39.</li>
+      </div>
+      <div class="key-takeaway">💡 二叉树从单一期权定价工具演变为一类通用的离散鞅表示框架，其思想已渗透到利率建模、信用定价和实时风控中。</div>
+    </section>
+
+    <!-- MODULE: application -->
+    <section class="section" id="sec-application" data-module="application">
+      <div class="section-header">
+        <span class="section-tag tag-app">实践应用</span>
+        <span class="section-title">6. 实践应用</span>
+        <span class="section-time">⏱ 约3分钟</span>
+      </div>
+      <div class="hook">二叉树模型真正的战场不在教科书里，而在交易台的定价引擎中——从美式期权到员工股票期权，处处可见它的身影。</div>
+      <div class="content">
+        <p>二叉树模型在金融实践中的应用场景极为丰富，主要分为以下几类：</p>
+        <table>
+          <tr><th>应用场景</th><th>为何二叉树优于BS公式</th><th>典型参数</th></tr>
+          <tr><td><strong>美式股票期权</strong></td><td>BS无解析解，树天然支持提前行权判定</td><td>n=500~2000步</td></tr>
+          <tr><td><strong>员工股票期权(ESO)</strong></td><td>需考虑行权行为模型、锁定期、离职率</td><td>结合行为概率修正</td></tr>
+          <tr><td><strong>可转换债券</strong></td><td>转股/赎回/回售三重选择权的复杂交互</td><td>多决策节点树</td></tr>
+          <tr><td><strong>障碍期权</strong></td><td>可精确追踪是否触达障碍价格</td><td>障碍层级需对齐节点</td></tr>
+          <tr><td><strong>实物期权(Real Options)</strong></td><td>项目投资决策的灵活性模拟</td><td>标的为项目价值，波动率估算较难</td></tr>
+          <tr><td><strong>利率衍生品</strong></td><td>BS假设常数利率，树可嵌入整条利率曲线</td><td>BDT/Hull-White树，n=200~500</td></tr>
+        </table>
+        <p><strong>ESO定价</strong>是一个特别有趣的案例。员工股票期权通常有<strong>锁定期（vesting period）</strong>，且员工可能在锁定期结束前离职，或在股价达到心理价位时提前行权。二叉树可以方便地在每个节点附加一个<strong>行权概率</strong>（基于历史员工行为数据），从而给出比BS公式更准确的价值估计——这对公司的财务报表有直接的影响（ASC 718 / IFRS 2）。</p>
+        <p>在<strong>可转换债券</strong>定价中，二叉树需要同时追踪股价和利率两个维度，形成三维树（或使用二叉树嵌套），在每个节点判断发行人的赎回决策和投资者的转股/回售决策。</p>
+      </div>
+      <div class="chart-container" id="chart-app-radar"></div>
+      <div class="chart-caption">图6：二叉树模型在不同应用场景中的适用性雷达图</div>
+      <div class="key-takeaway">💡 二叉树真正的"杀手级应用"是美式期权和ESO——只要涉及提前行权决策或行为建模，树方法就拥有BS公式无法比拟的灵活性。</div>
+    </section>
+
+    <!-- MODULE: cross_market -->
+    <section class="section" id="sec-cross_market" data-module="cross_market">
+      <div class="section-header">
+        <span class="section-tag tag-app">实践应用</span>
+        <span class="section-title">7. 跨市场联动</span>
+        <span class="section-time">⏱ 约2分钟</span>
+      </div>
+      <div class="hook">同一棵树，在纽约定价美股期权，在芝加哥定价玉米期权，在新加坡定价外汇期权——参数不同，逻辑完全一致。</div>
+      <div class="content">
+        <p>二叉树模型的定价逻辑在不同资产类别中保持一致，但参数校准和细节处理各有特色：</p>
+        <table>
+          <tr><th>资产类别</th><th>标的</th><th>特殊处理</th><th>关键参数来源</th></tr>
+          <tr><td><strong>股票期权</strong></td><td>个股/指数</td><td>需考虑股息（离散或连续）</td><td>期权市场隐含波动率</td></tr>
+          <tr><td><strong>外汇期权</strong></td><td>汇率</td><td>双利率（本币+外币），r替换为r<sub>d</sub>-r<sub>f</sub></td><td>外汇期权波动率曲面</td></tr>
+          <tr><td><strong>商品期权</strong></td><td>原油/黄金/农产品</td><td>便利收益率(convenience yield)、季节性</td><td>期货期权联合校准</td></tr>
+          <tr><td><strong>利率期权</strong></td><td>债券/互换</td><td>需整个收益率曲线，非单点r</td><td>利率上限/互换期权市场</td></tr>
+        </table>
+        <p>一个关键观察：<strong>波动率微笑</strong>（volatility smile）在不同市场的形态不同。股票市场典型呈现"左高右低"的偏斜（skew），而外汇市场多呈对称微笑。二叉树模型可以通过<strong>局部波动率</strong>（将 σ 设为 S 和 t 的函数）来容纳这些市场特征，这是BS公式无法做到的。</p>
+        <p>在<strong>跨市场套利</strong>中，交易员使用二叉树同时定价同一标的不同市场的衍生品（如个股期权 vs 股指期权中的成分股），通过树的结构可视化套利机会。</p>
+      </div>
+      <div class="key-takeaway">💡 二叉树是跨市场期权定价的"通用语言"——同一个框架，换一套参数，即可在股票、外汇、商品、利率四大市场无缝切换。</div>
+    </section>
+
+    <!-- MODULE: case_study -->
+    <section class="section" id="sec-case_study" data-module="case_study">
+      <div class="section-header">
+        <span class="section-tag tag-app">实践应用</span>
+        <span class="section-title">8. 实践案例</span>
+        <span class="section-time">⏱ 约4分钟</span>
+      </div>
+      <div class="hook">纸上得来终觉浅——让我们用三步二叉树亲手为一个美式看跌期权定价。</div>
+      <div class="content">
+        <p><strong>案例设定：</strong>某股票当前价格 S₀ = $50，行权价 K = $52，无风险利率 r = 5%（连续复利），波动率 σ = 30%，期限 T = 1年，取 n = 3 步。</p>
+        <p><strong>Step 1 — 计算参数：</strong></p>
+        <div class="formula-block">
+          <span class="formula-latex">Δt = T/n = 1/3 ≈ 0.3333</span><br>
+          <span class="formula-latex">u = e^{0.3√0.3333} = e^{0.1732} ≈ 1.1891</span><br>
+          <span class="formula-latex">d = e^{-0.1732} ≈ 0.8409</span><br>
+          <span class="formula-latex">p = (e^{0.05×0.3333} - 0.8409) / (1.1891 - 0.8409) = (1.0168 - 0.8409) / 0.3482 ≈ 0.5052</span>
+          <span class="formula-caption">风险中性上涨概率约 50.52%</span>
+        </div>
+        <p><strong>Step 2 — 构建股价树：</strong></p>
+        <table>
+          <tr><th>层级</th><th colspan="4">节点股价</th></tr>
+          <tr><td>t=0</td><td colspan="4" style="text-align:center">$50.00</td></tr>
+          <tr><td>t=1</td><td>$59.46</td><td>$42.05</td><td></td><td></td></tr>
+          <tr><td>t=2</td><td>$70.70</td><td>$50.00</td><td>$35.36</td><td></td></tr>
+          <tr><td>t=3(到期)</td><td>$84.07</td><td>$59.46</td><td>$42.05</td><td>$29.73</td></tr>
+        </table>
+        <p><strong>Step 3 — 终端看跌期权回报：</strong>max(K - Sₜ, 0)，K = $52</p>
+        <table>
+          <tr><th>t=3节点</th><th>$84.07</th><th>$59.46</th><th>$42.05</th><th>$29.73</th></tr>
+          <tr><td>看跌回报</td><td>$0</td><td>$0</td><td>$9.95</td><td>$22.27</td></tr>
+        </table>
+        <p><strong>Step 4 — 逆向递推（美式，每步比较持有 vs 行权）：</strong></p>
+        <div class="formula-block">
+          <span class="formula-latex">t=2, S=$50.00: 持有 = e^{-0.05/3}[0.5052×0 + 0.4948×9.95] ≈ 4.85</span>
+          <span class="formula-latex">立即行权 = max(52-50, 0) = 2.00 → 选持有 4.85</span>
+        </div>
+        <div class="formula-block">
+          <span class="formula-latex">t=2, S=$35.36: 持有 = e^{-0.05/3}[0.5052×9.95 + 0.4948×22.27] ≈ 15.70</span>
+          <span class="formula-latex">立即行权 = max(52-35.36, 0) = 16.64 → 选行权 16.64（提前行权最优！）</span>
+        </div>
+        <p>继续递推至 t=0，<strong>最终美式看跌期权价格 ≈ $5.89</strong>（作为对比，相同参数的欧式看跌期权价格 ≈ $5.38，美式溢价约 $0.51）。</p>
+        <p>这个案例揭示了<strong>美式看跌期权的核心特征</strong>：在股价深度下跌时（S=$35.36），提前行权比继续持有更有价值，因为无风险利率的贴现效应不足以弥补等待期间可能失去的内在价值。</p>
+      </div>
+      <div class="chart-container" id="chart-case-tree"></div>
+      <div class="chart-caption">图7：三步二叉树的看跌期权估值 — 红色节点标注了提前行权最优的位置</div>
+      <div class="key-takeaway">💡 三步树虽粗糙，但已展现出美式看跌提前行权的本质逻辑——深度价内时"落袋为安"优于继续等待。</div>
+    </section>
+
+    <!-- MODULE: risk -->
+    <section class="section" id="sec-risk" data-module="risk">
+      <div class="section-header">
+        <span class="section-tag tag-risk">风险与挑战</span>
+        <span class="section-title">9. 潜在风险</span>
+        <span class="section-time">⏱ 约3分钟</span>
+      </div>
+      <div class="hook">二叉树模型看起来很"安全"——但它有几个你不知道的暗坑，每一个都可能导致定价偏差超过5%。</div>
+      <div class="content">
+        <p>二叉树模型在实践中可能遇到的主要风险来源：</p>
+        <table>
+          <tr><th>风险类别</th><th>具体表现</th><th>严重程度</th><th>缓解措施</th></tr>
+          <tr><td><strong>收敛振荡</strong></td><td>CRR的期权价格随步数奇数-偶数交替波动，幅度可达1-3%</td><td>⭐⭐⭐</td><td>使用Leisen-Reimer参数化或Richardson外推</td></tr>
+          <tr><td><strong>负概率风险</strong></td><td>当波动率极高或步数不足时，风险中性概率p可能<0或>1</td><td>⭐⭐</td><td>确保d < e<sup>rΔt</sup> < u，必要时增加步数</td></tr>
+          <tr><td><strong>障碍偏移误差</strong></td><td>障碍层级不在树的节点上时产生系统性偏差</td><td>⭐⭐⭐</td><td>调整树结构使节点对齐障碍水平</td></tr>
+          <tr><td><strong>维度灾难</strong></td><td>多资产树的节点数随资产数指数增长</td><td>⭐⭐</td><td>改用Monte Carlo或PDE方法</td></tr>
+          <tr><td><strong>股息假设偏差</strong></td><td>离散股息使树失去重合性（非重组树）</td><td>⭐⭐</td><td>使用调整后的股价过程</td></tr>
+          <tr><td><strong>模型风险</strong></td><td>假设波动率为常数与实际不符</td><td>⭐⭐⭐⭐</td><td>引入局部波动率或随机波动率树</td></tr>
+        </table>
+        <p><strong>收敛振荡</strong>是最常见也是最容易被忽视的问题。CRR树在步数增加时，价格并非单调收敛，而是呈现<strong>锯齿状振荡</strong>。例如，n=99步和n=100步的价格可能相差0.5%以上。项目实践中，一种常见的做法是取<strong>偶数步的平均值</strong>：(C(n) + C(n+1)) / 2。</p>
+        <p>更微妙的是<strong>障碍偏移误差</strong>：如果你在定价一个障碍价为$100的向下敲出看涨期权，而你的树节点在$99.23和$100.76，没有一个恰好落在$100上——这会导致障碍触发判断的系统性偏差，有效障碍实际上偏移了几个基点。解决方法包括<strong>自适应网格</strong>（在障碍附近加密节点）或使用三叉树。</p>
+      </div>
+      <div class="chart-container" id="chart-risk-oscillation"></div>
+      <div class="chart-caption">图8：CRR二叉树收敛振荡示意 — 奇偶步数之间的价格跳跃</div>
+      <div class="key-takeaway">💡 模型风险是二叉树最大的暗坑——常数波动率假设在真实市场中几乎总是被违反，不校准局部波动率的树定价误差可达5%以上。</div>
+    </section>
+
+    <!-- MODULE: regulation -->
+    <section class="section" id="sec-regulation" data-module="regulation">
+      <div class="section-header">
+        <span class="section-tag tag-risk">风险与挑战</span>
+        <span class="section-title">10. 监管框架</span>
+        <span class="section-time">⏱ 约2分钟</span>
+      </div>
+      <div class="hook">监管机构不关心你用什么模型——直到你的模型低估了风险。而二叉树，恰好在某些监管场景下是被认可的"安全选择"。</div>
+      <div class="content">
+        <p>二叉树模型在全球金融监管框架中的地位虽不如Black-Scholes那样家喻户晓，但在特定场景中发挥着独特作用：</p>
+        <p><strong>1. 会计准则下的期权估值</strong></p>
+        <p>根据<strong>ASC 718</strong>（美国）和<strong>IFRS 2</strong>（国际），公司在授予员工股票期权时必须以公允价值计入费用。对于非上市公司的员工期权（没有可观测的市场价格），二叉树模型是监管机构明确认可的估值方法之一。审计师通常要求至少使用500步以上的树并结合员工行为模型。</p>
+        <p><strong>2. 巴塞尔协议中的市场风险</strong></p>
+        <p><strong>FRTB</strong>（Fundamental Review of the Trading Book）要求银行使用预期缺口（Expected Shortfall）作为风险度量。虽然主流的ES计算依赖历史模拟或Monte Carlo，但对于个别非线性衍生品组合（尤其是含有美式期权的组合），二叉树的重定价能力使其成为<strong>内部模型法（IMA）</strong>验证中的常用对照工具。</p>
+        <p><strong>3. Solvency II 与保险公司</strong></p>
+        <p>欧洲保险监管框架认可二叉树在<strong>内含期权</strong>（embedded options，如可变年金的保证最低收益）定价中的应用。当闭式解不存在时，树方法是向监管展示模型稳健性的标准选择。</p>
+      </div>
+      <div class="key-takeaway">💡 在监管场景下，二叉树的"可解释性"是它最大的护城河——你可以把整棵树的逻辑摊开给审计师看，而Monte Carlo只能展示统计结果。</div>
+    </section>
+
+    <!-- MODULE: landscape -->
+    <section class="section" id="sec-landscape" data-module="landscape">
+      <div class="section-header">
+        <span class="section-tag tag-evolution">发展演进</span>
+        <span class="section-title">11. 发展格局</span>
+        <span class="section-time">⏱ 约2分钟</span>
+      </div>
+      <div class="hook">在Monte Carlo和深度学习定价的双重夹击下，二叉树模型活得如何？出人意料的答案是：相当不错。</div>
+      <div class="content">
+        <p>在当前的<strong>数值定价方法论</strong>格局中，三大主流方法各有领地：</p>
+        <table>
+          <tr><th>方法</th><th>优势场景</th><th>劣势</th><th>二叉树相对优势</th></tr>
+          <tr><td><strong>二叉树/三叉树</strong></td><td>美式期权、ESO、可转债</td><td>高维灾难</td><td>—</td></tr>
+          <tr><td><strong>有限差分(PDE)</strong></td><td>低维欧式/美式、障碍期权</td><td>高维网格爆炸</td><td>树更直观、易实现</td></tr>
+          <tr><td><strong>Monte Carlo</strong></td><td>高维、路径依赖、复杂回报</td><td>美式行权需Longstaff-Schwartz扩展</td><td>树天然支持美式</td></tr>
+          <tr><td><strong>深度学习定价</strong></td><td>超高维、实时做市</td><td>模型可解释性差、监管接受度低</td><td>树完全可解释、监管友好</td></tr>
+        </table>
+        <p>二叉树模型在<strong>低维（1-2个风险因子）+ 美式行权</strong>的领域仍然是实际工程中的首选。一个典型的华尔街量化团队中，期权定价引擎通常同时包含树方法（处理美式和ESO）、PDE（处理障碍和亚式）和Monte Carlo（处理多资产和复杂奇异期权）。</p>
+        <p>值得注意的是，<strong>深度学习定价</strong>（Deep Pricing）近年来发展迅猛——神经网络可以在毫秒级给出近似价格和希腊字母。但它面临的最大障碍是<strong>监管接受度</strong>和<strong>极端市场下的泛化能力</strong>。树方法在这两个维度上依然占据优势。</p>
+      </div>
+      <div class="chart-container" id="chart-landscape-methods"></div>
+      <div class="chart-caption">图9：期权定价数值方法的适用场景分布</div>
+      <div class="key-takeaway">💡 二叉树没有"被淘汰"——它在美式期权定价中的统治地位至今未被撼动，深度学习的崛起反而让监管机构更青睐可解释的树方法。</div>
+    </section>
+
+    <!-- MODULE: prospect -->
+    <section class="section" id="sec-prospect" data-module="prospect">
+      <div class="section-header">
+        <span class="section-tag tag-evolution">发展演进</span>
+        <span class="section-title">12. 发展前景</span>
+        <span class="section-time">⏱ 约2分钟</span>
+      </div>
+      <div class="hook">一个诞生于1979年的模型，在2026年依然活跃于顶级量化期刊。二叉树的未来不局限于定价——它正在成为风险管理和机器学习解释性的桥梁。</div>
+      <div class="content">
+        <p>二叉树模型未来的发展方向可以归纳为三条主线：</p>
+        <p><strong>方向一：GPU/FPGA大规模并行化</strong></p>
+        <p>传统上，10000步的二叉树在CPU上需要数秒甚至数十秒计算。现代GPU允许<strong>跨步数并行</strong>——同一层级的数百个节点同时处理——将计算时间压缩到毫秒级。这使得<strong>实时做市</strong>中的美式期权定价成为可能。</p>
+        <p><strong>方向二：机器学习混合模型</strong></p>
+        <p>一个前沿方向是用树方法的输出作为<strong>训练监督信号</strong>来训练神经网络定价器。树的精确性（特别是对美式期权）为网络提供了高质量的标签，而网络在推断时的速度优势（微秒级）则弥补了树的性能短板。这种"树训练 + 网络推理"的范式在2024-2025年的多篇Quantitative Finance论文中被验证有效。</p>
+        <p><strong>方向三：风险管理的可解释AI</strong></p>
+        <p>随着监管对AI模型透明度的要求提高，二叉树提供了一种"白盒"替代方案。你可以<strong>精确追溯</strong>一笔期权的价格是由哪些市场路径贡献的——这在神经网络中几乎是不可能的。CCAR/DFAST压力测试场景下，树方法在极端冲击下的行为可以逐节点分析。</p>
+      </div>
+      <div class="key-takeaway">💡 二叉树不会消失——它在GPU加速下获得新生命，在ML可解释性需求中找到新使命，未来五年依然是量化金融工具箱中的核心组件。</div>
+    </section>
+
+    <!-- MODULE: misconceptions -->
+    <section class="section" id="sec-misconceptions" data-module="misconceptions">
+      <div class="section-header">
+        <span class="section-tag tag-concept">核心概念</span>
+        <span class="section-title">13. 常见误区</span>
+        <span class="section-time">⏱ 约2分钟</span>
+      </div>
+      <div class="hook">"二叉树就是简化版的BS"——如果你也这么想，那么这一节可能要颠覆你的认知。</div>
+      <div class="content">
+        <table>
+          <tr><th>误区</th><th>真相</th></tr>
+          <tr>
+            <td><strong>❌ "p是股价真实上涨概率"</strong></td>
+            <td>p是<strong>风险中性概率</strong>，与实际世界的上涨概率无关。它只是使得折现后期望收益等于无风险收益的"人造概率"。真实概率可能远高于或远低于p。</td>
+          </tr>
+          <tr>
+            <td><strong>❌ "步数越多越精确"</strong></td>
+            <td>CRR方法步数增加时价格呈<strong>锯齿振荡</strong>而非单调收敛。n=100步可能比n=99步误差更大。正确的做法是使用Leisen-Reimer参数化或Richardson外推。</td>
+          </tr>
+          <tr>
+            <td><strong>❌ "二叉树只能定价欧式期权"</strong></td>
+            <td>恰恰相反，二叉树的<strong>核心优势</strong>就是处理美式期权和百慕大期权。BS公式反而没有这个能力。</td>
+          </tr>
+          <tr>
+            <td><strong>❌ "ud=1是必须满足的条件"</strong></td>
+            <td>ud=1（树的重合性）只是CRR的一种<strong>便利假设</strong>，使得树节点复用、计算量从O(2ⁿ)降至O(n²)。Jarrow-Rudd和Tian参数化中ud≠1，节点仍然重合。</td>
+          </tr>
+          <tr>
+            <td><strong>❌ "二叉树只适用于单一标的"</strong></td>
+            <td>可以通过<strong>多维树</strong>、<strong>组合树</strong>或与PDE方法结合来处理多资产期权，虽然计算复杂度随资产数增长。</td>
+          </tr>
+        </table>
+        <p>其中<strong>第一个误区是最危险的</strong>。很多初学者看到二叉树中p≈0.5，下意识认为"市场涨跌概率各半"。实际上，p是严格由无套利条件推导出的数学构造，与任何人对未来走势的判断都无关。理解p的本质＝理解风险中性定价的整个大厦。</p>
+      </div>
+      <div class="key-takeaway">💡 风险中性概率p的误读是二叉树学习中最危险的认知陷阱——它不是为了预测涨跌，而是为了消除套利。</div>
+    </section>
+
+    <!-- MODULE: debate -->
+    <section class="section" id="sec-debate" data-module="debate">
+      <div class="section-header">
+        <span class="section-tag tag-risk">风险与挑战</span>
+        <span class="section-title">14. 争议与辩论</span>
+        <span class="section-time">⏱ 约2分钟</span>
+      </div>
+      <div class="hook">二叉树vs有限差分vs蒙特卡洛——这场持续了三十年的"数值定价方法之争"至今没有赢家，因为每个方法都在不同的维度上胜出。</div>
+      <div class="content">
+        <p><strong>争议一：树方法 vs PDE方法 —— 谁更精确？</strong></p>
+        <p>支持有限差分法（FDM）的观点认为：FDM对空间和时间网格的控制精度更高（如Crank-Nicolson格式有二阶精度），且天然适配障碍期权。但树的拥护者反驳：二叉树在美式行权的处理上更<strong>直观且无额外计算</strong>，而FDM需要求解线性互补问题。</p>
+        <p><strong>争议二：二叉树中"奇数步振荡"是bug还是feature？</strong></p>
+        <p>一部分学者认为收敛振荡反映的是离散化方法的固有缺陷，应该通过参数化（如Leisen-Reimer）彻底消除。另一些人则指出：振荡中暗含的奇偶步价格差异实际上反映了<strong>离散对冲误差</strong>的下界估计，不应简单地"平滑掉"。</p>
+        <p><strong>争议三：在深度学习时代，是否还有必要教授二叉树？</strong></p>
+        <p>这是一个在量化金融教育界日益激烈的讨论。反对者认为：与其花两周讲树方法，不如教学生用TensorFlow搭建定价网络。支持者（包括大多数资深量化从业者）则认为：不经过树和PDE的思维训练，就无法真正理解<strong>离散鞅定价的本质</strong>，更无法在深度模型出错时进行诊断。</p>
+      </div>
+      <div class="key-takeaway">💡 工具会过时，思想不会。二叉树背后的离散鞅表示和逆向归纳思维，是穿透所有数值定价方法的元认知。</div>
+    </section>
+
+    <!-- MODULE: learning_path -->
+    <section class="section" id="sec-learning_path" data-module="learning_path">
+      <div class="section-header">
+        <span class="section-tag tag-concept">核心概念</span>
+        <span class="section-title">15. 学习路径</span>
+        <span class="section-time">⏱ 约2分钟</span>
+      </div>
+      <div class="hook">从第一次听到"二叉树"到能用Python手写10000步的GPU加速定价引擎——这条路的每一步都有最优资源。</div>
+      <div class="content">
+        <p><strong>入门级（0→1周）：</strong></p>
+        <table>
+          <tr><th>资源</th><th>类型</th><th>说明</th></tr>
+          <tr><td>Hull <em>Options, Futures, and Other Derivatives</em> 第13章</td><td>教材</td><td>二叉树模型最经典的教学章节</td></tr>
+          <tr><td>Shreve <em>Stochastic Calculus for Finance I</em> 第1-2章</td><td>教材</td><td>二叉树作为离散鞅定价的数学入门</td></tr>
+          <tr><td>Coursera: Financial Engineering and Risk Management (Columbia)</td><td>在线课程</td><td>第4-5周覆盖树方法和美式期权</td></tr>
+        </table>
+        <p><strong>进阶（1→4周）：</strong></p>
+        <table>
+          <tr><th>资源</th><th>类型</th><th>说明</th></tr>
+          <tr><td>Cox, Ross & Rubinstein (1979) 原始论文</td><td>论文</td><td>不到10页，是任何严肃学习的起点</td></tr>
+          <tr><td>Leisen & Reimer (1996)</td><td>论文</td><td>理解收敛改进的必读文献</td></tr>
+          <tr><td>《Python金融编程》- Yves Hilpisch</td><td>教材</td><td>从零实现二叉树定价的Python代码</td></tr>
+        </table>
+        <p><strong>实战项目建议：</strong></p>
+        <p>1. 用Python实现一个完整的美式期权二叉树定价器（支持CRR/JR/LR三种参数化）<br>
+        2. 实现Richardson外推加速，绘制收敛图验证 O(1/n) → O(1/n²)<br>
+        3. 扩展到ESO定价，加入行权行为模型<br>
+        4. 尝试GPU加速（Numba CUDA或PyTorch），对比10万步树的性能</p>
+      </div>
+      <div class="ref-list">
+        <li>Hull, J.C. (2022). <em>Options, Futures, and Other Derivatives</em> (11th ed.). Pearson.</li>
+        <li>Shreve, S.E. (2004). <em>Stochastic Calculus for Finance I: The Binomial Asset Pricing Model</em>. Springer.</li>
+      </div>
+      <div class="key-takeaway">💡 最佳学习路线：Hull教材建框架 → CRR论文深理解 → Python实现消化吸收 → Leisen-Reimer论文进阶 → GPU加速实战落地。</div>
+    </section>
+
+    <!-- MODULE: glossary -->
+    <section class="section" id="sec-glossary" data-module="glossary">
+      <div class="section-header">
+        <span class="section-tag tag-concept">核心概念</span>
+        <span class="section-title">16. 关键术语表</span>
+        <span class="section-time">⏱ 约2分钟</span>
+      </div>
+      <div class="content">
+        <table>
+          <tr><th>术语</th><th>英文</th><th>定义</th></tr>
+          <tr><td>二叉树模型</td><td>Binomial Tree Model</td><td>将资产价格过程离散化为上涨/下跌两种可能的数值定价方法</td></tr>
+          <tr><td>CRR模型</td><td>Cox-Ross-Rubinstein</td><td>经典二叉树参数化：u=e<sup>σ√Δt</sup>, d=1/u</td></tr>
+          <tr><td>风险中性定价</td><td>Risk-Neutral Pricing</td><td>在等价鞅测度下，资产期望收益等于无风险利率的定价框架</td></tr>
+          <tr><td>逆向归纳</td><td>Backward Induction</td><td>从到期日向前递推计算期权价值的算法</td></tr>
+          <tr><td>上行/下行因子</td><td>Up/Down Factor</td><td>一个时间步内股价的上涨/下跌倍数 u 和 d</td></tr>
+          <tr><td>风险中性概率</td><td>Risk-Neutral Probability</td><td>使资产期望收益等于无风险利率的人造概率 p</td></tr>
+          <tr><td>矩匹配</td><td>Moment Matching</td><td>使离散模型的统计矩与连续模型一致的参数校准方法</td></tr>
+          <tr><td>收敛振荡</td><td>Convergence Oscillation</td><td>CRR树价格随步数增加呈锯齿状波动的现象</td></tr>
+          <tr><td>Richardson外推</td><td>Richardson Extrapolation</td><td>利用不同步数的价格外推消除主导误差项的加速技术</td></tr>
+          <tr><td>Leisen-Reimer</td><td>Leisen-Reimer Method</td><td>通过反演正态分布函数改进收敛的参数化方法</td></tr>
+          <tr><td>美式期权</td><td>American Option</td><td>可在到期前任意时刻行权的期权</td></tr>
+          <tr><td>提前行权溢价</td><td>Early Exercise Premium</td><td>美式期权价格高于欧式期权的部分</td></tr>
+          <tr><td>局部波动率</td><td>Local Volatility</td><td>波动率为标的价格和时间的确定性函数 σ(S,t)</td></tr>
+          <tr><td>非重组树</td><td>Non-Recombining Tree</td><td>节点数随步数指数增长的树（如离散股息导致）</td></tr>
+          <tr><td>希腊字母</td><td>Greeks</td><td>期权价格对参数（标的价格、时间、波动率等）的偏导数</td></tr>
+          <tr><td>等价鞅测度</td><td>Equivalent Martingale Measure</td><td>使贴现资产价格成为鞅的概率测度</td></tr>
+          <tr><td>BDT模型</td><td>Black-Derman-Toy</td><td>将二叉树应用于利率期限结构的单因子模型</td></tr>
+          <tr><td>障碍期权</td><td>Barrier Option</td><td>当标的价格触及预设障碍时生效或失效的期权</td></tr>
+          <tr><td>ESO</td><td>Employee Stock Option</td><td>公司授予员工的股票期权，通常带锁定期和行权限制</td></tr>
+          <tr><td>ASC 718 / IFRS 2</td><td>—</td><td>美国/国际会计准则中有关股份支付的规定</td></tr>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <footer>
+    <p>本资料由 Smart Learning Materials Generator v3.1 生成</p>
+    <p>纹理: G1 公式推导驱动型 | 深度: 理解 | 广度: 标准 | 共16个模块</p>
+    <div class="export-btns">
+      <button onclick="exportNotes()">📝 导出笔记 (Markdown)</button>
+      <button onclick="window.print()">🖨️ 打印</button>
+    </div>
+  </footer>
+
+  <div class="search-overlay" id="searchOverlay">
+    <div class="search-box">
+      <input type="text" id="searchInput" placeholder="搜索模块内容... (Ctrl+K)">
+      <div class="search-results" id="searchResults"></div>
+    </div>
+  </div>
+
+  <script>
+    (function(){
+      const theme=localStorage.getItem('slm-theme')||'light';
+      document.body.setAttribute('data-theme',theme);
+      document.getElementById('themeToggle').textContent=theme==='dark'?'☀️':'🌙';
+    })();
+
+    document.getElementById('themeToggle').addEventListener('click',function(){
+      const current=document.body.getAttribute('data-theme');
+      const next=current==='dark'?'light':'dark';
+      document.body.setAttribute('data-theme',next);
+      localStorage.setItem('slm-theme',next);
+      this.textContent=next==='dark'?'☀️':'🌙';
+      renderAllCharts();
+    });
+
+    document.addEventListener('keydown',function(e){
+      if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();toggleSearch();}
+      if((e.ctrlKey||e.metaKey)&&e.key==='d'){e.preventDefault();document.getElementById('themeToggle').click();}
+      if(e.key==='Escape'){closeSearch();}
+    });
+
+    window.addEventListener('scroll',function(){
+      const scrollTop=document.documentElement.scrollTop||document.body.scrollTop;
+      const scrollHeight=document.documentElement.scrollHeight-document.documentElement.clientHeight;
+      const progress=scrollHeight>0?(scrollTop/scrollHeight)*100:0;
+      document.getElementById('progress-bar').style.width=progress+'%';
+    });
+
+    const observer=new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if(entry.isIntersecting){entry.target.classList.add('visible');}
+      });
+    },{threshold:0.1});
+    document.querySelectorAll('.section').forEach(function(s){observer.observe(s);});
+
+    const sections=document.querySelectorAll('.section');
+    const sidebar=document.getElementById('sidebarNav');
+    sections.forEach(function(s,i){
+      const dot=document.createElement('span');
+      dot.className='sidebar-dot';
+      dot.setAttribute('data-title',s.querySelector('.section-title').textContent);
+      dot.addEventListener('click',function(){s.scrollIntoView({behavior:'smooth',block:'start'});});
+      sidebar.appendChild(dot);
+      s.setAttribute('data-dot-index',i);
+    });
+    const dots=document.querySelectorAll('.sidebar-dot');
+    window.addEventListener('scroll',function(){
+      let active=-1;
+      sections.forEach(function(s,i){
+        const rect=s.getBoundingClientRect();
+        if(rect.top<window.innerHeight*0.4)active=i;
+      });
+      dots.forEach(function(d,i){d.classList.toggle('active',i===active);});
+    });
+
+    document.querySelectorAll('.formula-expand').forEach(function(el){
+      el.addEventListener('click',function(e){
+        e.stopPropagation();
+        const derivation=this.nextElementSibling;
+        derivation.classList.toggle('open');
+        this.textContent=derivation.classList.contains('open')?'收起推导 ▴':'展开推导 ▾';
+      });
+    });
+
+    function toggleSearch(){
+      const overlay=document.getElementById('searchOverlay');
+      overlay.classList.toggle('open');
+      if(overlay.classList.contains('open')){document.getElementById('searchInput').focus();}
+      document.getElementById('searchInput').value='';
+      document.getElementById('searchResults').innerHTML='';
+    }
+    function closeSearch(){document.getElementById('searchOverlay').classList.remove('open');}
+    document.getElementById('searchOverlay').addEventListener('click',function(e){
+      if(e.target===this)closeSearch();
+    });
+    document.getElementById('searchInput').addEventListener('input',function(){
+      const q=this.value.trim().toLowerCase();
+      const results=document.getElementById('searchResults');
+      if(q.length<2){results.innerHTML='';return;}
+      let html='';
+      sections.forEach(function(s){
+        const title=s.querySelector('.section-title').textContent;
+        const content=s.querySelector('.content').textContent;
+        const idx=content.toLowerCase().indexOf(q);
+        if(idx>=0){
+          const start=Math.max(0,idx-30);
+          const end=Math.min(content.length,idx+q.length+60);
+          let snippet=content.substring(start,end);
+          if(start>0)snippet='...'+snippet;
+          if(end<content.length)snippet=snippet+'...';
+          const re=new RegExp('('+q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi');
+          snippet=snippet.replace(re,'<mark>$1</mark>');
+          html+='<div class="sr-item" onclick="document.getElementById(\'sec-'+s.dataset.module+'\').scrollIntoView({behavior:\'smooth\'});closeSearch()"><strong>'+title+'</strong><br><span style="font-size:0.75rem;color:var(--text-muted)">'+snippet+'</span></div>';
+        }
+      });
+      results.innerHTML=html||'<div style="padding:16px;color:var(--text-muted)">未找到匹配结果</div>';
+    });
+
+    function exportNotes(){
+      let md='# 二叉树模型学习笔记\n\n';
+      sections.forEach(function(s){
+        md+='## '+s.querySelector('.section-title').textContent+'\n\n';
+        const content=s.querySelector('.content');
+        if(content)md+=content.innerText+'\n\n';
+        const kt=s.querySelector('.key-takeaway');
+        if(kt)md+='> '+kt.innerText+'\n\n';
+        md+='---\n\n';
+      });
+      navigator.clipboard.writeText(md).then(function(){
+        alert('笔记已复制到剪贴板！');
+      });
+    }
+
+    function getChartColors(){
+      const isDark=document.body.getAttribute('data-theme')==='dark';
+      return {
+        purple:isDark?'#818cf8':'#6366f1',
+        violet:isDark?'#a78bfa':'#8b5cf6',
+        cyan:isDark?'#67e8f9':'#22d3ee',
+        gold:isDark?'#fbbf24':'#f59e0b',
+        green:isDark?'#34d399':'#10b981',
+        red:isDark?'#f87171':'#ef4444',
+        text:isDark?'#e8e9f0':'#1a1b2e',
+        textMuted:isDark?'#6e7098':'#8e8fa6',
+        bg:isDark?'#1f2137':'#f5f6fa'
+      };
+    }
+
+    function drawTimeline(ctx,c,w,h){
+      const items=[
+        {year:'1973',label:'Black-Scholes\n解析公式'},
+        {year:'1979',label:'CRR二叉树\n(美式可行)'},
+        {year:'1983',label:'Jarrow-Rudd\n(p=0.5)'},
+        {year:'1988',label:'Boyle\n多维格点'},
+        {year:'1990',label:'BDT\n利率树'},
+        {year:'1993',label:'Tian\n三阶矩'},
+        {year:'1996',label:'Leisen-Reimer\n快速收敛'},
+        {year:'2010+',label:'GPU加速\nML融合'}
+      ];
+      const cl=getChartColors();
+      const axisY=h*0.55,dotY=axisY;
+      const startX=60,endX=w-30;
+      const stepX=(endX-startX)/(items.length-1);
+      ctx.strokeStyle=cl.purple;
+      ctx.lineWidth=3;
+      ctx.beginPath();ctx.moveTo(startX,axisY);ctx.lineTo(endX,axisY);ctx.stroke();
+      items.forEach(function(it,i){
+        const x=startX+i*stepX;
+        ctx.beginPath();ctx.arc(x,dotY,7,0,Math.PI*2);
+        ctx.fillStyle=i===1?cl.gold:cl.purple;ctx.fill();
+        ctx.fillStyle=cl.text;ctx.font='bold 11px sans-serif';
+        ctx.textAlign='center';ctx.fillText(it.year,x,dotY-16);
+        ctx.fillStyle=cl.textMuted;ctx.font='9px sans-serif';
+        const lines=it.label.split('\n');
+        lines.forEach(function(ln,li){ctx.fillText(ln,x,dotY+22+li*13);});
+      });
+    }
+
+    function drawBarChart(ctx,c,w,h,data,title){
+      const cl=getChartColors();
+      const pad={top:30,right:20,bottom:50,left:50};
+      const cw=w-pad.left-pad.right,ch=h-pad.top-pad.bottom;
+      const maxVal=Math.max(...data.map(function(d){return d.value;}));
+      const barW=Math.min(40,cw/data.length*0.6);
+      const gap=cw/(data.length);
+      ctx.fillStyle=cl.text;ctx.font='bold 11px sans-serif';ctx.textAlign='center';
+      ctx.fillText(title,w/2,16);
+      data.forEach(function(d,i){
+        const x=pad.left+i*gap+gap/2-barW/2;
+        const barH=(d.value/maxVal)*ch;
+        const y=pad.top+ch-barH;
+        ctx.fillStyle=d.color||cl.purple;
+        ctx.fillRect(x,y,barW,barH);
+        ctx.fillStyle=cl.text;ctx.font='9px sans-serif';ctx.textAlign='center';
+        ctx.fillText(d.label,x+barW/2,pad.top+ch+16);
+        ctx.fillText(d.value.toFixed(2),x+barW/2,y-6);
+      });
+      ctx.strokeStyle=cl.textMuted;ctx.lineWidth=1;
+      ctx.beginPath();ctx.moveTo(pad.left,pad.top);ctx.lineTo(pad.left,pad.top+ch);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(pad.left,pad.top+ch);ctx.lineTo(w-pad.right,pad.top+ch);ctx.stroke();
+    }
+
+    function renderAllCharts(){
+      document.querySelectorAll('.chart-container').forEach(function(container){
+        const id=container.id;if(!id)return;
+        const canvas=container.querySelector('canvas');
+        if(!canvas){const c=document.createElement('canvas');c.width=container.clientWidth||700;c.height=280;container.appendChild(c);}
+        else{canvas.width=container.clientWidth||700;canvas.height=280;}
+        const ctx=(container.querySelector('canvas')||container.appendChild(document.createElement('canvas'))).getContext('2d');
+        const cv=container.querySelector('canvas');cv.width=container.clientWidth||700;cv.height=280;
+        const ctx2=cv.getContext('2d');
+        if(id==='chart-background-timeline')drawTimeline(ctx2,cv,cv.width,cv.height);
+        else if(id==='chart-concept-tree')drawConceptTree(ctx2,cv,cv.width,cv.height);
+        else if(id==='chart-principle-induction')drawInductionChart(ctx2,cv,cv.width,cv.height);
+        else if(id==='chart-quant-convergence')drawConvergenceChart(ctx2,cv,cv.width,cv.height);
+        else if(id==='chart-development-timeline')drawDevTimeline(ctx2,cv,cv.width,cv.height);
+        else if(id==='chart-app-radar')drawAppRadar(ctx2,cv,cv.width,cv.height);
+        else if(id==='chart-case-tree')drawCaseTree(ctx2,cv,cv.width,cv.height);
+        else if(id==='chart-risk-oscillation')drawOscillation(ctx2,cv,cv.width,cv.height);
+        else if(id==='chart-landscape-methods')drawLandscape(ctx2,cv,cv.width,cv.height);
+      });
+    }
+
+    function drawConceptTree(ctx,cv,w,h){
+      const cl=getChartColors();
+      const cx=w/2,levels=[1,2,3,4];
+      const levelY=[h-40,h*0.62,h*0.38,h*0.15];
+      const spreads=[0,60,130,210];
+      ctx.fillStyle=cl.text;ctx.font='bold 11px sans-serif';ctx.textAlign='center';
+      ctx.fillText('股价二叉树结构示意 (S₀=50, u=1.19, d=0.84)',w/2,16);
+      levels.forEach(function(lv,i){
+        const y=levelY[i];
+        const nodes=Math.pow(2,i);
+        const half=(nodes-1)/2;
+        for(let j=0;j<nodes;j++){
+          const x=cx+(j-half)*spreads[i]/(half||1);
+          const price=(50*Math.pow(1.1891,j)*Math.pow(0.8409,i-j)).toFixed(1);
+          ctx.beginPath();ctx.arc(x,y,16,0,Math.PI*2);
+          ctx.fillStyle=cl.bg;ctx.fill();
+          ctx.strokeStyle=i===3?cl.red:cl.purple;ctx.lineWidth=2;ctx.stroke();
+          ctx.fillStyle=cl.text;ctx.font='bold 10px sans-serif';ctx.fillText(price,x,y+4);
+          if(i>0){
+            const parentSpread=spreads[i-1];
+            const parentHalf=(Math.pow(2,i-1)-1)/2;
+            const parentJ=Math.floor(j/2);
+            const px=cx+(parentJ-parentHalf)*parentSpread/(parentHalf||1);
+            ctx.beginPath();ctx.moveTo(x,y-16);ctx.lineTo(px,levelY[i-1]+16);
+            ctx.strokeStyle=cl.textMuted;ctx.lineWidth=1;ctx.stroke();
+          }
+        }
+      });
+      ctx.fillStyle=cl.textMuted;ctx.font='9px sans-serif';
+      ctx.fillText('t=0',cx,levelY[3]-22);
+      ctx.fillText('t=T/3',w*0.73,levelY[2]+6);
+      ctx.fillText('t=2T/3',w*0.73,levelY[1]+6);
+      ctx.fillText('t=T(到期)',w*0.73,levelY[0]+6);
+    }
+
+    function drawInductionChart(ctx,cv,w,h){
+      const cl=getChartColors();
+      ctx.fillStyle=cl.text;ctx.font='bold 11px sans-serif';ctx.textAlign='center';
+      ctx.fillText('逆向归纳法：从到期日向前折现',w/2,16);
+      const arrows=[
+        {x1:w*0.78,y1:h*0.55,x2:w*0.58,y2:h*0.45,label:'折现'},
+        {x1:w*0.58,y1:h*0.55,x2:w*0.38,y2:h*0.45,label:'折现'},
+        {x1:w*0.38,y1:h*0.55,x2:w*0.18,y2:h*0.45,label:'折现'}
+      ];
+      arrows.forEach(function(a){
+        ctx.beginPath();ctx.moveTo(a.x1,a.y1);ctx.lineTo(a.x2,a.y2);
+        ctx.strokeStyle=cl.purple;ctx.lineWidth=2;ctx.stroke();
+        const mx=(a.x1+a.x2)/2,my=(a.y1+a.y2)/2;
+        ctx.fillStyle=cl.purple;ctx.font='bold 9px sans-serif';ctx.fillText(a.label,mx,my-6);
+      });
+      const times=[{x:w*0.15,y:h*0.6,t:'t=0\nV₀=?'},{x:w*0.35,y:h*0.6,t:'t=Δt'},{x:w*0.55,y:h*0.6,t:'t=2Δt'},{x:w*0.75,y:h*0.6,t:'t=T\nmax(S-K,0)'}];
+      times.forEach(function(tm){
+        ctx.fillStyle=cl.bg;ctx.strokeStyle=cl.textMuted;ctx.lineWidth=1;
+        ctx.beginPath();ctx.rect(tm.x-30,tm.y-16,60,32);ctx.fill();ctx.stroke();
+        ctx.fillStyle=cl.text;ctx.font='10px sans-serif';ctx.textAlign='center';
+        const lines=tm.t.split('\n');
+        lines.forEach(function(ln,li){ctx.fillText(ln,tm.x,tm.y+li*14);});
+      });
+    }
+
+    function drawConvergenceChart(ctx,cv,w,h){
+      const cl=getChartColors();
+      const pad={top:30,right:20,bottom:40,left:50};
+      const cw=w-pad.left-pad.right,ch=h-pad.top-pad.bottom;
+      ctx.fillStyle=cl.text;ctx.font='bold 11px sans-serif';ctx.textAlign='center';
+      ctx.fillText('期权价格随步数收敛曲线 (BS精确值=5.38)',w/2,16);
+      const steps=[10,20,30,50,70,100,150,200,300,500];
+      const crr=[5.65,5.30,5.55,5.31,5.48,5.32,5.44,5.33,5.40,5.34];
+      const lr=[5.47,5.40,5.39,5.385,5.382,5.381,5.3805,5.3803,5.3801,5.3800];
+      const bsVal=5.38;
+      ctx.strokeStyle=cl.textMuted;ctx.setLineDash([4,4]);
+      const bsY=pad.top;
+      ctx.beginPath();ctx.moveTo(pad.left,bsY);ctx.lineTo(w-pad.right,bsY);ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle=cl.textMuted;ctx.font='9px sans-serif';ctx.textAlign='right';
+      ctx.fillText('BS精确值='+bsVal,pad.left-4,bsY+3);
+      function drawLine(data,color,label){
+        ctx.strokeStyle=color;ctx.lineWidth=2;
+        ctx.beginPath();
+        data.forEach(function(v,i){
+          const x=pad.left+(steps[i]-10)/(500-10)*cw;
+          const y=pad.top+ch-(v-5.2)/(5.7-5.2)*ch;
+          if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+        });
+        ctx.stroke();
+        data.forEach(function(v,i){
+          const x=pad.left+(steps[i]-10)/(500-10)*cw;
+          const y=pad.top+ch-(v-5.2)/(5.7-5.2)*ch;
+          ctx.beginPath();ctx.arc(x,y,3,0,Math.PI*2);ctx.fillStyle=color;ctx.fill();
+        });
+        ctx.fillStyle=color;ctx.font='9px sans-serif';ctx.textAlign='left';
+        ctx.fillText(label,w-pad.right-80,pad.top+14+(label==='CRR'?0:16));
+      }
+      drawLine(crr,cl.red,'CRR (振荡)');
+      drawLine(lr,cl.green,'Leisen-Reimer (平滑)');
+      ctx.fillStyle=cl.textMuted;ctx.font='9px sans-serif';ctx.textAlign='center';
+      ctx.fillText('步数 (n)',w/2,h-6);
+    }
+
+    function drawDevTimeline(ctx,cv,w,h){
+      drawTimeline(ctx,cv,w,h);
+    }
+
+    function drawAppRadar(ctx,cv,w,h){
+      const cl=getChartColors();
+      const cx=w/2,cy=h/2+10,r=Math.min(cx,cy)-30;
+      const labels=['美式期权','ESO','可转债','障碍期权','实物期权','利率衍生品'];
+      const values=[0.95,0.85,0.75,0.70,0.65,0.80];
+      ctx.fillStyle=cl.text;ctx.font='bold 11px sans-serif';ctx.textAlign='center';
+      ctx.fillText('各应用场景适用性评分',w/2,16);
+      const angles=labels.map(function(_,i){return-90+60*i;});
+      ctx.beginPath();
+      angles.forEach(function(a,i){
+        const rad=a*Math.PI/180;
+        const vx=cx+r*Math.cos(rad),vy=cy+r*Math.sin(rad);
+        ctx.moveTo(cx,cy);ctx.lineTo(vx,vy);
+      });
+      ctx.strokeStyle=cl.textMuted;ctx.lineWidth=0.5;ctx.setLineDash([3,3]);ctx.stroke();ctx.setLineDash([]);
+      for(let i=1;i<=5;i++){
+        ctx.beginPath();
+        angles.forEach(function(a,j){
+          const rad=a*Math.PI/180,rr=r*i/5;
+          const vx=cx+rr*Math.cos(rad),vy=cy+rr*Math.sin(rad);
+          if(j===0)ctx.moveTo(vx,vy);else ctx.lineTo(vx,vy);
+        });
+        ctx.closePath();ctx.strokeStyle=cl.textMuted;ctx.lineWidth=0.5;ctx.stroke();
+      }
+      ctx.beginPath();
+      angles.forEach(function(a,i){
+        const rad=a*Math.PI/180;
+        const vx=cx+r*values[i]*Math.cos(rad),vy=cy+r*values[i]*Math.sin(rad);
+        if(i===0)ctx.moveTo(vx,vy);else ctx.lineTo(vx,vy);
+      });
+      ctx.closePath();ctx.fillStyle='rgba(99,102,241,0.2)';ctx.fill();
+      ctx.strokeStyle=cl.purple;ctx.lineWidth=2;ctx.stroke();
+      angles.forEach(function(a,i){
+        const rad=a*Math.PI/180,vx=cx+r*values[i]*Math.cos(rad),vy=cy+r*values[i]*Math.sin(rad);
+        ctx.beginPath();ctx.arc(vx,vy,4,0,Math.PI*2);ctx.fillStyle=cl.purple;ctx.fill();
+        const lx=cx+(r+16)*Math.cos(rad),ly=cy+(r+16)*Math.sin(rad);
+        ctx.fillStyle=cl.text;ctx.font='10px sans-serif';ctx.textAlign='center';ctx.fillText(labels[i]+' ('+(values[i]*100).toFixed(0)+'%)',lx,ly+4);
+      });
+    }
+
+    function drawCaseTree(ctx,cv,w,h){
+      const cl=getChartColors();
+      ctx.fillStyle=cl.text;ctx.font='bold 11px sans-serif';ctx.textAlign='center';
+      ctx.fillText('三步二叉树美式看跌定价 (焦点: t=2的提前行权节点)',w/2,16);
+      const cx=w/2;
+      const nodes=[
+        {x:cx,y:h-50,price:'50.00',option:'V₀=5.89',color:cl.purple},
+        {x:cx-100,y:h*0.62,price:'59.46',option:'1.74',color:cl.purple},
+        {x:cx+100,y:h*0.62,price:'42.05',option:'9.30',color:cl.purple},
+        {x:cx-180,y:h*0.35,price:'70.70',option:'0.00',color:cl.purple},
+        {x:cx,y:h*0.35,price:'50.00',option:'4.85',color:cl.purple},
+        {x:cx+180,y:h*0.35,price:'35.36',option:'16.64⚡',color:cl.red}
+      ];
+      nodes.forEach(function(n){
+        ctx.beginPath();ctx.arc(n.x,n.y,22,0,Math.PI*2);
+        ctx.fillStyle=n.color===cl.red?'rgba(239,68,68,0.2)':'rgba(99,102,241,0.1)';
+        ctx.fill();ctx.strokeStyle=n.color;ctx.lineWidth=2;ctx.stroke();
+        ctx.fillStyle=cl.text;ctx.font='bold 10px sans-serif';ctx.textAlign='center';
+        ctx.fillText('S='+n.price,n.x,n.y-3);
+        ctx.fillText(n.option,n.x,n.y+14);
+      });
+      ctx.beginPath();ctx.moveTo(cx-14,h-72);ctx.lineTo(cx-86,h*0.62+18);
+      ctx.moveTo(cx+14,h-72);ctx.lineTo(cx+86,h*0.62+18);
+      ctx.moveTo(cx-86,h*0.62-18);ctx.lineTo(cx-166,h*0.35+18);
+      ctx.moveTo(cx-86,h*0.62-18);ctx.lineTo(cx+14,h*0.35+18);
+      ctx.moveTo(cx+86,h*0.62-18);ctx.lineTo(cx,h*0.35+18);
+      ctx.moveTo(cx+86,h*0.62-18);ctx.lineTo(cx+166,h*0.35+18);
+      ctx.strokeStyle=cl.textMuted;ctx.lineWidth=1;ctx.stroke();
+      ctx.fillStyle=cl.red;ctx.font='bold 10px sans-serif';ctx.textAlign='center';
+      ctx.fillText('⚡ S=$35.36 提前行权最优！(行权$16.64 > 持有$15.70)',cx,h*0.35-24);
+    }
+
+    function drawOscillation(ctx,cv,w,h){
+      const cl=getChartColors();
+      ctx.fillStyle=cl.text;ctx.font='bold 11px sans-serif';ctx.textAlign='center';
+      ctx.fillText('CRR收敛振荡示意 (虚线=BS精确值)',w/2,16);
+      const pad={top:30,right:20,bottom:40,left:40};
+      const cw=w-pad.left-pad.right,ch=h-pad.top-pad.bottom;
+      const steps=[],prices=[];
+      for(let n=10;n<=200;n+=2){steps.push(n);prices.push(5.38+0.3*Math.sin(n*0.4)*Math.exp(-n/150));}
+      ctx.beginPath();ctx.moveTo(pad.left,pad.top);ctx.lineTo(w-pad.right,pad.top);
+      ctx.strokeStyle=cl.textMuted;ctx.setLineDash([5,3]);ctx.stroke();ctx.setLineDash([]);
+      ctx.fillStyle=cl.textMuted;ctx.font='9px sans-serif';ctx.fillText('BS=5.38',w-pad.right-50,pad.top-4);
+      ctx.strokeStyle=cl.red;ctx.lineWidth=1.5;ctx.beginPath();
+      steps.forEach(function(s,i){
+        const x=pad.left+(s-10)/(200-10)*cw;
+        const y=pad.top+ch-(prices[i]-5.0)/(5.7-5.0)*ch;
+        if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+      });
+      ctx.stroke();
+      ctx.fillStyle=cl.text;ctx.font='9px sans-serif';ctx.textAlign='center';
+      ctx.fillText('步数',w/2,h-6);
+      ctx.fillStyle=cl.red;ctx.font='9px sans-serif';ctx.textAlign='left';
+      ctx.fillText('CRR价格 (锯齿)',w-pad.right-80,pad.top+30);
+    }
+
+    function drawLandscape(ctx,cv,w,h){
+      const cl=getChartColors();
+      drawBarChart(ctx,cv,w,h,[
+        {label:'美式期权',value:0.95,color:cl.purple},
+        {label:'ESO',value:0.85,color:cl.violet},
+        {label:'障碍期权',value:0.7,color:cl.cyan},
+        {label:'可转债',value:0.75,color:cl.gold},
+        {label:'百慕大',value:0.9,color:cl.green},
+        {label:'利率衍生品',value:0.65,color:cl.red}
+      ],'二叉树在各场景的适用强度');
+    }
+
+    renderAllCharts();
+    window.addEventListener('resize',renderAllCharts);
+
+  // Add journey footer and floating back button
+  (function(){
+    var container = document.getElementById('contentContainer');
+    if(container){
+      var jf = document.createElement('div');
+      jf.className = 'journey-footer';
+      jf.innerHTML = '<a href=\"#\" class=\"back-to-plan\" onclick=\"event.preventDefault();var w=window.open(\\'derivatives_pricing_learning.html#kc-p2_2\\',\\'plan_main\\');if(w)w.focus()\">\u{1f517} 返回学习路线: 金融衍生品及其定价 → 阶段2: 期权定价经典模型</a><p style=\"margin-top:12px;font-size:.72rem;color:var(--text-muted)\">本资料是 <strong>金融衍生品及其定价</strong> 阶段2「期权定价经典模型」的深度研读材料</p>';
+      container.insertAdjacentElement('afterend', jf);
+    }
+  })();
+</script>
+<footer class="journey-footer" style="display:none"></footer>
+<div class="deep-floating-back" style="position:fixed;right:20px;bottom:20px;z-index:10000">
+  <button style="padding:12px 20px;background:linear-gradient(135deg,var(--accent-purple,#6366f1),#4f46e5);color:white;border:none;border-radius:24px;font-size:.85rem;font-weight:600;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.15);transition:transform .2s,box-shadow .2s"
+    onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 16px rgba(0,0,0,.2)'"
+    onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 12px rgba(0,0,0,.15)'"
+    onclick="event.preventDefault();var w=window.open('derivatives_pricing_learning.html#kc-p2_2','plan_main');if(w)w.focus()">
+    ← 返回学习方案
+  </button>
+</div>
+</body>
+</html>

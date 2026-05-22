@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>深度研读资料模板预览 (Mode-A)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<style>
+:root{
+--bg-deep:#050a10;--bg-primary:#0a1018;--bg-card:#0d1520;
+--bg-elevated:#111b28;--bg-input:#141e2d;
+--text-primary:#e2e8f0;--text-secondary:#94a3b8;--text-muted:#64748b;
+--accent-blue:#60a5fa;--accent-cyan:#38bdf8;--accent-purple:#a78bfa;
+--accent-green:#34d399;--accent-orange:#fb923c;--accent-pink:#f472b6;
+--border-subtle:rgba(255,255,255,0.06);--border-glow:rgba(96,165,250,0.25);
+--shadow-sm:0 1px 3px rgba(0,0,0,0.3);--shadow-md:0 4px 12px rgba(0,0,0,0.4);
+--radius-sm:6px;--radius-md:10px;--radius-lg:16px;
+--transition-fast:0.15s ease;--transition-smooth:0.3s ease;
+}
+body.light{
+--bg-deep:#f8fafc;--bg-primary:#ffffff;--bg-card:#f8fafc;
+--bg-elevated:#f1f5f9;--bg-input:#e2e8f0;
+--text-primary:#0f172a;--text-secondary:#475569;--text-muted:#94a3b8;
+--accent-blue:#3b82f6;--accent-cyan:#06b6d4;--accent-purple:#8b5cf6;
+--accent-green:#10b981;--accent-orange:#f59e0b;--accent-pink:#ec4899;
+--border-subtle:rgba(0,0,0,0.08);--border-glow:rgba(59,130,246,0.25);
+--shadow-sm:0 1px 3px rgba(0,0,0,0.06);--shadow-md:0 4px 12px rgba(0,0,0,0.08);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter','Noto Sans SC',-apple-system,sans-serif;background:var(--bg-deep);color:var(--text-primary);line-height:1.7}
+body.loading{opacity:0}body.loaded{opacity:1;transition:opacity 0.4s ease}
+.integration-navbar{display:flex;align-items:center;gap:12px;padding:10px 24px;background:var(--bg-card);border-bottom:1px solid var(--border-subtle);font-size:14px;position:sticky;top:0;z-index:50}
+.integration-navbar a{color:var(--accent-blue);text-decoration:none;font-weight:600}
+.integration-navbar a:hover{text-decoration:underline}
+.integration-navbar span{color:var(--text-muted)}
+.integration-navbar .phase-info{color:var(--text-secondary);margin-left:auto}
+.container{max-width:1200px;margin:0 auto;padding:0 24px}
+.meta-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-lg);padding:20px 24px;margin:24px 0;display:flex;flex-wrap:wrap;gap:16px;align-items:center;position:relative;overflow:hidden}
+.meta-card::before{content:'';position:absolute;top:-50%;right:-20%;width:100%;height:100%;background:radial-gradient(ellipse at center,#8b5cf6 0%,transparent 60%);opacity:0.08}
+.meta-card>*{position:relative;z-index:1}
+.meta-title{font-size:1.5rem;font-weight:800;color:var(--accent-purple)}
+.meta-tags{display:flex;gap:8px;flex-wrap:wrap}
+.meta-tag{padding:4px 14px;border-radius:50px;font-size:0.75rem;font-weight:600}
+.meta-tag.domain{background:rgba(139,92,246,0.1);color:var(--accent-purple);border:1px solid rgba(139,92,246,0.2)}
+.meta-tag.level{background:rgba(239,68,68,0.1);color:#ef4444;border:1px solid rgba(239,68,68,0.2)}
+.meta-stats{display:flex;gap:20px;margin-left:auto}
+.meta-stat{text-align:center}
+.meta-stat .num{font-size:1.4rem;font-weight:700;color:var(--accent-cyan)}
+.meta-stat .lbl{font-size:0.68rem;color:var(--text-muted)}
+.meta-integration{width:100%;padding:6px 0;font-size:0.78rem;color:var(--text-muted);border-top:1px solid var(--border-subtle);margin-top:-8px;padding-top:10px}
+.meta-integration strong{color:var(--accent-blue)}
+.sidebar{position:fixed;left:0;top:0;height:100vh;width:280px;background:var(--bg-primary);border-right:1px solid var(--border-subtle);padding:24px;overflow-y:auto;z-index:100}
+.sidebar h3{font-size:0.85rem;font-weight:700;color:var(--text-secondary);margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--border-subtle)}
+.sidebar-nav{list-style:none;padding:0}
+.sidebar-nav li{margin-bottom:4px}
+.sidebar-nav a{display:block;padding:10px 12px;border-radius:var(--radius-md);text-decoration:none;font-size:0.78rem;color:var(--text-secondary);transition:all var(--transition-fast)}
+.sidebar-nav a:hover{background:rgba(96,165,250,0.08);color:var(--accent-cyan)}
+.sidebar-nav a.active{background:rgba(96,165,250,0.12);color:var(--accent-blue);font-weight:600}
+.sidebar-back-link{display:block;padding:8px 12px;margin-bottom:12px;border-radius:8px;background:var(--bg-elevated);color:var(--accent-blue);text-decoration:none;font-size:13px;font-weight:600;transition:all var(--transition-fast)}
+.sidebar-back-link:hover{background:rgba(96,165,250,0.12)}
+.content-area{margin-left:300px;padding:32px 24px;max-width:calc(100% - 320px)}
+@media(max-width:1024px){.sidebar{display:none}.content-area{margin-left:0;max-width:100%}}
+.module{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-lg);padding:32px;margin-bottom:24px;transition:all var(--transition-smooth)}
+.module:hover{border-color:var(--border-glow)}
+.module-header{margin-bottom:24px}
+.module-tag{display:inline-block;padding:4px 12px;border-radius:50px;font-size:0.68rem;font-weight:700;margin-bottom:10px;background:rgba(139,92,246,0.1);color:var(--accent-purple)}
+.module-title{font-size:1.4rem;font-weight:800;margin-bottom:8px}
+.module-hook{font-size:0.9rem;color:var(--accent-cyan);font-style:italic;margin-bottom:16px}
+.module-content{font-size:0.92rem;color:var(--text-secondary);line-height:1.8}
+.module-content p{margin-bottom:14px}
+.module-content ul,.module-content ol{margin:14px 0;padding-left:24px}
+.module-content li{margin-bottom:8px}
+.module-content strong{color:var(--text-primary);font-weight:600}
+.module-content em{color:var(--accent-orange)}
+.module-content h3{color:var(--accent-purple);font-size:1.1rem;margin:24px 0 12px}
+.formula-box{background:var(--bg-elevated);border:1px solid var(--border-glow);border-radius:var(--radius-md);padding:20px;margin:20px 0;overflow-x:auto}
+.formula-box .formula-caption{font-size:0.75rem;color:var(--text-muted);margin-bottom:8px;text-align:center}
+.formula-box .formula-content{font-size:1rem;text-align:center;color:var(--accent-blue)}
+.formula-box .formula-derivation{margin-top:12px;padding-top:12px;border-top:1px solid var(--border-subtle);font-size:0.82rem;color:var(--text-secondary)}
+.formula-box .formula-derivation strong{color:var(--accent-cyan)}
+.chart-container{margin:20px 0;border-radius:var(--radius-md);overflow:hidden}
+.chart-container .chart-caption{font-size:0.75rem;color:var(--text-muted);margin-bottom:8px;text-align:center}
+.chart-wrapper{height:400px;background:var(--bg-elevated)}
+@media(max-width:768px){.chart-wrapper{height:300px}}
+.table-container{margin:20px 0;overflow-x:auto}
+.table-container table{width:100%;border-collapse:collapse;border-radius:var(--radius-md);overflow:hidden}
+.table-container th{background:var(--bg-elevated);color:var(--accent-cyan);font-weight:700;padding:12px 16px;text-align:left;font-size:0.8rem}
+.table-container td{padding:12px 16px;border-bottom:1px solid var(--border-subtle);font-size:0.85rem;color:var(--text-secondary)}
+.table-container tr:hover td{background:rgba(96,165,250,0.03)}
+.table-container .table-caption{font-size:0.75rem;color:var(--text-muted);margin-bottom:8px;text-align:center}
+.references{margin-top:24px;padding-top:20px;border-top:1px solid var(--border-subtle)}
+.references h4{font-size:0.85rem;font-weight:700;color:var(--text-primary);margin-bottom:12px}
+.reference-item{padding:10px 14px;background:var(--bg-elevated);border-radius:var(--radius-sm);margin-bottom:8px;font-size:0.82rem}
+.reference-item .ref-title{color:var(--text-primary);font-weight:600}
+.reference-item .ref-authors{color:var(--accent-cyan);margin:4px 0}
+.reference-item .ref-meta{color:var(--text-muted);font-size:0.75rem}
+.key-takeaway{background:linear-gradient(135deg,rgba(251,191,36,0.08),rgba(251,191,36,0.02));border-left:4px solid var(--accent-orange);padding:16px 20px;border-radius:0 var(--radius-md) var(--radius-md) 0;margin-top:20px}
+.key-takeaway strong{color:var(--accent-orange);font-weight:700}
+.key-takeaway p{color:var(--text-secondary);font-size:0.88rem;margin:0}
+.theme-toggle{position:fixed;right:20px;top:20px;z-index:200;background:var(--bg-card);border:1px solid var(--border-subtle);padding:10px;border-radius:50%;cursor:pointer;color:var(--text-muted);transition:all var(--transition-fast)}
+.theme-toggle:hover{border-color:var(--border-glow);color:var(--accent-cyan)}
+.back-btn{position:fixed;right:24px;bottom:24px;z-index:200}
+.back-btn button{background:linear-gradient(135deg,#6366f1,#8b5cf6);color:white;border:none;border-radius:24px;padding:12px 24px;font-size:0.85rem;font-weight:600;cursor:pointer;box-shadow:0 4px 12px rgba(99,102,241,0.3);transition:all var(--transition-fast)}
+.back-btn button:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(99,102,241,0.4)}
+.term-highlight{background:rgba(96,165,250,0.1);padding:2px 6px;border-radius:4px;color:var(--accent-blue);cursor:help;border-bottom:1px dashed rgba(96,165,250,0.3)}
+.term-highlight:hover{background:rgba(96,165,250,0.15)}
+.badge-new{display:inline-block;background:#10b981;color:#fff;font-size:0.6rem;padding:2px 6px;border-radius:3px;margin-left:6px;vertical-align:middle}
+</style>
+</head>
+<body class="loading dark">
+
+<!-- 集成模式顶部导航栏（演示用） -->
+<div class="integration-navbar">
+  <a href="#" onclick="return false;">← 返回 示例学习方案</a>
+  <span>|</span>
+  <span>第1阶段：基础入门（1/3）</span>
+  <span class="phase-info">示例知识点</span>
+</div>
+
+<button class="theme-toggle" onclick="toggleTheme()" title="切换主题">🌓</button>
+<div class="sidebar">
+  <h3>📖 目录导航</h3>
+  <a href="#" onclick="return false;" class="sidebar-back-link">← 返回主方案</a>
+  <ul class="sidebar-nav">
+    <li><a href="#background">背景与缘起</a></li>
+    <li><a href="#concept">核心概念</a></li>
+    <li><a href="#principle">核心原理</a></li>
+    <li><a href="#application">实践应用</a></li>
+    <li><a href="#development">发展迭代</a></li>
+    <li><a href="#misconceptions">常见误区</a></li>
+  </ul>
+</div>
+
+<div class="content-area">
+  <div class="meta-card">
+    <div>
+      <div class="meta-title">深度研读资料 <span class="badge-new">模板预览</span></div>
+      <div class="meta-tags">
+        <span class="meta-tag domain">🏷️ AI/科技</span>
+        <span class="meta-tag level">🎯 专家级</span>
+      </div>
+    </div>
+    <div class="meta-stats">
+      <div class="meta-stat"><div class="num">6</div><div class="lbl">模块</div></div>
+      <div class="meta-stat"><div class="num">3</div><div class="lbl">图表</div></div>
+      <div class="meta-stat"><div class="num">5</div><div class="lbl">公式</div></div>
+      <div class="meta-stat"><div class="num">4</div><div class="lbl">参考文献</div></div>
+    </div>
+    <div class="meta-integration">🔗 <strong>示例学习方案</strong> · 第1阶段：基础入门（1/3）</div>
+  </div>
+
+  <!-- ===== Module: 背景与缘起 ===== -->
+  <section id="background" class="module">
+    <div class="module-header">
+      <span class="module-tag">基础背景</span>
+      <h2 class="module-title">背景与缘起</h2>
+      <p class="module-hook">每一个改变世界的技术，都源于一个简单的问题：我们能否让机器像人一样学习？</p>
+    </div>
+    <div class="module-content">
+      <h3>问题的起源</h3>
+      <p>在人工智能的发展历程中，一个核心问题始终贯穿：<strong>如何让计算机自动从数据中学习模式和规律</strong>，而非依赖人工编写的规则？传统的符号AI方法在复杂现实问题面前捉襟见肘——图像识别、语音理解、自然语言处理等任务无法被简单规则穷举。这推动了<strong>从"编程智能"到"学习智能"的范式转变</strong>。</p>
+      <p>早期研究者从生物学获得启发：人类大脑由约860亿个<em>神经元</em>通过突触连接而成，能够处理极其复杂的感知与认知任务。如果能用数学和算法模拟这一机制，机器就能获得真正的学习能力。</p>
+
+      <h3>历史里程碑</h3>
+      <div class="table-container">
+        <div class="table-caption">表：关键发展节点</div>
+        <table>
+          <tr><th>年份</th><th>事件</th><th>影响</th></tr>
+          <tr><td>1943</td><td>McCulloch-Pitts 神经元模型</td><td>首个神经元的数学抽象</td></tr>
+          <tr><td>1958</td><td>Rosenblatt 感知机</td><td>首个可学习的机器模型</td></tr>
+          <tr><td>1986</td><td>反向传播算法</td><td>解决多层网络学习问题</td></tr>
+          <tr><td>2012</td><td>AlexNet 赢得 ImageNet</td><td>深度学习时代全面开启</td></tr>
+          <tr><td>2017</td><td>Transformer 架构</td><td>彻底重塑NLP与生成式AI</td></tr>
+        </table>
+      </div>
+
+      <div class="chart-container">
+        <div class="chart-caption">图：AI领域论文发表趋势（2015-2024）</div>
+        <div class="chart-wrapper" id="chart_timeline"></div>
+      </div>
+    </div>
+    <div class="references">
+      <h4>📚 参考文献</h4>
+      <div class="reference-item"><div class="ref-title">Computing Machinery and Intelligence</div><div class="ref-authors">Turing, A.M., Mind 1950</div><div class="ref-meta">人工智能哲学奠基之作</div></div>
+      <div class="reference-item"><div class="ref-title">The Organization of Behavior</div><div class="ref-authors">Hebb, D.O., 1949</div><div class="ref-meta">提出 Hebb 学习规则的经典著作</div></div>
+    </div>
+    <div class="key-takeaway"><strong>核心要点：</strong><p>AI 经历了从符号逻辑到统计学习再到深度学习的范式演进，数据驱动的学习范式使机器在图像、语音、语言等任务上达到甚至超越人类水平。</p></div>
+  </section>
+
+  <!-- ===== Module: 核心概念 ===== -->
+  <section id="concept" class="module">
+    <div class="module-header">
+      <span class="module-tag">核心概念</span>
+      <h2 class="module-title">核心概念</h2>
+      <p class="module-hook">三个关键数学概念构成了现代机器学习的理论地基</p>
+    </div>
+    <div class="module-content">
+      <h3>1. 损失函数（Loss Function）</h3>
+      <p>衡量模型预测值与真实值之间的差异。机器学习的目标是<strong>最小化损失函数</strong>——这是"学习"的数学定义。常见的损失函数包括：</p>
+      <ul>
+        <li><strong>均方误差 (MSE)</strong>：回归任务的默认选择</li>
+        <li><strong>交叉熵 (Cross-Entropy)</strong>：分类任务的标准损失</li>
+        <li><strong>Hinge Loss</strong>：最大间隔分类器的核心</li>
+      </ul>
+
+      <div class="formula-box">
+        <div class="formula-caption">均方误差（Mean Squared Error）</div>
+        <div class="formula-content">$$L = \frac{1}{n}\sum_{i=1}^{n}(y_i - \hat{y}_i)^2$$</div>
+        <div class="formula-derivation">
+          <strong>推导：</strong> 假设残差 $e_i = y_i - \hat{y}_i$ 服从正态分布 $N(0, \sigma^2)$，则最小化 MSE 等价于最大似然估计（MLE）。对参数 $\theta$ 求偏导可得梯度下降更新公式。
+        </div>
+      </div>
+
+      <div class="formula-box">
+        <div class="formula-caption">交叉熵损失（Cross-Entropy Loss）</div>
+        <div class="formula-content">$$L = -\sum_{c=1}^{C} y_c \log(\hat{y}_c)$$</div>
+      </div>
+
+      <h3>2. 梯度下降（Gradient Descent）</h3>
+      <p>利用损失函数对参数的偏导数（梯度）来迭代更新参数。参数更新方向为<strong>梯度的负方向</strong>——朝损失下降最快的方向移动。</p>
+
+      <div class="formula-box">
+        <div class="formula-caption">梯度下降参数更新公式</div>
+        <div class="formula-content">$$\theta_{t+1} = \theta_t - \eta \nabla_\theta L(\theta_t)$$</div>
+        <div class="formula-derivation">
+          <strong>直觉理解：</strong> $\nabla_\theta L(\theta_t)$ 指向损失函数增长最快的方向，减去它即向损失最小方向移动。学习率 $\eta$ 控制步长。
+        </div>
+      </div>
+
+      <h3>3. 泛化（Generalization）</h3>
+      <p>模型在<em>未见过的数据</em>上的表现能力。一个好的模型不仅要在训练集上拟合得好，更要能泛化到新的样本。这是机器学习的核心挑战——<strong>偏差-方差权衡</strong>。</p>
+
+      <div class="chart-container">
+        <div class="chart-caption">图：偏差-方差权衡示意</div>
+        <div class="chart-wrapper" id="chart_bias_variance"></div>
+      </div>
+    </div>
+    <div class="references">
+      <h4>📚 参考文献</h4>
+      <div class="reference-item"><div class="ref-title">A Stochastic Approximation Method</div><div class="ref-authors">Robbins & Monro, Annals of Mathematical Statistics 1951</div><div class="ref-meta">随机梯度下降的理论基础</div></div>
+    </div>
+    <div class="key-takeaway"><strong>核心要点：</strong><p>损失函数定义目标，梯度下降找到最优参数，泛化能力决定模型真实价值。三者构成机器学习的基本理论闭环。</p></div>
+  </section>
+
+  <!-- ===== Module: 核心原理 ===== -->
+  <section id="principle" class="module">
+    <div class="module-header">
+      <span class="module-tag">核心原理</span>
+      <h2 class="module-title">核心原理</h2>
+      <p class="module-hook">反向传播：深度学习大厦的数学基石</p>
+    </div>
+    <div class="module-content">
+      <h3>链式法则：反向传播的数学心脏</h3>
+      <p>反向传播的核心是<strong>链式法则（Chain Rule）</strong>——神经网络是函数的函数，每一层的输出是下一层的输入。链式法则将复合函数的导数分解为各层导数的乘积。</p>
+      <p>对于一个三层网络 $f(x) = f_3(f_2(f_1(x)))$，通过链式法则：</p>
+
+      <div class="formula-box">
+        <div class="formula-caption">链式法则的核心公式</div>
+        <div class="formula-content">$$\frac{\partial L}{\partial w} = \frac{\partial L}{\partial a^{(L)}} \cdot \frac{\partial a^{(L)}}{\partial z^{(L)}} \cdot \frac{\partial z^{(L)}}{\partial a^{(L-1)}} \cdots \frac{\partial z^{(1)}}{\partial w}$$</div>
+        <div class="formula-derivation">
+          <strong>解释：</strong> 从输出层误差 $\frac{\partial L}{\partial a^{(L)}}$ 出发，将误差反向传递至各层。每一层计算"局部梯度"并通过乘法规则连接起来。关键性质：任何一个中间层的梯度都可以通过其后续层的梯度计算得到，无需重复计算——这保证了算法复杂度为 $O(n)$ 而非 $O(2^n)$。
+        </div>
+      </div>
+
+      <h3>前向传播与反向传播的四步循环</h3>
+      <ol>
+        <li><strong>前向传播</strong>：输入 $x$ 逐层计算 → 得到预测值 $\hat{y}$</li>
+        <li><strong>计算损失</strong>：$L = \mathcal{L}(\hat{y}, y)$</li>
+        <li><strong>反向传播</strong>：从输出层开始，逐层计算 $\frac{\partial L}{\partial w}$</li>
+        <li><strong>参数更新</strong>：$w \leftarrow w - \eta \cdot \frac{\partial L}{\partial w}$</li>
+      </ol>
+
+      <div class="chart-container">
+        <div class="chart-caption">图：模型性能随训练轮数的变化</div>
+        <div class="chart-wrapper" id="chart_training"></div>
+      </div>
+    </div>
+    <div class="key-takeaway"><strong>核心要点：</strong><p>反向传播通过链式法则将输出误差高效地反向传递给每一层，使得深层网络的训练成为可能。它是连接"浅层学习"与"深度学习"的关键。</p></div>
+  </section>
+
+  <!-- ===== Module: 实践应用 ===== -->
+  <section id="application" class="module">
+    <div class="module-header">
+      <span class="module-tag">实践应用</span>
+      <h2 class="module-title">实践应用</h2>
+      <p class="module-hook">从实验室到生产线：深度学习正在重塑每一个行业</p>
+    </div>
+    <div class="module-content">
+      <h3>应用领域全景</h3>
+      <div class="table-container">
+        <div class="table-caption">表：深度学习核心应用领域</div>
+        <table>
+          <tr><th>领域</th><th>典型任务</th><th>核心架构</th><th>成熟度</th></tr>
+          <tr><td>计算机视觉</td><td>图像分类、目标检测、语义分割</td><td>CNN / ViT</td><td>★★★★★</td></tr>
+          <tr><td>自然语言处理</td><td>机器翻译、情感分析、问答系统</td><td>Transformer / BERT / GPT</td><td>★★★★★</td></tr>
+          <tr><td>语音识别</td><td>ASR、语音合成 (TTS)</td><td>LSTM / Conformer</td><td>★★★★☆</td></tr>
+          <tr><td>推荐系统</td><td>协同过滤、排序、CTR预估</td><td>DeepFM / DLRM</td><td>★★★★★</td></tr>
+          <tr><td>自动驾驶</td><td>感知、预测、规划</td><td>BEVFormer / Occupancy Net</td><td>★★★☆☆</td></tr>
+          <tr><td>生物医药</td><td>蛋白质结构预测、药物发现</td><td>AlphaFold / GNN</td><td>★★★★☆</td></tr>
+        </table>
+      </div>
+      <h3>采纳曲线</h3>
+      <p>从2012年AlexNet首次在工业界引起轰动，到2024年Transformer架构无处不在，深度学习的工业采纳呈<strong>指数级增长</strong>。如今，几乎每一家科技公司都在核心产品中部署了深度学习模型。</p>
+      <p>值得注意的是，<em>大语言模型（LLM）</em> 的出现打破了"需要大量标注数据"的传统约束——通过预训练+微调的范式，通用的语言能力可以直接迁移到特定任务。</p>
+    </div>
+    <div class="key-takeaway"><strong>核心要点：</strong><p>深度学习已从学术研究全面渗透到工业应用，覆盖视觉、语言、推荐、生物医药等关键领域。预训练范式的出现降低了应用门槛。</p></div>
+  </section>
+
+  <!-- ===== Module: 常见误区 ===== -->
+  <section id="misconceptions" class="module">
+    <div class="module-header">
+      <span class="module-tag">常见误区</span>
+      <h2 class="module-title">常见误区</h2>
+      <p class="module-hook">"更多数据 = 更好模型"——这可能是深度学习领域最贵的误解</p>
+    </div>
+    <div class="module-content">
+      <h3>误区 1："深度学习就是神经网络"</h3>
+      <p>虽然当前深度学习的主流实现是深度神经网络，但"深度学习"的内涵更广——它指的是<strong>用层级结构自动学习表征</strong>的方法论。理论上，任何具有层级抽象能力的模型族都属于深度学习的范畴。</p>
+
+      <h3>误区 2："数据越多模型越好"</h3>
+      <p>数据质量远重要于数据数量。低质量的标签（噪声标签）会<strong>削弱</strong>而非增强模型性能。在现实项目中，数据清洗和标注质量检查往往占项目总时间的60%-80%。</p>
+
+      <h3>误区 3："模型越大效果越好"</h3>
+      <p>虽然 Scaling Law 在统计意义上成立，但对具体任务而言，一个精心调优的小模型（如 DistilBERT）往往比直接用大模型（如原始的 GPT-3）更经济有效。关键在于<strong>在计算预算和性能需求之间找到最优平衡</strong>。</p>
+    </div>
+    <div class="key-takeaway"><strong>核心要点：</strong><p>数据质量 > 数据数量，模型适配 > 模型规模。理解这些核心权衡比盲目追逐SOTA更有价值。</p></div>
+  </section>
+
+  <!-- ===== Module: 发展迭代 ===== -->
+  <section id="development" class="module">
+    <div class="module-header">
+      <span class="module-tag">发展演进</span>
+      <h2 class="module-title">发展迭代</h2>
+      <p class="module-hook">从感知机到大语言模型：70年的技术演进</p>
+    </div>
+    <div class="module-content">
+      <h3>范式演进的四个阶段</h3>
+      <p>机器学习的范式演进可分为四个主要阶段，每个阶段都在前一阶段的基础上解决了关键瓶颈：</p>
+      <ol>
+        <li><strong>符号主义阶段（1950s-1980s）</strong>：规则驱动，以专家系统为代表。局限：无法处理模糊和不完整信息。</li>
+        <li><strong>统计学习阶段（1990s-2000s）</strong>：数据驱动，以 SVM、随机森林为代表。局限：依赖人工特征工程。</li>
+        <li><strong>表征学习阶段（2012-2017）</strong>：自动学习特征，以 CNN/RNN 为代表。局限：需要大量标注数据。</li>
+        <li><strong>预训练范式阶段（2018-至今）</strong>：先在大规模无标注数据上预训练，再在特定任务上微调。以 BERT/GPT 为代表。</li>
+      </ol>
+
+      <div class="formula-box">
+        <div class="formula-caption">Scaling Law（来自 Kaplan et al. 2020）</div>
+        <div class="formula-content">$$L(N, D, C) \approx \left(\frac{N_c}{N}\right)^{\alpha_N} + \left(\frac{D_c}{D}\right)^{\alpha_D} + L_\infty$$</div>
+        <div class="formula-derivation">
+          <strong>含义：</strong> 模型损失 $L$ 随参数 $N$、数据量 $D$ 和算力 $C$ 遵循幂律衰减。这解释了为何更大规模的训练总能带来更好的效果。
+        </div>
+      </div>
+    </div>
+    <div class="key-takeaway"><strong>核心要点：</strong><p>从手工规则到自动学习特征再到通用预训练，每次范式跃升都让AI更接近人类的泛化学习能力。</p></div>
+  </section>
+
+  <div class="back-btn"><button onclick="scrollToTop()">↑ 返回顶部</button></div>
+</div>
+
+<script>
+var DEEP_DIVE_KP_ID = 'demo';
+
+function toggleTheme() {
+  document.body.classList.toggle('light');
+  document.body.classList.toggle('dark');
+}
+
+function scrollToTop() {
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  document.body.classList.remove('loading');
+  document.body.classList.add('loaded');
+
+  renderMathInElement(document.body, {
+    delimiters: [
+      {left: '$$', right: '$$', display: true},
+      {left: '$', right: '$', display: false}
+    ]
+  });
+
+  document.querySelectorAll('.sidebar-nav a').forEach(function(link) {
+    link.addEventListener('click', function(e) {
+      e.preventDefault();
+      document.querySelectorAll('.sidebar-nav a').forEach(function(a) { a.classList.remove('active'); });
+      this.classList.add('active');
+      var target = document.querySelector(this.getAttribute('href'));
+      if (target) target.scrollIntoView({ behavior: 'smooth' });
+    });
+  });
+
+  /* ---- 图表1: 论文发表趋势 ---- */
+  var chartTimeline = echarts.init(document.getElementById('chart_timeline'));
+  chartTimeline.setOption({
+    tooltip:{trigger:'axis'}, legend:{data:['论文数','引用数(万)']},
+    grid:{left:'3%',right:'4%',bottom:'3%',containLabel:true},
+    xAxis:{type:'category',data:['2015','2016','2017','2018','2019','2020','2021','2022','2023','2024']},
+    yAxis:[{type:'value',name:'论文数'},{type:'value',name:'引用(万)'}],
+    series:[
+      {name:'论文数',type:'bar',data:[5000,9000,15000,25000,40000,65000,95000,130000,175000,220000],color:'#60a5fa'},
+      {name:'引用数(万)',type:'line',yAxisIndex:1,data:[2,4,8,15,25,40,65,95,130,170],color:'#a78bfa',smooth:true,symbol:'circle',symbolSize:8}
+    ]
+  });
+
+  /* ---- 图表2: 偏差-方差权衡 ---- */
+  var chartBV = echarts.init(document.getElementById('chart_bias_variance'));
+  chartBV.setOption({
+    tooltip:{trigger:'axis'},
+    legend:{data:['偏差²','方差','总误差']},
+    grid:{left:'3%',right:'4%',bottom:'3%',containLabel:true},
+    xAxis:{type:'category',data:['过低','偏低','适中','偏高','过高'],name:'模型复杂度'},
+    yAxis:{type:'value',name:'误差值'},
+    series:[
+      {name:'偏差²',type:'line',smooth:true,data:[2.5,1.2,0.4,0.15,0.05],lineStyle:{color:'#ef4444',width:2},itemStyle:{color:'#ef4444'}},
+      {name:'方差',type:'line',smooth:true,data:[0.05,0.2,0.8,2.0,4.5],lineStyle:{color:'#22d3ee',width:2},itemStyle:{color:'#22d3ee'}},
+      {name:'总误差',type:'line',smooth:true,data:[2.55,1.4,1.2,2.15,4.55],lineStyle:{color:'#f59e0b',width:3,type:'dashed'},itemStyle:{color:'#f59e0b'}}
+    ]
+  });
+
+  /* ---- 图表3: 训练过程 ---- */
+  var chartTrain = echarts.init(document.getElementById('chart_training'));
+  chartTrain.setOption({
+    tooltip:{trigger:'axis'}, legend:{data:['训练损失','验证损失','验证准确率(%)']},
+    grid:{left:'3%',right:'4%',bottom:'3%',containLabel:true},
+    xAxis:{type:'category',data:['1','5','10','15','20','25','30','35','40','45','50'],name:'Epoch'},
+    yAxis:[{type:'value',name:'Loss'},{type:'value',name:'准确率(%)',max:100}],
+    series:[
+      {name:'训练损失',type:'line',smooth:true,data:[2.3,1.2,0.7,0.45,0.3,0.22,0.18,0.15,0.13,0.12,0.11],color:'#a78bfa'},
+      {name:'验证损失',type:'line',smooth:true,data:[2.5,1.4,0.9,0.6,0.45,0.4,0.42,0.44,0.5,0.55,0.62],color:'#f59e0b'},
+      {name:'验证准确率(%)',type:'line',smooth:true,yAxisIndex:1,data:[20,65,78,85,88,89,89.5,89,88,87,86],color:'#34d399'}
+    ]
+  });
+
+  window.addEventListener('resize', function() {
+    chartTimeline.resize(); chartBV.resize(); chartTrain.resize();
+  });
+});
+</script>
+</body>
+</html>

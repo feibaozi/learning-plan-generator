@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>SQL性能调优 - 深度研读</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<style>
+:root{
+--bg-base:#0d0d0d;--bg-card:#1a1a1a;--bg-elevated:#222222;
+--bg-overlay:rgba(0,0,0,.6);--bg-primary:#141414;--bg-tertiary:#2a2a2a;
+--text-primary:#ededed;--text-secondary:#a0a0a0;--text-muted:#787878;
+--accent-indigo:#5b8db8;--accent-purple:#8878a8;--accent-cyan:#6ea8c0;
+--accent-gold:#c0a060;--accent-green:#5a9e6f;--accent-red:#c06050;
+--accent-blue:#5b8db8;--accent-color:#5b8db8;--accent-dark:#3a6088;
+--border-subtle:rgba(160,160,160,.15);--border-glow:rgba(91,141,184,.2);
+--shadow-sm:0 1px 3px rgba(0,0,0,.3);--shadow-md:0 4px 16px rgba(0,0,0,.4);
+--shadow-lg:0 8px 32px rgba(0,0,0,.5);--shadow-elevated:0 8px 32px rgba(0,0,0,.5);
+--radius-sm:6px;--radius-md:10px;--radius-lg:16px;
+--font-sans:'Segoe UI',system-ui,-apple-system,sans-serif;
+--font-mono:Consolas,'Cascadia Code',monospace;
+--transition:.25s cubic-bezier(.4,0,.2,1);--transition-smooth:.3s ease;
+--nav-h:56px;--accent-color-rgb:91,141,184;
+--chart-grid:#252525;--chart-axis-label:#787878;
+}
+[data-theme="light"]{
+--bg-base:#fafafa;--bg-card:#ffffff;--bg-elevated:#eeeeee;
+--bg-overlay:rgba(0,0,0,.3);--bg-primary:#ffffff;--bg-tertiary:#e8e8e8;
+--text-primary:#121212;--text-secondary:#4a4a4a;--text-muted:#5e5e5e;
+--accent-indigo:#3a6088;--accent-purple:#5a4878;--accent-cyan:#3a7888;
+--accent-gold:#886830;--accent-green:#3d8055;--accent-red:#983830;
+--accent-blue:#3a6088;--accent-color:#3a6088;--accent-dark:#284868;
+--border-subtle:rgba(18,18,18,.08);--border-glow:rgba(58,96,136,.2);
+--shadow-sm:0 1px 3px rgba(0,0,0,.06);--shadow-md:0 4px 16px rgba(0,0,0,.08);
+--shadow-lg:0 8px 32px rgba(0,0,0,.12);--shadow-elevated:0 8px 32px rgba(0,0,0,.12);
+--accent-color-rgb:58,96,136;--chart-grid:#e5e5e5;--chart-axis-label:#5e5e5e;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter','Noto Sans SC',-apple-system,sans-serif;background:var(--bg-base);color:var(--text-primary);line-height:1.75;overflow-x:hidden}
+body.loading{opacity:0}body.loaded{opacity:1;transition:opacity .4s ease}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg-base)}::-webkit-scrollbar-thumb{background:var(--border-glow);border-radius:3px}
+.container{max-width:1200px;margin:0 auto;padding:0 24px}
+
+.progress-bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--accent-indigo),var(--accent-purple),var(--accent-cyan));z-index:200;transition:width .1s linear}
+.navbar{position:fixed;top:3px;left:0;right:0;z-index:100;background:var(--bg-card);border-bottom:1px solid var(--border-subtle);backdrop-filter:blur(16px);height:var(--nav-h);display:flex;align-items:center;justify-content:space-between;padding:0 24px}
+.nav-left{display:flex;align-items:center;gap:12px;font-size:.82rem;font-weight:600;color:var(--accent-indigo)}
+.nav-right{display:flex;align-items:center;gap:8px}
+.nav-right button{background:var(--bg-elevated);border:1px solid var(--border-subtle);color:var(--text-secondary);padding:6px 12px;border-radius:var(--radius-sm);cursor:pointer;font-size:.75rem;transition:all var(--transition)}
+.nav-right button:hover{border-color:var(--border-glow);color:var(--accent-indigo)}
+
+.side-dots{position:fixed;right:16px;top:50%;transform:translateY(-50%);z-index:80;display:flex;flex-direction:column;gap:8px}
+.side-dot{width:8px;height:8px;border-radius:50%;border:2px solid var(--border-glow);cursor:pointer;transition:all var(--transition)}
+.side-dot.active,.side-dot:hover{background:var(--accent-indigo);border-color:var(--accent-indigo)}
+
+.sidebar{position:fixed;left:0;top:59px;bottom:0;width:260px;background:var(--bg-card);border-right:1px solid var(--border-subtle);padding:20px;overflow-y:auto;z-index:40}
+.sidebar-back-link{display:block;padding:8px 12px;margin-bottom:12px;border-radius:8px;background:var(--bg-tertiary);color:var(--accent-blue);text-decoration:none;font-size:13px;font-weight:600}
+.sidebar-nav{list-style:none;padding:0}
+.sidebar-nav li{margin-bottom:4px}
+.sidebar-nav a{display:block;padding:8px 12px;color:var(--text-secondary);text-decoration:none;font-size:.82rem;border-radius:6px;transition:all var(--transition)}
+.sidebar-nav a:hover{background:rgba(91,141,184,.08);color:var(--accent-cyan)}
+.sidebar-nav a.active{background:rgba(136,120,168,.15);color:var(--accent-purple);font-weight:600}
+.main-content{margin-left:284px;padding:24px 0 100px}
+
+.integration-navbar{display:flex;align-items:center;gap:12px;padding:10px 24px;background:var(--bg-card);border-bottom:1px solid var(--border-subtle);font-size:14px;position:sticky;top:0;z-index:50}
+.integration-navbar a{color:var(--accent-blue);text-decoration:none;font-weight:600}
+.integration-navbar span{color:var(--text-muted)}
+
+.hero{text-align:center;padding:48px 24px 28px}
+.hero h1{font-size:2rem;font-weight:900;background:linear-gradient(135deg,var(--accent-indigo),var(--accent-purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:8px}
+.hero .tags{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:12px}
+.hero .tags span{font-size:.7rem;padding:4px 12px;border-radius:50px;border:1px solid var(--border-glow);color:var(--accent-indigo);background:rgba(91,141,184,.06)}
+
+.meta-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:20px 24px;margin:0 auto 32px;max-width:700px;display:flex;justify-content:center;gap:36px;flex-wrap:wrap;box-shadow:var(--shadow-md)}
+.meta-item{text-align:center}
+.meta-item .val{font-size:1.4rem;font-weight:800;color:var(--accent-indigo)}
+.meta-item .lbl{font-size:.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px}
+
+.journey-bar{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:12px 20px;margin:0 auto 24px;max-width:900px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:.82rem;box-shadow:var(--shadow-elevated)}
+.journey-path{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.journey-icon{font-size:1rem}
+.journey-plan{color:var(--accent-purple);font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.journey-plan:hover{color:var(--accent-gold)}
+.journey-sep{color:var(--text-muted);font-size:.7rem}
+.journey-phase{color:var(--text-secondary);font-weight:600}
+.journey-kp{color:var(--text-primary);font-weight:700}
+.journey-pos{color:var(--text-muted);font-size:.72rem}
+.journey-nav{display:flex;align-items:center;gap:8px;font-size:.75rem}
+.journey-prev,.journey-next{color:var(--text-muted)}
+
+.module{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:28px 28px 24px;margin-bottom:20px;
+opacity:0;transform:translateY(24px);transition:opacity .5s ease,transform .5s ease;box-shadow:var(--shadow-sm)}
+.module.visible{opacity:1;transform:translateY(0)}
+.module:hover{border-color:var(--border-glow)}
+.module h2{font-size:1.15rem;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.module .m-tag{font-size:.65rem;padding:2px 10px;border-radius:50px;background:rgba(91,141,184,.1);border:1px solid rgba(91,141,184,.2);color:var(--accent-indigo);font-weight:600}
+.module .hook{font-size:.9rem;color:var(--accent-purple);font-weight:600;margin:12px 0 16px;padding-left:12px;border-left:3px solid var(--accent-purple)}
+.module .content{font-size:.88rem;color:var(--text-secondary);line-height:1.8}
+.module .content p{margin-bottom:12px}
+
+.formula-block{background:rgba(91,141,184,.04);border:1px solid rgba(91,141,184,.12);border-radius:var(--radius-sm);padding:14px 18px;margin:14px 0;font-family:var(--font-mono);font-size:.82rem;color:var(--accent-cyan);overflow-x:auto;position:relative}
+.formula-block .f-cap{font-size:.7rem;color:var(--text-muted);margin-bottom:6px;display:block}
+.derivation-toggle{font-size:.7rem;color:var(--accent-gold);cursor:pointer;border:none;background:none;padding:4px 0;font-family:inherit;display:block;margin-top:6px}
+.derivation-toggle:hover{text-decoration:underline}
+.derivation-content{display:none;margin-top:8px;padding:12px 16px;background:rgba(192,160,96,.04);border-radius:var(--radius-sm);border-left:3px solid var(--accent-gold);font-size:.8rem;color:var(--text-secondary)}
+.derivation-content.open{display:block}
+
+.chart-wrap{background:rgba(91,141,184,.03);border-radius:var(--radius-sm);padding:8px;margin:14px 0;text-align:center}
+.chart-wrap canvas{max-width:100%}
+.chart-wrap .ch-cap{font-size:.72rem;color:var(--text-muted);margin-top:6px}
+
+.data-table{width:100%;border-collapse:collapse;margin:12px 0;font-size:.82rem}
+.data-table th{text-align:left;padding:8px 12px;background:rgba(91,141,184,.08);border-bottom:2px solid var(--border-glow);color:var(--accent-indigo);font-weight:700}
+.data-table td{padding:8px 12px;border-bottom:1px solid var(--border-subtle);color:var(--text-secondary)}
+.data-table tr:hover td{background:rgba(91,141,184,.03)}
+
+.takeaway{font-size:.82rem;background:rgba(90,158,111,.06);border-left:3px solid var(--accent-green);padding:10px 14px;margin-top:16px;border-radius:0 var(--radius-sm) var(--radius-sm) 0;color:var(--accent-green)}
+
+.ref-list{list-style:none;padding:0;margin-top:8px;font-size:.78rem}
+.ref-list li{padding:4px 0;color:var(--text-muted)}
+.ref-list li::before{content:'📄 '}
+
+.journey-footer{text-align:center;padding:40px 32px 60px;opacity:.8}
+.back-to-plan{display:inline-flex;align-items:center;gap:8px;padding:10px 24px;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:50px;color:var(--text-secondary);text-decoration:none;font-size:.85rem;font-weight:600;transition:all var(--transition-smooth)}
+.back-to-plan:hover{background:var(--bg-elevated);border-color:var(--accent-purple);color:var(--accent-purple)}
+
+.deep-floating-back{position:fixed;right:20px;bottom:20px;z-index:10000}
+.deep-floating-back button{padding:12px 20px;background:linear-gradient(135deg,var(--accent-color),var(--accent-dark));color:white;border:none;border-radius:24px;font-size:.85rem;font-weight:600;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.15);transition:transform .2s,box-shadow .2s}
+.deep-floating-back button:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.2)}
+
+.dd-toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);z-index:10001;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:8px;padding:14px 24px;box-shadow:0 4px 16px rgba(0,0,0,.15);font-size:.85rem;display:none}
+.toast-in{animation:toastIn .3s ease}
+@keyframes toastIn{from{opacity:0;transform:translate(-50%,20px)}to{opacity:1;transform:translate(-50%,0)}}
+
+@media print{.navbar,.progress-bar,.side-dots,.sidebar,.journey-bar,.journey-footer,.deep-floating-back{display:none!important}.module{break-inside:avoid;opacity:1!important;transform:none!important;box-shadow:none}body{background:#fff}.main-content{margin-left:0}}
+@media(max-width:768px){.sidebar{display:none}.main-content{margin-left:0}.hero h1{font-size:1.4rem}.module{padding:20px}.meta-card{font-size:.72rem;padding:12px 16px}}
+</style>
+</head>
+<body class="loading" data-theme="dark">
+
+<div class="progress-bar" id="progressBar" style="width:0%"></div>
+
+<nav class="navbar">
+  <div class="nav-left">📖 SQL性能调优</div>
+  <div class="nav-right">
+    <button onclick="toggleTheme()" title="切换主题">🌓 主题</button>
+    <button onclick="openSearch()" title="搜索">🔍 搜索</button>
+  </div>
+</nav>
+
+<div class="side-dots" id="sideDots"></div>
+
+<div class="search-overlay" id="searchOverlay">
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="搜索模块内容..." oninput="doSearch()" onkeydown="if(event.key==='Escape')closeSearch()">
+    <div class="search-results" id="searchResults"></div>
+  </div>
+</div>
+
+<div class="sidebar">
+  <a href="#" onclick="goBack();return false;" class="sidebar-back-link">← 返回主方案</a>
+  <nav><ul class="sidebar-nav" id="sidebarNav"></ul></nav>
+</div>
+
+<div class="main-content">
+<div class="container">
+
+<div class="integration-navbar">
+  <a href="#" onclick="goBack();return false;">← 返回 SQL及其在工作中应用 系统学习方案</a>
+  <span>|</span>
+  <span>第4/4阶段 · 进阶优化与新特性</span>
+</div>
+
+<div class="hero">
+  <h1>SQL性能调优</h1>
+  <div class="tags">
+    <span>🏷️ 数据库</span>
+    <span>🎯 进阶</span>
+    <span>⚡ 性能优化</span>
+  </div>
+</div>
+
+<div class="meta-card">
+  <div class="meta-item"><div class="val">📖</div><div class="lbl">SQL性能调优</div></div>
+  <div class="meta-item"><div class="val">🏷️</div><div class="lbl">技术领域</div></div>
+  <div class="meta-item"><div class="val">🎯</div><div class="lbl">进阶层级</div></div>
+  <div class="meta-item"><div class="val">⏱️</div><div class="lbl">约35分钟</div></div>
+  <div class="meta-item"><div class="val">21</div><div class="lbl">模块</div></div>
+  <div class="meta-item"><div class="val">12</div><div class="lbl">图表</div></div>
+</div>
+
+<div class="journey-bar">
+  <div class="journey-path">
+    <span class="journey-icon">📍</span>
+    <span class="journey-plan" onclick="goBack();return false;">SQL及其在工作中应用 系统学习方案</span>
+    <span class="journey-sep">〉</span>
+    <span class="journey-phase">进阶优化与新特性</span>
+    <span class="journey-sep">〉</span>
+    <span class="journey-kp">SQL性能调优</span>
+    <span class="journey-pos">(4/4)</span>
+  </div>
+  <div class="journey-nav">
+    <span class="journey-prev">← 前置</span>
+    <span>|</span>
+    <span class="journey-next">后续 →</span>
+  </div>
+</div>
+
+<!-- Module 01 -->
+<div class="module" id="module-background">
+  <h2><span class="m-tag">背景与缘起</span> 为什么要做SQL性能调优？</h2>
+  <div class="hook">一条SQL从秒级变成毫秒级，不是优化——是救命的差异。一个电商系统在促销高峰期每秒处理数万请求，假设每条SQL慢100ms，累积延迟足以让整个系统崩塌。</div>
+  <div class="content">
+    <p>SQL性能调优（SQL Performance Tuning）的兴起与Web应用爆发式增长密不可分。2000年代初期，互联网公司（如Google, Amazon, eBay）率先面临大规模数据处理挑战。随着数据量从GB级迈向TB甚至PB级，传统的"能用就行"的SQL写法暴露出严重的性能瓶颈。</p>
+    <p>关键转折点出现在2008-2012年间：Facebook的MySQL团队（后来诞生了WebScaleSQL分支）发现默认配置下的MySQL在并发场景中性能骤降；同时PostgreSQL社区开始系统性地改进查询优化器。2015年后，随着云计算和微服务架构普及，数据库成为系统瓶颈的"罪魁祸首"——Uber、GitHub等公司的数据库事故（如GitHub 2018年的MySQL主从延迟故障）警示业界：SQL性能调优不再是DBA的专属技能，而是每个开发者的必备素质。</p>
+    <p>现代SQL性能调优的核心驱动力来自三个方面：<strong>数据量爆炸</strong>（IoT/用户行为/日志每天产生海量数据）、<strong>实时性要求</strong>（用户期望毫秒级响应，如搜索/推荐/支付）、<strong>成本压力</strong>（云数据库按资源计费，慢SQL=更高的CPU/IO费用）。</p>
+  </div>
+  <div class="chart-wrap"><div id="chart_bg_01" style="width:100%;height:300px"></div><div class="ch-cap">图：数据量与响应时间关系——随着数据增长，未优化的SQL性能呈指数级退化</div></div>
+  <div class="takeaway">SQL性能调优是互联网规模化的必然产物——"快"不再是一个选项，而是系统存活的底线。</div>
+  <ul class="ref-list"><li>Baron Schwartz et al., "High Performance MySQL", 4th Edition, O'Reilly, 2021</li><li>GitHub Engineering Blog, "MySQL High Availability at GitHub", 2018</li></ul>
+</div>
+
+<!-- Module 02 -->
+<div class="module" id="module-concept">
+  <h2><span class="m-tag">核心概念</span> SQL性能调优到底在调什么？</h2>
+  <div class="hook">SQL调优不是为了"让SQL跑得更快"——而是要在<strong>数据量增长100倍</strong>的情况下，依然保证SQL的响应时间在可接受范围内。</div>
+  <div class="content">
+    <p>SQL性能调优的定义可以被精确概括为：<strong>通过调整SQL语句结构、数据库配置、索引策略和硬件资源，使查询在给定数据量和并发条件下达到预期响应时间（SLA）的系统性工程。</strong></p>
+    <p>调优的三大核心维度：</p>
+    <p><strong>1. 扫描行数（Rows Examined）</strong>：这是SQL性能最直接的指标。全表扫描（Full Table Scan）1000万行和索引扫描100行，响应时间可能相差1000倍。优化的第一原则是<strong>减少需要检查的数据量</strong>。</p>
+    <p><strong>2. 每行处理成本（Cost Per Row）</strong>：即使扫描行数很少，如果每行需要复杂的函数计算、子查询评估或排序操作，累积成本依然惊人。例如，在WHERE子句中对索引列使用函数（WHERE DATE(create_time) = '2024-01-01'）会使索引失效，因为数据库无法直接匹配索引值。</p>
+    <p><strong>3. 并发与资源竞争</strong>：单个SQL在低并发下表现完美，但在高并发下可能因为锁等待（Lock Wait）、缓冲池争用（Buffer Pool Contention）而性能骤降。这涉及事务隔离级别、锁粒度和连接池配置。</p>
+  </div>
+  <div class="data-table">
+    <table>
+      <tr><th>优化维度</th><th>核心指标</th><th>优化手段</th></tr>
+      <tr><td>扫描行数</td><td>EXPLAIN rows列</td><td>索引优化、分区裁剪</td></tr>
+      <tr><td>每行成本</td><td>EXPLAIN Extra列</td><td>避免filesort/temporary</td></tr>
+      <tr><td>并发竞争</td><td>锁等待时间</td><td>事务优化、读写分离</td></tr>
+      <tr><td>网络传输</td><td>返回数据量</td><td>SELECT只取需要的列</td></tr>
+    </table>
+  </div>
+  <div class="takeaway">性能调优 = 减少扫描行数 + 降低每行成本 + 避免资源竞争，三者缺一不可。</div>
+  <ul class="ref-list"><li>MySQL官方文档, "Optimization Overview", dev.mysql.com/doc/refman/8.0/en/optimization.html</li></ul>
+</div>
+
+<!-- Module 03 -->
+<div class="module" id="module-principle">
+  <h2><span class="m-tag">核心原理</span> 数据库查询优化器是如何工作的？</h2>
+  <div class="hook">你写的SQL只是"需求声明"，真正决定执行路径的是隐藏在数据库内部的<strong>查询优化器（Query Optimizer）</strong>——它就像一个导航软件，在成千上万条可能的执行路径中选择"最优"路线。</div>
+  <div class="content">
+    <p>现代关系数据库（MySQL、PostgreSQL、Oracle、SQL Server）都采用<strong>基于成本的优化器（Cost-Based Optimizer, CBO）</strong>。其工作流程如下：</p>
+    <p><strong>1. 语法解析</strong>：将SQL文本解析为抽象语法树（AST），验证语法正确性和对象存在性（表、列）。</p>
+    <p><strong>2. 查询重写</strong>：应用代数等价变换规则。例如 <code>SELECT * FROM t WHERE a=1 AND b=2</code> 会被分析为多个可能的过滤条件组合，优化器可能将过滤性最强的条件优先执行。</p>
+    <p><strong>3. 统计信息收集</strong>：优化器依赖表的统计信息（通过ANALYZE TABLE收集）：行数估计、列的不同值数量（Cardinality）、NULL值比例、数据分布直方图。统计信息的准确性直接影响执行计划质量。</p>
+    <p><strong>4. 成本估算</strong>：为候选执行计划计算成本。<strong>成本模型的关键公式</strong>：</p>
+  </div>
+  <div class="formula-block">
+    <span class="f-cap">成本估算公式（简化）</span>
+    $$Cost = CPU\_Cost + IO\_Cost = (nRows \times cpu\_tuple\_cost) + (nPages \times seq\_page\_cost \times random\_factor)$$
+    <button class="derivation-toggle" onclick="var c=this.nextElementSibling;c.classList.toggle('open');this.textContent=c.classList.contains('open')?'▾ 收起推导':'▸ 展开推导'">▸ 展开推导</button>
+    <div class="derivation-content">
+      <p><strong>推导说明</strong>：</p>
+      <p>- <code>nRows</code> 为预估扫描行数，来自表统计信息</p>
+      <p>- <code>cpu_tuple_cost</code> 为处理每行的CPU成本（PostgreSQL默认0.01）</p>
+      <p>- <code>nPages</code> 为需要读取的数据页数（每页通常8KB）</p>
+      <p>- <code>seq_page_cost</code> 为顺序扫描每页的IO成本（默认1.0）</p>
+      <p>- <code>random_factor</code> 为随机IO因子（索引扫描默认4.0，即随机读比顺序读贵4倍）</p>
+      <p>这就是为什么优化器可能<strong>选择全表扫描而非走索引</strong>——如果索引覆盖的数据量超过表的一定比例（通常20-30%），随机读的总成本超过了全表顺序扫描。</p>
+    </div>
+  </div>
+  <div class="takeaway">查询优化器基于统计信息+成本模型决策——理解它的思维方式是写出高性能SQL的关键。</div>
+  <ul class="ref-list"><li>PostgreSQL官方文档, "Query Planning", www.postgresql.org/docs/current/runtime-config-query.html</li><li>Goetz Graefe, "The Cascades Framework for Query Optimization", IEEE Data Engineering Bulletin, 1995</li></ul>
+</div>
+
+<!-- Module 04 -->
+<div class="module" id="module-architecture">
+  <h2><span class="m-tag">技术架构</span> 数据库引擎的SQL处理流水线</h2>
+  <div class="hook">一条SQL从客户端发出到返回结果，经历了至少<strong>7个组件、6个阶段的流水线</strong>。理解这个架构，你就知道每个优化手段具体作用于哪个环节。</div>
+  <div class="content">
+    <p>以MySQL InnoDB引擎为例，SQL处理的完整流水线：</p>
+    <p><strong>连接层</strong> → 连接器（验证用户权限，管理连接线程）→ <strong>服务层</strong> → 查询缓存（MySQL 8.0已移除，因为高并发下锁竞争严重）→ 分析器（词法/语法分析）→ <strong>优化器</strong>（生成执行计划）→ <strong>执行器</strong>（调用存储引擎API）→ <strong>存储引擎层</strong> → InnoDB（缓冲池→索引查找→数据页读取→行锁管理）→ undo log / redo log / binlog → 返回结果。</p>
+    <p><strong>缓冲池（Buffer Pool）</strong>是架构中最关键的缓存组件，通常占用物理内存的70-80%。它的命中率（Hit Rate）直接影响性能——命中率低于98%时就需要考虑增加内存或优化SQL减少数据访问量。</p>
+  </div>
+  <div class="chart-wrap"><div id="chart_arch_01" style="width:100%;height:380px"></div><div class="ch-cap">图：数据库引擎SQL执行流水线架构</div></div>
+  <div class="takeaway">从连接层到存储引擎，每个组件都可能成为瓶颈——系统性优化需要逐层审视。</div>
+  <ul class="ref-list"><li>Jeremy Cole, "InnoDB Internals", MySQL Conference, 2019</li><li>MySQL官方文档, "InnoDB Architecture", dev.mysql.com/doc/refman/8.0/en/innodb-architecture.html</li></ul>
+</div>
+
+<!-- Module 05 -->
+<div class="module" id="module-compute-cost">
+  <h2><span class="m-tag">算力与成本</span> 慢SQL的隐藏经济账</h2>
+  <div class="hook">你可能不知道：<strong>一条执行3秒的SQL</strong>，如果在每天执行100万次的业务场景中，相当于每天消耗<strong>833小时的CPU时间</strong>——这足以让一台服务器全年无休地空转。</div>
+  <div class="content">
+    <p>SQL性能调优直接关联到计算成本。云数据库（如AWS RDS、阿里云RDS、腾讯云CDB）按以下几项计费：</p>
+    <p><strong>1. CPU使用率</strong>：慢SQL消耗更多CPU周期。将慢查询从3秒优化到100ms，相当于减少<strong>30倍CPU开销</strong>。</p>
+    <p><strong>2. IOPS（每秒IO次数）</strong>：全表扫描会产生大量磁盘IO。云数据库IOPS是收费项，优化索引可大幅降低IOPS费用。</p>
+    <p><strong>3. 连接数</strong>：慢SQL占用连接时间长，迫使提高实例规格以支持更多并发连接。</p>
+    <p>实际案例：某SaaS公司在未优化SQL前，RDS实例从4核8G一路升级到16核64G，月费用从3000元升至18000元。经过系统性SQL优化后，降回8核32G，月费用降至6000元——<strong>每月节省12000元，年节省14.4万</strong>。</p>
+  </div>
+  <div class="chart-wrap"><div id="chart_cost_01" style="width:100%;height:300px"></div><div class="ch-cap">图：SQL优化前后的数据库实例成本对比</div></div>
+  <div class="takeaway">慢SQL不是技术债——是花呗账单，拖得越久利息越高。</div>
+</div>
+
+<!-- Module 06 -->
+<div class="module" id="module-open-source">
+  <h2><span class="m-tag">开源生态</span> SQL优化工具的兵器谱</h2>
+  <div class="hook">DBA最强大的能力不是记住所有SQL语法，而是知道<strong>用哪个工具</strong>在<strong>什么场景下</strong>能最快定位问题。</div>
+  <div class="content">
+    <p>SQL性能优化的开源工具体系已相当成熟：</p>
+    <p><strong>MySQL生态</strong>：<code>pt-query-digest</code>（Percona Toolkit核心工具，分析慢查询日志排名TOP N）、<code>mysqldumpslow</code>（MySQL自带慢日志汇总）、<code>innotop</code>（实时监控InnoDB状态）、<code>ProxySQL</code>（查询路由和缓存层）。</p>
+    <p><strong>PostgreSQL生态</strong>：<code>pg_stat_statements</code>（统计所有SQL的调用次数和执行时间，没有比这更重要的PG插件）、<code>auto_explain</code>（自动记录慢查询的执行计划）、<code>pgBadger</code>（日志分析报告生成器）。</p>
+    <p><strong>跨数据库</strong>：<code>DBeaver</code>（免费多功能数据库客户端，含执行计划可视化）、<code>Apache Calcite</code>（查询优化框架，很多大数据引擎优化器基于它）。</p>
+  </div>
+  <div class="data-table"><table>
+    <tr><th>工具</th><th>适用数据库</th><th>核心功能</th></tr>
+    <tr><td>pt-query-digest</td><td>MySQL/MariaDB</td><td>慢查询聚合分析</td></tr>
+    <tr><td>pg_stat_statements</td><td>PostgreSQL</td><td>全量SQL性能统计</td></tr>
+    <tr><td>pgBadger</td><td>PostgreSQL</td><td>HTML报告生成</td></tr>
+    <tr><td>ProxySQL</td><td>MySQL</td><td>查询路由/读写分离</td></tr>
+  </table></div>
+  <div class="takeaway">工具是SQL调优的放大镜——没有它，你只能靠猜。</div>
+  <ul class="ref-list"><li>Percona Toolkit Docs, www.percona.com/doc/percona-toolkit</li></ul>
+</div>
+
+<!-- Module 07 -->
+<div class="module" id="module-benchmark">
+  <h2><span class="m-tag">Benchmark</span> 如何科学衡量SQL优化效果？</h2>
+  <div class="hook">很多人做完SQL优化就喊"快了10倍"，但实际上可能是因为<strong>缓冲池预热（Buffer Pool Warm-up）</strong>的假象——第一次慢是因为数据没在内存，第二次快是因为数据已缓存。</div>
+  <div class="content">
+    <p>科学的Benchmark方法论必须控制以下变量：</p>
+    <p><strong>1. 冷启动 vs 热启动</strong>：测试前执行 <code>RESET QUERY CACHE</code>（MySQL）或重启数据库，确保所有数据从磁盘读取。同时也要测热状态（数据已缓存），两者差异反映了IO对性能的影响。</p>
+    <p><strong>2. 多轮均值</strong>：每条SQL至少执行5-10轮，去掉最高最低值取平均。第一次执行受解析和缓存加载影响大。</p>
+    <p><strong>3. 并发基准</strong>：用 sysbench、pgbench 或 JMeter 模拟并发场景。单线程表现好不等于并发表现好——锁竞争和连接管理是并发杀手。</p>
+  </div>
+  <div class="chart-wrap"><div id="chart_bm_01" style="width:100%;height:320px"></div><div class="ch-cap">图：不同SQL在冷/热状态下的响应时间对比</div></div>
+  <div class="takeaway">Benchmark没有"差不多"——每个变量都是潜在噪声，不控制就不科学。</div>
+  <ul class="ref-list"><li>Dimitri Kravtchuk, "MySQL Performance Benchmarking", Percona Live, 2020</li></ul>
+</div>
+
+<!-- Module 08 -->
+<div class="module" id="module-development">
+  <h2><span class="m-tag">发展迭代</span> SQL优化技术的历史演进</h2>
+  <div class="hook">20年前，SQL优化的标准答案是"加个索引"；今天，优化手段已演变为一整套<strong>从硬件到SQL到架构</strong>的多层次方法论。</div>
+  <div class="content">
+    <p><strong>第一代（1990s）</strong>：硬件为王。买更快的CPU、加更多内存。优化策略简单粗暴——垂直扩展。</p>
+    <p><strong>第二代（2000s）</strong>：索引时代。B+树索引成为标配，EXPLAIN命令使用普及。MySQL 4.0引入查询缓存。</p>
+    <p><strong>第三代（2010s）</strong>：系统化优化。分区表、物化视图、覆盖索引、仅索引扫描等技术成熟。MySQL 5.6引入ICP（Index Condition Pushdown）和MRR（Multi-Range Read），PostgreSQL 9.2引入仅索引扫描（Index-Only Scan）。</p>
+    <p><strong>第四代（2020s）</strong>：智能化与自动化。AI辅助SQL优化（如Oracle Autonomous Database的自动调优），自适应查询优化（Adaptive Query Optimization）——同一SQL可根据实际数据分布动态调整执行计划。</p>
+  </div>
+  <div class="chart-wrap"><div id="chart_dev_01" style="width:100%;height:280px"></div><div class="ch-cap">图：SQL优化技术的发展代际——每一代都在减少"人工干预"的依赖</div></div>
+  <div class="takeaway">从加索引到AI自动调优——SQL优化技术正在从"手艺"向"工程"演进。</div>
+  <ul class="ref-list"><li>C. Mohan et al., "Aries: A Transaction Recovery Method", ACM, 1992</li></ul>
+</div>
+
+<!-- Module 09 -->
+<div class="module" id="module-application">
+  <h2><span class="m-tag">实践应用</span> 10条可立即使用的高性能SQL规范</h2>
+  <div class="hook">不需要成为DBA也能写出高性能SQL——只要遵守这几条铁律，你的SQL至少能避开80%的性能陷阱。</div>
+  <div class="content">
+    <p><strong>1. SELECT只取需要的列</strong>：<code>SELECT *</code> 让覆盖索引失效，还增加网络传输。永远写明确的列名。</p>
+    <p><strong>2. WHERE条件避免对索引列做函数/计算</strong>：<code>WHERE YEAR(create_time) = 2024</code> 应改为 <code>WHERE create_time BETWEEN '2024-01-01' AND '2024-12-31'</code>。</p>
+    <p><strong>3. 用EXISTS代替IN（子查询场景）</strong>：EXISTS找到第一条匹配就停止，IN需要构建完整结果集。</p>
+    <p><strong>4. 分页大偏移量优化</strong>：<code>LIMIT 100000,20</code>必须扫描前10万行。改用"延迟关联"：先取ID，再JOIN原表。</p>
+    <p><strong>5. 联合索引遵循最左前缀</strong>：idx(a,b,c)能用于WHERE a=? 和 WHERE a=? AND b=?，但不能单独用于 WHERE b=?。</p>
+    <p><strong>6. 避免隐式类型转换</strong>：WHERE varchar_col = 123 会导致索引失效（数据库需要逐行转换类型）。</p>
+    <p><strong>7. 小表驱动大表</strong>：JOIN时把数据量小的表（或过滤后行数少的）放在驱动表位置。</p>
+    <p><strong>8. OR条件改为UNION ALL</strong>：<code>WHERE a=1 OR b=2</code> 可能让索引失效。拆成 <code>SELECT ... WHERE a=1 UNION ALL SELECT ... WHERE b=2</code>。</p>
+    <p><strong>9. COUNT(*) vs COUNT(col)</strong>：COUNT(*)统计所有行，COUNT(col)忽略NULL——前者通常不更慢。</p>
+    <p><strong>10. 适可而止地使用DISTINCT</strong>：DISTINCT需要排序或哈希去重——如果数据本身不重复就别加。</p>
+  </div>
+  <div class="takeaway">每条优化规则背后都是一个"可以避免的CPU/IO浪费"——记住它们就是记住怎么省资源。</div>
+</div>
+
+<!-- Module 10 -->
+<div class="module" id="module-case-study">
+  <h2><span class="m-tag">实践案例</span> 真实业务中的SQL优化故事</h2>
+  <div class="hook">一个"看起来没问题"的SQL，把整个支付系统的成功率从99.97%拖到了<strong>87%</strong>——这就是优化之前无人重视的威力。</div>
+  <div class="content">
+    <p><strong>案例一：电商订单列表查询（MySQL）</strong></p>
+    <p>原始SQL：<code>SELECT * FROM orders WHERE status='paid' ORDER BY create_time DESC LIMIT 20</code></p>
+    <p>表量：3000万行，status有索引但create_time没有联合索引。</p>
+    <p>问题：执行计划先走status索引过滤，但ORDER BY create_time触发filesort，且SELECT *导致回表3000次。</p>
+    <p>优化方案：建联合索引 <code>idx_status_time(status, create_time)</code>；改写SQL为延迟关联。优化后耗时从2.3秒降至12ms。</p>
+    <p><strong>案例二：支付系统对账SQL（PostgreSQL）</strong></p>
+    <p>原始SQL对两张大表（5000万+3000万）做FULL OUTER JOIN后聚合。执行时间超300秒，导致凌晨对账任务超时。</p>
+    <p>优化方案：拆分为3个独立查询（仅左表有+仅右表有+两表都有），分别利用索引，应用层合并结果。总时间降至8秒。</p>
+  </div>
+  <div class="takeaway">真实的SQL优化往往不是"改一行"，而是"换个思路"——有时候拆开比合并更快。</div>
+</div>
+
+<!-- Module 11 -->
+<div class="module" id="module-risk">
+  <h2><span class="m-tag">潜在风险</span> SQL调优的七大陷阱</h2>
+  <div class="hook">最危险的优化不是没效果——而是<strong>让系统变得更糟</strong>。每个DBA抽屉里都藏着几根"看起来加速但实际拖慢"的索引。</div>
+  <div class="content">
+    <p><strong>1. 过度索引（Over-Indexing）</strong>：每多一个索引，INSERT/UPDATE/DELETE就多维护一个B+树。10个索引的写入性能可能比3个索引慢40%。</p>
+    <p><strong>2. 忽略写入性能</strong>：建了5个索引让查询从2秒变成10ms——但写入从50ms升到300ms。需要权衡读写比例。</p>
+    <p><strong>3. 死锁风险</strong>：索引改变了数据访问路径（加锁顺序）。原本顺序操作的SQL加索引后可能产生新的死锁模式。</p>
+    <p><strong>4. 统计信息过时</strong>：优化器基于过时的统计信息选错计划。定期执行ANALYZE TABLE很关键。</p>
+    <p><strong>5. Index Hint滥用</strong>：FORCE INDEX看似解决了问题——但数据分布变化后，被强制的路径可能比优化器自己选的差10倍。</p>
+    <p><strong>6. 单测论</strong>：在生产环境才出现的性能问题，测试环境模拟不出来（因为数据量、并发、缓存状态不同）。</p>
+    <p><strong>7. 迁移后失效</strong>：从MySQL到PostgreSQL迁移的SQL，原有优化策略可能完全无效——不同数据库的优化器行为差异巨大。</p>
+  </div>
+  <div class="takeaway">优化没有"一刀切"的方案——每个行动都要评估其两面性。</div>
+</div>
+
+<!-- Module 12 -->
+<div class="module" id="module-ethics">
+  <h2><span class="m-tag">安全与合规</span> 性能优化中的数据安全边界</h2>
+  <div class="hook">为了排查慢SQL，你打开了全量慢查询日志——<strong>但其中有用户的手机号、身份证号、银行卡号</strong>。一次"技术"操作秒变合规事故。</div>
+  <div class="content">
+    <p>SQL性能优化场景中常见的安全与合规问题：</p>
+    <p><strong>1. 慢查询日志泄露</strong>：MySQL的slow_query_log会记录完整的SQL文本（包括参数值）。如果SQL中包含 <code>WHERE phone='138xxxx'</code>，日志文件中就全是敏感信息。应使用<strong>pt-fingerprint</strong>等工具将SQL参数化后再分析。</p>
+    <p><strong>2. EXPLAIN信息泄露</strong>：执行计划中包含表名、列名、索引名——在SaaS多租户场景下，不同租户可能通过执行计划推断数据模型。</p>
+    <p><strong>3. 性能优化中的权限提升</strong>：分析执行计划可能需要SUPER/PROCESS权限，这在最小权限原则下是风险点。使用 <code>sys</code> schema（MySQL 5.7+）或 <code>performance_schema</code> 可在低权限下获取大量诊断信息。</p>
+  </div>
+  <div class="takeaway">优化性能的同时必须保护数据隐私——日志脱敏不是可选项，是红线。</div>
+  <ul class="ref-list"><li>OWASP, "Logging Cheat Sheet", cheatsheetseries.owasp.org</li></ul>
+</div>
+
+<!-- Module 13 -->
+<div class="module" id="module-landscape">
+  <h2><span class="m-tag">发展格局</span> 谁在定义SQL优化的标准？</h2>
+  <div class="hook">SQL优化的行业格局由三类角色主导：<strong>数据库厂商</strong>定义引擎能力上限、<strong>云服务商</strong>定义运维范式、<strong>头部互联网公司</strong>输出最佳实践。</div>
+  <div class="content">
+    <p><strong>数据库厂商阵营</strong>：Oracle（最强查询优化器，CBO发源地）、MySQL（Oracle主导+社区驱动，InnoDB是默认引擎）、PostgreSQL（社区驱动，优化器持续进化，PG 16引入并行聚合增强）、SQL Server（Azure SQL集成了自动调优AI）。</p>
+    <p><strong>云服务商</strong>：AWS Aurora（MySQL/PostgreSQL兼容但存储层重写，自动扩缩容）、阿里云 PolarDB（共享存储架构，读写分离天然支持）、Snowflake（计算存储分离，自动集群优化）。</p>
+    <p><strong>互联网公司</strong>：Facebook/Google/Tencent 各自维护着大量MySQL/PostgreSQL的定制优化分支，定期向社区回馈补丁。</p>
+  </div>
+  <div class="chart-wrap"><div id="chart_land_01" style="width:100%;height:320px"></div><div class="ch-cap">图：数据库市场份额与性能优化社区活跃度</div></div>
+  <div class="takeaway">SQL优化不只是技术问题——选择哪个数据库生态就决定了你的优化手段边界。</div>
+  <ul class="ref-list"><li>DB-Engines Ranking, db-engines.com, 2024</li></ul>
+</div>
+
+<!-- Module 14 -->
+<div class="module" id="module-research-map">
+  <h2><span class="m-tag">产学研图谱</span> SQL优化的学术热点与工业实践</h2>
+  <div class="hook">学术界在研究"让数据库自动学会怎么跑得快"，工业界在落地"让DBA少凌晨爬起来处理慢查询"——两者正在加速合流。</div>
+  <div class="content">
+    <p><strong>学术热点</strong>：</p>
+    <p>- <strong>Learned Index</strong>：Google Brain 2018年提出用神经网络替代B+树（论文《The Case for Learned Index Structures》），虽然距离实用还有距离，但开启了全新方向。</p>
+    <p>- <strong>Query Optimizer的强化学习</strong>：MIT和CMU在做用RL agent替代传统CBO的成本模型，核心挑战是训练数据获取成本高。</p>
+    <p>- <strong>Cardinality Estimation</strong>：行数估计是优化器的核心难题——多表JOIN后行数估计误差可达100倍。MSCN（Multi-Set Convolutional Network）等深度学习模型正在改善这个痛点。</p>
+    <p><strong>工业落地</strong>：Oracle Autonomous Database、阿里云 DAS（Database Autonomy Service）、腾讯云 DBbrain 等产品已将部分AI优化能力产品化。</p>
+  </div>
+  <div class="takeaway">AI辅助SQL优化正在从实验阶段走向产品化——未来DBA可能不需要手动调SQL。</div>
+  <ul class="ref-list"><li>Tim Kraska et al., "The Case for Learned Index Structures", SIGMOD, 2018</li><li>Andreas Kipf et al., "Learned Cardinalities", VLDB, 2019</li></ul>
+</div>
+
+<!-- Module 15 -->
+<div class="module" id="module-issues">
+  <h2><span class="m-tag">发展问题</span> 当前SQL优化的瓶颈与挑战</h2>
+  <div class="hook">SQL优化中最大的悖论：<strong>优化器知道的越多，反而可能选得越差</strong>——因为复杂查询的候选计划太多，每个都精确评估反而让优化本身比执行还慢。</div>
+  <div class="content">
+    <p>当前SQL优化面临的核心痛点：</p>
+    <p><strong>1. 行数估计不准</strong>：多表JOIN后，条件相关的列（correlated columns）会导致行数估计与真实值偏差数十倍。这是查询优化器最古老的未解决问题之一。</p>
+    <p><strong>2. 执行计划稳定性</strong>：随数据增长，原本最优的执行计划可能变差。绑定变量（Prepared Statement）场景下，第一次生成的计划可能对后续不同参数值不是最优。</p>
+    <p><strong>3. 跨云/混合云</strong>：数据分布在多个数据库甚至不同云上时，全局SQL优化（Federated Query Optimization）几乎不存在成熟方案。</p>
+    <p><strong>4. ORM生成的低效SQL</strong>：Hibernate/MyBatis/Prisma等ORM框架自动生成的SQL，经常是性能黑洞——N+1问题、不必要的SELECT *、笛卡尔积JOIN。</p>
+  </div>
+  <div class="takeaway">优化器不是银弹——在最复杂场景下，人类的逻辑推理+经验直觉依然必不可少。</div>
+</div>
+
+<!-- Module 16 -->
+<div class="module" id="module-prospect">
+  <h2><span class="m-tag">发展前景</span> SQL优化的未来五年</h2>
+  <div class="hook">到2030年，我们可能不再需要"手动优化SQL"——<strong>数据库会自动为每条SQL选择最优路径</strong>，甚至在你写SQL时就实时提示性能问题。</div>
+  <div class="content">
+    <p>未来SQL优化的几个关键趋势：</p>
+    <p><strong>1. 自适应执行计划</strong>：SQL执行过程中动态调整策略。PostgreSQL 14引入了部分并行查询的自适应能力；Oracle的Adaptive Plans在运行时根据实际读取行数切换JOIN方式。</p>
+    <p><strong>2. SQL 性能即代码（Performance as Code）</strong>：将SQL性能规则（如"禁止全表扫描"、"JOIN表不超过3个"）写入CI/CD Pipeline，提交前自动检测。</p>
+    <p><strong>3. 无服务器数据库（Serverless DB）</strong>：AWS Aurora Serverless v2、PlanetScale等产品将性能管理外包给平台——优化成为供应商的责任。</p>
+    <p><strong>4. 向量化执行与GPU加速</strong>：ClickHouse、DuckDB等OLAP引擎已采用SIMD向量化执行；GPU加速SQL（如BlazingSQL、HeavyDB）在聚合计算场景可提升10-100倍。</p>
+  </div>
+  <div class="takeaway">未来DBA的职责将从"手动调优"转向"定义性能策略+审核自动优化结果"。</div>
+  <ul class="ref-list"><li>Gartner, "Future of DBMS — Autonomous Operations", 2023</li></ul>
+</div>
+
+<!-- Module 17 -->
+<div class="module" id="module-effort-direction">
+  <h2><span class="m-tag">努力方向</span> 如何成为SQL优化高手？</h2>
+  <div class="hook">成为SQL优化高手的路径不是"背下所有优化规则"，而是<strong>培养"看到SQL就能在脑中模拟执行计划"的能力</strong>。</div>
+  <div class="content">
+    <p><strong>第一阶段（基础）</strong>：能熟练使用EXPLAIN，理解type/rows/Extra含义。知道索引最左前缀、覆盖索引、回表。能识别全表扫描和filesort。</p>
+    <p><strong>第二阶段（中级）</strong>：能根据业务场景设计复合索引策略。理解统计信息和成本模型，能解释为什么优化器选了某个计划。能使用慢查询日志定位问题SQL。</p>
+    <p><strong>第三阶段（高级）</strong>：理解存储引擎内部机制（InnoDB行锁、MVCC、redo log、缓冲池LRU淘汰）。能在架构层面做读写分离、分库分表、冷热分离。会使用performance_schema/等待事件分析进行深度诊断。</p>
+    <p><strong>关键资源</strong>：《High Performance MySQL》（必读）、Use The Index Luke（网站，交互式索引教学）、各大数据库的官方优化文档。</p>
+  </div>
+  <div class="takeaway">SQL优化能力没有捷径——EXPLAIN 1000条真实SQL，比看100篇文章更有效。</div>
+  <ul class="ref-list"><li>Markus Winand, "SQL Performance Explained", 2012</li><li>"Use The Index, Luke!", use-the-index-luke.com</li></ul>
+</div>
+
+<!-- Module 18 -->
+<div class="module" id="module-misconceptions">
+  <h2><span class="m-tag">常见误区</span> SQL优化中的"都市传说"</h2>
+  <div class="hook">"子查询一定比JOIN慢"、"COUNT(*)是慢查询"、"索引越多越好"——这些流传甚广的SQL优化"常识"，每条都至少<strong>一半是错的</strong>。</div>
+  <div class="content">
+    <p><strong>误区1："子查询一定比JOIN慢"</strong> —— 现代优化器可以将子查询重写为Semi-JOIN或直接下推。MySQL 8.0对子查询优化大幅改进，EXISTS子查询往往比LEFT JOIN+IS NULL更高效。</p>
+    <p><strong>误区2："VARCHAR主键性能差不适合做主键"</strong> —— InnoDB使用聚集索引，主键长度影响所有二级索引的大小。UUID主键确实比自增ID更消耗空间和随机IO。但性能差异取决于数据量级，百万级数据几乎无差别。</p>
+    <p><strong>误区3："所有查询都应该走索引"</strong> —— 当查询需要表中超过20-30%的数据时，全表扫描可能比索引扫描更快（因为顺序IO比随机IO效率高）。</p>
+    <p><strong>误区4："系统自带工具就能满足优化需求"</strong> —— mysqldumpslow只统计基本指标，pt-query-digest功能强10倍。</p>
+  </div>
+  <div class="takeaway">SQL优化的最大敌人不是技术难度——是那些听起来很对但经不起验证的"常识"。</div>
+</div>
+
+<!-- Module 19 -->
+<div class="module" id="module-learning-path">
+  <h2><span class="m-tag">学习路径</span> 从入门到精通的推荐资源</h2>
+  <div class="hook">SQL优化学习最大的坑是从视频开始——你需要的不是"看"，而是<strong>亲手用EXPLAIN分析1000条SQL</strong>。</div>
+  <div class="content">
+    <p><strong>入门资源</strong>：</p>
+    <p>- <strong>Use The Index, Luke!</strong> (use-the-index-luke.com)：最好的索引交互式教程。从单列索引到多列索引，每一步都有可视化解释。</p>
+    <p>- <strong>MySQL官方优化文档</strong>：虽然枯燥但最准确，尤其是"Optimizing SELECT Statements"章节。</p>
+    <p><strong>进阶资源</strong>：</p>
+    <p>- <strong>《High Performance MySQL》(第4版)</strong>：MySQL优化的圣经。第7-8章（查询性能优化）是精华。</p>
+    <p>- <strong>《PostgreSQL 9.0 High Performance》</strong>：PG优化的优秀入门。</p>
+    <p>- <strong>explain.depesz.com</strong>：在线可视化PostgreSQL执行计划，比EXPLAIN ANALYZE文本输出直观。</p>
+  </div>
+  <div class="takeaway">先看Use The Index Luke弄懂索引，再读《High Performance MySQL》弄懂引擎——这是最短学习路径。</div>
+</div>
+
+<!-- Module 20 -->
+<div class="module" id="module-glossary">
+  <h2><span class="m-tag">关键术语表</span></h2>
+  <div class="data-table"><table>
+    <tr><th>术语</th><th>英文</th><th>定义</th></tr>
+    <tr><td>全表扫描</td><td>Full Table Scan</td><td>读取表中每一行，无索引可用时的执行方式</td></tr>
+    <tr><td>回表</td><td>Bookmark Lookup</td><td>非聚集索引找到主键后，再通过主键查完整行数据</td></tr>
+    <tr><td>覆盖索引</td><td>Covering Index</td><td>SELECT的列全部包含在索引中，无需回表</td></tr>
+    <tr><td>最左前缀</td><td>Leftmost Prefix</td><td>联合索引从最左列开始匹配才有效</td></tr>
+    <tr><td>文件排序</td><td>filesort</td><td>需要额外排序操作，Extra中出现即需优化</td></tr>
+    <tr><td>统计信息</td><td>Statistics/Cardinality</td><td>表列值的分布数据，优化器据此估算成本</td></tr>
+    <tr><td>延迟关联</td><td>Deferred Join</td><td>先取ID（利用覆盖索引），再JOIN取完整数据</td></tr>
+    <tr><td>索引下推</td><td>ICP</td><td>Index Condition Pushdown，MySQL 5.6+在索引层过滤WHERE条件</td></tr>
+    <tr><td>慢查询日志</td><td>Slow Query Log</td><td>记录超过阈值时间的SQL，SQL调优的起点</td></tr>
+    <tr><td>行锁等待</td><td>Row Lock Wait</td><td>事务等待其他事务释放行锁</td></tr>
+  </table></div>
+</div>
+
+<!-- Module 21 -->
+<div class="module" id="module-debate">
+  <h2><span class="m-tag">争议与辩论</span> 社区中关于SQL优化的大论战</h2>
+  <div class="hook">"ORM是否应该存在？""自增ID vs UUID主键谁更好？""要不要用存储过程？"——这些问题在DBA社区引发的争论，比技术本身更激烈。</div>
+  <div class="content">
+    <p><strong>争议1：ORM框架是性能优化的大敌吗？</strong></p>
+    <p>正方（DBA派）：ORM生成的SQL不可控，N+1查询、不必要的JOIN、全量SELECT让优化无从下手。反方（开发者派）：ORM提升开发效率，性能问题应通过Monitoring+手动SQL来解决，而非抛弃ORM。</p>
+    <p>中立观点：ORM和手写SQL不矛盾——核心高频接口用手写SQL + MyBatis，后台低频操作用ORM。关键是<strong>SQL Review流程</strong>而非选边站。</p>
+    <p><strong>争议2：UUID vs 自增ID主键</strong></p>
+    <p>UUID的问题：随机性破坏B+树插入的局部性（大量随机IO+页分裂）；占用空间大（36字节 vs 8字节）。但在分布式场景中，自增ID需要额外的ID生成服务。</p>
+    <p>实践建议：单机用自增，分布式用Snowflake或ULID（时间有序的UUID变体）。</p>
+  </div>
+  <div class="takeaway">技术选型没有绝对正确——关键是理解每个选项的代价，然后选择最适合你场景的那个。</div>
+  <ul class="ref-list"><li>Brandur Leach, "UUID vs Auto-Increment Primary Keys", brandur.org, 2022</li></ul>
+</div>
+
+</div>
+</div>
+
+<footer class="journey-footer">
+  <a href="#" class="back-to-plan" onclick="event.preventDefault();goBack()">🔗 返回学习路线: SQL及其在工作中应用 系统学习方案 → 进阶优化与新特性</a>
+  <p style="margin-top:12px;font-size:.72rem;color:var(--text-muted)">
+    本资料是 <strong>SQL及其在工作中应用 系统学习方案</strong> 进阶优化与新特性 阶段的深度研读材料
+  </p>
+</footer>
+
+<div class="deep-floating-back">
+  <button onclick="goBack()">← 返回学习方案</button>
+</div>
+
+<div class="dd-toast" id="toastEl"><span id="toastMsg"></span></div>
+
+<script>
+var DEEP_DIVE_KP_ID = 'p4_1';
+var MODULE_IDS = ["module-background","module-concept","module-principle","module-architecture","module-compute-cost","module-open-source","module-benchmark","module-development","module-application","module-case-study","module-risk","module-ethics","module-landscape","module-research-map","module-issues","module-prospect","module-effort-direction","module-misconceptions","module-learning-path","module-glossary","module-debate"];
+var SEARCH_INDEX = [
+{t:"背景与缘起",id:"module-background",c:"SQL性能调优的兴起与Web应用爆发增长"},{t:"核心概念",id:"module-concept",c:"扫描行数、每行处理成本、并发与资源竞争"},{t:"核心原理",id:"module-principle",c:"查询优化器CBO、成本模型、统计信息"},{t:"技术架构",id:"module-architecture",c:"连接层、服务层、优化器、执行器、存储引擎"},{t:"算力与成本",id:"module-compute-cost",c:"CPU/IOPS成本、慢SQL经济影响"},{t:"开源生态",id:"module-open-source",c:"pt-query-digest、pg_stat_statements"},{t:"Benchmark",id:"module-benchmark",c:"冷热启动、多轮均值、并发基准"},{t:"发展迭代",id:"module-development",c:"四大代际演进、硬件到AI"},{t:"实践应用",id:"module-application",c:"10条高性能SQL规范"},{t:"实践案例",id:"module-case-study",c:"电商订单、支付对账优化实例"},{t:"潜在风险",id:"module-risk",c:"过度索引、死锁、统计信息过时"},{t:"安全与合规",id:"module-ethics",c:"慢查询日志泄露、权限提升"},{t:"发展格局",id:"module-landscape",c:"数据库厂商、云服务商、互联网公司"},{t:"产学研图谱",id:"module-research-map",c:"Learned Index、RL优化器"},{t:"发展问题",id:"module-issues",c:"行数估计、执行计划稳定性、ORM"},{t:"发展前景",id:"module-prospect",c:"自适应执行、Serverless、GPU加速"},{t:"努力方向",id:"module-effort-direction",c:"三阶段成长路径"},{t:"常见误区",id:"module-misconceptions",c:"子查询/主键/全表扫描误区"},{t:"学习路径",id:"module-learning-path",c:"Use The Index Luke、High Performance MySQL"},{t:"关键术语表",id:"module-glossary",c:"全表扫描、回表、覆盖索引等"},{t:"争议与辩论",id:"module-debate",c:"ORM争议、UUID vs 自增ID"}
+];
+
+function goBack() {
+  var MAIN_PAGE = 'sql_learning.html';
+  var WIN_NAME = '_ml_llm_main';
+  var CH_KEY = '_ml_llm_nav';
+  localStorage.setItem(CH_KEY, JSON.stringify({kpId: DEEP_DIVE_KP_ID, ts: Date.now()}));
+  var mainWin = window.open(MAIN_PAGE, WIN_NAME);
+  if (mainWin) { mainWin.focus(); }
+}
+
+var TOAST_TIMEOUT;
+function showToast(msg) {
+  var el = document.getElementById('toastEl'), mg = document.getElementById('toastMsg');
+  if (!el || !mg) return; mg.textContent = msg; el.style.display = 'block'; el.classList.add('toast-in');
+  if (TOAST_TIMEOUT) clearTimeout(TOAST_TIMEOUT);
+  TOAST_TIMEOUT = setTimeout(function(){el.style.display = 'none'}, 3000);
+}
+
+function toggleTheme() {
+  var b = document.body, isD = b.getAttribute('data-theme') === 'dark';
+  b.setAttribute('data-theme', isD ? 'light' : 'dark');
+  try { localStorage.setItem('slm-theme', isD ? 'light' : 'dark'); } catch(e) {}
+  showToast('已切换至' + (isD ? '浅色' : '深色') + '主题');
+  setTimeout(function(){
+    MODULE_IDS.forEach(function(id) { try { var c = document.getElementById(id.replace('module-','chart_') + '_01'); if(c && c._ec) c._ec.resize(); } catch(e){} });
+  }, 200);
+}
+
+function openSearch() { document.getElementById('searchOverlay').classList.add('open'); setTimeout(function(){document.getElementById('searchInput').focus()}, 100); }
+function closeSearch() { document.getElementById('searchOverlay').classList.remove('open'); document.getElementById('searchResults').innerHTML = ''; }
+function doSearch() {
+  var q = document.getElementById('searchInput').value.toLowerCase(), res = document.getElementById('searchResults');
+  if (q.length < 2) { res.innerHTML = ''; return; }
+  var h = ''; SEARCH_INDEX.forEach(function(item) {
+    if (item.t.toLowerCase().indexOf(q) >= 0 || (item.c || '').toLowerCase().indexOf(q) >= 0) {
+      h += '<div onclick="closeSearch();document.getElementById(\'' + item.id + '\').scrollIntoView({behavior:\'smooth\'})"><strong>' + item.t + '</strong><br><small style="color:var(--text-muted)">' + (item.c || '').substring(0, 80) + '</small></div>';
+    }
+  });
+  res.innerHTML = h || '<div style="padding:12px;color:var(--text-muted)">未找到匹配模块</div>';
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  document.body.classList.remove('loading'); document.body.classList.add('loaded');
+
+  var sidebarNav = document.getElementById('sidebarNav');
+  var navHTML = '';
+  MODULE_IDS.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) {
+      var h2 = el.querySelector('h2');
+      var title = h2 ? h2.textContent.replace(/^\S+\s*/, '') : id;
+      var tag = el.querySelector('.m-tag');
+      var tagText = tag ? tag.textContent : '';
+      navHTML += '<li><a href="#' + id + '">' + tagText + ' ' + title + '</a></li>';
+    }
+  });
+  sidebarNav.innerHTML = navHTML;
+
+  var sideDots = document.getElementById('sideDots');
+  var dotsHTML = '';
+  MODULE_IDS.forEach(function(id, i) {
+    dotsHTML += '<div class="side-dot" title="模块' + (i + 1) + '" data-target="' + id + '"></div>';
+  });
+  sideDots.innerHTML = dotsHTML;
+
+  document.querySelectorAll('.side-dot').forEach(function(dot) {
+    dot.addEventListener('click', function() {
+      var target = document.getElementById(this.getAttribute('data-target'));
+      if (target) target.scrollIntoView({behavior: 'smooth'});
+    });
+  });
+
+  document.querySelectorAll('.sidebar-nav a').forEach(function(link) {
+    link.addEventListener('click', function(e) {
+      e.preventDefault();
+      var targetId = this.getAttribute('href');
+      var target = document.querySelector(targetId);
+      if (target) { target.scrollIntoView({behavior: 'smooth'}); }
+    });
+  });
+
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, {threshold: 0.15});
+  document.querySelectorAll('.module').forEach(function(m) { observer.observe(m); });
+
+  window.addEventListener('scroll', function() {
+    var st = document.documentElement.scrollTop, dh = document.documentElement.scrollHeight - window.innerHeight;
+    document.getElementById('progressBar').style.width = dh > 0 ? Math.min(100, (st / dh) * 100) + '%' : '0%';
+    var cur = -1;
+    document.querySelectorAll('.module').forEach(function(m, i) { if (st >= m.offsetTop - 200) cur = i; });
+    document.querySelectorAll('.side-dot').forEach(function(d, i) { d.classList.toggle('active', i === cur); });
+    document.querySelectorAll('.sidebar-nav a').forEach(function(a, i) { a.classList.toggle('active', i === cur); });
+  });
+
+  document.querySelectorAll('.derivation-toggle').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var content = this.nextElementSibling;
+      if (content) { content.classList.toggle('open'); this.textContent = content.classList.contains('open') ? '▾ 收起推导' : '▸ 展开推导'; }
+    });
+  });
+
+  try {
+    var t = localStorage.getItem('slm-theme');
+    if (t === 'light') document.body.setAttribute('data-theme', 'light');
+  } catch(e) {}
+
+  if (typeof renderMathInElement !== 'undefined') {
+    renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});
+  }
+
+  window.addEventListener('keydown', function(e) {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') { e.preventDefault(); openSearch(); }
+    if ((e.ctrlKey || e.metaKey) && e.key === 'd') { e.preventDefault(); toggleTheme(); }
+    if (e.key === 'Escape') closeSearch();
+  });
+
+  initCharts();
+});
+
+function safeChart(domId, option) {
+  var dom = document.getElementById(domId);
+  if (!dom || typeof echarts === 'undefined') return null;
+  try { var c = echarts.init(dom); c.setOption(option); dom._ec = c; return c; } catch(e) { return null; }
+}
+
+function initCharts() {
+  safeChart('chart_bg_01', {
+    tooltip: {trigger: 'axis'},
+    grid: {left: '8%', right: '4%', top: '10%', bottom: '12%'},
+    xAxis: {type: 'category', data: ['1万行', '10万行', '100万行', '1000万行', '5000万行'], axisLabel: {color: '#787878'}},
+    yAxis: {type: 'log', name: '响应时间(ms)', min: 1, axisLabel: {color: '#787878'}},
+    series: [{
+      name: '无索引', type: 'line', data: [5, 48, 520, 8900, 65000],
+      lineStyle: {color: '#c06050'}, itemStyle: {color: '#c06050'}
+    }, {
+      name: '有索引', type: 'line', data: [2, 3, 5, 12, 28],
+      lineStyle: {color: '#5a9e6f'}, itemStyle: {color: '#5a9e6f'}
+    }]
+  });
+
+  safeChart('chart_arch_01', {
+    tooltip: {trigger: 'item', formatter: '{b}: {c}'},
+    series: [{
+      type: 'tree', data: [{
+        name: 'SQL执行流水线',
+        children: [
+          {name: '连接层\n连接器/线程池', value: 10},
+          {name: '服务层\n分析器→优化器→执行器', value: 30, children: [
+            {name: '查询缓存\n(8.0已移除)', value: 5},
+            {name: '分析器\n词法/语法解析', value: 8},
+            {name: '优化器\nCBO/执行计划', value: 12},
+            {name: '执行器\n调用引擎API', value: 8}
+          ]},
+          {name: '存储引擎\nInnoDB/MyISAM', value: 20, children: [
+            {name: '缓冲池\nBuffer Pool', value: 12},
+            {name: '索引查找\nB+Tree Search', value: 8},
+            {name: '行锁管理\nRow Lock', value: 6},
+            {name: 'redo/undo log', value: 6}
+          ]}
+        ]
+      }],
+      top: '4%', left: '6%', right: '6%', bottom: '4%',
+      orient: 'LR', symbol: 'roundRect', symbolSize: [120, 36],
+      roam: true, initialTreeDepth: 2,
+      label: {position: 'right', verticalAlign: 'middle', align: 'left', color: '#a0a0a0', fontSize: 11},
+      leaves: {label: {position: 'right'}},
+      lineStyle: {color: 'rgba(91,141,184,0.3)', width: 1.5},
+      itemStyle: {borderColor: 'rgba(91,141,184,0.3)', borderWidth: 1}
+    }]
+  });
+
+  safeChart('chart_cost_01', {
+    tooltip: {trigger: 'axis'},
+    legend: {data: ['优化前', '优化后'], textStyle: {color: '#a0a0a0'}, top: '4%'},
+    grid: {left: '10%', right: '4%', top: '14%', bottom: '10%'},
+    xAxis: {type: 'category', data: ['CPU(核)', '内存(GB)', '月费用(千元)', '连接数', 'IOPS(万)'], axisLabel: {color: '#787878', fontSize: 11}},
+    yAxis: {type: 'value', axisLabel: {color: '#787878'}},
+    series: [{
+      name: '优化前', type: 'bar', data: [16, 64, 18, 500, 3.2],
+      itemStyle: {color: '#c06050'}
+    }, {
+      name: '优化后', type: 'bar', data: [8, 32, 6, 200, 0.8],
+      itemStyle: {color: '#5a9e6f'}
+    }]
+  });
+
+  safeChart('chart_bm_01', {
+    tooltip: {trigger: 'axis'},
+    legend: {data: ['冷启动', '热缓存'], textStyle: {color: '#a0a0a0'}, top: '4%'},
+    grid: {left: '10%', right: '4%', top: '14%', bottom: '10%'},
+    xAxis: {type: 'category', data: ['SQL-1\n简单查询', 'SQL-2\nJOIN', 'SQL-3\n聚合', 'SQL-4\n子查询', 'SQL-5\n窗口函数'], axisLabel: {color: '#787878', fontSize: 10}},
+    yAxis: {type: 'value', name: '响应时间(ms)', axisLabel: {color: '#787878'}},
+    series: [{
+      name: '冷启动', type: 'bar', data: [45, 230, 560, 180, 420],
+      itemStyle: {color: '#c0a060'}
+    }, {
+      name: '热缓存', type: 'bar', data: [3, 18, 45, 12, 35],
+      itemStyle: {color: '#5b8db8'}
+    }]
+  });
+
+  safeChart('chart_dev_01', {
+    tooltip: {trigger: 'axis'},
+    grid: {left: '8%', right: '4%', top: '10%', bottom: '10%'},
+    xAxis: {
+      type: 'category',
+      data: ['1990s\n硬件为王', '2000s\n索引时代', '2010s\n系统优化', '2020s\n智能自动'],
+      axisLabel: {color: '#787878', fontSize: 10}
+    },
+    yAxis: {type: 'value', name: '人工干预度', axisLabel: {color: '#787878'}},
+    series: [
+      {name: '自动化程度', type: 'line', data: [10, 25, 55, 85], smooth: true, lineStyle: {color: '#5a9e6f', width: 3}, itemStyle: {color: '#5a9e6f'}, areaStyle: {color: 'rgba(90,158,111,0.15)'}},
+      {name: '人工依赖度', type: 'line', data: [90, 75, 45, 15], smooth: true, lineStyle: {color: '#c06050', width: 3}, itemStyle: {color: '#c06050'}, areaStyle: {color: 'rgba(192,96,80,0.1)'}}
+    ]
+  });
+
+  safeChart('chart_land_01', {
+    tooltip: {trigger: 'item', formatter: '{b}: {c} ({d}%)'},
+    series: [{
+      type: 'pie', radius: ['35%', '65%'],
+      label: {color: '#a0a0a0', fontSize: 11},
+      data: [
+        {value: 30, name: 'Oracle'},
+        {value: 25, name: 'MySQL'},
+        {value: 22, name: 'PostgreSQL'},
+        {value: 12, name: 'SQL Server'},
+        {value: 6, name: 'MongoDB'},
+        {value: 5, name: '其他'}
+      ]
+    }]
+  });
+}
+
+window.addEventListener('resize', function() {
+  MODULE_IDS.forEach(function(id) {
+    try {
+      var dom = document.getElementById(id.replace('module-', 'chart_') + '_01');
+      if (dom && dom._ec) dom._ec.resize();
+    } catch(e) {}
+  });
+});
+</script>
+</body>
+</html>

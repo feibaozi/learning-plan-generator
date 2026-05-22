@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>优化理论基础 - 深度研读</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<style>
+:root{--bg:#ffffff;--bg-secondary:#f8fafc;--bg-tertiary:#f1f5f9;--text:#0f172a;--text-secondary:#475569;--text-tertiary:#94a3b8;--border:#e2e8f0;--primary:#6366f1;--primary-light:#eef2ff;--accent:#8b5cf6;--accent-light:#f5f3ff;--cyan:#22d3ee;--cyan-light:#ecfeff;--orange:#f59e0b;--orange-light:#fffbeb;--green:#10b981;--green-light:#ecfdf5;--red:#ef4444;--red-light:#fef2f2;--pink:#ec4899;--pink-light:#fdf2f8;--shadow-sm:0 1px 2px rgba(0,0,0,0.05);--shadow:0 1px 3px rgba(0,0,0,0.1);--shadow-md:0 4px 6px -1px rgba(0,0,0,0.1);--shadow-lg:0 10px 15px -3px rgba(0,0,0,0.1);--radius:12px;--radius-sm:8px;--max-width:780px;--sidebar-width:240px;--transition:0.2s cubic-bezier(0.4,0,0.2,1)}
+[data-theme="dark"]{--bg:#0f172a;--bg-secondary:#1e293b;--bg-tertiary:#334155;--text:#f1f5f9;--text-secondary:#94a3b8;--text-tertiary:#64748b;--border:#334155;--primary:#818cf8;--primary-light:rgba(99,102,241,0.15);--accent:#a78bfa;--accent-light:rgba(139,92,246,0.15);--cyan:#67e8f9;--cyan-light:rgba(34,211,238,0.1);--orange:#fbbf24;--orange-light:rgba(245,158,11,0.1);--green:#34d399;--green-light:rgba(16,185,129,0.1);--red:#f87171;--red-light:rgba(239,68,68,0.1);--pink:#f472b6;--pink-light:rgba(236,72,153,0.1);--shadow-sm:0 1px 2px rgba(0,0,0,0.3);--shadow:0 1px 3px rgba(0,0,0,0.4);--shadow-md:0 4px 6px -1px rgba(0,0,0,0.4);--shadow-lg:0 10px 15px -3px rgba(0,0,0,0.4)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Inter','SF Pro Display',-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;-webkit-font-smoothing:antialiased;transition:background var(--transition),color var(--transition)}
+body.loading{opacity:0}body.loaded{opacity:1;transition:opacity 0.4s ease}
+#progress-bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--primary),var(--accent),var(--cyan));z-index:1000;transition:width 0.1s linear}
+#theme-toggle{position:fixed;top:20px;right:20px;z-index:999;width:40px;height:40px;border-radius:50%;background:var(--bg-secondary);border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;transition:all var(--transition);box-shadow:var(--shadow-sm)}
+#theme-toggle:hover{transform:scale(1.1);box-shadow:var(--shadow)}
+#sidebar{position:fixed;top:0;left:0;width:var(--sidebar-width);height:100vh;background:var(--bg-secondary);border-right:1px solid var(--border);padding:80px 16px 24px;overflow-y:auto;z-index:100;transition:transform var(--transition)}
+#sidebar h3{font-size:11px;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-tertiary);margin-bottom:12px;font-weight:600}
+.sidebar-link{display:block;padding:6px 12px;margin:2px 0;border-radius:var(--radius-sm);font-size:13px;color:var(--text-secondary);text-decoration:none;transition:all var(--transition);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sidebar-link:hover{background:var(--bg-tertiary);color:var(--text)}
+.sidebar-link.active{background:var(--primary-light);color:var(--primary);font-weight:600}
+#main-content{margin-left:var(--sidebar-width);max-width:var(--max-width);padding:60px 32px 120px;margin-right:auto}
+.meta-card{background:linear-gradient(135deg,var(--primary-light),var(--accent-light));border:1px solid var(--border);border-radius:var(--radius);padding:28px 32px;margin-bottom:48px;display:flex;flex-wrap:wrap;gap:24px;align-items:center}
+.meta-card .meta-item{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--text-secondary)}
+.meta-badge{display:inline-block;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;letter-spacing:0.02em}
+.meta-badge.domain-ai{background:var(--accent-light);color:var(--accent)}
+.meta-badge.level-intermediate{background:var(--orange-light);color:var(--orange)}
+.module-section{margin-bottom:56px;opacity:0;transform:translateY(24px);transition:opacity 0.6s ease,transform 0.6s ease}
+.module-section.visible{opacity:1;transform:translateY(0)}
+.module-header{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.module-tag{display:inline-block;padding:3px 10px;border-radius:6px;font-size:11px;font-weight:600;letter-spacing:0.03em;text-transform:uppercase}
+.tag-core{background:var(--primary-light);color:var(--primary)}
+.tag-tools{background:var(--accent-light);color:var(--accent)}
+.tag-evolution{background:var(--cyan-light);color:#0891b2}
+.tag-application{background:var(--green-light);color:var(--green)}
+.tag-risk{background:var(--red-light);color:var(--red)}
+.tag-frontier{background:var(--orange-light);color:var(--orange)}
+.module-title{font-size:22px;font-weight:700;color:var(--text);letter-spacing:-0.02em}
+.module-hook{font-size:16px;color:var(--text-secondary);font-style:italic;border-left:3px solid var(--primary);padding-left:16px;margin-bottom:20px}
+.module-content{font-size:15px;color:var(--text)}
+.module-content p{margin-bottom:12px}
+.module-content strong{color:var(--text)}
+.module-content ul,.module-content ol{margin:8px 0 16px 24px}
+.module-content li{margin-bottom:6px}
+.formula-block{background:var(--bg-tertiary);border:1px solid var(--border);border-radius:var(--radius-sm);padding:20px 24px;margin:16px 0;position:relative;cursor:pointer;transition:all var(--transition)}
+.formula-block:hover{box-shadow:var(--shadow)}
+.formula-caption{font-size:12px;color:var(--text-tertiary);margin-top:8px;text-align:center}
+.formula-derivation{display:none;margin-top:16px;padding-top:16px;border-top:1px solid var(--border);font-size:14px;color:var(--text-secondary)}
+.formula-block.expanded .formula-derivation{display:block}
+.formula-expand-hint{font-size:11px;color:var(--text-tertiary);text-align:right;margin-top:4px}
+.chart-container{background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin:20px 0}
+.chart-wrapper{width:100%;height:380px}
+.chart-caption{font-size:13px;color:var(--text-secondary);text-align:center;margin-top:12px}
+.module-table{width:100%;border-collapse:collapse;margin:16px 0;font-size:14px;border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden}
+.module-table th{background:var(--bg-tertiary);padding:10px 16px;text-align:left;font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:0.03em;color:var(--text-secondary)}
+.module-table td{padding:10px 16px;border-top:1px solid var(--border);color:var(--text)}
+.module-table tr:hover td{background:var(--bg-tertiary)}
+.module-references{margin-top:20px;padding-top:16px;border-top:1px solid var(--border);font-size:12px;color:var(--text-tertiary)}
+.module-references h4{font-size:12px;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px}
+.module-references ol{margin-left:20px}
+.module-references li{margin-bottom:4px}
+.key-takeaway{margin-top:16px;padding:14px 20px;border-radius:var(--radius-sm);background:var(--primary-light);border-left:4px solid var(--primary);font-size:14px;font-weight:500;color:var(--text)}
+#page-footer{margin-top:60px;padding:32px 0;border-top:1px solid var(--border);display:flex;gap:12px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:var(--radius-sm);font-size:14px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:var(--bg);color:var(--text);transition:all var(--transition);text-decoration:none}
+.btn:hover{background:var(--bg-tertiary)}
+.btn.primary{background:var(--primary);color:#fff;border-color:var(--primary)}
+.btn.primary:hover{filter:brightness(1.1)}
+@media(max-width:1024px){:root{--sidebar-width:200px}#main-content{padding:48px 24px 80px}}
+@media(max-width:768px){#sidebar{transform:translateX(-100%)}#sidebar.open{transform:translateX(0)}#main-content{margin-left:0;padding:72px 20px 60px}#theme-toggle{top:16px;right:16px}.meta-card{padding:20px 24px;flex-direction:column;gap:12px;align-items:flex-start}.chart-wrapper{height:280px}.module-title{font-size:19px}}
+@media print{#sidebar,#progress-bar,#theme-toggle,#page-footer{display:none!important}#main-content{margin-left:0;max-width:100%;padding:0}.module-section{opacity:1;transform:none;break-inside:avoid}body{font-size:12px}}
+#bg-canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none}
+</style>
+</head>
+<body class="loading">
+<canvas id="bg-canvas"></canvas>
+
+<div class="integration-navbar" style="display:flex;align-items:center;gap:12px;padding:10px 24px;background:var(--bg-card,var(--bg-secondary));border-bottom:1px solid var(--border);font-size:14px;position:sticky;top:0;z-index:50;">
+  <a href="#" onclick="goBack();return false;" style="color:var(--primary);text-decoration:none;font-weight:600;">← 返回 机器学习及其统计基础与大模型 系统学习方案</a>
+  <span style="color:var(--text-tertiary);">|</span>
+  <span style="color:var(--text-secondary);">第1/5阶段 · 统计与数学基础</span>
+</div>
+
+<div id="progress-bar"></div>
+<button id="theme-toggle" title="切换深色/浅色模式" onclick="toggleTheme()">🌓</button>
+
+<nav id="sidebar">
+  <a href="#" onclick="goBack();return false;" class="sidebar-back-link" style="display:block;padding:8px 12px;margin-bottom:12px;border-radius:8px;background:var(--bg-tertiary);color:var(--primary);text-decoration:none;font-size:13px;font-weight:600;">← 返回主方案</a>
+  <h3>📑 内容导航</h3>
+  <div id="sidebar-links"></div>
+</nav>
+
+<main id="main-content">
+  <div id="meta-card-container"></div>
+  <div id="modules-container"></div>
+  <footer id="page-footer">
+    <button class="btn primary" onclick="window.print()">📥 导出 PDF</button>
+    <button class="btn" onclick="exportNotes()">📄 导出笔记</button>
+  </footer>
+</main>
+
+<div class="back-btn" style="position:fixed;right:24px;bottom:24px;z-index:200;">
+  <button onclick="goBack()" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:white;border:none;border-radius:24px;padding:12px 24px;font-size:0.85rem;font-weight:600;cursor:pointer;box-shadow:0 4px 12px rgba(99,102,241,0.3);">← 返回学习方案</button>
+</div>
+
+<script>
+var DEEP_DIVE_KP_ID = 'p1_4';
+function goBack(){
+  var MAIN_PAGE = 'ml_learning.html';
+  var WIN_NAME = '_ml_llm_main';
+  var CH_KEY = '_ml_llm_nav';
+  localStorage.setItem(CH_KEY, JSON.stringify({kpId: DEEP_DIVE_KP_ID, ts: Date.now()}));
+  var mainWin = window.open(MAIN_PAGE, WIN_NAME);
+  if(mainWin){mainWin.focus();}
+}
+
+const PAGE_DATA = {
+  topic: "优化理论基础",
+  domain: "ai-tech", domain_name: "AI与科技",
+  level: "intermediate", level_name: "进阶",
+  reading_time: "28", module_count: "14",
+  texture: "G5", texture_name: "全面平衡型", depth: "理解", breadth: "标准",
+  modules: [
+    {
+      module_id: "background", module_title: "背景与缘起", module_tag: "发展演进",
+      hook: "如果说数据是ML的燃料，模型是引擎，那么优化就是驱动一切的传动系统。没有优化，再好的模型也只是一堆无法运转的参数。",
+      content: "优化理论（Optimization Theory）的历史可以追溯到17世纪：**Newton**和**Leibniz**发明微积分后，寻找函数极值的问题自然成为核心课题。**Lagrange**在18世纪引入拉格朗日乘数法，解决了约束优化问题。**Cauchy**在1847年提出最速下降法（Steepest Descent）——这是所有梯度下降方法的始祖。\n\n20世纪中叶，**Dantzig**发明单纯形法（Simplex）解决线性规划，**Bellman**提出动态规划，**Kuhn和Tucker**建立了非线性规划的KKT条件——优化理论的三大支柱就此确立。\n\n在ML中，优化从幕后走到台前。训练神经网络本质就是：给定损失函数 $\\mathcal{L}(\\theta)$，找到 $\\theta^* = \\arg\\min_\\theta \\mathcal{L}(\\theta)$。2010年后，**SGD + Momentum + Adam**的组合成为深度学习的标准配置，而新的优化器（LION、Sophia）仍在不断涌现。\n\n**优化不是ML的某个子课题——它就是ML本身。** 每次你调用 `model.fit()`，背后就有一场优化算法在千万维参数空间中的探险。",
+      key_takeaway: "从Cauchy的最速下降法到今天的AdamW，优化理论已经演化了170年。理解它，就是理解ML模型如何'学习'的核心机制。"
+    },
+    {
+      module_id: "concept", module_title: "核心概念：梯度下降的原理与变体", module_tag: "核心概念",
+      hook: "梯度下降简单到用一行代码就能实现——但这一行代码背后，是整个优化理论的大厦。",
+      content: "**梯度下降（Gradient Descent）**的核心思想：沿着损失函数的负梯度方向迈一小步，重复直到收敛。\n\n$$\\theta_{t+1} = \\theta_t - \\eta \\nabla_\\theta \\mathcal{L}(\\theta_t)$$\n\n**为什么是负梯度？** 梯度指向函数增长最快的方向，所以负梯度指向下降最快的方向。在一阶泰勒展开的局部近似下，这是最优的局部移动方向。\n\n**三种梯度下降变体**：\n\n**1. 批量梯度下降（BGD）**：使用全部数据计算梯度\n- $\\nabla\\mathcal{L} = \\frac{1}{n}\\sum_{i=1}^n \\nabla \\mathcal{L}_i$\n- 优点：精确、稳定收敛\n- 缺点：每步都要扫全数据集，$n$ 大时不可行\n\n**2. 随机梯度下降（SGD）**：每次随机选一个样本\n- $\\nabla\\mathcal{L} \\approx \\nabla\\mathcal{L}_i$（无偏但高方差）\n- 优点：极快、可逃离局部极小值\n- 缺点：梯度震荡大、收敛路径'醉汉走路'\n\n**3. 小批量梯度下降（Mini-batch SGD）**：折中方案，batch size $B$\n- $\\nabla\\mathcal{L} \\approx \\frac{1}{B}\\sum_{i\\in\\text{batch}} \\nabla\\mathcal{L}_i$\n- 这是深度学习的事实标准——利用GPU并行计算一个batch的梯度",
+      formulas: [
+        {latex: "$$\\theta_{t+1} = \\theta_t - \\eta \\nabla_\\theta \\mathcal{L}(\\theta_t)$$", caption: "梯度下降的更新公式——ML中最重要的一行公式"},
+        {latex: "$$\\nabla\\mathcal{L} \\approx \\frac{1}{|B|}\\sum_{i\\in B} \\nabla\\mathcal{L}_i(\\theta)$$", caption: "Mini-batch SGD的梯度估计"}
+      ],
+      charts: [
+        {echarts_option: {title:{text:'不同batch size对收敛路径的影响(示意)',left:'center',textStyle:{fontSize:14}},tooltip:{trigger:'axis'},legend:{data:['BGD(全量)','SGD(b=1)','Mini-batch(b=32)']},xAxis:{type:'value',name:'迭代步数',min:0,max:100},yAxis:{type:'value',name:'Loss',min:0,max:5},series:[{name:'BGD(全量)',type:'line',smooth:true,data:(function(){var d=[];for(var i=0;i<=100;i+=2)d.push([i,5*Math.exp(-i/25)+0.02]);return d;})(),itemStyle:{color:'#6366f1'}},{name:'SGD(b=1)',type:'line',data:(function(){var d=[];for(var i=0;i<=100;i+=2){var base=5*Math.exp(-i/25)+0.02;d.push([i,base+(Math.random()-0.5)*base*0.6]);}return d;})(),itemStyle:{color:'#f59e0b'}},{name:'Mini-batch(b=32)',type:'line',data:(function(){var d=[];for(var i=0;i<=100;i+=2){var base=5*Math.exp(-i/25)+0.02;d.push([i,base+(Math.random()-0.5)*base*0.25]);}return d;})(),itemStyle:{color:'#10b981'}}]}, caption: "图：BGD平滑但慢，SGD快但抖，Mini-batch取得平衡"}
+      ],
+      key_takeaway: "BGD=精确但贵，SGD=快但抖，Mini-batch=包饺子一样刚刚好。深度学习中batch size的选择是最重要的超参数之一。"
+    },
+    {
+      module_id: "principle", module_title: "核心原理：动量与自适应学习率", module_tag: "核心概念",
+      hook: "纯SGD像是在陡峭的山路上蒙着眼走路——Momentum给了你惯性，Adam给了你地形图。",
+      content: "**动量（Momentum）** 的直觉来自物理学：一个滚下山的球会积累速度，不会因为局部凹凸而停住。\n\n$$v_{t+1} = \\beta v_t + \\nabla\\mathcal{L}(\\theta_t)$$\n$$\\theta_{t+1} = \\theta_t - \\eta v_{t+1}$$\n\n$\\beta$（通常0.9）控制'惯性'大小。动量有助于：\n- **加速收敛**：在梯度方向一致的峡谷地形中持续加速\n- **减少震荡**：在梯度方向交替变化的狭窄峡谷中，震荡互相抵消\n\n**Nesterov加速梯度（NAG）**：先按动量方向走一步，再在那里算梯度——'向前看'而非'向后看'。\n$$v_{t+1} = \\beta v_t - \\eta \\nabla\\mathcal{L}(\\theta_t + \\beta v_t)$$\n\n**自适应学习率方法**：\n\n**AdaGrad**：给每个参数独立的学习率，累积梯度平方大的参数学得慢。\n$$\\theta_{t+1} = \\theta_t - \\frac{\\eta}{\\sqrt{G_t + \\epsilon}}\\nabla\\mathcal{L}, \\quad G_t = \\sum_{\\tau=1}^t g_\\tau^2$$\n问题：$G_t$单调递增，学习率最终趋于0。\n\n**RMSprop**：用指数移动平均替代累加。\n$$\\mathbb{E}[g^2]_t = \\beta\\mathbb{E}[g^2]_{t-1} + (1-\\beta)g_t^2$$\n\n**Adam（Adaptive Moment Estimation）**：动量（一阶矩）+ RMSprop（二阶矩）+ 偏差校正。\n$$m_t = \\beta_1 m_{t-1} + (1-\\beta_1)g_t \\quad \\text{（动量）}$$\n$$v_t = \\beta_2 v_{t-1} + (1-\\beta_2)g_t^2 \\quad \\text{（自适应lr）}$$\n$$\\theta_{t+1} = \\theta_t - \\eta \\cdot \\frac{\\hat{m}_t}{\\sqrt{\\hat{v}_t}+\\epsilon}$$",
+      formulas: [
+        {latex: "$$\\theta_{t+1} = \\theta_t - \\eta \\cdot \\frac{\\hat{m}_t}{\\sqrt{\\hat{v}_t}+\\epsilon}$$", caption: "Adam的更新公式——当前DL最主流的优化器"},
+        {latex: "$$v_{t+1} = \\beta v_t - \\eta \\nabla\\mathcal{L}(\\theta_t) \\quad \\text{（Momentum）}$$", caption: "动量=过去的梯度指数加权平均"}
+      ],
+      tables: [
+        {headers: ["优化器", "核心思想", "超参数", "适用场景"], rows: [
+          ["SGD", "纯梯度方向", "lr", "baseline、fine-tuning"],
+          ["SGD+Momentum", "+惯性", "+β≈0.9", "CV任务(ResNet)标配"],
+          ["AdaGrad", "自适应学习率", "lr", "稀疏特征(NLP)场景"],
+          ["RMSprop", "指数平均自适应", "lr, β₂", "RNN训练"],
+          ["Adam", "动量+自适应+偏差校正", "lr, β₁=0.9, β₂=0.999", "通用默认, 大部分场景"],
+          ["AdamW", "Adam+解耦权重衰减", "lr, β₁, β₂, weight_decay", "Transformer训练事实标准"]
+        ], caption: "主流优化器速查表"}
+      ],
+      key_takeaway: "Momentum让SGD有了惯性，Adam让它有了'智能'——根据每个参数的历史自动调整步长。AdamW是当前大模型训练的标配。"
+    },
+    {
+      module_id: "convex", module_title: "凸优化：局部=全局的保证", module_tag: "核心概念",
+      hook: "当损失函数是凸的，你就拥有了一个超级能力：找到的任何一个局部最小值，就是全局最优。这是所有ML理论保证的基石。",
+      content: "**凸集（Convex Set）**：集合中任意两点的连线仍在集合内。\n\n**凸函数（Convex Function）**：$f(\\lambda x + (1-\\lambda)y) \\le \\lambda f(x) + (1-\\lambda)f(y)$\n几何意义：函数曲线始终在弦的下方。\n\n**凸函数的判定**：\n- 一阶条件：$f(y) \\ge f(x) + \\nabla f(x)^T(y-x)$（切线在函数下方）\n- 二阶条件：Hessian矩阵 $\\nabla^2 f(x)$ 半正定（所有特征值≥0）\n\n**为什么凸性重要？**\n- 凸函数的任何局部极小值 = 全局最小值\n- 梯度下降保证收敛到全局最优\n- 线性回归、逻辑回归（负对数似然）、SVM的hinge loss都是凸函数\n\n**强凸性（Strong Convexity）**：\n$f(y) \\ge f(x) + \\nabla f(x)^T(y-x) + \\frac{\\mu}{2}\\|y-x\\|^2$\n强凸性保证更快收敛（$O(1/T)$ vs $O(1/\\sqrt{T})$）——L2正则化就是将凸问题变为强凸问题的常见技巧。\n\n**非凸优化的现实**：深度学习中的损失函数几乎都是非凸的。所以我们失去了全局最优保证，但经验表明，SGD找到的局部极小值通常已经足够好——甚至有理论表明，过参数化的神经网络中，大部分局部极小值都接近全局最优。",
+      formulas: [
+        {latex: "$$f(\\lambda x + (1-\\lambda)y) \\le \\lambda f(x) + (1-\\lambda)f(y)$$", caption: "凸函数的定义——Jensen不等式的直接推论"},
+        {latex: "$$\\nabla^2 f(x) \\succeq 0 \\quad \\Longleftrightarrow \\quad \\text{f 是凸函数}$$", caption: "凸函数的二阶判定条件"}
+      ],
+      key_takeaway: "凸优化=局部最优=全局最优的保证。虽然DL是非凸的，但理解凸优化才能理解为什么你的模型'居然能收敛'。"
+    },
+    {
+      module_id: "development", module_title: "发展迭代：优化器的进化树", module_tag: "发展演进",
+      hook: "从原始的SGD到今天的Sophia和LION，优化器的发展史就是一部'如何更聪明地下山'的进化史。",
+      content: "**第一代：一阶方法（1847-2010）**\nCauchy最速下降（1847）、Newton法（用Hessian的二阶信息，但$O(n^3)$太贵）、共轭梯度法（CG）。\n\n**第二代：SGD时代（2010-2015）**\n深度学习的爆发让SGD成为标配。Momentum（Sutskever et al., 2013）、NAG（Nesterov, 1983）被重新发现。\n\n**第三代：自适应方法（2011-2017）**\nAdaGrad（2011）→ RMSprop（2012）→ Adam（Kingma & Ba, 2014）→ Nadam → AMSGrad。Adam统治了深度学习整整十年。\n\n**第四代：现代改良（2017-至今）**\n- **AdamW**（Loshchilov & Hutter, 2017）：解耦权重衰减，成为Transformer训练标配\n- **RAdam**：修正Adam初期方差问题\n- **LAMB**：大batch size训练的层自适应优化器\n- **LION**（Google, 2023）：基于进化策略——只有符号，没有幅度，内存减半\n- **Sophia**（Stanford, 2023）：二阶Hessian对角估计+裁剪，训练速度翻倍",
+      tables: [
+        {headers: ["优化器", "年份", "关键创新", "现状"], rows: [
+          ["SGD+Momentum", "2013", "惯性项", "CV标配(ResNet)"],
+          ["Adam", "2014", "动量+自适应+偏差校正", "统治DL十年"],
+          ["AdamW", "2017", "解耦权重衰减", "NLP/Transformer标配"],
+          ["LION", "2023", "仅用梯度符号,内存减半", "Google内部大规模使用"],
+          ["Sophia", "2023", "Hessian对角+裁剪", "训练速度显著提升"]
+        ], caption: "优化器进化简史"}
+      ],
+      key_takeaway: "优化器的进化从未停歇——从SGD到Adam用了50年，从Adam到LION用了9年，下一代优化器可能正在酝酿中。"
+    },
+    {
+      module_id: "application", module_title: "在机器学习中的关键应用", module_tag: "实践应用",
+      hook: "从线性回归的闭式解到大模型的分布式训练——优化是贯穿ML全栈的统一语言。",
+      content: "**1. 线性回归的闭式解 = 凸优化的最优解**\n$\\hat{\\beta} = (X^TX)^{-1}X^Ty$ 是 $\\|X\\beta - y\\|_2^2$ 的全局最小点。令梯度为0直接求解，无需迭代。\n\n**2. 逻辑回归 = 凸问题的SGD**\n交叉熵损失是凸的，但无闭式解——用SGD或Newton法迭代求解。\n\n**3. 神经网络训练 = 非凸优化的SGD**\n每次迭代：前向传播→计算loss→反向传播→SGD更新参数。Torch的 `optimizer.step()` 就是这一过程的最后一环。\n\n**4. SVM = 凸二次规划**\n对偶问题：$\\max_\\alpha \\sum\\alpha_i - \\frac{1}{2}\\sum\\alpha_i\\alpha_j y_i y_j K(x_i,x_j)$，SMO算法逐对优化。\n\n**5. 大模型训练的特殊优化挑战**\n- 梯度累积（Gradient Accumulation）：mini-batch太小无法用大batch时，累积多步梯度再更新\n- 混合精度训练（AMP）：FP16前向+FP32权重，加速训练\n- 梯度裁剪（Gradient Clipping）：限制梯度范数，防止梯度爆炸\n- ZeRO优化器：将优化器状态分片到多GPU（DeepSpeed的技术核心）",
+      formulas: [
+        {latex: "$$\\hat{\\beta} = (X^TX)^{-1}X^Ty$$", caption: "OLS闭式解——直接令梯度为0解出"},
+        {latex: "$$g_t \\leftarrow \\operatorname{clip}(g_t, \\text{max\\_norm})$$", caption: "梯度裁剪——当$\\|g\\|$超阈值时缩放"}
+      ],
+      key_takeaway: "从最小二乘的闭式解到GPT-4的分布式训练，优化算法的选择直接决定了模型能否训练、训练多快、效果多好。"
+    },
+    {
+      module_id: "case-study", module_title: "实战案例：从左到右写一个Mini-batch SGD", module_tag: "实践应用",
+      hook: "50行Python代码，完全从零实现SGD训练一个线性回归模型——体验优化算法的真实脉搏。",
+      content: "**场景**：用SGD训练线性回归 $y = 3x_1 - 2x_2 + 1 + \\epsilon$\n\n**完整代码（Python+Numpy）**：\n```python\nimport numpy as np\n\n# 生成数据\nnp.random.seed(42)\nX = np.random.randn(1000, 2)\ny = 3*X[:,0] - 2*X[:,1] + 1 + 0.1*np.random.randn(1000)\n\n# 初始化参数\ntheta = np.zeros(3)  # [bias, w1, w2]\nX_b = np.c_[np.ones(1000), X]  # 加bias列\nlr, epochs, batch_size = 0.01, 100, 32\n\nfor epoch in range(epochs):\n    idx = np.random.permutation(1000)\n    for i in range(0, 1000, batch_size):\n        batch_idx = idx[i:i+batch_size]\n        X_batch, y_batch = X_b[batch_idx], y[batch_idx]\n        \n        # 前向+损失\n        y_pred = X_batch @ theta\n        loss = np.mean((y_batch - y_pred)**2)\n        \n        # 梯度: dL/dθ = -2/n * X^T(y-Xθ)\n        grad = -2/len(batch_idx) * X_batch.T @ (y_batch - y_pred)\n        \n        # SGD更新\n        theta -= lr * grad\n    \n    if epoch % 20 == 0:\n        print(f'Epoch {epoch}, Loss: {loss:.6f}, theta: {theta}')\n```\n\n**关键观察**：\n1. batch size=32时，loss曲线有噪声但快速收敛\n2. 增大batch size → 噪声减小，但每步计算量增大\n3. 学习率太大 → 发散；太小 → 收敛极慢\n4. 梯度公式是反向传播的精髓：$\\frac{\\partial \\text{MSE}}{\\partial \\theta} = -\\frac{2}{n}X^T(y-X\\theta)$",
+      formulas: [
+        {latex: "$$\\frac{\\partial}{\\partial\\theta}\\frac{1}{n}\\|X\\theta - y\\|_2^2 = \\frac{2}{n}X^T(X\\theta - y)$$", caption: "MSE对参数的梯度——这是反向传播的一个具体实例"}
+      ],
+      key_takeaway: "SGD的核心不到10行代码，但其中包含着优化理论的全部智慧：梯度方向、学习率控制、batch权衡。理解这50行，你就理解了ML训练的底层。"
+    },
+    {
+      module_id: "risk", module_title: "潜在陷阱：训练不收敛的排查指南", module_tag: "风险与挑战",
+      hook: "Loss不降了、Loss突然NaN了、训练集loss降但验证集loss升——这些可能是每个ML从业者最熟悉的噩梦。",
+      content: "**陷阱1：学习率不当**\n- 太大 → Loss震荡甚至发散（NaN）：这是最常见的问题。先用1e-3，不收敛就降一个数量级。\n- 太小 → 收敛极慢（训了100个epoch loss几乎不变）\n- 建议：使用学习率finder（Leslie Smith, 2015）自动搜索合适范围\n\n**陷阱2：梯度消失/梯度爆炸**\n- 梯度消失：深层网络中梯度逐层衰减为0。解决方案：ReLU替代Sigmoid、BatchNorm、残差连接\n- 梯度爆炸：梯度指数增长为无穷。解决方案：梯度裁剪\n\n**陷阱3：学习率schedule不当**\n- 一直用大学习率 → 在最优附近'跳过'\n- 太早降到小学习率 → 困在次优解\n- 解决方案：余弦退火（Cosine Annealing）、Warmup → 先升后降\n\n**陷阱4：batch size的隐藏影响**\n- 大batch → 泛化可能变差（Keskar et al., 2016：大batch倾向于收敛到'尖锐'的极小值）\n- 小batch → 更好的泛化但训练更长\n\n**陷阱5：损失函数的设计缺陷**\n- 如果你发现loss永远是0或常数——检查是不是标签错误、最后一层激活函数不匹配",
+      key_takeaway: "训练不收敛时，按顺序检查：学习率→梯度→batch size→loss设计。90%的问题在前两步就能解决。"
+    },
+    {
+      module_id: "landscape", module_title: "损失地形：理解非凸优化的关键", module_tag: "发展演进",
+      hook: "神经网络的损失函数不是一个大碗（凸），而是一片布满丘陵、峡谷和盆地的复杂地形——理解这片地形是理解DL训练的关键。",
+      content: "**损失地形（Loss Landscape）** 研究（Li et al., 2018）带来的核心发现：\n\n**1. 鞍点比局部极小值更多**\n在高维非凸优化中，梯度为0的点大多是鞍点（某个方向是极小、另一个方向是极大），而非真正的局部极小值。SGD的噪声恰好帮助逃离鞍点。\n\n**2. 局部极小值质量相似**\n过参数化的神经网络中，大部分局部极小值在测试集上的表现接近——这意味着'找到全局最优'可能并不是关键。\n\n**3. 平坦的极小值泛化更好**\n尖锐极小值：训练loss极低，但$\\epsilon$扰动下loss剧烈上升（过拟合，泛化差）\n平坦极小值：loss略高但鲁棒（泛化好）\nSGD的噪声天然倾向于找到平坦极小值——这解释了为什么SGD比GD泛化更好。\n\n**4. 模式连接（Mode Connectivity）**\n不同初始值训练的两个模型，其最优参数之间可能存在一条低loss的'路径'——意味着解空间结构远比想象的更连通。",
+      key_takeaway: "损失地形研究告诉我们：在DL中，全局最优没那么重要，平坦极小值才是关键。SGD正是找到平坦极小值的天然工具。"
+    },
+    {
+      module_id: "issues", module_title: "当前挑战：大模型优化的新难题", module_tag: "风险与挑战",
+      hook: "当参数从百万膨胀到千亿，普通的Adam更新一次就需要TB级的显存——大模型的优化挑战已经不仅是数学问题，更是工程奇迹。",
+      content: "**挑战1：显存墙**\nAdam需要存储 $m_t$（一阶矩）和 $v_t$（二阶矩），每个都是参数量的2倍。175B参数的GPT-3 → Adam需要额外 175B×2×4bytes = 1.4TB 显存！\n- ZeRO（DeepSpeed）：将优化器状态分片到多GPU\n- LION：只用符号，不需要二阶矩存储\n\n**挑战2：通信瓶颈**\n分布式训练中，梯度AllReduce的通信量 = 参数量×GPU数。千卡集群中通信时间可能超过计算时间。\n\n**挑战3：训练不稳定性**\n- 损失尖刺（Loss Spike）：训了几千步突然loss跳变——至今没有完全理解其机理\n- 精度问题：bf16训练的模型有时在fp32评测下表现异常\n\n**挑战4：超参数调优的指数难度**\n学习率×batch size×warmup steps×weight decay×...的组合爆炸。在大模型上每个实验花费数十万美元——无法暴力搜索。\n- μTransfer：用小模型的超参数外推到大模型",
+      key_takeaway: "千亿参数时代的优化=数学+系统工程的交叉领域。理解优化理论，你才能理解ZeRO、混合精度、梯度累积这些技术的深层动机。"
+    },
+    {
+      module_id: "prospect", module_title: "发展前景：优化理论的未来方向", module_tag: "前沿探索",
+      hook: "二阶优化、学习率自动调节、神经切线核——这些前沿方向可能在下一个十年重塑我们训练模型的方式。",
+      content: "**1. 二阶优化的复兴**\nNewton法（$H^{-1}\\nabla f$）用了Hessian矩阵的信息，理论上收敛极快但计算$O(n^3)$。新方向：\n- K-FAC（Martens & Grosse, 2015）：用Kronecker分解近似Fisher信息矩阵\n- Sophia（Liu et al., 2023）：仅用Hessian对角线，比Adam训练快2倍\n\n**2. 无学习率优化**\n- LARS/LARC：根据权重范数和梯度范数自动调节每层学习率\n- 从损失函数本身推导步长：利用局部Lipschitz常数\n\n**3. 神经切线核（NTK）理论**\n无限宽神经网络在梯度下降下的动力学可以用一个固定的核函数精确描述——这为理解SGD在非凸地形上的行为提供了理论框架。\n\n**4. 优化与泛化的统一理论**\n为什么SGD找到的解泛化好？为什么大batch泛化差？这些基本问题仍然是开放的——解决它们将是优化理论的诺贝尔奖级别贡献。",
+      key_takeaway: "优化理论远未终结。当模型规模每18个月翻倍时，优化器也必须持续进化——这是ML中最活跃的基础研究领域之一。"
+    },
+    {
+      module_id: "effort-direction", module_title: "学习路径与推荐资源", module_tag: "实践应用",
+      hook: "优化需要理论和实践并重——纯看书不够，纯调参也不够。以下路径让你成为既有直觉又能debug的优化高手。",
+      content: "**推荐学习路径（总时长：约2周，每天2-3小时）**：\n\n**Day 1-3：建立手感和直觉**\n- 从零实现SGD/Momentum/Adam训练线性回归（3种优化器在同一数据上对比）\n- 可视化优化轨迹：用matplotlib画等高线和优化路径\n- 用TensorBoard或W&B监控训练过程中的学习率/gradient norm/loss关系\n\n**Day 4-7：深入理解**\n- 推导各种优化器的更新公式（从SGD到AdamW）\n- 理解凸优化的KKT条件\n- 阅读Loshchilov & Hutter (2017)的AdamW论文\n\n**Day 8-10：实践技巧**\n- 在CIFAR-10上做学习率调度实验：Cosine vs Step vs Warmup+Cosine\n- 尝试不同的batch size（16→512），观察收敛速度和泛化gap\n- 实现梯度累积和混合精度训练\n\n**Day 11-14：前沿阅读**\n- 阅读LION和Sophia论文\n- 动手使用DeepSpeed/FSDP体验分布式训练中的优化\n- 思考：为什么你的模型用了这么长时间才收敛？瓶颈在哪里？\n\n**核心资源**：\n- 📖 《Convex Optimization》(Boyd & Vandenberghe) — 凸优化的圣经\n- 📖 《Deep Learning》(Goodfellow et al.) 第8章 — DL中的优化专题\n- 📄 'An Overview of Gradient Descent Optimization Algorithms'(Ruder, 2016) — 经典的优化器综述\n- 📄 AdamW论文: 'Decoupled Weight Decay Regularization'",
+      references: [
+        {title: "An Overview of Gradient Descent Optimization Algorithms", authors: "Sebastian Ruder", year: 2016, url: "https://arxiv.org/abs/1609.04747"},
+        {title: "Decoupled Weight Decay Regularization (AdamW)", authors: "Ilya Loshchilov, Frank Hutter", year: 2017, url: "https://arxiv.org/abs/1711.05101"},
+        {title: "Convex Optimization", authors: "Stephen Boyd, Lieven Vandenberghe", year: 2004, url: "https://web.stanford.edu/~boyd/cvxbook/"}
+      ],
+      key_takeaway: "先动手写优化器代码建立肌肉记忆，再读论文理解背后的理论——这个顺序比反过来的效率高10倍。"
+    },
+    {
+      module_id: "misconceptions", module_title: "常见误区", module_tag: "风险与挑战",
+      hook: "以下关于优化的误解，即使是有经验的ML工程师也常犯。",
+      content: "**误区1：'Adam总是比SGD好'**\nAdam在训练初期收敛快，但最终精度往往不如精心调参的SGD+Momentum（尤其在CV的ImageNet训练中）。选择优化器=选择inductive bias。\n\n**误区2：'学习率越小越安全'**\n太小的lr不仅慢，而且可能被困在次优的局部极小值中。适当的大学习率反而有助于SGD逃离不好的局部极小值。\n\n**误区3：'batch size越大越好，因为算得更准'**\n大batch的梯度确实更精确（方差小），但泛化性能往往更差。因为大batch倾向于收敛到尖锐极小值，而尖锐极小值泛化不好。\n\n**误区4：'loss降到接近0就是过拟合'**\n对于容量足够大的模型（如ResNet），训练loss可以降到接近0且验证集表现仍然提升——过参数化时代'过拟合'的含义需要重新思考。\n\n**误区5：'优化的目标就是找到loss最小的参数'**\n不完全是。在ML中，优化的是**训练**loss，但真正目标是**测试**loss。优化和泛化是一对连体兄弟——只关注训练loss是优化近视症。",
+      key_takeaway: "Adam不一定比SGD好，大batch不一定比小batch好，loss最低不一定是最终目标——优化的全部智慧在于理解权衡。"
+    },
+    {
+      module_id: "glossary", module_title: "关键术语表", module_tag: "核心概念",
+      hook: "",
+      content: "以下是优化理论最重要的20个术语。",
+      tables: [
+        {headers: ["术语", "英文", "简要解释"], rows: [
+          ["梯度下降", "Gradient Descent", "沿负梯度方向迭代更新参数"],
+          ["SGD", "Stochastic GD", "每次随机选一个/一批样本算梯度"],
+          ["学习率", "Learning Rate", "$\\eta$，控制每次更新的步长"],
+          ["动量", "Momentum", "累积历史梯度以加速收敛"],
+          ["Adam", "Adaptive Moment Estimation", "动量+自适应学习率的组合优化器"],
+          ["权重衰减", "Weight Decay", "=$L_2$正则，限制参数大小"],
+          ["梯度裁剪", "Gradient Clipping", "限制梯度范数以防爆炸"],
+          ["Warmup", "Warmup", "训练初期逐步增大学习率"],
+          ["余弦退火", "Cosine Annealing", "按余弦曲线衰减学习率"],
+          ["凸函数", "Convex Function", "局部最小=全局最小"],
+          ["Hessian矩阵", "Hessian Matrix", "$\\nabla^2 f$，二阶导数矩阵"],
+          ["鞍点", "Saddle Point", "梯度为0但不是局部极值"],
+          ["损失地形", "Loss Landscape", "损失函数在参数空间中的几何形状"],
+          ["ZeRO", "Zero Redundancy Optimizer", "分布式优化中的状态分片策略"],
+          ["混合精度", "Mixed Precision (AMP)", "FP16+FP32混合精度加速训练"]
+        ], caption: "优化理论核心术语速查表"}
+      ],
+      key_takeaway: "从SGD到ZeRO——每个优化术语背后都有一段'如何让模型更快更好地训练'的工程故事。"
+    },
+    {
+      module_id: "debate", module_title: "争议：我们需要'优化'还是'采样'？", module_tag: "前沿探索",
+      hook: "SGD到底是优化算法还是采样算法？这个看似哲学的问题正在改变我们对DL训练的根本理解。",
+      content: "**'SGD=优化'派**：\nSGD的目标是找到使loss最小的参数 $\\theta^*$。我们关心Loss曲线的下降。学习率调度、动量、二阶信息——都是为了让loss降得更快更稳。\n\n**'SGD=采样'派（Bayesian视角）**：\nSGD的噪声不是bug，而是feature。它在参数空间中做的是从后验分布 $P(\\theta|D)$ 中近似采样。学习率=步长控制探索的粒度，batch size控制噪声水平。\n\n**SG-MCMC（随机梯度马尔可夫链蒙特卡洛）**是这种视角的严格形式化——当学习率以一定速率衰减时，SGD的迭代确实收敛到参数的后验分布。\n\n**这对实践意味着什么？**\n- 如果你的目标是单一的最优模型 → SGD=优化\n- 如果你的目标是模型不确定性（如Bayesian深度学习） → SGD=采样\n- 如果你在训练Ensemble模型 → 不同SGD轨迹≈从后验中采样\n\n**SWA（Stochastic Weight Averaging）**是两种视角的融合——对SGD轨迹上的多个checkpoint取平均权重，既保留了优化的效率，又获得了采样的鲁棒性。",
+      key_takeaway: "SGD的噪声不是缺点——在贝叶斯视角下，它是从后验采样的天然工具。理解这一点，你对DL训练的认识会跃升一个层次。"
+    }
+  ]
+};
+
+function applyTheme(theme){
+  document.documentElement.setAttribute('data-theme', theme);
+  localStorage.setItem('slm-theme', theme);
+  updateThemeIcon();
+  Object.values(activeCharts).forEach(function(chart){
+    var opt = chart.getOption();
+    chart.setOption(createThemedOption(opt), {notMerge: false});
+  });
+}
+function toggleTheme(){
+  var current = document.documentElement.getAttribute('data-theme') || 'light';
+  applyTheme(current === 'dark' ? 'light' : 'dark');
+}
+function updateThemeIcon(){
+  var t = document.getElementById('theme-toggle');
+  t.textContent = document.documentElement.getAttribute('data-theme') === 'dark' ? '☀️' : '🌓';
+}
+var activeCharts = {};
+var sidebarLinks = [];
+var savedTheme = localStorage.getItem('slm-theme') || 'dark';
+applyTheme(savedTheme);
+
+window.addEventListener('scroll', function(){
+  var scrollTop = window.scrollY;
+  var docHeight = document.documentElement.scrollHeight - window.innerHeight;
+  var progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+  document.getElementById('progress-bar').style.width = progress + '%';
+});
+
+function buildSidebar(){
+  var container = document.getElementById('sidebar-links');
+  sidebarLinks = [];
+  PAGE_DATA.modules.forEach(function(mod){
+    var a = document.createElement('a');
+    a.href = '#' + mod.module_id;
+    a.className = 'sidebar-link';
+    a.textContent = mod.module_title || mod.module_id;
+    a.addEventListener('click', function(e){
+      e.preventDefault();
+      document.getElementById(mod.module_id).scrollIntoView({behavior: 'smooth'});
+    });
+    container.appendChild(a);
+    sidebarLinks.push({el: a, id: mod.module_id});
+  });
+}
+
+var observer = new IntersectionObserver(function(entries){
+  entries.forEach(function(entry){
+    if(entry.isIntersecting){
+      sidebarLinks.forEach(function(link){link.el.classList.toggle('active', link.id === entry.target.id);});
+    }
+  });
+}, {rootMargin: '-80px 0px -60% 0px'});
+
+function buildMetaCard(){
+  var md = PAGE_DATA;
+  document.getElementById('meta-card-container').innerHTML =
+    '<div class="meta-card">'+
+    '<div style="width:100%"><span class="meta-badge domain-ai" style="margin-right:8px">🔗 📚 机器学习及其统计基础与大模型 系统学习方案 · 统计与数学基础（1/5）</span></div>'+
+    '<div class="meta-item"><span class="icon">📖</span><strong>'+md.topic+'</strong></div>'+
+    '<div class="meta-item"><span class="meta-badge domain-ai">'+md.domain_name+'</span></div>'+
+    '<div class="meta-item"><span class="meta-badge level-intermediate">'+md.level_name+'</span></div>'+
+    '<div class="meta-item"><span class="icon">⏱️</span>约'+md.reading_time+'分钟阅读</div>'+
+    '<div class="meta-item"><span class="icon">📦</span>'+md.module_count+'个模块</div></div>';
+}
+
+function renderFormulas(container){
+  if(typeof renderMathInElement !== 'undefined'){
+    renderMathInElement(container, {delimiters: [{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}], throwOnError: false});
+  }
+}
+function createThemedOption(existingOpt){
+  var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  var color = isDark ? ['#818cf8','#a78bfa','#c4b5fd','#67e8f9','#fbbf24','#34d399','#f87171','#f472b6'] : ['#6366f1','#8b5cf6','#a78bfa','#22d3ee','#f59e0b','#10b981','#ef4444','#ec4899'];
+  return {color: color};
+}
+function renderChart(moduleId, chartConfig, index){
+  var chartId = 'chart_' + moduleId + '_' + index;
+  var wrapper = document.getElementById(chartId);
+  if(!wrapper) return;
+  if(typeof echarts === 'undefined'){wrapper.innerHTML='<div style="text-align:center;padding:20px;color:var(--text-tertiary);font-size:13px;">📊 图表(静态模式)<br><small>加载CDN后可交互</small></div>';return;}
+  try{
+    var chart = echarts.init(wrapper);
+    chart.setOption(createThemedOption(chartConfig.echarts_option||{}));
+    activeCharts[chartId] = chart;
+    new ResizeObserver(function(){chart.resize();}).observe(wrapper);
+  }catch(e){wrapper.textContent = '图表渲染失败: ' + e.message;}
+}
+
+function buildModuleHTML(mod){
+  var tagClass = (function(t){
+    var m = {'核心概念':'tag-core','前置知识':'tag-core','核心工具':'tag-tools','发展演进':'tag-evolution','实践应用':'tag-application','风险与挑战':'tag-risk','前沿探索':'tag-frontier'};
+    return m[t] || 'tag-core';
+  })(mod.module_tag||'');
+  var html = '<section class="module-section" id="'+mod.module_id+'"><div class="module-header"><span class="module-tag '+tagClass+'">'+(mod.module_tag||'')+'</span><h2 class="module-title">'+(mod.module_title||mod.module_id)+'</h2></div>';
+  if(mod.hook) html += '<div class="module-hook">'+mod.hook+'</div>';
+  if(mod.content){
+    var c = mod.content;
+    c = c.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
+    c = c.replace(/`([^`]+)`/g,'<code style="background:var(--bg-tertiary);padding:2px 6px;border-radius:4px;font-size:13px;">$1</code>');
+    c = c.replace(/\n\n/g,'</p><p>');
+    c = '<p>' + c + '</p>';
+    html += '<div class="module-content">'+c+'</div>';
+  }
+  if(mod.formulas) mod.formulas.forEach(function(f){
+    html += '<div class="formula-block" onclick="if(this.querySelector(\'.formula-derivation\'))this.classList.toggle(\'expanded\')"><div>'+f.latex+'</div>'+
+      (f.caption?'<div class="formula-caption">'+f.caption+'</div>':'')+
+      (f.expandable&&f.derivation?'<div class="formula-expand-hint">💡 点击展开推导过程</div><div class="formula-derivation">'+f.derivation+'</div>':'')+'</div>';
+  });
+  if(mod.charts) mod.charts.forEach(function(c,i){html += '<div class="chart-container"><div class="chart-wrapper" id="chart_'+mod.module_id+'_'+i+'"></div>'+(c.caption?'<div class="chart-caption">'+c.caption+'</div>':'')+'</div>';});
+  if(mod.tables) mod.tables.forEach(function(t){
+    html += '<table class="module-table"><thead><tr>'+t.headers.map(function(h){return '<th>'+h+'</th>';}).join('')+'</tr></thead><tbody>'+
+      t.rows.map(function(r){return '<tr>'+r.map(function(c){return '<td>'+c+'</td>';}).join('')+'</tr>';}).join('')+'</tbody></table>'+
+      (t.caption?'<div class="table-caption" style="font-size:12px;color:var(--text-tertiary);text-align:center;margin-top:8px">'+t.caption+'</div>':'');
+  });
+  if(mod.references) html += '<div class="module-references"><h4>📚 参考文献</h4><ol>'+mod.references.map(function(r){
+    return '<li>'+(r.authors||'')+' ('+(r.year||'')+'). <strong>'+(r.title||'')+'</strong>.'+(r.url?' <a href="'+r.url+'" target="_blank" style="color:var(--primary)">链接</a>':'')+'</li>';
+  }).join('')+'</ol></div>';
+  if(mod.key_takeaway) html += '<div class="key-takeaway">💡 '+mod.key_takeaway+'</div>';
+  html += '</section>';
+  return html;
+}
+
+function initPage(){
+  document.body.classList.remove('loading');
+  document.body.classList.add('loaded');
+  buildMetaCard();
+  buildSidebar();
+  var mc = document.getElementById('modules-container');
+  PAGE_DATA.modules.forEach(function(mod){mc.innerHTML += buildModuleHTML(mod);});
+  var sections = mc.querySelectorAll('.module-section');
+  sections.forEach(function(sec){observer.observe(sec);});
+  renderFormulas(mc);
+  setTimeout(function(){
+    PAGE_DATA.modules.forEach(function(mod){
+      if(mod.charts) mod.charts.forEach(function(c,i){renderChart(mod.module_id,c,i);});
+    });
+  },100);
+  var fObs = new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting)e.target.classList.add('visible');});},{threshold:0.08});
+  sections.forEach(function(sec){fObs.observe(sec);});
+}
+document.addEventListener('DOMContentLoaded', initPage);
+
+function exportNotes(){
+  var lines = ['# '+PAGE_DATA.topic+' - 学习笔记','','生成日期: '+new Date().toLocaleDateString('zh-CN'),''];
+  PAGE_DATA.modules.forEach(function(m){lines.push('- **'+(m.module_title||m.module_id)+'**: '+(m.key_takeaway||m.hook||''));});
+  if(navigator.clipboard){navigator.clipboard.writeText(lines.join('\n')).then(function(){alert('✅ 学习笔记已复制到剪贴板!');});}
+  else{alert('复制失败，请手动选择复制');}
+}
+
+(function(){
+  var cv = document.getElementById('bg-canvas');
+  var ctx = cv.getContext('2d');
+  var particles=[];
+  function rsz(){cv.width=window.innerWidth;cv.height=window.innerHeight;}
+  window.addEventListener('resize',rsz);rsz();
+  var count = Math.min(60,Math.floor((cv.width*cv.height)/20000));
+  for(var i=0;i<count;i++) particles.push({x:Math.random()*cv.width,y:Math.random()*cv.height,vx:(Math.random()-0.5)*0.3,vy:(Math.random()-0.5)*0.3,r:Math.random()*1.5+0.3,a:Math.random()*0.3+0.05});
+  function animate(){
+    ctx.clearRect(0,0,cv.width,cv.height);
+    var isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+    var c = isDark?'129,140,248':'99,102,241';
+    particles.forEach(function(p){
+      p.x+=p.vx;p.y+=p.vy;
+      if(p.x<0)p.x=cv.width;if(p.x>cv.width)p.x=0;
+      if(p.y<0)p.y=cv.height;if(p.y>cv.height)p.y=0;
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,6.28);
+      ctx.fillStyle='rgba('+c+','+p.a+')';ctx.fill();
+    });
+    for(var j=0;j<particles.length;j++) for(var k=j+1;k<particles.length;k++){
+      var dx=particles[j].x-particles[k].x,dy=particles[j].y-particles[k].y,d=Math.sqrt(dx*dx+dy*dy);
+      if(d<110){ctx.beginPath();ctx.moveTo(particles[j].x,particles[j].y);ctx.lineTo(particles[k].x,particles[k].y);ctx.strokeStyle='rgba('+c+','+(0.06*(1-d/110))+')';ctx.lineWidth=0.5;ctx.stroke();}
+    }
+    requestAnimationFrame(animate);
+  }
+  animate();
+})();
+</script>
+</body>
+</html>

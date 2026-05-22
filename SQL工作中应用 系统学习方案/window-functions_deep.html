@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>窗口函数实战 - 深度研读</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<style>
+:root{
+--bg-deep:#0d0d0d;--bg-primary:#141414;--bg-card:#1a1a1a;
+--bg-elevated:#222222;--bg-input:#1c1c1c;
+--text-primary:#ededed;--text-secondary:#a0a0a0;--text-muted:#787878;
+--accent-blue:#5b8db8;--accent-cyan:#6ea8c0;--accent-purple:#8878a8;
+--accent-green:#5a9e6f;--accent-orange:#c0a060;--accent-pink:#b87888;
+--accent-red:#c06050;--accent-gold:#c0a060;
+--border-subtle:rgba(255,255,255,0.06);--border-glow:rgba(91,141,184,0.20);
+--shadow-sm:0 1px 3px rgba(0,0,0,0.3);--shadow-md:0 4px 12px rgba(0,0,0,0.4);
+--radius-sm:6px;--radius-md:10px;--radius-lg:16px;
+--transition-fast:0.15s ease;--transition-smooth:0.3s ease;
+}
+body.light{
+--bg-deep:#fafafa;--bg-primary:#ffffff;--bg-card:#f5f5f5;
+--bg-elevated:#eeeeee;--bg-input:#e5e5e5;
+--text-primary:#121212;--text-secondary:#4a4a4a;--text-muted:#5e5e5e;
+--accent-blue:#3a6088;--accent-cyan:#3a7888;--accent-purple:#5a4878;
+--accent-green:#3d8055;--accent-orange:#886830;--accent-pink:#884858;
+--accent-red:#983830;--accent-gold:#886830;
+--border-subtle:rgba(18,18,18,0.08);--border-glow:rgba(58,96,136,0.20);
+--shadow-sm:0 1px 3px rgba(0,0,0,0.06);--shadow-md:0 4px 12px rgba(0,0,0,0.08);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter','Noto Sans SC',-apple-system,sans-serif;background:var(--bg-deep);color:var(--text-primary);line-height:1.7}
+body.loading{opacity:0}body.loaded{opacity:1;transition:opacity 0.4s ease}
+.meta-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-lg);padding:20px 24px;margin-bottom:24px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;position:relative;overflow:hidden}
+.meta-card::before{content:'';position:absolute;top:-50%;right:-20%;width:100%;height:100%;background:radial-gradient(ellipse at center,#6ea8c0 0%,transparent 60%);opacity:0.08}
+.meta-card>*{position:relative;z-index:1}
+.meta-title{font-size:1.5rem;font-weight:800;color:var(--accent-cyan)}
+.meta-tags{display:flex;gap:8px;flex-wrap:wrap}
+.meta-tag{padding:4px 14px;border-radius:50px;font-size:0.75rem;font-weight:600}
+.meta-tag.domain{background:rgba(110,168,192,0.1);color:var(--accent-cyan);border:1px solid rgba(110,168,192,0.2)}
+.meta-tag.level{background:rgba(192,160,96,0.1);color:var(--accent-orange);border:1px solid rgba(192,160,96,0.2)}
+.meta-stats{display:flex;gap:20px;margin-left:auto}
+.meta-stat{text-align:center}
+.meta-stat .num{font-size:1.4rem;font-weight:700;color:var(--accent-cyan)}
+.meta-stat .lbl{font-size:0.68rem;color:var(--text-muted)}
+.sidebar{position:fixed;left:0;top:0;height:100vh;width:280px;background:var(--bg-primary);border-right:1px solid var(--border-subtle);padding:24px;overflow-y:auto;z-index:100}
+.sidebar h3{font-size:0.85rem;font-weight:700;color:var(--text-secondary);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--border-subtle)}
+.sidebar-nav{list-style:none;padding:0}
+.sidebar-nav li{margin-bottom:4px}
+.sidebar-nav a{display:block;padding:10px 12px;border-radius:var(--radius-md);text-decoration:none;font-size:0.78rem;color:var(--text-secondary);transition:all var(--transition-fast)}
+.sidebar-nav a:hover{background:rgba(110,168,192,0.08);color:var(--accent-cyan)}
+.sidebar-nav a.active{background:rgba(110,168,192,0.12);color:var(--accent-cyan);font-weight:600}
+.sidebar-back-link{display:block;padding:8px 12px;margin-bottom:12px;border-radius:8px;background:var(--bg-elevated);color:var(--accent-blue);text-decoration:none;font-size:13px;font-weight:600}
+.content-area{margin-left:300px;padding:32px 24px;max-width:calc(100% - 320px)}
+@media(max-width:1024px){.sidebar{display:none}.content-area{margin-left:0;max-width:100%}}
+.module{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-lg);padding:32px;margin-bottom:24px;transition:all var(--transition-smooth)}
+.module:hover{border-color:var(--border-glow)}
+.module-header{margin-bottom:24px}
+.module-tag{display:inline-block;padding:4px 12px;border-radius:50px;font-size:0.68rem;font-weight:700;margin-bottom:10px;background:rgba(110,168,192,0.1);color:var(--accent-cyan)}
+.module-title{font-size:1.4rem;font-weight:800;margin-bottom:8px}
+.module-hook{font-size:0.9rem;color:var(--accent-purple);font-style:italic;margin-bottom:16px}
+.module-content{font-size:0.92rem;color:var(--text-secondary);line-height:1.8}
+.module-content p{margin-bottom:14px}
+.module-content ul, .module-content ol{margin:14px 0;padding-left:24px}
+.module-content li{margin-bottom:8px}
+.module-content strong{color:var(--text-primary);font-weight:600}
+.module-content em{color:var(--accent-orange)}
+.module-content pre{background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:var(--radius-sm);padding:16px 20px;overflow-x:auto;margin:14px 0;font-size:0.82rem;font-family:'JetBrains Mono',Consolas,monospace;color:var(--accent-cyan);line-height:1.6}
+.formula-box{background:var(--bg-elevated);border:1px solid var(--border-glow);border-radius:var(--radius-md);padding:20px;margin:20px 0;overflow-x:auto}
+.formula-box .formula-caption{font-size:0.75rem;color:var(--text-muted);margin-bottom:8px;text-align:center}
+.formula-box .formula-content{font-size:1rem;text-align:center;color:var(--accent-blue)}
+.formula-box .formula-derivation{margin-top:12px;padding-top:12px;border-top:1px solid var(--border-subtle);font-size:0.82rem;color:var(--text-secondary)}
+.chart-container{margin:20px 0;border-radius:var(--radius-md);overflow:hidden}
+.chart-container .chart-caption{font-size:0.75rem;color:var(--text-muted);margin-bottom:8px;text-align:center}
+.chart-wrapper{height:400px;background:var(--bg-elevated)}
+@media(max-width:768px){.chart-wrapper{height:300px}}
+.table-container{margin:20px 0;overflow-x:auto}
+.table-container table{width:100%;border-collapse:collapse}
+.table-container th{background:var(--bg-elevated);color:var(--accent-cyan);font-weight:700;padding:12px 16px;text-align:left;font-size:0.8rem}
+.table-container td{padding:12px 16px;border-bottom:1px solid var(--border-subtle);font-size:0.85rem;color:var(--text-secondary)}
+.table-container tr:hover td{background:rgba(110,168,192,0.03)}
+.key-takeaway{background:linear-gradient(135deg,rgba(192,160,96,0.08),rgba(192,160,96,0.02));border-left:4px solid var(--accent-gold);padding:16px 20px;border-radius:0 var(--radius-md) var(--radius-md) 0;margin-top:20px}
+.key-takeaway strong{color:var(--accent-gold);font-weight:700}
+.key-takeaway p{color:var(--text-secondary);font-size:0.88rem;margin:0}
+.references{margin-top:24px;padding-top:20px;border-top:1px solid var(--border-subtle)}
+.references h4{font-size:0.85rem;font-weight:700;color:var(--text-primary);margin-bottom:12px}
+.reference-item{padding:10px 14px;background:var(--bg-elevated);border-radius:var(--radius-sm);margin-bottom:8px;font-size:0.82rem}
+.reference-item .ref-title{color:var(--text-primary);font-weight:600}
+.reference-item .ref-authors{color:var(--accent-cyan);margin:4px 0}
+.reference-item .ref-meta{color:var(--text-muted);font-size:0.75rem}
+.theme-toggle{position:fixed;right:20px;top:20px;z-index:200;background:var(--bg-card);border:1px solid var(--border-subtle);padding:10px;border-radius:50%;cursor:pointer;color:var(--text-muted);transition:all var(--transition-fast)}
+.theme-toggle:hover{border-color:var(--border-glow);color:var(--accent-cyan)}
+.back-btn{position:fixed;right:20px;bottom:20px;z-index:200}
+.back-btn button{background:linear-gradient(135deg,#6ea8c0,#5b8db8);color:white;border:none;border-radius:24px;padding:12px 24px;font-size:0.85rem;font-weight:600;cursor:pointer;box-shadow:0 4px 12px rgba(110,168,192,0.3);transition:all var(--transition-fast)}
+.back-btn button:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(110,168,192,0.4)}
+.integration-navbar{display:flex;align-items:center;gap:12px;padding:10px 24px;background:var(--bg-card);border-bottom:1px solid var(--border-subtle);font-size:14px;position:sticky;top:0;z-index:50}
+.integration-navbar a{color:var(--accent-blue);text-decoration:none;font-weight:600}
+</style>
+</head>
+<body class="loading dark">
+<script>var DEEP_DIVE_KP_ID = 'p2_3';</script>
+
+<div class="integration-navbar">
+  <a href="#" onclick="goBack();return false;">← 返回 SQL及其在工作中应用 系统学习方案</a>
+  <span style="color:var(--text-muted)">|</span>
+  <span style="color:var(--text-secondary)">第2/4阶段 · 工作中综合应用</span>
+</div>
+
+<button class="theme-toggle" onclick="toggleTheme()" title="切换主题">🌓</button>
+
+<div class="sidebar">
+  <a href="#" onclick="goBack();return false;" class="sidebar-back-link">← 返回主方案</a>
+  <h3>📖 目录导航</h3>
+  <ul class="sidebar-nav">
+    <li><a href="#background" class="active">背景与缘起</a></li>
+    <li><a href="#concept">核心概念</a></li>
+    <li><a href="#principle">核心原理</a></li>
+    <li><a href="#architecture">窗口帧模型</a></li>
+    <li><a href="#development">发展迭代</a></li>
+    <li><a href="#application">实践应用</a></li>
+    <li><a href="#case-study">实践案例</a></li>
+    <li><a href="#risk">潜在风险</a></li>
+    <li><a href="#landscape">数据库差异</a></li>
+    <li><a href="#issues">常见问题</a></li>
+    <li><a href="#prospect">发展趋势</a></li>
+    <li><a href="#effort-direction">学习建议</a></li>
+    <li><a href="#misconceptions">常见误区</a></li>
+    <li><a href="#learning-path">学习路径</a></li>
+    <li><a href="#glossary">关键术语表</a></li>
+    <li><a href="#debate">争议与讨论</a></li>
+  </ul>
+</div>
+
+<div class="content-area">
+  <div class="meta-card">
+    <div>
+      <div class="meta-title">🪟 窗口函数实战</div>
+      <div class="meta-tags">
+        <span class="meta-tag domain">🏷️ 数据库/技术</span>
+        <span class="meta-tag level">🎯 进阶(理解×标准)</span>
+      </div>
+    </div>
+    <div class="meta-stats">
+      <div class="meta-stat"><div class="num">16</div><div class="lbl">模块</div></div>
+      <div class="meta-stat"><div class="num">4</div><div class="lbl">图表</div></div>
+      <div class="meta-stat"><div class="num">3</div><div class="lbl">公式</div></div>
+      <div class="meta-stat"><div class="num">7</div><div class="lbl">参考文献</div></div>
+    </div>
+  </div>
+
+  <section id="background" class="module">
+    <div class="module-header">
+      <span class="module-tag">基础背景</span>
+      <h2 class="module-title">背景与缘起</h2>
+      <p class="module-hook">GROUP BY把明细数据聚合得面目全非——窗口函数的出现，让"既不丢失明细行，又能做跨行计算"的梦想成真</p>
+    </div>
+    <div class="module-content">
+      <p>在窗口函数出现之前，SQL有一个<strong>根本性的矛盾</strong>：分组聚合（GROUP BY）会压扁明细数据，但业务分析经常需要在保留每行详情的同时计算同组统计量。比如"每行显示员工薪资+本部门平均薪资"——用标准聚合做不到这一点。</p>
+      <p>这个困境的解决方案是窗口函数（Window Function）。它于2003年首次出现在SQL:2003标准中，由数据库理论家<em>Jim Melton</em>等人推动。核心理念：定义一个"窗口"（一组行的集合），对窗口内每行独立计算函数值，<strong>不减少行数、不破坏原有行顺序</strong>。</p>
+      <p>PostgreSQL 8.4（2009）率先实现，Oracle和SQL Server随后，MySQL是最晚的一个——直到8.0（2018）才正式支持。今天窗口函数已成为数据分析师和BI工程师的必备技能，在排名、同比环比、移动平均、累计求和等场景中无处不在。</p>
+    </div>
+    <div class="key-takeaway"><strong>核心要点：</strong><p>窗口函数的本质是"在不改变结果集行数前提下，对每一行计算基于其窗口范围的值"。它解决了聚合函数丢失行级细节的痛点，是SQL分析能力的质变。</p></div>
+  </section>
+
+  <section id="concept" class="module">
+    <div class="module-header">
+      <span class="module-tag">核心概念</span>
+      <h2 class="module-title">核心概念</h2>
+      <p class="module-hook">ROW_NUMBER排序，RANK处理并列，LAG看上一行——窗口函数家族速览</p>
+    </div>
+    <div class="module-content">
+      <p>窗口函数可以分为三大类：</p>
+
+      <h3 style="color:var(--accent-cyan);font-size:1.1rem;margin:20px 0 12px">1. 排名函数（Ranking Functions）</h3>
+      <table class="table-container"><table>
+        <thead><tr><th>函数</th><th>行为</th><th>并列处理</th></tr></thead>
+        <tbody>
+        <tr><td><strong>ROW_NUMBER()</strong></td><td>分配唯一连续序号（1,2,3,4...）</td><td>无并列，随机决定顺序</td></tr>
+        <tr><td><strong>RANK()</strong></td><td>排名，并列占位（1,2,2,4...）</td><td>并列跳过后续序号</td></tr>
+        <tr><td><strong>DENSE_RANK()</strong></td><td>排名，并列不占位（1,2,2,3...）</td><td>并列不跳过序号</td></tr>
+        <tr><td><strong>NTILE(N)</strong></td><td>将数据均分为N个桶</td><td>分配桶号1~N</td></tr>
+        </tbody>
+      </table></table>
+
+      <h3 style="color:var(--accent-cyan);font-size:1.1rem;margin:20px 0 12px">2. 偏移函数（Offset Functions）</h3>
+      <p><strong>LAG(expr, offset, default)</strong>：获取<em>前offset行</em>的值，用于环比计算。<strong>LEAD(expr, offset, default)</strong>：获取<em>后offset行</em>的值。它们让你无需自连接就能访问相邻行。</p>
+      <pre>SELECT date, revenue,
+  LAG(revenue, 1) OVER (ORDER BY date) AS prev_day_rev,
+  revenue - LAG(revenue, 1) OVER (ORDER BY date) AS change
+FROM daily_sales;</pre>
+
+      <h3 style="color:var(--accent-cyan);font-size:1.1rem;margin:20px 0 12px">3. 聚合窗口函数</h3>
+      <p>SUM/AVG/COUNT/MIN/MAX都可以配备OVER子句变成窗口函数。与标准聚合的区别：<strong>不压缩行</strong>。</p>
+
+      <div class="chart-container">
+        <div class="chart-caption">图：窗口函数分类与关系</div>
+        <div class="chart-wrapper" id="window-class-chart"></div>
+      </div>
+    </div>
+    <div class="key-takeaway"><strong>核心要点：</strong><p>排名函数（ROW_NUMBER/RANK/DENSE_RANK/NTILE）、偏移函数（LAG/LEAD）、聚合窗口函数（SUM OVER等）构成了窗口函数的三大支柱。</p></div>
+  </section>
+
+  <section id="principle" class="module">
+    <div class="module-header">
+      <span class="module-tag">核心原理</span>
+      <h2 class="module-title">核心原理</h2>
+      <p class="module-hook">PARTITION BY分窗口，ORDER BY定顺序，ROWS/RANGE画边界——窗口函数的三要素</p>
+    </div>
+    <div class="module-content">
+      <p>窗口函数的完整语法：</p>
+      <div class="formula-box">
+        <div class="formula-caption">窗口函数语法结构</div>
+        <div class="formula-content">$$FUNC(expr)\ \text{OVER}\ ([\text{PARTITION BY}\ col]\ [\text{ORDER BY}\ col]\ [\text{ROWS/RANGE frame}])$$</div>
+        <div class="formula-derivation"><strong>三要素解析：</strong><br/>
+        1. <strong>PARTITION BY</strong>：将数据划分为互不重叠的分组（窗口分区），每个分区独立计算<br/>
+        2. <strong>ORDER BY</strong>：定义分区内行的排序顺序，是偏移函数和累计聚合的基础<br/>
+        3. <strong>窗口帧（Window Frame）</strong>：定义当前行"能看见"的行范围（ROWS按物理行号，RANGE按值范围）
+        </div>
+      </div>
+
+      <h3 style="color:var(--accent-purple);font-size:1.1rem;margin:20px 0 12px">窗口帧详解</h3>
+      <p>窗口帧定义了"窗口中的窗口"——从整个分区中划出一段范围作为当前行的计算域：</p>
+      <ul>
+        <li><strong>ROWS BETWEEN 6 PRECEDING AND CURRENT ROW</strong>：当前行+前6行（共7行，移动平均常用）</li>
+        <li><strong>ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW</strong>：分区首行到当前行（累计求和）</li>
+        <li><strong>RANGE BETWEEN INTERVAL '7' DAY PRECEDING AND CURRENT ROW</strong>：日期范围内的行</li>
+      </ul>
+      <p><strong>ROWS vs RANGE的关键区别</strong>：ROWS按<em>物理位置</em>计数（第1行、第2行...），RANGE按<em>排序键的值</em>计数。当ORDER BY列有重复值时，ROWS和RANGE的行为截然不同。</p>
+
+      <h3 style="color:var(--accent-purple);font-size:1.1rem;margin:20px 0 12px">SQL逻辑执行顺序中的窗口函数</h3>
+      <p>窗口函数在WHERE、GROUP BY、HAVING之后，ORDER BY之前执行。这意味着<strong>不能在WHERE中直接引用窗口函数的结果</strong>，必须用子查询或CTE包裹。</p>
+    </div>
+    <div class="key-takeaway"><strong>核心要点：</strong><p>窗口函数=PARTITION BY（分窗）+ ORDER BY（排序）+ 窗口帧（范围）。ROWS按物理行、RANGE按值。窗口函数在WHERE后执行，不能直接在WHERE中引用——这是最常见的语法坑。</p></div>
+  </section>
+
+  <section id="architecture" class="module">
+    <div class="module-header">
+      <span class="module-tag">窗口帧</span>
+      <h2 class="module-title">窗口帧模型</h2>
+      <p class="module-hook">理解窗口帧就是理解窗口函数——三种帧模式的直观对比</p>
+    </div>
+    <div class="module-content">
+      <p>窗口帧定义了"当前行能看到哪些行"，以下是三种典型帧模式的对比：</p>
+      <table class="table-container"><table>
+        <thead><tr><th>模式</th><th>帧定义</th><th>典型用途</th><th>示例</th></tr></thead>
+        <tbody>
+        <tr><td>累计模式</td><td>UNBOUNDED PRECEDING ~ CURRENT ROW</td><td>累计求和/计数</td><td>monthly cumulative revenue</td></tr>
+        <tr><td>滑动窗口</td><td>N PRECEDING ~ CURRENT ROW</td><td>移动平均</td><td>7日移动平均股价</td></tr>
+        <tr><td>完整分区</td><td>UNBOUNDED PRECEDING ~ UNBOUNDED FOLLOWING</td><td>分区内整体统计</td><td>占总比/全组平均</td></tr>
+        </tbody>
+      </table></table>
+      <div class="chart-container">
+        <div class="chart-caption">图：三种窗口帧模式的滑动示意</div>
+        <div class="chart-wrapper" id="frame-chart"></div>
+      </div>
+    </div>
+    <div class="key-takeaway"><strong>核心要点：</strong><p>窗口帧=当前行的视界。UNBOUNDED PRECEDING→累计，N PRECEDING→滑动窗口，完整分区→分组统计。默认帧是RANGE UNBOUNDED PRECEDING~CURRENT ROW。</p></div>
+  </section>
+
+  <section id="development" class="module">
+    <div class="module-header">
+      <span class="module-tag">发展历程</span>
+      <h2 class="module-title">发展迭代</h2>
+    </div>
+    <div class="module-content">
+      <table class="table-container"><table>
+        <thead><tr><th>时间</th><th>里程碑</th><th>影响</th></tr></thead>
+        <tbody>
+        <tr><td>2003</td><td>SQL:2003标准引入窗口函数</td><td>窗口函数正式标准化</td></tr>
+        <tr><td>2009</td><td>PostgreSQL 8.4率先实现</td><td>开源数据库窗口函数先驱</td></tr>
+        <tr><td>2012-2018</td><td>SQL Server/Oracle完善窗口函数</td><td>商业数据库全面支持</td></tr>
+        <tr><td>2018</td><td>MySQL 8.0引入窗口函数+CTE</td><td>MySQL补上最大功能短板</td></tr>
+        <tr><td>2019+</td><td>窗口函数优化：并行+增量计算</td><td>大表窗口函数性能飞跃</td></tr>
+        </tbody>
+      </table></table>
+      <p>MySQL 8.0的窗口函数实现使用了<strong>Filesort</strong>和<strong>临时表</strong>，而PostgreSQL通过索引扫描可避免额外排序。在大数据量下，两者的性能差距可达数倍。</p>
+    </div>
+    <div class="key-takeaway"><strong>核心要点：</strong><p>MySQL 8.0才支持窗口函数（晚于PG近10年），且性能实现依赖filesort。生产环境大数据量窗口查询建议优先用PostgreSQL。</p></div>
+  </section>
+
+  <section id="application" class="module">
+    <div class="module-header">
+      <span class="module-tag">实践应用</span>
+      <h2 class="module-title">实践应用</h2>
+      <p class="module-hook">排名、同比环比、移动平均、累计占比——窗口函数实战四连击</p>
+    </div>
+    <div class="module-content">
+      <h3 style="color:var(--accent-cyan);font-size:1.1rem;margin:20px 0 12px">场景1：部门内薪资排名</h3>
+      <pre>SELECT name, department, salary,
+  RANK() OVER (PARTITION BY department ORDER BY salary DESC) AS dept_rank
+FROM employees;</pre>
+
+      <h3 style="color:var(--accent-cyan);font-size:1.1rem;margin:20px 0 12px">场景2：月度环比增长</h3>
+      <pre>SELECT month, revenue,
+  LAG(revenue, 1) OVER (ORDER BY month) AS prev_month,
+  ROUND((revenue - LAG(revenue,1) OVER (ORDER BY month)) * 100.0 / LAG(revenue,1) OVER (ORDER BY month), 2) AS growth_pct
+FROM monthly_revenue;</pre>
+
+      <h3 style="color:var(--accent-cyan);font-size:1.1rem;margin:20px 0 12px">场景3：7日移动平均</h3>
+      <pre>SELECT date, price,
+  AVG(price) OVER (ORDER BY date ROWS BETWEEN 6 PRECEDING AND CURRENT ROW) AS ma_7d
+FROM stock_prices;</pre>
+
+      <h3 style="color:var(--accent-cyan);font-size:1.1rem;margin:20px 0 12px">场景4：累计销售占比</h3>
+      <pre>SELECT product, sales,
+  SUM(sales) OVER (ORDER BY sales DESC) AS cumulative,
+  ROUND(SUM(sales) OVER (ORDER BY sales DESC) * 100.0 / SUM(sales) OVER (), 2) AS cumulative_pct
+FROM product_sales;</pre>
+    </div>
+    <div class="key-takeaway"><strong>核心要点：</strong><p>窗口函数的四大核心场景：分组排名（ROW_NUMBER/RANK）、环比（LAG）、滑动窗口（ROWS N PRECEDING）、累计占比（UNBOUNDED PRECEDING）。</p></div>
+  </section>
+
+  <section id="case-study" class="module">
+    <div class="module-header">
+      <span class="module-tag">实践案例</span>
+      <h2 class="module-title">实践案例</h2>
+      <p class="module-hook">行转列、Top-N-per-group、去重保留最新——三个真实工作中使用窗口函数解决的高级问题</p>
+    </div>
+    <div class="module-content">
+      <p><strong>案例1：每个用户取最新一条记录</strong></p>
+      <pre>WITH ranked AS (
+  SELECT *,
+    ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY created_at DESC) AS rn
+  FROM user_actions
+)
+SELECT * FROM ranked WHERE rn = 1;</pre>
+      <p>这比 <code>SELECT DISTINCT ON (user_id)...ORDER BY created_at DESC</code>（PG特有语法）更具跨数据库通用性。</p>
+
+      <p><strong>案例2：连续登录天数计算</strong></p>
+      <pre>WITH date_diffs AS (
+  SELECT user_id, login_date,
+    ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY login_date) -
+    DATEDIFF(login_date, '2020-01-01') AS grp
+  FROM user_logins
+  GROUP BY user_id, login_date
+)
+SELECT user_id,
+  COUNT(*) AS consecutive_days
+FROM date_diffs GROUP BY user_id, grp
+ORDER BY consecutive_days DESC;</pre>
+      <p>这里利用了一个巧妙数学性质：连续日期序列中，<code>row_number - 日期偏移</code>恒为常数。</p>
+
+      <div class="chart-container">
+        <div class="chart-caption">图：用户连续登录天数分布</div>
+        <div class="chart-wrapper" id="login-streak-chart"></div>
+      </div>
+    </div>
+    <div class="key-takeaway"><strong>核心要点：</strong><p>窗口函数+ROW_NUMBER的组合在去重保留最新、连续值分组等高级场景中极为强大。核心技巧：row_number与值的差值构造分组标识。</p></div>
+  </section>
+
+  <section id="risk" class="module">
+    <div class="module-header">
+      <span class="module-tag">风险与陷阱</span>
+      <h2 class="module-title">潜在风险</h2>
+    </div>
+    <div class="module-content">
+      <h3 style="color:var(--accent-red);font-size:1.1rem;margin:20px 0 12px">🔴 致命陷阱</h3>
+      <ul>
+        <li><strong>WHERE中引用窗口函数</strong>：窗口函数在WHERE后执行，直接引用会语法报错。必须用子查询/CTE包裹。</li>
+        <li><strong>窗口帧误用导致错误结果</strong>：默认帧是RANGE UNBOUNDED PRECEDING~CURRENT ROW。忘记显式指定但需要全分区统计时（如占比计算），结果会错。</li>
+      </ul>
+      <h3 style="color:var(--accent-orange);font-size:1.1rem;margin:20px 0 12px">🟠 性能陷阱</h3>
+      <ul>
+        <li>大的PARTITION BY列无索引+ORDER BY列无索引 → 全数据排序（文件排序）→ O(N log N)瓶颈</li>
+        <li>过多的窗口函数同表引用 → 多次扫描或多次排序</li>
+      </ul>
+    </div>
+    <div class="key-takeaway"><strong>核心要点：</strong><p>WHERE中引用窗口函数=语法错误，PARTITION BY无索引+大数据=filesort地狱。写窗口函数前先确认WHERE条件已用子查询包裹，排列键上有索引。</p></div>
+  </section>
+
+  <section id="landscape" class="module">
+    <div class="module-header">
+      <span class="module-tag">数据库差异</span>
+      <h2 class="module-title">主流数据库窗口函数差异</h2>
+    </div>
+    <div class="module-content">
+      <table class="table-container"><table>
+        <thead><tr><th>特性</th><th>MySQL 8.0</th><th>PostgreSQL 15</th><th>SQL Server 2022</th></tr></thead>
+        <tbody>
+        <tr><td>ROW_NUMBER/RANK/DENSE_RANK</td><td>✅</td><td>✅</td><td>✅</td></tr>
+        <tr><td>LAG / LEAD</td><td>✅</td><td>✅</td><td>✅</td></tr>
+        <tr><td>NTILE</td><td>✅</td><td>✅</td><td>✅</td></tr>
+        <tr><td>ROWS/RANGE帧</td><td>✅</td><td>✅</td><td>✅</td></tr>
+        <tr><td>GROUPS帧</td><td>❌</td><td>✅</td><td>❌</td></tr>
+        <tr><td>窗口函数忽略NULL</td><td>✅</td><td>✅ (RESPECT/IGNORE NULLS)</td><td>✅ (IGNORE NULLS)</td></tr>
+        <tr><td>性能(大表排序)</td><td>依赖filesort</td><td>索引扫描可避免排序</td><td>自适应</td></tr>
+        <tr><td>命名窗口(WINDOW子句)</td><td>✅</td><td>✅</td><td>✅</td></tr>
+        </tbody>
+      </table></table>
+    </div>
+    <div class="key-takeaway"><strong>核心要点：</strong><p>三大数据库的窗口函数语法已高度统一，GROUPS帧是PG特有的高级特性。MySQL的窗口函数性能受filesort限制最明显。</p></div>
+  </section>
+
+  <section id="issues" class="module">
+    <div class="module-header">
+      <span class="module-tag">常见问题</span>
+      <h2 class="module-title">常见问题诊断</h2>
+    </div>
+    <div class="module-content">
+      <h3>问题1：PARTITION BY后ORDER BY结果不对</h3>
+      <p>检查ORDER BY列是否在PARTITION BY列之前被"分组语义"覆盖——PARTITION BY定义了数据如何被切开，ORDER BY只控制切开后的局部排序。</p>
+      <h3>问题2：多个窗口函数查询极慢</h3>
+      <p>多个窗口函数如果有相同的PARTITION BY+ORDER BY，可用WINDOW子句命名复用：<code>WINDOW w AS (PARTITION BY dept ORDER BY salary)</code></p>
+      <h3>问题3：ROW_NUMBER实际结果"不稳定"</h3>
+      <p>ROW_NUMBER在ORDER BY有并列值时结果不确定——不同执行可能返回不同顺序。需要确定性结果时加第二个排序列或改用RANK。</p>
+    </div>
+    <div class="key-takeaway"><strong>核心要点：</strong><p>PARTITION BY切数据，ORDER BY定义局部序。同规范多窗口函数用WINDOW子句复用。ROW_NUMBER的不确定性在并列时要通过加列或换函数解决。</p></div>
+  </section>
+
+  <section id="prospect" class="module">
+    <div class="module-header">
+      <span class="module-tag">未来趋势</span>
+      <h2 class="module-title">发展趋势</h2>
+    </div>
+    <div class="module-content">
+      <ul>
+        <li><strong>增量窗口函数</strong>：流处理引擎（如Flink SQL）已支持对无界数据流的窗口操作，未来实时窗口计算将成为标准能力。</li>
+        <li><strong>QUALIFY子句</strong>：部分数据库（Snowflake/Teradata/DuckDB）支持<code>QUALIFY</code>直接过滤窗口函数结果，避免子查询包裹。SQL标准正在讨论纳入。</li>
+        <li><strong>向量化窗口执行</strong>：DuckDB/ClickHouse对窗口函数实现了向量化批处理，1亿行RANK操作可在秒级完成。</li>
+      </ul>
+    </div>
+    <div class="key-takeaway"><strong>核心要点：</strong><p>窗口函数的未来：实时流窗口、QUALIFY语法简化、向量化极速执行。关注DuckDB在窗口函数性能上的突破性进展。</p></div>
+  </section>
+
+  <section id="effort-direction" class="module">
+    <div class="module-header">
+      <span class="module-tag">学习指导</span>
+      <h2 class="module-title">学习建议</h2>
+    </div>
+    <div class="module-content">
+      <ol>
+        <li><strong>先理解GROUP BY的局限</strong>：在已有数据上尝试用GROUP BY做排名/环比/累计——体验痛苦，才能体会窗口函数的价值</li>
+        <li><strong>从ROW_NUMBER入手</strong>：这是最直观的窗口函数，掌握后自然理解PARTITION BY和ORDER BY的语义</li>
+        <li><strong>练习"等价改写"</strong>：将以前用自连接+子查询实现的复杂逻辑用窗口函数重写，对比代码量和性能</li>
+        <li><strong>用EXPLAIN验证</strong>：观察窗口函数在MySQL中的filesort和在PG中的index scan，直观理解性能差异</li>
+      </ol>
+    </div>
+    <div class="key-takeaway"><strong>核心要点：</strong><p>窗口函数学习路线：GROUP BY局限→ROW_NUMBER→LAG/LEAD→聚合窗口→窗口帧。改写旧代码是最佳练习方式。</p></div>
+  </section>
+
+  <section id="misconceptions" class="module">
+    <div class="module-header">
+      <span class="module-tag">认知纠偏</span>
+      <h2 class="module-title">常见误区</h2>
+    </div>
+    <div class="module-content">
+      <ul>
+        <li><strong>"窗口函数就是高级聚合"</strong>：窗口函数和聚合的真实区别不在"高级/低级"，而在是否压缩行数。</li>
+        <li><strong>"PARTITION BY和GROUP BY一样"</strong>：GROUP BY产生一个输出行/组，PARTITION BY保留所有输入行，每行独立计算。</li>
+        <li><strong>"窗口函数一定比自连接快"</strong>：小数据量下自连接可能更快——自连接可用索引而窗口函数必须排序。EXPLAIN后才能下结论。</li>
+        <li><strong>"MySQL 8.0窗口函数很好用"</strong>：MySQL的实现依赖filesort+临时表，大数据量下性能远不如PG。这是语法兼容但不等于性能兼容。</li>
+      </ul>
+    </div>
+    <div class="key-takeaway"><strong>核心要点：</strong><p>窗口≠高级聚合，PARTITION BY≠GROUP BY，窗口函数不一定最快。MySQL的窗口函数实现是语法达标但性能堪忧。</p></div>
+  </section>
+
+  <section id="learning-path" class="module">
+    <div class="module-header">
+      <span class="module-tag">资源导航</span>
+      <h2 class="module-title">学习路径</h2>
+    </div>
+    <div class="module-content">
+      <table class="table-container"><table>
+        <thead><tr><th>层级</th><th>推荐资源</th><th>时间</th></tr></thead>
+        <tbody>
+        <tr><td>入门</td><td>Mode Analytics - SQL Window Functions教程</td><td>3小时</td></tr>
+        <tr><td>进阶</td><td>LeetCode SQL（窗口函数：176,177,178,180,184,185等）</td><td>12小时</td></tr>
+        <tr><td>进阶</td><td>PostgreSQL官方文档 - Window Functions</td><td>3小时</td></tr>
+        <tr><td>深入</td><td>《SQL进阶教程》 - 窗口函数专题</td><td>8小时</td></tr>
+        <tr><td>深入</td><td>MySQL 8.0文档 - Window Function Descriptions</td><td>2小时</td></tr>
+        </tbody>
+      </table></table>
+    </div>
+    <div class="references">
+      <h4>📚 参考文献</h4>
+      <div class="reference-item">
+        <div class="ref-title">SQL:2003 Has Been Published</div>
+        <div class="ref-authors">ISO/IEC 9075:2003</div>
+        <div class="ref-meta">2003 | 窗口函数首次标准化</div>
+      </div>
+      <div class="reference-item">
+        <div class="ref-title">Window Functions in MySQL 8.0</div>
+        <div class="ref-authors">Oracle Corporation</div>
+        <div class="ref-meta">2025 | MySQL窗口函数官方文档</div>
+      </div>
+      <div class="reference-item">
+        <div class="ref-title">Efficient Processing of Window Functions in Analytical SQL Queries</div>
+        <div class="ref-authors">Cao Y. et al.</div>
+        <div class="ref-meta">VLDB, 2012 | 窗口函数执行优化</div>
+      </div>
+      <div class="reference-item">
+        <div class="ref-title">PostgreSQL Documentation: Window Functions</div>
+        <div class="ref-authors">PostgreSQL Global Development Group</div>
+        <div class="ref-meta">2024 | PG窗口函数完整参考</div>
+      </div>
+      <div class="reference-item">
+        <div class="ref-title">《SQL反模式》第10章 - 穷举搜索</div>
+        <div class="ref-authors">Bill Karwin</div>
+        <div class="ref-meta">2010 | 窗口函数可替代的反模式</div>
+      </div>
+      <div class="reference-item">
+        <div class="ref-title">Vectorized Window Function Execution in DuckDB</div>
+        <div class="ref-authors">Raasveldt M., Muhleisen H.</div>
+        <div class="ref-meta">2019 | 向量化窗口函数执行</div>
+      </div>
+      <div class="reference-item">
+        <div class="ref-title">QUALIFY Clause: Filtering Window Function Results</div>
+        <div class="ref-authors">Snowflake Documentation</div>
+        <div class="ref-meta">2024 | QUALIFY子句语法参考</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="glossary" class="module">
+    <div class="module-header">
+      <span class="module-tag">术语速查</span>
+      <h2 class="module-title">关键术语表</h2>
+    </div>
+    <div class="module-content">
+      <table class="table-container"><table>
+        <thead><tr><th>术语</th><th>英文</th><th>定义</th></tr></thead>
+        <tbody>
+        <tr><td>窗口函数</td><td>Window Function</td><td>基于窗口范围计算但不压缩行数的函数</td></tr>
+        <tr><td>分区</td><td>PARTITION BY</td><td>将数据分为互不重叠的分组</td></tr>
+        <tr><td>窗口帧</td><td>Window Frame</td><td>当前行可见的行范围</td></tr>
+        <tr><td>物理帧</td><td>ROWS</td><td>按物理行位置定义窗口帧</td></tr>
+        <tr><td>逻辑帧</td><td>RANGE</td><td>按排序列值定义窗口帧</td></tr>
+        <tr><td>偏移函数</td><td>Offset Function</td><td>访问前/后N行(LAG/LEAD)</td></tr>
+        <tr><td>累计函数</td><td>Cumulative Function</td><td>UNBOUNDED PRECEDING~CURRENT ROW的聚合</td></tr>
+        <tr><td>命名窗口</td><td>Named Window</td><td>WINDOW子句定义的复用窗口规范</td></tr>
+        <tr><td>QUALIFY</td><td>QUALIFY Clause</td><td>直接过滤窗口函数结果的子句</td></tr>
+      </tbody>
+      </table></table>
+    </div>
+  </section>
+
+  <section id="debate" class="module">
+    <div class="module-header">
+      <span class="module-tag">观点碰撞</span>
+      <h2 class="module-title">争议与讨论</h2>
+      <p class="module-hook">窗口函数应该写进SQL标准，还是留给应用层处理？</p>
+    </div>
+    <div class="module-content">
+      <p><strong>标准派</strong>：窗口函数是SQL强大分析能力的体现，应该在数据库中直接计算，减少网络传输的数据量。数据库引擎能高效利用排序和索引。</p>
+      <p><strong>应用派</strong>：复杂窗口逻辑（尤其是多层嵌套PARTITION BY+多个窗口帧）让SQL难以维护和测试。更倾向于将明细数据拉到Pandas/Spark里面做分析。</p>
+      <p><strong>业界实践</strong>：简单窗口逻辑（排名/环比）放在SQL中；多步骤复杂分析用CTE+窗口函数组合；需要交互式探索的交给分析工具层。LAG的环比计算是窗口函数最不可替代的场景。</p>
+    </div>
+    <div class="key-takeaway"><strong>核心要点：</strong><p>窗口函数vs应用层分析：简单场景放SQL，多步骤逻辑用CTE+窗口组合，探索性分析用工具层。关键是选择最适合当前团队能力的方案。</p></div>
+  </section>
+
+  <div class="back-btn"><button onclick="goBack()">← 返回学习方案</button></div>
+</div>
+
+<script>
+function toggleTheme(){
+  if(document.body.classList.contains('light')){document.body.classList.remove('light');document.body.classList.add('dark')}
+  else{document.body.classList.remove('dark');document.body.classList.add('light')}
+}
+function goBack() {
+  var MAIN_PAGE = 'sql_learning.html';
+  var WIN_NAME = '_ml_llm_main';
+  var CH_KEY = '_ml_llm_nav';
+  localStorage.setItem(CH_KEY, JSON.stringify({kpId: DEEP_DIVE_KP_ID, ts: Date.now()}));
+  var mainWin = window.open(MAIN_PAGE, WIN_NAME);
+  if (mainWin) mainWin.focus();
+}
+(function(){
+  document.body.classList.remove('loading');document.body.classList.add('loaded');
+  var sidebarLinks = document.querySelectorAll('.sidebar-nav a');
+  var modules = document.querySelectorAll('.module');
+  var observer = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){
+        sidebarLinks.forEach(function(a){a.classList.remove('active')});
+        var active = document.querySelector('.sidebar-nav a[href="#'+e.target.id+'"]');
+        if(active)active.classList.add('active');
+      }
+    });
+  },{threshold:0.3});
+  modules.forEach(function(m){observer.observe(m)});
+  if(typeof renderMathInElement !== 'undefined'){
+    renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});
+  }
+})();
+(function(){
+  if(typeof echarts === 'undefined') return;
+  var c1=echarts.init(document.getElementById('window-class-chart'));
+  c1.setOption({
+    tooltip:{trigger:'item'},series:[{type:'sunburst',radius:[0,'90%'],
+      data:[
+        {name:'窗口函数',children:[
+          {name:'排名函数',value:15,itemStyle:{color:'rgba(91,141,184,0.7)'},children:[
+            {name:'ROW_NUMBER',value:5},{name:'RANK',value:4},{name:'DENSE_RANK',value:3},{name:'NTILE',value:3}
+          ]},
+          {name:'偏移函数',value:10,itemStyle:{color:'rgba(136,120,168,0.7)'},children:[
+            {name:'LAG',value:5},{name:'LEAD',value:5}
+          ]},
+          {name:'聚合窗口',value:12,itemStyle:{color:'rgba(90,158,111,0.7)'},children:[
+            {name:'SUM OVER',value:4},{name:'AVG OVER',value:3},{name:'MIN/MAX OVER',value:3},{name:'COUNT OVER',value:2}
+          ]}
+        ]}
+      ],levels:[{},{r0:'15%',label:{fontSize:12}},{r0:'45%',label:{fontSize:10}}]
+    }]
+  });
+  var c2=echarts.init(document.getElementById('frame-chart'));
+  c2.setOption({
+    tooltip:{trigger:'axis'},xAxis:{type:'category',data:['行1','行2','行3','行4','行5','行6','行7']},
+    yAxis:{type:'value',max:3},series:[
+      {name:'累计模式',type:'line',step:'end',data:[1,1,1,1,1,1,1],areaStyle:{color:'rgba(91,141,184,0.2)'},lineStyle:{color:'rgba(91,141,184,0.6)'}},
+      {name:'滑动窗口(3行)',type:'line',step:'end',data:[1,1,1,0,0,0,0],areaStyle:{color:'rgba(136,120,168,0.2)'},lineStyle:{color:'rgba(136,120,168,0.6)'}},
+      {name:'完整分区',type:'line',step:'end',data:[2,2,2,2,2,2,2],areaStyle:{color:'rgba(90,158,111,0.2)'},lineStyle:{color:'rgba(90,158,111,0.6)'}}
+    ]
+  });
+  var c3=echarts.init(document.getElementById('login-streak-chart'));
+  c3.setOption({
+    tooltip:{trigger:'axis'},xAxis:{type:'category',data:['1天','2天','3-4天','5-7天','8-14天','15天+']},
+    yAxis:{type:'value'},series:[
+      {name:'用户数',type:'bar',data:[3200,1800,950,420,180,65],itemStyle:{color:'rgba(110,168,192,0.7)'}}
+    ]
+  });
+  window.addEventListener('resize',function(){c1.resize();c2.resize();c3.resize();});
+})();
+</script>
+</body>
+</html>

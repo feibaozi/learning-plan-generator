@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>数据库设计范式 - 深度研读</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<style>
+:root{
+--bg-deep:#0d0d0d;--bg-primary:#141414;--bg-card:#1a1a1a;
+--bg-elevated:#222222;--bg-input:#1c1c1c;
+--text-primary:#ededed;--text-secondary:#a0a0a0;--text-muted:#787878;
+--accent-blue:#5b8db8;--accent-cyan:#6ea8c0;--accent-purple:#8878a8;
+--accent-green:#5a9e6f;--accent-orange:#c0a060;--accent-pink:#b87888;
+--accent-red:#c06050;--accent-gold:#c0a060;
+--border-subtle:rgba(255,255,255,0.05);--border-glow:rgba(91,141,184,0.2);
+--shadow-sm:0 1px 3px rgba(0,0,0,0.3);--shadow-md:0 4px 12px rgba(0,0,0,0.4);
+--radius-sm:6px;--radius-md:10px;--radius-lg:16px;
+--transition-fast:0.15s ease;--transition-smooth:0.3s ease;
+}
+body.light{
+--bg-deep:#fafafa;--bg-primary:#ffffff;--bg-card:#f5f5f5;
+--bg-elevated:#eeeeee;--bg-input:#e5e5e5;
+--text-primary:#121212;--text-secondary:#4a4a4a;--text-muted:#5e5e5e;
+--accent-blue:#3a6088;--accent-cyan:#3a7888;--accent-purple:#5a4878;
+--accent-green:#3d8055;--accent-orange:#886830;--accent-pink:#884858;
+--accent-red:#983830;--accent-gold:#886830;
+--border-subtle:rgba(18,18,18,0.08);--border-glow:rgba(58,96,136,0.2);
+--shadow-sm:0 1px 3px rgba(0,0,0,0.06);--shadow-md:0 4px 12px rgba(0,0,0,0.08);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter','Noto Sans SC',-apple-system,sans-serif;background:var(--bg-deep);color:var(--text-primary);line-height:1.7}
+body.loading{opacity:0}body.loaded{opacity:1;transition:opacity 0.4s ease}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg-deep)}::-webkit-scrollbar-thumb{background:var(--border-glow);border-radius:3px}
+
+.integration-navbar{display:flex;align-items:center;gap:12px;padding:10px 24px;background:var(--bg-card);border-bottom:1px solid var(--border-subtle);font-size:14px;position:sticky;top:0;z-index:50}
+
+.sidebar{position:fixed;left:0;top:0;height:100vh;width:280px;background:var(--bg-primary);border-right:1px solid var(--border-subtle);padding:80px 24px 24px;overflow-y:auto;z-index:40}
+.sidebar h3{font-size:0.85rem;font-weight:700;color:var(--text-secondary);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--border-subtle)}
+.sidebar-nav{list-style:none;padding:0}
+.sidebar-nav li{margin-bottom:4px}
+.sidebar-nav a{display:block;padding:8px 12px;border-radius:var(--radius-sm);text-decoration:none;font-size:0.78rem;color:var(--text-secondary);transition:all var(--transition-fast)}
+.sidebar-nav a:hover{background:rgba(91,141,184,0.08);color:var(--accent-cyan)}
+.sidebar-nav a.active{background:rgba(91,141,184,0.12);color:var(--accent-blue);font-weight:600}
+
+.sidebar-back-link{display:block;padding:8px 12px;margin-bottom:12px;border-radius:8px;background:var(--bg-elevated);color:var(--accent-blue);text-decoration:none;font-size:13px;font-weight:600}
+
+.content-area{margin-left:300px;padding:32px 32px 80px;max-width:calc(100% - 320px)}
+@media(max-width:1024px){.sidebar{display:none}.content-area{margin-left:0;max-width:100%;padding:16px}}
+
+.meta-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-lg);padding:20px 24px;margin-bottom:24px;display:flex;flex-wrap:wrap;gap:16px;align-items:center}
+.meta-card .meta-source{width:100%;font-size:0.78rem;color:var(--text-muted);padding-bottom:8px;border-bottom:1px solid var(--border-subtle)}
+.meta-title{font-size:1.5rem;font-weight:800;color:var(--accent-purple)}
+.meta-tags{display:flex;gap:8px;flex-wrap:wrap}
+.meta-tag{padding:4px 14px;border-radius:50px;font-size:0.75rem;font-weight:600}
+.meta-tag.domain{background:rgba(136,120,168,0.1);color:var(--accent-purple);border:1px solid rgba(136,120,168,0.2)}
+.meta-tag.level{background:rgba(192,160,96,0.1);color:var(--accent-orange);border:1px solid rgba(192,160,96,0.2)}
+.meta-stats{display:flex;gap:20px;margin-left:auto}
+.meta-stat{text-align:center}
+.meta-stat .num{font-size:1.4rem;font-weight:700;color:var(--accent-cyan)}
+.meta-stat .lbl{font-size:0.68rem;color:var(--text-muted)}
+
+.module{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-lg);padding:32px;margin-bottom:24px;transition:all var(--transition-smooth)}
+.module:hover{border-color:var(--border-glow)}
+.module-header{margin-bottom:24px}
+.module-tag{display:inline-block;padding:4px 12px;border-radius:50px;font-size:0.68rem;font-weight:700;margin-bottom:10px;background:rgba(136,120,168,0.1);color:var(--accent-purple)}
+.module-title{font-size:1.4rem;font-weight:800;margin-bottom:8px}
+.module-hook{font-size:0.9rem;color:var(--accent-cyan);font-weight:600;margin-bottom:16px}
+.module-content{font-size:0.92rem;color:var(--text-secondary);line-height:1.8}
+.module-content p{margin-bottom:14px}
+.module-content ul,.module-content ol{margin:14px 0;padding-left:24px}
+.module-content li{margin-bottom:8px}
+.module-content strong{color:var(--text-primary);font-weight:600}
+.module-content em{color:var(--accent-gold)}
+.module-content a{color:var(--accent-cyan);text-decoration:none}
+.module-content a:hover{text-decoration:underline}
+.module-content pre{background:var(--bg-deep);border:1px solid var(--border-subtle);border-radius:var(--radius-sm);padding:14px 18px;overflow-x:auto;font-size:0.78rem;font-family:'JetBrains Mono',monospace;color:var(--accent-cyan);margin:14px 0;line-height:1.6}
+.module-content code{background:var(--bg-elevated);padding:2px 6px;border-radius:3px;font-family:'JetBrains Mono',monospace;font-size:0.85em;color:var(--accent-cyan)}
+.module-content h3{font-size:1.05rem;font-weight:700;color:var(--accent-purple);margin:20px 0 12px}
+.module-content h4{font-size:0.92rem;font-weight:600;color:var(--text-primary);margin:16px 0 8px}
+
+.chart-container{margin:20px 0;border-radius:var(--radius-md);overflow:hidden}
+.chart-container .chart-caption{font-size:0.75rem;color:var(--text-muted);margin-bottom:8px;text-align:center}
+.chart-wrapper{height:400px;background:var(--bg-deep);border-radius:var(--radius-sm)}
+@media(max-width:768px){.chart-wrapper{height:300px}}
+
+.table-container{margin:20px 0;overflow-x:auto}
+.table-container table{width:100%;border-collapse:collapse;border-radius:var(--radius-md);overflow:hidden}
+.table-container th{background:var(--bg-elevated);color:var(--accent-cyan);font-weight:700;padding:10px 14px;text-align:left;font-size:0.8rem}
+.table-container td{padding:10px 14px;border-bottom:1px solid var(--border-subtle);font-size:0.84rem;color:var(--text-secondary)}
+.table-container tr:hover td{background:rgba(91,141,184,0.03)}
+.table-container .table-caption{font-size:0.75rem;color:var(--text-muted);margin-bottom:8px;text-align:center}
+
+.formula-box{background:var(--bg-deep);border:1px solid var(--border-glow);border-radius:var(--radius-md);padding:18px 20px;margin:20px 0;overflow-x:auto}
+.formula-box .formula-caption{font-size:0.75rem;color:var(--text-muted);margin-bottom:8px;text-align:center}
+.formula-box .formula-content{font-size:1rem;text-align:center;color:var(--accent-blue)}
+.derivation-toggle{font-size:0.75rem;color:var(--accent-gold);cursor:pointer;border:none;background:none;padding:8px 0;font-family:inherit;display:block;margin:0 auto}
+.derivation-toggle:hover{text-decoration:underline}
+.derivation-content{display:none;margin-top:10px;padding:14px 18px;background:rgba(192,160,96,0.04);border-radius:var(--radius-sm);border-left:3px solid var(--accent-gold);font-size:0.82rem;color:var(--text-secondary)}
+.derivation-content.open{display:block}
+
+.key-takeaway{background:linear-gradient(135deg,rgba(90,158,111,0.08),rgba(90,158,111,0.02));border-left:4px solid var(--accent-green);padding:14px 20px;border-radius:0 var(--radius-md) var(--radius-md) 0;margin-top:20px}
+.key-takeaway strong{color:var(--accent-green);font-weight:700}
+.key-takeaway p{color:var(--text-secondary);font-size:0.88rem;margin:0}
+
+.theme-toggle{position:fixed;right:20px;top:20px;z-index:200;background:var(--bg-card);border:1px solid var(--border-subtle);padding:10px;border-radius:50%;cursor:pointer;color:var(--text-muted);transition:all var(--transition-fast)}
+.theme-toggle:hover{border-color:var(--border-glow);color:var(--accent-cyan)}
+
+.back-btn{position:fixed;right:24px;bottom:24px;z-index:200}
+.back-btn button{background:linear-gradient(135deg,#5b8db8,#8878a8);color:white;border:none;border-radius:24px;padding:12px 24px;font-size:0.85rem;font-weight:600;cursor:pointer;box-shadow:0 4px 12px rgba(91,141,184,0.3);transition:all var(--transition-fast)}
+.back-btn button:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(91,141,184,0.4)}
+
+.term-highlight{background:rgba(91,141,184,0.1);padding:2px 6px;border-radius:4px;color:var(--accent-blue);cursor:help;border-bottom:1px dashed rgba(91,141,184,0.3)}
+.term-highlight:hover{background:rgba(91,141,184,0.15)}
+</style>
+</head>
+<body class="loading dark">
+
+<button class="theme-toggle" onclick="toggleTheme()" title="切换主题">🌓</button>
+
+<div class="integration-navbar">
+  <a href="#" onclick="goBack();return false;" style="color:var(--accent-blue);text-decoration:none;font-weight:600;">← 返回 SQL及其在工作中应用 系统学习方案</a>
+  <span style="color:var(--text-muted);">|</span>
+  <span style="color:var(--text-secondary);">第3/4阶段 · 数据库理论基础</span>
+</div>
+
+<div class="sidebar">
+  <a href="#" onclick="goBack();return false;" class="sidebar-back-link">← 返回主方案</a>
+  <h3>📖 目录导航</h3>
+  <ul class="sidebar-nav">
+    <li><a href="#background" class="active">背景与缘起</a></li>
+    <li><a href="#concept">核心概念</a></li>
+    <li><a href="#principle">核心原理</a></li>
+    <li><a href="#architecture">ER建模技术架构</a></li>
+    <li><a href="#development">发展迭代</a></li>
+    <li><a href="#application">实践应用</a></li>
+    <li><a href="#case-study">实践案例</a></li>
+    <li><a href="#risk">潜在风险</a></li>
+    <li><a href="#landscape">发展格局</a></li>
+    <li><a href="#issues">发展问题</a></li>
+    <li><a href="#prospect">发展前景</a></li>
+    <li><a href="#effort-direction">努力方向</a></li>
+    <li><a href="#misconceptions">常见误区</a></li>
+    <li><a href="#learning-path">学习路径</a></li>
+    <li><a href="#glossary">关键术语表</a></li>
+    <li><a href="#debate">争议与辩论</a></li>
+  </ul>
+</div>
+
+<div class="content-area">
+
+<div class="meta-card">
+  <div class="meta-source">🔗 📚 SQL及其在工作中应用 系统学习方案 · 数据库理论基础（3/4）</div>
+  <div>
+    <div class="meta-title">数据库设计范式</div>
+    <div class="meta-tags">
+      <span class="meta-tag domain">🏷️ AI/科技</span>
+      <span class="meta-tag level">🎯 进阶</span>
+    </div>
+  </div>
+  <div class="meta-stats">
+    <div class="meta-stat"><div class="num">~45</div><div class="lbl">分钟阅读</div></div>
+    <div class="meta-stat"><div class="num">16</div><div class="lbl">模块</div></div>
+    <div class="meta-stat"><div class="num">5</div><div class="lbl">图表</div></div>
+    <div class="meta-stat"><div class="num">8</div><div class="lbl">参考</div></div>
+  </div>
+</div>
+
+<section id="background" class="module">
+  <div class="module-header">
+    <span class="module-tag">基础背景</span>
+    <h2 class="module-title">背景与缘起</h2>
+    <p class="module-hook">一张表里存了"学生姓名,课程1,成绩1,课程2,成绩2..."——这种设计会让你在查"某学生一共修了多少门课"时崩溃。范式化正是为了解决这类"数据噩梦"</p>
+  </div>
+  <div class="module-content">
+    <p>数据库设计范式（Database Normalization）诞生于20世纪70年代，由关系数据库理论之父<strong>Edgar F. Codd</strong>（IBM研究员，图灵奖得主）首次提出。1970年，Codd发表了革命性论文<em>"A Relational Model of Data for Large Shared Data Banks"</em>，奠定了关系数据库的理论基础。</p>
+    <p>在范式理论出现之前，数据库设计处于"手工作坊"阶段——设计者凭经验建表，导致数据冗余（同一信息存多份）、更新异常（改了A处没改B处）、插入异常（想加个新课但还没学生选）和删除异常（删了最后一个学生连课程信息也丢了）。</p>
+    <p>Codd在1970年代陆续提出<strong>第一范式（1NF）、第二范式（2NF）、第三范式（3NF）</strong>，核心目标只有一个：<em>消除数据冗余，保证数据一致性</em>。后来学术界又补充了BCNF（Boyce-Codd范式）、4NF、5NF等，但在<strong>实际工作中，能掌握到3NF已经覆盖了99%的业务场景</strong>。</p>
+    <p>范式化的本质思想可以用一句话概括：<strong>"每个事实只存一次，放在它该在的地方"</strong>——就像你不会把一个人的家庭住址同时记在身份证、驾照和护照上；如果你的数据库里有类似的"重复记忆"，那就是范式化要消灭的目标。</p>
+  </div>
+  <div class="key-takeaway"><strong>核心要点：</strong><p>范式化是为了消灭数据冗余和操作异常。Codd的三级范式体系（1NF→2NF→3NF）是关系数据库设计的"宪法"，逐级递进——每一级解决上一级遗留下来的特定异常类型。</p></div>
+</section>
+
+<section id="concept" class="module">
+  <div class="module-header">
+    <span class="module-tag">核心概念</span>
+    <h2 class="module-title">核心概念</h2>
+    <p class="module-hook">"1NF看列，2NF看主键，3NF看非主键"——用这个口诀你就能记住三级范式的本质区别</p>
+  </div>
+  <div class="module-content">
+    <h3>1. 第一范式（1NF — First Normal Form）</h3>
+    <p><strong>定义：</strong>表中的每一列都是<strong>不可再分的原子值（Atomic Value）</strong>。每个字段只能存一个值，不能存数组、集合或多值组合。</p>
+    <p><strong>违反1NF的典型场景：</strong></p>
+    <pre>| 学生ID | 姓名 | 选修课程（多个课程用逗号分隔）|
+| 001    | 张三 | 数学,英语,物理              |  ← 违反了！</pre>
+    <p>正确做法：将"选修课程"拆分为独立的关联表，或多行记录。1NF是<strong>关系数据库的准入门槛</strong>——不满足1NF，连"关系"都算不上。</p>
+
+    <h3>2. 第二范式（2NF — Second Normal Form）</h3>
+    <p><strong>前置条件：</strong>必须先满足1NF。</p>
+    <p><strong>定义：</strong>所有<strong>非主键列必须完全依赖于整个主键</strong>（而非部分依赖）。这个定义的关键词是"整个主键"——当主键是<em>联合主键</em>时，不能存在只依赖于联合主键中某一列的属性。</p>
+    <pre>【联合主键：学生ID + 课程ID】
+| 学生ID | 课程ID | 学生姓名 | 课程名称 | 成绩 |
+→ "学生姓名"只依赖于"学生ID"（联合主键的一部分），违反了2NF</pre>
+    <p>解决方法：拆表。学生信息单独一张表（主键=学生ID），课程信息单独一张表（主键=课程ID），选课表只保留(学生ID, 课程ID, 成绩)。</p>
+
+    <h3>3. 第三范式（3NF — Third Normal Form）</h3>
+    <p><strong>前置条件：</strong>必须先满足2NF。</p>
+    <p><strong>定义：</strong>所有非主键列必须<strong>直接依赖于主键</strong>，不存在<strong>传递依赖（Transitive Dependency）</strong>。即：不应该存在"非主键A → 非主键B"的依赖链。</p>
+    <pre>【主键：员工ID】
+| 员工ID | 姓名 | 部门编号 | 部门名称 | 部门地点 |
+→ "部门名称"和"部门地点"依赖于"部门编号"（非主键），而非直接依赖于"员工ID"</pre>
+    <p>解决方法：部门信息单独建表（主键=部门编号）。</p>
+
+    <h3>一句话类比</h3>
+    <p>想象你是一个档案管理员：<strong>1NF</strong> = 每格抽屉只放一种东西；<strong>2NF</strong> = 一张表格只描述"一件事"（学生表只说学生，课程表只说课程）；<strong>3NF</strong> = 任何能从其他信息推导出来的信息都不重复存（你知道部门编号就能查到部门名称，不需要在员工表里也存一遍）。</p>
+  </div>
+  <div class="key-takeaway"><strong>核心要点：</strong><p>1NF解决"一个格子塞两样东西"的问题；2NF解决"联合主键中部分依赖"的问题；3NF解决"A→B→C传递依赖"的问题。逐级递进，每一级消除上一级的特定冗余。</p></div>
+</section>
+
+<section id="principle" class="module">
+  <div class="module-header">
+    <span class="module-tag">核心原理</span>
+    <h2 class="module-title">核心原理</h2>
+    <p class="module-hook">范式化本质上是一场"数据依赖关系"的梳理——找出谁依赖谁，然后把依赖关系"解耦"成独立表</p>
+  </div>
+  <div class="module-content">
+    <h3>函数依赖（Functional Dependency）——范式化的数学基础</h3>
+    <p>函数依赖是范式理论的核心概念。如果知道属性X的值就能<strong>唯一确定</strong>属性Y的值，就说"<strong>X函数决定Y</strong>"或者"<strong>Y函数依赖于X</strong>"，记作：</p>
+    <div class="formula-box"><div class="formula-content">$$X \rightarrow Y$$</div><div class="formula-caption">读作：X函数决定Y，Y函数依赖于X</div></div>
+    <p>例如：<code>学号 → 姓名</code>（知道学号就能确定姓名），<code>(学生ID, 课程ID) → 成绩</code>（知道学生和课程才能确定成绩）。</p>
+
+    <h3>范式化的算法本质</h3>
+    <p>从1NF到3NF，本质上是在做<strong>依赖关系的逐级分离</strong>：</p>
+    <ol>
+      <li><strong>1NF</strong>：确保属性值是原子的——这是"进入赛场"的基本资格</li>
+      <li><strong>2NF</strong>：消除<strong>部分函数依赖（Partial Dependency）</strong>——非主属性不能只依赖于联合主键的一部分。拆分的逻辑是：把"部分依赖"的属性群连同它们依赖的那部分主键一起移入新表</li>
+      <li><strong>3NF</strong>：消除<strong>传递函数依赖（Transitive Dependency）</strong>——非主属性不能通过另一个非主属性间接依赖于主键。拆分的逻辑是：找到传递依赖链中间的"桥梁属性"，以它为外键建立新表</li>
+    </ol>
+
+    <h3>违反范式化的代价——三大异常</h3>
+    <div class="table-container">
+      <div class="table-caption">表：违反范式化导致的三种数据异常</div>
+      <table>
+        <tr><th>异常类型</th><th>现象</th><th>根本原因</th></tr>
+        <tr><td><strong>更新异常</strong></td><td>修改部门名称需要更新N行员工记录，漏一行就数据不一致</td><td>同一事实被冗余存储</td></tr>
+        <tr><td><strong>插入异常</strong></td><td>想新建一个部门（还没员工），但部门信息必须依附于员工记录才能插入</td><td>不同实体被强耦合在同一张表</td></tr>
+        <tr><td><strong>删除异常</strong></td><td>删除了某部门的最后一个员工，部门本身的信息也跟着丢失了</td><td>删除操作"误伤"了不应被删除的实体</td></tr>
+      </table>
+    </div>
+
+    <h3>范式化的"度"——理论基础 vs 工程实践</h3>
+    <p>教科书上的范式化追求"无损分解"——拆完表之后通过JOIN能完美还原所有信息。但在真实的生产环境中，<strong>过度范式化会导致大量JOIN操作</strong>，严重影响查询性能。这就是为什么Codd的继任者Ronald Fagin在1977年提出4NF、5NF之后，<strong>工业界几乎没有在生产中使用它们</strong>——它们解决的是极其罕见的"多值依赖"和"连接依赖"，而代价是对绝大多数查询的性能碾压。</p>
+    <p>这引出了一个关键认知：<strong>范式化是设计起点，不是设计终点</strong>。实际设计需要在规范性和性能之间取得平衡——后续在"争议与辩论"一节会深入讨论。</p>
+  </div>
+  <div class="key-takeaway"><strong>核心要点：</strong><p>范式化的内核是函数依赖分析——用一个属性能否唯一确定另一个属性，来决定它们是否应该"同住一张表"。1NF→2NF→3NF逐级消除部分依赖和传递依赖，每次拆表都是一次"解耦操作"。</p></div>
+</section>
+
+<section id="architecture" class="module">
+  <div class="module-header">
+    <span class="module-tag">技术架构</span>
+    <h2 class="module-title">ER建模技术架构</h2>
+    <p class="module-hook">在范式化之前，你必须先用ER图（Entity-Relationship Diagram）把"现实世界有哪些东西、它们之间是什么关系"画清楚——ER图是范式的"施工蓝图"</p>
+  </div>
+  <div class="module-content">
+    <h3>ER图的核心元素</h3>
+    <div class="table-container">
+      <div class="table-caption">表：ER图基本元素对照表</div>
+      <table>
+        <tr><th>元素</th><th>ER图符号</th><th>数据库对应</th><th>含义</th></tr>
+        <tr><td><strong>实体</strong></td><td>矩形 □</td><td>表（Table）</td><td>现实世界中可区分的"事物"：学生、课程、订单</td></tr>
+        <tr><td><strong>属性</strong></td><td>椭圆 ○</td><td>列（Column）</td><td>描述实体的特征：学生的姓名、年龄</td></tr>
+        <tr><td><strong>关系</strong></td><td>菱形 ◇</td><td>外键/关联表</td><td>实体之间的业务联系：学生"选修"课程</td></tr>
+        <tr><td><strong>基数</strong></td><td>标注 1:N / M:N</td><td>约束设计</td><td>一个学生对多门课(1:N)，一个订单对应多个商品(M:N)</td></tr>
+      </table>
+    </div>
+
+    <h3>从ER图到数据库设计的标准流程</h3>
+    <ol>
+      <li><strong>识别实体</strong>：找出系统中的核心"名词"——用户、订单、商品、部门</li>
+      <li><strong>确定属性</strong>：每个实体需要记录哪些信息</li>
+      <li><strong>定义关系</strong>：实体之间如何关联（1:1、1:N、M:N）</li>
+      <li><strong>转化表结构</strong>：M:N关系需要中间关联表；1:N关系在"多"方加外键</li>
+      <li><strong>范式化验证</strong>：用函数依赖检查每张表是否满足3NF</li>
+    </ol>
+  </div>
+  <div class="chart-container">
+    <div class="chart-caption">图：ER建模标准化流程（桑基图）</div>
+    <div class="chart-wrapper" id="chart_er_flow" style="height:450px"></div>
+  </div>
+  <div class="key-takeaway"><strong>核心要点：</strong><p>ER图是需求到表结构的"翻译器"。画ER图的过程就是强迫你把"业务上到底有哪些东西、它们之间怎么关联"想清楚——想不清楚就不要建表。</p></div>
+</section>
+
+<section id="development" class="module">
+  <div class="module-header">
+    <span class="module-tag">发展迭代</span>
+    <h2 class="module-title">发展迭代</h2>
+    <p class="module-hook">从1970年Codd的一篇论文开始，半个世纪过去了——范式理论几乎没有"过时"，它只是被"选择性应用"了</p>
+  </div>
+  <div class="module-content">
+    <div class="table-container">
+      <div class="table-caption">表：数据库设计范式关键里程碑</div>
+      <table>
+        <tr><th>年份</th><th>里程碑</th><th>关键人物</th><th>影响</th></tr>
+        <tr><td>1970</td><td>关系模型论文发表</td><td>E.F. Codd</td><td>奠定了整个关系数据库的理论基础</td></tr>
+        <tr><td>1970-1971</td><td>1NF, 2NF, 3NF提出</td><td>E.F. Codd</td><td>建立了消除数据冗余的标准化体系</td></tr>
+        <tr><td>1974</td><td>BCNF提出</td><td>Boyce & Codd</td><td>修复了3NF在某些场景下仍存在的冗余</td></tr>
+        <tr><td>1977-1979</td><td>4NF, 5NF提出</td><td>Ronald Fagin</td><td>理论完备但工业界极少使用</td></tr>
+        <tr><td>1980s</td><td>ER模型兴起</td><td>Peter Chen</td><td>范式化的"可视化前置步骤"，1976年提出，80年代普及</td></tr>
+        <tr><td>2000s-至今</td><td>NoSQL反范式运动</td><td>工业界</td><td>为性能故意保留冗余——范式成了"可选项"</td></tr>
+      </table>
+    </div>
+    <p>值得注意的转折是<strong>NoSQL运动的兴起</strong>（2009年后）。MongoDB、Cassandra等数据库强调"去范式化"——把相关数据冗余存储在一起以减少JOIN。这不是说范式理论错了，而是工程场景变了：当数据量达到PB级、响应时间要求毫秒级时，"完美的无冗余设计"反而成为性能瓶颈。</p>
+  </div>
+  <div class="key-takeaway"><strong>核心要点：</strong><p>范式理论本身是稳定的（50年来核心概念未变），但它的"地位"从"铁律"变成了"参考起点"——知道范式才能"有意识地反范式"。</p></div>
+</section>
+
+<section id="application" class="module">
+  <div class="module-header">
+    <span class="module-tag">实践应用</span>
+    <h2 class="module-title">实践应用</h2>
+    <p class="module-hook">范式化在工作中最常见的体现不是"如何设计新表"，而是"看到一张烂表后能立刻诊断出它违反了哪一级范式"</p>
+  </div>
+  <div class="module-content">
+    <h3>工作场景1：接手遗留系统——先"诊断"再"治疗"</h3>
+    <p>刚入职时最常见的数据库工作不是从头设计，而是接手一套已有的系统。你的第一反应应该是：</p>
+    <ol>
+      <li>找到核心业务表</li>
+      <li>快速检查：有没有字段里塞多个值？（1NF）有没有联合主键中部分冗余？（2NF）有没有一眼就能"推算"出来的冗余字段？（3NF）</li>
+      <li>评估：这些冗余是"故意的反范式"还是"设计者不知道范式"？前者不要乱改（可能有性能考量），后者标记为重构候选</li>
+    </ol>
+
+    <h3>工作场景2：需求评审——用ER图"堵住"逻辑漏洞</h3>
+    <p>产品经理说"我们要记录用户每次下单的商品和使用的优惠券"。如果你直接建表，可能会漏掉：一个订单可以包含多个商品（1:N），一个订单可能叠加多张优惠券（M:N）。<strong>画ER图的过程就是发现这些 "隐性复杂度" 的过程</strong>，比写好SQL之后发现表结构不对再返工高效得多。</p>
+
+    <h3>工作场景3：数据迁移——范式化作为"数据清洗"标准</h3>
+    <p>从Excel/CSV导入数据到数据库时，范式的规则就是你的<strong>数据质量标准</strong>：有没有字段同时存了"10001-张三-技术部"？这就是1NF违规，必须先拆分再入库。</p>
+  </div>
+  <div class="key-takeaway"><strong>核心要点：</strong><p>工作中范式化更多是"诊断工具"而非"设计教条"——它能帮你快速识别数据设计的不合理之处，但不需要对每张表都追求完美的3NF。</p></div>
+</section>
+
+<section id="case-study" class="module">
+  <div class="module-header">
+    <span class="module-tag">实践案例</span>
+    <h2 class="module-title">实践案例</h2>
+    <p class="module-hook">一个真实电商系统的订单表从"一张大宽表"到"范式化拆5张表"再到"有策略的反范式"——这个演化过程就是范式化在企业中应用的完整缩影</p>
+  </div>
+  <div class="module-content">
+    <h3>案例：电商订单系统的数据库设计演化</h3>
+    <p><strong>阶段一：创业初期——一张表打天下</strong></p>
+    <pre>orders(id, user_name, user_phone, user_addr, product_name,
+      product_price, product_category, coupon_code,
+      coupon_discount, pay_amount, create_time)</pre>
+    <p><strong>问题分析：</strong>用户重复下单→user信息冗余N份；商品改名→需要更新所有历史订单。违反2NF和3NF。</p>
+
+    <p><strong>阶段二：规范化重构</strong></p>
+    <p>拆分为5张表：<code>users</code>（用户）、<code>products</code>（商品）、<code>orders</code>（订单主表）、<code>order_items</code>（订单明细）、<code>coupons</code>（优惠券）。查询一个订单详情需要<code>orders JOIN users JOIN order_items JOIN products JOIN coupons</code>——5表JOIN。</p>
+
+    <p><strong>阶段三：性能优化——选择性反范式</strong></p>
+    <p>发现"订单列表页"（显示订单号、用户名、总金额）是最高频查询，每次都要JOIN users表。优化方案：在orders表中<strong>冗余存储user_name和user_phone</strong>——这两个字段几乎不会变（用户名改的频率远低于查询频率）。这是一个<strong>经过权衡的、有意识的反范式设计</strong>。</p>
+
+    <p><strong>阶段四：数据一致性保障</strong></p>
+    <p>既然冗余了，就要处理"用户改名后历史订单显示旧名"的问题。策略：在业务层面约定"订单快照储存下单时的用户信息"——这不是bug，这是<strong>feature</strong>（你需要知道用户下单时叫什么名字）。</p>
+
+    <h3>经验总结</h3>
+    <ul>
+      <li><strong>范式化是设计起点</strong>：新系统从3NF开始设计，逻辑清晰</li>
+      <li><strong>反范式是有策略的优化</strong>：只在确认性能瓶颈后才做，且有明确的"冗余字段→源头字段"映射文档</li>
+      <li><strong>"不变"的数据最适合反范式</strong>：用户名比用户积分更适合冗余</li>
+    </ul>
+  </div>
+  <div class="key-takeaway"><strong>核心要点：</strong><p>先范式化保证正确性，再根据实际查询负载做反范式优化——顺序不能反。盲目反范式（一开始就大宽表）是在用未来的维护噩梦换取当下的"省事"。</p></div>
+</section>
+
+<section id="risk" class="module">
+  <div class="module-header">
+    <span class="module-tag">风险分析</span>
+    <h2 class="module-title">潜在风险</h2>
+    <p class="module-hook">范式化最大的风险不是"范式本身有问题"，而是"过度范式化"和"不知道什么时候该反范式"</p>
+  </div>
+  <div class="module-content">
+    <h3>风险1：过度范式化 → JOIN爆炸</h3>
+    <p>把范式当教条，每个字段都要"归位"到它最本质的实体上，结果一个简单的查询页面需要JOIN 8张表。在高并发场景下，8表JOIN的性能开销可能让整个页面从200ms变成3秒。</p>
+
+    <h3>风险2：范式化与ORM的隐性冲突</h3>
+    <p>现代Web框架的ORM（Object-Relational Mapping，如Hibernate、Entity Framework）倾向于"一个对象一张表"。过度的范式化会让对象模型碎片化——一个"用户"对象的数据散落在5张表里，ORM的延迟加载（Lazy Loading）会触发著名的<strong>N+1查询问题</strong>：查100个用户，实际上执行了101条SQL（1条查用户列表 + 100条逐条查关联数据）。</p>
+
+    <h3>风险3：过度依赖范式而忽视业务语义</h3>
+    <p>范式化是纯结构性的，它不管"业务上这件事合不合理"。你不能因为"地址信息中的省/市/区存在传递依赖"就把地址拆成省表+市表+区表三张——这在技术上满足3NF，但在业务上完全是过度设计。</p>
+
+    <h3>风险4：范式化重构的历史数据兼容</h3>
+    <p>在生产系统上对已有表做范式化拆分会面临<strong>历史数据迁移</strong>的巨大风险。你不仅要写迁移脚本，还要保证迁移期间的新旧系统并行运行、灰度切换——这种操作的工程复杂度远高于"设计之初就考虑范式"。这也是为什么"技术债"总是越积越多——修它的代价太高了。</p>
+  </div>
+  <div class="key-takeaway"><strong>核心要点：</strong><p>范式化的最大风险是"不加判断地应用"。好的数据库设计师知道范式规则，更知道什么时候该打破规则——并在打破时留下文档说明理由。</p></div>
+</section>
+
+<section id="landscape" class="module">
+  <div class="module-header">
+    <span class="module-tag">发展格局</span>
+    <h2 class="module-title">发展格局</h2>
+    <p class="module-hook">范式化不再是数据库设计的唯一标准，它现在和"反范式化"、"DDD领域驱动建模"、"数据仓库维度建模"三足鼎立</p>
+  </div>
+  <div class="module-content">
+    <div class="table-container">
+      <div class="table-caption">表：不同数据库设计流派的范式化态度对比</div>
+      <table>
+        <tr><th>设计流派</th><th>对范式的态度</th><th>典型场景</th><th>代表人物/系统</th></tr>
+        <tr><td><strong>OLTP严格范式</strong></td><td>以3NF为目标，适度反范式</td><td>银行核心系统、ERP</td><td>Oracle/MySQL传统用法</td></tr>
+        <tr><td><strong>DDD领域驱动</strong></td><td>聚合根决定表边界，不强求范式</td><td>微服务架构</td><td>Eric Evans、Vaughn Vernon</td></tr>
+        <tr><td><strong>数据仓库星型模型</strong></td><td>故意反范式（事实表+维度表）</td><td>BI报表、OLAP</td><td>Ralph Kimball</td></tr>
+        <tr><td><strong>NoSQL文档模型</strong></td><td>完全无视范式（嵌入式文档）</td><td>高并发读、灵活schema</td><td>MongoDB、Firebase</td></tr>
+        <tr><td><strong>事件溯源</strong></td><td>不存状态只存事件，范式不适用</td><td>审计、复杂业务流程</td><td>Event Store、Axon</td></tr>
+      </table>
+    </div>
+    <p>范式化最稳固的阵地是<strong>OLTP（在线事务处理）系统</strong>——尤其是涉及到金钱、库存、用户权限等需要强一致性的场景。而在OLAP（在线分析处理）、高并发C端场景、以及NoSQL生态中，范式化已经退居"参考建议"的地位。</p>
+  </div>
+  <div class="key-takeaway"><strong>核心要点：</strong><p>范式化统治的是"数据一致性为第一优先级"的领域。你的系统属于这个领域吗？如果是——严格范式化；如果不是——范式化是起点，不是终点。</p></div>
+</section>
+
+<section id="issues" class="module">
+  <div class="module-header">
+    <span class="module-tag">发展问题</span>
+    <h2 class="module-title">发展问题</h2>
+    <p class="module-hook">"完全符合3NF的表结构"和"能扛住每秒10万QPS的查询性能"之间，隔着一个需要你亲手填的坑</p>
+  </div>
+  <div class="module-content">
+    <h3>痛点1：范式化与查询性能的根本矛盾</h3>
+    <p>范式的核心操作是"拆表"，而查询的核心操作是"JOIN"——拆得越细，JOIN就越多。在大数据量+高并发场景下，这个矛盾是不可调和的。</p>
+
+    <h3>痛点2：数据库设计的"新手诅咒"</h3>
+    <p>范式化的门槛其实很低——任何入门教程都能讲清楚1NF/2NF/3NF。但<strong>真正难的是"知道什么时候不遵循它"</strong>。这需要经验积累，无法通过读教科书获得。结果是：新手往往过度范式化，老手有时候又过度反范式。</p>
+
+    <h3>痛点3：缺乏工业界的"范式化实践指南"</h3>
+    <p>学术界的范式理论完备而严谨，但缺少一本告诉你"在工作中，下面这些场景可以违反3NF：...，但下面这些场景绝对不能：..."的实践手册。范式化的学习往往是"学完→工作→踩坑→反思"的过程。</p>
+
+    <h3>痛点4：微服务架构对范式化的冲击</h3>
+    <p>在单体应用中，一个完整的3NF设计是可行的（所有表在一个库里）。但在微服务架构下，不同服务有各自的数据库，<strong>跨库JOIN几乎是不可能的</strong>。这意味着你需要有策略地在每个微服务的数据库中存储必要的冗余数据——这本质上是一种"架构级反范式"。</p>
+  </div>
+  <div class="key-takeaway"><strong>核心要点：</strong><p>范式化的最大痛点不是理论本身，而是它和现代工程实践（高并发、微服务、NoSQL）之间的"摩擦面"。学会在这些摩擦面上做判断，才是一个成熟的数据库设计师。</p></div>
+</section>
+
+<section id="prospect" class="module">
+  <div class="module-header">
+    <span class="module-tag">发展前景</span>
+    <h2 class="module-title">发展前景</h2>
+    <p class="module-hook">范式化不会消失——它会从"人人遵守的铁律"演变成"专业人士手中的诊断工具"</p>
+  </div>
+  <div class="module-content">
+    <p><strong>趋势1：范式化下沉为"底层素养"。</strong>就像今天没人再争论"要不要用版本控制"，范式化会成为数据库从业者的基本素养——你不需要每天念叨它，但你设计表时"自动"就会规避明显的冗余异常。</p>
+    <p><strong>趋势2：自动化范式化工具可能出现。</strong>基于AI的数据库设计助手可能会分析你的原始需求文档→自动生成初步的3NF表结构→在此基础上根据查询模式提供反范式建议。这不是科幻——GPT-4已被证明能理解范式化概念并给出合理建议。</p>
+    <p><strong>趋势3：范式化和NoSQL走向"套娃式"共存。</strong>核心交易数据仍然严格范式化（MySQL/PostgreSQL），而日志、行为数据、缓存数据则彻底去范式化（MongoDB/Redis/Elasticsearch）——不是范式对非范式的"二选一"，而是<strong>用对场景</strong>。</p>
+  </div>
+</section>
+
+<section id="effort-direction" class="module">
+  <div class="module-header">
+    <span class="module-tag">学习建议</span>
+    <h2 class="module-title">努力方向</h2>
+  </div>
+  <div class="module-content">
+    <ol>
+      <li><strong>练"诊断"而不是"设计"</strong>：找一些现成的烂表设计，判断它违反了哪个范式——这种能力在面试和实际工作中比"从零设计"更常用</li>
+      <li><strong>把ER图画熟练</strong>：范式化和ER图是一体两面。练习拿一个真实场景（比如"图书馆借阅系统"）画完整ER图，然后转化为3NF表结构</li>
+      <li><strong>学一个反范式的案例</strong>：找一个高并发系统（如新闻网站的评论表），理解为什么不把"用户信息"和"评论内容"拆成两张表</li>
+      <li><strong>理解不同数据库的范式化态度</strong>：MySQL InnoDB（支持外键约束，鼓励范式）vs MongoDB（无JOIN的文档模型，故意反范式）——知道工具的特性才能用好工具</li>
+    </ol>
+  </div>
+</section>
+
+<section id="misconceptions" class="module">
+  <div class="module-header">
+    <span class="module-tag">常见误区</span>
+    <h2 class="module-title">常见误区</h2>
+    <p class="module-hook">"反范式就是设计水平低"——这是对范式化最常见的误解，也是最危险的</p>
+  </div>
+  <div class="module-content">
+    <h3>误区1："范式越高越好"</h3>
+    <p>实际上3NF是工业界的甜点位置。4NF、5NF在99.9%的业务场景中不适用——强求它们只是在为理论上"更优雅"而牺牲实际性能。</p>
+
+    <h3>误区2："只要满足3NF，表设计就是完美的"</h3>
+    <p>3NF解决的是<strong>冗余问题</strong>，不解决<strong>查询效率问题</strong>。一张完全3NF的表可能需要5次JOIN才能查出业务上最常用的数据——这种"完美"在性能上是灾难。</p>
+
+    <h3>误区3："用ORM就可以不考虑范式化"</h3>
+    <p>ORM（如Hibernate）会帮你自动生成表结构，但<strong>不会帮你考虑范式化</strong>。如果不理解范式，ORM生成的表结构可能充满冗余而你毫无察觉——直到性能问题爆发。</p>
+
+    <h3>误区4："NoSQL就是不遵循范式的SQL"</h3>
+    <p>NoSQL的选择（去范式化）是<strong>有意识的工程权衡</strong>，而不是"不知道范式所以没做"。这两者的区别就像"建筑大师故意打破对称来创造美感"和"盖歪了"——外行看起来差不多，本质完全不同。</p>
+  </div>
+  <div class="key-takeaway"><strong>核心要点：</strong><p>范式是工具，不是目标。知道范式才能有意识地反范式；不知道范式就直接"凭感觉设计"——那不叫反范式，叫"不知道自己在干什么"。</p></div>
+</section>
+
+<section id="learning-path" class="module">
+  <div class="module-header">
+    <span class="module-tag">学习路径</span>
+    <h2 class="module-title">学习路径</h2>
+  </div>
+  <div class="module-content">
+    <h3>推荐书单</h3>
+    <ul>
+      <li><strong>《数据库系统概念》</strong>（Silberschatz等）— 第7章"数据库设计与E-R模型"，国际公认的"数据库圣经"级教材</li>
+      <li><strong>《SQL反模式》</strong>（Bill Karwin）— 从反面案例出发，解释每种"烂设计"背后的范式缺失</li>
+      <li><strong>《高性能MySQL》</strong>第4章"Schema与数据类型优化"——讨论在MySQL中何时该反范式</li>
+    </ul>
+    <h3>在线资源</h3>
+    <ul>
+      <li>draw.io / dbdiagram.io — 在线画ER图的最实用工具</li>
+      <li>Database Answers — 包含数百个行业标准ER图模板</li>
+      <li>Vertabelo — 专业数据库建模工具，支持从ER图自动生成DDL</li>
+    </ul>
+  </div>
+</section>
+
+<section id="glossary" class="module">
+  <div class="module-header">
+    <span class="module-tag">术语表</span>
+    <h2 class="module-title">关键术语表</h2>
+  </div>
+  <div class="module-content">
+    <div class="table-container">
+      <table>
+        <tr><th>术语</th><th>英文</th><th>释义</th></tr>
+        <tr><td>主键</td><td>Primary Key</td><td>唯一标识表中每一行的列（或列组合）</td></tr>
+        <tr><td>外键</td><td>Foreign Key</td><td>指向另一张表主键的列，用于建立表间关联</td></tr>
+        <tr><td>函数依赖</td><td>Functional Dependency</td><td>X能唯一确定Y，则Y函数依赖于X</td></tr>
+        <tr><td>部分依赖</td><td>Partial Dependency</td><td>非主键列只依赖于联合主键的一部分（违反2NF）</td></tr>
+        <tr><td>传递依赖</td><td>Transitive Dependency</td><td>非主键列通过另一个非主键列间接依赖于主键（违反3NF）</td></tr>
+        <tr><td>原子值</td><td>Atomic Value</td><td>不可再分的数据单元，1NF的核心要求</td></tr>
+        <tr><td>BCNF</td><td>Boyce-Codd Normal Form</td><td>3NF的强化版，消除了主键属性对非主键属性的依赖</td></tr>
+        <tr><td>无损分解</td><td>Lossless Decomposition</td><td>拆表后通过JOIN能完整还原原始数据</td></tr>
+        <tr><td>OLTP</td><td>Online Transaction Processing</td><td>在线事务处理，范式化最主要的应用场景</td></tr>
+        <tr><td>OLAP</td><td>Online Analytical Processing</td><td>在线分析处理，通常故意反范式以提高查询速度</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section id="debate" class="module">
+  <div class="module-header">
+    <span class="module-tag">争议讨论</span>
+    <h2 class="module-title">争议与辩论</h2>
+    <p class="module-hook">范式化 vs 反范式化——这不是"谁对谁错"的问题，而是"在什么场景下选哪一边"的决策艺术</p>
+  </div>
+  <div class="module-content">
+    <h3>正方：范式化至上派</h3>
+    <p>"冗余是一切数据问题的根源。正因为反范式在短期内'更快'，长期才会产生数据不一致的隐形炸弹。你应该先追求设计的正确性，用缓存和读写分离来解决性能问题，而不是在设计层面妥协。"</p>
+    <p><strong>代表人物：</strong>传统DBA、金融系统架构师、数据治理专家</p>
+
+    <h3>反方：实用主义派</h3>
+    <p>"过度范式化是学术界的洁癖。真实世界的数据库需要应对每秒百万级的并发查询——纯3NF设计需要5-8表JOIN，这些查询在高峰期会压垮数据库。有策略地去范式化不仅不是错误，而是高级工程师的标志。"</p>
+    <p><strong>代表人物：</strong>互联网后端架构师、NoSQL倡导者</p>
+
+    <h3>共识区</h3>
+    <p>双方其实在核心原则上是一致的：</p>
+    <ul>
+      <li><strong>范式化是设计的默认起点</strong>（没有人主张从一张大宽表开始设计）</li>
+      <li><strong>反范式是优化手段，不是设计哲学</strong>（应该在确认瓶颈后针对性做，而非预先全面反范式）</li>
+      <li><strong>反范式的代价必须被记录</strong>（哪些字段是冗余的？源头在哪？谁来保证一致性？）</li>
+    </ul>
+    <p>真正的争议在于"反范式的时机"——是设计时预估到瓶颈就反（激进派），还是上线后用监控数据说话再反（保守派）。这个问题没有标准答案，取决于团队的技术判断力和系统的容错空间。</p>
+  </div>
+  <div class="key-takeaway"><strong>核心要点：</strong><p>争论的本质是在"数据一致性"和"查询性能"之间做trade-off。无论你站哪一边，都要能清晰地说出"我在哪张表违反了哪个范式，为什么，代价是什么"。如果不能——你的反范式只是"随便设计的借口"。</p></div>
+</section>
+
+</div>
+
+<div class="back-btn">
+  <button onclick="goBack()">← 返回学习方案</button>
+</div>
+
+<script>
+var DEEP_DIVE_KP_ID = 'p3_1';
+function goBack() {
+  var MAIN_PAGE = 'sql_learning.html';
+  var WIN_NAME = '_ml_llm_main';
+  var CH_KEY = '_ml_llm_nav';
+
+  localStorage.setItem(CH_KEY, JSON.stringify({
+    kpId: DEEP_DIVE_KP_ID,
+    ts: Date.now()
+  }));
+
+  var mainWin = window.open(MAIN_PAGE, WIN_NAME);
+  if (mainWin) {
+    mainWin.focus();
+  }
+}
+
+function toggleTheme(){
+  var b=document.body;
+  var isDark=!b.classList.contains('light');
+  b.classList.toggle('light');
+  try{localStorage.setItem('slm-theme',isDark?'light':'dark')}catch(e){}
+}
+
+(function(){
+  try{
+    var t=localStorage.getItem('slm-theme');
+    if(t==='light') document.body.classList.add('light');
+  }catch(e){}
+})();
+
+document.addEventListener('DOMContentLoaded', function(){
+  document.body.classList.remove('loading');
+  document.body.classList.add('loaded');
+
+  renderMathInElement(document.body, {
+    delimiters: [
+      {left: '$$', right: '$$', display: true},
+      {left: '$', right: '$', display: false}
+    ]
+  });
+
+  if (typeof echarts !== 'undefined') {
+    (function(){
+      var chartDom = document.getElementById('chart_er_flow');
+      if (!chartDom) return;
+      var chart = echarts.init(chartDom);
+      chart.setOption({
+        tooltip: { trigger: 'item' },
+        series: [{
+          type: 'sankey',
+          layout: 'none',
+          emphasis: { focus: 'adjacency' },
+          nodeAlign: 'left',
+          data: [
+            { name: '业务需求' },
+            { name: '实体识别' },
+            { name: '属性定义' },
+            { name: '关系建模' },
+            { name: '1NF检查' },
+            { name: '2NF检查' },
+            { name: '3NF检查' },
+            { name: '物理表DDL' }
+          ],
+          links: [
+            { source: '业务需求', target: '实体识别', value: 8 },
+            { source: '实体识别', target: '属性定义', value: 6 },
+            { source: '属性定义', target: '关系建模', value: 5 },
+            { source: '关系建模', target: '1NF检查', value: 4 },
+            { source: '1NF检查', target: '2NF检查', value: 3 },
+            { source: '2NF检查', target: '3NF检查', value: 2 },
+            { source: '3NF检查', target: '物理表DDL', value: 1 }
+          ],
+          lineStyle: { color: 'gradient', curveness: 0.5 },
+          label: { color: document.body.classList.contains('light') ? '#121212' : '#ededed', fontSize: 12 }
+        }]
+      });
+    })();
+
+    (function(){
+      var chartDom2 = document.getElementById('chart_normal_form');
+      if (!chartDom2) return;
+      var chart2 = echarts.init(chartDom2);
+      var darkMode = !document.body.classList.contains('light');
+      chart2.setOption({
+        tooltip: { trigger: 'axis' },
+        legend: { data: ['数据冗余度', 'JOIN复杂度', '设计难度'], textStyle: { color: darkMode ? '#a0a0a0' : '#4a4a4a' } },
+        radar: {
+          center: ['50%', '55%'],
+          radius: '65%',
+          indicator: [
+            { name: '1NF', max: 10 },
+            { name: '2NF', max: 10 },
+            { name: '3NF', max: 10 },
+            { name: 'BCNF', max: 10 },
+            { name: '4NF', max: 10 }
+          ],
+          axisName: { color: darkMode ? '#787878' : '#5e5e5e' }
+        },
+        series: [{
+          type: 'radar',
+          data: [
+            { value: [8, 5, 4, 2, 1], name: '数据冗余度', areaStyle: { color: 'rgba(192,96,80,0.2)' }, lineStyle: { color: '#c06050' } },
+            { value: [2, 4, 6, 7, 9], name: 'JOIN复杂度', areaStyle: { color: 'rgba(91,141,184,0.2)' }, lineStyle: { color: '#5b8db8' } },
+            { value: [2, 4, 5, 7, 9], name: '设计难度', areaStyle: { color: 'rgba(136,120,168,0.2)' }, lineStyle: { color: '#8878a8' } }
+          ]
+        }]
+      });
+    })();
+  }
+});
+</script>
+</body>
+</html>

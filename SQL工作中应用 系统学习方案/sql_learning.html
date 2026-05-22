@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>SQL及其在工作中应用 系统学习方案</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+/* ───────────────────────────────────────────────
+   Template: Graphite Studio (石墨工作室) — plan.css
+   Mood: minimal, clean, neutral — Swiss design
+   Contrast verified: text-primary≥10:1, text-secondary≥6:1, text-muted≥4.5:1
+   ─────────────────────────────────────────────── */
+:root{
+--bg-deep:#0d0d0d;
+--bg-primary:#141414;
+--bg-card:#1a1a1a;
+--bg-elevated:#222222;
+--bg-input:#1c1c1c;
+--text-primary:#ededed;
+--text-secondary:#a0a0a0;
+--text-muted:#787878;
+--accent-blue:#5b8db8;
+--accent-cyan:#6ea8c0;
+--accent-purple:#8878a8;
+--accent-green:#5a9e6f;
+--accent-orange:#c0a060;
+--accent-pink:#b87888;
+--accent-red:#c06050;
+--accent-gold:#c0a060;
+--border-subtle:rgba(255,255,255,0.05);
+--border-glow:rgba(91,141,184,0.2);
+--shadow-sm:0 1px 3px rgba(0,0,0,0.3);
+--shadow-md:0 4px 12px rgba(0,0,0,0.4);
+--radius-sm:6px;
+--radius-md:10px;
+--radius-lg:16px;
+--transition-fast:0.15s ease;
+--transition-smooth:0.3s ease;
+}
+body.light{
+--bg-deep:#fafafa;
+--bg-primary:#ffffff;
+--bg-card:#f5f5f5;
+--bg-elevated:#eeeeee;
+--bg-input:#e5e5e5;
+--text-primary:#121212;
+--text-secondary:#4a4a4a;
+--text-muted:#5e5e5e;
+--accent-blue:#3a6088;
+--accent-cyan:#3a7888;
+--accent-purple:#5a4878;
+--accent-green:#3d8055;
+--accent-orange:#886830;
+--accent-pink:#884858;
+--accent-red:#983830;
+--accent-gold:#886830;
+--border-subtle:rgba(18,18,18,0.08);
+--border-glow:rgba(58,96,136,0.2);
+--shadow-sm:0 1px 3px rgba(0,0,0,0.06);
+--shadow-md:0 4px 12px rgba(0,0,0,0.08);
+}
+body.light .knowledge-card.expanded{border-color:rgba(61,128,85,0.5)}
+body.dark .knowledge-card.expanded{border-color:rgba(90,158,111,0.5);background:var(--bg-elevated)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter','Noto Sans SC',-apple-system,sans-serif;background:var(--bg-deep);color:var(--text-primary);line-height:1.6;overflow-x:hidden}
+body.loading{opacity:0}body.loaded{opacity:1;transition:opacity 0.4s ease}
+.container{max-width:1200px;margin:0 auto;padding:0 24px}
+
+.hero{text-align:center;padding:80px 0 60px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;
+  background:radial-gradient(ellipse at 50% 0%,#5b8db8 0%,transparent 50%),radial-gradient(ellipse at 80% 50%,#6ea8c0 0%,transparent 40%);
+  opacity:0.15;z-index:0}
+.hero>*{position:relative;z-index:1}
+.hero h1{font-size:2.6rem;font-weight:900;letter-spacing:-0.02em;margin-bottom:16px;background:linear-gradient(135deg,#5b8db8,#6ea8c0);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{font-size:1.05rem;color:var(--text-secondary);max-width:700px;margin:0 auto 32px}
+.hero-stats{display:flex;gap:24px;justify-content:center;flex-wrap:wrap}
+.hero-stat{background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:16px 28px;text-align:center;min-width:100px}
+.hero-stat .num{font-size:2rem;font-weight:800;color:var(--accent-blue)}
+.hero-stat .lbl{font-size:0.75rem;color:var(--text-muted);margin-top:4px}
+
+.topbar{position:sticky;top:0;z-index:100;background:rgba(5,10,16,0.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border-subtle);padding:10px 0}
+.topbar .container{display:flex;gap:12px;align-items:center;overflow-x:auto}
+.topbar a{color:var(--text-secondary);text-decoration:none;font-size:0.78rem;font-weight:600;padding:6px 14px;border-radius:50px;transition:all var(--transition-fast);white-space:nowrap}
+.topbar a:hover{color:var(--accent-cyan);background:rgba(56,189,248,0.08)}
+.topbar .theme-toggle,.topbar .search-toggle{background:var(--bg-elevated);border:1px solid var(--border-subtle);color:var(--text-secondary);font-size:0.78rem;padding:6px 14px;border-radius:50px;cursor:pointer;font-family:inherit;font-weight:600;transition:all var(--transition-fast)}
+.topbar .theme-toggle:hover,.topbar .search-toggle:hover{color:var(--accent-cyan);border-color:var(--border-glow)}
+
+.search-overlay{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px)}
+.search-overlay.show{display:flex;align-items:flex-start;justify-content:center;padding-top:120px}
+.search-box{background:var(--bg-card);border:1px solid var(--border-glow);border-radius:var(--radius-md);padding:20px;width:90%;max-width:600px;box-shadow:0 16px 48px rgba(0,0,0,0.5)}
+.search-box input{width:100%;background:var(--bg-input);border:1px solid var(--border-subtle);border-radius:var(--radius-sm);padding:12px 16px;color:var(--text-primary);font-size:0.95rem;font-family:inherit;outline:none}
+.search-box input:focus{border-color:var(--accent-cyan)}
+.search-results{margin-top:12px;max-height:300px;overflow-y:auto}
+.search-result{padding:10px 14px;border-radius:var(--radius-sm);cursor:pointer;font-size:0.82rem;transition:background var(--transition-fast)}
+.search-result:hover{background:rgba(56,189,248,0.08)}
+.search-result .sr-title{font-weight:700;color:var(--accent-cyan)}
+.search-result .sr-detail{color:var(--text-muted);font-size:0.72rem;margin-top:2px}
+
+.section{padding:60px 0}
+.section-title{font-size:1.5rem;font-weight:800;margin-bottom:28px;display:flex;align-items:center;gap:10px}
+
+.phase-list{display:flex;flex-direction:column;gap:16px}
+.phase-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-lg);overflow:hidden;transition:all var(--transition-smooth)}
+.phase-card:hover{border-color:var(--border-glow)}
+.phase-card.open{border-color:var(--border-glow)}
+.phase-header{padding:20px 24px;cursor:pointer;display:flex;align-items:center;gap:14px;transition:background var(--transition-fast);user-select:none}
+.phase-header:hover{background:rgba(96,165,250,0.03)}
+.phase-icon{width:42px;height:42px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0}
+.phase-info{flex:1}.phase-info h3{font-size:1.05rem;font-weight:700}.phase-info .phase-week{font-size:0.72rem;color:var(--text-muted);margin-top:2px}.phase-sub{font-size:0.72rem;padding:3px 10px;border-radius:50px;font-weight:600}
+.phase-arrow{font-size:1.1rem;color:var(--text-muted);transition:transform var(--transition-smooth)}.phase-card.open .phase-arrow{transform:rotate(90deg)}
+.phase-body{display:none;padding:0 24px 20px;border-top:1px solid var(--border-subtle)}
+.phase-card.open .phase-body{display:block}
+.phase-body-inner{padding-top:16px}
+.phase-skills{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.skill-chip{padding:3px 12px;background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:50px;font-size:0.72rem;color:var(--text-secondary)}
+.phase-desc{font-size:0.82rem;color:var(--text-muted);margin-bottom:12px;line-height:1.7}
+.phase-codes{margin-top:8px}.phase-codes pre{background:rgba(0,0,0,0.3);border-radius:var(--radius-sm);padding:12px 16px;overflow-x:auto;font-size:0.72rem;font-family:'JetBrains Mono',monospace;color:var(--accent-cyan)}
+.footer{text-align:center;padding:40px 0;color:var(--text-muted);font-size:0.72rem;border-top:1px solid var(--border-subtle)}
+
+.knowledge-toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px}
+.knowledge-filters{display:flex;gap:6px;flex-wrap:wrap}
+.knowledge-filter{background:var(--bg-elevated);border:1px solid var(--border-subtle);color:var(--text-secondary);padding:4px 14px;border-radius:50px;cursor:pointer;font-size:0.72rem;font-weight:600;font-family:inherit;transition:all var(--transition-fast)}
+.knowledge-filter:hover{color:var(--accent-cyan);border-color:var(--border-glow)}
+.knowledge-filter.active{background:rgba(56,189,248,0.12);color:var(--accent-cyan);border-color:var(--accent-cyan)}
+.knowledge-count{font-size:0.68rem;color:var(--text-muted)}
+.knowledge-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px}
+@media(max-width:768px){.knowledge-grid{grid-template-columns:1fr}}
+
+.knowledge-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);overflow:hidden;cursor:default;transition:all var(--transition-smooth);position:relative}
+.knowledge-card:hover{border-color:var(--border-glow);box-shadow:var(--shadow-sm)}
+.knowledge-card.open{border-color:var(--border-glow)}
+.knowledge-card.expanded{grid-column:1/-1;border-color:var(--accent-green);box-shadow:var(--shadow-md)}
+.card-header{padding:14px 18px;cursor:pointer;display:flex;align-items:center;gap:10px;flex-wrap:wrap;transition:background var(--transition-fast);user-select:none}
+.card-header:hover{background:rgba(124,92,231,0.03)}
+.card-icon{font-size:1.1rem;flex-shrink:0}.card-title{font-weight:700;font-size:0.85rem;flex:1}
+.math-tag{padding:2px 10px;border-radius:50px;font-size:0.6rem;font-weight:700;cursor:pointer;transition:all var(--transition-fast);color:#fff}
+.math-tag:hover{opacity:0.8}
+.card-back{display:none;font-size:0.65rem;color:var(--text-muted);cursor:pointer;padding:2px 8px;border-radius:50px;background:var(--bg-elevated)}
+.knowledge-card.expanded .card-back,.knowledge-card.open .card-back{display:inline}
+.card-detail{display:none;padding:0 18px 16px;font-size:0.82rem;color:var(--text-secondary);line-height:1.7}
+.knowledge-card.open .card-detail,.knowledge-card.expanded .card-detail{display:block}
+.card-detail p{margin-bottom:8px}
+.card-formula{background:var(--bg-elevated);border:1px solid var(--border-glow);border-radius:var(--radius-sm);padding:14px 18px;margin-bottom:12px;font-size:0.95rem;text-align:center;color:var(--accent-blue);overflow-x:auto}
+.card-sum{background:rgba(251,191,36,0.06);border-left:3px solid var(--accent-orange);padding:10px 14px;margin-bottom:10px;border-radius:0 var(--radius-sm) var(--radius-sm) 0;font-size:0.78rem;color:var(--accent-orange)}
+.card-related{margin-top:4px;margin-bottom:8px;padding:12px 14px;background:rgba(255,255,255,0.015);border:1px dashed var(--border-subtle);border-radius:var(--radius-sm)}
+.cr-title{font-size:0.72rem;font-weight:700;color:var(--text-secondary);margin-bottom:8px}
+.cr-links{display:flex;flex-wrap:wrap;gap:6px}
+.cr-link{font-size:0.68rem;padding:4px 10px;border-radius:50px;border:1px solid var(--border-subtle);color:var(--accent-cyan);cursor:pointer;transition:all var(--transition-fast)}
+.cr-link:hover{background:rgba(38,198,218,0.1);border-color:var(--accent-cyan)}
+.skill-link{cursor:pointer;border-color:rgba(79,195,247,0.3);color:var(--accent-blue)}
+.skill-link:hover{background:rgba(79,195,247,0.1);transform:translateY(-1px)}
+.ks-expand-all{background:transparent;border:1px solid var(--border-subtle);color:var(--accent-cyan);padding:3px 10px;border-radius:50px;font-size:0.68rem;cursor:pointer;font-weight:600;transition:all var(--transition-fast);font-family:inherit;margin-left:8px}
+.ks-expand-all:hover{border-color:var(--accent-cyan);background:rgba(38,198,218,0.08)}
+@media(max-width:768px){.knowledge-card.expanded{grid-column:auto}}
+.deep-dive-bar{padding:0 0 8px;text-align:right;display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+.deep-dive-btn{background:linear-gradient(135deg,rgba(139,92,246,0.15),rgba(99,102,241,0.1));border:1px solid rgba(139,92,246,0.3);color:var(--accent-purple);padding:6px 16px;border-radius:50px;cursor:pointer;font-size:0.78rem;font-weight:600;font-family:inherit;transition:all var(--transition-smooth)}
+.deep-dive-btn:hover{border-color:rgba(139,92,246,0.6);box-shadow:0 0 16px rgba(139,92,246,0.15);transform:translateY(-1px)}
+.dd-ready .deep-dive-btn{background:rgba(16,185,129,0.1);border-color:rgba(16,185,129,0.3);color:var(--accent-green)}
+.dd-hint{font-size:0.65rem;color:var(--text-muted);opacity:0.7}
+.deep-dive-open-btn{background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);color:var(--accent-green);border-radius:50px;width:26px;height:26px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;font-size:0.75rem;font-weight:700;font-family:inherit;transition:all var(--transition-fast)}
+.deep-dive-open-btn:hover{background:rgba(16,185,129,0.25)}
+.dd-toast{animation:ddToastIn 0.3s ease}
+@keyframes ddToastIn{from{opacity:0;transform:translate(-50%,20px)}to{opacity:1;transform:translate(-50%,0)}}
+.phase-dd-batch{padding-top:16px;border-top:1px solid var(--border-subtle);display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.batch-deep-dive-btn{background:var(--bg-elevated);border:1px dashed var(--border-glow);color:var(--text-secondary);padding:8px 20px;border-radius:50px;cursor:pointer;font-size:0.82rem;font-weight:600;font-family:inherit;transition:all var(--transition-smooth)}
+.batch-deep-dive-btn:hover{border-style:solid;border-color:rgba(139,92,246,0.5);color:var(--accent-purple)}
+
+.formula-tabs{display:flex;gap:6px;margin-bottom:20px;flex-wrap:wrap}
+.formula-tab{background:var(--bg-elevated);border:1px solid var(--border-subtle);color:var(--text-secondary);padding:6px 16px;border-radius:50px;cursor:pointer;font-size:0.72rem;font-weight:600;font-family:inherit;transition:all var(--transition-fast)}
+.formula-tab:hover{color:var(--accent-cyan);border-color:var(--border-glow)}
+.formula-tab.active{background:rgba(56,189,248,0.12);color:var(--accent-cyan);border-color:var(--accent-cyan)}
+.formula-panel{display:none}
+.formula-panel.active{display:block}
+.formula-table{width:100%;border-collapse:collapse;font-size:0.78rem}
+.formula-table th{text-align:left;padding:10px 14px;background:var(--bg-elevated);color:var(--accent-cyan);font-weight:700;border-bottom:2px solid var(--border-glow)}
+.formula-table td{padding:9px 14px;border-bottom:1px solid var(--border-subtle);color:var(--text-secondary);font-family:'JetBrains Mono',monospace}
+
+.exercise-filters{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.exercise-filter{padding:4px 14px;border-radius:50px;font-size:0.68rem;cursor:pointer;font-weight:600;border:1px solid var(--border-subtle);color:var(--text-secondary);background:var(--bg-elevated);font-family:inherit;transition:all var(--transition-fast)}
+.exercise-filter:hover{color:var(--accent-cyan);border-color:var(--border-glow)}
+.exercise-filter.active{background:rgba(56,189,248,0.12);color:var(--accent-cyan);border-color:var(--accent-cyan)}
+.exercise-count{font-size:0.68rem;color:var(--text-muted);margin-bottom:12px}
+.exercise-list{display:flex;flex-direction:column;gap:8px}
+.exercise-item{display:flex;gap:12px;align-items:center;background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:12px 16px;transition:all var(--transition-fast)}
+.exercise-item:hover{border-color:var(--border-glow)}
+.exercise-num{font-size:0.7rem;color:var(--text-muted);font-family:'JetBrains Mono',monospace;min-width:28px}
+.ei-content{flex:1}.ei-title{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.ei-title-text{font-size:0.84rem;font-weight:600}
+.diff{padding:2px 8px;border-radius:50px;font-size:0.6rem;font-weight:700}
+.diff.easy{background:rgba(16,185,129,0.1);color:var(--accent-green)}
+.diff.medium{background:rgba(251,191,36,0.1);color:var(--accent-orange)}
+.diff.hard{background:rgba(239,68,68,0.1);color:#ef4444}
+.diff.project{background:rgba(139,92,246,0.1);color:var(--accent-purple)}
+.ei-check{width:28px;height:28px;border-radius:50%;border:2px solid var(--border-subtle);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:0.75rem;transition:all var(--transition-fast);flex-shrink:0}
+.ei-check:hover{border-color:var(--accent-green)}
+.ei-check.done{background:var(--accent-green);border-color:var(--accent-green);color:#fff}
+
+.resource-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.resource-item{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:16px 18px;transition:all var(--transition-fast)}
+.resource-item:hover{border-color:var(--border-glow)}
+.resource-item .ri-type{font-size:0.6rem;font-weight:700;padding:2px 8px;border-radius:50px;display:inline-block;margin-bottom:8px}
+.ri-type.book{background:rgba(96,165,250,0.1);color:var(--accent-blue)}
+.ri-type.paper{background:rgba(251,191,36,0.1);color:var(--accent-orange)}
+.ri-type.site{background:rgba(16,185,129,0.1);color:var(--accent-green)}
+.ri-type.tool{background:rgba(139,92,246,0.1);color:var(--accent-purple)}
+.resource-item h4{font-size:0.85rem;font-weight:700;margin-bottom:4px}.resource-item p{font-size:0.72rem;color:var(--text-muted);line-height:1.5}
+.resource-item a{font-size:0.68rem;color:var(--accent-cyan);text-decoration:none;font-weight:600}
+.resource-item a:hover{text-decoration:underline}
+
+.tracker-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+.tracker-item{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:14px 16px;cursor:pointer;transition:all var(--transition-fast);display:flex;align-items:center;gap:10px;user-select:none}
+.tracker-item:hover{border-color:var(--border-glow)}
+.tracker-check{width:24px;height:24px;border-radius:50%;border:2px solid var(--border-subtle);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all var(--transition-fast)}
+.tracker-item.done .tracker-check{background:var(--accent-green);border-color:var(--accent-green)}
+.tracker-check::after{content:'\2713';color:transparent;font-size:0.7rem;font-weight:700}
+.tracker-item.done .tracker-check::after{color:#fff}
+.tracker-item.done .tracker-label{text-decoration:line-through;opacity:0.5}
+.tracker-label{font-size:0.78rem;font-weight:600}
+
+.progress-bar-container{width:100%;height:6px;background:var(--bg-elevated);border-radius:3px;margin:20px 0;overflow:hidden}
+.progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--accent-blue),var(--accent-green));border-radius:3px;transition:width 0.4s ease}
+
+.deep-floating-back{position:fixed;right:20px;bottom:20px;z-index:10000}
+.deep-floating-back button{padding:12px 20px;background:linear-gradient(135deg,var(--accent-color,#4a90d9),var(--accent-dark,#2d6cb0));color:white;border:none;border-radius:24px;font-size:0.85rem;font-weight:600;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.15);transition:transform 0.2s,box-shadow 0.2s}
+.deep-floating-back button:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,0.2)}
+@media(max-width:768px){.deep-floating-back{right:15px;bottom:15px}.deep-floating-back button{padding:10px 16px;font-size:0.8rem}}
+
+.drawing-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.drawing-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:18px;transition:all var(--transition-fast)}
+.drawing-card:hover{border-color:var(--border-glow)}
+.drawing-card h4{font-size:0.85rem;font-weight:700;margin-bottom:8px;color:var(--accent-purple)}
+.drawing-card p{font-size:0.75rem;color:var(--text-muted);line-height:1.6}
+</style>
+</head>
+<body class="loading light">
+
+<div class="topbar">
+  <div class="container">
+    <a href="#phases">&#x1F4CB; 阶段</a><a href="#knowledge">&#x1F4A1; 知识点</a>
+    
+    <a href="#graph">&#x1F9E0; 图谱</a>
+    
+    <a href="#formulas">&#x1F4CB; 公式</a>
+    <a href="#exercises">&#x270F;&#xFE0F; 练习</a><a href="#resources">&#x1F4DA; 资料</a><a href="#tracker">&#x2705; 进度</a>
+    <button class="theme-toggle" onclick="toggleTheme()" title="切换主题">&#x1F31F;</button>
+    <button class="search-toggle" onclick="searchOpen()" title="搜索 (Ctrl+K)">&#x1F50D;</button>
+  </div>
+</div>
+
+<div class="search-overlay" id="searchOverlay" onclick="event.target===this&&searchClose()">
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="搜索知识点..." oninput="searchKPs()" onkeydown="if(event.key==='Escape')searchClose()">
+    <div class="search-results" id="searchResults"></div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="hero">
+    <h1>SQL及其在工作中应用</h1>
+    <p>基于教程实操型学习纹理，4阶段14周，标准深度。先动手写查询，再项目驱动练习，按需回补理论。</p>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="num">14</div><div class="lbl">学习周数</div></div>
+      <div class="hero-stat"><div class="num">4</div><div class="lbl">学习阶段</div></div>
+      <div class="hero-stat"><div class="num">10</div><div class="lbl">实操练习</div></div>
+      <div class="hero-stat"><div class="num">12</div><div class="lbl">知识要点</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+<section class="section" id="phases">
+  <div class="section-title">&#x1F4CB; 学习阶段</div>
+  <div class="phase-list" id="phaseList"></div>
+</section>
+
+<section class="section" id="knowledge">
+  <div class="section-title">&#x1F4A1; 知识要点</div>
+  <div class="knowledge-toolbar">
+    <div class="knowledge-filters" id="knowledgeFilters"></div>
+    <div><span class="knowledge-count" id="knowledgeCount"></span><button class="ks-expand-all" onclick="eAK()">&#x1F4D6; 展开全部</button></div>
+  </div>
+  <div class="knowledge-grid" id="knowledgeContainer"></div>
+</section>
+
+
+<section class="section" id="graph">
+  <div class="section-title">&#x1F9E0; 知识图谱</div>
+  <canvas id="graphCanvas" width="1000" height="400"></canvas>
+</section>
+
+
+
+
+<section class="section" id="formulas">
+  <div class="section-title">&#x1F4CB; 公式速查</div>
+  <div class="formula-tabs" id="formulaTabs"></div>
+  <div id="formulaPanels"></div>
+</section>
+
+
+<section class="section" id="drawing">
+  <div class="section-title">&#x1F3A8; 图表推导指南</div>
+  <div class="drawing-grid" id="drawingGrid"></div>
+</section>
+
+
+<section class="section" id="exercises">
+  <div class="section-title">&#x270F;&#xFE0F; 练习题库</div>
+  <div class="exercise-filters" id="exerciseFilters"></div>
+  <div class="exercise-count" id="exerciseCount"></div>
+  <div class="exercise-list" id="exerciseList"></div>
+</section>
+
+<section class="section" id="resources">
+  <div class="section-title">&#x1F4DA; 资料清单</div>
+  <div class="resource-grid" id="resourceGrid"></div>
+</section>
+
+<section class="section" id="tracker">
+  <div class="section-title">&#x2705; 进度追踪</div>
+  <div class="progress-bar-container"><div class="progress-bar-fill" id="progressBar" style="width:0%"></div></div>
+  <div class="tracker-grid" id="trackerGrid"></div>
+</section>
+</div>
+
+<footer class="footer">SQL及其在工作中应用 系统学习方案 &middot; 石墨工作室模板 &middot; 生成于2026年5月</footer>
+
+<div id="ddToast" style="display:none;position:fixed;bottom:30px;left:50%;transform:translateX(-50%);z-index:10000;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:8px;padding:14px 24px;box-shadow:0 4px 16px rgba(0,0,0,0.15);font-size:0.85rem;"><span id="ddToastMsg"></span></div>
+
+<script>
+var STORAGE_KEY = 'sql_work';
+var PLAN = {"id":"sql-work-learning","title":"SQL及其在工作中应用 系统学习方案","html_file":"sql_learning.html","template_id":"graphite-studio"};
+var LS_PREFIX = STORAGE_KEY;
+
+var PHASES = [
+{id:'p1', week:'第1-4周（共4周）', title:'SQL查询实战入门', sub:'动手实操', color:'#66bb6a', icon:'\u2328\uFE0F', cls:'c1',
+ skills:['SELECT查询基础','数据过滤与排序','聚合函数与分组'],
+ phase_kps:['p1_1','p1_2','p1_3'],
+ codes:[
+  'SELECT name, salary, department\nFROM employees\nWHERE salary > 50000\nORDER BY salary DESC;',
+  'SELECT product_name, price, category\nFROM products\nWHERE category IN (\'电子\', \'家电\')\n  AND price BETWEEN 1000 AND 5000\n  AND product_name LIKE \'%Pro%\'\nORDER BY price ASC;',
+  'SELECT department,\n       COUNT(*) AS emp_count,\n       AVG(salary) AS avg_sal,\n       MAX(salary) AS max_sal\nFROM employees\nGROUP BY department\nHAVING COUNT(*) > 5\nORDER BY avg_sal DESC;'
+ ],
+ drawings:['SQL查询执行流程图'],
+ deep_dive_batch:'批量深度研读 - SQL查询实战入门'
+},
+{id:'p2', week:'第5-9周（共5周）', title:'工作中综合应用', sub:'核心技能', color:'#ab47bc', icon:'\uD83D\uDD17', cls:'c2',
+ skills:['多表JOIN查询','子查询与CTE','窗口函数实战','数据增删改与事务'],
+ phase_kps:['p2_1','p2_2','p2_3','p2_4'],
+ codes:[
+  'SELECT e.name, e.department, d.manager_name, s.amount\nFROM employees e\nINNER JOIN departments d ON e.dept_id = d.id\nLEFT JOIN salaries s ON e.id = s.emp_id AND s.year = 2025\nWHERE e.status = \'active\';',
+  'WITH dept_avg AS (\n  SELECT department, AVG(salary) AS avg_sal\n  FROM employees GROUP BY department\n)\nSELECT e.name, e.salary, d.avg_sal\nFROM employees e\nJOIN dept_avg d ON e.department = d.department;',
+  'SELECT department, name, salary,\n  ROW_NUMBER() OVER (\n    PARTITION BY department\n    ORDER BY salary DESC\n  ) AS rank\nFROM employees;'
+ ],
+ drawings:['JOIN类型关系图','窗口函数原理图'],
+ deep_dive_batch:'批量深度研读 - 工作中综合应用'
+},
+{id:'p3', week:'第10-12周（共3周）', title:'数据库理论基础', sub:'原理深入', color:'#4fc3f7', icon:'\uD83D\uDCD0', cls:'c3',
+ skills:['数据库设计范式','索引原理与优化','执行计划分析'],
+ phase_kps:['p3_1','p3_2','p3_3'],
+ codes:[
+  'CREATE INDEX idx_emp_dept ON employees(department);',
+  'CREATE INDEX idx_emp_dept_salary\n  ON employees(department, salary);',
+  'EXPLAIN SELECT e.name, d.manager_name\nFROM employees e\nJOIN departments d ON e.dept_id = d.id\nWHERE e.salary > 50000\nORDER BY e.name;'
+ ],
+ drawings:['B+树索引结构图'],
+ deep_dive_batch:'批量深度研读 - 数据库理论基础'
+},
+{id:'p4', week:'第13-14周（共2周）', title:'进阶优化与新特性', sub:'能力提升', color:'#ef5350', icon:'\uD83D\uDE80', cls:'c4',
+ skills:['SQL性能调优','高级SQL与现代特性'],
+ phase_kps:['p4_1','p4_2'],
+ codes:[
+  'SELECT e.name, e.salary, d.manager_name\nFROM employees e\nJOIN departments d ON e.dept_id = d.id\nJOIN (\n  SELECT id FROM employees\n  ORDER BY hire_date DESC\n  LIMIT 20 OFFSET 100000\n) AS tmp ON e.id = tmp.id;',
+  'WITH RECURSIVE org_tree AS (\n  SELECT id, name, manager_id, 1 AS lev\n  FROM employees WHERE manager_id IS NULL\n  UNION ALL\n  SELECT e.id, e.name, e.manager_id, t.lev+1\n  FROM employees e\n  JOIN org_tree t ON e.manager_id = t.id\n)\nSELECT * FROM org_tree ORDER BY lev, name;'
+ ],
+ drawings:['SQL优化决策树'],
+ deep_dive_batch:'批量深度研读 - 进阶优化与新特性'
+}
+];
+
+var KPS = [
+{id:'p1_1',n:'SELECT查询基础',p:'p1',tag:'basic',
+ d:'学习SELECT语句的基本结构：选择特定列、使用别名(AS)、去重(DISTINCT)、限制返回行数(LIMIT/TOP)。理解SQL语句的逻辑执行顺序(FROM \u2192 WHERE \u2192 GROUP BY \u2192 HAVING \u2192 SELECT \u2192 ORDER BY \u2192 LIMIT)，这与书写顺序完全不同，是初学者最易混淆的地方。这是SQL的第一块基石。',
+ s:'SELECT + FROM = SQL的万能钥匙',
+ rel:['p1_2'],
+ deep_dive:{query:'SQL SELECT查询语法详解',topic_id:null,prompt:'请生成SQL SELECT查询基础的深度研读资料',status:'ready',html_file:'select-fundamentals_intermediate.html'}},
+{id:'p1_2',n:'数据过滤与排序',p:'p1',tag:'basic',
+ d:'掌握WHERE子句的条件筛选（=, <>, <, >, BETWEEN, IN, LIKE），AND/OR多条件组合需注意运算符优先级（AND优先于OR），建议使用括号明确逻辑。处理NULL值必须用IS NULL/IS NOT NULL（NULL不等于任何值包括NULL自身）。ORDER BY支持多列排序和ASC/DESC方向。这是日常工作中使用频率最高的SQL技能。',
+ s:'WHERE是精准定位数据的探测器，AND/OR用括号保平安',
+ rel:['p1_1','p1_3'],
+ deep_dive:{query:'SQL WHERE条件过滤详解',topic_id:null,prompt:'请生成SQL数据过滤与排序的深度研读资料',status:'ready',html_file:'filter-sort_intermediate.html'}},
+{id:'p1_3',n:'聚合函数与分组',p:'p1',tag:'basic',
+ d:'学习COUNT/SUM/AVG/MAX/MIN五大聚合函数。COUNT(*)统计所有行，COUNT(列)忽略NULL。GROUP BY将数据分组后对每组应用聚合函数，SELECT中出现的非聚合列必须出现在GROUP BY中。HAVING在分组后过滤（WHERE在分组前过滤）。工作中常用于按部门/月份/地区的统计报表。',
+ s:'GROUP BY分组 + 聚合函数统计 = 数据汇总核心公式',
+ rel:['p1_2','p2_3'],
+ deep_dive:{query:'SQL GROUP BY聚合函数详解',topic_id:null,prompt:'请生成SQL聚合函数与分组的深度研读资料',status:'ready',html_file:'group-aggregation_intermediate.html'}},
+{id:'p2_1',n:'多表JOIN查询',p:'p2',tag:'core',
+ d:'深入学习INNER JOIN（取交集）、LEFT JOIN（左表全保留，右表无匹配填NULL）、RIGHT JOIN、FULL OUTER JOIN的原理和实际场景。理解JOIN ON（连接条件）与WHERE（过滤条件）的执行时机差异：ON在JOIN时执行，WHERE在JOIN后过滤。掌握多表连接的最佳实践：小表驱动大表、ON条件只写关联条件、WHERE写业务过滤。工作中90%的复杂查询涉及JOIN。',
+ s:'INNER JOIN是交集，LEFT JOIN保左表——选对JOIN类型事半功倍',
+ rel:['p1_1','p2_2','p3_1'],
+ deep_dive:{query:'SQL JOIN多表连接查询详解',topic_id:'multi-table-join',prompt:'请生成多表JOIN查询的深度研读资料',status:'ready',html_file:'multi-table-join_deep.html'}},
+{id:'p2_2',n:'子查询与CTE',p:'p2',tag:'core',
+ d:'掌握标量子查询（返回单值，可用于SELECT/SET/WHERE）、多行子查询（IN/EXISTS/ANY/ALL）和关联子查询（内层引用外层表）。EXISTS比IN更高效（找到即停）。学习CTE(WITH AS)语法：将复杂查询拆分为命名的临时结果集，可引用多次。递归CTE( WITH RECURSIVE )处理树形结构。工作中常用于复杂报表的逐层数据处理，比多层嵌套子查询更易读。',
+ s:'CTE让复杂查询像搭积木——列出你的查询层与层',
+ rel:['p2_1','p2_3','p4_2'],
+ deep_dive:{query:'SQL子查询与CTE通用表表达式详解',topic_id:'subquery-cte',prompt:'请生成SQL子查询与CTE的深度研读资料',status:'ready',html_file:'subquery-cte_deep.html'}},
+{id:'p2_3',n:'窗口函数实战',p:'p2',tag:'core',
+ d:'掌握排名函数ROW_NUMBER/RANK/DENSE_RANK/NTILE，偏移函数LAG/LEAD（不进行自连接即可获取前后行），聚合窗口函数SUM/AVG/COUNT/MIN/MAX OVER。理解PARTITION BY（分组窗口）+ ORDER BY（窗口内排序），以及ROWS/RANGE窗口帧（定义窗口边界）。窗口函数不减少行数，保留每行的明细数据。工作中常用于排名分析、移动平均、同比环比计算。',
+ s:'窗口函数：每行都能”看见“同组其他行，不缩减数据行数',
+ rel:['p1_3','p2_1','p3_3'],
+ deep_dive:{query:'SQL窗口函数ROW_NUMBER RANK LAG实战详解',topic_id:'window-functions',prompt:'请生成SQL窗口函数实战的深度研读资料',status:'ready',html_file:'window-functions_deep.html'}},
+{id:'p2_4',n:'数据增删改与事务',p:'p2',tag:'core',
+ d:'掌握INSERT（单行/VALUES多行/INSERT INTO SELECT批量导入）、UPDATE（必须加WHERE！忘记WHERE会更新全表）、DELETE（同样需要WHERE，TRUNCATE清空表更快不可回滚）。理解事务ACID特性：原子性(BEGIN...COMMIT/ROLLBACK)、一致性(约束检查)、隔离性(多事务并发)、持久性(提交后不丢失)。了解脏读/不可重复读/幻读和四种隔离级别。工作中数据安全至关重要：修改前先SELECT确认、复杂操作包事务。',
+ s:'忘加WHERE的UPDATE是最贵的学费——写操作前先SELECT验证',
+ rel:['p1_1','p3_1'],
+ deep_dive:{query:'SQL DML增删改与事务控制ACID详解',topic_id:'dml-transactions',prompt:'请生成SQL数据增删改与事务的深度研读资料',status:'ready',html_file:'dml-transactions_deep.html'}},
+{id:'p3_1',n:'数据库设计范式',p:'p3',tag:'theory',
+ d:'理解关系数据库基本概念：表/行/列、主键(唯一标识)、外键(关联其他表)。学习三大范式：1NF列不可再分（每个字段原子值）、2NF非主键列完全依赖主键（消除部分依赖，联合主键的坑）、3NF非主键列不依赖其他非主键列（消除传递依赖）。掌握ER图（实体-关系图）的画法：矩形=实体、菱形=关系、椭圆=属性。好的表设计是高性能SQL的基础——反范式化有时也是优化手段。',
+ s:'1NF看列，2NF看主键，3NF看非主键——范式化让数据干净无冗余',
+ rel:['p2_1','p2_4'],
+ deep_dive:{query:'数据库设计三大范式与ER图建模详解',topic_id:null,prompt:'请生成数据库设计范式的深度研读资料',status:'ready',html_file:'database-design-normalization_deep.html'}},
+{id:'p3_2',n:'索引原理与优化',p:'p3',tag:'theory',
+ d:'深入理解B+树索引：非叶子节点只存键值（范围搜索），叶子节点存完整数据+双向链表（支持范围查询和ORDER BY）。区分聚集索引（InnoDB主键索引，叶子=整行数据，一张表只有一个）和非聚集索引（叶子=主键值，查数据需回表）。联合索引的最左前缀原则：idx(a,b,c)支持a/a,b/a,b,c查询，不支持b或c单独查询。覆盖索引：SELECT的列都在索引中则无需回表。索引是SQL性能优化的核心手段。',
+ s:'B+树索引让百万级数据3次IO定位——聚集索引用主键，联合索引看最左',
+ rel:['p1_3','p3_3','p4_1'],
+ deep_dive:{query:'数据库B+树索引原理与优化策略详解',topic_id:null,prompt:'请生成索引原理与优化的深度研读资料',status:'ready',html_file:'index-principle-optimization_deep.html'}},
+{id:'p3_3',n:'执行计划分析',p:'p3',tag:'theory',
+ d:'学会使用EXPLAIN/EXPLAIN ANALYZE查看执行计划。type字段从好到差：const(主键等值)>eq_ref(唯一索引JOIN)>ref(普通索引)>range(索引范围)>index(全索引扫)>ALL(全表扫，必须优化)。key=实际使用的索引，rows=预估扫描行数，Extra：Using index(覆盖索引，好)、Using filesort(需额外排序，优化ORDER BY)、Using temporary(需临时表，优化GROUP BY/DISTINCT)。慢查询排查：看type是否为ALL、看rows是否过大、看Extra是否有filesort/temporary。',
+ s:'EXPLAIN的type字段：看到ALL就紧张，看到ref就放心',
+ rel:['p3_2','p4_1'],
+ deep_dive:{query:'SQL执行计划EXPLAIN分析与慢查询排查',topic_id:null,prompt:'请生成SQL执行计划分析的深度研读资料',status:'ready',html_file:'execution-plan-analysis_deep.html'}},
+{id:'p4_1',n:'SQL性能调优',p:'p4',tag:'advanced',
+ d:'学习大表查询的系统性优化策略：合理建索引(覆盖索引优先)、避免SELECT *(多余列影响覆盖索引+增加网络传输)、用EXISTS替代IN(EXISTS找到即停)、小表驱动大表(JOIN顺序)、分页优化(延迟关联：先取ID再JOIN原表)。了解分区表(按范围/列表拆分)、物化视图(预计算存储结果)。掌握慢查询日志配置和pt-query-digest等分析工具。优化思维：先EXPLAIN看执行计划 \u2192 确认瓶颈 \u2192 对症下药，而非盲目建索引。',
+ s:'优化核心：减少扫描行数 \u00D7 降低每行处理成本，先EXPLAIN再动手',
+ rel:['p3_2','p3_3'],
+ deep_dive:{query:'SQL性能调优最佳实践慢查询优化',topic_id:'sql-performance-tuning',prompt:'请生成SQL性能调优的深度研读资料',status:'ready',html_file:'sql-performance-tuning_deep.html'}},
+{id:'p4_2',n:'高级SQL与现代特性',p:'p4',tag:'advanced',
+ d:'学习JSON数据类型查询（MySQL JSON_EXTRACT/JSON_CONTAINS，PostgreSQL ->>/->操作符）。递归CTE处理组织架构树、分类树、BOM物料清单等层级数据。窗口函数高级用法：CUME_DIST(累计分布)、PERCENT_RANK(百分位排名)、窗口帧的ROWS vs RANGE vs GROUPS区别。了解MySQL 8.0+（窗口函数/CTE）、PostgreSQL 15+（MERGE/SQL标准）、SQL Server 2022（新增函数）等主流数据库的关键差异和迁移注意事项。',
+ s:'现代SQL支持JSON、递归CTE、高级窗口函数——远不止增删改查',
+ rel:['p2_2','p2_3'],
+ deep_dive:{query:'SQL高级特性JSON查询递归CTE数据库新特性',topic_id:'advanced-sql-modern-features',prompt:'请生成高级SQL与现代特性的深度研读资料',status:'ready',html_file:'advanced-sql-modern-features_deep.html'}}
+];
+
+var FORMULA_TABS = [{n:'SQL核心语法速查'}];
+var FORMULAS = [{r:[
+['基本查询','SELECT cols FROM table WHERE cond ORDER BY col LIMIT n'],
+['JOIN连接','SELECT * FROM A INNER|LEFT|RIGHT|FULL JOIN B ON A.id=B.a_id'],
+['聚合分组','SELECT col, COUNT(*) FROM t GROUP BY col HAVING COUNT(*)>n'],
+['窗口函数','ROW_NUMBER()/RANK()/SUM() OVER (PARTITION BY col ORDER BY col)']
+]}];
+
+var EXERCISES = [
+{n:1,t:'员工信息查询（基础）',d:'easy'},
+{n:2,t:'产品筛选统计（基础）',d:'easy'},
+{n:3,t:'销售聚合分析（基础）',d:'easy'},
+{n:4,t:'多表关联报表（进阶）',d:'medium'},
+{n:5,t:'子查询CTE改写（进阶）',d:'medium'},
+{n:6,t:'员工排名分析（进阶）',d:'medium'},
+{n:7,t:'转账事务模拟（进阶）',d:'medium'},
+{n:8,t:'用户留存分析报表（挑战）',d:'hard'},
+{n:9,t:'慢查询优化实战（挑战）',d:'hard'},
+{n:10,t:'数据分析SQL项目',d:'project'}
+];
+
+var RESOURCES = [
+{t:'book',n:'\u300ASQL\u5FC5\u77E5\u5FC5\u4F1A\u300B\uFF08\u7B2C5\u7248\uFF09',d:'\u6700\u4F73SQL\u5165\u95E8\u4E66\uFF0C\u77ED\u5C0F\u7CBE\u608D\uFF0C\u9002\u5408\u5FEB\u901F\u4E0A\u624B'},
+{t:'book',n:'\u300A\u9AD8\u6027\u80FDMySQL\u300B\uFF08\u7B2C4\u7248\uFF09',d:'\u6027\u80FD\u4F18\u5316\u7684\u6743\u5A01\u53C2\u8003\uFF0C\u5DE5\u4F5C\u4E2D\u6392\u67E5\u95EE\u9898\u5FC5\u5907'},
+{t:'book',n:'\u300ASQL\u8FDB\u9636\u6559\u7A0B\u300B',d:'\u9762\u5411\u4E2D\u7EA7\u5B66\u4E60\u8005\u7684\u7ECF\u5178\uFF0C\u6DB5\u76D6CASE\u8868\u8FBE\u5F0F\u548C\u7A97\u53E3\u51FD\u6570'},
+{t:'book',n:'\u300A\u6570\u636E\u5E93\u7CFB\u7EDF\u6982\u5FF5\u300B\uFF08\u7B2C7\u7248\uFF09',d:'\u6570\u636E\u5E93\u7406\u8BBA\u7ECF\u5178\u6559\u6750\uFF0C\u9002\u5408\u7B2C3\u9636\u6BB5\u6DF1\u5165\u9605\u8BFB'},
+{t:'site',n:'LeetCode SQL\u9898\u5E93',d:'200+\u9053SQL\u7EC3\u4E60\u9898\uFF0C\u8986\u76D6\u5DE5\u4F5C\u4E2D\u5E38\u89C1\u573A\u666F'},
+{t:'site',n:'SQLZoo',d:'\u4EA4\u4E92\u5F0FSQL\u5728\u7EBF\u7EC3\u4E60\u5E73\u53F0\uFF0C\u9002\u5408\u521D\u5B66\u8005'},
+{t:'site',n:'HackerRank SQL',d:'\u5206\u7EA7SQL\u6311\u6218\uFF0C\u4ECE\u57FA\u7840\u5230\u9AD8\u7EA7'},
+{t:'site',n:'Mode Analytics SQL\u6559\u7A0B',d:'\u9762\u5411\u6570\u636E\u5206\u6790\u7684SQL\u6559\u7A0B\uFF0C\u771F\u5B9E\u6848\u4F8B\u9A71\u52A8'},
+{t:'site',n:'DB-Fiddle',d:'\u5728\u7EBFSQL\u73AF\u5883\uFF0C\u652F\u6301MySQL/PostgreSQL/SQLite'},
+{t:'tool',n:'DBeaver',d:'\u514D\u8D39\u5F00\u6E90\u7684\u591A\u6570\u636E\u5E93\u7BA1\u7406\u5DE5\u5177'},
+{t:'tool',n:'TablePlus',d:'\u73B0\u4EE3\u5316\u7684\u6570\u636E\u5E93GUI\u5BA2\u6237\u7AEF'},
+{t:'tool',n:'Navicat',d:'\u529F\u80FD\u5168\u9762\u7684\u5546\u4E1A\u6570\u636E\u5E93\u7BA1\u7406\u5DE5\u5177'},
+{t:'site',n:'Use The Index, Luke',d:'\u7D22\u5F15\u539F\u7406\u4E0E\u4F18\u5316\u7684\u6700\u4F73\u5728\u7EBF\u6559\u7A0B'},
+{t:'site',n:'PostgreSQL\u5B98\u65B9\u6587\u6863',d:'PG\u662F\u6700\u7B26\u5408SQL\u6807\u51C6\u7684\u5F00\u6E90\u6570\u636E\u5E93\uFF0C\u6587\u6863\u8D28\u91CF\u6781\u9AD8'}
+];
+
+var TRACKER_ITEMS = [
+{id:'phase1',n:'\u9636\u6BB51\uFF1ASQL\u67E5\u8BE2\u5B9E\u6218\u5165\u95E8\uFF08\u7B2C1-4\u5468\uFF09'},
+{id:'phase2',n:'\u9636\u6BB52\uFF1A\u5DE5\u4F5C\u4E2D\u7EFC\u5408\u5E94\u7528\uFF08\u7B2C5-9\u5468\uFF09'},
+{id:'phase3',n:'\u9636\u6BB53\uFF1A\u6570\u636E\u5E93\u7406\u8BBA\u57FA\u7840\uFF08\u7B2C10-12\u5468\uFF09'},
+{id:'phase4',n:'\u9636\u6BB54\uFF1A\u8FDB\u9636\u4F18\u5316\u4E0E\u65B0\u7279\u6027\uFF08\u7B2C13-14\u5468\uFF09'}
+];
+
+function safeGetLS(key,fallback){
+  try{var v=localStorage.getItem(key);return v!==null?v:fallback;}catch(e){return fallback;}
+}
+function safeSetLS(key,val){
+  try{localStorage.setItem(key,val);}catch(e){}
+}
+
+function renderFormula(fk){
+  if(typeof katex==='undefined')return;
+  if(fk.querySelector('.katex'))return;
+  var txt=fk.textContent.replace('\uD83D\uDCB0 ','');
+  if(!txt)return;
+  try{katex.render(txt,fk,{throwOnError:false});}
+  catch(e){fk.textContent='\u26A0 '+txt;}
+}
+
+function renderAllFormulas(){
+  if(typeof katex==='undefined'){setTimeout(renderAllFormulas,300);return;}
+  var all=document.querySelectorAll('.card-formula,.ft-formula');
+  for(var i=0;i<all.length;i++){
+    if(all[i].querySelector('.katex'))continue;
+    var txt=all[i].textContent.replace('\uD83D\uDCB0 ','');
+    if(!txt)continue;
+    try{katex.render(txt,all[i],{throwOnError:false});}
+    catch(e){all[i].textContent='\u26A0 '+txt;}
+  }
+}
+
+function collapseCard(el){el.classList.remove('expanded');el.classList.remove('open');var g=el.parentElement;if(g){var anyExpanded=g.querySelector('.knowledge-card.expanded');if(!anyExpanded)g.classList.remove('has-expanded');}}
+
+function kf(pid){
+  var cnt=document.getElementById('knowledgeCount');
+  var fil=pid==='all'?KPS:KPS.filter(function(k){return k.p===pid;});
+  var h='';
+  fil.forEach(function(kp){
+    var fh=kp.f?'<div class="card-formula">\uD83D\uDCB0 '+kp.f+'</div>':'';
+    var sh=kp.s?'<div class="card-sum">\uD83D\uDCA1 '+kp.s+'</div>':'';
+    var rh='';
+    if(kp.rel&&kp.rel.length){rh='<div class="card-related"><div class="cr-title">\uD83D\uDD17 关联知识</div><div class="cr-links">';
+      kp.rel.forEach(function(r){var rk=KPS.find(function(x){return x.id===r;});
+        rh+='<span class="cr-link" onclick="event.stopPropagation();kfP(\''+r+'\')">'+(rk?rk.n:r)+'</span>';});
+      rh+='</div></div>';}
+    var ddSection='';
+    if(kp.deep_dive){
+      var ddStatus=kp.deep_dive.status||'none';
+      var ddArrow='';var ddBtnTxt='\uD83D\uDCD6 深度研读';var ddHint='点击复制提示词';
+      if(ddStatus==='ready'&&kp.deep_dive.html_file){
+        ddArrow='<button class="deep-dive-open-btn" onclick="event.stopPropagation();ddOpen(\''+kp.id+'\')" title="打开深度研读资料">\u2197</button>';
+        ddBtnTxt='\u2705 查看深度研读';
+        ddHint='点击 \u2197 打开资料';
+      }
+      ddSection='<div class="deep-dive-bar dd-'+ddStatus+'">'+ddArrow+
+        '<button class="deep-dive-btn" onclick="event.stopPropagation();ddTrigger(\''+kp.id+'\')">'+ddBtnTxt+'</button>'+
+        '<span class="dd-hint">'+ddHint+'</span></div>';
+    }
+    h+='<div class="knowledge-card" id="kc-'+kp.id+'" data-p="'+kp.p+'">'+
+      '<div class="card-header" onclick="tKCT(\''+kp.id+'\')">'+
+      '<span class="card-icon">\uD83D\uDCD8</span>'+
+      '<span class="card-title">'+kp.n+'</span>'+
+      '<span class="math-tag" style="background:'+((PHASES.find(function(x){return x.id===kp.p;})||{color:'#6366f1'}).color)+'" onclick="event.stopPropagation();gP(\''+kp.p+'\')">'+
+      (PHASES.findIndex(function(x){return x.id===kp.p;})>=0?'P'+(PHASES.findIndex(function(x){return x.id===kp.p;})+1):'')+
+      '</span>'+
+      '<span class="card-back" onclick="event.stopPropagation();tKC_bk(\''+kp.id+'\')">收起 \u2715</span>'+
+      '</div><div class="card-detail"><p>'+kp.d+'</p>'+fh+sh+rh+ddSection+'</div></div>';
+  });
+  document.getElementById('knowledgeContainer').innerHTML=h;
+  document.getElementById('knowledgeCount').textContent='显示 '+fil.length+'/'+KPS.length;
+  var btns=document.querySelectorAll('.knowledge-filter');
+  for(var i=0;i<btns.length;i++)btns[i].classList.remove('active');
+  var act=document.querySelector('.knowledge-filter[data-kp="'+pid+'"]');
+  if(act)act.classList.add('active');
+}
+
+function kfP(id){tKC_go(id);}
+
+function AHDS(ph){
+  var el=document.getElementById('phase-'+ph.id);if(!el)return;
+  var inner=el.querySelector('.phase-body-inner');if(!inner)return;
+  var sh='';
+  if(ph.skills&&ph.skills.length>0){
+    sh='<div class="phase-skills">'+
+      ph.skills.map(function(s,idx){var kpId=(ph.phase_kps&&ph.phase_kps[idx])?ph.phase_kps[idx]:'';
+        return '<span class="skill-chip skill-link" onclick="event.stopPropagation();kfP(\''+kpId+'\')">'+s+'</span>';}).join('')+
+      '</div>';
+  }
+  var ch='';
+  if(ph.codes&&ph.codes.length>0){ch='<div class="phase-codes">'+
+    ph.codes.map(function(c){return '<pre><code>'+c+'</code></pre>';}).join('')+'</div>';}
+  var bh='';
+  if(ph.deep_dive_batch){
+    bh='<div class="phase-dd-batch">'+
+      '<button class="batch-deep-dive-btn" onclick="event.stopPropagation();ddBatch(\''+ph.id+'\')">\uD83D\uDCE6 生成本阶段全部深度资料</button>'+
+      '<span class="dd-hint">一键复制本阶段所有知识点的生成提示词</span></div>';
+  }
+  inner.innerHTML=sh+'<div class="phase-desc">深入了解核心概念与技巧。</div>'+ch+bh;
+}
+
+function tKCT(id){
+  var el=document.getElementById('kc-'+id);
+  if(!el)return;
+  if(el.classList.contains('expanded')){collapseCard(el);return;}
+  if(el.classList.contains('open')&&!el.classList.contains('expanded')){el.classList.remove('open');return;}
+  var kp=KPS.find(function(x){return x.id===id;});
+  if(!kp)return;
+  var g=el.parentElement;
+  el.classList.add('expanded');
+  el.classList.add('open');
+  g.classList.add('has-expanded');
+  setTimeout(function(){
+    var det=el.querySelector('.card-detail');
+    if(det){var fk=det.querySelector('.card-formula');if(fk)renderFormula(fk);}
+  },150);
+  var pd=document.getElementById('phase-'+kp.p);
+  if(pd)pd.classList.add('open');
+  el.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function tKC_go(id){
+  var b=document.querySelectorAll('.knowledge-filter');
+  for(var i=0;i<b.length;i++)b[i].classList.remove('active');
+  var a=document.querySelector('.knowledge-filter[data-kp="all"]');
+  if(a)a.classList.add('active');
+  kf('all');
+  setTimeout(function(){
+    var el=document.getElementById('kc-'+id);
+    if(!el)return;
+    var g=el.parentElement;
+    el.classList.add('expanded');
+    el.classList.add('open');
+    g.classList.add('has-expanded');
+    setTimeout(function(){
+      var det=el.querySelector('.card-detail');
+      if(det){var fk=det.querySelector('.card-formula');if(fk)renderFormula(fk);}
+    },150);
+    var kp=KPS.find(function(x){return x.id===id;});
+    if(kp){var pd=document.getElementById('phase-'+kp.p);if(pd)pd.classList.add('open');}
+    el.scrollIntoView({behavior:'smooth',block:'center'});
+  },100);
+}
+
+function tKC_bk(id){var el=document.getElementById('kc-'+id);if(el)collapseCard(el);}
+
+function eAK(){
+  var all=document.querySelectorAll('.knowledge-card');
+  var btn=document.querySelector('.ks-expand-all');
+  var isExp=btn&&btn.textContent.indexOf('\u6536\u8D77')>=0;
+  if(isExp){
+    for(var i=0;i<all.length;i++)collapseCard(all[i]);
+    if(btn)btn.textContent='\uD83D\uDCD6 展开全部';
+  }else{
+    for(var i=0;i<all.length;i++){
+      all[i].classList.add('open');all[i].classList.add('expanded');
+      all[i].parentElement.classList.add('has-expanded');
+      var fk=all[i].querySelector('.card-formula');if(fk)renderFormula(fk);
+    }
+    if(btn)btn.textContent='\uD83D\uDCD5 全部收起';
+  }
+}
+
+function gP(id){
+  var s=document.getElementById('phase-'+id);
+  if(s){s.scrollIntoView({behavior:'smooth'});setTimeout(function(){s.classList.add('open');},400);}
+}
+
+function sFT(id,btn){
+  var tabs=document.querySelectorAll('.formula-tab');
+  for(var i=0;i<tabs.length;i++)tabs[i].classList.remove('active');
+  btn.classList.add('active');
+  var panels=document.querySelectorAll('.formula-panel');
+  for(var i=0;i<panels.length;i++)panels[i].classList.remove('active');
+  document.getElementById('fp-'+id).classList.add('active');
+}
+
+var DEEP_DIVE_WINDOWS={};
+function ddOpen(kpId){
+  var kp=KPS.find(function(k){return k.id===kpId;});
+  if(!kp||!kp.deep_dive||!kp.deep_dive.html_file)return;
+  var winName='dd_'+kpId;
+  if(DEEP_DIVE_WINDOWS[kpId]&&!DEEP_DIVE_WINDOWS[kpId].closed){DEEP_DIVE_WINDOWS[kpId].focus();return;}
+  var w=window.open(kp.deep_dive.html_file,winName);
+  if(w){DEEP_DIVE_WINDOWS[kpId]=w;setInterval(function(){if(w.closed)DEEP_DIVE_WINDOWS[kpId]=null;},1000);}
+}
+
+function encodeForContext(value){
+  if(typeof value!=='string')value=String(value||'');
+  return value.replace(/"/g,'\\"').replace(/;/g,'\\;').replace(/\[/g,'\\[').replace(/\]/g,'\\]');
+}
+
+function buildKPDeepDivePrompt(kp,ph,plan){
+  var prereqList=(kp.prerequisites||[]).join(',');
+  var nextKpList=(kp.next_kps||[]).join(',');
+  var phIndex=PHASES.findIndex(function(x){return x.id===ph.id;})+1;
+  var contextMarker='[context_plan: '+
+    'plan_id="'+encodeForContext(plan.id)+'"; '+
+    'plan_name="'+encodeForContext(plan.title)+'"; '+
+    'plan_file="'+encodeForContext(plan.html_file)+'"; '+
+    'template_id="'+encodeForContext(plan.template_id||'indigo-night')+'"; '+
+    'phase_id="'+encodeForContext(ph.id)+'"; '+
+    'phase_name="'+encodeForContext(ph.title)+'"; '+
+    'phase_position="'+phIndex+'/'+PHASES.length+'"; '+
+    'kp_id="'+encodeForContext(kp.id)+'"; '+
+    'kp_name="'+encodeForContext(kp.n||kp.name)+'"; '+
+    'prerequisites="'+encodeForContext(prereqList)+'"; '+
+    'next_kps="'+encodeForContext(nextKpList)+'"'+
+  ']\n\n';
+  return contextMarker+'\u8BF7\u4E3A\u4EE5\u4E0B\u77E5\u8BC6\u70B9\u751F\u6210 \u7406\u89E3\u00D7\u6807\u51C6 \u7684\u6DF1\u5EA6\u7814\u8BFB\u8D44\u6599\uFF1A\n\u77E5\u8BC6\u70B9\uFF1A'+(kp.n||kp.name)+'\n\uFF08\u5DF2\u5728\u4E0A\u65B9\u63D0\u4F9B\u5B8C\u6574\u4E0A\u4E0B\u6587\u4FE1\u606F\uFF09';
+}
+
+var DD_TOAST_TIMEOUT;
+function ddTrigger(kpId){
+  var kp=KPS.find(function(k){return k.id===kpId;});
+  if(!kp)return;
+  var ph=PHASES.find(function(p){return p.id===kp.p;});
+  if(!ph)ph={id:kp.p,title:'未知阶段'};
+  var promptText=typeof PLAN!=='undefined'?buildKPDeepDivePrompt(kp,ph,PLAN):
+    '请为"'+(kp.n||kp.name)+'"生成 理解×标准 的深度研读资料';
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(promptText).then(function(){showDDToast('\u2705 提示词已复制！粘贴到对话中生成深度资料',kp);})
+    .catch(function(){fallbackCopy(promptText);showDDToast('\u2705 提示词已复制！',kp);});
+  }else{fallbackCopy(promptText);showDDToast('\u2705 提示词已复制！',kp);}
+}
+
+function fallbackCopy(text){
+  var ta=document.createElement('textarea');ta.value=text;
+  document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
+}
+
+function showDDToast(msg,kp){
+  var toastEl=document.getElementById('ddToast');
+  var toastMsgEl=document.getElementById('ddToastMsg');
+  if(!toastEl||!toastMsgEl)return;
+  toastMsgEl.innerHTML=msg;
+  if(kp&&kp.deep_dive&&kp.deep_dive.status==='ready'&&kp.deep_dive.html_file){
+    toastMsgEl.innerHTML+='<br>\uD83D\uDCC4 已有深度资料: <a href="#" onclick="event.preventDefault();ddOpen(\''+kp.id+'\')" style="color:var(--accent-color);text-decoration:underline;">点击打开</a>';
+  }
+  toastEl.style.display='block';
+  if(DD_TOAST_TIMEOUT)clearTimeout(DD_TOAST_TIMEOUT);
+  DD_TOAST_TIMEOUT=setTimeout(function(){toastEl.style.display='none';},4000);
+}
+
+function ddBatch(phaseId){
+  var phaseKps=KPS.filter(function(k){return k.p===phaseId&&k.deep_dive;});
+  if(phaseKps.length===0)return;
+  var ph=PHASES.find(function(p){return p.id===phaseId;});
+  if(!ph)ph={id:phaseId,title:'未知阶段'};
+  var batchText='\uD83D\uDCE6 批量生成深度资料 - '+(ph.title||phaseId)+'\n\n';
+  phaseKps.forEach(function(kp){
+    if(typeof PLAN!=='undefined'){batchText+=buildKPDeepDivePrompt(kp,ph,PLAN)+'\n\n---\n\n';}
+    else{batchText+='请为"'+(kp.n||kp.name)+'"生成 理解×标准 的深度研读资料\n\n---\n\n';}
+  });
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(batchText).then(function(){showDDToast('\u2705 '+phaseKps.length+' 个提示词已复制到剪贴板！');})
+    .catch(function(){fallbackCopy(batchText);showDDToast('\u2705 '+phaseKps.length+' 个提示词已复制！');});
+  }else{fallbackCopy(batchText);showDDToast('\u2705 '+phaseKps.length+' 个提示词已复制！');}
+}
+
+function hES(){
+  var fH='<span class="exercise-filter active" onclick="fE(\'all\')">全部 ('+EXERCISES.length+')</span>';
+  fH+='<span class="exercise-filter" onclick="fE(\'easy\')">\uD83D\uDFE2 基础 ('+EXERCISES.filter(function(e){return e.d==='easy';}).length+')</span>';
+  fH+='<span class="exercise-filter" onclick="fE(\'medium\')">\uD83D\uDFE1 进阶 ('+EXERCISES.filter(function(e){return e.d==='medium';}).length+')</span>';
+  fH+='<span class="exercise-filter" onclick="fE(\'hard\')">\uD83D\uDD34 挑战 ('+EXERCISES.filter(function(e){return e.d==='hard';}).length+')</span>';
+  fH+='<span class="exercise-filter" onclick="fE(\'project\')">\uD83D\uDCE6 项目 ('+EXERCISES.filter(function(e){return e.d==='project';}).length+')</span>';
+  document.getElementById('exerciseFilters').innerHTML=fH;
+  fE('all');
+}
+
+function fE(diff){
+  var d=LS_PREFIX+'_done',dr=JSON.parse(safeGetLS(d,'[]'));
+  var fil=diff==='all'?EXERCISES:EXERCISES.filter(function(e){return e.d===diff;});
+  var h='';
+  fil.forEach(function(e){
+    var isD=dr.indexOf(parseInt(e.n))>=0;
+    var dCls='diff '+e.d;var dLbl={easy:'基础',medium:'进阶',hard:'挑战',project:'项目'};
+    h+='<div class="exercise-item"><span class="exercise-num">#'+e.n+'</span>'+
+      '<div class="ei-content"><div class="ei-title">'+
+      '<span class="ei-title-text">'+e.t+'</span>'+
+      '<span class="'+dCls+'">'+dLbl[e.d]+'</span></div></div>'+
+      '<div class="ei-check'+(isD?' done':'')+'" onclick="tE('+e.n+',this)">'+(isD?'\u2713':'')+'</div></div>';
+  });
+  document.getElementById('exerciseList').innerHTML=h;
+  uEC();
+  var btns=document.querySelectorAll('.exercise-filter');
+  for(var i=0;i<btns.length;i++)btns[i].classList.remove('active');
+  var a=document.querySelector('.exercise-filter[onclick="fE(\''+diff+'\')"]');
+  if(a)a.classList.add('active');
+}
+
+function tE(n,el){
+  var d=LS_PREFIX+'_done',dr=JSON.parse(safeGetLS(d,'[]'));
+  var idx=dr.indexOf(n);
+  if(idx>=0){dr.splice(idx,1);el.classList.remove('done');el.textContent='';}
+  else{dr.push(n);el.classList.add('done');el.textContent='\u2713';}
+  safeSetLS(d,JSON.stringify(dr));
+  uEC();
+}
+
+function uEC(){
+  var d=LS_PREFIX+'_done',dr=JSON.parse(safeGetLS(d,'[]'));
+  document.getElementById('exerciseCount').innerHTML='已完成 <strong>'+dr.length+'</strong>/'+EXERCISES.length;
+}
+
+function drawGraph(){
+  var canvas=document.getElementById('graphCanvas');
+  if(!canvas)return;
+  var ctx=canvas.getContext('2d');
+  var dpr=window.devicePixelRatio||1;
+  var rect=canvas.parentElement.getBoundingClientRect();
+  canvas.width=rect.width*dpr;canvas.height=380*dpr;
+  canvas.style.width=rect.width+'px';canvas.style.height='380px';
+  ctx.scale(dpr,dpr);
+  var W=rect.width,H=380;
+  var cols=PHASES.length;var colW=W/(cols+0.5);var padding=40;
+  for(var i=0;i<PHASES.length;i++){var p=PHASES[i];
+    var cx=padding+colW*(i+0.3);
+    ctx.fillStyle=p.color+'22';ctx.fillRect(cx-colW*0.35,20,colW*0.7,H-40);
+    ctx.strokeStyle=p.color+'44';ctx.strokeRect(cx-colW*0.35,20,colW*0.7,H-40);
+    ctx.fillStyle=p.color;ctx.font='bold 13px "Noto Sans SC","Microsoft YaHei",sans-serif';ctx.textAlign='center';
+    ctx.fillText(p.icon+' '+p.title,cx,H-10);
+  }
+  var kpPos={};
+  for(var i=0;i<KPS.length;i++){var kp=KPS[i];
+    var pi=PHASES.findIndex(function(x){return x.id===kp.p;});if(pi<0)continue;
+    var hash=0;for(var c=0;c<kp.id.length;c++){hash=((hash<<5)-hash)+kp.id.charCodeAt(c);hash|=0;}
+    var ny=60+Math.abs(hash%(H-120));
+    var nx=padding+colW*(pi+0.3);var r=4;
+    ctx.beginPath();ctx.arc(nx,ny,r,0,Math.PI*2);ctx.fillStyle=PHASES[pi].color;ctx.fill();
+    ctx.strokeStyle=PHASES[pi].color+'88';ctx.lineWidth=0.5;ctx.stroke();
+    kpPos[kp.id]={x:nx,y:ny};
+  }
+  for(var i=0;i<KPS.length;i++){var kp2=KPS[i];if(!kp2.rel)continue;
+    var srcPos=kpPos[kp2.id];if(!srcPos)continue;
+    kp2.rel.forEach(function(rid){
+      var dstPos=kpPos[rid];if(!dstPos)return;
+      ctx.beginPath();ctx.moveTo(srcPos.x,srcPos.y);ctx.lineTo(dstPos.x,dstPos.y);
+      ctx.strokeStyle='#6366f122';ctx.lineWidth=0.5;ctx.setLineDash([2,4]);ctx.stroke();ctx.setLineDash([]);
+    });
+  }
+}
+
+function hRS(){
+  var h='';
+  for(var i=0;i<RESOURCES.length;i++){var r=RESOURCES[i];
+    h+='<div class="resource-item"><span class="ri-type '+r.t+'">'+r.t+'</span><h4>'+r.n+'</h4><p>'+r.d+'</p></div>';
+  }
+  document.getElementById('resourceGrid').innerHTML=h;
+}
+
+function hTR(){
+  var h='';var d=LS_PREFIX+'_tracker';var dr=JSON.parse(safeGetLS(d,'[]'));
+  for(var i=0;i<TRACKER_ITEMS.length;i++){var t=TRACKER_ITEMS[i];var done=dr.indexOf(t.id)>=0;
+    h+='<div class="tracker-item'+(done?' done':'')+'" onclick="tTR(\''+t.id+'\',this)">'+
+      '<div class="tracker-check"></div><span class="tracker-label">'+t.n+'</span></div>';
+  }
+  document.getElementById('trackerGrid').innerHTML=h;
+  uPB();
+}
+
+function tTR(id,el){
+  var d=LS_PREFIX+'_tracker';var dr=JSON.parse(safeGetLS(d,'[]'));
+  var idx=dr.indexOf(id);
+  if(idx>=0){dr.splice(idx,1);el.classList.remove('done');}
+  else{dr.push(id);el.classList.add('done');}
+  safeSetLS(d,JSON.stringify(dr));
+  uPB();
+}
+
+function uPB(){
+  var d=LS_PREFIX+'_tracker';var dr=JSON.parse(safeGetLS(d,'[]'));
+  var pct=TRACKER_ITEMS.length>0?Math.round(dr.length/TRACKER_ITEMS.length*100):0;
+  document.getElementById('progressBar').style.width=pct+'%';
+}
+
+function hFs(){
+  var tabsEl=document.getElementById('formulaTabs');if(!tabsEl)return;
+  var th='';
+  for(var i=0;i<FORMULA_TABS.length;i++){
+    th+='<span class="formula-tab'+(i===0?' active':'')+'" onclick="sFT(\'ft'+(i+1)+'\',this)">'+FORMULA_TABS[i].n+'</span>';
+  }
+  tabsEl.innerHTML=th;
+  var panelsEl=document.getElementById('formulaPanels');if(!panelsEl)return;
+  var ph='';
+  for(var i=0;i<FORMULAS.length;i++){
+    var f=FORMULAS[i];var fr='';
+    for(var j=0;j<f.r.length;j++){fr+='<tr><td>'+f.r[j][0]+'</td><td class="ft-formula">'+f.r[j][1]+'</td></tr>';}
+    ph+='<div class="formula-panel'+(i===0?' active':'')+'" id="fp-ft'+(i+1)+'">'+
+      '<table class="formula-table"><thead><tr><th>名称</th><th>公式</th></tr></thead><tbody>'+fr+'</tbody></table></div>';
+  }
+  panelsEl.innerHTML=ph;
+}
+
+function hDS(){
+  var grid=document.getElementById('drawingGrid');if(!grid)return;
+  var h='';
+  for(var i=0;i<PHASES.length;i++){var ph=PHASES[i];
+    if(ph.drawings&&ph.drawings.length){
+      for(var j=0;j<ph.drawings.length;j++){
+        h+='<div class="drawing-card"><h4>'+ph.drawings[j]+'</h4><p>阶段'+(i+1)+'：'+ph.title+'</p></div>';
+      }
+    }
+  }
+  grid.innerHTML=h||'<p style="color:var(--text-muted);font-size:0.85rem">各阶段的图表推导要点将在此展示。</p>';
+}
+
+function searchOpen(){document.getElementById('searchOverlay').classList.add('show');document.getElementById('searchInput').focus();}
+function searchClose(){document.getElementById('searchOverlay').classList.remove('show');}
+function searchKPs(){
+  var q=document.getElementById('searchInput').value.toLowerCase();
+  var res=KPS.filter(function(k){return k.n.toLowerCase().indexOf(q)>=0||(k.d||'').toLowerCase().indexOf(q)>=0;});
+  var h='';
+  for(var i=0;i<Math.min(res.length,10);i++){
+    h+='<div class="search-result" onclick="searchClose();tKC_go(\''+res[i].id+'\')">'+
+      '<div class="sr-title">'+res[i].n+'</div><div class="sr-detail">'+(res[i].d||'').substring(0,60)+'</div></div>';
+  }
+  document.getElementById('searchResults').innerHTML=h||'<div style="color:var(--text-muted);padding:10px">无结果</div>';
+}
+
+function loadTheme(){var t=safeGetLS(STORAGE_KEY+'_theme','light');
+  if(t==='light'){document.body.classList.add('light');document.body.classList.remove('dark');}
+  else{document.body.classList.add('dark');document.body.classList.remove('light');}}
+function toggleTheme(){var t=safeGetLS(STORAGE_KEY+'_theme','light');t=t==='dark'?'light':'dark';
+  safeSetLS(STORAGE_KEY+'_theme',t);loadTheme();}
+
+function syncKPsFromManifest(){
+  try{
+    fetch('manifest.json').then(function(r){
+      if(!r.ok)return;
+      return r.json();
+    }).then(function(manifest){
+      if(!manifest||!manifest.materials||!manifest.plans)return;
+      var currentPlan=null;
+      for(var i=0;i<manifest.plans.length;i++){
+        if(manifest.plans[i].html_file===STORAGE_KEY+'_learning.html'){
+          currentPlan=manifest.plans[i];break;
+        }
+      }
+      if(!currentPlan)return;
+      for(var i=0;i<manifest.materials.length;i++){
+        var mat=manifest.materials[i];
+        if(mat.belongs_to_plan!==currentPlan.id)continue;
+        if(!mat.html_file)continue;
+        var kpIndex=-1;
+        for(var j=0;j<KPS.length;j++){
+          if(KPS[j].id===mat.belongs_to_kp){kpIndex=j;break;}
+        }
+        if(kpIndex<0)continue;
+        var dd=KPS[kpIndex].deep_dive;
+        if(!dd){KPS[kpIndex].deep_dive={status:'ready',html_file:mat.html_file};}
+        else{dd.status='ready';dd.html_file=dd.html_file||mat.html_file;}
+        var kcEl=document.getElementById('kc-'+mat.belongs_to_kp);
+        if(!kcEl)continue;
+        var ddBtn=kcEl.querySelector('.deep-dive-btn');
+        if(ddBtn)ddBtn.textContent='\u2705 查看深度研读';
+        var ddHint=kcEl.querySelector('.dd-hint');
+        if(ddHint)ddHint.textContent='点击 \u2197 打开资料';
+        var ddOpenBtn=kcEl.querySelector('.deep-dive-open-btn');
+        if(!ddOpenBtn){
+          var ddBar=kcEl.querySelector('.deep-dive-bar');
+          if(ddBar){
+            var btn=document.createElement('button');
+            btn.className='deep-dive-open-btn';
+            btn.title='打开深度研读资料';
+            btn.textContent='\u2197';
+            btn.onclick=function(kpId){return function(e){e.stopPropagation();ddOpen(kpId);};}(mat.belongs_to_kp);
+            ddBar.insertBefore(btn,ddBar.firstChild);
+          }
+        }
+      }
+    }).catch(function(){});
+  }catch(e){}
+}
+
+function init(){
+  loadTheme();
+  var pl=document.getElementById('phaseList');
+  for(var i=0;i<PHASES.length;i++){var ph=PHASES[i];
+    var c=document.createElement('div');c.className='phase-card';c.id='phase-'+ph.id;
+    c.innerHTML='<div class="phase-header" onclick="event.stopPropagation();this.parentElement.classList.toggle(\'open\')">'+
+      '<div class="phase-icon" style="background:'+ph.color+'22;color:'+ph.color+'">'+ph.icon+'</div>'+
+      '<div class="phase-info"><h3>'+ph.title+'</h3><div class="phase-week">'+ph.week+'</div></div>'+
+      '<span class="phase-sub" style="background:'+ph.color+'22;color:'+ph.color+'">'+ph.sub+'</span>'+
+      '<span class="phase-arrow">\u25B6</span>'+
+      '</div><div class="phase-body"><div class="phase-body-inner"></div></div>';
+    pl.appendChild(c);
+    AHDS(ph);
+  }
+  var fd=document.getElementById('knowledgeFilters');
+  fd.innerHTML='<button class="knowledge-filter active" data-kp="all" onclick="kf(\'all\')">全部</button>';
+  for(var i=0;i<PHASES.length;i++){fd.innerHTML+='<button class="knowledge-filter" data-kp="'+PHASES[i].id+'" onclick="kf(\''+PHASES[i].id+'\')">阶段'+(i+1)+'</button>';}
+  kf('all');
+  hFs();
+  hES();
+  hRS();
+  hTR();
+  hDS();
+  if(document.getElementById('graphCanvas')){drawGraph();window.addEventListener('resize',drawGraph);}
+  document.body.classList.remove('loading');document.body.classList.add('loaded');
+  syncKPsFromManifest();
+  setTimeout(renderAllFormulas,100);
+}
+
+init();
+
+document.addEventListener('keydown',function(e){if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();searchOpen();}});
+
+(function(){var hash=location.hash;if(hash&&hash.indexOf('#kc-')===0){
+  var kid=hash.replace('#kc-','');setTimeout(function(){tKC_go(kid);},300);}})();
+
+var gc=document.getElementById('graphCanvas');if(gc){gc.addEventListener('click',function(){drawGraph();});}
+
+(function() {
+  var CH_KEY = '_ml_llm_nav';
+
+  function processNav() {
+    var raw = localStorage.getItem(CH_KEY);
+    if (!raw) return;
+    try {
+      var data = JSON.parse(raw);
+      if (Date.now() - data.ts > 10000) {
+        localStorage.removeItem(CH_KEY);
+        return;
+      }
+      if (data.kpId) {
+        localStorage.removeItem(CH_KEY);
+        if (typeof kf === 'function') kf('all');
+        setTimeout(function() {
+          if (typeof tKC_go === 'function') tKC_go(data.kpId);
+        }, 200);
+      }
+    } catch(e) {
+      localStorage.removeItem(CH_KEY);
+    }
+  }
+
+  window.addEventListener('storage', function(e) {
+    if (e.key === CH_KEY) processNav();
+  });
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+      setTimeout(processNav, 300);
+    });
+  } else {
+    setTimeout(processNav, 300);
+  }
+})();
+</script>
+</body>
+</html>

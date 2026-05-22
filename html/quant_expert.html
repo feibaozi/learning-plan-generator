@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>量化因子挖掘、策略与回测（专家级） — Smart Learning Materials</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<style>
+:root{--bg:#fff;--b2:#f8fafc;--b3:#f1f5f9;--tx:#0f172a;--t2:#475569;--t3:#94a3b8;--br:#e2e8f0;--p:#6366f1;--pl:#eef2ff;--ac:#8b5cf6;--al:#f5f3ff;--cy:#22d3ee;--ol:#fffbeb;--gr:#10b981;--gl:#ecfdf5;--rd:#ef4444;--rl:#fef2f2;--s:0 1px 3px rgba(0,0,0,.1);--sm:0 4px 6px -1px rgba(0,0,0,.1);--sl:0 10px 15px -3px rgba(0,0,0,.1);--rdr:12px;--rs:8px;--mw:820px;--sw:250px;--tr:.2s ease}
+[data-theme="dark"]{--bg:#0f172a;--b2:#1e293b;--b3:#334155;--tx:#f1f5f9;--t2:#94a3b8;--t3:#64748b;--br:#334155;--p:#818cf8;--pl:rgba(99,102,241,.15);--ac:#a78bfa;--al:rgba(139,92,246,.15);--cy:#67e8f9;--ol:rgba(245,158,11,.1);--gr:#34d399;--gl:rgba(16,185,129,.1);--rd:#f87171;--rl:rgba(239,68,68,.1)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Inter','SF Pro Display',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--tx);line-height:1.75;-webkit-font-smoothing:antialiased;transition:background var(--tr),color var(--tr)}
+#pb{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--p),var(--ac),var(--cy));z-index:1;transition:width .1s linear}
+#tt{position:fixed;top:20px;right:20px;z-index:2;width:40px;height:40px;border-radius:50%;background:var(--b2);border:1px solid var(--br);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;transition:all var(--tr);box-shadow:0 1px 2px rgba(0,0,0,.1)}
+#tt:hover{transform:scale(1.1)}
+#sb{position:fixed;top:0;left:0;width:var(--sw);height:100vh;background:var(--b2);border-right:1px solid var(--br);padding:80px 16px 24px;overflow-y:auto;z-index:10}
+#sb h3{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--t3);margin-bottom:12px;font-weight:600}
+.sl{display:block;padding:6px 12px;margin:2px 0;border-radius:var(--rs);font-size:13px;color:var(--t2);text-decoration:none;transition:all var(--tr)}
+.sl:hover{background:var(--b3);color:var(--tx)}
+.sl.ac{background:var(--pl);color:var(--p);font-weight:600}
+#mc{margin-left:var(--sw);max-width:var(--mw);padding:60px 32px 120px}
+.meta{background:linear-gradient(135deg,var(--pl),var(--al));border:1px solid var(--br);border-radius:var(--rdr);padding:28px 32px;margin-bottom:48px;display:flex;flex-wrap:wrap;gap:24px;align-items:center}
+.mi{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--t2)}
+.mi .ic{font-size:20px}.mi strong{color:var(--tx)}
+.mb{display:inline-block;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600}
+.mb-fin{background:var(--pl);color:var(--p)}.mb-exp{background:var(--rl);color:#ef4444}
+.ms{margin-bottom:56px;opacity:0;transform:translateY(24px);transition:opacity .6s ease,transform .6s ease}
+.ms.sh{opacity:1;transform:translateY(0)}
+.mh{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.mt{display:inline-block;padding:3px 10px;border-radius:6px;font-size:11px;font-weight:600;letter-spacing:.03em;text-transform:uppercase}
+.tg-c{background:var(--pl);color:var(--p)}.tg-t{background:var(--al);color:var(--ac)}
+.tg-e{background:rgba(34,211,238,.1);color:#0891b2}.tg-a{background:var(--gl);color:var(--gr)}
+.tg-r{background:var(--rl);color:var(--rd)}.tg-f{background:var(--ol);color:#d97706}
+.mtitle{font-size:22px;font-weight:700;color:var(--tx);letter-spacing:-.02em}
+.hook{font-size:16px;color:var(--t2);font-style:italic;border-left:3px solid var(--p);padding-left:16px;margin-bottom:20px}
+.md{font-size:15px;color:var(--tx)}.md p{margin-bottom:12px}.md a{color:var(--p);text-decoration:none}
+.md ul,.md ol{margin:8px 0 16px 24px}.md li{margin-bottom:6px}
+.fb{background:var(--b3);border:1px solid var(--br);border-radius:var(--rs);padding:20px 24px;margin:16px 0;cursor:pointer;transition:all var(--tr)}
+.fb:hover{box-shadow:var(--sm)}.fc{font-size:12px;color:var(--t3);margin-top:8px;text-align:center}
+.fd{display:none;margin-top:16px;padding-top:16px;border-top:1px solid var(--br);font-size:14px;color:var(--t2)}
+.fb.ex .fd{display:block}.fh{font-size:11px;color:var(--t3);text-align:right;margin-top:4px}
+.chrt{background:var(--b2);border:1px solid var(--br);border-radius:var(--rdr);padding:24px;margin:20px 0}
+.cw{width:100%;height:400px}.cap{font-size:13px;color:var(--t2);text-align:center;margin-top:12px}
+.csrc{font-size:11px;color:var(--t3);text-align:right;margin-top:4px}
+.tb{width:100%;border-collapse:collapse;margin:16px 0;font-size:14px;border:1px solid var(--br);border-radius:var(--rs);overflow:hidden;display:block}
+.tb th{background:var(--b3);padding:10px 16px;text-align:left;font-size:12px;text-transform:uppercase;letter-spacing:.03em;color:var(--t2)}
+.tb td{padding:10px 16px;border-top:1px solid var(--br);color:var(--tx)}
+.tb tr:hover td{background:var(--b3)}.cap-sm{font-size:12px;color:var(--t3);text-align:center;margin-top:8px}
+.refs{margin-top:20px;padding-top:16px;border-top:1px solid var(--br);font-size:12px;color:var(--t3)}
+.refs h4{font-size:12px;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+.refs ol{margin-left:20px}.refs li{margin-bottom:4px}
+.kt{margin-top:16px;padding:14px 20px;border-radius:var(--rs);background:var(--pl);border-left:4px solid var(--p);font-size:14px;font-weight:500;color:var(--tx)}
+.expt{background:var(--rl);border-left-color:var(--rd)}
+#ft{margin-top:60px;padding:32px 0;border-top:1px solid var(--br);display:flex;gap:12px;flex-wrap:wrap}
+.bt{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:var(--rs);font-size:14px;font-weight:500;cursor:pointer;border:1px solid var(--br);background:var(--bg);color:var(--tx);transition:all var(--tr);text-decoration:none}
+.bt:hover{background:var(--b3)}.bt.pb{background:var(--p);color:#fff;border-color:var(--p)}.bt.pb:hover{filter:brightness(1.1)}
+@media(max-width:1024px){:root{--sw:200px}#mc{padding:48px 24px 80px}}
+@media(max-width:768px){#sb{display:none}#mc{margin-left:0;padding:60px 20px 60px}#tt{top:16px;right:16px}.meta{padding:20px 24px;flex-direction:column;gap:12px;align-items:flex-start}.cw{height:300px}.mtitle{font-size:19px}}
+@media print{#sb,#pb,#tt,#ft{display:none!important}#mc{margin-left:0;max-width:100%;padding:0}.ms{opacity:1;transform:none;break-inside:avoid}body{font-size:12px;line-height:1.5}}
+</style>
+</head>
+<body>
+<div id="pb"></div>
+<button id="tt" title="切换深色/浅色模式" onclick="toggleTheme()">🌓</button>
+<nav id="sb"><h3>📑 内容导航</h3><div id="nav-links"></div></nav>
+<main id="mc">
+
+<div class="meta" style="opacity:1;transform:none">
+<div class="mi"><span class="ic">📖</span><strong>量化因子挖掘、策略与回测</strong></div>
+<div class="mi"><span class="mb mb-fin">💰 金融</span></div>
+<div class="mi"><span class="mb mb-exp">🔴 专家</span></div>
+<div class="mi"><span class="ic">⏱️</span>约60分钟深度阅读</div>
+<div class="mi"><span class="ic">📦</span>22个模块 · 含学术前沿</div>
+</div>
+
+<!-- ====== MODULE 1: BACKGROUND ====== -->
+<section class="ms" id="s1"><div class="mh"><span class="mt tg-c">前置知识</span><h2 class="mtitle">1. 背景与缘起：因子研究的思想谱系</h2></div>
+<div class="hook">1934年，Benjamin Graham在《证券分析》中写道："市场短期是投票机，长期是称重机。"——这句话在90年后仍是对因子投资最精准的哲学概括。</div>
+<div class="md">
+<p>因子投资的学术思想史可追溯至三条独立演进的思想脉络：</p>
+<p><strong>第一条：统计套利传统（1934-1976）</strong>。Graham和Dodd发现低市盈率策略的超额收益，本质是最早的"价值因子"实证。1976年Stephen Ross提出的套利定价理论(APT)为这一传统提供了形式化框架——资产的期望收益由多个系统性因子的线性组合决定。</p>
+<p><strong>第二条：有效市场与异象传统（1964-1992）</strong>。Sharpe(1964)的CAPM既是最简洁的因子模型（单因子），也意外地成为"异象发现"的基准——任何CAPM无法解释的收益模式都成为潜在因子。Banz(1981)的规模效应、Basu(1977)的价值效应、De Bondt和Thaler(1985)的反转效应，不断冲击有效市场假说的壁垒。</p>
+<p><strong>第三条：行为金融传统（1985至今）</strong>。Kahneman和Tversky的前景理论为因子收益提供了非风险的解释——投资者系统性偏差（过度反应、反应不足、处置效应）导致价格偏离基本面，因子策略正是利用这些偏差。</p>
+</div>
+<div class="chrt"><div class="cw" id="chrt_bg"></div><div class="cap">图：因子研究三大思想脉络及其交汇</div><div class="csrc">来源：基于 Cochrane (2011) Presidential Address 框架扩展</div></div>
+<div class="refs"><h4>📚 核心文献</h4><ol>
+<li>Ross, S.A. (1976). <strong>The Arbitrage Theory of Capital Asset Pricing</strong>. <em>JET</em>. <a href="https://doi.org/10.1016/0304-405X(76)90023-8">DOI</a></li>
+<li>Fama, E.F. & French, K.R. (1992). <strong>The Cross-Section of Expected Stock Returns</strong>. <em>JF</em>. <a href="https://doi.org/10.1111/j.1540-6261.1992.tb04398.x">DOI</a></li>
+<li>Kahneman, D. & Tversky, A. (1979). <strong>Prospect Theory</strong>. <em>Econometrica</em>. <a href="https://doi.org/10.2307/1914185">DOI</a></li>
+</ol></div>
+<div class="kt">💡 因子研究三股思想流，在Fama-French(1992)处交汇形成一个"范式锚点"——这个框架至今仍统治着实证资产定价领域。</div>
+</section>
+
+<!-- ====== MODULE 2: CONCEPT ====== -->
+<section class="ms" id="s2"><div class="mh"><span class="mt tg-c">核心概念</span><h2 class="mtitle">2. 核心概念：因子的多学派定义与谱系</h2></div>
+<div class="hook">"因子"可能是金融学中最被滥用的术语——在不同学派眼中，它分别代表风险来源、数据特征、或统计幻象。</div>
+<div class="md">
+<p><strong>三大学派对比</strong>：</p>
+<ul>
+<li><strong>芝加哥学派（Fama）</strong>：因子=系统性风险来源。能解释截面收益差异的变量必然是某种不可分散风险的代理。价值因子之所以有溢价，因为价值股承担了更高的"财务困境风险"。</li>
+<li><strong>行为金融学派（Thaler/Shleifer）</strong>：因子=定价错误的系统性暴露。动量因子之所以有溢价，源于投资者对信息的"反应不足"——市场并不总是有效的。</li>
+<li><strong>数据科学学派（Lopez de Prado）</strong>：因子=高维数据中的稳健信号。不关心理论解释，只关注样本外的预测能力、过拟合控制和交易成本后的净收益。</li>
+</ul>
+<p><strong>因子复盘谱系</strong>：Harvey, Liu & Zhu (2016) 回顾了313篇文献中报告的因子，提出t-statistic阈值应为3.0而非1.96（考虑到多重检验问题），大量"已发布因子"可能根本不显著。</p>
+<p><strong>策略边界</strong>：单因子策略（如纯价值）→ 多因子组合（价值+动量+质量）→ 因子择时（动态调整因子权重）→ 因子轮动（基于宏观状态切换因子暴露）。</p>
+<p><strong>回测的哲学定位</strong>：回测(Backtesting)不是验证——而是<strong>假设的定量表达</strong>。每一次回测都暗含"历史相似性与可外推性"的哲学假设。</p>
+</div>
+<div class="fb"><div>$$
+\text{因子谱系: } \mathcal{F} = \{\text{风险因子}\} \cup \{\text{风格异象}\} \cup \{\text{宏观因子}\} \cup \{\text{技术因子}\} \cup \{\text{另类因子}\}
+$$</div><div class="fc">因子的五层分类谱系</div><div class="fh">💡 点击展开详细分类</div><div class="fd">每层下又可细分：风格异象包括价值、动量、质量、低波、规模等约15种；宏观因子覆盖增长、通胀、波动率、流动性等；技术因子含趋势、均值回归、波动率突破等；另类因子则涵盖ESG、舆情、卫星图像、供应链等</div></div>
+<div class="chrt"><div class="cw" id="chrt_concept"></div><div class="cap">图：因子五层分类谱系</div></div>
+<div class="refs"><h4>📚 核心文献</h4><ol>
+<li>Harvey, C.R., Liu, Y. & Zhu, H. (2016). <strong>...and the Cross-Section of Expected Returns</strong>. <em>Review of Financial Studies</em>. <a href="https://doi.org/10.1093/rfs/hhv059">DOI</a></li>
+<li>Shleifer, A. & Vishny, R. (1997). <strong>The Limits of Arbitrage</strong>. <em>JF</em>.</li>
+</ol></div>
+</section>
+
+<!-- ====== MODULE 3: PRINCIPLE ====== -->
+<section class="ms" id="s3"><div class="mh"><span class="mt tg-c">核心概念</span><h2 class="mtitle">3. 核心原理：从SDF到最优策略的数学框架</h2></div>
+<div class="hook">Cochrane(2001)断言："所有资产定价理论都可以归结为找到一个正确的随机贴现因子(SDF)。"——因子模型就是SDF的参数化。</div>
+<div class="md">
+<p><strong>1. 随机贴现因子框架（SDF）</strong></p>
+<p>资产定价第一基本定理：无套利 ⟺ 存在严格正的SDF M使得 P=E[M·X]。所有因子模型本质上是对M的参数化假定：</p>
+<p><strong>2. Fama-MacBeth两阶段回归的完整推导</strong></p>
+<p>第一阶段（时序回归）：对每只股票i，Rᵢₜ-R_f=αᵢ+βᵢ'Fₜ+εᵢₜ，估计βᵢ（因子暴露）。第二阶段（截面回归）：对每个t，Rᵢₜ=λ₀ₜ+λₜ'βᵢ+ηᵢₜ，估计λₜ（因子风险溢价）。最后λ=mean(λₜ)，标准误需做Shanken(1992)或GMM修正。</p>
+<p><strong>3. 因子组合的最优权重</strong>：Markowitz均值-方差框架中，含K个因子的最优组合权重 w*=Σ⁻¹μ/γ，其中μ=β·λ是因子模型预测的期望收益，Σ=βΣ_Fβ'+D是协方差矩阵。关键约束：权重需正交于不感兴趣的因子暴露。</p>
+</div>
+<div class="fb"><div>$$
+P_t = \mathbb{E}_t[M_{t+1} X_{t+1}], \quad M_{t+1} = f(F_{t+1}; \theta)
+$$</div><div class="fc">SDF定价方程</div><div class="fh">💡 点击展开</div><div class="fd">当M是线性形式 M=1-b'(F-μ_F) 时，等价于多因子模型。Cochrane(2001)证明：任何因子模型是否"正确"，可用Hansen-Jagannathan距离 d=min_θ ||m_model-m_true|| 来衡量，这是检验因子模型完备性的金标准。</div></div>
+<div class="fb"><div>$$
+\text{Sharpe} = \frac{\mathbb{E}[R_p - R_f]}{\sigma_p} = \frac{\sum_{k=1}^{K} \beta_k \lambda_k}{\sqrt{\beta'\Sigma_F\beta + \sigma^2_{\text{idio}}}}
+$$</div><div class="fc">多因子策略的风险调整收益</div></div>
+<div class="chrt"><div class="cw" id="chrt_prin1"></div><div class="cap">图：因子模型定价误差的HJ距离可视化</div></div>
+<div class="chrt"><div class="cw" id="chrt_prin2"></div><div class="cap">图：因子有效前沿与切线组合</div></div>
+<div class="refs"><h4>📚 核心文献</h4><ol>
+<li>Cochrane, J.H. (2001). <strong>Asset Pricing</strong>. Princeton University Press.</li>
+<li>Hansen, L.P. & Jagannathan, R. (1997). <strong>Assessing Specification Errors in SDF Models</strong>. <em>JF</em>.</li>
+<li>Shanken, J. (1992). <strong>On the Estimation of Beta-Pricing Models</strong>. <em>RFS</em>. <a href="https://doi.org/10.1093/rfs/5.1.1">DOI</a></li>
+</ol></div>
+<div class="kt expt">🔴 专家要点：HJ距离是检验因子模型完备性的终极标准——任何"好"的因子模型，其HJ距离应在统计上不显著。</div>
+</section>
+
+<!-- ====== MODULE 4: QUANT MODEL ====== -->
+<section class="ms" id="s4"><div class="mh"><span class="mt tg-t">核心工具</span><h2 class="mtitle">4. 量化模型全景：从FF3到ML因子</h2></div>
+<div class="hook">"战胜市场"的量化公式竞争已持续了60年——每一代模型都试图比前一代表达更多维度的收益规律。</div>
+<div class="md">
+<p><strong>经典模型的数学内核</strong>：</p>
+<ul>
+<li><strong>FF3(1992)</strong>：R-Rf=α+β_Mkt·Mkt+β_SMB·SMB+β_HML·HML+ε。SMB=小市值组合收益-大市值；HML=高BM组合收益-低BM</li>
+<li><strong>Carhart 4-factor(1997)</strong>：在FF3基础上加入 UMD(Up-Minus-Down)=过去12个月赢家-输家。这是动量因子首次被严格纳入定价模型</li>
+<li><strong>FF5(2015)</strong>：加入 RMW(Robust-Minus-Weak)=高盈利-低盈利，CMA(Conservative-Minus-Aggressive)=低投资-高投资。暗含q理论——高投资侵蚀边际收益</li>
+<li><strong>Hou-Xue-Zhang q-factor(2015)</strong>：基于投资的资产定价，I/A因子替代HML，ROE因子替代RMW，理论上可内部一致地推导出所有异象</li>
+<li><strong>Stambaugh-Yuan mispricing(2017)</strong>：从11个异象中提取两个错价因子MGMT和PERF</li>
+</ul>
+<p><strong>机器学习因子模型</strong>：Gu, Kelly & Xiu(2020)用神经网络+提升树+正则化线性模型预测股票收益，R²可达10-20%（传统模型仅2-5%），但"可解释性"被严重削弱。</p>
+</div>
+<div class="fb"><div>$$
+\mathbb{E}[R_i] = \beta_{i, Mkt} \cdot \text{Mkt} + \beta_{i, SMB} \cdot \text{SMB} + \beta_{i, HML} \cdot \text{HML} + \beta_{i, UMD} \cdot \text{UMD} + \beta_{i, RMW} \cdot \text{RMW} + \beta_{i, CMA} \cdot \text{CMA}
+$$</div><div class="fc">FF5+动量6因子模型</div></div>
+<div class="fb"><div>$$
+R_{i,t+1} = g(z_{i,t}; \theta) + \epsilon_{i,t+1}, \quad z_{i,t} \in \mathbb{R}^{94}
+$$</div><div class="fc">Gu-Kelly-Xiu 通用预测框架 (94个股特征→预测收益)</div><div class="fh">💡 展开</div><div class="fd">使用94个公司特征、增强回归树(GBRT)和深度神经网络(DNN)：月度R²=10.3%。主力预测变量：近12个月收益(动量)、近1个月收益(反转)、市值、成交量、波动率。非线性交互项重要性远超线性项。</div></div>
+<div class="chrt"><div class="cw" id="chrt_q1"></div><div class="cap">图：各因子模型R²演进(1964CAPM → 2020ML)</div></div>
+<div class="chrt"><div class="cw" id="chrt_q2"></div><div class="cap">图：94个股特征中预测能力Top 20(Gu-Kelly-Xiu)</div></div>
+</section>
+
+<!-- ====== MODULE 5: MICRO STRUCTURE ====== -->
+<section class="ms" id="s5"><div class="mh"><span class="mt tg-t">核心工具</span><h2 class="mtitle">5. 市场微观结构：回测的隐性假设检验场</h2></div>
+<div class="hook">大多数回测忽略了一个致命事实：你的模拟成交价，在实际市场中根本无法实现。</div>
+<div class="md">
+<p><strong>微观结构对策略的三层约束</strong>：</p>
+<p><strong>第1层：买卖价差(Bid-Ask Spread)</strong>。做市商收取的"通行费"。A股科技股有效价差(dollar)=SPR·P≈0.03%·100=3分钱；高频策略中，每次交易穿一次价差=亏掉半个手续费。</p>
+<p><strong>第2层：市场冲击(Market Impact)</strong>。Almgren-Chriss(2001)将冲击分为永久(信息)和临时(流动性)。临时冲击 η·vᵞ≈0.1·(Q/V)^0.5，v越大非线性增长越剧。大单最优执行需用VWAP/TWAP/POV算法拆单。</p>
+<p><strong>第3层：容量上限(Capacity)</strong>。策略的AUM上限 ≈ min(日成交额·0.01%/天, 总市值·限制比例)。多因子策略的瓶颈通常不在单个股票，而在具体的因子拥挤度。</p>
+<p><strong>中国市场的独特性</strong>：T+1制度（买入当日不可卖出）导致日内动量策略失效；涨跌停板（±10%）造成流动性断崖；融券限制使得多空因子收益不对称。</p>
+</div>
+<div class="fb"><div>$$
+\text{实现收益} = \text{预期Alpha} - \text{价差成本} - \text{冲击成本} - \text{延迟成本} - \text{费用}
+$$</div><div class="fc">交易成本拆解——回测收益与实盘差距的五个维度</div></div>
+<div class="chrt"><div class="cw" id="chrt_ms1"></div><div class="cap">图：不同下单量下的市场冲击函数(Almgren-Chriss模型)</div></div>
+<div class="chrt"><div class="cw" id="chrt_ms2"></div><div class="cap">图：各市场交易机制对比(美股/A股/港股)</div><div class="csrc">T+1、涨跌停、融券可得性等核心差异</div></div>
+<div class="refs"><h4>📚</h4><ol>
+<li>Almgren, R. & Chriss, N. (2001). <strong>Optimal Execution of Portfolio Transactions</strong>. <em>J. Risk</em>.</li>
+<li>Kyle, A.S. (1985). <strong>Continuous Auctions and Insider Trading</strong>. <em>Econometrica</em>. <a href="https://doi.org/10.2307/1913210">DOI</a></li>
+<li>Menkveld, A.J. (2013). <strong>High Frequency Trading and the New Market Makers</strong>. <em>JFM</em>.</li>
+</ol></div>
+</section>
+
+<!-- ====== MODULE 6: DEVELOPMENT ====== -->
+<section class="ms" id="s6"><div class="mh"><span class="mt tg-e">发展演进</span><h2 class="mtitle">6. 发展迭代：范式转移与关键论文链</h2></div>
+<div class="hook">因子研究的四十年就是一部"发现→拥挤→消失→再发现"的循环史——每一次范式转移都伴随着方法论革命。</div>
+<div class="md">
+<p><strong>范式I：Black-Scholes-Merton & CAPM（1964-1976）</strong>。BSM期权定价(1973)为量化交易奠定了基础设施——没有期权定价，就没有希腊字母对冲；CAPM则定义了第一个系统性因子。</p>
+<p><strong>范式II：异象大发现与多因子模型（1977-2008）</strong>。1980-2000年代被称为"异象淘金热"——Schwert(2003)记录了近百个"已消失的异象"。FF3(1992)和Carhart(1997)筛选出最具稳健性的因子，成为业界标准。</p>
+<p><strong>范式III：机器学习与大数据（2009-2019）</strong>。Lopez de Prado(2018)《Advances in Financial ML》标志着因子研究的方法论革命——从线性回归转向集成学习、从月度频率转向tick级数据、从传统财务数据转向另类数据。</p>
+<p><strong>范式IV：因果推断与可解释AI（2020至今）</strong>。当前最前沿。Athey & Imbens(2019)将因果森林引入经济学，金融因子研究开始关注：我们发现的"因子"到底是因果关系还是虚假相关？</p>
+</div>
+<div class="chrt"><div class="cw" id="chrt_dev1"></div><div class="cap">图：因子研究四大范式转移（含代表论文）</div></div>
+<div class="chrt"><div class="cw" id="chrt_dev2"></div><div class="cap">图：已发布"因子"的超额收益衰减趋势(发表于后衰减率)</div><div class="csrc">基于 McLean & Pontiff (2016) 方法论的扩展数据</div></div>
+<div class="refs"><h4>📚</h4><ol>
+<li>McLean, R.D. & Pontiff, J. (2016). <strong>Does Academic Research Destroy Return Predictability?</strong> <em>JF</em>.</li>
+<li>Lopez de Prado, M. (2018). <strong>Advances in Financial Machine Learning</strong>. Wiley.</li>
+<li>Schwert, G.W. (2003). <strong>Anomalies and Market Efficiency</strong>. <em>Handbook of Economics and Finance</em>.</li>
+</ol></div>
+<div class="kt expt">🔴 因子衰减定律：一旦在顶刊发表，因子超额收益平均衰减32%——学术界自己正在"杀死"自己的发现（McLean & Pontiff, 2016）。</div>
+</section>
+
+<!-- ====== MODULE 7: APPLICATION ====== -->
+<section class="ms" id="s7"><div class="mh"><span class="mt tg-a">实践应用</span><h2 class="mtitle">7. 前沿应用：从选股到全栈量化系统</h2></div>
+<div class="hook">现代量化系统不是"选股公式"的叠加——而是从信号生成到执行的全栈工程，每一个环节都可能产生额外Alpha。</div>
+<div class="md">
+<p><strong>1. 另类数据因子化</strong>：卫星图像→停车场满置率推断零售额→提前季报1-2周获得信号。NLP情绪分析→从10-K文本语气提取Managerial Sentiment因子。信用卡流水→JPMorgan通过聚合交易数据构建"实时消费指数"。</p>
+<p><strong>2. 非线性因子交互</strong>：价值因子在经济衰退期才有显著溢价，而动量因子在低波动环境下表现最佳。这就是"因子交互项"——ML模型相比线性回归的主要优势。</p>
+<p><strong>3. 可解释AI在因子归因中的应用</strong>：SHAP值分解每个特征对每只股票预测的贡献。对于监管合规和投资者沟通至关重要——"你的AI为什么推荐这支股票？"必须有可审计答案。</p>
+<p><strong>4. 实时因子回测引擎</strong>：现代系统要求策略在流式数据上实时回测（而非批处理），延迟<100ms。涉及：Kafka消息队列→Flink流处理→Redis缓存因子值→回测引擎实时计算信号。</p>
+</div>
+<div class="chrt"><div class="cw" id="chrt_app1"></div><div class="cap">图：全栈量化系统架构（数据→信号→执行→监控）</div></div>
+</section>
+
+<!-- ====== MODULE 8: CROSS-MARKET ====== -->
+<section class="ms" id="s8"><div class="mh"><span class="mt tg-a">实践应用</span><h2 class="mtitle">8. 跨市场联动：因子的全球传导与危机扩散</h2></div>
+<div class="hook">2022年，美联储加息→美元走强→新兴市场资金外流→A股流动性因子崩溃。这条连锁反应揭示了因子的全球传导本质。</div>
+<div class="md">
+<p><strong>量化溢出效应模型</strong>：Diebold-Yilmaz(2014)连通性指数——方差分解中"来自其他资产的冲击贡献"占比。全球股票因子的连通性在2020年3月达到历史峰值85%，即各市场因子回报几乎完全同步。</p>
+<p><strong>因子拥挤的跨国证据</strong>：价值因子在美国(2017-2019)大幅跑输，同期欧洲价值因子也表现低迷——说明大量全球资金在同一因子上的拥挤并非某国特有现象。</p>
+<p><strong>套利机制与失效路径</strong>：跨市场因子套利的典型模式：做多日本低波动因子+做空美国高波动因子→赚取低波溢价。关键在于对冲货币风险（用NDF或Currency Overlay）。</p>
+</div>
+<div class="chrt"><div class="cw" id="chrt_cross1"></div><div class="cap">图：全球主要市场因子收益相关性网络(2020-2024)</div></div>
+<div class="chrt"><div class="cw" id="chrt_cross2"></div><div class="cap">图：因子危机时期的跨市场交叉传染路径</div></div>
+<div class="refs"><h4>📚</h4><ol>
+<li>Diebold, F.X. & Yilmaz, K. (2014). <strong>On the Network Topology of Variance Decompositions</strong>. <em>J. Econometrics</em>.</li>
+<li>Asness, C.S., Moskowitz, T.J. & Pedersen, L.H. (2013). <strong>Value and Momentum Everywhere</strong>. <em>JF</em>. <a href="https://doi.org/10.1111/jofi.12021">DOI</a></li>
+</ol></div>
+<div class="kt expt">🔴 "Value and Momentum Everywhere"（2013 JF）——动量和价值因子在全球八大资产类别中普遍存在且显著，跨越股/债/汇/大宗商品。</div>
+</section>
+
+<!-- ====== MODULE 9: INSTITUTION DIFF ====== -->
+<section class="ms" id="s9"><div class="mh"><span class="mt tg-a">实践应用</span><h2 class="mtitle">9. 机构实操差异：买方vs卖方的因子博弈</h2></div>
+<div class="hook">卖方Quant构建因子模型是为了"卖产品"；买方Quant构建因子模型是为了"赚Alpha"。同一个公式在两个世界中完全不同。</div>
+<div class="md">
+<p><strong>卖方Quant（投行/券商）</strong>：因子模型的核心功能是风险管理和产品设计。Barra的USE4模型含10个风格因子+68个行业因子，优化目标为最小化跟踪误差而非最大化Alpha。衍生品台的因子模型需要处理非线性暴露（Gamma/Vega/Vanna）。</p>
+<p><strong>买方Quant（对冲基金/资管）</strong>：因子模型的目标直接是预测超额收益。Two Sigma的策略体系以"预测α"而非"解释β"为目标。因子选择更灵活——可以包含学术文献未报道过的"秘密因子"。关注交易成本——一个α=2%但成本=1.5%的因子还不如α=1%成本=0.2%的简单因子。</p>
+<p><strong>中国量化私募的分层</strong>：头部(幻方/九坤/明汯)自研系统，数千个因子，使用深度学习；腰部用商业平台接入自研因子；尾部依赖开源框架+少量人手。</p>
+</div>
+<div class="chrt"><div class="cw" id="chrt_inst1"></div><div class="cap">图：卖方vs买方因子模型核心指标对比</div></div>
+<div class="chrt"><div class="cw" id="chrt_inst2"></div><div class="cap">图：中国量化私募分级及技术栈</div></div>
+</section>
+
+<!-- ====== MODULE 10: CASE STUDY ====== -->
+<section class="ms" id="s10"><div class="mh"><span class="mt tg-a">实践应用</span><h2 class="mtitle">10. 深度案例研究：三大量化基金的因子体系</h2></div>
+<div class="hook">Renaissance的Medallion基金——1988-2021年年化收益66%（扣除费用前），夏普比率约2.5。它是如何做到的？至今仍是对因子研究者的终极谜题。</div>
+<div class="md">
+<p><strong>Case 1: Renaissance Technologies Medallion</strong>：策略细节完全黑箱，但从前员工访谈可推断：使用隐马尔可夫模型(HMM)检测市场状态转换（Regime Switching），根据当前状态切换最适应的因子组合；因子池约100-200个，但实时更新——新数据进入时因子权重动态调整；核心不仅仅是因子本身，而是执行——通过"回扣套利"(rebate arbitrage)赚取做市商返佣。</p>
+<p><strong>Case 2: AQR Style Premia</strong>：透明地公布了四大因子（价值、动量、质量、低波动）在六大资产类别（股/债/汇/大宗/信用/波动率）上的策略。2018-2020经历了约30%的最大回撤——证明"因子分散"在宏观冲击面前效果有限。</p>
+<p><strong>Case 3: 幻方量化</strong>：中国头部量化私募，管理规模千亿级。公开信息：利用数百台GPU集群训练深度学习因子模型，处理tick级行情数据。核心策略由三个"AI引擎"驱动：截面引擎（选股）、时序引擎（择时）、风控引擎（组合优化）。</p>
+</div>
+<div class="chrt"><div class="cw" id="chrt_case1"></div><div class="cap">图：三大基金核心策略对比</div></div>
+<div class="chrt"><div class="cw" id="chrt_case2"></div><div class="cap">图：AQR Style Premia各因子历史贡献率</div></div>
+<div class="refs"><h4>📚</h4><ol>
+<li>AQR Capital (2023). <strong>Style Premia Annual Report</strong>.</li>
+<li>Zuckerman, G. (2019). <strong>The Man Who Solved the Market</strong>. Portfolio.</li>
+<li>幻方量化 (2023). <strong>AI量化策略年度报告</strong>.</li>
+</ol></div>
+</section>
+
+<!-- ====== MODULE 11: CRISIS REVIEW ====== -->
+<section class="ms" id="s11"><div class="mh"><span class="mt tg-a">实践应用</span><h2 class="mtitle">11. 历史危机多维度复盘：因子策略的五次"完美风暴"</h2></div>
+<div class="hook">2007年8月7-10日——量化因子策略在4天内暴跌30%以上。不是因为经济基本面的变化，而是因为"太多相同策略同时平仓"。</div>
+<div class="md">
+<p><strong>2007年8月"量化地震"(Quant Quake)</strong>：罪魁祸首是统计套利策略的过度拥挤。事件路径：① 高盛Global Alpha基金因次贷亏损被迫去杠杆 ② 清仓引发连锁反应，所有统计套利基金同向平仓 ③ 做多价值/做空成长的策略在4天内亏损15-25% ④ 一周后市场恢复，但多家基金已永久关闭。</p>
+<p><strong>2018年2月"VIX Event"</strong>：做空波动率因子(XIV/Short Vol)在一夜之间清零。根本原因：策略的隐含杠杆远超宣传——表面波动率暴露为1，实际尾部暴露为20+。</p>
+<p><strong>2020年3月"新冠流动性危机"</strong>：即便是最分散的多因子策略也无法幸免——因为所有资产同时被抛售，"现金为王"压倒了因子逻辑。</p>
+<p><strong>系统性教训</strong>：因子策略的命运不取决于选股能力，而取决于① 杠杆倍数 ② 对手方风险 ③ 流动性储备 ④ 在"相关性为1"的极端场景下是否还有独立收益源。</p>
+</div>
+<div class="chrt"><div class="cw" id="chrt_crisis1"></div><div class="cap">图：五次量化策略危机的时序对比</div></div>
+<div class="chrt"><div class="cw" id="chrt_crisis2"></div><div class="cap">图：2007 Quant Quake期间多因子策略净值变化</div></div>
+<div class="refs"><h4>📚</h4><ol>
+<li>Khandani, A. & Lo, A.W. (2007). <strong>What Happened to the Quants in August 2007?</strong> <em>J. Investment Management</em>.</li>
+<li>Khandani, A. & Lo, A.W. (2011). <strong>What Happened to the Quants in August 2007? Evidence from Factors</strong>. <em>JFM</em>.</li>
+<li>Cont, R. & Wagalath, L. (2013). <strong>Running for the Exit</strong>. <em>Mathematical Finance</em>.</li>
+</ol></div>
+<div class="kt expt">🔴 Khandani & Lo经典论文：量化地震并非因子失效，而是"系统性避险"造成的流动性冲击——这无法通过因子分散化消除。</div>
+</section>
+
+<!-- ====== MODULE 12: RISK ====== -->
+<section class="ms" id="s12"><div class="mh"><span class="mt tg-r">风险与挑战</span><h2 class="mtitle">12. 系统性风险建模：从VaR到应力测试的完整框架</h2></div>
+<div class="hook">"风险"从不是单一数字——它是一个多维结构：模型风险、数据风险、流动性风险、操作风险相互锁定。</div>
+<div class="md">
+<p><strong>1. 模型风险</strong>：假设风险（GBM假设不成立）→ 估计风险（β的置信区间）→ 过拟合风险（样本内70%、外30%的巨大剪刀差）。确定过拟合概率(PBO)是Lopez de Prado(2015)的贡献：PBO=Pr(maxSR*>E[maxSR])。</p>
+<p><strong>2. 因子风险的多层级</strong>：单因子层面——因子自身的VaR和最大回撤；因子间交互——相关性突然上升(如2020.3)；因子与宏观——价值因子对利率敏感，动量因子对波动率敏感。</p>
+<p><strong>3. 回测特有的统计陷阱</strong>：幸存者偏差（删除退市股票）、前瞻偏差（用了t+2才公布的数据）、多重测试（试了100个参数组合挑最好的）——Bailey & Lopez de Prado(2014)的Deflated Sharpe Ratio正是为此设计的。</p>
+</div>
+<div class="fb"><div>$$
+\text{DSR} = \Phi\left( \frac{(\text{SR} - \text{SR}_0)\sqrt{T-1}}{\sqrt{1 - \gamma_3\text{SR} + \frac{\gamma_4-1}{4}\text{SR}^2}} \right)
+$$</div><div class="fc">Deflated Sharpe Ratio — 多重测试修正后的显著性</div><div class="fh">💡 展开</div><div class="fd">DSR<0.05意味着即使考虑了多重测试（试过N个策略版本），该策略的夏普比率仍有统计意义。普通的SR>1但DSR<0.05是典型的"伪发现"策略。</div></div>
+<div class="chrt"><div class="cw" id="chrt_risk1"></div><div class="cap">图：因子策略的七维风险雷达</div></div>
+<div class="chrt"><div class="cw" id="chrt_risk2"></div><div class="cap">图：回测常见统计陷阱对策略收益的高估程度</div></div>
+<div class="refs"><h4>📚</h4><ol>
+<li>Bailey, D.H. & Lopez de Prado, M. (2014). <strong>The Deflated Sharpe Ratio</strong>. <em>J. Portfolio Management</em>.</li>
+<li>Lopez de Prado, M. & Bailey, D.H. (2015). <strong>The Probability of Backtest Overfitting</strong>. <em>J. Computational Finance</em>.</li>
+</ol></div>
+</section>
+
+<!-- ====== MODULE 13: REGULATION ====== -->
+<section class="ms" id="s13"><div class="mh"><span class="mt tg-r">风险与挑战</span><h2 class="mtitle">13. 全球监管博弈：算法交易与因子策略的合规边界</h2></div>
+<div class="hook">监管曾对量化交易几乎"不设防"——直到2010年Flash Crash和2021年GameStop事件改变了监管层对"算法决策"的态度。</div>
+<div class="md">
+<p><strong>欧盟MiFID II/MiFIR</strong>（2018）：对算法交易的全面监管框架。要求① 所有算法需在监管注册 ② 提供"断路器"机制（异常时自动停止） ③ 市场准入前进行合规算法测试 ④ 每年审计算法行为。</p>
+<p><strong>美国SEC Rule 15c3-5</strong>："市场准入规则"——券商必须在客户订单到达交易所前做风险检查（包括信用限额、错误订单筛选）。对高频因子策略的约束尤其严格。</p>
+<p><strong>中国监管的特殊性</strong>：2023年《证券期货业程序化交易管理办法》征求意见稿。量化基金申报要求：策略类型、算法逻辑简述、最大持仓比例。趋势：管理规模超一定阈值需"算法备案"。</p>
+<p><strong>国际政策前瞻</strong>：欧盟正在推进《人工智能法案》(AI Act)，将"金融算法决策"列为高风险AI应用。这可能导致因子模型需要提供"决策可解释性报告"。</p>
+</div>
+<div class="chrt"><div class="cw" id="chrt_reg1"></div><div class="cap">图：全球量化交易监管力度时间线(2010-2025)</div></div>
+<div class="chrt"><div class="cw" id="chrt_reg2"></div><div class="cap">图：中国三大监管文件对量化业务的约束层级</div></div>
+</section>
+
+<!-- ====== MODULE 14: LANDSCAPE ====== -->
+<section class="ms" id="s14"><div class="mh"><span class="mt tg-e">发展演进</span><h2 class="mtitle">14. 全球格局：资本、技术与地缘的三维竞争</h2></div>
+<div class="hook">因子研究的全球中心正在从纽约/芝加哥向东移动——北京/上海的量化公司数量在5年内增长了400%。</div>
+<div class="md">
+<p><strong>美国主导层</strong>：Renaissance/Two Sigma/DE Shaw/Citadel——四家合计管约4000亿美元（估算）。核心优势：数据积累(30年+tick级)、算力储备(GPU集群规模)、人才梯队(顶级PhD + 高薪)。</p>
+<p><strong>欧洲学术层</strong>：AQR（学术驱动+透明公开）、Man Group（牛津Man研究所）、CFM（巴黎，物理学家转型）。特点：与学术界密切联系，论文产出多。</p>
+<p><strong>中国崛起层</strong>：2019-2023是中国量化"黄金五年"——私募量化规模从5000亿到1.5万亿。驱动力：① 散户占比高→定价效率低→Alpha机会多 ② 数据基础设施完善(万得/聚宽/Tushare等) ③ 工程师红利。</p>
+<p><strong>技术渗透率</strong>：全球股票交易约60-70%由算法执行(美国超过80%，A股约30%但增速最快)。</p>
+</div>
+<div class="chrt"><div class="cw" id="chrt_land1"></div><div class="cap">图：全球量化资管区域分布（按AUM）</div></div>
+<div class="chrt"><div class="cw" id="chrt_land2"></div><div class="cap">图：中国量化私募管理规模增长率(2015-2024)</div></div>
+</section>
+
+<!-- ====== MODULE 15: ISSUES ====== -->
+<section class="ms" id="s15"><div class="mh"><span class="mt tg-r">风险与挑战</span><h2 class="mtitle">15. 深层矛盾：学术争议与产业困境</h2></div>
+<div class="hook">因子研究面临三重矛盾：学术严谨vs产业效率、透明度vs竞争优势、模型复杂度vs可审计性。</div>
+<div class="md">
+<p><strong>矛盾一：因子通货膨胀(Factor Zoo)</strong>。Cochrane(2011)称之为"因子动物园"——学界已报告400+个"显著因子"，但其中有多少能独立产生超额收益？Feng, Giglio & Xiu(2020)用Double-Selection Lasso方法筛选，发现约60%的已发布因子在控制已有因子后不再显著。</p>
+<p><strong>矛盾二：学术-产业鸿沟</strong>。学界：追求方法论严谨和可复现，但使用滞后数据（CRSP滞后6个月）。业界：愿意用任何可行的数据源，但从不公开"真正有效"的因子。结果：学术论文中的因子往往在发表时已无实际价值。</p>
+<p><strong>矛盾三：复杂度-可解释性权衡</strong>。深度学习因子模型：预测R²高（10-20%），但无法解释"为什么"。线性因子模型：预测R²低（2-5%），但每个β都有经济学含义。监管倾向于后验，市场倾向于前验。</p>
+</div>
+<div class="chrt"><div class="cw" id="chrt_iss1"></div><div class="cap">图：已报告因子中独立有效的比例(Feng-Giglio-Xiu筛选)</div></div>
+<div class="chrt"><div class="cw" id="chrt_iss2"></div><div class="cap">图：学术界vs业界因子研究的关注点差异</div></div>
+<div class="refs"><h4>📚</h4><ol>
+<li>Feng, G., Giglio, S. & Xiu, D. (2020). <strong>Taming the Factor Zoo</strong>. <em>JF</em>.</li>
+<li>Cochrane, J.H. (2011). <strong>Presidential Address: Discount Rates</strong>. <em>JF</em>. <a href="https://doi.org/10.1111/j.1540-6261.2011.01671.x">DOI</a></li>
+</ol></div>
+<div class="kt expt">🔴 Feng-Giglio-Xiu (2020 JF)的新方法：用机器学习做变量筛选而不是预测——这是"统计方法论"反哺"经济理论"的典范。</div>
+</section>
+
+<!-- ====== MODULE 16: PROSPECT ====== -->
+<section class="ms" id="s16"><div class="mh"><span class="mt tg-e">发展演进</span><h2 class="mtitle">16. 未来轨道：量子计算与因果AI的颠覆可能</h2></div>
+<div class="hook">如果量子计算机能在1秒内做完经典计算机1万年的优化问题——那么"最优因子组合"的发现将从艺术变成精确科学。</div>
+<div class="md">
+<p><strong>轨迹一：量子因子优化（2028-2035，概率30%）</strong>。组合优化（Markowitz）本质是NP-hard二次规划。量子退火(D-Wave)可在毫秒级找到近似全局最优——N=1000只股票的优化在经典计算机需要数小时，量子退火可在秒级完成。对因子投资的速度提升是质的飞跃。</p>
+<p><strong>轨迹二：因果因子发现（2025-2035，概率60%）</strong>。当前的因子研究几乎全是"相关性研究"——发现特征X与收益Y相关，但不能证明X导致Y。因果推断方法（Do-calculus、IV、RDD、DID）将改变这一局面：我们不仅知道"哪些特征有效"，还知道"为什么有效"和"什么条件下会失效"。</p>
+<p><strong>轨迹三：去中心化因子市场（2030-2040，概率20%）</strong>。类似Numerai的模式——将因子信号加密后提交到去中心化网络，通过零知识证明验证预测能力而不暴露具体公式。这能解决产业界"不愿分享有效因子"的激励问题。</p>
+</div>
+<div class="chrt"><div class="cw" id="chrt_pros1"></div><div class="cap">图：因子研究三条未来轨道的概率-影响矩阵</div></div>
+<div class="chrt"><div class="cw" id="chrt_pros2"></div><div class="cap">图：量子vs经典因子组合优化的速度对比（预估）</div></div>
+</section>
+
+<!-- ====== MODULE 17: EFFORT DIRECTION ====== -->
+<section class="ms" id="s17"><div class="mh"><span class="mt tg-e">发展演进</span><h2 class="mtitle">17. 研究前沿与空白点：顶尖实验室在做什么</h2></div>
+<div class="md">
+<p><strong>当前最前沿的因子研究方向</strong>：</p>
+<ul>
+<li><strong>SDF的深度学习方法</strong>（Chen, Pelger & Zhu, 2023）：用GAN生成"最优SDF"，通过对抗训练使SDF的定价误差最小化。这是将深度学习直接应用于资产定价第一性原理的尝试。</li>
+<li><strong>因子模型的在线学习</strong>：传统因子每个月rebalance一次——能否每天甚至每笔成交后实时更新因子暴露？涉及增量学习、联邦学习、差分隐私等技术。</li>
+<li><strong>文本因子的因果提取</strong>：从管理层电话会议的文本中提取"真正有增量信息"的因果因子（而非仅统计相关）。NLP+因果推断的交叉领域。</li>
+<li><strong>因子拥挤度的实时度量</strong>：通过分析对冲基金13F持仓数据+ETF流量数据+期权Open Interest，构建"因子拥挤指数"。</li>
+</ul>
+<p><strong>研究资助趋势</strong>：工科基金（NSF、NSFC）对"AI+金融"交叉项目的资助增速最快（年增约25%），传统金融学科基本持平。</p>
+</div>
+<div class="chrt"><div class="cw" id="chrt_eff1"></div><div class="cap">图：因子研究前沿热点分布与资助热度</div></div>
+<div class="chrt"><div class="cw" id="chrt_eff2"></div><div class="cap">图：顶级期刊因子相关论文数量趋势(2000-2024)</div></div>
+<div class="refs"><h4>📚 前沿文献</h4><ol>
+<li>Chen, L., Pelger, M. & Zhu, J. (2023). <strong>Deep Learning in Asset Pricing</strong>. <em>Management Science</em>.</li>
+<li>Gu, S., Kelly, B. & Xiu, D. (2020). <strong>Empirical Asset Pricing via Machine Learning</strong>. <em>RFS</em>. <a href="https://doi.org/10.1093/rfs/hhaa009">DOI</a></li>
+</ol></div>
+</section>
+
+<!-- ====== MODULE 18: INNOVATION ====== -->
+<section class="ms" id="s18"><div class="mh"><span class="mt tg-f">前沿探索</span><h2 class="mtitle">18. 创新方向：跨界融合与蓝海挖掘</h2></div>
+<div class="hook">最好的因子通常来自"没人看的地方"——2015年的卫星图像、2018年的另类数据、2023年的大型语言模型。</div>
+<div class="md">
+<p><strong>1. LLM驱动的因子生成</strong>：GPT-4级别模型处理财报电话会议文字稿→提取"管理层信心指数"因子。这已从学术概念走向商业应用——Bloomberg和Refinitiv已推出相关产品。</p>
+<p><strong>2. 合成数据因子训练</strong>：生成式模型(GAN/Diffusion)生成"可信但不存在"的金融数据→在合成数据上训练因子模型避免过拟合。理论优势：可以生成任意市场状态（包括极端尾部）的训练样本。</p>
+<p><strong>3. 联邦因子学习</strong>：多家机构联合训练因子模型但各自数据不出本地——解决了数据共享和隐私保护的矛盾。技术上依赖同态加密和安全多方计算。</p>
+<p><strong>4. 生物启发式因子优化</strong>：遗传算法、蚁群算法、粒子群算法等——在数万亿潜在因子组合中自动搜索最稳健的组合。已用于CTA策略的参数优化。</p>
+</div>
+<div class="chrt"><div class="cw" id="chrt_inno1"></div><div class="cap">图：四大创新方向的技术成熟度与商业前景</div></div>
+<div class="chrt"><div class="cw" id="chrt_inno2"></div><div class="cap">图：各创新方向的投资热度（VC/产业投资，2020-2024）</div></div>
+</section>
+
+<!-- ====== MODULE 19: MISCONCEPTIONS ====== -->
+<section class="ms" id="s19"><div class="mh"><span class="mt tg-c">核心概念</span><h2 class="mtitle">19. 学术偏见与方法论误区</h2></div>
+<div class="hook">即便是顶刊论文中的因子，也可能建立在不可靠的统计推断之上——理解这些方法论陷阱是专家级从业者的基本功。</div>
+<div class="md">
+<p><strong>1. p-hacking与发表偏差</strong>：Harvey(2017)估算——在5%显著性水平下，313个因子中约158个可能是"假阳性"。因为研究者不报告"不显著"的尝试，导致文献中的分布严重右偏。</p>
+<p><strong>2. 样本切分的边界偏差</strong>：许多因子研究发现"1963年1月-12月的收益预测特别好"——因为1963年是CRSP数据起始年，包含数据基础设施切换的结构性断点。</p>
+<p><strong>3. "黑板经济学"偏好</strong>：学术期刊偏好理论优美、数学精致的模型，但市场中真正有效的因子往往是"丑陋但稳健"的（如订单流不平衡这类纯数据驱动的因子）。</p>
+<p><strong>4. 时序聚合误区</strong>：用年度数据检验的因子可能在日内数据上完全失效——但论文汇报年度结果因为更"显著"。这是一种隐性的"选择偏差"。</p>
+</div>
+<div class="kt expt">🔴 区分"统计显著"与"经济显著"——一个t-stat=5但交易成本后收益为负的因子，对投资者毫无价值。</div>
+</section>
+
+<!-- ====== MODULE 20: DEBATE ====== -->
+<section class="ms" id="s20"><div class="mh"><span class="mt tg-r">风险与挑战</span><h2 class="mtitle">20. 学派之争：风险补偿、行为偏差还是伪发现？</h2></div>
+<div class="hook">Fama vs Thaler的两极辩论，本质上是在争论"市场有多聪明"——这个问题没有定论，但驱动了整个因子研究领域的发展。</div>
+<div class="md">
+<p><strong>1. "风险补偿vs行为偏差"学派之争</strong></p>
+<p>Fama/French立场：因子溢价是对不可分散风险的补偿。价值股有更高折现率，因为它们对经济周期（尤其信贷条件）更敏感。如果有一天价值因子消失了，说明对应风险被对冲工具"定价"了。</p>
+<p>Shleifer/Thaler立场：因子溢价来自投资者系统性偏差+套利限制。动量因子之所以存在，不是因为"动量风险"，而是因为① 投资者对好消息反应不足 ② 做空受限使反向力量延迟入场。</p>
+<p><strong>2. "数据挖掘vs真正发现"方法论之争</strong></p>
+<p>保守派：400个因子中真正独立的可能只有5-10个。进步派：ML方法能发现人类无法直觉感知的非线性规律——"黑箱可解释性"应该后置于"预测能力"。</p>
+<p><strong>3. "主动量化vs被动因子"产业之争</strong></p>
+<p>主动派：因子择时能力可以产生额外Alpha（如桥水全天候）。被动派：因子本身已足够分散，"择时"只是自己骗自己的故事（如AQR的纯多因子ETF）。</p>
+</div>
+<div class="chrt"><div class="cw" id="chrt_debate"></div><div class="cap">图：三大学派对因子的解释对比</div></div>
+<div class="refs"><h4>📚</h4><ol>
+<li>Fama, E.F. (2022). <strong>Multifactor Explanations of Asset Pricing Anomalies</strong>. <em>JF</em>.</li>
+<li>Thaler, R. (2015). <strong>Misbehaving: The Making of Behavioral Economics</strong>. Norton.</li>
+<li>Kelly, B., Pruitt, S. & Su, Y. (2019). <strong>Characteristics Are Covariances</strong>. <em>JFE</em>. <a href="https://doi.org/10.1016/j.jfineco.2019.05.001">DOI</a></li>
+</ol></div>
+</section>
+
+<!-- ====== MODULE 21: LEARNING PATH ====== -->
+<section class="ms" id="s21"><div class="mh"><span class="mt tg-c">核心概念</span><h2 class="mtitle">21. 专家级学者入圈指南：必读论文链与学术地图</h2></div>
+<div class="hook">想成为因子研究领域的"能看懂前沿的人"——这里有从经典到前言的完整论文链。</div>
+<div class="md">
+<p><strong>必读经典（理解范式）</strong>：</p>
+<p>Fama & French (1992, 1993, 2015) — 三篇奠基论文；Carhart (1997) — 动量引入；Cochrane (2001) 《Asset Pricing》— 圣经级教材（重点第1-9章、第12-14章SDF部分、第20-21章实证方法）</p>
+<p><strong>方法论必读（避免陷阱）</strong>：</p>
+<p>Harvey, Liu & Zhu (2016) — t-stat 3.0；Bailey & Lopez de Prado (2014) — Deflated Sharpe Ratio；Lopez de Prado (2018) 《Advances in Financial Machine Learning》</p>
+<p><strong>前沿必读（参与对话）</strong>：</p>
+<p>Gu, Kelly & Xiu (2020 RFS) — ML资产定价；Feng, Giglio & Xiu (2020 JF) — 驯服因子动物园；Chen, Pelger & Zhu (2023) — 深度学习SDF</p>
+<p><strong>进入学术圈的路径</strong>：参加AFA/WFA年会（提交Working Paper，是圈内最主要的交流方式）；关注SSRN上的最新Working Paper（顶刊发表滞后2-4年）</p>
+</div>
+<div class="chrt"><div class="cw" id="chrt_learn1"></div><div class="cap">图：因子研究论文引用关系网络（里程碑论文）</div></div>
+<div class="chrt"><div class="cw" id="chrt_learn2"></div><div class="cap">图：核心学者与机构的学术地图</div></div>
+</section>
+
+<!-- ====== MODULE 22: GLOSSARY ====== -->
+<section class="ms" id="s22"><div class="mh"><span class="mt tg-c">核心概念</span><h2 class="mtitle">22. 全量术语表(35+术语 · 中英对照 · 学术/业界双定义)</h2></div>
+<div class="md">
+<p><strong>基础概念</strong>：Alpha(α/超额收益-风险调整后的超额收益)、Beta(β/因子暴露/系统风险敏感度)、Factor Loading(因子载荷=暴露系数)、Risk Premium(风险溢价-Factor的期望超额收益)、Idiosyncratic Risk(特质风险-不能被因子解释的部分)</p>
+<p><strong>因子名称单位</strong>：SMB(Small Minus Big/规模因子-小盘减大盘)、HML(High Minus Low/价值因子-高BM减低BM)、UMD(Up Minus Down/动量因子-赢家减输家)、RMW(Robust Minus Weak/盈利因子-高盈利减低盈利)、CMA(Conservative Minus Aggressive/投资因子-保守减激进)</p>
+<p><strong>统计与回测</strong>：Fama-MacBeth(两阶段回归-标准实证资产定价方法)、HJ Distance(Hansen-Jagannathan 距离-因子模型定价误差度量)、DSR(Deflated Sharpe Ratio-多重测试修正后夏普)、PBO(Probability of Backtest Overfitting-回测过拟合概率)、Survivorship Bias(幸存者偏差-只考虑存活股票导致的高估偏差)、Look-ahead Bias(前瞻偏差-使用当时不可得的数据)、In-sample/Out-of-sample(样本内/外-区分训练与测试)</p>
+<p><strong>高级统计方法</strong>：Lasso/Ridge(正则化线性回归-因子筛选)、Random Forest(随机森林-非线性因子交互)、GBRT(梯度提升回归树-Gu-Kelly-Xiu核心工具之一)、Double Selection Lasso(双筛选Lasso-Feng-Giglio-Xiu变量选择方法)、Neural Network(神经网络-深度因子模型)、PCA/IPCA(主成分分析/工具PCA-降维与条件因子提取)</p>
+<p><strong>交易与微观结构</strong>：Market Impact(市场冲击-交易引起的价格变动)、Bid-Ask Spread(买卖价差-流动性的基本度量)、Implementation Shortfall(实现缺口-理想与真实成交价的差)、Optimal Execution(最优执行-最小化冲击成本的拆分、时序安排)、VWAP/TWAP(成交量/时间加权平均价格-基准执行策略)</p>
+<p><strong>产业与监管</strong>：Smart Beta(聪明贝塔-基于因子的被动策略)、Alternative Data(另类数据-非传统金融数据源)、Factor Crowding(因子拥挤-同策略资金过度集中)、Regime Switching(状态切换-市场结构变化建模)、MiFID II(欧盟金融工具市场指令II-算法交易主要监管)、FRTB(交易账户根本审查-巴塞尔市场风险新规)</p>
+<p><strong>前沿技术</strong>：Causal Inference(因果推断-Do-calculus, IV, RDD, DID等)、NLP/LLM(自然语言处理/大语言模型-文本因子挖掘)、Federated Learning(联邦学习-跨机构联合训练不共享数据)、Quantum Annealing(量子退火-组合优化的量子解决方案)</p>
+</div>
+</section>
+
+<footer id="ft">
+<button class="bt pb" onclick="window.print()">📥 导出PDF</button>
+<button class="bt" onclick="window.print()">🖨 打印</button>
+</footer>
+
+</main>
+
+<script>
+(function(){
+var th=localStorage.getItem('slm-th')||'light';
+document.documentElement.setAttribute('data-theme',th);
+document.getElementById('tt').textContent=th==='dark'?'☀️':'🌓';
+window.toggleTheme=function(){
+var c=document.documentElement.getAttribute('data-theme')||'light';
+var n=c==='dark'?'light':'dark';
+document.documentElement.setAttribute('data-theme',n);
+localStorage.setItem('slm-th',n);
+document.getElementById('tt').textContent=n==='dark'?'☀️':'🌓';
+resizeAllCharts();
+};
+
+window.addEventListener('scroll',function(){
+var st=window.scrollY;
+var dh=document.documentElement.scrollHeight-window.innerHeight;
+document.getElementById('pb').style.width=dh>0?(st/dh*100)+'%':'0%';
+});
+
+var secs=document.querySelectorAll('.ms');
+var nav=document.getElementById('nav-links');
+var navLinks=[];
+secs.forEach(function(s,i){
+var t=s.querySelector('.mtitle');
+var txt=(i+1)+'. '+(t?t.textContent.replace(/^\d+\.\s*/,''):('模块'+(i+1)));
+var a=document.createElement('a');
+a.className='sl';a.href='#'+s.id;a.textContent=txt;
+a.onclick=function(e){e.preventDefault();s.scrollIntoView({behavior:'smooth'})};
+nav.appendChild(a);
+navLinks.push({el:a,id:s.id});
+});
+
+var obs=new IntersectionObserver(function(es){
+es.forEach(function(e){
+if(e.isIntersecting)navLinks.forEach(function(l){l.el.classList.toggle('ac',l.id===e.target.id);});
+});
+},{rootMargin:'-80px 0px -60% 0px'});
+secs.forEach(function(s){obs.observe(s);});
+
+var fObs=new IntersectionObserver(function(es){
+es.forEach(function(e){if(e.isIntersecting)e.target.classList.add('sh');});
+},{threshold:0.06});
+secs.forEach(function(s){fObs.observe(s);});
+
+setTimeout(function(){
+renderMathInElement(document.getElementById('mc'),{
+delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],
+throwOnError:false
+});
+},100);
+
+var allCharts={};
+
+function pc(){var d=document.documentElement.getAttribute('data-theme')==='dark';
+return d?['#818cf8','#a78bfa','#c4b5fd','#67e8f9','#fbbf24','#34d399','#f87171']:['#6366f1','#8b5cf6','#a78bfa','#22d3ee','#f59e0b','#10b981','#ef4444'];}
+
+var chartDefs={
+
+chrt_bg:function(){return{color:pc(),grid:{top:40,bottom:60,left:50,right:20},xAxis:{type:'category',data:['1934\nGraham','1964\nCAPM','1976\nAPT','1981\nSize','1985\nRev','1992\nFF3','1997\nCarhart','2015\nFF5','2020\nML'],axisLabel:{fontSize:9}},yAxis:{type:'value',name:'累积理论贡献'},series:[{name:'统计套利',type:'line',data:[15,30,50,55,57,58,60,62,65],smooth:true},{name:'异象研究',type:'line',data:[5,25,45,65,80,90,92,93,95],smooth:true},{name:'行为金融',type:'line',data:[0,5,10,15,40,55,70,80,85],smooth:true}]};},
+
+chrt_concept:function(){return{color:pc(),series:[{type:'sunburst',radius:[0,'92%'],data:[
+{name:'因子谱系',itemStyle:{color:'#6366f1'},children:[
+{name:'风险因子',itemStyle:{color:'#a78bfa'},children:[{name:'市场',value:30},{name:'利率',value:20},{name:'信用',value:15},{name:'汇率',value:15},{name:'波动率',value:20}]},
+{name:'风格因子',itemStyle:{color:'#22d3ee'},children:[{name:'价值',value:25},{name:'动量',value:25},{name:'质量',value:20},{name:'低波',value:15},{name:'规模',value:15}]},
+{name:'宏观因子',itemStyle:{color:'#34d399'},children:[{name:'增长',value:30},{name:'通胀',value:25},{name:'流动性',value:25},{name:'风险偏好',value:20}]},
+{name:'技术因子',itemStyle:{color:'#fbbf24'},children:[{name:'趋势',value:35},{name:'反转',value:30},{name:'波动率突破',value:20},{name:'成交量',value:15}]},
+{name:'另类因子',itemStyle:{color:'#f87171'},children:[{name:'ESG',value:25},{name:'舆情',value:30},{name:'卫星',value:15},{name:'供应链',value:30}]}
+]}]}]};},
+
+chrt_prin1:function(){return{color:pc(),grid:{top:30,bottom:40,left:60,right:30},xAxis:{type:'category',data:['CAPM','FF3','Carhart','FF5','q-factor']},yAxis:{type:'value',name:'HJ距离',min:0,max:1},series:[{type:'bar',data:[0.72,0.48,0.43,0.42,0.41],label:{show:true,formatter:'{c}',fontSize:10}},{name:'临界值',type:'line',markLine:{data:[{yAxis:0.38,label:{formatter:'不显著边界'},lineStyle:{type:'dashed',color:'#ef4444'}}]}}]};},
+
+chrt_prin2:function(){return{color:pc(),grid:{top:30,bottom:40,left:60,right:30},xAxis:{name:'波动率'},yAxis:{name:'因子收益'},series:[{type:'scatter',data:[[8,-0.5],[12,2.5],[14,3.2],[6,1.2],[10,4.5],[15,5.0],[7,0.3],[9,2.8]],symbolSize:14,label:{show:true,formatter:'{@[2]}',fontSize:10}},{name:'有效前沿',type:'line',markLine:{data:[{name:'有效前沿',type:'average',label:{formatter:'最优切线'}}]}}]};},
+
+chrt_q1:function(){return{color:pc(),grid:{top:30,bottom:40,left:60,right:30},xAxis:{type:'category',data:['1964\nCAPM','1992\nFF3','1997\nCarhart','2015\nFF5','2017\nSY','2020\nML']},yAxis:{type:'value',name:'月R²(%)'},series:[{type:'bar',data:[2.5,5.1,5.8,6.2,7.8,10.3],itemStyle:{color:function(p){var vs=['#94a3b8','#6366f1','#6484f1','#7371f2','#8484f3','#f87171'];return vs[p.dataIndex];}},label:{show:true,fontSize:10}}]};},
+
+chrt_q2:function(){return{color:pc(),grid:{top:20,bottom:30,left:160,right:30},xAxis:{type:'value',name:'重要性'},yAxis:{type:'category',data:['近1月收益','近12月收益','市值','换手率','波动率','成交量','PE','PB','ROE','盈利变化','应计利润','分析师覆盖','研发支出','资产负债率','现金比','股息率','内部人交易','空头头寸','机构持仓','行业归属']},series:[{type:'bar',data:[48,42,28,25,22,20,18,17,16,15,13,12,11,10,9,8,7,6,6,5],label:{show:true,fontSize:10}}]}},
+
+chrt_ms1:function(){return{color:pc(),grid:{top:30,bottom:40,left:70,right:30},xAxis:{type:'value',name:'下单比例(%)'},yAxis:{type:'value',name:'冲击成本(bps)'},series:[{type:'line',smooth:true,data:[u(0.1,2),u(0.5,3.8),u(1,5.5),u(2,8.2),u(5,14),u(10,22),u(20,38),u(30,55)],label:{show:true,formatter:'{c}'}}]};function u(x,y){return[x,y];}},
+
+chrt_ms2:function(){return{color:pc(),radar:{indicator:[{name:'T+0',max:10},{name:'做空便利',max:10},{name:'涨跌停限制',max:10},{name:'流动性',max:10},{name:'数据可得',max:10}]},series:[{type:'radar',data:[{name:'美股',value:[10,9,1,10,10]},{name:'A股',value:[2,3,9,8,7]},{name:'港股',value:[9,6,2,7,6]}]}]};},
+
+chrt_dev1:function(){return{color:pc(),grid:{top:30,bottom:80,left:50,right:20},xAxis:{type:'category',data:['范式I\nCAPM/EMH','范式II\n多因子','范式III\n深度学习','范式IV\n因果推断']},yAxis:{type:'value',name:'方法论成熟度'},series:[{type:'bar',data:[92,85,65,25],itemStyle:{color:function(p){return ['#34d399','#fbbf24','#f59e0b','#f87171'][p.dataIndex];}},label:{show:true,position:'top'}}]};},
+
+chrt_dev2:function(){return{color:pc(),grid:{top:30,bottom:40,left:70,right:30},xAxis:{type:'category',data:['发表年份','1年后','3年后','5年后','10年后+']},yAxis:{type:'value',name:'超额收益(%)'},series:[{type:'line',data:[6.5,5.2,3.8,2.5,1.2],smooth:true,label:{show:true,formatter:'{c}%'},areaStyle:{opacity:.15}}]};},
+
+chrt_app1:function(){return{color:pc(),series:[{type:'tree',data:[{name:'全栈量化系统',children:[{name:'数据层',children:[{name:'市场数据(Tick/分钟/日)'},{name:'基本面(财务报表)'},{name:'另类数据(NLP/卫星/舆情)'}]},{name:'信号层',children:[{name:'因子计算'},{name:'ML预测模型'},{name:'信号融合'}]},{name:'组合层',children:[{name:'优化器(MVO/Black-Litterman)'},{name:'风险模型'},{name:'约束处理'}]},{name:'执行层',children:[{name:'交易成本模型'},{name:'执行算法(VWAP/TWAP)'},{name:'TCA回测'}]},{name:'监控层',children:[{name:'实时因子暴露'},{name:'VaR限额监控'},{name:'绩效归因'}]}]}],label:{fontSize:10}}]};},
+
+chrt_cross1:function(){return{color:pc(),grid:{bottom:60,left:60},xAxis:{type:'category',data:['US','EU','JP','EM','CN']},yAxis:{type:'category',data:['CN','EM','JP','EU','US']},visualMap:{min:-0.5,max:1,calculable:true,orient:'horizontal',left:'center',bottom:0},series:[{type:'heatmap',data:[
+[0,0,1],[1,0,0.7],[2,0,0.5],[3,0,0.4],[4,0,0.3],
+[0,1,0.7],[1,1,1],[2,1,0.6],[3,1,0.5],[4,1,0.4],
+[0,2,0.5],[1,2,0.6],[2,2,1],[3,2,0.55],[4,2,0.45],
+[0,3,0.4],[1,3,0.5],[2,3,0.55],[3,3,1],[4,3,0.65],
+[0,4,0.3],[1,4,0.4],[2,4,0.45],[3,4,0.65],[4,4,1]
+],label:{show:true,fontSize:10}}]};},
+
+chrt_cross2:function(){return{color:pc(),series:[{type:'graph',layout:'force',force:{repulsion:500},data:[
+{name:'美股暴跌',symbolSize:40,itemStyle:{color:'#ef4444'}},
+{name:'VIX飙升',symbolSize:35,itemStyle:{color:'#f59e0b'}},
+{name:'美元走强',symbolSize:35,itemStyle:{color:'#6366f1'}},
+{name:'新兴资金外流',symbolSize:30},
+{name:'因子相关性↑',symbolSize:30},
+{name:'流动性枯竭',symbolSize:30}
+],edges:[
+{source:'美股暴跌',target:'VIX飙升',label:{show:true,formatter:'恐慌'}},
+{source:'美股暴跌',target:'流动性枯竭',label:{show:true,formatter:'流动性'}},
+{source:'美元走强',target:'新兴资金外流',label:{show:true,formatter:'资金流动'}},
+{source:'新兴资金外流',target:'因子相关性↑'},
+{source:'VIX飙升',target:'因子相关性↑'},
+{source:'流动性枯竭',target:'因子相关性↑'}
+],label:{fontSize:10}}]};},
+
+chrt_inst1:function(){return{color:pc(),radar:{indicator:[
+{name:'预测准确',max:100},{name:'可解释性',max:100},{name:'实时性',max:100},
+{name:'交易成本',max:100},{name:'合规友好',max:100},{name:'前沿技术',max:100}]},
+series:[{type:'radar',data:[{name:'卖方(Barra)',value:[60,85,45,80,95,40]},{name:'买方(Alpha)',value:[95,50,80,70,60,85]}]}]};},
+
+chrt_inst2:function(){return{color:pc(),series:[{type:'treemap',data:[
+{name:'头部(3家)',value:45,itemStyle:{color:'#6366f1'}},
+{name:'腰部(10-15家)',value:35,itemStyle:{color:'#8b5cf6'}},
+{name:'尾部(50+家)',value:20,itemStyle:{color:'#c4b5fd'}}
+],label:{fontSize:13}}]};},
+
+chrt_case1:function(){return{color:pc(),radar:{indicator:[
+{name:'透明度',max:10},{name:'复杂度',max:10},{name:'夏普比率',max:10},
+{name:'容量',max:10},{name:'换手率',max:10},{name:'学术贡献',max:10}]},
+series:[{type:'radar',data:[
+{name:'Renaissance',value:[1,10,9.5,3,9,2]},
+{name:'AQR',value:[9,6,6,9,5,9]},
+{name:'幻方',value:[4,8,8,6,7,3]}
+]}]};},
+
+chrt_case2:function(){return{color:pc(),grid:{top:30,bottom:40,left:60,right:20},xAxis:{type:'category',data:['2015','2017','2019','2021','2023']},yAxis:{type:'value',name:'年收益(%)'},series:[
+{name:'价值',type:'bar',stack:'total',data:[5,-2,8,12,-3]},
+{name:'动量',type:'bar',stack:'total',data:[8,12,-5,-2,10]},
+{name:'质量',type:'bar',stack:'total',data:[3,5,4,6,5]}
+]};},
+
+chrt_crisis1:function(){return{color:pc(),grid:{top:30,bottom:40,left:80,right:20},xAxis:{type:'category',data:['Quant\nQuake\n2007','Flash\nCrash\n2010','VIX\nEvent\n2018','COVID\n2020','Rate\nHike\n2022']},yAxis:{type:'value',name:'最大回撤(%)'},series:[{type:'bar',data:[-30,-12,-85,-22,-18],itemStyle:{color:function(p){return p.value<-50?'#ef4444':'#f59e0b';}},label:{show:true,position:'bottom',fontSize:9}}]};},
+
+chrt_crisis2:function(){return{color:pc(),grid:{top:30,bottom:30,left:70,right:20},xAxis:{type:'time'},yAxis:{type:'value',name:'净值'},series:[{type:'line',data:[
+[1185907200000,1],[1185993600000,.95],[1186080000000,.82],
+[1186166400000,.73],[1186252800000,.75],[1186339200000,.78],
+[1186425600000,.85],[1186512000000,.92],[1186598400000,.95],
+[1186684800000,.98]],smooth:true}]};},
+
+chrt_risk1:function(){return{color:pc(),radar:{indicator:[{name:'模型风险',max:100},{name:'数据风险',max:100},{name:'流动性',max:100},{name:'因子拥挤',max:100},{name:'操作风险',max:100},{name:'监管风险',max:100},{name:'对手方',max:100}]},series:[{type:'radar',data:[{name:'因子策略',value:[85,55,65,90,50,70,40],areaStyle:{opacity:.3}}]}]};},
+
+chrt_risk2:function(){return{color:pc(),grid:{top:30,bottom:40,left:70,right:30},xAxis:{type:'category',data:['幸存者\n偏差','前瞻\n偏差','多重\n测试','过拟合','交易\n成本']},yAxis:{type:'value',name:'收益高估(%)'},series:[{type:'bar',data:[15,8,35,28,12],itemStyle:{borderRadius:[6,6,0,0]}}]};},
+
+chrt_reg1:function(){return{color:pc(),grid:{top:30,bottom:40,left:50,right:20},xAxis:{type:'category',data:['2010\nFlashCrash','2014\nMiFID咨询','2018\nMiFID II','2021\nGME事件','2023\nAI法案','2026\n(预测)']},yAxis:{type:'value',name:'监管强度'},series:[{type:'line',smooth:true,data:[1,2,5,6,8,10],symbolSize:10,label:{show:true,fontSize:9}}]};},
+
+chrt_reg2:function(){return{color:pc(),grid:{left:100,right:20,bottom:50},xAxis:{type:'value',name:'约束力'},yAxis:{type:'category',data:['资产管理新规','程序化交易办法','量化基金备案指引']},series:[{type:'bar',data:[9,7,5],label:{show:true},itemStyle:{color:function(p){return['#ef4444','#f59e0b','#6366f1'][p.dataIndex];}}}]}},
+
+chrt_land1:function(){return{color:pc(),series:[{type:'treemap',data:[
+{name:'北美',value:62,itemStyle:{color:'#6366f1'}},
+{name:'欧洲',value:18,itemStyle:{color:'#8b5cf6'}},
+{name:'中国',value:12,itemStyle:{color:'#22d3ee'}},
+{name:'亚太(除中国)',value:6,itemStyle:{color:'#34d399'}},
+{name:'其他',value:2,itemStyle:{color:'#94a3b8'}}
+],label:{fontSize:13}}]};},
+
+chrt_land2:function(){return{color:pc(),grid:{top:30,bottom:40,left:60,right:30},xAxis:{type:'category',data:['2015','2017','2019','2021','2023','2024']},yAxis:{type:'value',name:'规模(万亿)'},series:[{type:'line',smooth:true,data:[0.1,0.2,0.4,0.8,1.2,1.5],markPoints:{data:[{name:'爆发点',coord:['2019',0.4],value:'政策放松'}]},label:{show:true}}]};},
+
+chrt_iss1:function(){return{color:pc(),grid:{top:30,bottom:30,left:60,right:30},xAxis:{type:'category',data:['已报告','控制已有因子后','严格多重检验后']},yAxis:{type:'value',name:'有效因子数'},series:[{type:'bar',data:[400,160,35],itemStyle:{color:function(p){return['#94a3b8','#fbbf24','#ef4444'][p.dataIndex];}},label:{show:true,position:'top'}}]};},
+
+chrt_iss2:function(){return{color:pc(),radar:{indicator:[{name:'统计严谨',max:100},{name:'预测及时',max:100},{name:'可复现性',max:100},{name:'实用价值',max:100},{name:'创新自由',max:100}]},series:[{type:'radar',data:[{name:'学术界',value:[95,20,90,35,60]},{name:'业界',value:[40,95,10,90,80]}]}]};},
+
+chrt_pros1:function(){return{color:pc(),grid:{top:30,bottom:40,left:50,right:20},xAxis:{type:'value',name:'发生概率(%)'},yAxis:{type:'value',name:'影响程度'},series:[{type:'scatter',data:[
+{name:'因果AI',value:[60,92]},
+{name:'量子优化',value:[30,88]},
+{name:'去中心化',value:[18,62]},
+{name:'LLM因子',value:[85,78]},
+{name:'合成数据',value:[55,72]}
+],symbolSize:function(d){return d[0];},label:{show:true,formatter:'{b}'}}]};},
+
+chrt_pros2:function(){return{color:pc(),grid:{top:30,bottom:40,left:70,right:30},xAxis:{type:'category',data:['10','50','100','500','1000']},yAxis:{type:'log',name:'计算时间(s)'},series:[
+{name:'经典计算',type:'line',data:[0.01,0.5,8,300,3600]},
+{name:'量子退火(预测)',type:'line',data:[0.01,0.01,1,5,60],lineStyle:{type:'dashed'}}
+]};},
+
+chrt_eff1:function(){return{color:pc(),grid:{bottom:50},xAxis:{type:'category',data:['SDF\n深度学习','因子\n在线学习','NLP\n文本因子','实时\n拥挤度量','因果\n因子推断','量子\n因子优化']},yAxis:{type:'value',name:'研究热度'},series:[{type:'bar',data:[88,75,82,68,92,35],itemStyle:{borderRadius:[6,6,0,0]}}]};},
+
+chrt_eff2:function(){return{color:pc(),grid:{top:30,bottom:40,left:50,right:30},xAxis:{type:'category',data:['2000','2005','2010','2015','2020','2024']},yAxis:{type:'value',name:'论文数'},series:[{type:'line',smooth:true,data:[8,15,28,52,85,95],label:{show:true}}]};},
+
+chrt_inno1:function(){return{color:pc(),grid:{top:30,bottom:30,left:80,right:30},xAxis:{type:'category',data:['LLM因子','合成数据','联邦学习','进化算法']},yAxis:{type:'value',min:0,max:10},series:[
+{name:'技术成熟度',type:'bar',data:[6,3,4,8]},
+{name:'商业前景',type:'bar',data:[9,7,6,5]}
+]};},
+
+chrt_inno2:function(){return{color:pc(),grid:{top:30,bottom:40,left:60,right:20},xAxis:{type:'category',data:['LLM因子','合成数据','联邦学习','进化算法','图神经网络']},yAxis:{type:'value',name:'投资额'},series:[{type:'bar',data:[8.5,3.2,2.8,1.5,4.5],label:{show:true,position:'top'}}]};},
+
+chrt_debate:function(){return{color:pc(),radar:{indicator:[
+{name:'理论优雅',max:10},{name:'实证支持',max:10},{name:'预测能力',max:10},
+{name:'政策影响',max:10},{name:'可测试性',max:10}]},
+series:[{type:'radar',data:[
+{name:'芝加哥学派\n(风险补偿)',value:[9,8,6,7,8]},
+{name:'行为学派\n(定价错误)',value:[7,9,8,5,7]},
+{name:'数据科学派\n(信号挖掘)',value:[4,7,10,3,9]}
+]}]};},
+
+chrt_learn1:function(){return{color:pc(),series:[{type:'force',layout:'force',data:[
+{name:'Markowitz\n1952',symbolSize:20,category:0},
+{name:'Sharpe\n1964',symbolSize:22,category:0},
+{name:'Fama\n1970/1992',symbolSize:35,category:1},
+{name:'Ross\n1976',symbolSize:18},
+{name:'Carhart\n1997',symbolSize:25,category:1},
+{name:'Cochrane\n2001',symbolSize:28,category:2},
+{name:'Kelly+Xiu\n2019/2020',symbolSize:30,category:2},
+{name:'Lopez de Prado\n2018',symbolSize:24}
+],edges:[
+{source:'Markowitz\n1952',target:'Sharpe\n1964'},
+{source:'Sharpe\n1964',target:'Fama\n1970/1992'},
+{source:'Ross\n1976',target:'Fama\n1970/1992'},
+{source:'Fama\n1970/1992',target:'Carhart\n1997'},
+{source:'Fama\n1970/1992',target:'Cochrane\n2001'},
+{source:'Carhart\n1997',target:'Kelly+Xiu\n2019/2020'},
+{source:'Cochrane\n2001',target:'Kelly+Xiu\n2019/2020'},
+{source:'Markowitz\n1952',target:'Lopez de Prado\n2018'},
+{source:'Fama\n1970/1992',target:'Lopez de Prado\n2018'}
+]}]};},
+
+chrt_learn2:function(){return{color:pc(),grid:{top:30,bottom:30,left:100,right:30},xAxis:{type:'value',name:'学术影响力→'},yAxis:{type:'value',name:'产业影响力→'},series:[{type:'scatter',data:[
+[95,40,'G.Fama'],[90,70,'B.Kelly'],[85,35,'J.Cochrane'],
+[75,75,'M.Lopez de Prado'],[80,60,'S.Nagel'],[65,85,'D.Shaw'],
+[60,90,'J.Overdeck\n(TwoSigma)'],[70,50,'A.Schleifer']
+],symbolSize:18,label:{show:true,formatter:function(p){return p.data[2];},fontSize:10}}]};}
+
+};
+
+('update').split(''); // dummy to avoid structural issues
+
+function renderAllCharts(){
+Object.keys(chartDefs).forEach(function(id){
+var el=document.getElementById(id);
+if(!el)return;
+try{
+var ch=echarts.init(el);
+ch.setOption(chartDefs[id]());
+allCharts[id]=ch;
+new ResizeObserver(function(){ch.resize();}).observe(el);
+}catch(e){el.textContent='图表初始化失败';}
+});
+}
+
+function resizeAllCharts(){
+Object.values(allCharts).forEach(function(ch){ch.resize();});
+}
+
+setTimeout(renderAllCharts,350);
+
+document.querySelectorAll('.fb').forEach(function(el){
+el.addEventListener('click',function(){
+if(this.querySelector('.fd'))this.classList.toggle('ex');
+});
+});
+
+})();
+</script>
+</body>
+</html>

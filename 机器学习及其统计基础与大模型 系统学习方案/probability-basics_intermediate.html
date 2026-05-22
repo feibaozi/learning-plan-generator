@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>概率论基础与常见分布 - 深度研读</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<style>
+:root{--bg:#ffffff;--bg-secondary:#f8fafc;--bg-tertiary:#f1f5f9;--text:#0f172a;--text-secondary:#475569;--text-tertiary:#94a3b8;--border:#e2e8f0;--primary:#6366f1;--primary-light:#eef2ff;--accent:#8b5cf6;--accent-light:#f5f3ff;--cyan:#22d3ee;--cyan-light:#ecfeff;--orange:#f59e0b;--orange-light:#fffbeb;--green:#10b981;--green-light:#ecfdf5;--red:#ef4444;--red-light:#fef2f2;--pink:#ec4899;--pink-light:#fdf2f8;--shadow-sm:0 1px 2px rgba(0,0,0,0.05);--shadow:0 1px 3px rgba(0,0,0,0.1);--shadow-md:0 4px 6px -1px rgba(0,0,0,0.1);--shadow-lg:0 10px 15px -3px rgba(0,0,0,0.1);--radius:12px;--radius-sm:8px;--max-width:780px;--sidebar-width:240px;--transition:0.2s cubic-bezier(0.4,0,0.2,1)}
+[data-theme="dark"]{--bg:#0f172a;--bg-secondary:#1e293b;--bg-tertiary:#334155;--text:#f1f5f9;--text-secondary:#94a3b8;--text-tertiary:#64748b;--border:#334155;--primary:#818cf8;--primary-light:rgba(99,102,241,0.15);--accent:#a78bfa;--accent-light:rgba(139,92,246,0.15);--cyan:#67e8f9;--cyan-light:rgba(34,211,238,0.1);--orange:#fbbf24;--orange-light:rgba(245,158,11,0.1);--green:#34d399;--green-light:rgba(16,185,129,0.1);--red:#f87171;--red-light:rgba(239,68,68,0.1);--pink:#f472b6;--pink-light:rgba(236,72,153,0.1);--shadow-sm:0 1px 2px rgba(0,0,0,0.3);--shadow:0 1px 3px rgba(0,0,0,0.4);--shadow-md:0 4px 6px -1px rgba(0,0,0,0.4);--shadow-lg:0 10px 15px -3px rgba(0,0,0,0.4)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Inter','SF Pro Display',-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;-webkit-font-smoothing:antialiased;transition:background var(--transition),color var(--transition)}
+body.loading{opacity:0}body.loaded{opacity:1;transition:opacity 0.4s ease}
+#progress-bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--primary),var(--accent),var(--cyan));z-index:1000;transition:width 0.1s linear}
+#theme-toggle{position:fixed;top:20px;right:20px;z-index:999;width:40px;height:40px;border-radius:50%;background:var(--bg-secondary);border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;transition:all var(--transition);box-shadow:var(--shadow-sm)}
+#theme-toggle:hover{transform:scale(1.1);box-shadow:var(--shadow)}
+#sidebar{position:fixed;top:0;left:0;width:var(--sidebar-width);height:100vh;background:var(--bg-secondary);border-right:1px solid var(--border);padding:80px 16px 24px;overflow-y:auto;z-index:100;transition:transform var(--transition)}
+#sidebar h3{font-size:11px;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-tertiary);margin-bottom:12px;font-weight:600}
+.sidebar-link{display:block;padding:6px 12px;margin:2px 0;border-radius:var(--radius-sm);font-size:13px;color:var(--text-secondary);text-decoration:none;transition:all var(--transition);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sidebar-link:hover{background:var(--bg-tertiary);color:var(--text)}
+.sidebar-link.active{background:var(--primary-light);color:var(--primary);font-weight:600}
+#main-content{margin-left:var(--sidebar-width);max-width:var(--max-width);padding:60px 32px 120px;margin-right:auto}
+.meta-card{background:linear-gradient(135deg,var(--primary-light),var(--accent-light));border:1px solid var(--border);border-radius:var(--radius);padding:28px 32px;margin-bottom:48px;display:flex;flex-wrap:wrap;gap:24px;align-items:center}
+.meta-card .meta-item{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--text-secondary)}
+.meta-badge{display:inline-block;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;letter-spacing:0.02em}
+.meta-badge.domain-ai{background:var(--accent-light);color:var(--accent)}
+.meta-badge.level-intermediate{background:var(--orange-light);color:var(--orange)}
+.module-section{margin-bottom:56px;opacity:0;transform:translateY(24px);transition:opacity 0.6s ease,transform 0.6s ease}
+.module-section.visible{opacity:1;transform:translateY(0)}
+.module-header{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.module-tag{display:inline-block;padding:3px 10px;border-radius:6px;font-size:11px;font-weight:600;letter-spacing:0.03em;text-transform:uppercase}
+.tag-core{background:var(--primary-light);color:var(--primary)}
+.tag-tools{background:var(--accent-light);color:var(--accent)}
+.tag-evolution{background:var(--cyan-light);color:#0891b2}
+.tag-application{background:var(--green-light);color:var(--green)}
+.tag-risk{background:var(--red-light);color:var(--red)}
+.tag-frontier{background:var(--orange-light);color:var(--orange)}
+.module-title{font-size:22px;font-weight:700;color:var(--text);letter-spacing:-0.02em}
+.module-hook{font-size:16px;color:var(--text-secondary);font-style:italic;border-left:3px solid var(--primary);padding-left:16px;margin-bottom:20px}
+.module-content{font-size:15px;color:var(--text)}
+.module-content p{margin-bottom:12px}
+.module-content strong{color:var(--text)}
+.module-content ul,.module-content ol{margin:8px 0 16px 24px}
+.module-content li{margin-bottom:6px}
+.formula-block{background:var(--bg-tertiary);border:1px solid var(--border);border-radius:var(--radius-sm);padding:20px 24px;margin:16px 0;position:relative;cursor:pointer;transition:all var(--transition)}
+.formula-block:hover{box-shadow:var(--shadow)}
+.formula-caption{font-size:12px;color:var(--text-tertiary);margin-top:8px;text-align:center}
+.formula-derivation{display:none;margin-top:16px;padding-top:16px;border-top:1px solid var(--border);font-size:14px;color:var(--text-secondary)}
+.formula-block.expanded .formula-derivation{display:block}
+.formula-expand-hint{font-size:11px;color:var(--text-tertiary);text-align:right;margin-top:4px}
+.chart-container{background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin:20px 0}
+.chart-wrapper{width:100%;height:380px}
+.chart-caption{font-size:13px;color:var(--text-secondary);text-align:center;margin-top:12px}
+.module-table{width:100%;border-collapse:collapse;margin:16px 0;font-size:14px;border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden}
+.module-table th{background:var(--bg-tertiary);padding:10px 16px;text-align:left;font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:0.03em;color:var(--text-secondary)}
+.module-table td{padding:10px 16px;border-top:1px solid var(--border);color:var(--text)}
+.module-table tr:hover td{background:var(--bg-tertiary)}
+.module-references{margin-top:20px;padding-top:16px;border-top:1px solid var(--border);font-size:12px;color:var(--text-tertiary)}
+.module-references h4{font-size:12px;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px}
+.module-references ol{margin-left:20px}
+.module-references li{margin-bottom:4px}
+.key-takeaway{margin-top:16px;padding:14px 20px;border-radius:var(--radius-sm);background:var(--primary-light);border-left:4px solid var(--primary);font-size:14px;font-weight:500;color:var(--text)}
+#page-footer{margin-top:60px;padding:32px 0;border-top:1px solid var(--border);display:flex;gap:12px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:var(--radius-sm);font-size:14px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:var(--bg);color:var(--text);transition:all var(--transition);text-decoration:none}
+.btn:hover{background:var(--bg-tertiary)}
+.btn.primary{background:var(--primary);color:#fff;border-color:var(--primary)}
+.btn.primary:hover{filter:brightness(1.1)}
+@media(max-width:1024px){:root{--sidebar-width:200px}#main-content{padding:48px 24px 80px}}
+@media(max-width:768px){#sidebar{transform:translateX(-100%)}#sidebar.open{transform:translateX(0)}#main-content{margin-left:0;padding:72px 20px 60px}#theme-toggle{top:16px;right:16px}.meta-card{padding:20px 24px;flex-direction:column;gap:12px;align-items:flex-start}.chart-wrapper{height:280px}.module-title{font-size:19px}}
+@media print{#sidebar,#progress-bar,#theme-toggle,#page-footer{display:none!important}#main-content{margin-left:0;max-width:100%;padding:0}.module-section{opacity:1;transform:none;break-inside:avoid}body{font-size:12px}}
+#bg-canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none}
+</style>
+</head>
+<body class="loading">
+<canvas id="bg-canvas"></canvas>
+
+<div class="integration-navbar" style="display:flex;align-items:center;gap:12px;padding:10px 24px;background:var(--bg-card,var(--bg-secondary));border-bottom:1px solid var(--border);font-size:14px;position:sticky;top:0;z-index:50;">
+  <a href="#" onclick="goBack();return false;" style="color:var(--primary);text-decoration:none;font-weight:600;">← 返回 机器学习及其统计基础与大模型 系统学习方案</a>
+  <span style="color:var(--text-tertiary);">|</span>
+  <span style="color:var(--text-secondary);">第1/5阶段 · 统计与数学基础</span>
+</div>
+
+<div id="progress-bar"></div>
+<button id="theme-toggle" title="切换深色/浅色模式" onclick="toggleTheme()">🌓</button>
+
+<nav id="sidebar">
+  <a href="#" onclick="goBack();return false;" class="sidebar-back-link" style="display:block;padding:8px 12px;margin-bottom:12px;border-radius:8px;background:var(--bg-tertiary);color:var(--primary);text-decoration:none;font-size:13px;font-weight:600;">← 返回主方案</a>
+  <h3>📑 内容导航</h3>
+  <div id="sidebar-links"></div>
+</nav>
+
+<main id="main-content">
+  <div id="meta-card-container"></div>
+  <div id="modules-container"></div>
+  <footer id="page-footer">
+    <button class="btn primary" onclick="window.print()">📥 导出 PDF</button>
+    <button class="btn" onclick="exportNotes()">📄 导出笔记</button>
+  </footer>
+</main>
+
+<div class="back-btn" style="position:fixed;right:24px;bottom:24px;z-index:200;">
+  <button onclick="goBack()" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:white;border:none;border-radius:24px;padding:12px 24px;font-size:0.85rem;font-weight:600;cursor:pointer;box-shadow:0 4px 12px rgba(99,102,241,0.3);">← 返回学习方案</button>
+</div>
+
+<script>
+var DEEP_DIVE_KP_ID = 'p1_1';
+function goBack(){
+  var MAIN_PAGE = 'ml_learning.html';
+  var WIN_NAME = '_ml_llm_main';
+  var CH_KEY = '_ml_llm_nav';
+  localStorage.setItem(CH_KEY, JSON.stringify({kpId: DEEP_DIVE_KP_ID, ts: Date.now()}));
+  var mainWin = window.open(MAIN_PAGE, WIN_NAME);
+  if(mainWin){mainWin.focus();}
+}
+
+const PAGE_DATA = {
+  topic: "概率论基础与常见分布",
+  domain: "ai-tech", domain_name: "AI与科技",
+  level: "intermediate", level_name: "进阶",
+  reading_time: "28", module_count: "15",
+  texture: "G5", texture_name: "全面平衡型", depth: "理解", breadth: "标准",
+  modules: [
+    {
+      module_id: "background", module_title: "背景与缘起", module_tag: "发展演进",
+      hook: "如果没有概率论，我们今天的天气预报、搜索引擎、AlphaGo、甚至GPT大模型——全都无从谈起。概率论是如何从赌徒的消遣工具演变为现代科技的基石？",
+      content: "概率论（Probability Theory）的起源可以追溯到17世纪中叶，法国数学家**Blaise Pascal**和**Pierre de Fermat**通过通信讨论赌徒分赌注问题，奠定了古典概率的基础。随后，**Jacob Bernoulli**在1713年出版《猜度术》（Ars Conjectandi），首次系统阐述了大数定律的雏形——这是人类第一次触摸到'随机'背后的确定性。\n\n18至19世纪，**Thomas Bayes**提出了逆概率思想（即贝叶斯定理），**Laplace**将其推广并应用于天文观测误差分析。**Gauss**在高斯分布的框架下发展了最小二乘法。**Kolmogorov**在1933年以测度论的公理化体系重新定义了概率论，使其从一门'直觉艺术'变为了严格数学学科。\n\n如今，概率论是机器学习的**四根支柱之一**（其余为线性代数、优化、信息论）。从朴素贝叶斯分类器到深度学习的Dropout正则化，从EM算法到变分推断，概率思维贯穿ML全栈。**如果不懂概率，你就只能把模型当黑盒调用。**",
+      key_takeaway: "概率论从赌桌走向科学殿堂，经历了Pascal-Fermat奠基、Bernoulli大数定律、Bayes逆概率、Laplace推广、Kolmogorov公理化五大里程碑，如今是ML的基石学科。"
+    },
+    {
+      module_id: "concept", module_title: "核心概念", module_tag: "核心概念",
+      hook: "随机变量、概率分布、条件概率、独立性——这些术语你可能听过无数遍，但它们真正的'感觉'是什么？",
+      content: "概率论的核心概念围绕'不确定性'的数学建模展开：\n\n**1. 随机变量（Random Variable）**：将随机试验结果映射到数值的函数。分为**离散型**（如骰子点数、硬币正反）和**连续型**（如身高、股票收益率）。\n\n**2. 概率分布（Probability Distribution）**：描述随机变量取各值的概率规律。离散型用PMF（Probability Mass Function），如 $P(X=k)=\\binom{n}{k}p^k(1-p)^{n-k}$；连续型用PDF（Probability Density Function），如 $f(x)=\\frac{1}{\\sqrt{2\\pi}\\sigma}e^{-\\frac{(x-\\mu)^2}{2\\sigma^2}}$。\n\n**3. 条件概率（Conditional Probability）**：$P(A|B)=\\frac{P(A\\cap B)}{P(B)}$——已知某事件发生时另一事件的概率。这是贝叶斯推断的起点。\n\n**4. 独立性（Independence）**：$P(A\\cap B)=P(A)P(B)$。独立 ≠ 不相关。两个随机变量可以不相关（协方差为0）但不独立（如 $Y=X^2$ 且 $X\\sim N(0,1)$）。\n\n**5. 期望与方差**：$\\mathbb{E}[X]=\\sum xP(x)$ 衡量中心位置；$\\operatorname{Var}(X)=\\mathbb{E}[(X-\\mu)^2]$ 衡量离散程度。",
+      formulas: [
+        {latex: "$$P(A|B) = \\frac{P(A \\cap B)}{P(B)} = \\frac{P(B|A)P(A)}{P(B)}$$", caption: "贝叶斯定理的两种等价形式", expandable: true, derivation: "推导：由条件概率乘积公式 $P(A\\cap B)=P(A|B)P(B)=P(B|A)P(A)$，两边同除 $P(B)$ 即得。分母 $P(B)=\\sum_i P(B|A_i)P(A_i)$（全概率公式）。"}
+      ],
+      key_takeaway: "概率论用分布描述不确定性，条件概率是ML推理的数学基础，期望和方差是最核心的两个数字特征。"
+    },
+    {
+      module_id: "principle", module_title: "核心原理：常见分布族深度解析", module_tag: "核心概念",
+      hook: "为什么自然界和社会中'正态分布'无处不在？为什么神经网络初始化要用特定分布？为什么Lasso回归对应拉普拉斯先验？——这一切的答案藏在常见概率分布的性质中。",
+      content: "机器学习中最常遇到的分布族可分为四大类，理解它们的性质和联系至关重要：\n\n**离散分布家族**：\n- **伯努利分布**: $X\\sim\\operatorname{Bernoulli}(p)$，单次试验成功/失败。$\\mathbb{E}[X]=p$，$\\operatorname{Var}(X)=p(1-p)$。二分类问题的本质。\n- **二项分布**: $X\\sim\\operatorname{Binomial}(n,p)$，$n$ 次独立伯努利试验的成功次数。当 $np$ 和 $n(1-p)$ 都较大时近似正态。\n- **泊松分布**: $X\\sim\\operatorname{Poisson}(\\lambda)$，描述单位时间内随机事件发生次数。当 $n\\to\\infty, p\\to 0$ 且 $np=\\lambda$ 时，二项分布趋近泊松。\n\n**连续分布家族**：\n- **高斯分布**: $X\\sim\\mathcal{N}(\\mu,\\sigma^2)$，由中心极限定理保证的'万能分布'。MSE损失和L2正则化对应高斯噪声假设。\n- **指数分布**: $f(x)=\\lambda e^{-\\lambda x}$，无记忆性（Memoryless），用于建模事件间隔时间。\n- **拉普拉斯分布**: $f(x)=\\frac{1}{2b}e^{-|x-\\mu|/b}$，比高斯有更厚的尾部。L1正则化/MAE损失=拉普拉斯先验假设。\n\n**Beta/Dirichlet分布**：$[0,1]$上的分布，是二项/多项分布的共轭先验。Thompson Sampling和LDA主题模型的核心。\n\n**指数族（Exponential Family）**：大多数常用分布都隶属指数族：$P(x|\\eta)=h(x)g(\\eta)e^{\\eta^T T(x)}$。GLM（广义线性模型）的理论根基。",
+      formulas: [
+        {latex: "$$P(x|\\eta) = h(x)g(\\eta)\\exp(\\eta^T T(x))$$", caption: "指数族分布的通用形式"},
+        {latex: "$$\\lim_{n\\to\\infty}\\frac{\\bar{X}_n - \\mu}{\\sigma/\\sqrt{n}} \\xrightarrow{d} \\mathcal{N}(0,1)$$", caption: "中心极限定理（CLT）"},
+        {latex: "$$P(X=k) = \\frac{\\lambda^k e^{-\\lambda}}{k!} \\quad \\mathbb{E}[X]=\\operatorname{Var}(X)=\\lambda$$", caption: "泊松分布的PMF和矩"}
+      ],
+      tables: [
+        {headers: ["分布", "参数", "E[X]", "Var(X)", "ML中的应用"], rows: [
+          ["伯努利", "p", "p", "p(1-p)", "二分类标签、Dropout"],
+          ["二项", "n,p", "np", "np(1-p)", "准确率置信区间"],
+          ["泊松", "λ", "λ", "λ", "计数数据建模"],
+          ["高斯", "μ,σ²", "μ", "σ²", "MSE损失、L2正则"],
+          ["拉普拉斯", "μ,b", "μ", "2b²", "L1正则、鲁棒回归"],
+          ["Beta", "α,β", "α/(α+β)", "αβ/((α+β)²(α+β+1))", "CTR预估、Thompson采样"],
+          ["Dirichlet", "α", "α_i/Σα", "α_i(Σα-α_i)/((Σα)²(Σα+1))", "LDA、混合模型先验"]
+        ], caption: "常见分布速查表"}
+      ],
+      charts: [
+        {echarts_option: {title:{text:'常见连续分布PDF对比',left:'center',textStyle:{fontSize:14}},tooltip:{trigger:'axis'},legend:{bottom:0,data:['高斯N(0,1)','拉普拉斯(0,1)','指数λ=1','Beta(2,5)']},xAxis:{type:'value',min:-4,max:6},yAxis:{type:'value'},series:[
+          {name:'高斯N(0,1)',type:'line',smooth:true,data:(function(){var d=[];for(var i=-40;i<=60;i++){var x=i/10;d.push([x,Math.exp(-x*x/2)/Math.sqrt(2*Math.PI)]);}return d;})()},
+          {name:'拉普拉斯(0,1)',type:'line',smooth:true,data:(function(){var d=[];for(var i=-40;i<=60;i++){var x=i/10;d.push([x,Math.exp(-Math.abs(x))/2]);}return d;})()},
+          {name:'指数λ=1',type:'line',smooth:true,data:(function(){var d=[];for(var i=0;i<=60;i++){var x=i/10;d.push([x,Math.exp(-x)]);}return d;})()},
+          {name:'Beta(2,5)',type:'line',smooth:true,data:(function(){var d=[];for(var i=0;i<=100;i++){var x=i/100;if(x>0&&x<1){d.push([x,840*Math.pow(x,1)*Math.pow(1-x,4)]);}}return d;})()}
+        ]}, caption: "图：四大连续分布的概率密度函数对比"}
+      ],
+      key_takeaway: "理解分布族之间的关系比死记公式更重要。二项→泊松（稀有事件极限）、高斯（CLT极限）、Beta（共轭先验）代表了三条关键脉络。"
+    },
+    {
+      module_id: "development", module_title: "发展迭代", module_tag: "发展演进",
+      hook: "从古典概率到现代机器学习的概率图模型，概率论经历了怎样的'升维'之路？",
+      content: "**第一阶段：古典概率（1654-1812）**\nPascal-Fermat通信开启了'等可能'的古典概率观。Bernoulli的《猜度术》第一次将概率与统计推断联系起来——'从观测数据推断未知概率'的思想已经萌芽。\n\n**第二阶段：频率学派黄金时代（1812-1930）**\nLaplace将概率分析系统化，Fisher提出了极大似然估计（MLE），Neyman-Pearson建立了假设检验框架。这一阶段的核心哲学是：**概率=长期频率**。\n\n**第三阶段：贝叶斯复兴与公理化（1930-1970）**\nKolmogorov公理化（1933）统一了所有概率定义。Jeffreys、Savage等人复兴贝叶斯方法——概率=不确定性程度。\n\n**第四阶段：计算贝叶斯与现代ML（1970-至今）**\nMCMC方法（Metropolis-Hastings, Gibbs采样）使贝叶斯推断在计算上可行。概率图模型（隐马尔可夫、贝叶斯网络）将概率与图论结合。深度学习时代的VAE、GAN、扩散模型都在概率框架下运作。",
+      key_takeaway: "概率论从'计算等可能事件的比值'进化为'对任意不确定性进行建模和推理的通用语言'——这一转变是ML革命的先决条件。"
+    },
+    {
+      module_id: "application", module_title: "在机器学习中的关键应用", module_tag: "实践应用",
+      hook: "高斯分布出现在MSE损失背后，拉普拉斯出现在L1正则背后，Dirichlet出现在LDA背后——这不是巧合。",
+      content: "**1. 损失函数设计**\n- **MSE (L2 Loss)**：$\\mathcal{L}=\\frac{1}{n}\\sum(y_i-\\hat{y}_i)^2$ ⟹ 假设误差服从高斯分布时的MLE\n- **MAE (L1 Loss)**：$\\mathcal{L}=\\frac{1}{n}\\sum|y_i-\\hat{y}_i|$ ⟹ 假设误差服从拉普拉斯分布时的MLE\n- **交叉熵**：$\\mathcal{L}=-\\sum y_i\\log\\hat{y}_i$ ⟹ 分类问题中类别服从伯努利/分类分布\n\n**2. 生成模型**\n- **VAE**：编码器输出高斯分布的均值和对数方差，通过重参数化技巧采样\n- **GAN**：生成器将高斯/均匀噪声映射为数据分布\n- **扩散模型**：前向加高斯噪声，反向学去噪过程——本质是逐步的分布变换\n\n**3. 贝叶斯方法**\n- **高斯过程（GP）**：先验为多元高斯，回归后验仍为高斯——天然的解析贝叶斯框架\n- **共轭先验**：Beta-Binomial、Dirichlet-Multinomial、Gaussian-Gaussian——使后验计算变为代数而非积分\n\n**4. 概率图模型**\n- 贝叶斯网络中的条件概率表（CPT）刻画变量依赖\n- 隐马尔可夫模型中的发射概率和转移概率",
+      formulas: [
+        {latex: "$$\\mathcal{L}_{\\text{MSE}} = -\\sum \\log \\mathcal{N}(y_i|\\hat{y}_i, \\sigma^2) \\propto \\sum (y_i-\\hat{y}_i)^2$$", caption: "MSE = 高斯噪声假设下的负对数似然"}
+      ],
+      key_takeaway: "损失函数的选择 = 对数据分布的假设。理解概率分布是理解'为什么用这个损失函数'的唯一途径。"
+    },
+    {
+      module_id: "case-study", module_title: "实战案例：朴素贝叶斯垃圾邮件分类", module_tag: "实践应用",
+      hook: "朴素贝叶斯分类器可能是最简单的ML模型，但它在文本分类中的表现经常碾压更复杂的模型——因为它深刻利用了'条件独立性'的假设。",
+      content: "**问题**：给定邮件文本，判断是垃圾邮件(Spam)还是正常邮件(Ham)。\n\n**模型**：$P(\\text{Spam}|\\text{words}) \\propto P(\\text{Spam}) \\cdot \\prod_{w \\in \\text{words}} P(w|\\text{Spam})$\n\n**核心假设**（'朴素'）：给定类别后，各词出现概率独立。这显然不完全成立（'免费'和'领取'经常共现），但在实践中效果惊人的好。\n\n**实战步骤**：\n1. 统计先验：$P(\\text{Spam}) = \\frac{\\text{垃圾邮件数}}{\\text{总邮件数}}$\n2. 估计似然：$P(\\text{免费}|\\text{Spam}) = \\frac{\\text{垃圾邮件中含'免费'的次数} + \\alpha}{\\text{垃圾邮件总词数} + \\alpha|V|}$（Laplace平滑，避免零概率）\n3. 预测：计算 $P(\\text{Spam}|\\text{words})$ 和 $P(\\text{Ham}|\\text{words})$，取最大者\n\n**数学本质**：贝叶斯定理 + 条件独立性假设 + 最大后验估计（MAP）\n\n**为什么效果这么好？** 即使独立性假设被违反，后验概率的排序通常仍然正确。$P(\\text{Spam}|\\text{words})$ 不必精确，只要它比 $P(\\text{Ham}|\\text{words})$ 大就好——这是贝叶斯分类器的鲁棒性来源。",
+      formulas: [
+        {latex: "$$P(\\text{Spam}|w_1,...,w_n) \\propto P(\\text{Spam}) \\prod_{i=1}^n P(w_i|\\text{Spam})$$", caption: "朴素贝叶斯的后验概率（省略归一化常数）"}
+      ],
+      key_takeaway: "朴素贝叶斯用极简的概率乘法和一个'对的排序比对的绝对值更重要'的洞见，在很多场景下效果出色。"
+    },
+    {
+      module_id: "risk", module_title: "潜在误用与局限", module_tag: "风险与挑战",
+      hook: "'这个数据服从正态分布'——这可能是数据科学中最常被说出的、未经检验的断言。",
+      content: "**误区1：盲目假设正态性**\n金融收益率有明显的肥尾特征（极端事件比正态预测的频繁得多）。假设正态性会严重低估风险——2008年金融危机的数学根源之一。\n\n**误区2：混淆相关性与独立性**\n$\\rho=0$ 不代表独立！$Y=X^2$ 且 $X\\sim N(0,1)$ 时，$\\operatorname{Cov}(X,Y)=0$ 但显然不独立。\n\n**误区3：忽视先验的敏感性**\n在贝叶斯分析中，不同先验选择会导致截然不同的后验——尤其在数据量小时。无信息先验并非真的'无信息'。\n\n**误区4：分布外泛化（OOD）**\n训练集和测试集的分布不同时，所有基于i.i.d.假设的概率模型都可能失效。Covid期间训练的预测模型在Covid后集体崩坏就是活生生的教训。\n\n**误区5：p值误用**\n$p<0.05$ ≠ 效应存在。这是概率推断中最臭名昭著的误解。详见'统计推断'深度研读。",
+      key_takeaway: "概率模型的好坏取决于假设的合理性。盲目套用分布而忽视数据特性，是ML实践中最常见也最危险的错误。"
+    },
+    {
+      module_id: "landscape", module_title: "发展格局", module_tag: "发展演进",
+      hook: "频率学派 vs 贝叶斯学派——这场持续了250年的统计学'世界大战'，最终在ML领域实现了某种'停战融合'。",
+      content: "**频率学派（Frequentist）**：\n- 核心理念：概率 = 无限次重复试验中的长期频率\n- 代表方法：MLE、假设检验、置信区间\n- 优势：客观、易于计算、有成熟的渐近理论\n- 劣势：难以融入先验知识、p值常被误用\n\n**贝叶斯学派（Bayesian）**：\n- 核心理念：概率 = 信念/知识的不确定性程度\n- 代表方法：MAP、MCMC、变分推断\n- 优势：自然融合先验、量化预测不确定性、小样本下更稳健\n- 劣势：计算量大、先验选择主观\n\n**ML生态中的融合**：\n- 深度学习主流是频率派（SGD/Adam + MLE），但Dropout≈贝叶斯近似\n- 推荐系统：Thompson Sampling（严格的贝叶斯）\n- 强化学习：Model-based RL常使用贝叶斯推断环境动态\n- 当前趋势：贝叶斯深度学习（Bayesian Neural Networks）试图统一两者",
+      tables: [
+        {headers: ["维度", "频率学派", "贝叶斯学派"], rows: [
+          ["概率定义", "客观的长期频率", "主观的不确定性度量"],
+          ["参数观点", "固定但未知的常数", "随机变量,有分布"],
+          ["核心工具", "MLE, p值, 置信区间", "后验分布, 可信区间, MCMC"],
+          ["正则化", "显式惩罚项", "先验分布自动产生"],
+          ["优势场景", "大数据, 不需要先验", "小数据, 需要量化不确定性"]
+        ], caption: "频率学派 vs 贝叶斯学派核心对比"}
+      ],
+      key_takeaway: "频率学派给了我们MLE和SGD，贝叶斯学派给了我们先验和不确定性量化。现代ML正在两者之间寻找最佳平衡点。"
+    },
+    {
+      module_id: "issues", module_title: "当前挑战与瓶颈", module_tag: "风险与挑战",
+      hook: "概率论在ML中无所不能？不——有一类问题是概率模型至今无法优雅解决的。",
+      content: "**1. 高维概率的诅咒**\n在高维空间中，概率质量集中在薄壳上——直觉完全失效。例如，$d$维单位超球，99%的体积集中在半径$[1-\\epsilon_d, 1]$的薄壳中（$\\epsilon_d \\propto 1/d$）。这使得高维密度估计几乎不可能，也是深度学习需要降维/流形假设的根本原因。\n\n**2. 分布偏移（Distribution Shift）**\n训练数据 $P_{\\text{train}}(X,Y)$ 与部署环境 $P_{\\text{deploy}}(X,Y)$ 不同，所有概率推理失效。这在自动驾驶（新城市）、金融（新市场体制）、医疗（新人群）中普遍存在。\n\n**3. 长尾分布的挑战**\n自然数据大多呈长尾（Zipfian分布）——少数类有大量样本，多数类只有稀疏样本。标准分类器偏向头类，尾部类性能极差。\n\n**4. 因果 vs 相关性**\n概率模型擅长捕获相关性，但对因果关系无能为力。$P(Y|X)$ 可以告诉你'下雨时地面湿的概率'，但不能告诉你'把地面弄湿是否会导致下雨'——这是因果推断的领域。",
+      key_takeaway: "高维诅咒、分布偏移、长尾数据和因果缺失——这四大挑战提醒我们：概率只是理解世界的一种语言，不是全部。"
+    },
+    {
+      module_id: "prospect", module_title: "发展前景：概率+DL的未来", module_tag: "前沿探索",
+      hook: "深度学习的下一个突破，很可能来自对概率论更深入地理解和应用——正如Hinton所说：'我们需要重新审视神经网络中的不确定性。'",
+      content: "**1. 概率编程（Probabilistic Programming）**\nPyro（Uber）、Stan、TensorFlow Probability等框架让定义和推断复杂概率模型像写深度学习模型一样简单。这正在降低贝叶斯方法的门槛。\n\n**2. 扩散模型（Diffusion Models）**\nStable Diffusion、DALL·E背后的数学引擎——通过学一个概率分布的去噪过程来生成数据。这是概率论在生成式AI中最耀眼的胜利。\n\n**3. 共形预测（Conformal Prediction）**\n不依赖任何分布假设就能提供有限样本的预测区间保证——解决了传统置信区间需要分布假设的老问题。\n\n**4. 信息几何（Information Geometry）**\n将概率分布空间视为黎曼流形，用微分几何研究分布族的结构——为理解模型训练的动态行为提供了全新视角。\n\n**5. 神经过程（Neural Processes）**\n用神经网络参数化高斯过程的核函数，实现元学习——这是概率与DL的最新融合方向。",
+      key_takeaway: "从扩散模型到共形预测，概率论正在以意想不到的方式推动着最前沿的AI突破。"
+    },
+    {
+      module_id: "effort-direction", module_title: "学习建议与研究方向", module_tag: "前沿探索",
+      hook: "概率论这么大，从哪里开始学？多久能掌握？给你一个经过验证的路径。",
+      content: "**推荐学习路径（总时长：约2-3周，每天2-3小时）**：\n\n**Week 1：建立直觉**\n- 读完《统计学习方法》第1-2章\n- 用Python可视化各分布PDF/CDF：`scipy.stats` 是你的好朋友\n- 动手实验：投硬币模拟的频率→概率收敛（大数定律的直觉）\n\n**Week 2：深入理解**\n- 学习《PRML》(Bishop) 第2章，关注指数族和共轭先验\n- 从零实现朴素贝叶斯（不超过50行代码）\n- 用ECharts或Matplotlib画出Beta-Binomial的贝叶斯更新动画\n\n**Week 3：ML应用**\n- 理解MSE/MAE/CrossEntropy的概率含义\n- 实现一个简单的高斯混合模型（GMM）的EM算法\n- 阅读VAE论文的推导部分（Kingma & Welling, 2013）\n\n**如果你还想挑战自己**：\n- Betancourt的'Probabilistic Modeling and Bayesian Inference' (2019)\n- Murphy的'Probabilistic Machine Learning' (2022, MIT Press)\n- McElreath的'Statistical Rethinking' (2020, 贝叶斯视角入门神作)",
+      key_takeaway: "2-3周可以打下扎实的概率基础，但真正的融会贯通需要在实际建模中反复练习。"
+    },
+    {
+      module_id: "misconceptions", module_title: "常见误区", module_tag: "风险与挑战",
+      hook: "这些关于概率的误解，即使是数据科学家也每天都在犯。",
+      content: "**误区1：'数据量大了就不需要关心分布假设'**\n大数定律告诉你样本均值收敛到期望，但速率取决于分布的尾部厚度。对于柯西分布（没有期望），再多数据也无济于事。\n\n**误区2：'p<0.05说明效应存在且显著'**\np值测量的是'如果零假设为真，观察到比当前数据更极端结果的概率'。它既不测量效应大小，也不测量假设为真的概率。任何'统计显著'的结论都需要结合效应量和置信区间来判断。\n\n**误区3：'贝叶斯太主观，不可信'**\n所有统计推断都有假设——频率派假设模型形式和数据生成机制，贝叶斯多一个先验。'客观性'本质上只是隐藏了主观假设。\n\n**误区4：'概率大 = 事件一定发生'**\n$P(A)=0.99$/$P(B)=0.01$ 不等于A一定发生。在重复决策中，长期来看的确A更占优，但单次决策的风险仍然存在。\n\n**误区5：'平均值就代表了典型值'**\n在右偏分布（如收入分布）中，中位数比均值更能代表'典型值'。均值被少数极端值拉高，造成'平均工资被我和马云平均了'的困境。",
+      key_takeaway: "概率直觉是反直觉的——这正是为什么我们需要严格的数学工具来纠正认知偏差。"
+    },
+    {
+      module_id: "learning-path", module_title: "推荐学习资源", module_tag: "实践应用",
+      hook: "从入门到精通——经过验证的资源和书单。",
+      content: "**入门级**：\n- 📖 《赤裸裸的统计学》(Naked Statistics) — Wheelan著，最亲民的统计入门书\n- 📺 3Blue1Brown的'概率论'视频系列（YouTube）—动画可视化，直觉建立神器\n- 📖 《统计学习方法》(李航) 第1-2章\n\n**进阶级**：\n- 📖 《Pattern Recognition and Machine Learning》(Bishop) 第2章 — 概率论在ML中的圣经级讨论\n- 📖 《概率导论》(Introduction to Probability) — Bertsekas & Tsitsiklis，MIT经典教材\n- 📖 《Statistical Rethinking》(McElreath) — 用代码学贝叶斯，理念超前\n\n**专家级**：\n- 📖 《Probabilistic Graphical Models》(Koller & Friedman) — 概率图模型的百科全书\n- 📖 《Information Theory, Inference, and Learning Algorithms》(MacKay) — 将概率、信息论、ML统一论述的神作\n- 📄 'A Probabilistic View of Deep Learning'系列论文",
+      references: [
+        {title: "Pattern Recognition and Machine Learning", authors: "Christopher M. Bishop", year: 2006, url: "https://www.microsoft.com/en-us/research/publication/pattern-recognition-machine-learning/"},
+        {title: "Statistical Rethinking (2nd Edition)", authors: "Richard McElreath", year: 2020},
+        {title: "Probabilistic Machine Learning: An Introduction", authors: "Kevin P. Murphy", year: 2022, url: "https://probml.github.io/pml-book/book1.html"}
+      ],
+      key_takeaway: "Bishop的PRML第2章是ML从业者理解概率的最重要读物，强烈建议精读。"
+    },
+    {
+      module_id: "glossary", module_title: "关键术语表", module_tag: "核心概念",
+      hook: "",
+      content: "以下是概率论最重要的30个术语，熟练掌握它们将使你能够无障碍阅读任何ML论文的数学部分。",
+      tables: [
+        {headers: ["术语", "英文", "简要解释"], rows: [
+          ["随机变量", "Random Variable", "将随机试验结果映射到数值的函数"],
+          ["PMF", "Probability Mass Function", "$P(X=x)$，离散随机变量的概率函数"],
+          ["PDF", "Probability Density Function", "$f(x)$，连续随机变量的密度函数"],
+          ["CDF", "Cumulative Distribution Function", "$F(x)=P(X\\le x)$，累积分布函数"],
+          ["期望", "Expectation", "$\\mathbb{E}[X]$，随机变量的加权平均值"],
+          ["方差", "Variance", "$\\operatorname{Var}(X)$，衡量离散程度"],
+          ["协方差", "Covariance", "$\\operatorname{Cov}(X,Y)$，线性相关程度"],
+          ["条件概率", "Conditional Probability", "$P(A|B)$，给定B时A的概率"],
+          ["独立性", "Independence", "$P(A\\cap B)=P(A)P(B)$"],
+          ["贝叶斯定理", "Bayes Theorem", "先验+似然→后验的更新公式"],
+          ["大数定律", "Law of Large Numbers", "样本均值收敛于总体期望"],
+          ["中心极限定理", "Central Limit Theorem", "标准化样本均值趋近标准正态"],
+          ["MLE", "Maximum Likelihood Estimation", "最大化观测数据出现概率的参数估计"],
+          ["MAP", "Maximum A Posteriori", "结合先验的最大后验估计"],
+          ["共轭先验", "Conjugate Prior", "后验与先验同分布族的先验选择"],
+          ["指数族", "Exponential Family", "包含大多数常用分布的广义分布族"],
+          ["熵", "Entropy", "$H(X)=-\\sum P(x)\\log P(x)$，不确定性的度量"],
+          ["KL散度", "KL Divergence", "两分布差异的度量，非对称"],
+          ["Jensen不等式", "Jensen Inequality", "$f(\\mathbb{E}[X])\\le \\mathbb{E}[f(X)]$ for convex f"],
+          ["马尔可夫不等式", "Markov Inequality", "$P(X\\ge a)\\le \\mathbb{E}[X]/a$"]
+        ], caption: "概率论核心术语速查表"}
+      ],
+      key_takeaway: "掌握这20个术语，你就能读懂90%的ML论文学部分。"
+    },
+    {
+      module_id: "debate", module_title: "争议与讨论", module_tag: "前沿探索",
+      hook: "我们真的需要'概率'这个概念吗？有些研究者认为深度学习已经超越了概率框架。",
+      content: "**争议1：深度学习 = 概率模型吗？**\n正方：SGD+交叉熵=MLE估计，Dropout≈贝叶斯近似，VAE/GAN/扩散模型本质都是概率生成模型。\n反方：神经网络容量极大，几乎不做显式的概率建模。特征表示学的是流形结构而非概率分布。batch normalization等技巧没有概率原型。\n**现状**：两者都在描述同一个东西的不同侧面，互补而非对立。\n\n**争议2：贝叶斯 vs 频率——到底谁赢了？**\n在学术界，贝叶斯方法正在复兴（MCMC变快、JAX/Pyro降低门槛）。在工业界，频率方法仍是主流（简单、可扩展、不需要指定先验）。\n**共识**：频率方法给了我们训练模型的能力，贝叶斯方法给了我们理解模型不确定性的能力。两者都需要。\n\n**争议3：p值应该被废弃吗？**\n《The American Statistician》2019年特刊正式呼吁放弃'统计显著性'（$p<0.05$）的二元思维。越来越多期刊鼓励报告效应量、置信区间和贝叶斯因子替代或补充p值。\n\n**我的看法**：概率论不是束缚思维的枷锁，而是提供思维框架的工具箱。工具无所谓'过时'——只在用错场景时才出问题。",
+      key_takeaway: "概率论的未来不在于'频率还是贝叶斯'的派系之争，而在于如何让不同方法在合适的场景各司其职。"
+    }
+  ]
+};
+
+function applyTheme(theme){
+  document.documentElement.setAttribute('data-theme', theme);
+  localStorage.setItem('slm-theme', theme);
+  updateThemeIcon();
+  Object.values(activeCharts).forEach(function(chart){
+    var opt = chart.getOption();
+    chart.setOption(createThemedOption(opt), {notMerge: false});
+  });
+}
+function toggleTheme(){
+  var current = document.documentElement.getAttribute('data-theme') || 'light';
+  applyTheme(current === 'dark' ? 'light' : 'dark');
+}
+function updateThemeIcon(){
+  var t = document.getElementById('theme-toggle');
+  t.textContent = document.documentElement.getAttribute('data-theme') === 'dark' ? '☀️' : '🌓';
+}
+var activeCharts = {};
+var sidebarLinks = [];
+var savedTheme = localStorage.getItem('slm-theme') || 'dark';
+applyTheme(savedTheme);
+
+window.addEventListener('scroll', function(){
+  var scrollTop = window.scrollY;
+  var docHeight = document.documentElement.scrollHeight - window.innerHeight;
+  var progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+  document.getElementById('progress-bar').style.width = progress + '%';
+});
+
+function buildSidebar(){
+  var container = document.getElementById('sidebar-links');
+  sidebarLinks = [];
+  PAGE_DATA.modules.forEach(function(mod){
+    var a = document.createElement('a');
+    a.href = '#' + mod.module_id;
+    a.className = 'sidebar-link';
+    a.textContent = mod.module_title || mod.module_id;
+    a.addEventListener('click', function(e){
+      e.preventDefault();
+      document.getElementById(mod.module_id).scrollIntoView({behavior: 'smooth'});
+    });
+    container.appendChild(a);
+    sidebarLinks.push({el: a, id: mod.module_id});
+  });
+}
+
+var observer = new IntersectionObserver(function(entries){
+  entries.forEach(function(entry){
+    if(entry.isIntersecting){
+      sidebarLinks.forEach(function(link){link.el.classList.toggle('active', link.id === entry.target.id);});
+    }
+  });
+}, {rootMargin: '-80px 0px -60% 0px'});
+
+function buildMetaCard(){
+  var md = PAGE_DATA;
+  document.getElementById('meta-card-container').innerHTML =
+    '<div class="meta-card">'+
+    '<div style="width:100%"><span class="meta-badge domain-ai" style="margin-right:8px">🔗 📚 机器学习及其统计基础与大模型 系统学习方案 · 统计与数学基础（1/5）</span></div>'+
+    '<div class="meta-item"><span class="icon">📖</span><strong>'+md.topic+'</strong></div>'+
+    '<div class="meta-item"><span class="meta-badge domain-ai">'+md.domain_name+'</span></div>'+
+    '<div class="meta-item"><span class="meta-badge level-intermediate">'+md.level_name+'</span></div>'+
+    '<div class="meta-item"><span class="icon">⏱️</span>约'+md.reading_time+'分钟阅读</div>'+
+    '<div class="meta-item"><span class="icon">📦</span>'+md.module_count+'个模块</div></div>';
+}
+
+function renderFormulas(container){
+  if(typeof renderMathInElement !== 'undefined'){
+    renderMathInElement(container, {delimiters: [{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}], throwOnError: false});
+  }
+}
+function createThemedOption(existingOpt){
+  var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  var color = isDark ? ['#818cf8','#a78bfa','#c4b5fd','#67e8f9','#fbbf24','#34d399','#f87171','#f472b6'] : ['#6366f1','#8b5cf6','#a78bfa','#22d3ee','#f59e0b','#10b981','#ef4444','#ec4899'];
+  return {color: color};
+}
+function renderChart(moduleId, chartConfig, index){
+  var chartId = 'chart_' + moduleId + '_' + index;
+  var wrapper = document.getElementById(chartId);
+  if(!wrapper) return;
+  if(typeof echarts === 'undefined'){wrapper.innerHTML='<div style="text-align:center;padding:20px;color:var(--text-tertiary);font-size:13px;">📊 图表(静态模式)<br><small>加载CDN后可交互</small></div>';return;}
+  try{
+    var chart = echarts.init(wrapper);
+    chart.setOption(createThemedOption(chartConfig.echarts_option||{}));
+    activeCharts[chartId] = chart;
+    new ResizeObserver(function(){chart.resize();}).observe(wrapper);
+  }catch(e){wrapper.textContent = '图表渲染失败: ' + e.message;}
+}
+
+function buildModuleHTML(mod){
+  var tagClass = (function(t){
+    var m = {'核心概念':'tag-core','前置知识':'tag-core','核心工具':'tag-tools','发展演进':'tag-evolution','实践应用':'tag-application','风险与挑战':'tag-risk','前沿探索':'tag-frontier'};
+    return m[t] || 'tag-core';
+  })(mod.module_tag||'');
+  var html = '<section class="module-section" id="'+mod.module_id+'"><div class="module-header"><span class="module-tag '+tagClass+'">'+(mod.module_tag||'')+'</span><h2 class="module-title">'+(mod.module_title||mod.module_id)+'</h2></div>';
+  if(mod.hook) html += '<div class="module-hook">'+mod.hook+'</div>';
+  if(mod.content){
+    var c = mod.content;
+    c = c.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
+    c = c.replace(/`([^`]+)`/g,'<code style="background:var(--bg-tertiary);padding:2px 6px;border-radius:4px;font-size:13px;">$1</code>');
+    c = c.replace(/\n\n/g,'</p><p>');
+    c = '<p>' + c + '</p>';
+    html += '<div class="module-content">'+c+'</div>';
+  }
+  if(mod.formulas) mod.formulas.forEach(function(f){
+    html += '<div class="formula-block" onclick="if(this.querySelector(\'.formula-derivation\'))this.classList.toggle(\'expanded\')"><div>'+f.latex+'</div>'+
+      (f.caption?'<div class="formula-caption">'+f.caption+'</div>':'')+
+      (f.expandable&&f.derivation?'<div class="formula-expand-hint">💡 点击展开推导过程</div><div class="formula-derivation">'+f.derivation+'</div>':'')+'</div>';
+  });
+  if(mod.charts) mod.charts.forEach(function(c,i){html += '<div class="chart-container"><div class="chart-wrapper" id="chart_'+mod.module_id+'_'+i+'"></div>'+(c.caption?'<div class="chart-caption">'+c.caption+'</div>':'')+'</div>';});
+  if(mod.tables) mod.tables.forEach(function(t){
+    html += '<table class="module-table"><thead><tr>'+t.headers.map(function(h){return '<th>'+h+'</th>';}).join('')+'</tr></thead><tbody>'+
+      t.rows.map(function(r){return '<tr>'+r.map(function(c){return '<td>'+c+'</td>';}).join('')+'</tr>';}).join('')+'</tbody></table>'+
+      (t.caption?'<div class="table-caption" style="font-size:12px;color:var(--text-tertiary);text-align:center;margin-top:8px">'+t.caption+'</div>':'');
+  });
+  if(mod.references) html += '<div class="module-references"><h4>📚 参考文献</h4><ol>'+mod.references.map(function(r){
+    return '<li>'+(r.authors||'')+' ('+(r.year||'')+'). <strong>'+(r.title||'')+'</strong>.'+(r.url?' <a href="'+r.url+'" target="_blank" style="color:var(--primary)">链接</a>':'')+'</li>';
+  }).join('')+'</ol></div>';
+  if(mod.key_takeaway) html += '<div class="key-takeaway">💡 '+mod.key_takeaway+'</div>';
+  html += '</section>';
+  return html;
+}
+
+function initPage(){
+  document.body.classList.remove('loading');
+  document.body.classList.add('loaded');
+  buildMetaCard();
+  buildSidebar();
+  var mc = document.getElementById('modules-container');
+  PAGE_DATA.modules.forEach(function(mod){mc.innerHTML += buildModuleHTML(mod);});
+  var sections = mc.querySelectorAll('.module-section');
+  sections.forEach(function(sec){observer.observe(sec);});
+  renderFormulas(mc);
+  setTimeout(function(){
+    PAGE_DATA.modules.forEach(function(mod){
+      if(mod.charts) mod.charts.forEach(function(c,i){renderChart(mod.module_id,c,i);});
+    });
+  },100);
+  var fObs = new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting)e.target.classList.add('visible');});},{threshold:0.08});
+  sections.forEach(function(sec){fObs.observe(sec);});
+}
+document.addEventListener('DOMContentLoaded', initPage);
+
+function exportNotes(){
+  var lines = ['# '+PAGE_DATA.topic+' - 学习笔记','','生成日期: '+new Date().toLocaleDateString('zh-CN'),''];
+  PAGE_DATA.modules.forEach(function(m){lines.push('- **'+(m.module_title||m.module_id)+'**: '+(m.key_takeaway||m.hook||''));});
+  if(navigator.clipboard){navigator.clipboard.writeText(lines.join('\n')).then(function(){alert('✅ 学习笔记已复制到剪贴板!');});}
+  else{alert('复制失败，请手动选择复制');}
+}
+
+(function(){
+  var cv = document.getElementById('bg-canvas');
+  var ctx = cv.getContext('2d');
+  var particles=[];
+  function rsz(){cv.width=window.innerWidth;cv.height=window.innerHeight;}
+  window.addEventListener('resize',rsz);rsz();
+  var count = Math.min(60,Math.floor((cv.width*cv.height)/20000));
+  for(var i=0;i<count;i++) particles.push({x:Math.random()*cv.width,y:Math.random()*cv.height,vx:(Math.random()-0.5)*0.3,vy:(Math.random()-0.5)*0.3,r:Math.random()*1.5+0.3,a:Math.random()*0.3+0.05});
+  function animate(){
+    ctx.clearRect(0,0,cv.width,cv.height);
+    var isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+    var c = isDark?'129,140,248':'99,102,241';
+    particles.forEach(function(p){
+      p.x+=p.vx;p.y+=p.vy;
+      if(p.x<0)p.x=cv.width;if(p.x>cv.width)p.x=0;
+      if(p.y<0)p.y=cv.height;if(p.y>cv.height)p.y=0;
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,6.28);
+      ctx.fillStyle='rgba('+c+','+p.a+')';ctx.fill();
+    });
+    for(var j=0;j<particles.length;j++) for(var k=j+1;k<particles.length;k++){
+      var dx=particles[j].x-particles[k].x,dy=particles[j].y-particles[k].y,d=Math.sqrt(dx*dx+dy*dy);
+      if(d<110){ctx.beginPath();ctx.moveTo(particles[j].x,particles[j].y);ctx.lineTo(particles[k].x,particles[k].y);ctx.strokeStyle='rgba('+c+','+(0.06*(1-d/110))+')';ctx.lineWidth=0.5;ctx.stroke();}
+    }
+    requestAnimationFrame(animate);
+  }
+  animate();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,165 @@
+{
+  "_description": "Smart Learning Materials - ECharts 预设主题配置",
+  "_version": "1.0.0",
+
+  "light_theme": {
+    "color": ["#6366f1", "#8b5cf6", "#a78bfa", "#22d3ee", "#f59e0b", "#10b981", "#ef4444", "#ec4899"],
+    "backgroundColor": "transparent",
+    "textStyle": { "fontFamily": "'Inter', 'SF Pro Display', sans-serif", "fontSize": 12, "color": "#334155" },
+    "title": {
+      "textStyle": { "fontSize": 14, "fontWeight": 600, "color": "#0f172a" },
+      "subtextStyle": { "fontSize": 11, "color": "#64748b" }
+    },
+    "legend": { "textStyle": { "fontSize": 11, "color": "#475569" } },
+    "tooltip": { "backgroundColor": "rgba(255,255,255,0.95)", "borderColor": "#e2e8f0", "textStyle": { "color": "#0f172a", "fontSize": 12 } },
+    "grid": { "borderColor": "#f1f5f9" },
+    "xAxis": { "axisLine": { "lineStyle": { "color": "#cbd5e1" } }, "axisTick": { "show": false }, "splitLine": { "lineStyle": { "color": "#f1f5f9" } } },
+    "yAxis": { "axisLine": { "show": false }, "axisTick": { "show": false }, "splitLine": { "lineStyle": { "color": "#f1f5f9" } } },
+    "categoryAxis": { "axisLine": { "show": false }, "axisTick": { "show": false } },
+    "line": { "smooth": true, "symbolSize": 6, "lineStyle": { "width": 2.5 } },
+    "bar": { "barWidth": "40%", "itemStyle": { "borderRadius": [4, 4, 0, 0] } },
+    "pie": { "itemStyle": { "borderColor": "#fff", "borderWidth": 2 } }
+  },
+
+  "dark_theme": {
+    "color": ["#818cf8", "#a78bfa", "#c4b5fd", "#67e8f9", "#fbbf24", "#34d399", "#f87171", "#f472b6"],
+    "backgroundColor": "transparent",
+    "textStyle": { "fontFamily": "'Inter', 'SF Pro Display', sans-serif", "fontSize": 12, "color": "#94a3b8" },
+    "title": {
+      "textStyle": { "fontSize": 14, "fontWeight": 600, "color": "#e2e8f0" },
+      "subtextStyle": { "fontSize": 11, "color": "#64748b" }
+    },
+    "legend": { "textStyle": { "fontSize": 11, "color": "#94a3b8" } },
+    "tooltip": { "backgroundColor": "rgba(15,23,42,0.95)", "borderColor": "#334155", "textStyle": { "color": "#e2e8f0", "fontSize": 12 } },
+    "grid": { "borderColor": "#1e293b" },
+    "xAxis": { "axisLine": { "lineStyle": { "color": "#475569" } }, "axisTick": { "show": false }, "splitLine": { "lineStyle": { "color": "#1e293b" } } },
+    "yAxis": { "axisLine": { "show": false }, "axisTick": { "show": false }, "splitLine": { "lineStyle": { "color": "#1e293b" } } },
+    "categoryAxis": { "axisLine": { "show": false }, "axisTick": { "show": false } },
+    "line": { "smooth": true, "symbolSize": 6, "lineStyle": { "width": 2.5 } },
+    "bar": { "barWidth": "40%", "itemStyle": { "borderRadius": [4, 4, 0, 0] } },
+    "pie": { "itemStyle": { "borderColor": "#0f172a", "borderWidth": 2 } }
+  },
+
+  "chart_templates": {
+    "timeline": {
+      "description": "时间线/里程碑图",
+      "preferred_type": "line",
+      "config_override": {
+        "xAxis": { "type": "category", "data": ["YEAR_DATA"], "axisLabel": { "rotate": 0 } },
+        "yAxis": { "type": "value", "show": false },
+        "series": [{ "type": "line", "data": ["VALUE_DATA"], "label": { "show": true, "position": "top" } }],
+        "grid": { "top": 40, "bottom": 20, "left": 20, "right": 20 }
+      }
+    },
+    "comparison_bar": {
+      "description": "对比柱状图",
+      "preferred_type": "bar",
+      "config_override": {
+        "xAxis": { "type": "category", "data": ["CATEGORY_DATA"] },
+        "yAxis": { "type": "value" },
+        "series": [{ "type": "bar", "data": ["VALUE_DATA"] }],
+        "grid": { "top": 20, "bottom": 40, "left": 50, "right": 20 }
+      }
+    },
+    "correlation_scatter": {
+      "description": "相关性散点图",
+      "preferred_type": "scatter",
+      "config_override": {
+        "xAxis": { "type": "value", "name": "X_LABEL" },
+        "yAxis": { "type": "value", "name": "Y_LABEL" },
+        "series": [{ "type": "scatter", "data": ["SCATTER_DATA"], "symbolSize": 10 }]
+      }
+    },
+    "radar_assessment": {
+      "description": "多维评估雷达图",
+      "preferred_type": "radar",
+      "config_override": {
+        "radar": {
+          "indicator": ["INDICATOR_DATA"],
+          "shape": "polygon",
+          "splitNumber": 5,
+          "center": ["50%", "55%"],
+          "radius": "65%"
+        },
+        "series": [{ "type": "radar", "data": [{ "value": ["VALUE_DATA"], "name": "SERIES_NAME" }] }]
+      }
+    },
+    "heatmap_matrix": {
+      "description": "风险/相关性热力图",
+      "preferred_type": "heatmap",
+      "config_override": {
+        "xAxis": { "type": "category", "data": ["X_DATA"], "splitArea": { "show": true } },
+        "yAxis": { "type": "category", "data": ["Y_DATA"], "splitArea": { "show": true } },
+        "visualMap": { "min": 0, "max": 10, "calculable": true, "orient": "horizontal", "left": "center" },
+        "series": [{ "type": "heatmap", "data": ["HEATMAP_DATA"], "label": { "show": true } }]
+      }
+    },
+    "sankey_flow": {
+      "description": "桑基图-数据/资金/风险流",
+      "preferred_type": "sankey",
+      "config_override": {
+        "series": [{
+          "type": "sankey",
+          "layout": "none",
+          "emphasis": { "focus": "adjacency" },
+          "nodeAlign": "left",
+          "data": ["NODE_DATA"],
+          "links": ["LINK_DATA"]
+        }]
+      }
+    },
+    "treemap_hierarchy": {
+      "description": "矩形树图-层级/份额",
+      "preferred_type": "treemap",
+      "config_override": {
+        "series": [{
+          "type": "treemap",
+          "data": ["TREEMAP_DATA"],
+          "label": { "show": true, "formatter": "{b}" }
+        }]
+      }
+    },
+    "graph_network": {
+      "description": "关系图-知识图谱/产学研网络",
+      "preferred_type": "graph",
+      "config_override": {
+        "series": [{
+          "type": "graph",
+          "layout": "force",
+          "force": { "repulsion": 300, "edgeLength": [100, 200] },
+          "data": ["NODE_DATA"],
+          "links": ["LINK_DATA"],
+          "roam": true,
+          "label": { "show": true, "position": "right", "fontSize": 11 },
+          "edgeSymbol": ["none", "arrow"],
+          "edgeSymbolSize": [0, 8]
+        }]
+      }
+    },
+    "gauge_metric": {
+      "description": "仪表盘-关键指标",
+      "preferred_type": "gauge",
+      "config_override": {
+        "series": [{
+          "type": "gauge",
+          "radius": "75%",
+          "center": ["50%", "55%"],
+          "detail": { "formatter": "{value}%", "fontSize": 20 },
+          "data": [{ "value": "VALUE_DATA", "name": "GAUGE_NAME" }]
+        }]
+      }
+    },
+    "sunburst_hierarchy": {
+      "description": "旭日图-多层级关系",
+      "preferred_type": "sunburst",
+      "config_override": {
+        "series": [{
+          "type": "sunburst",
+          "data": ["SUNBURST_DATA"],
+          "radius": [0, "90%"],
+          "label": { "rotate": "radial" }
+        }]
+      }
+    }
+  }
+}

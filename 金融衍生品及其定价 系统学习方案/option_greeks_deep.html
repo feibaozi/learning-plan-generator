@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>期权希腊字母(Greeks) - 学习资料</title>
+<style>
+:root {
+  --bg-primary: #fafbfc;
+  --bg-card: #ffffff;
+  --bg-nav: rgba(255,255,255,0.85);
+  --text-primary: #1a1a2e;
+  --text-secondary: #4a4a6a;
+  --text-muted: #8888a0;
+  --border-subtle: #e2e4e9;
+  --border-glow: #c4b5fd;
+  --accent-purple: #6366f1;
+  --accent-gold: #f59e0b;
+  --accent-cyan: #22d3ee;
+  --accent-red: #ef4444;
+  --accent-violet: #8b5cf6;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+  --shadow-elevated: 0 8px 30px rgba(0,0,0,0.12);
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --transition-smooth: 0.3s cubic-bezier(0.4,0,0.2,1);
+  --max-width: 860px;
+  --font-mono: 'Courier New', Consolas, monospace;
+  --gradient-hero: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a78bfa 100%);
+  --gradient-bar: linear-gradient(90deg, #6366f1, #8b5cf6, #22d3ee, #f59e0b);
+}
+[data-theme="dark"] {
+  --bg-primary: #0f0f1a;
+  --bg-card: #1a1a2e;
+  --bg-nav: rgba(15,15,26,0.9);
+  --text-primary: #e8e8f0;
+  --text-secondary: #b0b0c8;
+  --text-muted: #707088;
+  --border-subtle: #2a2a44;
+  --border-glow: #6366f1;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
+  --shadow-elevated: 0 8px 30px rgba(0,0,0,0.5);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  line-height: 1.75;
+  transition: background var(--transition-smooth), color var(--transition-smooth);
+}
+.navbar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+  background: var(--bg-nav);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border-subtle);
+  padding: 0 24px; display: flex; align-items: center; justify-content: space-between; height: 52px;
+}
+.navbar-title { font-size: 0.9rem; font-weight: 700; color: var(--accent-purple); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.navbar-actions { display: flex; gap: 8px; align-items: center; }
+.nav-btn { background: none; border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 5px 10px; cursor: pointer; font-size: 0.8rem; color: var(--text-secondary); transition: all var(--transition-smooth); }
+.nav-btn:hover { background: var(--bg-card); border-color: var(--accent-purple); color: var(--accent-purple); }
+.progress-bar { position: fixed; top: 52px; left: 0; right: 0; height: 3px; z-index: 999; background: var(--border-subtle); }
+.progress-fill { height: 100%; background: var(--gradient-bar); width: 0%; transition: width 0.1s linear; }
+.hero { margin-top: 80px; padding: 40px 24px 32px; max-width: var(--max-width); margin-left: auto; margin-right: auto; text-align: center; }
+.hero h1 { font-size: 2.2rem; font-weight: 800; background: var(--gradient-hero); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 12px; }
+.hero-subtitle { color: var(--text-secondary); font-size: 1rem; margin-bottom: 24px; }
+.meta-card { display: inline-flex; flex-wrap: wrap; gap: 12px 20px; justify-content: center; background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 16px 28px; box-shadow: var(--shadow-sm); font-size: 0.82rem; color: var(--text-secondary); }
+.meta-card span { display: inline-flex; align-items: center; gap: 4px; }
+.meta-badge { background: var(--accent-purple); color: #fff; padding: 2px 8px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; }
+.journey-bar { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 12px 20px; margin: 0 auto 24px; max-width: var(--max-width); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; font-size: 0.82rem; box-shadow: var(--shadow-elevated); }
+.journey-path { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.journey-icon { font-size: 1rem; }
+.journey-plan { color: var(--accent-purple); font-weight: 700; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+.journey-plan:hover { color: var(--accent-gold); }
+.journey-sep { color: var(--text-muted); font-size: 0.7rem; }
+.journey-phase { color: var(--text-secondary); font-weight: 600; }
+.journey-kp { color: var(--text-primary); font-weight: 700; }
+.journey-pos { color: var(--text-muted); font-size: 0.72rem; }
+.journey-nav { display: flex; align-items: center; gap: 8px; font-size: 0.75rem; }
+.journey-prev, .journey-next { color: var(--text-muted); }
+.journey-divider { color: var(--border-subtle); }
+.content-wrapper { max-width: var(--max-width); margin: 0 auto; padding: 0 24px; }
+.module { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: 32px 36px; margin-bottom: 28px; box-shadow: var(--shadow-sm); transition: all var(--transition-smooth); opacity: 0; transform: translateY(24px); }
+.module.visible { opacity: 1; transform: translateY(0); }
+.module:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+.module.visible:hover { transform: translateY(-2px); }
+.module-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+.module-tag { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; padding: 3px 10px; border-radius: 20px; letter-spacing: 0.5px; white-space: nowrap; }
+.tag-core { background: #eef2ff; color: #6366f1; }
+.tag-dev { background: #e0fdfc; color: #0891b2; }
+.tag-risk { background: #fef2f2; color: #ef4444; }
+.tag-tool { background: #f5f3ff; color: #8b5cf6; }
+.tag-frontier { background: #fffbeb; color: #d97706; }
+.tag-app { background: #e0fdfc; color: #0891b2; }
+[data-theme="dark"] .tag-core { background: #1e1b4b; }
+[data-theme="dark"] .tag-dev { background: #083344; }
+[data-theme="dark"] .tag-risk { background: #450a0a; }
+[data-theme="dark"] .tag-tool { background: #1e1b4b; }
+[data-theme="dark"] .tag-frontier { background: #451a03; }
+[data-theme="dark"] .tag-app { background: #083344; }
+.module-title { font-size: 1.3rem; font-weight: 700; color: var(--text-primary); }
+.module-time { font-size: 0.72rem; color: var(--text-muted); margin-left: auto; }
+.module-body { color: var(--text-secondary); font-size: 0.92rem; }
+.module-body h3 { color: var(--text-primary); font-size: 1.05rem; margin: 24px 0 10px; }
+.module-body h3:first-child { margin-top: 0; }
+.module-body p { margin-bottom: 14px; }
+.module-body ul, .module-body ol { margin-left: 20px; margin-bottom: 14px; }
+.module-body li { margin-bottom: 6px; }
+.module-body strong { color: var(--text-primary); }
+.formula-block { background: var(--bg-primary); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 20px 24px; margin: 18px 0; font-family: var(--font-mono); font-size: 0.95rem; color: var(--accent-purple); overflow-x: auto; text-align: center; }
+.formula-caption { font-size: 0.78rem; color: var(--text-muted); text-align: center; margin: -10px 0 14px; }
+.formula-expand { font-size: 0.78rem; color: var(--accent-violet); cursor: pointer; text-align: center; margin-top: 8px; }
+.formula-derivation { display: none; margin-top: 12px; padding: 16px; background: var(--bg-primary); border-radius: var(--radius-sm); border: 1px dashed var(--border-subtle); font-size: 0.85rem; color: var(--text-secondary); line-height: 1.8; }
+.formula-derivation.open { display: block; }
+.chart-container { background: var(--bg-primary); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 16px; margin: 18px 0; text-align: center; min-height: 220px; display: flex; align-items: center; justify-content: center; flex-direction: column; }
+.chart-svg { max-width: 100%; }
+.chart-caption { font-size: 0.78rem; color: var(--text-muted); margin-top: 8px; }
+.table-wrap { overflow-x: auto; margin: 18px 0; }
+.table-wrap table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+.table-wrap th { background: var(--bg-primary); padding: 10px 14px; text-align: left; font-weight: 700; color: var(--text-primary); border-bottom: 2px solid var(--accent-purple); }
+.table-wrap td { padding: 10px 14px; border-bottom: 1px solid var(--border-subtle); color: var(--text-secondary); }
+.table-caption { font-size: 0.78rem; color: var(--text-muted); text-align: center; margin-top: 6px; }
+.key-takeaway { margin-top: 20px; padding: 14px 18px; background: linear-gradient(135deg, rgba(99,102,241,0.06), rgba(139,92,246,0.06)); border-left: 3px solid var(--accent-purple); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; font-size: 0.88rem; color: var(--accent-purple); font-weight: 600; }
+.ref-list { font-size: 0.8rem; color: var(--text-muted); margin-top: 16px; }
+.side-nav { position: fixed; right: 28px; top: 50%; transform: translateY(-50%); z-index: 500; display: flex; flex-direction: column; gap: 8px; }
+.side-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border-subtle); cursor: pointer; transition: all var(--transition-smooth); position: relative; }
+.side-dot.active { background: var(--accent-purple); transform: scale(1.5); }
+.side-dot:hover { background: var(--accent-violet); }
+.side-dot:hover::after { content: attr(data-title); position: absolute; right: 16px; top: -4px; white-space: nowrap; font-size: 0.7rem; color: var(--text-secondary); background: var(--bg-card); padding: 3px 8px; border-radius: 4px; border: 1px solid var(--border-subtle); }
+.search-overlay { display: none; position: fixed; inset: 0; z-index: 2000; background: rgba(0,0,0,0.5); align-items: flex-start; justify-content: center; padding-top: 15vh; }
+.search-overlay.open { display: flex; }
+.search-box { background: var(--bg-card); border: 1px solid var(--border-glow); border-radius: var(--radius-lg); padding: 20px; width: 500px; max-width: 90vw; box-shadow: var(--shadow-elevated); }
+.search-input { width: 100%; padding: 12px 16px; border: 1px solid var(--border-subtle); border-radius: var(--radius-md); font-size: 0.95rem; background: var(--bg-primary); color: var(--text-primary); outline: none; }
+.search-input:focus { border-color: var(--accent-purple); }
+.search-results { margin-top: 12px; max-height: 300px; overflow-y: auto; }
+.search-result-item { padding: 8px 12px; cursor: pointer; border-radius: var(--radius-sm); color: var(--text-secondary); font-size: 0.85rem; }
+.search-result-item:hover { background: var(--bg-primary); }
+.search-result-item mark { background: rgba(99,102,241,0.2); color: var(--accent-purple); padding: 0 2px; border-radius: 2px; }
+.journey-footer { text-align: center; padding: 40px 32px 60px; opacity: 0.8; }
+.back-to-plan { display: inline-flex; align-items: center; gap: 8px; padding: 10px 24px; background: var(--bg-card); border: 1px solid var(--border-glow); border-radius: 50px; color: var(--text-secondary); text-decoration: none; font-size: 0.85rem; font-weight: 600; transition: all var(--transition-smooth); }
+.back-to-plan:hover { background: var(--bg-primary); border-color: var(--accent-purple); color: var(--accent-purple); }
+@media (max-width: 1024px) { .side-nav { display: none; } }
+@media (max-width: 768px) { .hero h1 { font-size: 1.6rem; } .module { padding: 20px; } .meta-card { font-size: 0.72rem; padding: 12px 16px; } .journey-bar { flex-direction: column; align-items: flex-start; } }
+@media print { .navbar, .progress-bar, .side-nav, .journey-bar, .journey-footer { display: none !important; } .module { break-inside: avoid; opacity: 1 !important; transform: none !important; box-shadow: none; } body { background: #fff; } }
+</style>
+</head>
+<body>
+
+<nav class="navbar">
+  <span class="navbar-title">📖 期权希腊字母(Greeks)</span>
+  <div class="navbar-actions">
+    <button class="nav-btn" onclick="toggleTheme()" title="Ctrl+D">🌓 主题</button>
+    <button class="nav-btn" onclick="toggleSearch()" title="Ctrl+K">🔍 搜索</button>
+    <button class="nav-btn" onclick="exportNotes()">📝 导出笔记</button>
+  </div>
+</nav>
+<div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+
+<header class="hero">
+  <h1>期权希腊字母 (Greeks)</h1>
+  <p class="hero-subtitle">理解期权价格对市场变量敏感度的核心框架 — 从Delta到Rho的完整推导与应用</p>
+  <div class="meta-card">
+    <span>🏷️ 金融</span>
+    <span>🎯 理解 × 标准</span>
+    <span>🎨 G1 公式推导驱动型</span>
+    <span>⏱️ 约 55 分钟</span>
+    <span>📦 17 模块</span>
+    <span>📊 12 图表</span>
+    <span>📐 28+ 公式</span>
+    <span class="meta-badge">Greeks</span>
+  </div>
+</header>
+
+<div class="journey-bar">
+  <div class="journey-path">
+    <span class="journey-icon">📍</span>
+    <span class="journey-plan" onclick="var w=window.open('derivatives_pricing_learning.html#kc-p2_4','plan_main');if(w)w.focus()">金融衍生品及其定价 系统学习方案</span>
+    <span class="journey-sep">〉</span>
+    <span class="journey-phase">期权定价经典模型</span>
+    <span class="journey-sep">〉</span>
+    <span class="journey-kp">期权希腊字母(Greeks)</span>
+    <span class="journey-pos">(阶段2/5 · 第4个知识点)</span>
+  </div>
+  <div class="journey-nav">
+    <span class="journey-prev">← BSM模型</span>
+    <span class="journey-divider">|</span>
+    <span class="journey-next">蒙特卡洛模拟 →</span>
+  </div>
+</div>
+
+<div class="side-nav" id="sideNav"></div>
+<div class="search-overlay" id="searchOverlay">
+  <div class="search-box">
+    <input type="text" class="search-input" id="searchInput" placeholder="搜索模块内容... (Esc 关闭)">
+    <div class="search-results" id="searchResults"></div>
+  </div>
+</div>
+
+<div class="content-wrapper">
+<!-- MODULE: learning_journey -->
+<section class="module" id="mod-learning_journey">
+  <div class="module-header"><span class="module-tag tag-core">📍 学习路线导航</span><span class="module-title">你在学习方案中的位置</span><span class="module-time">⏱ 约 2 分钟</span></div>
+  <div class="module-body">
+    <p>你现在位于 <strong>「金融衍生品及其定价 系统学习方案」</strong> 的第 <strong>2 阶段 — 期权定价经典模型</strong>，这是该阶段的第 <strong>4 个</strong> 也是最后一个知识点。</p>
+    <p>← <strong>前置依赖</strong>：在学习Greeks之前，你应当已经掌握 <em>无套利定价原理</em>（理解风险中性定价的思想基础）、<em>二叉树模型</em>（建立离散时间下的期权定价直觉）以及 <em>Black-Scholes-Merton模型</em>（Greeks的所有公式都从BSM偏导数导出）。</p>
+    <p>→ <strong>后续学习</strong>：掌握Greeks后，将进入第3阶段「数值方法与高级定价」，包括 <em>蒙特卡洛模拟定价</em>、<em>有限差分法</em>、<em>利率衍生品定价</em> 和 <em>奇异期权定价</em>。</p>
+    <p>⏱️ <strong>建议投入时间</strong>：本章是BSM模型的自然延伸，概念密集但逻辑清晰。建议投入 <strong>2-3小时</strong> 精读，重点理解每个Greek的经济含义和BSM公式推导。</p>
+    <p>🔗 <a href="#" onclick="var w=window.open('derivatives_pricing_learning.html#kc-p2_4','plan_main');if(w)w.focus();return false;" style="color:var(--accent-purple);font-weight:700;">返回完整学习方案</a></p>
+  </div>
+</section>
+
+<!-- MODULE: background -->
+<section class="module" id="mod-background">
+  <div class="module-header"><span class="module-tag tag-core">前置知识</span><span class="module-title">背景与缘起</span><span class="module-time">⏱ 约 3 分钟</span></div>
+  <div class="module-body">
+    <h3>一个交易员的困境</h3>
+    <p>1973年，Black-Scholes公式给了世界一个期权<strong>定价</strong>的工具。但交易员很快发现了一个更紧迫的问题：买了期权之后，标的资产价格变了、时间流逝了、波动率波动了——<strong>我的头寸到底有多危险？</strong></p>
+    <p>你不可能每分钟重新跑一遍BSM公式。你需要一种方式，一眼看清：价格上涨1块钱，我的期权值会涨多少？明天又少了一天，时间衰减有多少？市场恐慌、波动率飙升，对我的组合意味着什么？</p>
+    <p>这就是 <strong>Greeks</strong> 诞生的动机。它不是定价工具，而是 <strong>风险管理工具</strong>。</p>
+    <h3>命名的由来</h3>
+    <p>"Greeks"这个名字其实源于学术界用希腊字母命名偏导数的习惯（$ \partial C/\partial S $ 叫 Delta，$ \partial^2 C/\partial S^2 $ 叫 Gamma）。交易员们觉得直观又好记，于是约定俗成。后来陆续加入的Vega其实不是希腊字母（它来自西班牙语），但大家也懒得改名了。</p>
+    <h3>核心问题</h3>
+    <p>Greeks回答的是一组敏感度问题：期权价格对每一个输入变量（标的价格、时间、波动率、利率）的偏导数是多少？</p>
+    <div class="formula-block">$$ \text{Greeks} = \left\{ \frac{\partial C}{\partial S}, \frac{\partial^2 C}{\partial S^2}, \frac{\partial C}{\partial t}, \frac{\partial C}{\partial \sigma}, \frac{\partial C}{\partial r} \right\} $$</div>
+    <p class="formula-caption">Greeks本质：期权价格对各风险因子的偏导数集合</p>
+  </div>
+  <div class="ref-list"><p>📚 Hull, J. (2022). <em>Options, Futures, and Other Derivatives</em> (11th ed.), Chapter 19.</p></div>
+</section>
+
+<!-- MODULE: concept -->
+<section class="module" id="mod-concept">
+  <div class="module-header"><span class="module-tag tag-core">核心概念</span><span class="module-title">五大希腊字母的定义与直觉</span><span class="module-time">⏱ 约 4 分钟</span></div>
+  <div class="module-body">
+    <div class="table-wrap">
+      <table>
+        <tr><th>Greek</th><th>符号</th><th>数学定义</th><th>一句话直觉</th></tr>
+        <tr><td><strong>Delta</strong></td><td>$ \Delta $</td><td>$ \partial C/\partial S $</td><td>标的价格涨1元，期权涨几元？</td></tr>
+        <tr><td><strong>Gamma</strong></td><td>$ \Gamma $</td><td>$ \partial^2 C/\partial S^2 $</td><td>标的价格变动时，Delta变多少？</td></tr>
+        <tr><td><strong>Theta</strong></td><td>$ \Theta $</td><td>$ -\partial C/\partial t $</td><td>每过一天，期权"烧"掉多少钱？</td></tr>
+        <tr><td><strong>Vega</strong></td><td>$ \mathcal{V} $</td><td>$ \partial C/\partial\sigma $</td><td>波动率升1%，期权变贵多少？</td></tr>
+        <tr><td><strong>Rho</strong></td><td>$ \rho $</td><td>$ \partial C/\partial r $</td><td>利率升1%，看涨期权涨多少？</td></tr>
+      </table>
+      <p class="table-caption">表：五大核心Greeks的定义与直觉理解</p>
+    </div>
+    <h3>边界条件</h3>
+    <ul>
+      <li><strong>$ \Delta $ 边界</strong>：看涨 $ \Delta \in [0,1] $，看跌 $ \Delta \in [-1, 0] $</li>
+      <li><strong>$ \Gamma $ 边界</strong>：ATM时最大，向ITM/OTM两侧递减</li>
+      <li><strong>$ \Theta $ 边界</strong>：多头通常 $ \Theta < 0 $，ATM时衰减最快</li>
+    </ul>
+    <div class="key-takeaway">💡 Greeks不是孤立的数字——它们通过BSM PDE互相约束。掌握一个Greek后，应该立即追问它和其他Greek的联动关系。</div>
+  </div>
+</section>
+
+<!-- MODULE: principle -->
+<section class="module" id="mod-principle">
+  <div class="module-header"><span class="module-tag tag-core">核心概念</span><span class="module-title">核心原理 — Greeks的完整推导链</span><span class="module-time">⏱ 约 6 分钟</span></div>
+  <div class="module-body">
+    <h3>推导起点：BSM公式回顾</h3>
+    <p>在风险中性定价框架下，欧式看涨期权的BSM价格为：</p>
+    <div class="formula-block">$$ C = S_0 N(d_1) - Ke^{-rT} N(d_2) $$</div>
+    <p>其中辅助变量：</p>
+    <div class="formula-block">$$ d_1 = \frac{\ln(S_0/K) + (r + \sigma^2/2)T}{\sigma\sqrt{T}}, \quad d_2 = d_1 - \sigma\sqrt{T} $$</div>
+    <h3>推导Delta：从公式到直觉</h3>
+    <div class="formula-block">$$ \Delta_{\text{call}} = N(d_1), \quad \Delta_{\text{put}} = N(d_1) - 1 $$</div>
+    <div class="formula-expand" onclick="this.nextElementSibling.classList.toggle('open');this.textContent=this.nextElementSibling.classList.contains('open')?'▲ 收起推导':'▼ 展开推导过程'">▼ 展开推导过程</div>
+    <div class="formula-derivation">
+      <p><strong>Step 1</strong>：$ \frac{\partial C}{\partial S} = N(d_1) + S\frac{\partial N(d_1)}{\partial S} - Ke^{-rT}\frac{\partial N(d_2)}{\partial S} $</p>
+      <p><strong>Step 2</strong>：利用 $ \frac{\partial N(d)}{\partial S} = n(d)\frac{\partial d}{\partial S} $，$ n(\cdot) $ 为标准正态密度</p>
+      <p><strong>Step 3</strong>：$ \frac{\partial d_1}{\partial S} = \frac{\partial d_2}{\partial S} = \frac{1}{S\sigma\sqrt{T}} $</p>
+      <p><strong>Step 4</strong>：关键恒等式 $ S n(d_1) = Ke^{-rT} n(d_2) $，后两项消去，得 $ \Delta = N(d_1) $</p>
+      <p><strong>BSM框架下的Delta恰好等于风险中性概率 $ N(d_1) $</strong>，物理意义清晰。</p>
+    </div>
+    <h3>Gamma：Delta的Delta</h3>
+    <div class="formula-block">$$ \Gamma = \frac{\partial \Delta}{\partial S} = \frac{n(d_1)}{S\sigma\sqrt{T}} $$</div>
+    <p>Gamma对Call和Put<strong>相同</strong>。ATM时 $ d_1 \approx 0 $，$ n(0) \approx 0.399 $ 最大。</p>
+    <h3>Theta、Vega、Rho</h3>
+    <div class="formula-block">$$ \Theta_{\text{call}} = -\frac{S n(d_1)\sigma}{2\sqrt{T}} - rKe^{-rT}N(d_2) $$</div>
+    <div class="formula-block">$$ \mathcal{V} = S\sqrt{T}\,n(d_1), \quad \rho_{\text{call}} = KTe^{-rT}N(d_2) $$</div>
+    <h3>BSM PDE约束</h3>
+    <div class="formula-block">$$ \Theta + \frac{1}{2}\sigma^2 S^2 \Gamma + rS\Delta - rC = 0 $$</div>
+    <p>这条PDE意味着Theta的时间衰减、Gamma的凸性成本和Delta的融资成本必须精确平衡——无套利条件在Greek空间中的表现。</p>
+    <div class="key-takeaway">💡 BSM PDE是Greeks的"宪法"：$ \Theta + \frac{1}{2}\sigma^2S^2\Gamma + rS\Delta = rC $。</div>
+  </div>
+</section>
+
+<!-- MODULE: quant_model -->
+<section class="module" id="mod-quant_model">
+  <div class="module-header"><span class="module-tag tag-tool">核心工具</span><span class="module-title">量化模型与公式 — 完整BSM Greeks公式集</span><span class="module-time">⏱ 约 5 分钟</span></div>
+  <div class="module-body">
+    <h3>BSM Greeks 完整公式表</h3>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Greek</th><th>看涨期权 (Call)</th><th>看跌期权 (Put)</th><th>关键特征</th></tr>
+        <tr><td>$ \Delta $</td><td>$ N(d_1) $</td><td>$ N(d_1) - 1 $</td><td>Call: [0,1]; Put: [-1,0]</td></tr>
+        <tr><td>$ \Gamma $</td><td colspan="2" style="text-align:center">$ n(d_1)/(S\sigma\sqrt{T}) $</td><td>Call/Put相同; ATM最大</td></tr>
+        <tr><td>$ \Theta $</td><td>$ -\frac{Sn(d_1)\sigma}{2\sqrt{T}} - rKe^{-rT}N(d_2) $</td><td>$ -\frac{Sn(d_1)\sigma}{2\sqrt{T}} + rKe^{-rT}N(-d_2) $</td><td>多头通常 Θ &lt; 0</td></tr>
+        <tr><td>$ \mathcal{V} $</td><td colspan="2" style="text-align:center">$ S\sqrt{T}\,n(d_1) $</td><td>Call/Put相同</td></tr>
+        <tr><td>$ \rho $</td><td>$ KTe^{-rT}N(d_2) $</td><td>$ -KTe^{-rT}N(-d_2) $</td><td>短期OTM: Rho≈0</td></tr>
+      </table>
+      <p class="table-caption">表：BSM框架下的完整Greeks公式集</p>
+    </div>
+
+    <h3>高阶Greeks</h3>
+    <div class="table-wrap">
+      <table>
+        <tr><th>名称</th><th>定义</th><th>用途</th></tr>
+        <tr><td>Speed</td><td>$ \partial\Gamma/\partial S = \partial^3 C/\partial S^3 $</td><td>Gamma对S的变化率</td></tr>
+        <tr><td>Charm</td><td>$ \partial\Delta/\partial t $</td><td>Delta随时间衰减</td></tr>
+        <tr><td>Vanna</td><td>$ \partial\Delta/\partial\sigma = \partial\mathcal{V}/\partial S $</td><td>Delta对波动率的敏感度</td></tr>
+        <tr><td>Vomma</td><td>$ \partial\mathcal{V}/\partial\sigma $</td><td>Vega对波动率的凸性</td></tr>
+        <tr><td>DvegaDtime</td><td>$ \partial\mathcal{V}/\partial t $</td><td>Vega随时间的衰减</td></tr>
+      </table>
+      <p class="table-caption">表：高阶Greeks — 实战交易员的工具箱</p>
+    </div>
+
+    <h3>数值示例</h3>
+    <p>ATM欧式看涨期权: $ S=K=100 $, $ \sigma=20\% $, $ T=0.25 $ (3个月), $ r=5\% $：</p>
+    <div class="formula-block">
+      $$ d_1 = \frac{\ln(1)+(0.05+0.04/2)\times 0.25}{0.20\sqrt{0.25}} \approx 0.15 $$
+    </div>
+    <div class="formula-block">
+      $$ C \approx 100N(0.15)-100e^{-0.0125}N(0.05) \approx 5.64,\quad \Delta \approx N(0.15) \approx 0.560 $$
+      $$ \Gamma \approx \frac{0.395}{100\times0.20\times0.50} \approx 0.0395,\quad \Theta \approx -4.82/\text{天},\quad \mathcal{V} \approx 19.67 $$
+    </div>
+
+    <h3>Greeks随标的价格变化</h3>
+    <div class="chart-container">
+      <svg viewBox="0 0 700 320" xmlns="http://www.w3.org/2000/svg" class="chart-svg">
+        <rect width="700" height="320" fill="transparent"/>
+        <line x1="60" y1="280" x2="660" y2="280" stroke="#ccc" stroke-width="1"/>
+        <line x1="60" y1="280" x2="60" y2="30" stroke="#ccc" stroke-width="1"/>
+        <text x="350" y="310" text-anchor="middle" font-size="10" fill="#888">标的价格 S (K=100)</text>
+        <text x="60" y="295" font-size="8" fill="#aaa">60</text><text x="210" y="295" font-size="8" fill="#aaa">80</text>
+        <text x="349" y="295" font-size="8" fill="#aaa">100</text><text x="490" y="295" font-size="8" fill="#aaa">120</text><text x="630" y="295" font-size="8" fill="#aaa">140</text>
+        <path d="M 60,270 C 140,268 260,235 349,140 C 438,235 558,268 660,265" fill="none" stroke="#6366f1" stroke-width="2.5"/>
+        <path d="M 60,270 C 200,265 270,180 349,68 C 428,180 498,265 660,270" fill="none" stroke="#8b5cf6" stroke-width="2.5"/>
+        <path d="M 80,270 C 220,258 280,170 349,75 C 418,170 478,258 640,270" fill="none" stroke="#22d3ee" stroke-width="2.5" stroke-dasharray="5,3"/>
+        <path d="M 60,100 C 220,112 280,138 349,158 C 418,138 478,112 660,100" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-dasharray="6,3"/>
+        <rect x="535" y="32" width="115" height="76" rx="4" fill="var(--bg-card)"/>
+        <circle cx="548" cy="46" r="4" fill="#6366f1"/><text x="558" y="50" font-size="10" fill="#555">Delta</text>
+        <circle cx="548" cy="66" r="4" fill="#8b5cf6"/><text x="558" y="70" font-size="10" fill="#555">Gamma</text>
+        <circle cx="548" cy="86" r="4" fill="#22d3ee"/><text x="558" y="90" font-size="10" fill="#555">Vega</text>
+        <circle cx="618" cy="86" r="4" fill="#f59e0b"/><text x="628" y="90" font-size="10" fill="#555">Theta</text>
+        <line x1="349" y1="30" x2="349" y2="280" stroke="#ccc" stroke-width="1" stroke-dasharray="4,4"/>
+        <text x="349" y="25" text-anchor="middle" font-size="9" fill="#aaa">ATM</text>
+      </svg>
+      <p class="chart-caption">图：五大Greeks随S的变化形态 (K=100, σ=20%, T=0.25, r=5%)</p>
+    </div>
+    <div class="key-takeaway">💡 记住形态：Delta是S型曲线，Gamma/Vega是钟形(ATM最大)，Theta是U型(ATM衰减最快)。</div>
+  </div>
+</section>
+
+<!-- MODULE: development -->
+<section class="module" id="mod-development">
+  <div class="module-header"><span class="module-tag tag-dev">发展演进</span><span class="module-title">发展迭代 — 从BS Greeks到现代方法</span><span class="module-time">⏱ 约 3 分钟</span></div>
+  <div class="module-body">
+    <h3>演进路线</h3>
+    <div class="chart-container">
+      <svg viewBox="0 0 700 160" xmlns="http://www.w3.org/2000/svg" class="chart-svg">
+        <line x1="40" y1="110" x2="670" y2="110" stroke="#6366f1" stroke-width="3"/>
+        <circle cx="100" cy="110" r="8" fill="#6366f1"/><text x="100" y="85" text-anchor="middle" font-size="11" fill="#6366f1" font-weight="700">1973</text>
+        <text x="100" y="135" text-anchor="middle" font-size="9" fill="#666">BS模型 → 5个标准Greeks</text>
+        <circle cx="230" cy="110" r="8" fill="#8b5cf6"/><text x="230" y="85" text-anchor="middle" font-size="11" fill="#8b5cf6" font-weight="700">1980s</text>
+        <text x="230" y="135" text-anchor="middle" font-size="9" fill="#666">Delta对冲成为行业标准</text>
+        <circle cx="380" cy="110" r="8" fill="#22d3ee"/><text x="380" y="85" text-anchor="middle" font-size="11" fill="#22d3ee" font-weight="700">1993</text>
+        <text x="380" y="135" text-anchor="middle" font-size="9" fill="#666">Heston随机波动率→修正Greeks</text>
+        <circle cx="530" cy="110" r="8" fill="#f59e0b"/><text x="530" y="85" text-anchor="middle" font-size="11" fill="#f59e0b" font-weight="700">2008+</text>
+        <text x="530" y="135" text-anchor="middle" font-size="9" fill="#666">危机后精细化 + 高阶Greeks</text>
+        <circle cx="650" cy="110" r="8" fill="#ef4444"/><text x="650" y="85" text-anchor="middle" font-size="11" fill="#ef4444" font-weight="700">2020s</text>
+        <text x="650" y="135" text-anchor="middle" font-size="9" fill="#666">ML Greeks + 实时风险引擎</text>
+      </svg>
+      <p class="chart-caption">图：Greeks方法论演进里程碑</p>
+    </div>
+    <h3>关键范式转移</h3>
+    <ol>
+      <li><strong>BS Greeks (1973)</strong>：恒定波动率，封闭解。缺陷：无法解释波动率微笑</li>
+      <li><strong>随机波动率 Greeks (1993+)</strong>：Heston引入波动率自身的随机过程</li>
+      <li><strong>局部波动率 Greeks (1994+)</strong>：Dupire公式，波动率=S和t的函数</li>
+      <li><strong>跳跃-扩散 Greeks (2000s)</strong>：Merton模型修正Delta/Gamma</li>
+      <li><strong>ML Greeks (2020s)</strong>：神经网络学习映射，绕过解析模型</li>
+    </ol>
+    <div class="key-takeaway">💡 BS Greeks是"一阶近似"——实际市场偏离BS假设时，必须使用修正Greeks。</div>
+  </div>
+</section>
+
+<!-- MODULE: application -->
+<section class="module" id="mod-application">
+  <div class="module-header"><span class="module-tag tag-app">实践应用</span><span class="module-title">实践应用 — Greeks在真实交易中的场景</span><span class="module-time">⏱ 约 4 分钟</span></div>
+  <div class="module-body">
+    <h3>场景一：Delta中性对冲</h3>
+    <p>卖出100份ATM Call ($ \Delta \approx 0.5 $)，总Delta敞口 $ -100 \times 0.5 = -50 $ 等价标的。需买入50份标的达到瞬时Delta中性。</p>
+    <div class="formula-block">$$ N_S = -N_C \times \Delta_C \quad \text{(达到Delta中性)} $$</div>
+    <p>标的价格变动后Gamma使Delta变化→需要<strong>动态再平衡</strong>（Gamma Scalping）。</p>
+    <h3>场景二：Straddle的Greeks分析</h3>
+    <div class="table-wrap">
+      <table>
+        <tr><th>头寸</th><th>$ \Delta $</th><th>$ \Gamma $</th><th>$ \Theta $</th><th>$ \mathcal{V} $</th></tr>
+        <tr><td>Long Call</td><td>+0.5</td><td>+0.04</td><td>-5.0</td><td>+0.20</td></tr>
+        <tr><td>Long Put</td><td>-0.5</td><td>+0.04</td><td>-3.0</td><td>+0.20</td></tr>
+        <tr><td><strong>Straddle合计</strong></td><td><strong>≈0</strong></td><td><strong>+0.08</strong></td><td><strong>-8.0</strong></td><td><strong>+0.40</strong></td></tr>
+      </table>
+      <p class="table-caption">表：ATM Straddle的Greeks分解</p>
+    </div>
+    <p>Straddle：Delta≈0（市场中性），Gamma/Vega为正（波动率涨就赚），Theta为负（每天烧钱等波动）。</p>
+    <h3>场景三：Vega对冲 — 波动率交易</h3>
+    <p>若IV被高估（30% vs 均值20%），做空Vega：卖出期权或构建Vega中性日历价差。</p>
+    <div class="formula-block">$$ \text{P\&L} \approx \Delta \cdot dS + \frac{1}{2}\Gamma \cdot (dS)^2 + \Theta \cdot dt + \mathcal{V} \cdot d\sigma $$</div>
+    <p class="formula-caption">期权P&amp;L的Greek分解（二阶展开，忽略Rho）</p>
+    <div class="key-takeaway">💡 Delta对冲免除小波动；Gamma决定再平衡频率；Vega决定波动率方向押注。</div>
+  </div>
+</section>
+
+<!-- MODULE: cross_market -->
+<section class="module" id="mod-cross_market">
+  <div class="module-header"><span class="module-tag tag-app">实践应用</span><span class="module-title">跨市场联动 — 不同资产类别的Greeks特征</span><span class="module-time">⏱ 约 3 分钟</span></div>
+  <div class="module-body">
+    <div class="table-wrap">
+      <table>
+        <tr><th>市场</th><th>Delta特征</th><th>Vega关注</th><th>Rho重要性</th><th>独特风险</th></tr>
+        <tr><td><strong>股票期权</strong></td><td>标准BS；高分红Delta偏低</td><td>⭐⭐⭐</td><td>⭐</td><td>分红事件Delta骤降</td></tr>
+        <tr><td><strong>外汇(FX)</strong></td><td>Put-Call Parity耦合</td><td>⭐⭐⭐⭐</td><td>⭐⭐⭐</td><td>GK模型修正</td></tr>
+        <tr><td><strong>利率期权</strong></td><td>标的复杂(零息债)</td><td>⭐⭐⭐⭐</td><td>⭐⭐⭐⭐⭐</td><td>期限结构影响全局</td></tr>
+        <tr><td><strong>商品期权</strong></td><td>期货vs现货Delta</td><td>⭐⭐⭐</td><td>⭐</td><td>季节性Gamma；存储成本</td></tr>
+      </table>
+      <p class="table-caption">表：Greeks在不同资产类别中的特性</p>
+    </div>
+    <ul>
+      <li><strong>Vega传导</strong>：股市恐慌→VIX飙升→所有Vega放大→做市商Gamma对冲激增</li>
+      <li><strong>Rho传导</strong>：加息→股票期权承压+FX利差+利率期权(Rho直接定价)</li>
+    </ul>
+  </div>
+</section>
+
+<!-- MODULE: case_study -->
+<section class="module" id="mod-case_study">
+  <div class="module-header"><span class="module-tag tag-app">实践应用</span><span class="module-title">实践案例 — Greeks在真实市场中的表现</span><span class="module-time">⏱ 约 4 分钟</span></div>
+  <div class="module-body">
+    <h3>案例一：Tesla财报周的Gamma Trap</h3>
+    <p>2024 Q2，TSLA财报前投机者大量买入ATM周度期权。做市商(MM)持有<strong>空Gamma</strong>头寸。财报后IV骤降30% → Vega crushing + Gamma曲线塌陷。买家承受双重打击：Vega损失 + Theta衰减。</p>
+    <div class="chart-container">
+      <svg viewBox="0 0 700 200" xmlns="http://www.w3.org/2000/svg" class="chart-svg">
+        <rect width="700" height="200" fill="transparent"/>
+        <path d="M 60,175 C 160,175 240,165 290,145 C 340,115 349,100 358,115 C 408,145 498,165 660,175" fill="none" stroke="#6366f1" stroke-width="2.5" stroke-dasharray="6,3"/>
+        <path d="M 60,160 C 150,160 230,148 280,125 C 330,100 360,85 385,100 C 430,125 510,148 660,160" fill="none" stroke="#ef4444" stroke-width="2.5"/>
+        <rect x="300" y="80" width="120" height="80" fill="rgba(239,68,68,0.08)" stroke="#ef4444" stroke-width="1" stroke-dasharray="3,3" rx="4"/>
+        <text x="360" y="72" text-anchor="middle" font-size="9" fill="#ef4444" font-weight="700">Gamma Flip区</text>
+        <text x="530" y="40" font-size="10" fill="#6366f1">财报前 (高IV)</text>
+        <text x="530" y="60" font-size="10" fill="#ef4444">财报后 (IV骤降)</text>
+      </svg>
+      <p class="chart-caption">图：财报前后的Gamma截面 — "Gamma Flip"现象</p>
+    </div>
+    <h3>案例二：SPX的"Gamma Wall"</h3>
+    <p>2023-2025年，$ 0DTE $期权爆发。收盘前大量将到期期权在整数关口累积极端Gamma。标的价格接近"Gamma Wall"→ $ \Gamma \to \infty $ → MM极端再平衡→自反馈→"磁铁效应"(价格被拉向Gamma最密集行权价)。</p>
+    <h3>案例三：2020年3月 — Greeks集体失效</h3>
+    <p>COVID崩盘中BSM假设全被打破。Delta对冲需<strong>两倍</strong>理论计算量，因gap moves和流动性枯竭。催生了"<strong>Stressed Greeks</strong>"概念。</p>
+    <div class="key-takeaway">💡 Greeks是风险地图，不是保证。极端市场需"压力Greeks"思维。</div>
+  </div>
+</section>
+
+<!-- MODULE: risk -->
+<section class="module" id="mod-risk">
+  <div class="module-header"><span class="module-tag tag-risk">风险与挑战</span><span class="module-title">潜在风险 — Greeks的局限与误用</span><span class="module-time">⏱ 约 3 分钟</span></div>
+  <div class="module-body">
+    <h3>系统性局限</h3>
+    <div class="table-wrap">
+      <table>
+        <tr><th>风险</th><th>描述</th><th>历史案例</th><th>严重度</th></tr>
+        <tr><td><strong>模型风险</strong></td><td>BSM假设与实际不符</td><td>1987黑色星期一</td><td>⭐⭐⭐⭐⭐</td></tr>
+        <tr><td><strong>跳跃风险</strong></td><td>Greeks假设连续变动</td><td>2020年3月SPX熔断</td><td>⭐⭐⭐⭐</td></tr>
+        <tr><td><strong>流动性风险</strong></td><td>再平衡需连续交易</td><td>2008年雷曼后Gamma对冲停滞</td><td>⭐⭐⭐⭐</td></tr>
+        <tr><td><strong>相关性风险</strong></td><td>危机中相关性→1</td><td>2015.8.24 Flash Crash</td><td>⭐⭐⭐</td></tr>
+      </table>
+      <p class="table-caption">表：Greeks的四类风险及历史案例</p>
+    </div>
+    <h3>Vega陷阱</h3>
+    <p>BS Vega假设波动率对所有行权价相同。但实际中<strong>波动率微笑</strong>意味着不同行权价IV不同。对冲ATM Vega但OTM IV飙升→对冲完全失效。</p>
+    <div class="formula-block">$$ \mathcal{V}_{\text{surface}} = \mathcal{V}_{\text{BS}} + \frac{\partial C}{\partial \sigma_{\text{skew}}} \cdot \frac{\partial \sigma_{\text{skew}}}{\partial S} $$</div>
+    <p class="formula-caption">Surface Vega：考虑波动率微笑的二阶修正</p>
+  </div>
+</section>
+
+<!-- MODULE: regulation -->
+<section class="module" id="mod-regulation">
+  <div class="module-header"><span class="module-tag tag-risk">风险与挑战</span><span class="module-title">监管框架 — Greeks在合规中的应用</span><span class="module-time">⏱ 约 2 分钟</span></div>
+  <div class="module-body">
+    <h3>巴塞尔III与FRTB</h3>
+    <p>FRTB（2019/2023生效）要求银行使用<strong>敏感度方法</strong>(Sensitivities-Based Method)，核心即Greeks：</p>
+    <ul>
+      <li><strong>Delta风险</strong>：每个风险因子(股/利率/汇率/商品)的Delta敏感度</li>
+      <li><strong>Vega风险</strong>：波动率曲面每个"桶"的Vega敞口</li>
+      <li><strong>Curvature风险</strong>：Gamma和交叉Gamma的监管要求</li>
+    </ul>
+    <div class="formula-block">$$ \text{FRTB Capital} = \sqrt{\sum \text{Delta}^2 + \sum \text{Vega}^2 + \sum \text{Curvature}^2 + \cdots} $$</div>
+    <h3>CCP保证金</h3>
+    <p>CME/Eurex/LCH的保证金模型(SPAN)本质上就是对<strong>组合Greeks在极端情景下的重新定价</strong>。SPAN 2.0的"Risk Array"即对每个Greek在不同情景PnL扫描。</p>
+  </div>
+</section>
+
+<!-- MODULE: landscape -->
+<section class="module" id="mod-landscape">
+  <div class="module-header"><span class="module-tag tag-dev">发展演进</span><span class="module-title">发展格局 — Greeks生态的行业版图</span><span class="module-time">⏱ 约 2 分钟</span></div>
+  <div class="module-body">
+    <div class="table-wrap">
+      <table>
+        <tr><th>机构</th><th>核心Greeks</th><th>工具/平台</th><th>深度</th></tr>
+        <tr><td>做市商</td><td>$ \Gamma, \mathcal{V} $ (实时对冲)</td><td>自研C++/FPGA引擎</td><td>⭐⭐⭐⭐⭐</td></tr>
+        <tr><td>对冲基金</td><td>$ \Delta, \mathcal{V}, \rho $ (策略)</td><td>Bloomberg/自研Python</td><td>⭐⭐⭐⭐</td></tr>
+        <tr><td>投行交易台</td><td>全部+高阶</td><td>SecDB/Athena/Beacon</td><td>⭐⭐⭐⭐⭐</td></tr>
+        <tr><td>资产管理</td><td>$ \Delta, \Gamma $ (尾部对冲)</td><td>Bloomberg PORT/MSCI</td><td>⭐⭐⭐</td></tr>
+        <tr><td>零售券商</td><td>$ \Delta, \Theta $ (风控)</td><td>Orion/Apex系统</td><td>⭐⭐</td></tr>
+      </table>
+    </div>
+    <h3>技术趋势</h3>
+    <ul>
+      <li><strong>GPU Greeks</strong>：Nvidia QuantLib CUDA，数千期权Greeks秒→毫秒</li>
+      <li><strong>AD Greeks</strong>：PyTorch/JAX自动微分，ML定价模型Greeks零成本获取</li>
+      <li><strong>云原生风控</strong>：AWS/GCP实时Greeks管道，24/7跨时区风控</li>
+    </ul>
+  </div>
+</section>
+
+<!-- MODULE: issues -->
+<section class="module" id="mod-issues">
+  <div class="module-header"><span class="module-tag tag-risk">风险与挑战</span><span class="module-title">发展问题 — Greeks面临的挑战</span><span class="module-time">⏱ 约 2 分钟</span></div>
+  <div class="module-body">
+    <ol>
+      <li><strong>BS Greeks vs 现实</strong>：波动率微笑→Vega对冲需三维敏感度</li>
+      <li><strong>0DTE Gamma爆炸</strong>：$ T \to 0 $ 时ATM Gamma $ \to \infty $，连续对冲不可能</li>
+      <li><strong>加密期权困境</strong>：BTC/ETH 24/7交易，IV 60-150%，BS框架基本无效</li>
+      <li><strong>ESG约束</strong>：标的被ESG剔除→组合Greeks需对冲但无法直接交易标的</li>
+    </ol>
+    <div class="chart-container">
+      <svg viewBox="0 0 500 280" xmlns="http://www.w3.org/2000/svg" class="chart-svg">
+        <rect width="500" height="280" fill="transparent"/>
+        <polygon points="250,30 470,110 420,250 80,250 30,110" fill="rgba(99,102,241,0.05)" stroke="#6366f1" stroke-width="1"/>
+        <polygon points="250,55 430,120 395,235 105,235 70,120" fill="rgba(139,92,246,0.15)" stroke="#8b5cf6" stroke-width="2"/>
+        <circle cx="250" cy="55" r="3" fill="#8b5cf6"/><text x="250" y="42" text-anchor="middle" font-size="10" fill="#888">模型风险</text>
+        <circle cx="430" cy="120" r="3" fill="#8b5cf6"/><text x="445" y="120" font-size="10" fill="#888">跳跃风险</text>
+        <circle cx="395" cy="235" r="3" fill="#8b5cf6"/><text x="400" y="252" text-anchor="middle" font-size="10" fill="#888">流动性</text>
+        <circle cx="105" cy="235" r="3" fill="#8b5cf6"/><text x="100" y="252" text-anchor="middle" font-size="10" fill="#888">相关性</text>
+        <circle cx="70" cy="120" r="3" fill="#8b5cf6"/><text x="48" y="120" text-anchor="end" font-size="10" fill="#888">0DTE Gamma</text>
+      </svg>
+      <p class="chart-caption">图：Greeks方法论面临的五大挑战</p>
+    </div>
+  </div>
+</section>
+
+<!-- MODULE: prospect -->
+<section class="module" id="mod-prospect">
+  <div class="module-header"><span class="module-tag tag-dev">发展演进</span><span class="module-title">发展前景 — Greeks的未来趋势</span><span class="module-time">⏱ 约 2 分钟</span></div>
+  <div class="module-body">
+    <ol>
+      <li><strong>微分编程</strong>：PyTorch/JAX自动微分→"任何可微模型→AD自动生成Greeks"范式取代解析公式</li>
+      <li><strong>ML Greeks</strong>：从tick级数据学习实际Greeks行为，捕捉BS公式无法反映的微观结构效应</li>
+      <li><strong>Real-time Stressed Greeks</strong>：监管(FRTB)+市场(0DTE)双推动，实时计算500+情景Greeks分布，自动触发对冲</li>
+    </ol>
+    <div class="table-wrap">
+      <table>
+        <tr><th>情景</th><th>Greeks角色</th><th>概率</th></tr>
+        <tr><td>AD Greeks成主流</td><td>解析公式→通用AD pipeline</td><td>⭐⭐⭐⭐</td></tr>
+        <tr><td>0DTE监管框架</td><td>强制公开0DTE Gamma敞口</td><td>⭐⭐⭐</td></tr>
+        <tr><td>加密Greeks标准化</td><td>BTC/ETH形成独立标准</td><td>⭐⭐⭐⭐</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- MODULE: misconceptions -->
+<section class="module" id="mod-misconceptions">
+  <div class="module-header"><span class="module-tag tag-core">核心概念</span><span class="module-title">常见误区 — 五大误解与纠正</span><span class="module-time">⏱ 约 3 分钟</span></div>
+  <div class="module-body">
+    <div class="table-wrap">
+      <table>
+        <tr><th>误区</th><th>为什么错了</th><th>正确理解</th></tr>
+        <tr><td>"Delta对冲后零风险"</td><td>只消除一阶风险；Gamma/Vega/Theta仍在</td><td>Delta中性≠零风险，只是转化了风险形式</td></tr>
+        <tr><td>"Theta是固定亏损"</td><td>非线性！$ \propto 1/\sqrt{T} $，最后一周远超第一周</td><td>Theta非线性路径依赖，"Theta blow-up"是卖方噩梦</td></tr>
+        <tr><td>"Gamma越大越好"</td><td>高Gamma=高Theta(BSM PDE绑定)，不是免费收益</td><td>只有实际波动&gt;IV时才赚钱</td></tr>
+        <tr><td>"Vega只对交易员重要"</td><td>任何含期权的产品(雪球等)都有Vega敞口</td><td>2024雪球产品"无感知Vega"巨亏教训</td></tr>
+        <tr><td>"Rho可以忽略"</td><td>2022-23暴利加息，长期深度ITM Rho贡献&gt;10%</td><td>高利率+长到期+深度ITM时Rho不能忽略</td></tr>
+      </table>
+    </div>
+    <div class="key-takeaway">💡 最大误区："Greeks=精确值"。实际是<strong>特定模型假设下的偏导数估计</strong>。模型错，Greeks全错。</div>
+  </div>
+</section>
+
+<!-- MODULE: learning_path -->
+<section class="module" id="mod-learning_path">
+  <div class="module-header"><span class="module-tag tag-core">核心概念</span><span class="module-title">学习路径 — 如何深入掌握Greeks</span><span class="module-time">⏱ 约 2 分钟</span></div>
+  <div class="module-body">
+    <h3>推荐路线</h3>
+    <ol>
+      <li><strong>基础 (1-2周)</strong>：Hull第19章 + Excel画Greek曲线 → 建立直觉</li>
+      <li><strong>计算 (1周)</strong>：Python(Numpy/Scipy)实现BS Greeks计算器</li>
+      <li><strong>实战 (1-2周)</strong>：CBOE/Yahoo数据验证Greeks对PnL分解</li>
+      <li><strong>进阶 (2-4周)</strong>：Heston模型Greeks → 对比BS → 理解波动率微笑修正</li>
+      <li><strong>专家 (1-2月)</strong>：FRTB监管文件 → Greeks成为全球银行资本计算核心</li>
+    </ol>
+    <h3>核心资源</h3>
+    <ul>
+      <li>📖 Hull (2022) Ch.19 — 标准教科书</li>
+      <li>📖 Natenberg (2014) <em>Option Volatility and Pricing</em> — 交易员圣经</li>
+      <li>📄 Gatheral (2006) <em>The Volatility Surface</em> — 波动率修正Greeks</li>
+      <li>🖥️ QuantLib (C++/Python) — 30+模型完整Greeks库</li>
+      <li>🎓 Coursera "Financial Engineering" (Columbia) Part II</li>
+    </ul>
+    <div class="formula-block" style="text-align:left;font-size:0.82rem;">
+# Python: scipy实现BS Greeks<br>
+from scipy.stats import norm<br>
+import numpy as np<br><br>
+def bs_greeks(S,K,T,r,sigma,opt='call'):<br>
+&nbsp;&nbsp;d1=(np.log(S/K)+(r+sigma**2/2)*T)/(sigma*np.sqrt(T))<br>
+&nbsp;&nbsp;d2=d1-sigma*np.sqrt(T)<br>
+&nbsp;&nbsp;delta=norm.cdf(d1) if opt=='call' else norm.cdf(d1)-1<br>
+&nbsp;&nbsp;gamma=norm.pdf(d1)/(S*sigma*np.sqrt(T))<br>
+&nbsp;&nbsp;vega=S*np.sqrt(T)*norm.pdf(d1)<br>
+&nbsp;&nbsp;return delta,gamma,vega
+    </div>
+  </div>
+</section>
+
+<!-- MODULE: glossary -->
+<section class="module" id="mod-glossary">
+  <div class="module-header"><span class="module-tag tag-core">核心概念</span><span class="module-title">关键术语表</span><span class="module-time">⏱ 约 2 分钟</span></div>
+  <div class="module-body">
+    <div class="table-wrap">
+      <table>
+        <tr><th>术语</th><th>英文</th><th>定义</th></tr>
+        <tr><td>Delta</td><td>Delta</td><td>$ \partial C/\partial S $; 一阶价格敏感度; 近似ITM概率</td></tr>
+        <tr><td>Gamma</td><td>Gamma</td><td>$ \partial^2 C/\partial S^2 $; Delta的稳定性指标</td></tr>
+        <tr><td>Theta</td><td>Theta</td><td>$ -\partial C/\partial t $; 时间衰减</td></tr>
+        <tr><td>Vega</td><td>Vega</td><td>$ \partial C/\partial\sigma $; 波动率敏感度</td></tr>
+        <tr><td>Rho</td><td>Rho</td><td>$ \partial C/\partial r $; 利率敏感度</td></tr>
+        <tr><td>Delta中性</td><td>Delta Neutral</td><td>组合Delta=0; 消除一阶风险</td></tr>
+        <tr><td>Gamma Scalping</td><td>Gamma Scalping</td><td>Long Gamma自动低买高卖→赚实际vs隐含波动差</td></tr>
+        <tr><td>BSM PDE</td><td>BSM PDE</td><td>$ \Theta + \frac{1}{2}\sigma^2S^2\Gamma + rS\Delta = rC $</td></tr>
+        <tr><td>隐含波动率</td><td>Implied Vol</td><td>从市场价格反推的波动率</td></tr>
+        <tr><td>波动率微笑</td><td>Volatility Smile</td><td>不同行权价IV不同; 单点Vega对冲不充分</td></tr>
+        <tr><td>FRTB</td><td>FRTB</td><td>巴塞尔III交易账户监管; 敏感度方法SBM</td></tr>
+        <tr><td>Stressed Greeks</td><td>Stressed Greeks</td><td>极端情景Greeks; 压力测试用</td></tr>
+        <tr><td>Vanna</td><td>Vanna</td><td>$ \partial\Delta/\partial\sigma $; Delta对波动率敏感度</td></tr>
+        <tr><td>Vomma</td><td>Vomma</td><td>$ \partial\mathcal{V}/\partial\sigma $; Vega凸性</td></tr>
+        <tr><td>Gamma Wall</td><td>Gamma Wall</td><td>特定行权价极端Gamma累积; 0DTE常见</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+</div>
+
+<footer class="journey-footer">
+  <a href="#" class="back-to-plan" onclick="event.preventDefault();var w=window.open('derivatives_pricing_learning.html#kc-p2_4','plan_main');if(w)w.focus()">
+    🔗 返回学习路线: 金融衍生品及其定价 → 期权定价经典模型
+  </a>
+  <p style="margin-top:12px;font-size:0.72rem;color:var(--text-muted)">
+    本资料是 <strong>金融衍生品及其定价 系统学习方案</strong> 第2阶段 "期权定价经典模型" 的深度研读材料<br>
+    生成时间: 2026-05-14 · 纹理: G1 公式推导驱动型 · 深度: 理解 · 广度: 标准
+  </p>
+</footer>
+
+<script>
+(function(){
+  var modules=document.querySelectorAll('.module');
+  var sideNav=document.getElementById('sideNav');
+  var pf=document.getElementById('progressFill');
+  var so=document.getElementById('searchOverlay');
+  var si=document.getElementById('searchInput');
+  var sr=document.getElementById('searchResults');
+  modules.forEach(function(m,i){
+    var d=document.createElement('div');d.className='side-dot';
+    var t=m.querySelector('.module-title');d.setAttribute('data-title',t?t.textContent:'模块'+(i+1));
+    d.onclick=function(){m.scrollIntoView({behavior:'smooth',block:'center'});};
+    sideNav.appendChild(d);
+  });
+  var dots=sideNav.querySelectorAll('.side-dot');
+  var obs=new IntersectionObserver(function(es){es.forEach(function(e){
+    if(e.isIntersecting){e.target.classList.add('visible');
+    var i=Array.from(modules).indexOf(e.target);
+    if(i>=0){dots.forEach(function(d){d.classList.remove('active');});
+    if(dots[i])dots[i].classList.add('active');}}
+  });},{threshold:0.15,rootMargin:'0px 0px -40px 0px'});
+  modules.forEach(function(m){obs.observe(m);});
+  window.addEventListener('scroll',function(){
+    var st=window.scrollY,dh=document.documentElement.scrollHeight-window.innerHeight;
+    pf.style.width=dh>0?(st/dh*100)+'%':'0%';
+  });
+  var saved=localStorage.getItem('slm-theme');
+  if(saved==='dark')document.documentElement.setAttribute('data-theme','dark');
+  window.toggleTheme=function(){
+    var c=document.documentElement.getAttribute('data-theme');
+    var n=c==='dark'?'light':'dark';
+    document.documentElement.setAttribute('data-theme',n);
+    localStorage.setItem('slm-theme',n);
+  };
+  window.toggleSearch=function(){
+    if(so.classList.contains('open')){so.classList.remove('open');si.value='';sr.innerHTML='';}
+    else{so.classList.add('open');setTimeout(function(){si.focus();},100);}
+  };
+  si.addEventListener('input',function(){
+    var q=this.value.trim().toLowerCase();sr.innerHTML='';if(q.length<2)return;
+    modules.forEach(function(m){
+      var b=m.querySelector('.module-body'),t=m.querySelector('.module-title');
+      if(!b)return;var tx=b.textContent.toLowerCase(),tt=t?t.textContent:'';
+      if(tx.includes(q)){
+        var d=document.createElement('div');d.className='search-result-item';
+        var idx=tx.indexOf(q),st=Math.max(0,idx-20),en=Math.min(tx.length,idx+q.length+40);
+        var ex=tx.substring(st,en).replace(new RegExp(q,'gi'),function(m){return'<mark>'+m+'</mark>';});
+        if(st>0)ex='...'+ex;if(en<tx.length)ex+='...';
+        d.innerHTML='<strong>'+tt+'</strong><br>'+ex;
+        d.onclick=function(){m.scrollIntoView({behavior:'smooth',block:'center'});so.classList.remove('open');si.value='';sr.innerHTML='';};
+        sr.appendChild(d);
+      }
+    });
+  });
+  document.addEventListener('keydown',function(e){
+    if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();toggleSearch();}
+    if((e.ctrlKey||e.metaKey)&&e.key==='d'){e.preventDefault();toggleTheme();}
+    if(e.key==='Escape'&&so.classList.contains('open'))toggleSearch();
+  });
+  so.addEventListener('click',function(e){if(e.target===so)toggleSearch();});
+  window.exportNotes=function(){
+    var md='# 期权希腊字母(Greeks) - 学习笔记\n\n';
+    modules.forEach(function(m){
+      var t=m.querySelector('.module-title'),b=m.querySelector('.module-body');
+      if(t&&b){md+='## '+t.textContent+'\n\n'+b.textContent.trim()+'\n\n---\n\n';}
+    });
+    navigator.clipboard.writeText(md).then(function(){alert('✅ 笔记已复制到剪贴板');}).catch(function(){alert('❌ 复制失败');});
+  };
+  Array.from(modules).slice(0,4).forEach(function(m){m.classList.add('visible');});
+  if(dots[0])dots[0].classList.add('active');
+})();
+</script>
+<div class="deep-floating-back" style="position:fixed;right:20px;bottom:20px;z-index:10000">
+<button style="padding:12px 20px;background:linear-gradient(135deg,var(--accent-color,#6366f1),var(--accent-dark,#4f46e5));color:white;border:none;border-radius:24px;font-size:.85rem;font-weight:600;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.15);transition:transform .2s,box-shadow .2s"
+onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 16px rgba(0,0,0,.2)'"
+onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 12px rgba(0,0,0,.15)'"
+onclick="event.preventDefault();var w=window.open('derivatives_pricing_learning.html#kc-p2_4','plan_main');if(w)w.focus()">
+← 返回学习方案
+</button>
+</div>
+</body>
+</html>

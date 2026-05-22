@@ -1,0 +1,1303 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>核物理完整学习方案 · 15周从零到核物理精通</title>
+<meta name="description" content="核物理完整学习方案 - 15周从原子核基础到粒子物理与核能应用">
+<meta name="theme-color" content="#050510">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-deep: #050510; --bg-card: #0d0a20; --bg-card-hover: #151035; --bg-elevated: #1c1450;
+  --border-subtle: #2a1f60; --border-glow: #3d2d90;
+  --text-primary: #e8e4f8; --text-secondary: #9d8fd4; --text-muted: #6858a8;
+  --accent-green: #00ff88; --accent-cyan: #22d3ee; --accent-purple: #c084fc;
+  --accent-amber: #ff9900; --accent-pink: #ff4081; --accent-red: #ef4444; --accent-blue: #448aff;
+  --gradient-hero: linear-gradient(135deg, #c084fc 0%, #22d3ee 30%, #00ff88 70%, #ff9900 100%);
+  --gradient-nuclear: linear-gradient(135deg, #22d3ee 0%, #00ff88 50%, #c084fc 100%);
+  --nav-bg: rgba(5,5,16,0.92); --overlay-bg: rgba(5,5,16,0.95);
+  --body-bg: #050510; --canvas-opacity: 0.4;
+  --radius-sm: 8px; --radius-md: 14px; --radius-lg: 22px;
+  --shadow-glow: 0 0 40px rgba(0,255,136,0.08), 0 0 80px rgba(194,132,252,0.05);
+  --transition-fast: 150ms cubic-bezier(0.4,0,0.2,1);
+  --transition-smooth: 350ms cubic-bezier(0.4,0,0.2,1);
+  --transition-bounce: 500ms cubic-bezier(0.34,1.56,0.64,1);
+}
+body.light {
+  --bg-deep: #f0f2f8; --bg-card: #ffffff; --bg-card-hover: #f5f7ff; --bg-elevated: #e8ecf6;
+  --border-subtle: #d0d6e4; --border-glow: #b0bcd8;
+  --text-primary: #1a1e2e; --text-secondary: #4a5070; --text-muted: #6a7090;
+  --accent-green: #008855; --accent-cyan: #0a8aaa; --accent-purple: #7838c0;
+  --accent-amber: #cc6600; --accent-pink: #c02050; --accent-red: #cc2222; --accent-blue: #2255cc;
+  --gradient-hero: linear-gradient(135deg, #7838c0 0%, #0a8aaa 30%, #008855 70%, #cc6600 100%);
+  --gradient-nuclear: linear-gradient(135deg, #0a8aaa 0%, #008855 50%, #7838c0 100%);
+  --nav-bg: rgba(240,242,248,0.92); --overlay-bg: rgba(240,242,248,0.95);
+  --body-bg: #f0f2f8; --canvas-opacity: 0.15;
+  --shadow-glow: 0 0 40px rgba(0,136,85,0.06), 0 0 80px rgba(120,56,192,0.04);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:80px}
+body{font-family:'Noto Sans SC',sans-serif;background:var(--body-bg);color:var(--text-primary);line-height:1.7;overflow-x:hidden;transition:background var(--transition-smooth),color var(--transition-smooth)}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--bg-deep)}
+::-webkit-scrollbar-thumb{background:var(--border-glow);border-radius:3px}
+#bg-canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:var(--canvas-opacity)}
+.top-nav{position:fixed;top:0;left:0;right:0;z-index:100;background:var(--nav-bg);backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--border-subtle);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;transition:background var(--transition-smooth)}
+.top-nav.scrolled{box-shadow:0 4px 30px rgba(0,255,136,0.12)}
+.nav-logo{font-family:'Orbitron',monospace;font-size:1.05rem;font-weight:700;background:var(--gradient-nuclear);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:1px;cursor:pointer}
+.nav-links{display:flex;gap:16px;list-style:none}
+.nav-links a{color:var(--text-secondary);text-decoration:none;font-size:0.78rem;font-weight:500;transition:color var(--transition-fast);position:relative}
+.nav-links a:hover,.nav-links a.active{color:var(--accent-green)}
+.nav-links a::after{content:'';position:absolute;bottom:-4px;left:0;width:0;height:2px;background:var(--accent-green);transition:width var(--transition-smooth);border-radius:1px}
+.nav-links a:hover::after,.nav-links a.active::after{width:100%}
+.nav-right-group{display:flex;align-items:center;gap:12px}
+.nav-search-btn{width:34px;height:34px;border-radius:50%;border:1px solid var(--border-subtle);background:transparent;color:var(--text-muted);cursor:pointer;font-size:0.95rem;display:flex;align-items:center;justify-content:center;transition:all var(--transition-fast)}
+.nav-search-btn:hover{border-color:var(--accent-green);color:var(--accent-green)}
+.nav-cta{padding:7px 18px;border-radius:var(--radius-sm);background:var(--gradient-nuclear);border:none;color:#050510;font-weight:700;font-size:0.78rem;cursor:pointer;transition:all var(--transition-smooth);font-family:'Noto Sans SC',sans-serif}
+.nav-cta:hover{transform:scale(1.04);box-shadow:0 0 30px rgba(0,255,136,0.35)}
+.hamburger{display:none;flex-direction:column;gap:4px;background:transparent;border:none;cursor:pointer;padding:4px;z-index:110}
+.hamburger span{display:block;width:22px;height:2px;background:var(--text-primary);border-radius:1px;transition:all var(--transition-smooth)}
+.hamburger.open span:nth-child(1){transform:rotate(45deg) translate(4px,4px)}
+.hamburger.open span:nth-child(2){opacity:0}
+.hamburger.open span:nth-child(3){transform:rotate(-45deg) translate(4px,-4px)}
+.mobile-menu{position:fixed;top:0;left:0;right:0;bottom:0;z-index:105;background:var(--overlay-bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;opacity:0;pointer-events:none;transition:opacity var(--transition-smooth)}
+.mobile-menu.open{opacity:1;pointer-events:auto}
+.mobile-menu a{color:var(--text-secondary);text-decoration:none;font-size:1.15rem;font-weight:600}
+.search-overlay{position:fixed;top:0;left:0;right:0;bottom:0;z-index:200;background:var(--overlay-bg);display:flex;flex-direction:column;align-items:center;padding-top:120px;opacity:0;pointer-events:none;transition:opacity var(--transition-smooth)}
+.search-overlay.open{opacity:1;pointer-events:auto}
+.search-input-wrap{width:90%;max-width:560px;position:relative}
+.search-input-wrap input{width:100%;padding:16px 50px;border-radius:var(--radius-lg);border:2px solid var(--border-glow);background:var(--bg-elevated);color:var(--text-primary);font-size:1.1rem;outline:none;font-family:'Noto Sans SC',sans-serif;transition:border-color var(--transition-fast)}
+.search-input-wrap input:focus{border-color:var(--accent-green)}
+.search-icon{position:absolute;left:18px;top:50%;transform:translateY(-50%);color:var(--accent-green)}
+.search-close{position:absolute;right:18px;top:50%;transform:translateY(-50%);background:transparent;border:none;color:var(--text-muted);font-size:1.3rem;cursor:pointer}
+.search-results{width:90%;max-width:560px;margin-top:16px;max-height:400px;overflow-y:auto}
+.search-result-item{padding:14px 18px;margin-bottom:6px;border-radius:var(--radius-md);background:var(--bg-card);border:1px solid var(--border-subtle);cursor:pointer}
+.search-result-item:hover{border-color:var(--accent-green);background:var(--bg-card-hover)}
+.sr-title{font-weight:600;font-size:0.9rem;color:var(--accent-green)}
+.sr-snippet{font-size:0.76rem;color:var(--text-muted);margin-top:4px}
+.side-progress{position:fixed;right:20px;top:50%;transform:translateY(-50%);z-index:90;display:flex;flex-direction:column;gap:10px}
+.progress-dot{width:10px;height:10px;border-radius:50%;background:var(--text-muted);cursor:pointer;transition:all var(--transition-bounce);position:relative}
+.progress-dot.active{background:var(--accent-green);box-shadow:0 0 16px var(--accent-green);width:14px;height:14px}
+.progress-tooltip{position:absolute;right:22px;top:50%;transform:translateY(-50%);background:var(--bg-elevated);color:var(--text-primary);padding:4px 12px;border-radius:var(--radius-sm);font-size:0.66rem;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity var(--transition-fast);border:1px solid var(--border-glow)}
+.progress-dot:hover .progress-tooltip{opacity:1}
+.back-to-top{position:fixed;bottom:28px;right:20px;z-index:95;width:42px;height:42px;border-radius:50%;background:var(--bg-elevated);border:1px solid var(--border-glow);color:var(--text-muted);cursor:pointer;font-size:1.2rem;display:flex;align-items:center;justify-content:center;opacity:0;transform:translateY(20px);pointer-events:none;transition:all var(--transition-bounce)}
+.back-to-top.visible{opacity:1;transform:translateY(0);pointer-events:auto}
+.back-to-top:hover{border-color:var(--accent-green);color:var(--accent-green)}
+.hero{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:120px 24px 80px}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;padding:6px 18px;border-radius:50px;border:1px solid var(--border-glow);background:rgba(0,255,136,0.06);font-size:0.8rem;color:var(--accent-green);margin-bottom:28px;animation:fadeInUp 0.8s ease-out}
+.hero-badge .dot{width:7px;height:7px;border-radius:50%;background:var(--accent-green);animation:pulse 2s infinite}
+.hero h1{font-family:'Orbitron',monospace;font-size:clamp(2rem,5vw,3.8rem);font-weight:900;line-height:1.2;max-width:860px;animation:fadeInUp 0.8s ease-out 0.1s both}
+.hero h1 .gradient-text{background:var(--gradient-hero);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{color:var(--text-secondary);font-size:1.05rem;max-width:640px;margin:20px 0 36px;animation:fadeInUp 0.8s ease-out 0.2s both}
+.hero-stats{display:flex;gap:40px;margin-bottom:40px;animation:fadeInUp 0.8s ease-out 0.3s both}
+.hero-stat{text-align:center}
+.hero-stat .num{font-family:'Orbitron',monospace;font-size:1.8rem;font-weight:700;background:var(--gradient-hero);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-stat .lbl{font-size:0.76rem;color:var(--text-muted);margin-top:4px}
+.hero-btns{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;animation:fadeInUp 0.8s ease-out 0.4s both}
+.btn-primary{padding:14px 36px;border-radius:var(--radius-md);border:none;background:var(--gradient-nuclear);color:#050510;font-weight:700;font-size:0.95rem;cursor:pointer;transition:all var(--transition-smooth);font-family:'Noto Sans SC',sans-serif}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 40px rgba(0,255,136,0.3)}
+.btn-outline{padding:14px 36px;border-radius:var(--radius-md);border:1.5px solid var(--border-glow);color:var(--text-primary);background:transparent;font-weight:600;font-size:0.95rem;cursor:pointer;transition:all var(--transition-smooth);font-family:'Noto Sans SC',sans-serif}
+.btn-outline:hover{border-color:var(--accent-green);color:var(--accent-green)}
+.btn-danger{padding:10px 22px;border-radius:var(--radius-sm);background:transparent;border:1px solid rgba(255,64,129,0.4);color:var(--accent-pink);cursor:pointer;font-size:0.78rem;font-weight:600;transition:all var(--transition-fast);font-family:'Noto Sans SC',sans-serif}
+.btn-danger:hover{background:rgba(255,64,129,0.1)}
+.hero-scroll-indicator{position:absolute;bottom:40px;left:50%;transform:translateX(-50%);cursor:pointer;animation:float 2.5s ease-in-out infinite;color:var(--text-muted);font-size:1.6rem;z-index:2}
+.section{position:relative;z-index:1;padding:80px 24px}
+.section-header{text-align:center;margin-bottom:60px}
+.section-tag{display:inline-block;padding:4px 14px;border-radius:50px;background:rgba(0,255,136,0.08);color:var(--accent-green);font-size:0.7rem;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;margin-bottom:16px;font-family:'Orbitron',monospace}
+.section-header h2{font-family:'Orbitron',monospace;font-size:1.9rem;font-weight:700}
+.section-header h2 span{background:var(--gradient-hero);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.section-header .subtitle{color:var(--text-muted);font-size:0.9rem;margin-top:10px;max-width:500px;margin-left:auto;margin-right:auto}
+.roadmap-section{max-width:1000px;margin:0 auto}
+.roadmap-track{position:relative;padding-left:40px}
+.roadmap-track::before{content:'';position:absolute;left:16px;top:0;bottom:0;width:2px;background:linear-gradient(to bottom,var(--accent-cyan),var(--accent-green),var(--accent-purple),var(--accent-amber),var(--accent-pink),var(--accent-blue),var(--accent-red));border-radius:1px}
+.roadmap-item{position:relative;margin-bottom:36px;opacity:0;transform:translateY(30px);transition:opacity .6s,transform .6s}
+.roadmap-item.visible{opacity:1;transform:translateY(0)}
+.roadmap-dot{position:absolute;left:-30px;top:20px;width:14px;height:14px;border-radius:50%;border:3px solid var(--bg-deep);z-index:2}
+.roadmap-item:nth-child(1) .roadmap-dot{background:var(--accent-cyan)}
+.roadmap-item:nth-child(2) .roadmap-dot{background:var(--accent-green)}
+.roadmap-item:nth-child(3) .roadmap-dot{background:var(--accent-purple)}
+.roadmap-item:nth-child(4) .roadmap-dot{background:var(--accent-amber)}
+.roadmap-item:nth-child(5) .roadmap-dot{background:var(--accent-pink)}
+.roadmap-item:nth-child(6) .roadmap-dot{background:var(--accent-blue)}
+.roadmap-item:nth-child(7) .roadmap-dot{background:var(--accent-red)}
+.roadmap-content{padding:24px;border-radius:var(--radius-lg);background:var(--bg-card);border:1px solid var(--border-subtle);cursor:pointer;transition:all var(--transition-smooth)}
+.roadmap-content:hover{background:var(--bg-card-hover);border-color:var(--border-glow);transform:translateX(6px);box-shadow:var(--shadow-glow)}
+.phase-badge{display:inline-block;padding:3px 10px;border-radius:50px;font-size:0.66rem;font-weight:700;font-family:'Orbitron',monospace;letter-spacing:1px;margin-bottom:8px}
+.phase-badge.c1{background:rgba(34,211,238,0.12);color:var(--accent-cyan)}
+.phase-badge.c2{background:rgba(0,255,136,0.12);color:var(--accent-green)}
+.phase-badge.c3{background:rgba(194,132,252,0.12);color:var(--accent-purple)}
+.phase-badge.c4{background:rgba(255,153,0,0.12);color:var(--accent-amber)}
+.phase-badge.c5{background:rgba(255,64,129,0.12);color:var(--accent-pink)}
+.phase-badge.c6{background:rgba(68,138,255,0.12);color:var(--accent-blue)}
+.phase-badge.c7{background:rgba(239,68,68,0.12);color:var(--accent-red)}
+.roadmap-content h3{font-size:1.15rem;font-weight:700;margin-bottom:4px}
+.roadmap-content .week{font-size:0.8rem;color:var(--text-muted);margin-bottom:10px}
+.roadmap-content ul{list-style:none;display:flex;flex-wrap:wrap;gap:6px}
+.roadmap-content ul li{font-size:0.72rem;padding:2px 10px;border-radius:50px;background:var(--bg-elevated);color:var(--text-secondary);border:1px solid var(--border-subtle)}
+.goto-link{display:inline-block;margin-top:12px;font-size:0.76rem;color:var(--accent-green);font-weight:600}
+.phase-container{max-width:900px;margin:0 auto}
+.phase-detail{margin-bottom:12px;border-radius:var(--radius-lg);background:var(--bg-card);border:1px solid var(--border-subtle);overflow:hidden;transition:all var(--transition-smooth)}
+.phase-detail.open{border-color:var(--border-glow);box-shadow:0 0 30px rgba(0,255,136,0.06)}
+.phase-detail-header{padding:20px 24px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:background var(--transition-fast);gap:16px;user-select:none}
+.phase-detail-header:hover{background:var(--bg-card-hover)}
+.phase-detail-header .left{display:flex;align-items:center;gap:16px;flex:1;min-width:0}
+.phase-detail-header .icon{width:48px;height:48px;border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0}
+.phase-detail-header h3{font-size:1rem;font-weight:700}
+.phase-detail-header .meta{font-size:0.75rem;color:var(--text-muted);margin-top:2px}
+.phase-arrow{font-size:0.8rem;color:var(--text-muted);transition:transform var(--transition-smooth);flex-shrink:0}
+.phase-detail.open .phase-arrow{transform:rotate(180deg)}
+.phase-body{display:grid;grid-template-rows:0fr;transition:grid-template-rows var(--transition-smooth)}
+.phase-detail.open .phase-body{grid-template-rows:1fr}
+.phase-body-inner{overflow:hidden;padding:0 24px}
+.phase-detail.open .phase-body-inner{padding:6px 24px 24px}
+.skill-grid{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.skill-chip{padding:6px 14px;border-radius:var(--radius-sm);background:var(--bg-elevated);border:1px solid var(--border-subtle);font-size:0.78rem;transition:all var(--transition-fast);display:inline-flex;align-items:center;white-space:nowrap}
+.skill-chip code{color:var(--accent-cyan);font-family:'JetBrains Mono',monospace;font-size:0.76rem;font-weight:600}
+.skill-chip:hover{border-color:var(--accent-green)}
+.skill-chip.skill-link{cursor:pointer;padding-right:10px;border-color:var(--border-glow)}
+.skill-chip.skill-link:hover{border-color:var(--accent-green);background:rgba(0,255,136,0.06);transform:translateY(-1px);box-shadow:0 2px 8px rgba(0,255,136,0.12)}
+.skill-chip.skill-link:hover code{color:var(--accent-green)}
+.skill-chip .chip-arrow{font-size:0.6rem;margin-left:5px;color:var(--accent-green);font-weight:700;opacity:0.7}
+.skill-chip.skill-link:hover .chip-arrow{opacity:1}
+.code-block{margin:12px 0;border-radius:var(--radius-md);overflow:hidden;background:rgba(0,0,0,0.5);border:1px solid var(--border-subtle)}
+.code-header{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;background:rgba(5,5,16,0.8);border-bottom:1px solid var(--border-subtle)}
+.code-lang{font-size:0.72rem;color:var(--text-muted);font-family:'JetBrains Mono',monospace}
+.copy-btn{padding:4px 14px;border-radius:var(--radius-sm);background:transparent;border:1px solid var(--border-subtle);color:var(--text-secondary);cursor:pointer;font-size:0.72rem;font-weight:500;transition:all var(--transition-fast)}
+.copy-btn:hover{border-color:var(--accent-green);color:var(--accent-green)}
+.copy-btn.copied{color:var(--accent-green)!important;border-color:var(--accent-green)!important}
+.code-block pre{padding:16px;overflow-x:auto;font-size:0.77rem;line-height:1.65}
+.code-block code{font-family:'JetBrains Mono',monospace;color:var(--text-primary)}
+.phase-drawing-tag{display:inline-block;padding:3px 10px;border-radius:50px;font-size:0.66rem;margin:4px;font-weight:700}
+.draw-must{border:1px solid #ff4081;color:var(--accent-pink);background:rgba(255,64,129,0.08)}
+.draw-suggest{border:1px solid #ff9900;color:var(--accent-amber);background:rgba(255,153,0,0.08)}
+.draw-optional{border:1px solid rgba(34,211,238,0.4);color:var(--accent-cyan);background:rgba(34,211,238,0.05)}
+.diagram-section{max-width:900px;margin:0 auto}
+.diagram-intro{text-align:center;margin-bottom:40px}
+.diagram-intro h2{font-family:'Orbitron',monospace;font-size:1.8rem;margin-bottom:12px}
+.diagram-intro h2 span{background:var(--gradient-hero);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.diagram-intro p{color:var(--text-muted);max-width:620px;margin:0 auto;font-size:0.9rem}
+.drawing-method{display:flex;gap:20px;margin-bottom:40px;flex-wrap:wrap}
+.method-card{flex:1;min-width:220px;padding:28px 20px;border-radius:var(--radius-lg);background:var(--bg-card);border:1px solid var(--border-subtle);text-align:center;transition:all var(--transition-smooth)}
+.method-card:hover{border-color:var(--border-glow);transform:translateY(-4px)}
+.method-card .step-num{font-family:'Orbitron',monospace;font-size:1.6rem;font-weight:900;color:var(--accent-green);margin-bottom:6px}
+.method-card h4{font-size:1rem;margin-bottom:6px}
+.method-card p{font-size:0.76rem;color:var(--text-muted)}
+.math-tags{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:18px}
+.math-tag{padding:6px 16px;border-radius:50px;font-size:0.74rem;font-weight:600;display:inline-flex;align-items:center;gap:5px;font-family:'Noto Sans SC',sans-serif}
+.tag-quantum{background:rgba(34,211,238,0.1);color:var(--accent-cyan);border:1px solid rgba(34,211,238,0.25)}
+.tag-scatter{background:rgba(0,255,136,0.1);color:var(--accent-green);border:1px solid rgba(0,255,136,0.25)}
+.tag-manybody{background:rgba(194,132,252,0.1);color:var(--accent-purple);border:1px solid rgba(194,132,252,0.25)}
+.tag-group{background:rgba(255,153,0,0.1);color:var(--accent-amber);border:1px solid rgba(255,153,0,0.25)}
+.tag-stat{background:rgba(255,64,129,0.1);color:var(--accent-pink);border:1px solid rgba(255,64,129,0.25)}
+.tag-math{background:rgba(68,138,255,0.1);color:var(--accent-blue);border:1px solid rgba(68,138,255,0.25)}
+.tag-expt{background:rgba(239,68,68,0.1);color:var(--accent-red);border:1px solid rgba(239,68,68,0.25)}
+.draw-levels{display:flex;gap:14px;margin-top:32px;flex-wrap:wrap;justify-content:center}
+.draw-level{padding:10px 20px;border-radius:var(--radius-md);font-size:0.8rem;font-weight:600;text-align:center;min-width:140px;transition:all var(--transition-fast)}
+.draw-level.must{background:rgba(255,64,129,0.1);border:1.5px solid #ff4081;color:var(--accent-pink)}
+.draw-level.suggest{background:rgba(255,153,0,0.1);border:1.5px solid #ff9900;color:var(--accent-amber)}
+.draw-level.optional{background:rgba(34,211,238,0.07);border:1.5px solid rgba(34,211,238,0.3);color:var(--accent-cyan)}
+.formula-section{max-width:1000px;margin:0 auto}
+.formula-tabs{display:flex;gap:0;margin-bottom:24px;border-radius:var(--radius-md);overflow:hidden;border:1px solid var(--border-subtle);flex-wrap:wrap}
+.formula-tab{flex:1;min-width:100px;padding:12px 10px;text-align:center;background:var(--bg-card);color:var(--text-muted);cursor:pointer;font-size:0.78rem;font-weight:600;border:none;transition:all var(--transition-fast);font-family:'Noto Sans SC',sans-serif;white-space:nowrap}
+.formula-tab:hover{color:var(--text-primary)}
+.formula-tab.active{background:var(--bg-elevated);color:var(--accent-green)}
+.formula-panel{display:none}
+.formula-panel.active{display:block}
+.knowledge-section{max-width:900px;margin:0 auto}
+.knowledge-filter-bar{display:flex;gap:6px;margin-bottom:20px;flex-wrap:wrap}
+.knowledge-filter{padding:5px 14px;border-radius:50px;background:transparent;border:1px solid var(--border-subtle);color:var(--text-muted);cursor:pointer;font-size:0.72rem;font-weight:600;transition:all var(--transition-fast);font-family:'Noto Sans SC',sans-serif}
+.knowledge-filter:hover,.knowledge-filter.active{color:var(--accent-green);border-color:var(--accent-green)}
+.diagram-box{margin:12px 0;padding:16px;border-radius:var(--radius-sm);background:rgba(0,0,0,0.45);border:1px solid var(--border-subtle);font-family:'JetBrains Mono',monospace;font-size:0.64rem;line-height:1.4;color:var(--accent-cyan);overflow-x:auto;white-space:pre}
+.k-connect{font-size:0.74rem;color:var(--accent-purple);font-weight:600;margin-top:8px}
+.k-summary{font-size:0.74rem;color:var(--accent-green);font-weight:600;margin-top:8px}
+.knowledge-summary-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px}
+.knowledge-summary-bar .ks-count{font-size:0.78rem;color:var(--text-muted)}
+.knowledge-summary-bar .ks-count strong{color:var(--accent-green)}
+.knowledge-summary-bar .ks-expand-all{padding:5px 14px;border-radius:50px;background:transparent;border:1px solid var(--border-subtle);color:var(--text-muted);cursor:pointer;font-size:0.7rem;font-weight:600;transition:all var(--transition-fast)}
+.knowledge-summary-bar .ks-expand-all:hover{border-color:var(--accent-green);color:var(--accent-green)}
+.formula-table{width:100%;border-collapse:collapse;font-size:0.84rem}
+.formula-table th{padding:12px 16px;text-align:left;font-weight:600;border-bottom:2px solid var(--border-glow);color:var(--accent-green);font-family:'Orbitron',monospace;font-size:0.66rem;letter-spacing:1.5px;text-transform:uppercase}
+.formula-table td{padding:10px 16px;border-bottom:1px solid var(--border-subtle)}
+.formula-table td:first-child{font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:var(--accent-cyan)}
+.formula-table tr:hover{background:var(--bg-card-hover)}
+.exercise-section{max-width:780px;margin:0 auto}
+.exercise-filters{display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap;justify-content:center}
+.exercise-filter{padding:7px 18px;border-radius:50px;background:transparent;border:1px solid var(--border-subtle);color:var(--text-muted);cursor:pointer;font-size:0.76rem;font-weight:600;transition:all var(--transition-fast);font-family:'Noto Sans SC',sans-serif}
+.exercise-filter:hover{color:var(--text-primary)}
+.exercise-filter.active{background:var(--gradient-nuclear);color:#050510;border-color:transparent}
+.exercise-counter{margin-bottom:16px;text-align:center;font-size:0.82rem;color:var(--text-muted)}
+.exercise-counter strong{color:var(--accent-green)}
+.exercise-item{display:flex;align-items:flex-start;gap:14px;padding:18px;margin-bottom:10px;border-radius:var(--radius-md);background:var(--bg-card);border:1px solid var(--border-subtle);cursor:pointer;transition:all var(--transition-smooth)}
+.exercise-item:hover{background:var(--bg-card-hover);border-color:var(--border-glow)}
+.exercise-item.expanded{background:var(--bg-card-hover);border-color:var(--accent-green)}
+.exercise-num{font-family:'Orbitron',monospace;font-size:0.85rem;font-weight:700;color:var(--text-muted);min-width:34px;padding-top:2px}
+.ei-content{flex:1;min-width:0}
+.ei-title{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.ei-title-text{font-size:0.88rem;font-weight:500}
+.diff{padding:2px 8px;border-radius:50px;font-size:0.64rem;font-weight:700;white-space:nowrap}
+.diff-easy{background:rgba(0,255,136,0.12);color:var(--accent-green)}
+.diff-medium{background:rgba(68,138,255,0.12);color:var(--accent-blue)}
+.diff-hard{background:rgba(255,153,0,0.12);color:var(--accent-amber)}
+.diff-project{background:rgba(255,64,129,0.12);color:var(--accent-pink)}
+.ei-answer{display:none;margin-top:10px;padding:12px;border-radius:var(--radius-sm);background:var(--bg-elevated);border:1px solid var(--border-subtle);font-size:0.76rem;color:var(--text-secondary)}
+.exercise-item.expanded .ei-answer{display:block}
+.ei-check{width:26px;height:26px;border-radius:50%;border:2px solid var(--border-subtle);cursor:pointer;flex-shrink:0;transition:all var(--transition-bounce);display:flex;align-items:center;justify-content:center;font-size:0.66rem;margin-top:3px}
+.ei-check:hover{border-color:var(--accent-green)}
+.ei-check.done{background:var(--accent-green);border-color:var(--accent-green);color:var(--bg-deep)}
+.resources-section{max-width:900px;margin:0 auto}
+.resource-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px}
+.resource-card{padding:20px;border-radius:var(--radius-md);background:var(--bg-card);border:1px solid var(--border-subtle);transition:all var(--transition-smooth);cursor:pointer;text-decoration:none;color:inherit;display:block}
+.resource-card:hover{transform:translateY(-4px);border-color:var(--border-glow);box-shadow:0 8px 36px rgba(0,255,136,0.08)}
+.resource-card h4{font-size:0.92rem;margin-bottom:4px}
+.resource-card p{font-size:0.74rem;color:var(--text-muted);line-height:1.5}
+.res-domain{display:inline-block;margin-top:8px;padding:2px 8px;border-radius:50px;font-size:0.64rem;font-weight:600;background:rgba(0,255,136,0.08);color:var(--accent-green)}
+.tracker-section{max-width:700px;margin:0 auto}
+.tracker-list{margin-bottom:24px}
+.tracker-row{display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid var(--border-subtle);font-size:0.82rem}
+.tracker-check{width:24px;height:24px;border-radius:50%;border:2px solid var(--border-subtle);cursor:pointer;flex-shrink:0;transition:all var(--transition-bounce);display:flex;align-items:center;justify-content:center;font-size:0.62rem}
+.tracker-check:hover{border-color:var(--accent-green)}
+.tracker-check.done{background:var(--accent-green);border-color:var(--accent-green);color:#050510}
+.tracker-bar{flex:1;min-width:0;height:6px;border-radius:3px;background:var(--bg-elevated);overflow:hidden}
+.tracker-bar-fill{height:100%;background:var(--gradient-nuclear);border-radius:3px;transition:width var(--transition-smooth)}
+.tracker-summary{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+.tracker-summary .total{font-family:'Orbitron',monospace;font-size:1.2rem;color:var(--accent-green)}
+.confirm-overlay{position:fixed;top:0;left:0;right:0;bottom:0;z-index:300;background:var(--overlay-bg);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity var(--transition-smooth)}
+.confirm-overlay.open{opacity:1;pointer-events:auto}
+.confirm-dialog{padding:36px;border-radius:var(--radius-lg);background:var(--bg-card);border:1px solid var(--border-glow);text-align:center;max-width:380px;margin:0 16px}
+.confirm-dialog h4{font-size:1.1rem;margin-bottom:8px;color:var(--accent-pink)}
+.confirm-dialog p{font-size:0.85rem;color:var(--text-muted);margin-bottom:20px}
+.confirm-btns{display:flex;gap:10px;justify-content:center}
+.toast{position:fixed;bottom:40px;left:50%;transform:translateX(-50%) translateY(20px);z-index:400;padding:12px 28px;border-radius:50px;background:var(--bg-elevated);color:var(--text-primary);border:1px solid var(--border-glow);font-size:0.85rem;font-weight:600;opacity:0;pointer-events:none;transition:all var(--transition-bounce);white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.footer{padding:36px 24px;text-align:center;border-top:1px solid var(--border-subtle);z-index:1;position:relative;color:var(--text-muted);font-size:0.78rem}
+@media(max-width:768px){
+  .nav-links,.side-progress{display:none}
+  .hamburger{display:flex}
+  .hero-stats{gap:20px}
+  .hero-stat .num{font-size:1.3rem}
+  .roadmap-track{padding-left:28px}
+  .roadmap-track::before{left:10px}
+  .roadmap-dot{left:-24px}
+  .drawing-method{flex-direction:column}
+  .phase-detail-header{padding:16px}
+  .phase-detail-header .icon{width:38px;height:38px;font-size:1.1rem}
+  .resource-grid{grid-template-columns:1fr}
+  .mobile-bottom-nav{display:block}
+  .back-to-top{bottom:72px}
+}
+@media print{
+  #bg-canvas,.top-nav,.side-progress,.back-to-top,.toast,.confirm-overlay,.hero-scroll-indicator,.search-overlay,.mobile-menu{display:none!important}
+  .hero{min-height:auto;padding:30px 24px}
+  .section{padding:24px 24px}
+  .roadmap-item{opacity:1;transform:none}
+  .phase-detail .phase-body{grid-template-rows:1fr}
+  .phase-body-inner{overflow:visible;padding:6px 24px 24px!important}
+  body{background:#fff;color:#1a1a2e}
+  .code-block{break-inside:avoid}
+}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+@keyframes float{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(10px)}}
+.theme-toggle{width:38px;height:38px;border-radius:50%;border:1px solid var(--border-subtle);background:var(--bg-card);color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.1rem;transition:all var(--transition-fast);margin-left:8px;position:relative;overflow:hidden}
+.theme-toggle:hover{border-color:var(--border-glow);color:var(--accent-amber);box-shadow:0 0 16px rgba(255,153,0,0.2)}
+.theme-toggle .icon-sun,.theme-toggle .icon-moon{position:absolute;transition:transform var(--transition-bounce),opacity var(--transition-smooth)}
+.theme-toggle .icon-moon{transform:translateY(0);opacity:1}
+.theme-toggle .icon-sun{transform:translateY(24px);opacity:0}
+.light .theme-toggle .icon-moon{transform:translateY(-24px);opacity:0}
+.light .theme-toggle .icon-sun{transform:translateY(0);opacity:1}
+.knowledge-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;transition:grid-template-columns var(--transition-smooth)}
+.knowledge-grid.has-expanded{}
+.knowledge-card.expanded{grid-column:1/-1;max-width:100%}
+.knowledge-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:0;cursor:pointer;transition:all var(--transition-smooth);position:relative;will-change:transform}
+.knowledge-card:hover{border-color:var(--border-glow);box-shadow:var(--shadow-glow);transform:translateY(-2px)}
+.knowledge-card.expanded:hover{transform:none}
+.knowledge-card.open .card-detail,.knowledge-card.expanded .card-detail{max-height:800px;opacity:1;padding:0 20px 20px}
+.card-header{display:flex;align-items:center;gap:10px;padding:16px 20px;border-bottom:1px solid transparent;transition:border-color var(--transition-smooth)}
+.knowledge-card.open .card-header,.knowledge-card.expanded .card-header{border-color:var(--border-subtle)}
+.card-header .card-icon{font-size:1.5rem;flex-shrink:0}
+.card-header .card-title{font-weight:700;font-size:0.95rem;color:var(--text-primary);flex:1;text-align:left}
+.card-header .card-tag{flex-shrink:0}
+.card-header .card-back{width:28px;height:28px;border-radius:50%;border:1px solid var(--border-subtle);background:transparent;color:var(--text-muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:0.8rem;flex-shrink:0;transition:all var(--transition-fast);opacity:0;transform:scale(0.8)}
+.knowledge-card.open .card-back,.knowledge-card.expanded .card-back{opacity:1;transform:scale(1)}
+.card-back:hover{background:var(--bg-elevated);border-color:var(--border-glow);color:var(--accent-cyan)}
+.card-detail{max-height:0;opacity:0;overflow:hidden;transition:max-height var(--transition-smooth),opacity var(--transition-fast),padding var(--transition-smooth)}
+.card-detail p{color:var(--text-secondary);font-size:0.88rem;line-height:1.65;margin-bottom:12px;white-space:pre-line}
+.card-draw-box{margin-top:12px;background:var(--bg-deep);border-radius:var(--radius-sm);padding:14px;font-family:'JetBrains Mono','Cascadia Code',monospace;font-size:0.75rem;color:var(--accent-cyan);white-space:pre;overflow-x:auto;line-height:1.5}
+.card-formula{margin-top:12px;padding:10px 14px;background:rgba(0,255,136,0.04);border-left:3px solid var(--accent-green);border-radius:0 var(--radius-sm) var(--radius-sm) 0;font-family:'JetBrains Mono',monospace;font-size:0.82rem;color:var(--accent-green)}
+.card-sum{margin-top:12px;font-size:0.82rem;color:var(--text-muted);font-style:italic}
+.knowledge-empty{grid-column:1/-1;text-align:center;padding:48px 20px;color:var(--text-muted)}
+#graphCanvas{width:100%;height:520px;border-radius:var(--radius-md);background:var(--bg-card);border:1px solid var(--border-subtle)}
+.graph-tooltip{position:fixed;pointer-events:none;background:var(--bg-elevated);border:1px solid var(--border-glow);border-radius:var(--radius-sm);padding:10px 14px;font-size:0.82rem;color:var(--text-primary);max-width:260px;display:none;z-index:400;box-shadow:var(--shadow-glow)}
+.graph-tooltip .gt-title{font-weight:700;margin-bottom:4px}
+.graph-tooltip .gt-desc{font-size:0.75rem;color:var(--text-secondary)}
+.graph-legend{display:flex;flex-wrap:wrap;gap:12px 20px;justify-content:center;margin-top:16px}
+.graph-legend-item{display:flex;align-items:center;gap:6px;font-size:0.78rem;color:var(--text-secondary);cursor:pointer;transition:opacity var(--transition-fast)}
+.graph-legend-item:hover{opacity:0.7}
+.graph-legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.graph-legend-item.active-highlight{color:var(--accent-green);font-weight:700}
+.scroll-progress-bar{position:fixed;top:56px;left:0;height:2.5px;background:var(--gradient-nuclear);z-index:102;transition:width 60ms linear;border-radius:0 2px 2px 0}
+.search-result-item mark{background:rgba(0,255,136,0.25);color:var(--accent-green);padding:0 2px;border-radius:2px;font-weight:600}
+.light .search-result-item mark{background:rgba(0,136,85,0.18);color:var(--accent-green)}
+.knowledge-card.expanded .card-header{position:sticky;top:56px;z-index:10;background:var(--bg-card);border-bottom:1px solid var(--border-subtle)}
+.knowledge-card.expanded .card-detail{max-height:none}
+.phase-filter-row{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.phase-filter-btn{padding:4px 12px;border-radius:50px;background:transparent;border:1px solid var(--border-subtle);color:var(--text-muted);cursor:pointer;font-size:0.68rem;font-weight:600;transition:all var(--transition-fast);font-family:'Noto Sans SC',sans-serif}
+.phase-filter-btn:hover,.phase-filter-btn.active{color:var(--accent-cyan);border-color:var(--accent-cyan)}
+.phase-filter-btn.active{background:rgba(34,211,238,0.1)}
+.card-related{margin-top:16px;padding-top:14px;border-top:1px solid var(--border-subtle)}
+.card-related .cr-title{font-size:0.72rem;color:var(--text-muted);margin-bottom:8px;font-weight:600}
+.card-related .cr-links{display:flex;flex-wrap:wrap;gap:6px}
+.card-related .cr-link{padding:5px 12px;border-radius:50px;background:var(--bg-elevated);border:1px solid var(--border-subtle);color:var(--text-secondary);font-size:0.72rem;cursor:pointer;transition:all var(--transition-fast);text-decoration:none}
+.card-related .cr-link:hover{border-color:var(--accent-purple);color:var(--accent-purple);background:rgba(194,132,252,0.06)}
+.reading-time{display:inline-block;margin-top:6px;font-size:0.68rem;color:var(--text-muted);opacity:0.8}
+.help-overlay{position:fixed;top:0;left:0;right:0;bottom:0;z-index:350;background:var(--overlay-bg);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity var(--transition-smooth)}
+.help-overlay.open{opacity:1;pointer-events:auto}
+.help-dialog{padding:32px 36px;border-radius:var(--radius-lg);background:var(--bg-card);border:1px solid var(--border-glow);max-width:420px;margin:0 16px}
+.help-dialog h4{font-size:1.05rem;margin-bottom:16px;color:var(--accent-green)}
+.help-dialog .kbd-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border-subtle);font-size:0.82rem}
+.help-dialog .kbd-row:last-child{border-bottom:none}
+.help-dialog .kbd-key{display:inline-block;padding:3px 8px;border-radius:4px;background:var(--bg-elevated);border:1px solid var(--border-glow);font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:var(--accent-cyan);min-width:24px;text-align:center;white-space:nowrap}
+.help-dialog .kbd-desc{color:var(--text-secondary);flex:1}
+.mobile-bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:99;background:var(--nav-bg);backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px);border-top:1px solid var(--border-subtle);padding:8px 12px;padding-bottom:max(8px,env(safe-area-inset-bottom))}
+.mobile-bottom-nav .mbn-inner{display:flex;justify-content:space-around;align-items:center}
+.mobile-bottom-nav .mbn-item{display:flex;flex-direction:column;align-items:center;gap:2px;color:var(--text-muted);cursor:pointer;text-decoration:none;font-size:0.58rem;font-weight:500;transition:color var(--transition-fast);padding:4px 6px;background:transparent;border:none;font-family:'Noto Sans SC',sans-serif}
+.mobile-bottom-nav .mbn-item:hover,.mobile-bottom-nav .mbn-item.mbn-active{color:var(--accent-green)}
+.mobile-bottom-nav .mbn-item .mbn-icon{font-size:1.05rem}
+@media print{
+  .scroll-progress-bar,.mobile-bottom-nav,.help-overlay{display:none!important}
+}
+</style>
+</head>
+<body>
+
+<canvas id="bg-canvas"></canvas>
+<div class="scroll-progress-bar" id="scrollProgressBar" style="width:0%"></div>
+
+<nav class="top-nav" id="topNav">
+  <div class="nav-logo" onclick="window.scrollTo({top:0,behavior:'smooth'})">NUC::PHY</div>
+  <ul class="nav-links">
+    <li><a href="#roadmap">路线图</a></li>
+    <li><a href="#drawing">图解法</a></li>
+    <li><a href="#graph">关联</a><li><a href="#knowledge">知识点</a></li></li>
+    <li><a href="#phases">阶段</a></li>
+    <li><a href="#formulas">公式</a></li>
+    <li><a href="#exercises">练习</a></li>
+    <li><a href="#resources">资料</a></li>
+    <li><a href="#tracker">进度</a></li>
+  </ul>
+  <div class="nav-right-group">
+    <button class="theme-toggle" id="themeToggle" onclick="window._toggleTheme()" title="切换主题" aria-label="切换主题"><span class="icon-moon">☾</span><span class="icon-sun">☀</span></button>
+    <button class="nav-search-btn" onclick="openSearch()" title="搜索 Ctrl+K" aria-label="搜索">🔍</button>
+    <button class="nav-cta" onclick="document.getElementById('roadmap').scrollIntoView({behavior:'smooth'})">开始</button>
+    <button class="hamburger" id="hamburgerBtn" onclick="toggleMobileMenu()" aria-label="菜单"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#roadmap" onclick="toggleMobileMenu()">路线图</a>
+  <a href="#drawing" onclick="toggleMobileMenu()">图解法</a>
+  <a href="#graph" onclick="toggleMobileMenu()">知识关联</a>
+  <a href="#knowledge" onclick="toggleMobileMenu()">知识点详解</a>
+  <a href="#phases" onclick="toggleMobileMenu()">阶段详情</a>
+  <a href="#formulas" onclick="toggleMobileMenu()">公式速查</a>
+  <a href="#exercises" onclick="toggleMobileMenu()">练习题库</a>
+  <a href="#resources" onclick="toggleMobileMenu()">学习资料</a>
+  <a href="#tracker" onclick="toggleMobileMenu()">进度跟踪</a>
+</div>
+<div class="search-overlay" id="searchOverlay">
+  <div class="search-input-wrap">
+    <span class="search-icon">🔍</span>
+    <input id="searchInput" placeholder="搜索概念、公式、核素..." oninput="doSearch()" type="text">
+    <button class="search-close" onclick="closeSearch()" aria-label="关闭">✕</button>
+  </div>
+  <div class="search-results" id="searchResults"></div>
+</div>
+<div class="side-progress" id="sideProgress"></div>
+<button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="回到顶部">↑</button>
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-dialog">
+    <h4>⚠ 确认重置</h4>
+    <p>这将清除所有学习进度和练习完成记录</p>
+    <div class="confirm-btns">
+      <button class="btn-outline" onclick="closeConfirm()" style="padding:10px 24px">取消</button>
+      <button class="btn-danger" onclick="resetAll()">确认重置</button>
+    </div>
+  </div>
+</div>
+<div class="help-overlay" id="helpOverlay">
+  <div class="help-dialog">
+    <h4>⌨ 键盘快捷键</h4>
+    <div class="kbd-row"><span class="kbd-key">Ctrl+K</span><span class="kbd-desc">打开搜索</span></div>
+    <div class="kbd-row"><span class="kbd-key">Esc</span><span class="kbd-desc">关闭弹窗 / 收起知识点卡片</span></div>
+    <div class="kbd-row"><span class="kbd-key">Shift+?</span><span class="kbd-desc">显示此帮助面板</span></div>
+    <div style="text-align:center;margin-top:14px"><span style="font-size:0.72rem;color:var(--text-muted)">按 Esc 关闭</span></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<header class="hero">
+  <div class="hero-badge"><span class="dot"></span>v1.0 深度搭建 · 图解学习 · 公式驱动</div>
+  <h1>核物理<br><span class="gradient-text">完整学习方案</span></h1>
+  <p>从原子核基础到标准模型 · 15周系统构建核物理知识体系 · 30+必画图示</p>
+  <div class="hero-stats">
+    <div class="hero-stat"><span class="num" data-count="15">0</span><div class="lbl">学习周数</div></div>
+    <div class="hero-stat"><span class="num" data-count="7">0</span><div class="lbl">学习阶段</div></div>
+    <div class="hero-stat"><span class="num" data-count="22">0</span><div class="lbl">实操练习</div></div>
+    <div class="hero-stat"><span class="num" data-count="33">0</span><div class="lbl">必画图示</div></div>
+  </div>
+  <div class="hero-btns">
+    <button class="btn-primary" onclick="document.getElementById('roadmap').scrollIntoView({behavior:'smooth'})">查看完整路线图</button>
+    <button class="btn-outline" onclick="document.getElementById('resources').scrollIntoView({behavior:'smooth'})">学习资料清单</button>
+  </div>
+  <div class="hero-scroll-indicator" onclick="document.getElementById('roadmap').scrollIntoView({behavior:'smooth'})">⌄</div>
+</header>
+
+<section class="section" id="roadmap">
+  <div class="section-header">
+    <div class="section-tag">LEARNING ROADMAP</div>
+    <h2><span>7 阶段 · 15 周</span> 从零到核物理精通</h2>
+    <p class="subtitle">点击任意阶段跳转查看完整内容与代码示例</p>
+  </div>
+  <div class="roadmap-section" id="roadmapContainer"></div>
+</section>
+
+<section class="section" id="drawing">
+  <div class="diagram-section">
+    <div class="diagram-intro">
+      <div class="section-tag">VISUAL LEARNING</div>
+      <h2><span>图解学习法</span></h2>
+      <p>核物理中 90% 的"学不懂"来自无法想象亚原子世界——图示是构建直觉的唯一桥梁</p>
+    </div>
+    <div class="drawing-method" id="drawingMethod"></div>
+    <div class="math-tags" id="mathTags"></div>
+    <div class="draw-levels" id="drawLevels"></div>
+  </div>
+</section>
+
+
+<section class="section" id="graph">
+  <div class="section-container">
+    <div class="section-header"><span class="section-tag">GRAPH</span><h2>知识关联图谱</h2><p>核物理学核心概念之间的关联关系，鼠标悬停查看详情</p></div>
+    <div style="position:relative">
+      <canvas id="graphCanvas"></canvas>
+      <div class="graph-tooltip" id="graphTooltip"><div class="gt-title"></div><div class="gt-desc"></div></div>
+    </div>
+    <div class="graph-legend" id="graphLegend"></div>
+  </div>
+</section>
+<section class="section" id="knowledge">
+  <div class="section-header">
+    <div class="section-tag">DEEP DIVE</div>
+    <h2><span>知识点详解</span></h2>
+    <p class="subtitle">每个关键概念配有图解、学科标注、物理内涵——点击展开深入理解</p>
+  </div>
+  <div class="knowledge-section">
+    <div class="knowledge-filter-bar" id="knowledgeFilterBar"></div>
+    <div class="knowledge-summary-bar">
+      <span class="ks-count" id="knowledgeCount">共 <strong>0</strong> 个知识点</span>
+      <button class="ks-expand-all" onclick="toggleAllKnowledge()">展开全部</button>
+    </div>
+    <div id="knowledgeContainer"></div>
+  </div>
+</section>
+
+<section class="section" id="phases">
+  <div class="section-header">
+    <div class="section-tag">PHASE DETAILS</div>
+    <h2><span>阶段详情</span></h2>
+    <p class="subtitle">展开查看每阶段完整内容（含代码+画图标记）</p>
+  </div>
+  <div class="phase-container" id="phaseContainer"></div>
+</section>
+
+<section class="section" id="formulas">
+  <div class="section-header">
+    <div class="section-tag">QUICK REFERENCE</div>
+    <h2><span>核心公式</span>速查</h2>
+    <p class="subtitle">按 5 大分类——从结合能到标准模型</p>
+  </div>
+  <div class="formula-section">
+    <div class="formula-tabs" id="formulaTabs"></div>
+    <div id="formulaPanels"></div>
+  </div>
+</section>
+
+<section class="section" id="exercises">
+  <div class="section-header">
+    <div class="section-tag">PRACTICE</div>
+    <h2><span>实操练习</span>题库</h2>
+    <p class="subtitle">5简单 + 7中等 + 6高级 + 4大作业 = 22道完整练习题</p>
+  </div>
+  <div class="exercise-section">
+    <div class="exercise-filters" id="exerciseFilters"></div>
+    <div class="exercise-counter" id="exerciseCounter"></div>
+    <div id="exerciseList"></div>
+  </div>
+</section>
+
+<section class="section" id="resources">
+  <div class="section-header">
+    <div class="section-tag">MATERIALS</div>
+    <h2><span>学习资料</span>清单</h2>
+    <p class="subtitle">教材、论文、在线资源、绘图工具一站配齐</p>
+  </div>
+  <div class="resources-section">
+    <div class="resource-grid" id="resourceList"></div>
+  </div>
+</section>
+
+<section class="section" id="tracker">
+  <div class="section-header">
+    <div class="section-tag">PROGRESS</div>
+    <h2><span>学习进度</span>跟踪</h2>
+    <p class="subtitle">点击圆圈标记完成阶段——数据保存在浏览器本地</p>
+  </div>
+  <div class="tracker-section">
+    <div class="tracker-list" id="trackerList"></div>
+    <div class="tracker-summary">
+      <span>完成：<span class="total" id="trackerTotal">0/7</span></span>
+      <span style="display:flex;gap:10px">
+        <button class="btn-outline" onclick="exportNotes()" style="font-size:0.75rem;padding:6px 16px">📄 导出笔记</button>
+        <button class="btn-danger" onclick="openConfirm()" style="font-size:0.75rem;padding:6px 16px">重置进度</button>
+      </span>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <p>"原子核里藏着宇宙最深的秘密——从恒星的燃烧到物质的起源"</p>
+  <p style="margin-top:8px;font-size:0.7rem">本方案仅供学习参考</p>
+</footer>
+<div class="mobile-bottom-nav" id="mobileBottomNav">
+  <div class="mbn-inner">
+    <button class="mbn-item" onclick="document.getElementById('roadmap').scrollIntoView({behavior:'smooth'})"><span class="mbn-icon">🗺</span>路线</button>
+    <button class="mbn-item" onclick="document.getElementById('knowledge').scrollIntoView({behavior:'smooth'})"><span class="mbn-icon">📚</span>知识点</button>
+    <button class="mbn-item" onclick="document.getElementById('phases').scrollIntoView({behavior:'smooth'})"><span class="mbn-icon">📋</span>阶段</button>
+    <button class="mbn-item" onclick="document.getElementById('exercises').scrollIntoView({behavior:'smooth'})"><span class="mbn-icon">📝</span>练习</button>
+    <button class="mbn-item" onclick="document.getElementById('tracker').scrollIntoView({behavior:'smooth'})"><span class="mbn-icon">📊</span>进度</button>
+  </div>
+</div>
+
+<script>
+(function(){const c=document.getElementById('bg-canvas'),ctx=c.getContext('2d');let w,h,p=[];
+function rs(){w=c.width=window.innerWidth;h=c.height=window.innerHeight}rs();window.addEventListener('resize',rs);
+for(let i=0;i<80;i++)p.push({x:Math.random()*w,y:Math.random()*h,vx:(Math.random()-.5)*.25,vy:(Math.random()-.5)*.25,r:Math.random()*2+.4,phase:Math.random()*6.28});
+function d(){ctx.clearRect(0,0,w,h);for(let i=0;i<p.length;i++){const o=p[i];o.x+=o.vx;o.y+=o.vy;if(o.x<0)o.x=w;if(o.x>w)o.x=0;if(o.y<0)o.y=h;if(o.y>h)o.y=0;o.phase+=0.01;ctx.beginPath();ctx.arc(o.x,o.y,o.r+Math.sin(o.phase)*0.5,0,6.28);ctx.fillStyle='rgba(0,255,136,'+(o.r/4)+')';ctx.fill();
+for(let j=i+1;j<p.length;j++){const q=p[j],dx=o.x-q.x,dy=o.y-q.y,ds=Math.sqrt(dx*dx+dy*dy);if(ds<100){ctx.beginPath();ctx.moveTo(o.x,o.y);ctx.lineTo(q.x,q.y);ctx.strokeStyle='rgba(0,255,136,'+(.04*(1-ds/100))+')';ctx.lineWidth=.5;ctx.stroke()}}}requestAnimationFrame(d)}d()})();
+
+const KP={k01:{phase:'p1',tag:'quantum',lvl:'must',title:'核尺度：从原子到夸克的层级',d:'原子核的尺度约 10⁻¹⁵ m (飞米, fm)，仅为原子(~10⁻¹⁰ m)的十万分之一。核半径 R=r₀·A^(1/3)，r₀≈1.2 fm。核密度 ρ≈0.17 核子/fm³≈2.8×10¹⁴ g/cm³——一勺核物质重约 3 亿吨！' ,f:'R=r₀·A^(1/3)  r₀≈1.2 fm',diagram:'原子(~10⁻¹⁰ m = 1 Å)\n├─────────────────────┤\n│     电子云          │\n│  ┌┐               │\n│  ││ 核(~10⁻¹⁴ m)  │  ← 原子核：原子的 1/10000\n│  └┘               │\n│                     │\n如果原子核 = 足球场中心的网球\n最近的电子在观众席最后一排！',sum:'核尺度是理解核物理的第一把钥匙——一切都是飞米量级的量子多体问题'},
+k02:{phase:'p1',tag:'quantum',lvl:'must',title:'核素图——核物理的"元素周期表"',d:'核素图以Z(质子数)为纵轴、N(中子数)为横轴。254种稳定核素分布在一条蜿蜒的"稳定河谷"中。已知核素约3300+种，理论预测约7000种。远离稳定线的核素通过β衰变回到稳定线。',f:'β稳定线条件: ∂M(Z,A)/∂Z|_{A} 极小值',diagram:'Z↑ 核素图\n120┤             ·不稳定\n    │           ·  ·\n100┤        ·  ·  ·\n 80┤     · ● ●  ·    ● = 稳定核(254种)\n 60┤   · ● ●  ·        黑线 = "稳定河谷"\n 40┤  · ● ●\n 20┤●●\n  0└─────────────→ N\n幻数:Z/N=2,8,20,28,50,82,126',sum:'核素图=核物理版元素周期表——254种稳定核素如"河谷"，其他全是放射性"悬崖"'},
+k03:{phase:'p1',tag:'math',lvl:'must',title:'质量亏损与结合能',d:'E=mc² 是核物理的引擎。质量亏损 Δm=[Z·m_p+N·m_n]-m(Z,A)，结合能 B=Δm·c²。单核子平均结合能 B/A ~7-8 MeV。⁵⁶Fe 的 B/A=8.79 MeV 是所有核中最高的——铁是"能量的最低谷"。',f:'B=[Z·m_p+N·m_n - m(Z,A)]·c²',diagram:'B/A (MeV)\n9 ┤           ··\n  │        ··   ··     ← ⁵⁶Fe 峰值 ~8.8 MeV\n8 ┤     ··       ··       铁最稳定！\n  │   ··           ··\n7 ┤ ··               ·· ← ²³⁸U ~7.6 MeV\n6 ┤·                   ·\n  │轻核聚变→          ←重核裂变\n  └───────────────────→ A\n这两条路=核能的全部秘密',sum:'E=mc² 定义了核物理的能量尺度——B/A曲线决定了裂变/聚变的可行性'},
+k04:{phase:'p1',tag:'manybody',lvl:'must',title:'核力的五大性质',d:'核力(强相互作用)是自然界最强的力(相对强度≈1)。五大性质：①短程性(作用范围~2-3 fm) ②强吸引(势阱深度~50 MeV) ③饱和性(每个核子只与邻近核子作用) ④电荷无关性(n-n≈n-p≈p-p扣除库仑后) ⑤自旋依赖性(自旋平行的np对结合更紧)。',f:'核力势: V(r) 吸引区 | 排斥芯 r<0.5fm',diagram:'V(r)↑\n    │  硬排斥芯\n    │  ┌┐\n 0  ├──││──────→r     ~1.2 fm\n    │  ││               中间吸引区\n-50 │  │吸引│           势阱深度 ~50 MeV\n    └──┘────┘──           r>3fm 力消失',sum:'核力是宇宙最复杂的力——短程、饱和、电荷无关、依赖自旋'},
+k05:{phase:'p1',tag:'group',lvl:'must',title:'电四极矩——核形状的"指纹"',d:'电四极矩 Q=∫ρ(r)(3z²-r²)d³r 衡量核偏离球形的程度。Q>0=长椭球(橄榄球状,如¹⁷⁶Lu)，Q=0=球形(幻数核)，Q<0=扁椭球(飞碟状)。氘核有电四极矩→非球形→张量力存在的直接证据。',f:'Q=∫ρ(r)(3z²-r²)d³r',diagram:'球形     Q=0    幻数核(¹⁶O,⁴⁰Ca,²⁰⁸Pb)\n ○\n\n长椭球   Q>0    形变核(¹⁷⁶Lu)\n(○)\n\n扁椭球   Q<0    如某些过渡核\n─○─',sum:'电四极矩告诉我们"核有多椭"——非零Q=核力有张量分量'},
+k06:{phase:'p2',tag:'manybody',lvl:'must',title:'Weizsacker公式——核物理的"牛顿定律"',d:'将原子核看作带电液滴。五项物理贡献：①体积能 a_v·A(核子数越多越稳) ②表面能 -a_s·A^(2/3)(表面核子缺邻居) ③库仑能 -a_c·Z(Z-1)/A^(1/3)(质子间排斥) ④非对称能 -a_a·(N-Z)²/A(偏离N=Z→泡利) ⑤对能 ±δ(A,Z)(核子成对更稳)。参数:a_v=15.75, a_s=17.8, a_c=0.711, a_a=23.7, a_p=11.18 MeV。',f:'B=a_vA - a_sA²/³ - a_cZ(Z-1)/A¹/³ - a_a(N-Z)²/A ± δ',diagram:'以²³⁸U为例(A=238,Z=92):\n体积能   +15.75×238 = +3748 MeV\n表面能   -17.80×238²/³ = -685 MeV\n库仑能   -0.711×92×91/238¹/³ = -962 MeV\n非对称能 -23.7×(146-92)²/238 = -290 MeV\n对能     +11.18/√238 = +0.7 MeV\n─────────────────────────\n总结合能 ≈ 1812 MeV (B/A≈7.6)',sum:'Weizsacker公式=核物理第一公式——五项贡献覆盖了核稳定性的全部基本特征'},
+k07:{phase:'p2',tag:'quantum',lvl:'must',title:'壳模型与幻数——核物理的"魔法"',d:'核子在平均场势中填入量子化能级，正如电子在原子中。幻数2,8,20,28,50,82,126——幻数核特别稳定(¹⁶O,⁴⁰Ca,²⁰⁸Pb)。自旋-轨道耦合(j=ℓ+1/2的态被向下推)创造了幻数间的大能隙。²⁰⁸Pb是唯一双幻数稳定核(Z=82,N=126)。',f:'幻数: 2,8,20,28,50,82,126  源于自旋-轨道耦合劈裂',diagram:'壳模型能级(加自旋-轨道耦合后):\nN=4 ─1g(9/2)─── [50] ←大间隙!\n      1g(7/2)\n    2d(5/2)\n    2d(3/2)───\n    3s(1/2)───\n      1h(11/2)─── [82]\nN=5 ─1h(9/2)\n    2f(7/2)\n    2f(5/2)───\n    3p(3/2)\n    3p(1/2)───\n      1i(13/2)── [126] ←最大幻数!',sum:'壳模型=核物理的标准模型——自旋-轨道耦合是幻数的物理起源'},
+k08:{phase:'p2',tag:'group',lvl:'must',title:'集体模型：振动谱与转动谱',d:'球形核的集体激发→简谐振动(声子)。形变核→转动能谱 E(J)=(ℏ²/2I)·J(J+1)。振动谱特征能级比：0⁺,2⁺,(0⁺,2⁺,4⁺)双声子。转动谱标志：E(4⁺)/E(2⁺)≈3.33。¹⁷⁰Hf的E(4⁺)/E(2⁺)=3.31——几乎完美转子！',f:'转动谱: E(J)=(ℏ²/2I)·J(J+1)  E(4⁺)/E(2⁺)≈3.33(理想)',diagram:'转动带(¹⁷⁰Hf):\n 8⁺ ───\n 6⁺ ───\n 4⁺ ─── E(4⁺)/E(2⁺)=3.31\n 2⁺ ─── ← 最低激发态\n 0⁺ ─── ← 基态\n\n振动谱(球形核):\nE(2⁺)≈ℏω  一个声子\n(0⁺,2⁺,4⁺) 双声子 ~2ℏω',sum:'集体模型=核子不是独立的——振动(球形核)和转动(形变核)是集体运动的两种模式'},
+k09:{phase:'p2',tag:'quantum',lvl:'suggest',title:'核子配对与BCS——核物理的超导',d:'偶偶核基态自旋全为0⁺→核子配对形成"库珀对"(时间反演态耦合)。对能隙Δ≈12/√A MeV，²³⁸U的Δ≈0.78 MeV。BCS理论统一解释了：为什么偶偶核总角动量为0、奇A核的自旋由最后一个奇核子决定。',f:'对能隙: Δ≈12/√A MeV  偶偶核基态: J^P=0⁺',sum:'核子配对=超导的核物理版本——解释了偶偶核基态为何全是0⁺'},
+k10:{phase:'p3',tag:'stat',lvl:'must',title:'指数衰变律——放射性的数学基础',d:'N(t)=N₀·e^(-λt)，λ=衰变常数。T_1/2=ln2/λ≈0.693/λ(半衰期)，τ=1/λ=平均寿命。活度A=λN，单位：Bq(1衰变/秒)，Ci=3.7×10¹⁰ Bq。关键直觉：经过10个半衰期→剩余不到千分之一。',f:'N(t)=N₀e^{-λt}  T₁/₂=ln2/λ  A=λN',diagram:'N/N₀\n1.0 ┤●\n    │ ●╲\n0.5 ┤──●─ T₁/₂\n    │    ●╲\n0.25┤────●─ 2T₁/₂\n    │      ●╲\n0.125┤──────●─ 3T₁/₂\n    │         ●╲_\n    └──────────────→ t',sum:'放射性衰变遵循指数律——λ决定了衰变的快慢，半衰期是最直观的度量'},
+k11:{phase:'p3',tag:'quantum',lvl:'must',title:'α衰变与Gamow隧穿',d:'α粒子(⁴He核)通过量子隧穿逃出核势阱。Gamow因子 G=∫√(2m(V(r)-Q)/ℏ²)dr。穿透概率P≈exp(-2G)→Geiger-Nuttall定律：ln(T_1/2)∝Z/√Q。α衰变能每增1MeV，半衰期缩短~10⁶倍——核物理的"蝴蝶效应"！',f:'ln(T₁/₂)≈A·Z_d/√Q_α + B  (Geiger-Nuttall定律)',diagram:'V(r)↑\n    │     库仑势垒\n    │       ╱\n    │ ┌─┐  ╱    ←α粒子在这里"撞"势垒\n    │ │势│╱      Qα=逃出后的动能\n    │ │阱│╱←经典禁区(量子可以穿越!)\n Qα ├──●╱───────\n    │ │╱         自由α粒子\n    │┌┘╱\n    └───────────→r\n   R(核半径)  R_c(转折点)',sum:'Gamow隧穿=量子力学在核物理中最漂亮的应用——解释了α衰变的指数级寿命差异'},
+k12:{phase:'p3',tag:'group',lvl:'must',title:'β衰变：中微子与弱相互作用',d:'β⁻:n→p+e⁻+ν̄ₑ, β⁺:p→n+e⁺+νₑ, EC:p+e⁻→n+νₑ。连续β能谱揭示了三体衰变本质→1930年Pauli预言中微子。费米理论：跃迁概率∝|M|²·ρ(E_f)。费米跃迁(F:ΔJ=0电子-中微子反平行) vs Gamow-Teller(GT:ΔJ=0,±1平行)。',f:'跃迁概率∝|M_fi|²·ρ(E_f)  M∝G_F(费米耦合常数)',diagram:'β能谱(E_e分布):\n计数↑\n    │  ╱＼\n    │╱    ＼       ← 连续谱=三体衰变证据\n    │╱      ＼__\n    └────────────→E_e\n    0           Qβ\n端点Qβ:ν带走零能量的极限\n如果两体→只有端点处的一个点!',sum:'β衰变=弱相互作用的窗口——中微子假说是物理史上最优雅的推理'},
+k13:{phase:'p3',tag:'quantum',lvl:'must',title:'γ衰变与核能级纲图',d:'γ衰变=激发态核→低能态+光子。E_γ=E_i-E_f(几十keV~几MeV)。多极性:E1(电偶极Δπ=-1)、M1(磁偶极Δπ=+1)、E2、M2...。跃迁概率:E1≫E2≫M1...("电偶极最快")。内转换:激发能不发射γ而转移给轨道电子。',f:'γ跃迁概率: λ(E1)≫λ(E2)≫λ(M1)≫...   Δπ=π_i·π_f',diagram:'⁶⁰Co衰变纲图(β⁻→⁶⁰Ni):\n ⁶⁰Co(5⁺)\n   │ β⁻(Q=2.82 MeV)\n2.505 4⁺──┐\n   │      │γ₂(E2)\n2.158 2⁺─┐│\n   │     ││γ₁(E2)\n1.332 2⁺─┘│\n   │      ┘γ₃(E2,1.173)\n 0    0⁺←⁶⁰Ni\n两条名γ:1173和1332 keV',sum:'γ衰变纲图=核的"光谱"——两条γ线(1173+1332 keV)让⁶⁰Co成为标准刻度源'},
+k14:{phase:'p3',tag:'stat',lvl:'suggest',title:'衰变链与三大天然放射系',d:'铀系(4n+2):²³⁸U→...→²⁰⁶Pb(T₁/₂=4.47×10⁹年)。锕系(4n+3):²³⁵U→...→²⁰⁷Pb(T₁/₂=7.04×10⁸年)。钍系(4n):²³²Th→...→²⁰⁸Pb。每个系包含十几个中间核素，有的寿命极短(²¹⁴Po: 164μs)。',f:'铀系: ²³⁸U→...→²⁰⁶Pb  (共14步, 8α+6β⁻)',diagram:'铀系衰变链片段:\n²³⁸U(α,4.5e9y)\n  → ²³⁴Th(β⁻,24d)\n  → ²³⁴Pa(β⁻,1.2m)\n  → ²³⁴U(α,2.5e5y)\n  → ²³⁰Th(α,7.5e4y)\n  → ²²⁶Ra(α,1600y)\n  → ²²²Rn(α,3.8d)←氡气!\n  → ...→ ²⁰⁶Pb(稳定)',sum:'三大天然放射系=地球核物理的年表——铀系半衰期≈地球年龄'},
+k15:{phase:'p4',tag:'scatter',lvl:'must',title:'核反应截面——概率的几何解释',d:'截面σ="如果靶核是面积σ的圆盘，命中概率与σ成正比"。单位:barn=10⁻²⁸ m²=100 fm²(≈重核几何截面)。微分截面dσ/dΩ→粒子散射到特定方向的概率。总截面σ_tot反映所有反应道总概率。低能中子俘获截面∝1/v("越慢越容易"）。',f:'σ=&lt;事件数&gt;/(入射通量×靶核数)  barn=100 fm²',diagram:'入射束  ┌──────────┐\n →  →  │          │    散射粒子\n →  →  │靶(面积σ)│   ·   ·\n →  →  │          │  ·  ·  · dΩ\n →  →  │          │ · ·θ· ·\n  →    └──────────┘·  ·  ·\n命中概率=N·σ/S → 反推σ',sum:'截面=核反应的"命中率"——单位barn形象地说明核"多大才好打"'},
+k16:{phase:'p4',tag:'scatter',lvl:'must',title:'复合核模型——Bohr的革命性思想',d:'核反应三阶段:①独立粒子→弹散 ②复合核形成→"遗忘"形成方式(能量在全部核子间均分) ③衰变→衰变方式只取决于激发能与形成方式无关。低能中子反应出现尖锐共振峰。时间尺度:直接~10⁻²²s, 复合核~10⁻¹⁶s。',f:'复合核衰变独立于形成: σ(a,b)=σ_CN×Γ_b/Γ_tot',diagram:'反应三阶段:\n①a+A → 独立粒子阶段\n  (~10⁻²²s 直接反应)\n② → 复合系统(热化)\n  (~10⁻¹⁸~10⁻¹⁶s)\n  "遗忘"怎么来的\n③ → B+b 衰变\n  (~10⁻¹⁶~10⁻¹⁴s)\n只取决于E*和统计',sum:'复合核模型="遗忘"假设——Bohr 1936年提出的图景至今仍是核反应的基石'},
+k17:{phase:'p4',tag:'manybody',lvl:'must',title:'裂变——液滴模型的辉煌胜利',d:'Bohr&Wheeler(1939)用液滴模型解释裂变:中子→复合核→液滴振动→拉长→颈缩→断裂→两碎片+2-3中子+γ(~200MeV)。²³⁵U+n(th)→²³⁶U*释放~6.5MeV→刚好超过裂变势垒! ²³⁸U+n(th)释放~4.8MeV<势垒→不能裂变。四因子公式:k_∞=ε·p·f·η。',f:'k∞=ε·p·f·η  裂变Q≈200 MeV/次 (化学燃烧≈eV/次)',diagram:'裂变液滴演化:\n ○  ²³⁵U俘获中子\n ↓\nⓄ  形成²³⁶U*(激发态)\n ↓\n◎  液滴拉长\n ↓\n◎─◎ 颈缩——"脖子"变细\n ↓\n● ● 断裂+γ+2~3中子\n 释放 ≈200 MeV!',sum:'裂变=液滴模型的巅峰应用——解释了为何只有²³⁵U能被热中子裂变'},
+k18:{phase:'p4',tag:'scatter',lvl:'must',title:'聚变——太阳的秘籍',d:'d+t→⁴He+n(Q=17.6MeV)是最"容易"的聚变。库仑势垒V_c≈Z₁Z₂×1.44/(R₁+R₂) [MeV,fm]。d+t:V_c≈0.38MeV→需要~10keV(≈1亿度!)等离子体。Lawson判据:n·τ_E>10²⁰ m⁻³·s (d+t点火条件)。ITER目标:Q=10(聚变能=10×输入能)。',f:'d+t→⁴He+n  Q=17.6MeV  Lawson: n·τ_E×T>5×10²¹ keV·m⁻³·s',diagram:'聚变截面 vs 能量:\nσ↑\n │   d+t(最大截面)\n │   ╱＼\n │ ╱    ＼\n │╱  d+d  ＼(小~100倍)\n │╱________＼________\n └──────────────→E_cm\n  1  10  100 1000 keV\nITER选d+t的原因:截面大~100倍!',sum:'聚变=人类终极能源——d+t反应最"容易"但仍需 1 亿度'},
+k19:{phase:'p5',tag:'group',lvl:'must',title:'夸克模型与SU(3)八重态',d:'Gell-Mann&Zweig(1964):强子=夸克组成。初代夸克:u(+⅔e), d(-⅓e), s(-⅓e)。介子=qq̄(八重态+单态), 重子=qqq(八重态+十重态)。SU(3)味对称性描述了强子的分类——八重态和十重态图案不是巧合，是群论必然结果。',f:'重子=qqq  介子=qq̄  电荷=Σ夸克电荷',diagram:'重子八重态(J^P=½⁺):\n     S\n n(0)──p(1)\n    ╲  ╱\n     Σ⁰,Λ         ← SU(3)味对称\n    ╱  ╲\nΣ⁻(1)──Σ⁺(1)\n    ╱    ╲\n Ξ⁻(1)──Ξ⁰(1)\n└──────────→ I₃\n-½  0  +½  -1',sum:'夸克模型=强子的"积木"——SU(3)群对称性决定了八重态/十重态图案'},
+k20:{phase:'p5',tag:'group',lvl:'must',title:'量子色动力学(QCD)——色禁闭与渐近自由',d:'QCD三大特征:①色禁闭——自然界未观测到自由夸克/胶子，色荷被"囚禁"在强子内 ②渐近自由(2004诺奖)——高能(短距)→强相互作用变弱→夸克在核子内近似自由 ③手征对称性自发破缺——解释m_π≈140MeV≪m_p≈938MeV。',f:'QCD: SU(3)_C规范理论  耦合α_s(Q²)在Q²→∞时→0(渐近自由)',diagram:'色禁闭示意:\n分离夸克:\n  q──────q̄\n     拉长 → 弦\n    张力 ~1 GeV/fm\n  q─────q̄─────q̄\n 拉断→产生新qq̄对\n→从未分离出自由夸克!\n\n渐近自由:\n在核子内:夸克近乎自由\n(高动量转移→α_s小)',sum:'QCD=强相互作用的标准理论——"看不见自由夸克"却"在高能下可自由运动"'},
+k21:{phase:'p5',tag:'quantum',lvl:'must',title:'Higgs机制——质量的起源',d:'Higgs场弥漫全宇宙。粒子与Higgs场耦合→获得质量(W⁺,W⁻,Z⁰质量~80-91GeV)。光子与Higgs场不耦合→无质量。比喻:名人(Higgs场)走进派对→人群涌来→移动变慢("获得质量")；普通人(光子)走进→没人理→自由("无质量")。2012 LHC发现125GeV Higgs。',f:'Higgs: φ→v/√2  拉氏量: D_μφ†D^μφ - V(φ)',diagram:'Higgs场比喻:\n名人→Higgs场\n"走进派对"\n→人群围过来\n→移动变慢\n="获得质量"\n\n普通人→光子\n→没人关注\n→自由移动\n="质量为零"\n\n2012实验证实!\nHiggs=125 GeV @ LHC',sum:'Higgs机制=标准模型皇冠上的明珠——回答了"粒子为什么有质量"'},
+k22:{phase:'p5',tag:'group',lvl:'suggest',title:'标准模型全貌：三代费米子+四力',d:'标准模型=SU(3)_C×SU(2)_L×U(1)_Y规范理论。三代费米子(夸克+轻子):1代(u,d,e,νₑ)构成普通物质。规范玻色子:光子(电磁), W⁺/⁻/Z⁰(弱), 胶子(强)。六大未解之谜:中微子质量,暗物质,暗能量,物质-反物质不对称,等级问题,引力。',f:'规范群: SU(3)_C × SU(2)_L × U(1)_Y   粒子总数: 61 (含Higgs)',diagram:'┌──────┬──────┬─────┐\n│ 夸克  │ 轻子  │电荷│\n├──────┼──────┼─────┤\n│ u(上)│e(电子)│+⅔,-1│  第1代\n│ d(下)│νₑ    │-⅓,0│  ←构成我们\n├──────┼──────┼─────┤\n│ c(粲)│μ(μ子)│+⅔,-1│  第2代\n│ s(奇)│ν_μ   │-⅓,0│\n├──────┼──────┼─────┤\n│ t(顶)│τ(τ子)│+⅔,-1│  第3代\n│ b(底)│ν_τ   │-⅓,0│\n└──────┴──────┴─────┘\n玻色子:γ,W⁺/⁻/Z⁰,g,Higgs',sum:'标准模型=现代物理的巅峰——解释了所有已知粒子和三种力(除引力)'},
+k23:{phase:'p6',tag:'stat',lvl:'must',title:'反应堆物理——链式反应的数学',d:'k=下一代中子/上一代中子:k=1临界,>1超临界,<1亚临界。PWR用轻水慢化+冷却(高压防沸腾),浓缩~3-5%铀。BWR直接沸腾产生蒸汽。快堆无慢化剂用Na冷却,可增殖Pu。四因子k_∞=ε·p·f·η决定了反应堆的中子经济。',f:'k∞=ε·p·f·η  k_eff=k∞·(不泄漏概率)',diagram:'PWR压水堆原理:\n┌──────────────┐\n│  控制棒      │\n│  ↓↓↓        │\n│ ┌──────┐   │\n│ │堆芯   │   │  蒸汽→汽轮机\n│ │(燃料) │↑↑↑│→发电\n│ │       │   │\n│ └──────┘   │\n│     ↑        │\n│  高压水(冷却)│\n│←──────→    │\n│  蒸汽发生器  │\n└──────────────┘',sum:'反应堆=可控链式反应——k=1是核工程师的生命线'},
+k24:{phase:'p6',tag:'experiment',lvl:'must',title:'辐射探测：从GM管到HPGe',d:'探测器类型:①气体探测器(GM/正比)——探测存在 ②闪烁体(NaI/Tl,LYSO)——能量+时间 ③半导体(HPGe)——超高能谱分辨率(~2keV@1332keV) ④切伦科夫——中微子 ⑤量热器——高能物理。HPGe分辨率比NaI好20-30倍但需液氮冷却(77K)!',f:'HPGe分辨率: ~2 keV @1332 keV  vs NaI: ~60 keV',diagram:'⁶⁰Co能谱:NaI vs HPGe\n计数↑\n    │NaI:      HPGe:\n    │ ╱＼       ╷\n    │╱  ＼      │← ~2keV\n    │╱   ＼___  │ 分辨率!\n    │╱    ╲ ╲  │\n    │╱     ╲ ╲ │\n    └───────────→ Eγ\n      1173   1332 keV\n\nHPGe好~30倍但需77K!',sum:'HPGe=核物理探测器之王——超高分辨率代价是液氮冷却'},
+k25:{phase:'p6',tag:'quantum',lvl:'suggest',title:'PET/SPECT——核医学的物理',d:'PET:注入β⁺发射体(¹⁸F)→e⁺+e⁻→湮灭→两511keV γ(背对背)→符合探测→3D功能图。SPECT:注入γ发射体(⁹⁹ᵐTc,T₁/₂=6h,140keV)→旋转探测器→重建图。⁹⁹ᵐTc="SPECT的工作马",¹⁸F-FDG是PET主力。',f:'PET: e⁺+e⁻→2γ(511keV背对背)  符合时间窗~ns',diagram:'PET原理:\n 注入¹⁸F-FDG\n     ↓\n 湮灭: e⁺+e⁻\n       ⭷  ⭸\n     γ₁↗  ↖γ₂\n    (511) (511)\n    背对背!\n    ↓      ↓\n  探测器  探测器\n符合测量→定位湮灭点\n→3D功能图像重建',sum:'PET/SPECT=核物理造福人类——¹⁸F和⁹⁹ᵐTc是最常用的诊断核素'},
+k26:{phase:'p6',tag:'experiment',lvl:'must',title:'辐射剂量学——从mSv到Gy',d:'吸收剂量D=dE/dm(Gy=J/kg)。当量剂量H=D×w_R(w_R=辐射权重:γ/β=1,α=20,中子=5-20)。有效剂量E=Σw_T·H_T(器官权重)。天本底~2.4mSv/年,胸X光~0.1mSv,全身CT~10mSv,职业限20mSv/年,急性~1Sv,LD50/60~4-5Sv。',f:'H=D×w_R  E=Σw_T·H_T  Sv(西弗特)',diagram:'辐射剂量刻度(对数尺):\n   mSv            Sv\n0.1├─ 胸X光\n0.4├─ 年天然\n1  ├─ 年公众限值\n2.4├─ 年天然(均)\n10 ├─ CT扫描\n20 ├─ 年职业限值\n100├─ 最低癌症风险\n    │=== 1 Sv ===\n1000├─ 急性综合征\n4000├─ LD50/60 ≈',sum:'Sv/Gy=核物理最实用的量——理解辐射剂量才能安全利用核技术'},
+k27:{phase:'p7',tag:'stat',lvl:'must',title:'恒星核合成：pp链与CNO循环',d:'太阳pp链:4p→⁴He+2e⁺+2νₑ+26.73MeV。CNO循环:以C/N/O为催化剂实现4p→⁴He,温度依赖性比pp强得多→大质量恒星首选。s-过程(慢中子俘获)→A<210。r-过程(快俘获)→最重核(U/Th/Au/Pt)。GW170817首证中子星并合是r-过程主场所！',f:'pp链净: 4p→⁴He+2e⁺+2νₑ+26.73 MeV  CNO: 同但催化',diagram:'太阳pp链:\np+p→d+e⁺+νₑ  (1.44MeV)\n  d+p→³He+γ  (5.49MeV)\n³He+³He→⁴He+2p (12.86MeV)\n─────────────────\n4p→⁴He+2e⁺+2νₑ+26.73\n\n元素起源:\nH,He → Big Bang\n⁵⁶Fe → 恒星核合成\nA<210 → s-过程\n重核(U/Au/Pt)→r-过程\n  GW170817: 中子星并合!',sum:'pp链=太阳的秘密配方——GW170817告诉我们"金从何处来"'},
+k28:{phase:'p7',tag:'manybody',lvl:'must',title:'奇特核：晕核、滴线与超重元素',d:'晕核(如¹¹Li):核~⁹Li+两松散中子云(半径≈⁹Li的2倍!)→核物理版"软边"。质子/中子滴线→边界之外核瞬间解体。超重元素"稳定岛"假说:Z≈114-126,N≈184→可能长寿命。Og(Z=118)已合成!',f:'¹¹Li: ²中子晕 r≈3.2fm(core)+6.8fm(halo)',diagram:'核素图中奇特核:\n质子滴线────────\n│ 不稳定核      │\n│ ┌──────┐    │  晕核: ¹¹Li\n│ │ 稳定  │    │        ⁸B\n│ │ 254种 │    │  稳定岛假说:\n│ └──────┘    │  Z≈114-126\n│              │  N≈184?\n│────────────  │  Og(118)已合成!\n  中子滴线          ↑',sum:'奇特核=核素图的边疆——晕核如量子云雾，超重稳定岛是化学的最后疆域'},
+k29:{phase:'p7',tag:'experiment',lvl:'suggest',title:'加速器技术全景',d:'加速器类型:Cockcroft-Walton(~MeV)→范德格拉夫(~10MeV)→回旋(~100MeV,医用)→同步(~TeV,LHC!)→直线(~GeV,散裂源)。放射性核束RIB两大方法:ISOL(厚靶→扩散→电离,纯度高)vs飞行碎裂(高能束→薄靶→碎片分离,速度快)。',f:'E_回旋=q²B²R²/(2m)  E_同步=受限于同步辐射',diagram:'加速器能量阶梯:\nCWAccel ~MeV\n   └→中子发生器\nVDG   ~10 MeV\n   └→核结构研究\n回旋  ~100 MeV\n   └→医用同位素\n同步  ~TeV\n   └→LHC, RHIC\n直线  ~GeV\n   └→散裂中子源\nRIB=现代核物理前沿工具',sum:'加速器=核物理的实验引擎——从1 MeV到14 TeV跨越12个量级'},
+k30:{phase:'p7',tag:'stat',lvl:'must',title:'γ能谱分析——从实验数据到物理量',d:'典型流程:原始数据(ROOT)→能量/效率刻度→本底扣除→峰拟合(Gaussian+本底)→提取物理量(截面/寿命/分支比)→误差分析→理论比较。⁶⁰Co双峰(1173+1332keV)是刻度标准。HPGe典型FWHM~2keV@1333keV。',f:'峰形: Gauss(μ,σ)+线性/指数本底  χ²拟合优度',diagram:'⁶⁰Co γ能谱拟合:\n计数↑\n  /\ 峰值拟合      ╱＼\n /  \ ←Gaussian  ╱    ＼\n/    \           ╱      ＼\n      \___本底  ╱        ＼___\n╱──────────────────────────→\n  1173           1332 keV\n                   \n分析步骤:\n原始→刻度→本底→拟合→\n→提取物理量→误差→理论',sum:'γ能谱=核物理的"指纹"——⁶⁰Co双标准峰是每个核物理实验室的标杆'},
+k31:{phase:'p7',tag:'quantum',lvl:'must',title:'核天体物理——r-过程与宇宙重元素起源',d:'r-过程(快中子俘获):极高n密度(~10²⁰/cm³)→俘获>β⁻→沿中子滴线→超重核。经典站点:核心坍缩超新星ν驱动风、中子星并合。GW170817+GRB170817A=第一次直接观测+kilonova证认r-过程→证实宇宙Au/U/Pt源于中子星并合。',f:'r-过程条件: n_n~10²⁰/cm³  T~10⁹K  时标~秒  产能: ~10⁵¹erg',diagram:'r-过程核素合成路径:\n        N↑\n         │  中子滴线\n    Z=82├───·──·──·──·\n         │   ↗r-路径\n    Z=50├──·──·──·──·──\n         │ ↗(快俘获)\n         │·──·──·──·──\n         └──────────→Z\n\nGW170817:\nNS-NS→引力波→Gamma暴→\n→kilonova(1万倍地球质量\n  的金!)→证认为r-过程',sum:'GW170817=核天体物理的Rosetta石——首次直接"看到"金从何处来'},
+k32:{phase:'p7',tag:'quantum',lvl:'must',title:'无中微子双β衰变——Majorana中微子的圣杯',d:'0νββ: (A,Z)→(A,Z+2)+2e⁻(无ν)→ΔL=2→轻子数破坏→证明中微子=Majorana粒子。当前极限T₁/₂>10²⁶年。实验:⁷⁶Ge(GERDA/LEGEND)、¹³⁶Xe(EXO/nEXO/KamLAND-Zen)、¹³⁰Te(CUORE)。灵敏度需要~ton级源+极低本底。',f:'T₁/₂(0νββ)∝1/(m_ββ²·|M_nuc|²·G)  m_ββ=|ΣU_ei²·m_i|',diagram:'0νββ vs 2νββ:\n  (A,Z)  →  (A,Z+2)\n         e⁻  e⁻\n  2ν: ──ν──ν── (标准)\n  0ν: ──────── (无ν!)\n       轻子数破坏\n\n质量排序:\nNH: m_ββ~0.001-0.004eV\nIH: m_ββ~0.015-0.05eV\n→ 看见IH区→Majorana!',sum:'0νββ=最深的中微子秘密——看到它=证明中微子就是自己的反粒子'},
+k33:{phase:'p7',tag:'manybody',lvl:'suggest',title:'夸克胶子等离子体(QGP)——早期宇宙的极端物质',d:'T>~150MeV(~1.7×10¹²K)→核子解体→夸克退禁闭→QGP。实验:RHIC Au+Au@200GeV, LHC Pb+Pb@5.02TeV。信号:J/ψ压低(色屏蔽)、喷注淬灭(部分子能量损失)、椭圆流v₂(近完美流体η/s~1/4π)、光子/双轻子(穿透探针)。',f:'临界T_c≈155±10MeV  η/s≈1/(4π)≈0.08→近完美流体!',diagram:'QGP相图:\nT(MeV)↑\n 200│        QGP\n     │       ╱\n 155│──────·── 临界点\n     │    ╱    Hadron\n     │  ╱      气体\n   0│────────────→μ_B\n     LHC    RHIC\n\nQGP信号:\nJ/ψ→色屏蔽压低\nJet→喷注淬灭\nv₂→椭圆流(流体!)',sum:'QGP=宇宙大爆炸后~10μs的物质状态——RHIC+LHC重建了创世之初的"夸克汤"'}};
+
+
+const MATH_TAGS_DATA=[
+  {cls:'tag-quantum',code:'[量子]',label:'量子力学与核结构'},
+  {cls:'tag-scatter',code:'[散射]',label:'散射理论与核反应'},
+  {cls:'tag-manybody',code:'[多体]',label:'多体理论与核力'},
+  {cls:'tag-group',code:'[群论]',label:'群论与对称性'},
+  {cls:'tag-stat',code:'[统计]',label:'统计力学与核衰变'},
+  {cls:'tag-math',code:'[数学]',label:'数学物理方法'},
+  {cls:'tag-expt',code:'[实验]',label:'实验技术与核技术'}
+];
+
+const PHASES=[
+  {id:'p1',week:'第1-2周',title:'原子与原子核基础',sub:'从核尺度到核素图——建立亚原子世界观',color:'#22d3ee',icon:'⚛',cls:'c1',
+   skills:[{code:'核尺度 R=r₀A^(1/3)',kp:'k01'},{code:'核素图',kp:'k01'},{code:'质量亏损 B=Δmc²',kp:'k03'},{code:'核力五大性质',kp:'k04'},{code:'电四极矩 Q',kp:'k05'}],
+   codes:[{lang:'Python:结合能计算',code:`import numpy as np
+m_p=1.007825;m_n=1.008665;mu=931.494
+def binding(Z,N,A,mass):
+  return ((Z*m_p+N*m_n)-mass)*mu
+# 56Fe
+b=binding(26,30,56,55.934939)
+print(f"B={b:.1f}MeV, B/A={b/56:.2f}MeV")
+# 输出: B=492.3MeV, B/A=8.79MeV`}],
+   drawings:[{lvl:'must',text:'[必画] 宇宙尺度结构图:从夸克到可观测宇宙'},{lvl:'must',text:'[必画] 比结合能曲线 B/A vs A(标注56Fe峰值+裂变/聚变箭头)'},{lvl:'must',text:'[必画] 核力势曲线 V(r)(标注排斥芯/吸引区/0区间)'},{lvl:'suggest',text:'[建议画] 核素图Schematic(稳定河谷+幻数线)'},{lvl:'suggest',text:'[建议画] 电四极矩三种核形图'}]},
+
+  {id:'p2',week:'第3-4周',title:'核模型与结构',sub:'从液滴到壳——理解核的集体与单粒子行为',color:'#00ff88',icon:'🫧',cls:'c2',
+   skills:[{code:'Weizsacker公式',kp:'k06'},{code:'壳模型幻数',kp:'k07'},{code:'集体模型转动谱',kp:'k08'},{code:'核子配对BCS',kp:'k09'}],
+   codes:[{lang:'Python:Weizsacker公式',code:`a_v,a_s,a_c,a_a,a_p=15.75,17.8,0.711,23.7,11.18
+def weizsacker(Z,N):
+  A=Z+N
+  b_vol=a_v*A
+  b_surf=-a_s*A**(2/3)
+  b_coul=-a_c*Z*(Z-1)/A**(1/3)
+  b_asym=-a_a*(N-Z)**2/A
+  delta=a_p/A**0.5 if Z%2==0 and N%2==0 else (0 if (Z+N)%2 else -a_p/A**0.5)
+  return sum([b_vol,b_surf,b_coul,b_asym,delta])
+b=weizsacker(92,146)
+print(f"238U B≈{b:.0f}MeV, B/A≈{b/238:.2f}MeV")`}],
+   drawings:[{lvl:'must',text:'[必画] Weizsacker五项贡献分解条形图(以238U为例)'},{lvl:'must',text:'[必画] 壳模型能级填充图(自旋-轨道耦合前后对比，标出幻数)'},{lvl:'must',text:'[必画] 集体模型转动谱 E(J)抛物线 vs 振动谱等间距能级'},{lvl:'suggest',text:'[建议画] Nilsson能级图(从球壳模型到形变核)'}]},
+
+  {id:'p3',week:'第5-6周',title:'放射性衰变',sub:'α/β/γ三衰变——量子隧穿与弱相互作用的窗口',color:'#c084fc',icon:'☢',cls:'c3',
+   skills:[{code:'指数衰变律',kp:'k10'},{code:'α衰变Gamow隧穿',kp:'k11'},{code:'β衰变+Fermi理论',kp:'k12'},{code:'γ衰变纲图',kp:'k13'},{code:'放射系',kp:'k14'}],
+   codes:[{lang:'Python:衰变模拟',code:`import numpy as np
+T_half=3.82*24*3600  # Rn-222
+lam=np.log(2)/T_half
+t=np.linspace(0,10*24*3600,100)
+N=np.exp(-lam*t)
+print(f"λ={lam:.2e} s⁻¹")
+print(f"10半衰期后剩余: {np.exp(-lam*10*T_half):.4f}")`}],
+   drawings:[{lvl:'must',text:'[必画] 放射性衰变指数曲线 N(t)/N₀(标注T₁/₂点和10T₁/₂)'},{lvl:'must',text:'[必画] α衰变Gamow势垒穿透示意图(势阱+库仑势垒+隧穿)'},{lvl:'must',text:'[必画] ⁶⁰Co衰变纲图(完整β⁻→γ级联标注)'},{lvl:'must',text:'[必画] 铀系衰变链完整路径(从²³⁸U到²⁰⁶Pb)'},{lvl:'suggest',text:'[建议画] β连续能谱图(三种中微子质量下的电子谱对比)'}]},
+
+  {id:'p4',week:'第7-8周',title:'核反应',sub:'裂变/聚变/散射——人类核能的所有原理',color:'#ff9900',icon:'💥',cls:'c4',
+   skills:[{code:'反应截面σ',kp:'k15'},{code:'复合核模型',kp:'k16'},{code:'裂变Bohr-Wheeler',kp:'k17'},{code:'聚变Lawson判据',kp:'k18'}],
+   codes:[{lang:'Python:裂变能量估计',code:`e_fission=200e6*1.602e-19
+na=6.022e23
+e_per_gram=e_fission*na/235
+print(f"1g 235U 能量: {e_per_gram/3600:.0f} kWh")
+print(f"≈燃烧 {e_per_gram/3600/8.13:.0f} 吨煤(8.13kWh/kg煤)")`}],
+   drawings:[{lvl:'must',text:'[必画] 复合核反应三阶段示意图(独立粒子→复合→衰变)'},{lvl:'must',text:'[必画] 液滴裂变演化五帧图(球→椭→哑铃→断裂→碎片)'},{lvl:'must',text:'[必画] 聚变截面曲线(d+t vs d+d vs p-p标注点火区)'},{lvl:'suggest',text:'[建议画] 核反应共振峰示意图(对应复合核的准稳态能级)'}]},
+
+  {id:'p5',week:'第9-10周',title:'中微子物理与标准模型',sub:'从夸克到Higgs——微观世界的终极图景',color:'#ff4081',icon:'🌌',cls:'c5',
+   skills:[{code:'夸克模型SU(3)',kp:'k19'},{code:'QCD色禁闭+渐近自由',kp:'k20'},{code:'Higgs机制',kp:'k21'},{code:'标准模型全貌',kp:'k22'},{code:'中微子振荡',kp:'k19'}],
+   codes:[{lang:'核素数据查询',code:`# NNDC核数据在线查询
+# https://www.nndc.bnl.gov/nudat3/
+# 可以查询任何核素的基本性质:
+# - 质量/半衰期/自旋-宇称
+# - 衰变模式+分支比
+# - 能级纲图
+# 推荐使用: NuDat 3.0 交互式核素图`}],
+   drawings:[{lvl:'must',text:'[必画] 重子八重态SU(3)图案(标注夸克组成)'},{lvl:'must',text:'[必画] 强相互作用耦合常数 α_s(Q²)跑动曲线'},{lvl:'must',text:'[必画] Standard Model粒子表(三代费米子+规范玻色子+Higgs)'},{lvl:'suggest',text:'[建议画] Higgs势能"墨西哥帽"示意图'}]},
+
+  {id:'p6',week:'第11-13周',title:'核技术应用',sub:'反应堆/探测器/核医学——核物理从实验室走向世界',color:'#448aff',icon:'🔬',cls:'c6',
+   skills:[{code:'反应堆物理',kp:'k23'},{code:'辐射探测器HPGe',kp:'k24'},{code:'PET/SPECT核医学',kp:'k25'},{code:'辐射剂量学',kp:'k26'}],
+   codes:[{lang:'Python:HPGe能谱拟合',code:`import numpy as np
+from scipy.optimize import curve_fit
+def gauss_bkg(x,amp,mu,sigma,a,b):
+    gauss=amp*np.exp(-(x-mu)**2/(2*sigma**2))
+    bkg=a+b*x
+    return gauss+bkg
+# channels,counts = np.loadtxt("spectrum.dat").T
+# popt,_ = curve_fit(gauss_bkg,channels,counts,
+#     p0=[1000,2000,10,10,0])
+# 峰位=popt[1]ch, FWHM=2.355*popt[2]ch`}],
+   drawings:[{lvl:'must',text:'[必画] PWR压水堆原理示意图(堆芯+控制棒+蒸汽发生器+汽轮机)'},{lvl:'must',text:'[必画] 60Co能谱对比图:NaI vs HPGe分辨率差异'},{lvl:'suggest',text:'[建议画] PET符合探测原理图(湮灭→背对背γ→符合线定位)'}]},
+
+  {id:'p7',week:'第14-15周',title:'前沿专题与实验技术',sub:'恒星核合成/奇特核/加速器——核物理的前沿边界',color:'#26c6da',icon:'🌠',cls:'c7',
+   skills:[{code:'恒星核合成pp链',kp:'k27'},{code:'晕核+滴线+超重',kp:'k28'},{code:'加速器技术全景',kp:'k29'},{code:'γ能谱分析',kp:'k30'},{code:'核天体物理r-过程',kp:'k31'},{code:'0νββ中微子',kp:'k32'},{code:'QGP夸克物质',kp:'k33'}],
+   codes:[{lang:'Python:γ能谱刻度',code:`import numpy as np
+# 能量刻度 E = a + b*ch
+cals={
+  "Co-60":[(1173.2,1955.3),(1332.5,2221.0)],
+  "Cs-137":[(661.7,1103.0)]
+}
+chs=[];ens=[]
+for src,peaks in cals.items():
+  for e,ch in peaks:
+    ens.append(e);chs.append(ch)
+p=np.polyfit(chs,ens,1)
+print(f"E(ch) = {p[0]:.4f}*ch + {p[1]:.2f}")`}],
+   drawings:[{lvl:'must',text:'[必画] pp链完整路径(三步+分支+净反应)'},{lvl:'must',text:'[必画] 11Li晕核结构示意图(9Li芯+双中子云超出核半径)'},{lvl:'suggest',text:'[建议画] 加速器能量阶梯对比图(从Cockcroft-Walton到LHC)'}]}
+];
+
+const FORMULA_TABS=[
+  {label:'结合能与质量公式'},
+  {label:'放射性衰变定律'},
+  {label:'核反应与截面'},
+  {label:'选择定则与守恒律'},
+  {label:'标准模型参数'}
+];
+const FORMULAS=[
+  [{c:'质量亏损',f:'Δm=[Z·m_p+N·m_n]-m(Z,A)'},{c:'结合能',f:'B=Δm·c²'},{c:'核半径',f:'R=r₀·A^(1/3), r₀≈1.2 fm'},{c:'比结合能',f:'⁵⁶Fe B/A=8.79 MeV(最高)'},{c:'Weizsacker公式',f:'B=a_vA-a_sA²/³-a_cZ(Z-1)/A^(1/3)-a_a(N-Z)²/A±δ'}],
+  [{c:'指数衰变律',f:'N(t)=N₀·e^(-λ·t)'},{c:'半衰期',f:'T½=ln2/λ≈0.693/λ'},{c:'放射性活度',f:'A=λ·N [Bq], 1Ci=3.7×10¹⁰Bq'},{c:'Geiger-Nuttall',f:'ln(T½)≈A·Z_d/√Q_α+B'},{c:'辐射剂量',f:'H=D×w_R, E=Σw_T·H_T [Sv]'}],
+  [{c:'反应截面',f:'σ=N_事件/(Φ·N_靶) [1barn=100fm²]'},{c:'微分截面',f:'dσ/dΩ 角度分布'},{c:'复合核衰变',f:'σ(a,b)=σ_CN×Γ_b/Γ_tot'},{c:'裂变四因子',f:'k∞=ε·p·f·η'},{c:'Lawson判据',f:'n·τ_E·T>5×10²¹ keV·m⁻³·s'}],
+  [{c:'自旋宇称J^P',f:'确定跃迁多极性'},{c:'角动量选择',f:'|J_i-J_f|≤L≤J_i+J_f'},{c:'宇称选择',f:'π_i·π_f=(-1)^L(EL), =(-1)^(L+1)(ML)'},{c:'泡利不相容',f:'单核子态最多2个(自旋上下)'},{c:'对关联',f:'对能隙 Δ≈12/√A MeV'}],
+  [{c:'费米耦合常数',f:'G_F≈1.166×10⁻⁵ GeV⁻²'},{c:'电弱统一',f:'SU(2)_L×U(1)_Y→SSB→U(1)_Q'},{c:'强耦合常数',f:'α_s(m_Z²)≈0.118'},{c:'Higgs质量',f:'m_H=125.25±0.17 GeV'},{c:'Weinberg角',f:'sin²θ_W≈0.231',n:'弱混合角'}]
+];
+
+const EXERCISES=[
+  {id:'e01',diff:'easy',text:'计算⁴He的结合能和比结合能。已知: m(⁴He)=4.002603u, m_p=1.007825u, m_n=1.008665u, 1u=931.494MeV。解释为何⁴He的B/A如此之高。',a:'🔍 Δm=(2×1.007825+2×1.008665)-4.002603=4.032980-4.002603=0.030377 u\nB=0.030377×931.494=28.30 MeV, B/A=7.07 MeV\n⁴He B/A高是因为它是双幻数核(Z=N=2)——质子中子都填满最低能级壳层，极其稳定'},
+  {id:'e02',diff:'easy',text:'²³⁸U的T₁/₂=4.468×10⁹年。(1)计算衰变常数λ (2)1g天然铀(≈0.72%²³⁵U)的放射性活度是多少Bq？',a:'🔍 (1) λ=ln2/(4.468×10⁹×365×86400)≈4.92×10⁻¹⁸ s⁻¹\n(2) 1g天然U含N₂₃₈≈0.9928/238×6.022×10²³≈2.51×10²¹个核\nA₂₃₈=λN≈12.4 kBq；加上²³⁵U贡献约1.5 kBq → 总活度≈13.9 kBq'},
+  {id:'e03',diff:'easy',text:'用Weizsacker公式计算⁴⁰Ca(Z=20,N=20)的结合能，与实验值342.05MeV比较。',a:'🔍 A=40, Z=N=20, 偶偶核 δ=+a_p/√A\n体积: 15.75×40=630.0, 表面: -17.8×40²/³≈-212.6, 库仑: -0.711×20×19/40¹/³≈-77.9, 非对称: 0, 对: 11.18/√40≈1.77\nB≈630.0-212.6-77.9+1.77≈341.3 MeV ≈ 实验值342.05 MeV (误差<1%!)'},
+  {id:'e04',diff:'easy',text:'画出核素图中稳定核素的大致分布范围(Z vs N)。标记幻数线和稳定线。',a:'🔍 轻核区 Z≈N(对称线)；重核区 N>Z(因库仑排斥需要更多中子稀释质子)\n254种稳定核素分布在"H"形"稳定河谷"中\n幻数线 Z,N=2,8,20,28,50,82,126处稳定核数量明显增多\n²⁰⁸Pb(Z=82,N=126)是唯一双幻数稳定核'},
+  {id:'e05',diff:'easy',text:'解释为什么偶偶核的基态自旋宇称总是0⁺，而奇A核的自旋由最后一个奇核子决定。',a:'🔍 偶偶核：所有质子、中子各自成对配对(如同超导库珀对)→每一对的总角动量=0→核整体 J=0,π=+\n奇A核：只有最后一个未配对核子贡献角动量。基态J^P由该核子占据轨道的j值决定\n例：¹⁷O(N=9) 第9中子填1d5/2→J^P=5/2⁺'},
+  {id:'e06',diff:'medium',text:'推导放射性衰变链: A→B(λ₁)→C(λ₂)→⋯。求N_B(t)的表达式(Bateman方程的两个核素版本)。',a:'🔍 dN_B/dt=λ₁N_A-λ₂N_B, N_A(t)=N_A0·e^(-λ₁t)\n解：N_B(t)=N_A0·λ₁/(λ₂-λ₁)·(e^(-λ₁t)-e^(-λ₂t))+N_B0·e^(-λ₂t)\n此即Bateman方程两核素版本。N_B先增后减，峰值时间 t_max=ln(λ₂/λ₁)/(λ₂-λ₁)'},
+  {id:'e07',diff:'medium',text:'¹⁴C测年法:活体与大气交换→¹⁴C/¹²C≈1.2×10⁻¹²。遗骸中¹⁴C/¹²C降至0.6×10⁻¹²。T₁/₂=5730年，求年代。',a:'🔍 N/N₀=0.6/1.2=0.5\n0.5=e^(-λt)→t=T₁/₂=5730年\n恰好经过一个半衰期！\n(实际¹⁴C测年需校准大气¹⁴C的历史变化)'},
+  {id:'e08',diff:'medium',text:'计算d+t→⁴He+n(Q=17.59MeV)反应中释放的中子能量。提示:动量守恒+能量守恒。',a:'🔍 动量守恒: m_αv_α=m_nv_n\n能量守恒: ½m_αv_α²+½m_nv_n²=Q\n联立: E_n=Q·m_α/(m_α+m_n)=17.59×4/5=14.07 MeV\nE_α=17.59-14.07=3.52 MeV\n→聚变中子带去~80%能量！这就是DT聚变堆设计的核心'},
+  {id:'e09',diff:'medium',text:'用壳模型确定¹⁷O(Z=8,N=9)的基态自旋宇称。最后一个中子填入哪个轨道？',a:'🔍 ¹⁶O(Z=8,N=8)为双幻数芯，第9个中子必须填入更高能级\n能级顺序: 1s1/2填满→1p3/2填满→1p1/2填满→1d5/2(开始填第9个中子)\n最后一个中子占1d5/2轨道→J^P=5/2⁺\n与实验完全一致！'},
+  {id:'e10',diff:'medium',text:'假设⁶⁰Co的点源活度A₀=1μCi(2019-01-01)。T₁/₂=5.27年。求2026-01-01的活度。',a:'🔍 t=7年, T₁/₂=5.27年\nA=A₀·2^(-t/T₁/₂)=1×2^(-7/5.27)=1×2^(-1.328)=1×0.398≈0.398 μCi\n≈0.398×3.7×10⁴Bq≈14.7 kBq'},
+  {id:'e11',diff:'medium',text:'用液滴模型解释:为何²³⁵U能被热中子裂变而²³⁸U必须用~1MeV以上的快中子？计算结合能差。',a:'🔍 中子俘获释放的结合能=最后一个中子对能的贡献\n²³⁵U+n→²³⁶U: 最后一个中子与奇中子配对形成偶偶核→释放~6.5 MeV > 裂变势垒~5.9 MeV → 热中子可裂变\n²³⁸U+n→²³⁹U: 最后一个中子不配对(奇A核)→释放~4.8 MeV < 势垒~6.2 MeV → 需额外动能\n关键差: 中子对能贡献约1.2 MeV的差异决定了裂变可行性！'},
+  {id:'e12',diff:'medium',text:'绘制核能级纲图生成器(Python):输入核素，用ENSDF格式数据画出完整的能级纲图。',a:'🔍 方案：①从ENSDF/NuDat获取能级数据(E,J^P,τ,γ分支比)\n②用matplotlib画水平线表示能级，标注E和J^P\n③画箭头表示γ跃迁，标注能量和多极性\n④参考库: nndc_toolkit (pip包) 或直接解析ENSDF文本格式'},
+  {id:'e13',diff:'hard',text:'天文物理学家测定一颗超新星的光变曲线，观察到⁵⁶Ni(T₁/₂=6.1d)→⁵⁶Co(T₁/₂=77.3d)的衰变链符合。估算该超新星爆发时合成的⁵⁶Ni质量。',a:'🔍 峰值光度由⁵⁶Co衰变主导(半衰期更长,决定后期光变)\nL_peak≈M_Ni×ε_Co×(1-e^(-λ_Co t_rise))/t_rise\n其中ε_Co=1.5×10⁴³ erg/s/M⊙(每太阳质量⁵⁶Ni的加热率)\n典型SN Ia: L_peak≈10⁴³ erg/s→M_Ni≈0.6 M⊙\n→⁵⁶Ni是SN Ia标准烛光定标的关键！'},
+  {id:'e14',diff:'hard',text:'用程序实现Weizsacker公式并计算核素图中所有核的结合能，找出每个A对应的最稳定Z值(B最大)。与核素图的"稳定河谷"比较。',a:'🔍 对每个A遍历所有Z→计算B(Z,A)→找B_max对应的Z_stable\n结果可画出Z_stable vs A曲线，应与β稳定线一致\n∂M(Z,A)/∂Z|_{A=c}=0→M_n-M_p+2a_cZ/A^(1/3)+4a_a(N-Z)/A=0\n解出: Z_stable≈A/(2+0.0154A²/³) (近似公式)'},
+  {id:'e15',diff:'hard',text:'基于壳模型能级顺序，预测Z=50-82区域的基态自旋。与实验数据NDS比较。',a:'🔍 Z=50以上质子填充顺序: 1g7/2→2d5/2→2d3/2→3s1/2→1h11/2\n例如: Sb(Z=51)→1g7/2 质子空穴→J^P=7/2⁺\nTe(Z=52)→g7/2填满→J^P=0⁺(偶偶)\n预测后与NuDat/NDS比对——壳模型在幻数附近最准确，远离幻数需集体效应修正'},
+  {id:'e16',diff:'hard',text:'模拟LHC能级下的Pb-Pb碰撞产生QGP的条件。估算Bjorken能量密度和初始温度。',a:'🔍 Bjorken公式: ε=dE_T/dy/(τ₀·πR²)\nLHC Pb-Pb(5.02 TeV): dE_T/dy≈2000 GeV, τ₀≈0.6 fm/c, R≈6.5 fm\nε≈2000/(0.6×π×6.5²)≈25 GeV/fm³\nε≈(π²/30)g_eff·T⁴, g_eff≈47.5(QGP)→T₀≈√(30ε/π²g_eff)≈470 MeV\n远超临界温度 T_c≈155 MeV！'},
+  {id:'e17',diff:'hard',text:'用Gamow公式估算²³²Th的半衰期(Q≈4.08MeV，r₀≈1.25fm)。与实验值1.4×10¹⁰年比较。',a:'🔍 Geiger-Nuttall: log₁₀(T₁/₂)≈a·Z_d/√Q_α+b\n其中 Z_d=90-2=88, Q_α=4.08 MeV\n经验常数 a≈1.61, b≈-28.9\nlog₁₀(T₁/₂)=1.61×88/√4.08-28.9=69.6-28.9=40.7\nT₁/₂≈10^40.7 s≈10^40.7/3.15×10⁷≈1.6×10¹⁰ 年\n与实验值1.4×10¹⁰ 年——数量级完全吻合！'},
+  {id:'e18',diff:'hard',text:'计算GW170817事件中r-过程产生的金元素质量: 抛射物~0.05M⊙，金丰度~10⁻⁷，M⊙=1.989×10³⁰kg。',a:'🔍 M_Au=0.05×1.989×10³⁰×10⁻⁷=9.95×10²¹ kg\n≈地球质量(5.97×10²⁴ kg)的 1/600\n≈50倍地球海洋总质量！\n→一次中子星并合产生的金足以解释星系中观测到的金丰度\nGW170817=人类首次直接"看到"宇宙炼金术'},
+  {id:'e19',diff:'project',text:'【大作业】用Python实现完整的γ能谱刻度+峰拟合+活度计算工具。输入原始能谱文件，输出核素识别和活度。',a:'🔍 实现框架: ①能量刻度(已知标准源峰位→多项式拟合E(ch))\n②效率刻度(已知活度标准源→ε(E)曲线)\n③寻峰算法(Mariscotti二阶导数或简单阈值)\n④峰拟合(Gaussian+线性本底, scipy curve_fit)\n⑤核素识别(匹配能量库→推荐候选)\n⑥活度计算(A=N_peak/(ε×I_γ×t_live))'},
+  {id:'e20',diff:'project',text:'【大作业】用液滴模型+壳修正实现核素表中所有核的结合能计算。对比实验值与理论值的残差分布(重点关注幻数区)。',a:'🔍 实现框架: ①Weizsacker五参数拟合(最小二乘→从AME质量表)\n②壳修正: Strutinsky方法→用WS势或Nilsson势计算单粒子能级\n③平滑化单粒子能级→壳修正能 δE_shell\n④B=B_LD+δE_shell\n⑤画残差Δ=B_calc-B_exp的2D热力图(A vs Z)→幻数区域残差应为负(实验更稳)'},
+  {id:'e21',diff:'project',text:'【大作业】文献综述:中微子物理学从发现(1956)到中微子振荡(1998-2002)到0νββ(当前)。撰写科学史评述+实验方案设计。',a:'🔍 综述框架: ①Pauli 1930预言→Reines&Cowan 1956发现→1988 Nobel\n②太阳中微子问题(Davis)→SNO 2001证实振荡→2002/2015 Nobel\n③中微子质量排序(NH vs IH)未定→宇宙学+0νββ是关键\n④0νββ实验方案设计: 选⁷⁶Ge或¹³⁶Xe, 估算本底, 灵敏度预测(3σ发现所需曝光量)'},
+  {id:'e22',diff:'project',text:'【大作业】用ROOT/Geant4模拟一个简单核物理实验(如NaI探测器对⁶⁰Co源的响应)。输出模拟能谱并与实验比对。',a:'🔍 实现框架: ①Geant4定义几何: NaI晶体(2"×2"), ⁶⁰Co点源\n②物理列表: 电磁过程(标准/低能EM)\n③模拟: 10⁶个事件→能量沉积谱\n④卷积探测器分辨率(Gaussian展宽 σ∝√E)\n⑤输出ROOT格式→画能谱\n⑥与实验谱比对: 1173+1332 keV全能峰+康普顿边缘+反散射峰'}
+];
+
+const RESOURCES=[
+  {t:'Introductory Nuclear Physics (Krane)',d:'核物理入门圣经——初中级全覆盖，从α衰变到夸克模型',dm:'教材·英文',u:''},
+  {t:'核物理导论 (杨福家等)',d:'中文核物理经典，详述核结构、衰变和反应',dm:'教材·中文',u:''},
+  {t:'Nuclei and Particles (Segrè)',d:'Segrè的核与粒子物理综述——巧妙的实验物理视角',dm:'经典·英文',u:''},
+  {t:'Nuclear Structure (Bohr & Mottelson)',d:'两卷巨著——壳模型与集体模型的终极阐述',dm:'经典·英文',u:''},
+  {t:'Intro to Elementary Particles (Griffiths)',d:'Griffiths风格——优雅、物理直觉强',dm:'粒子物理',u:''},
+  {t:'Nuclear Physics: Principles (Lilley)',d:'应用导向——探测器、核医学、反应堆',dm:'应用·英文',u:''},
+  {t:'IAEA Live Chart of Nuclides',d:'权威核素数据库——查询任何核素的性质',dm:'在线工具',u:'https://www-nds.iaea.org/relnsd/vcharthtml/VChartHTML.html'},
+  {t:'NNDC NuDat 3.0',d:'美国国家核数据中心——核数据权威来源',dm:'在线工具',u:'https://www.nndc.bnl.gov/nudat3/'},
+  {t:'PHET Nuclear Physics Simulations',d:'交互式核物理教学模拟——α衰变、裂变可视化',dm:'教学工具',u:'https://phet.colorado.edu'},
+  {t:'GEANT4 Simulation Toolkit',d:'CERN旗舰粒子输运模拟——工业级核物理实验模拟',dm:'工具·C++',u:'https://geant4.web.cern.ch'},
+  {t:'ROOT Data Analysis Framework',d:'核/粒子物理数据分析标准框架',dm:'工具·C++/Python',u:'https://root.cern'},
+  {t:'ENSDF Evaluated Nuclear Structure Data',d:'评估核结构数据——全世界核能级数据的标准',dm:'数据库',u:'https://www.nndc.bnl.gov/ensdf/'},
+  {t:'Physical Review C',d:'核物理顶级期刊——追踪学科前沿',dm:'学术期刊',u:'https://journals.aps.org/prc/'},
+  {t:'Nuclear Physics News',d:'核物理新闻季刊——大装置更新+最新实验结果',dm:'学术期刊',u:'https://www.nupecc.org'},
+  {t:'CERN Courier',d:'CERN官方杂志——高能物理最新进展',dm:'学术期刊',u:'https://cerncourier.com'}
+];
+
+const TRACKER_ITEMS=[
+  {id:'t1',p:'P1',w:'1-2周',d:'原子核基础:核尺度、质量亏损、核力'},
+  {id:'t2',p:'P2',w:'3-4周',d:'核模型:Weizsacker、壳模型、集体模型'},
+  {id:'t3',p:'P3',w:'5-6周',d:'放射性衰变:α/β/γ三种衰变的完整理论'},
+  {id:'t4',p:'P4',w:'7-8周',d:'核反应:裂变/聚变/散射——全部核能原理'},
+  {id:'t5',p:'P5',w:'9-10周',d:'中微子与标准模型:QCD、Higgs、三大力统一'},
+  {id:'t6',p:'P6',w:'11-13周',d:'核技术应用:反应堆、探测器、核医学'},
+  {id:'t7',p:'P7',w:'14-15周',d:'前沿:核天体物理、奇特核、加速器、0νββ'}
+];
+
+function hR(){
+  var html=PHASES.map(function(p,i){
+    return '<div class="roadmap-item"><div class="roadmap-dot"></div><div class="roadmap-content" onclick="tP(\''+p.id+'\');document.getElementById(\'phases\').scrollIntoView({behavior:\'smooth\'})">'+'<span class="phase-badge '+p.cls+'">PHASE '+(i+1)+'</span>'+'<h3>'+p.title+'</h3>'+'<div class="week">'+p.week+' · '+p.sub+'</div>'+'<ul>'+p.skills.map(function(s){return '<li>'+s.code+'</li>'}).join('')+'</ul>'+'<span class="goto-link">查看完整内容 &rarr;</span></div></div>';
+  }).join('');
+  document.getElementById('roadmapContainer').innerHTML=html;
+  setTimeout(function(){var obs=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target)}})});document.querySelectorAll('.roadmap-item').forEach(function(el){obs.observe(el)})},100);
+}
+
+function hPD(){
+  document.getElementById('phaseContainer').innerHTML=PHASES.map(function(p,i){
+    return '<div class="phase-detail" id="phase-'+p.id+'"><div class="phase-detail-header" onclick="tP(\''+p.id+'\')">'+'<div class="left"><div class="icon" style="background:rgba('+parseInt(p.color.substr(1,2),16)+','+parseInt(p.color.substr(3,2),16)+','+parseInt(p.color.substr(5,2),16)+',0.12)">'+p.icon+'</div><div><h3 style="color:'+p.color+'">'+p.title+'</h3>'+'<p class="meta">'+p.week+' · '+p.sub+'</p></div></div>'+'<span class="phase-arrow">&#9660;</span></div>'+'<div class="phase-body"><div class="phase-body-inner">'+'<div class="skill-grid">'+p.skills.map(function(s){return s.kp?'<span class="skill-chip skill-link" onclick="event.stopPropagation();goK(\''+s.kp+'\')"><code>'+s.code+'</code> <span class="chip-arrow">&rarr;</span></span>':'<span class="skill-chip"><code>'+s.code+'</code></span>'}).join('')+'</div>'+(p.codes?p.codes.map(function(c){return '<div class="code-block"><div class="code-header"><span class="code-lang">'+c.lang+'</span><button class="copy-btn" onclick="cpC(this)">复制</button></div><pre><code>'+c.code.replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</code></pre></div>'}).join(''):'')+'<div>'+p.drawings.map(function(d){var cls=d.lvl==='must'?'draw-must':(d.lvl==='suggest'?'draw-suggest':'draw-optional');return '<span class="phase-drawing-tag '+cls+'">'+d.text+'</span>'}).join('')+'</div>'+'</div></div></div>';
+  }).join('');
+}
+
+function hDS(){
+  var method=[{n:'01',t:'抄图 Copy',d:'跟着画——临摹课本标准图，感受每条线背后的物理'},{n:'02',t:'默图 Memorize',d:'不看课本——独立画出结构+每部分标注物理量量级'},{n:'03',t:'讲图 Explain',d:'对着空图自讲——用自己的语言把每个箭头/标注讲出来'}];
+  document.getElementById('drawingMethod').innerHTML=method.map(function(m){return '<div class="method-card"><div class="step-num">'+m.n+'</div><h4>'+m.t+'</h4><p>'+m.d+'</p></div>'}).join('');
+  document.getElementById('mathTags').innerHTML=MATH_TAGS_DATA.map(function(t){return '<span class="math-tag '+t.cls+'">'+t.code+' '+t.label+'</span>'}).join('');
+  document.getElementById('drawLevels').innerHTML=[{cls:'must',t:'[必画] 核心',n:'≈15 张',d:'理论骨架+量化参数'},{cls:'suggest',t:'[建议画] 辅助',n:'≈12 张',d:'加深物理直觉'},{cls:'optional',t:'[可选画] 拓展',n:'≈6 张',d:'前沿方向示意'}].map(function(l){return '<div class="draw-level '+l.cls+'"><strong>'+l.t+'</strong><br><small>'+l.n+' · '+l.d+'</small></div>'}).join('');
+}
+
+function hFs(){
+  document.getElementById('formulaTabs').innerHTML=FORMULA_TABS.map(function(t,i){return '<button class="formula-tab'+(i===0?' active':'')+'" onclick="sFT('+i+')">'+t.label+'</button>'}).join('');
+  document.getElementById('formulaPanels').innerHTML=FORMULAS.map(function(rows,i){return '<div class="formula-panel'+(i===0?' active':'')+'"><table class="formula-table"><thead><tr><th>概念</th><th>公式/数值</th><th>说明</th></tr></thead><tbody>'+rows.map(function(r){return '<tr><td>'+r.c+'</td><td>'+r.f.replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</td><td>'+(r.n||'')+'</td></tr>'}).join('')+'</tbody></table></div>'}).join('');
+}
+
+function sFT(i){
+  document.querySelectorAll('.formula-tab').forEach(function(b,j){b.classList.toggle('active',j===i)});
+  document.querySelectorAll('.formula-panel').forEach(function(p,j){p.classList.toggle('active',j===i)});
+}
+
+var _kf='all',_ka=false,_kph='all';
+
+function hK(){
+  var ks=Object.values(KP),tags=[{v:'all',l:'全部'},{v:'quantum',l:'[量子]'},{v:'scatter',l:'[散射]'},{v:'manybody',l:'[多体]'},{v:'group',l:'[群论]'},{v:'stat',l:'[统计]'},{v:'math',l:'[数学]'},{v:'experiment',l:'[实验]'}];
+  document.getElementById('knowledgeFilterBar').innerHTML=tags.map(function(t){return '<button class="knowledge-filter'+(t.v===_kf?' active':'')+'" onclick="fK(\''+t.v+'\',this)">'+t.l+'</button>'}).join('');
+  var phContainer=document.getElementById('knowledgeContainer');
+  var phFilterRow=document.createElement('div');phFilterRow.className='phase-filter-row';phFilterRow.id='phaseFilterRow';
+  phContainer.parentNode.insertBefore(phFilterRow,phContainer);
+  hPhaseFilters();
+  fK(_kf);
+}
+
+function hPhaseFilters(){
+  var phases=[{v:'all',l:'全部'},{v:'p1',l:'P1·基础'},{v:'p2',l:'P2·模型'},{v:'p3',l:'P3·衰变'},{v:'p4',l:'P4·反应'},{v:'p5',l:'P5·中微子'},{v:'p6',l:'P6·应用'},{v:'p7',l:'P7·前沿'}];
+  var row=document.getElementById('phaseFilterRow');
+  if(!row)return;
+  row.innerHTML=phases.map(function(p){return '<button class="phase-filter-btn'+(p.v===_kph?' active':'')+'" onclick="setPhaseFilter(\''+p.v+'\',this)">'+p.l+'</button>'}).join('');
+}
+
+function setPhaseFilter(ph,btn){
+  _kph=ph;hPhaseFilters();fK(_kf);
+}
+
+var _expandedKp=null;
+
+function getRelatedKPs(k){
+  var samePh=Object.values(KP).filter(function(o){return o.phase===k.phase&&o.title!==k.title});
+  if(samePh.length===0)return'';
+  var scored=samePh.map(function(o){var sc=o.tag===k.tag?2:1;return{k:o,s:sc}});
+  scored.sort(function(a,b){return b.s-a.s});
+  var top=scored.slice(0,3);
+  return '<div class="card-related"><div class="cr-title">🔗 相关知识点</div><div class="cr-links">'+top.map(function(t){
+    var eId=encodeURIComponent(t.k.title.replace(/[^a-z\u4e00-\u9fa5]/g,'').substring(0,12));
+    return '<span class="cr-link" onclick="event.stopPropagation();goRelatedKp(\''+eId+'\')">'+t.k.title+'</span>';
+  }).join('')+'</div></div>';
+}
+
+function flipAnimate(grid, oldRects){
+  var cards=[].slice.call(grid.querySelectorAll('.knowledge-card'));
+  cards.forEach(function(card){
+    var old=oldRects[card.id];if(!old)return;
+    var cur=card.getBoundingClientRect();
+    var dx=old.left-cur.left;var dy=old.top-cur.top;
+    if(Math.abs(dx)>0.5||Math.abs(dy)>0.5){
+      card.style.transform='translate('+dx+'px,'+dy+'px)';card.style.transition='none';
+    }
+  });
+  if(cards.length>0)void cards[0].offsetHeight;
+  cards.forEach(function(card){
+    card.style.transition='transform 0.4s cubic-bezier(0.25,0.1,0.25,1)';card.style.transform='';
+  });
+  setTimeout(function(){cards.forEach(function(c){c.style.transition=''})},450);
+}
+
+function collapseExpanded(grid){
+  if(!grid.classList.contains('has-expanded'))return false;
+  var oldRects={};[].slice.call(grid.querySelectorAll('.knowledge-card')).forEach(function(c){oldRects[c.id]=c.getBoundingClientRect()});
+  [].slice.call(grid.querySelectorAll('.knowledge-card')).forEach(function(c){c.classList.remove('expanded','open')});
+  grid.classList.remove('has-expanded');
+  _expandedKp=null;
+  if(grid.querySelector('.knowledge-card.expanded'))return true;
+  flipAnimate(grid,oldRects);
+  return true;
+}
+
+function goRelatedKp(cid){
+  var grid=document.getElementById('knowledgeContainer');
+  collapseExpanded(grid);
+  var el=document.getElementById(cid);
+  if(el){
+    expandCard(grid,el);
+    setTimeout(function(){el.scrollIntoView({behavior:'smooth',block:'nearest'})},150);
+  }
+}
+
+function goGraphToKp(cid){
+  document.getElementById('knowledge').scrollIntoView({behavior:'smooth'});
+  setTimeout(function(){
+    var el=document.getElementById('kc-'+cid);
+    if(el){
+      var grid=document.getElementById('knowledgeContainer');
+      collapseExpanded(grid);
+      expandCard(grid,el);
+      setTimeout(function(){el.scrollIntoView({behavior:'smooth',block:'center'})},200);
+    }
+  },500);
+}
+
+function goBackFromKp(ph){
+  document.getElementById('phases').scrollIntoView({behavior:'smooth'});
+  var mapping={P1:'p1',P2:'p2',P3:'p3',P4:'p4',P5:'p5',P6:'p6',P7:'p7'};
+  var pid=mapping[ph];
+  if(pid){setTimeout(function(){
+    var el=document.getElementById('phase-'+pid);
+    if(el){el.classList.add('open');el.scrollIntoView({behavior:'smooth',block:'center'})}
+  },400)}
+}
+
+function fK(tag,btn){
+  _kf=tag;if(btn){document.querySelectorAll('.knowledge-filter').forEach(function(b){b.classList.remove('active')});btn.classList.add('active')}
+  _expandedKp=null;
+  var map={quantum:'[量子]',scatter:'[散射]',manybody:'[多体]',group:'[群论]',stat:'[统计]',math:'[数学]',experiment:'[实验]'},fl=Object.values(KP);
+  if(tag!=='all')fl=fl.filter(function(k){return k.tag===tag});
+  if(_kph!=='all')fl=fl.filter(function(k){return k.phase===_kph});
+  document.getElementById('knowledgeCount').innerHTML='共 <strong>'+fl.length+'</strong> 个知识点';
+  var tls={quantum:'tag-quantum',scatter:'tag-scatter',manybody:'tag-manybody',group:'tag-group',stat:'tag-stat',math:'tag-math',experiment:'tag-expt'};
+  var phMap={p1:'P1',p2:'P2',p3:'P3',p4:'P4',p5:'P5',p6:'P6',p7:'P7'};
+  var grid=document.getElementById('knowledgeContainer');
+  grid.className='knowledge-grid';
+  grid.innerHTML=fl.map(function(k){
+    var tcl=tls[k.tag]||'';
+    var ph=phMap[k.phase]||'';
+    var eId=encodeURIComponent(k.title.replace(/[^a-z\u4e00-\u9fa5]/g,'').substring(0,12));
+    var tid='kc-'+eId;
+    return '<div class="knowledge-card" id="'+tid+'" onclick="tK(event,this)"><div class="card-header"><span class="card-icon">⚛</span><span class="card-title">'+k.title+'</span><span class="math-tag '+tcl+'" style="font-size:0.62rem;padding:3px 8px">'+map[k.tag]+'</span><span style="font-size:0.6rem;padding:2px 6px;border-radius:3px;background:var(--bg-elevated);color:var(--text-muted);margin:0 4px">'+ph+'</span><button class="card-back" onclick="event.stopPropagation();goBackFromKp(\''+ph+'\')" title="返回 '+ph+' 阶段详情">↩</button></div><div class="card-detail"><p>'+k.d+'</p>'+(k.f?'<div class="card-formula">'+k.f.replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</div>':'')+(k.diagram?'<div class="card-draw-box">'+k.diagram+'</div>':'')+(k.sum?'<div class="card-sum">💡 '+k.sum+'</div>':'')+getRelatedKPs(k)+'</div></div>';
+  }).join('');
+}
+
+function expandCard(grid, card){
+  var allCards=[].slice.call(grid.querySelectorAll('.knowledge-card'));
+  var oldRects={};allCards.forEach(function(c){oldRects[c.id]=c.getBoundingClientRect()});
+  card.classList.add('expanded','open');
+  grid.classList.add('has-expanded');
+  _expandedKp=card.id;
+  flipAnimate(grid,oldRects);
+}
+
+function tK(evt,h){
+  var card=h.closest('.knowledge-card');if(!card)return;
+  var grid=document.getElementById('knowledgeContainer');
+  if(card.classList.contains('expanded')){
+    if(!evt.target.closest('.card-header'))return;
+    collapseExpanded(grid);return;
+  }
+  if(grid.classList.contains('has-expanded'))collapseExpanded(grid);
+  expandCard(grid,card);
+  setTimeout(function(){card.scrollIntoView({behavior:'smooth',block:'nearest'})},150);
+}
+
+function goK(kpId){
+  var k=KP[kpId];if(!k)return;
+  var eId=encodeURIComponent(k.title.replace(/[^a-z\u4e00-\u9fa5]/g,'').substring(0,12));
+  var tid='kc-'+eId;
+  document.getElementById('knowledge').scrollIntoView({behavior:'smooth'});
+  var tagVal=k.tag||'all';
+  document.querySelectorAll('.knowledge-filter').forEach(function(b){b.classList.remove('active')});
+  var matchBtn=null;document.querySelectorAll('.knowledge-filter').forEach(function(b){if(b.textContent.indexOf(tagVal)!==-1)matchBtn=b});
+  if(tagVal==='experiment')matchBtn=document.querySelector('.knowledge-filter:nth-child(8)');
+  fK(tagVal,matchBtn);
+  setTimeout(function(){
+    var el=document.getElementById(tid);
+    if(el){
+      var grid=document.getElementById('knowledgeContainer');
+      collapseExpanded(grid);
+      expandCard(grid,el);
+      setTimeout(function(){el.scrollIntoView({behavior:'smooth',block:'center'})},200);
+    }
+  },600);
+}
+
+function toggleAllKnowledge(){
+  _ka=!_ka;var btn=document.querySelector('.ks-expand-all');if(btn)btn.textContent=_ka?'收起全部':'展开全部';
+  var grid=document.getElementById('knowledgeContainer');
+  if(_ka&&grid.classList.contains('has-expanded'))collapseExpanded(grid);
+  [].slice.call(grid.querySelectorAll('.knowledge-card')).forEach(function(c){
+    if(_ka){c.classList.remove('expanded')}
+    c.classList.toggle('open',_ka);
+  });
+  if(_ka){grid.classList.remove('has-expanded');_expandedKp=null}
+}
+
+function hEx(){
+  document.getElementById('exerciseFilters').innerHTML=[{v:'all',l:'全部'},{v:'easy',l:'初级'},{v:'medium',l:'中级'},{v:'hard',l:'高级'},{v:'project',l:'大作业'}].map(function(t){return '<button class="exercise-filter'+(t.v==='all'?' active':'')+'" onclick="fEx(\''+t.v+'\',this)">'+t.l+'</button>'}).join('');
+  fEx('all');
+}
+
+var _exDiff='all';
+
+function fEx(diff,btn){
+  _exDiff=diff;if(btn){document.querySelectorAll('.exercise-filter').forEach(function(b){b.classList.remove('active')});btn.classList.add('active')}
+  var done=JSON.parse(localStorage.getItem('np_done')||'{}');
+  var filtered=EXERCISES.filter(function(e){return diff==='all'||e.diff===diff});
+  document.getElementById('exerciseCounter').innerHTML='显示 <strong>'+filtered.length+'</strong> / '+EXERCISES.length+' 题，已完成 <strong>'+(Object.values(done).filter(function(v){return v}).length)+'</strong>';
+  document.getElementById('exerciseList').innerHTML=filtered.map(function(e){
+    var d=diffLabels[e.diff],dc=diffClasses[e.diff];
+    return '<div class="exercise-item" onclick="tEx(this)"><span class="exercise-num">'+e.id.toUpperCase()+'</span><div class="ei-content"><div class="ei-title"><span class="ei-title-text">'+e.text+'</span><span class="diff '+dc+'">'+d+'</span></div><div class="ei-answer">'+(e.a||'💡 动手思考:先独立解决再查阅参考答案')+'</div></div><div class="ei-check'+(done[e.id]?' done':'')+'" onclick="event.stopPropagation();tExCk(\''+e.id+'\',this)">'+(done[e.id]?'✓':'')+'</div></div>';
+  }).join('');
+}
+
+var diffLabels={easy:'初级',medium:'中级',hard:'高级',project:'大作业'};
+var diffClasses={easy:'diff-easy',medium:'diff-medium',hard:'diff-hard',project:'diff-project'};
+
+function tEx(el){el.classList.toggle('expanded')}
+
+function tExCk(id,el){
+  var done=JSON.parse(localStorage.getItem('np_done')||'{}');
+  done[id]=!done[id];
+  localStorage.setItem('np_done',JSON.stringify(done));
+  el.classList.toggle('done',done[id]);el.innerHTML=done[id]?'✓':'';
+  fEx(_exDiff);
+}
+
+function hRes(){
+  document.getElementById('resourceList').innerHTML=RESOURCES.map(function(r){return '<a class="resource-card"'+(r.u?' href="'+r.u+'" target="_blank" rel="noopener"':' onclick="event.preventDefault()"')+'><h4>'+r.t+'</h4><p>'+r.d+'</p><span class="res-domain">'+r.dm+'</span></a>'}).join('');
+}
+
+function hTr(){
+  var done=JSON.parse(localStorage.getItem('np_tr')||'{}');
+  var total=TRACKER_ITEMS.length,completed=0;
+  document.getElementById('trackerList').innerHTML=TRACKER_ITEMS.map(function(t){
+    var isDone=done[t.id];if(isDone)completed++;
+    return '<div class="tracker-row"><div class="tracker-check'+(isDone?' done':'')+'" onclick="tTr(\''+t.id+'\',this)">'+(isDone?'✓':'')+'</div><div style="flex:1;min-width:0"><strong>'+t.p+'</strong> · '+t.w+'<br><span style="font-size:0.72rem;color:var(--text-muted)">'+t.d+'</span></div><div class="tracker-bar"><div class="tracker-bar-fill" style="width:'+(isDone?'100':'0')+'%"></div></div></div>';
+  }).join('');
+  document.getElementById('trackerTotal').textContent=completed+'/'+total;
+}
+
+function tTr(id,el){
+  var done=JSON.parse(localStorage.getItem('np_tr')||'{}');
+  done[id]=!done[id];
+  localStorage.setItem('np_tr',JSON.stringify(done));
+  hTr();
+}
+
+function exportNotes(){
+  var doneEx=JSON.parse(localStorage.getItem('np_done')||'{}');
+  var doneTr=JSON.parse(localStorage.getItem('np_tr')||'{}');
+  var lines=['# 核物理学习笔记','','生成日期: '+new Date().toLocaleDateString('zh-CN'),''];
+  lines.push('## 📊 学习进度 (阶段完成)');
+  TRACKER_ITEMS.forEach(function(t){
+    lines.push(doneTr[t.id]?'- [x] '+t.p+' '+t.w+': '+t.d:'- [ ] '+t.p+' '+t.w+': '+t.d);
+  });
+  lines.push('');lines.push('## 📝 已完成的练习');
+  var compEx=EXERCISES.filter(function(e){return doneEx[e.id]});
+  if(compEx.length>0){
+    compEx.forEach(function(e){
+      lines.push('- ['+e.id.toUpperCase()+']('+diffLabels[e.diff]+') '+e.text);
+    });
+  } else {lines.push('(暂未完成任何练习)')}
+  lines.push('');lines.push('## 💡 已掌握的知识点(按完成练习推断)');
+  var donePhases={};Object.keys(doneTr).forEach(function(k){if(doneTr[k])donePhases[k]=true});
+  lines.push('完成阶段: '+Object.keys(donePhases).length+'/7');
+  lines.push('完成练习: '+compEx.length+'/'+EXERCISES.length);
+  var notes=lines.join('\n');
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(notes).then(function(){sT('✅ 学习笔记已复制到剪贴板!')});
+  } else {
+    var ta=document.createElement('textarea');ta.value=notes;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
+    sT('✅ 学习笔记已复制到剪贴板!');
+  }
+}
+
+function hSP(){
+  document.getElementById('sideProgress').innerHTML=['roadmap','knowledge','phases','formulas','exercises','resources','tracker'].map(function(s,i){return '<div class="progress-dot" onclick="document.getElementById(\''+s+'\').scrollIntoView({behavior:\'smooth\'})"><div class="progress-tooltip">'+(i===0?'路线图':i===1?'知识点':i===2?'阶段详情':i===3?'公式':i===4?'练习':i===5?'资料':'进度')+'</div></div>'}).join('');
+}
+
+function cpC(btn){
+  var code=btn.closest('.code-block').querySelector('code').textContent;
+  navigator.clipboard.writeText(code).then(function(){
+    btn.textContent='已复制!';btn.classList.add('copied');
+    setTimeout(function(){btn.textContent='复制';btn.classList.remove('copied')},2000);
+  });
+}
+
+function tP(id){var el=document.getElementById('phase-'+id);if(el)el.classList.toggle('open')}
+
+function oS(){document.getElementById('searchOverlay').classList.add('open');document.getElementById('searchInput').focus()}
+function cS(){document.getElementById('searchOverlay').classList.remove('open');document.getElementById('searchInput').value='';document.getElementById('searchResults').innerHTML=''}
+
+function doSearch(){
+  var q=document.getElementById('searchInput').value;
+  var ql=q.toLowerCase();
+  if(!q||ql.length<2){document.getElementById('searchResults').innerHTML='';return}
+  function hl(t){if(!t)return'';var i=t.toLowerCase().indexOf(ql);if(i===-1)return t.replace(/</g,'&lt;').replace(/>/g,'&gt;');var b=t.substr(0,i)+'<mark>'+t.substr(i,q.length)+'</mark>'+t.substr(i+q.length);return b.replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/&lt;mark&gt;/g,'<mark>').replace(/&lt;\/mark&gt;/g,'</mark>')}
+  var results=[];
+  Object.entries(KP).forEach(function(e){var k=e[1],id=e[0];if(k.title.toLowerCase().indexOf(ql)!==-1||k.d.toLowerCase().indexOf(ql)!==-1||(k.f||'').toLowerCase().indexOf(ql)!==-1||(k.sum||'').toLowerCase().indexOf(ql)!==-1)results.push({id:id,title:hl(k.title),snippet:(k.sum||k.f||'').replace(/</g,'&lt;'),tag:k.tag})});
+  PHASES.forEach(function(p){if(p.title.toLowerCase().indexOf(ql)!==-1||p.sub.toLowerCase().indexOf(ql)!==-1)results.push({id:p.id,title:hl(p.title),snippet:hl(p.sub),tag:'phase'})});
+  RESOURCES.forEach(function(r,i){if(r.t.toLowerCase().indexOf(ql)!==-1||r.d.toLowerCase().indexOf(ql)!==-1)results.push({id:i,title:hl(r.t),snippet:hl(r.d),tag:'res'})});
+  document.getElementById('searchResults').innerHTML=results.slice(0,15).map(function(r){
+    return '<div class="search-result-item" onclick="(function(){'+
+      'if(\''+r.tag+'\'===\'phase\'){document.getElementById(\'phases\').scrollIntoView({behavior:\'smooth\'});setTimeout(function(){tP(\''+r.id+'\')},400)}'+
+      'else if(\''+r.tag+'\'===\'res\'){document.getElementById(\'resources\').scrollIntoView({behavior:\'smooth\'})}'+
+      'else{goK(\''+r.id+'\')};cS()})()"><div class="sr-title">'+r.title+'</div><div class="sr-snippet">'+r.snippet+'</div></div>';
+  }).join('')||'<div style="color:var(--text-muted);text-align:center;padding:20px">无匹配结果</div>';
+}
+
+function tMM(){document.getElementById('mobileMenu').classList.toggle('open');document.getElementById('hamburgerBtn').classList.toggle('open')}
+function oC(){document.getElementById('confirmOverlay').classList.add('open')}
+function cC(){document.getElementById('confirmOverlay').classList.remove('open')}
+function rA(){localStorage.removeItem('np_done');localStorage.removeItem('np_tr');window.location.reload()}
+
+function sT(m){
+  var el=document.getElementById('toast');el.textContent=m;el.classList.add('show');
+  setTimeout(function(){el.classList.remove('show')},2200);
+}
+
+function onScroll(){
+  var sy=window.scrollY;
+  document.getElementById('topNav').classList.toggle('scrolled',sy>50);
+  document.getElementById('backToTop').classList.toggle('visible',sy>500);
+  var dh=document.documentElement.scrollHeight-window.innerHeight;
+  var pct=dh>0?Math.min(100,(sy/dh)*100):0;
+  var pb=document.getElementById('scrollProgressBar');
+  if(pb)pb.style.width=pct+'%';
+  document.querySelectorAll('.roadmap-item').forEach(function(el){if(el.getBoundingClientRect().top<window.innerHeight*0.85)el.classList.add('visible')});
+  var secs=['roadmap','graph','knowledge','phases','formulas','exercises','resources','tracker'];
+  var activeIdx=-1;
+  secs.forEach(function(s,i){
+    var el=document.getElementById(s);if(!el)return;
+    var top=el.getBoundingClientRect().top;
+    if(top<120&&top>-el.offsetHeight+120)activeIdx=i;
+    document.querySelectorAll('.nav-links a').forEach(function(a){a.classList.remove('active')});
+    var nav=document.querySelector('.nav-links a[href="#'+secs[i]+'"]');if(nav)nav.classList.toggle('active',i===activeIdx);
+    document.querySelectorAll('.progress-dot').forEach(function(d,j){d.classList.toggle('active',j===i&&i===activeIdx)});
+  });
+  var mbnItems=document.querySelectorAll('.mbn-item');
+  mbnItems.forEach(function(b,i){b.classList.toggle('mbn-active',i===activeIdx)});
+}
+
+function cUp(){
+  var obs=new IntersectionObserver(function(es){es.forEach(function(e){
+    if(e.isIntersecting){
+      e.target.querySelectorAll('[data-count]').forEach(function(el){
+        var target=parseInt(el.getAttribute('data-count')),start=0,dur=1500,fps=30;
+        var inc=Math.ceil(target/(dur/1000*fps)),iv=setInterval(function(){
+          start+=inc;if(start>=target){start=target;clearInterval(iv)}el.textContent=start;
+        },1000/fps);
+      });
+      obs.unobserve(e.target);
+    }
+  })});
+  var hero=document.querySelector('.hero-stats');if(hero)obs.observe(hero);
+}
+
+function addReadingTimes(){
+  var times={roadmap:2,graph:1,knowledge:4,phases:5,formulas:1,exercises:3,resources:1,tracker:1};
+  Object.keys(times).forEach(function(id){
+    var el=document.getElementById(id);if(!el)return;
+    var sub=el.querySelector('.subtitle');
+    if(sub&&!sub.querySelector('.reading-time')){
+      var span=document.createElement('span');span.className='reading-time';
+      span.textContent='⏱ 约 '+times[id]+' 分钟';
+      sub.appendChild(span);
+    }
+  });
+}
+
+document.getElementById('helpOverlay').addEventListener('click',function(e){
+  if(e.target===this)this.classList.remove('open');
+});
+
+window._toggleTheme=function(){
+  var b=document.body,isLight=b.classList.contains('light');
+  if(isLight){b.classList.remove('light');localStorage.setItem('np_theme','dark')}
+  else{b.classList.add('light');localStorage.setItem('np_theme','light')}
+};
+
+(function loadTheme(){
+  var t=localStorage.getItem('np_theme');
+  if(t==='light')document.body.classList.add('light');
+  else if(!t){if(window.matchMedia&&window.matchMedia('(prefers-color-scheme:light)').matches)document.body.classList.add('light')}
+})();
+
+(function drawGraph(){
+  var cv=document.getElementById('graphCanvas');
+  if(!cv)return;
+  var ctx=cv.getContext('2d'),nodes=[],w=700,h=520;
+  cv.width=w*2;cv.height=h*2;ctx.scale(2,2);
+  function rs(){w=(cv.parentElement?cv.parentElement.clientWidth:700)-2;cv.width=w*2;cv.height=h*2;ctx.scale(2,2);drawAll()}
+  window.addEventListener('resize',function(){rs()});
+  var phColors=['#22d3ee','#00ff88','#c084fc','#ff9900','#ff4081','#448aff','#26c6da'];
+  var phases=['原子与原子核基础','核模型与结构','放射性衰变','核反应','中微子与标准模型','核技术应用','前沿专题与实验'];
+  var phAbbr=['P1:基础','P2:模型','P3:衰变','P4:反应','P5:中微子','P6:应用','P7:前沿'];
+
+  var phKeys=[];
+  for(var pi=0;pi<7;pi++){
+    var pn='p'+(pi+1);
+    var phKs=Object.values(KP).filter(function(k){return k.phase===pn});
+    phKeys.push({phase:pn,kps:phKs,color:phColors[pi]});
+  }
+
+  var _graphFilterPhase=null;
+
+  function layout(){
+    nodes=[];
+    var maxCount=0;phKeys.forEach(function(pk){if(pk.kps.length>maxCount)maxCount=pk.kps.length});
+    for(var pi=0;pi<7;pi++){
+      var startX=80+pi*(w-160)/6;
+      var startY=80;
+      var data=phKeys[pi];
+      data.kps.forEach(function(kp,ki){
+        var x=startX;var y=startY+ki*44;
+        var npId=encodeURIComponent(kp.title.replace(/[^a-z\u4e00-\u9fa5]/g,'').substring(0,12));
+        nodes.push({id:kp.title.substring(0,20),x:x,y:y,r:Math.min(10+ki*1.5,16),color:phColors[pi],phase:data.phase,title:kp.title,sum:kp.sum||'',kpTag:kp.tag,kpId:npId});
+      });
+      nodes.push({id:'P'+(pi+1),x:startX,y:startY-30,r:20,color:phColors[pi],phase:'p'+(pi+1),title:phases[pi],sum:'阶段'+(pi+1),isPhase:true});
+    }
+  }
+
+  function drawAll(){
+    ctx.clearRect(0,0,w,h);
+    layout();
+    for(var pi=1;pi<7;pi++){
+      var prev=phKeys[pi-1],cur=phKeys[pi];
+      if(prev&&cur&&prev.kps.length>0&&cur.kps.length>0){
+        var pn=80+(prev.kps.length-1)*44+44;
+        var cn=80+(cur.kps.length-1)*44+44;
+        var pX=80+(pi-1)*(w-160)/6;
+        var cX=80+pi*(w-160)/6;
+        ctx.beginPath();ctx.moveTo(pX,pn);ctx.lineTo(cX,cn);
+        ctx.strokeStyle=phColors[pi-1];ctx.globalAlpha=0.12;ctx.lineWidth=2;ctx.setLineDash([6,8]);ctx.stroke();ctx.setLineDash([]);ctx.globalAlpha=1;
+      }
+    }
+    nodes.forEach(function(n){
+      var dim=_graphFilterPhase&&!n.isPhase&&n.phase!==_graphFilterPhase;
+      if(!n.isPhase){
+        ctx.beginPath();ctx.arc(n.x,n.y,n.r,0,6.28);ctx.fillStyle=n.color;ctx.globalAlpha=dim?0.06:0.15;ctx.fill();ctx.globalAlpha=1;
+        ctx.beginPath();ctx.arc(n.x,n.y,n.r,0,6.28);ctx.fillStyle=n.color;ctx.globalAlpha=dim?0.2:0.8;ctx.fill();ctx.globalAlpha=1;
+      } else {
+        ctx.beginPath();ctx.arc(n.x,n.y,n.r,0,6.28);ctx.fillStyle=n.color;ctx.globalAlpha=0.25;ctx.fill();
+        ctx.beginPath();ctx.arc(n.x,n.y,n.r,0,6.28);ctx.strokeStyle=n.color;ctx.lineWidth=2.5;ctx.globalAlpha=dim?0.2:0.6;ctx.stroke();ctx.globalAlpha=1;
+        ctx.fillStyle='#050510';ctx.font='bold 9px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(n.id,n.x,n.y);
+        ctx.fillStyle=n.color;ctx.globalAlpha=dim?0.3:1;ctx.fillText(n.id,n.x,n.y);ctx.globalAlpha=1;
+      }
+    });
+    var leg=document.getElementById('graphLegend');
+    if(leg){leg.innerHTML=phAbbr.map(function(p,i){return '<div class="graph-legend-item'+(phKeys[i]&&_graphFilterPhase===phKeys[i].phase?' active-highlight':'')+'" onclick="window._toggleGraphFilter(\''+phKeys[i].phase+'\')"><span class="graph-legend-dot" style="background:'+phColors[i]+'"></span>'+p+'</div>'}).join('')+
+              '<div class="graph-legend-item" onclick="window._toggleGraphFilter(null)" style="font-size:0.68rem;color:var(--text-muted)">✕ 清除过滤</div>'}
+  }
+
+  var tt=document.getElementById('graphTooltip');
+  cv.addEventListener('mousemove',function(e){
+    var r=cv.getBoundingClientRect(),mx=e.clientX-r.left,my=e.clientY-r.top;
+    var hit=null;
+    for(var i=nodes.length-1;i>=0;i--){var n=nodes[i],dx=mx-n.x,dy=my-n.y;if(Math.sqrt(dx*dx+dy*dy)<n.r){hit=n;break}}
+    if(hit){
+      tt.style.display='block';tt.style.left=(e.clientX+18)+'px';tt.style.top=(e.clientY-40)+'px';
+      tt.querySelector('.gt-title').textContent=hit.title||hit.id;
+      tt.querySelector('.gt-desc').textContent=hit.sum||(hit.isPhase?hit.title:'');
+      cv.style.cursor='pointer';
+    } else {tt.style.display='none';cv.style.cursor='default'}
+  });
+  cv.addEventListener('mouseleave',function(){tt.style.display='none'});
+  cv.addEventListener('click',function(e){
+    var r=cv.getBoundingClientRect(),mx=e.clientX-r.left,my=e.clientY-r.top;
+    var hit=null;
+    for(var i=nodes.length-1;i>=0;i--){var n=nodes[i],dx=mx-n.x,dy=my-n.y;if(Math.sqrt(dx*dx+dy*dy)<n.r){hit=n;break}}
+    if(hit){
+      if(hit.isPhase){
+        document.getElementById('phases').scrollIntoView({behavior:'smooth'});
+        var pid='phase-'+hit.phase;
+        setTimeout(function(){var el=document.getElementById(pid);if(el){el.classList.add('open');el.scrollIntoView({behavior:'smooth',block:'center'})}},400);
+      } else if(hit.kpId){
+        goGraphToKp(hit.kpId);
+      }
+    }
+  });
+
+  window._toggleGraphFilter=function(ph){
+    if(_graphFilterPhase===ph){_graphFilterPhase=null}else{_graphFilterPhase=ph}
+    drawAll();
+  };
+  drawAll();
+  rs();
+})();
+
+(function init(){
+  hR();hPD();hDS();hK();hFs();hEx();hRes();hTr();hSP();cUp();addReadingTimes();
+  window.addEventListener('scroll',onScroll,{passive:true});onScroll();
+  document.addEventListener('keydown',function(e){
+    if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();oS();}
+    if(e.key==='Escape'){
+      if(document.getElementById('searchOverlay').classList.contains('open')){cS();return}
+      if(document.getElementById('helpOverlay').classList.contains('open')){document.getElementById('helpOverlay').classList.remove('open');return}
+      var grid=document.getElementById('knowledgeContainer');
+      if(grid.classList.contains('has-expanded')){collapseExpanded(grid);return}
+    }
+    if(e.shiftKey&&e.key==='?'||e.key==='?'){e.preventDefault();document.getElementById('helpOverlay').classList.add('open')}
+  });
+})();
+</script>
+</body>
+</html>

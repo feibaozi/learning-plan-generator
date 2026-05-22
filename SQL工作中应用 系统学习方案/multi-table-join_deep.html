@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>多表JOIN查询 - 深度研读</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<style>
+:root{
+--bg-deep:#0d0d0d;--bg-primary:#141414;--bg-card:#1a1a1a;
+--bg-elevated:#222222;--bg-input:#1c1c1c;
+--text-primary:#ededed;--text-secondary:#a0a0a0;--text-muted:#787878;
+--accent-blue:#5b8db8;--accent-cyan:#6ea8c0;--accent-purple:#8878a8;
+--accent-green:#5a9e6f;--accent-orange:#c0a060;--accent-pink:#b87888;
+--accent-red:#c06050;--accent-gold:#c0a060;
+--border-subtle:rgba(255,255,255,0.06);--border-glow:rgba(91,141,184,0.20);
+--shadow-sm:0 1px 3px rgba(0,0,0,0.3);--shadow-md:0 4px 12px rgba(0,0,0,0.4);
+--radius-sm:6px;--radius-md:10px;--radius-lg:16px;
+--transition-fast:0.15s ease;--transition-smooth:0.3s ease;
+--chart-grid:#252525;--chart-axis-label:#787878;
+}
+body.light{
+--bg-deep:#fafafa;--bg-primary:#ffffff;--bg-card:#f5f5f5;
+--bg-elevated:#eeeeee;--bg-input:#e5e5e5;
+--text-primary:#121212;--text-secondary:#4a4a4a;--text-muted:#5e5e5e;
+--accent-blue:#3a6088;--accent-cyan:#3a7888;--accent-purple:#5a4878;
+--accent-green:#3d8055;--accent-orange:#886830;--accent-pink:#884858;
+--accent-red:#983830;--accent-gold:#886830;
+--border-subtle:rgba(18,18,18,0.08);--border-glow:rgba(58,96,136,0.20);
+--shadow-sm:0 1px 3px rgba(0,0,0,0.06);--shadow-md:0 4px 12px rgba(0,0,0,0.08);
+--chart-grid:#e5e5e5;--chart-axis-label:#5e5e5e;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter','Noto Sans SC',-apple-system,sans-serif;background:var(--bg-deep);color:var(--text-primary);line-height:1.7}
+body.loading{opacity:0}body.loaded{opacity:1;transition:opacity 0.4s ease}
+.container{max-width:1200px;margin:0 auto;padding:0 24px}
+.meta-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-lg);padding:20px 24px;margin-bottom:24px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;position:relative;overflow:hidden}
+.meta-card::before{content:'';position:absolute;top:-50%;right:-20%;width:100%;height:100%;background:radial-gradient(ellipse at center,#5b8db8 0%,transparent 60%);opacity:0.08}
+.meta-card>*{position:relative;z-index:1}
+.meta-title{font-size:1.5rem;font-weight:800;color:var(--accent-blue)}
+.meta-tags{display:flex;gap:8px;flex-wrap:wrap}
+.meta-tag{padding:4px 14px;border-radius:50px;font-size:0.75rem;font-weight:600}
+.meta-tag.domain{background:rgba(91,141,184,0.1);color:var(--accent-blue);border:1px solid rgba(91,141,184,0.2)}
+.meta-tag.level{background:rgba(192,160,96,0.1);color:var(--accent-orange);border:1px solid rgba(192,160,96,0.2)}
+.meta-stats{display:flex;gap:20px;margin-left:auto}
+.meta-stat{text-align:center}
+.meta-stat .num{font-size:1.4rem;font-weight:700;color:var(--accent-cyan)}
+.meta-stat .lbl{font-size:0.68rem;color:var(--text-muted)}
+.sidebar{position:fixed;left:0;top:0;height:100vh;width:280px;background:var(--bg-primary);border-right:1px solid var(--border-subtle);padding:24px;overflow-y:auto;z-index:100}
+.sidebar h3{font-size:0.85rem;font-weight:700;color:var(--text-secondary);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--border-subtle)}
+.sidebar-nav{list-style:none;padding:0}
+.sidebar-nav li{margin-bottom:4px}
+.sidebar-nav a{display:block;padding:10px 12px;border-radius:var(--radius-md);text-decoration:none;font-size:0.78rem;color:var(--text-secondary);transition:all var(--transition-fast)}
+.sidebar-nav a:hover{background:rgba(91,141,184,0.08);color:var(--accent-cyan)}
+.sidebar-nav a.active{background:rgba(91,141,184,0.12);color:var(--accent-blue);font-weight:600}
+.sidebar-back-link{display:block;padding:8px 12px;margin-bottom:12px;border-radius:8px;background:var(--bg-elevated);color:var(--accent-blue);text-decoration:none;font-size:13px;font-weight:600}
+.content-area{margin-left:300px;padding:32px 24px;max-width:calc(100% - 320px)}
+@media(max-width:1024px){.sidebar{display:none}.content-area{margin-left:0;max-width:100%}}
+.module{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-lg);padding:32px;margin-bottom:24px;transition:all var(--transition-smooth)}
+.module:hover{border-color:var(--border-glow)}
+.module-header{margin-bottom:24px}
+.module-tag{display:inline-block;padding:4px 12px;border-radius:50px;font-size:0.68rem;font-weight:700;margin-bottom:10px;background:rgba(91,141,184,0.1);color:var(--accent-blue)}
+.module-title{font-size:1.4rem;font-weight:800;margin-bottom:8px}
+.module-hook{font-size:0.9rem;color:var(--accent-cyan);font-style:italic;margin-bottom:16px}
+.module-content{font-size:0.92rem;color:var(--text-secondary);line-height:1.8}
+.module-content p{margin-bottom:14px}
+.module-content ul{margin:14px 0;padding-left:24px}
+.module-content li{margin-bottom:8px}
+.module-content strong{color:var(--text-primary);font-weight:600}
+.module-content em{color:var(--accent-orange)}
+.module-content pre{background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:var(--radius-sm);padding:16px 20px;overflow-x:auto;margin:14px 0;font-size:0.82rem;font-family:'JetBrains Mono',Consolas,monospace;color:var(--accent-cyan);line-height:1.6}
+.formula-box{background:var(--bg-elevated);border:1px solid var(--border-glow);border-radius:var(--radius-md);padding:20px;margin:20px 0;overflow-x:auto}
+.formula-box .formula-caption{font-size:0.75rem;color:var(--text-muted);margin-bottom:8px;text-align:center}
+.formula-box .formula-content{font-size:1rem;text-align:center;color:var(--accent-blue)}
+.formula-box .formula-derivation{margin-top:12px;padding-top:12px;border-top:1px solid var(--border-subtle);font-size:0.82rem;color:var(--text-secondary)}
+.formula-box .formula-derivation strong{color:var(--accent-cyan)}
+.chart-container{margin:20px 0;border-radius:var(--radius-md);overflow:hidden}
+.chart-container .chart-caption{font-size:0.75rem;color:var(--text-muted);margin-bottom:8px;text-align:center}
+.chart-wrapper{height:400px;background:var(--bg-elevated)}
+@media(max-width:768px){.chart-wrapper{height:300px}}
+.table-container{margin:20px 0;overflow-x:auto}
+.table-container table{width:100%;border-collapse:collapse;border-radius:var(--radius-md);overflow:hidden}
+.table-container th{background:var(--bg-elevated);color:var(--accent-cyan);font-weight:700;padding:12px 16px;text-align:left;font-size:0.8rem}
+.table-container td{padding:12px 16px;border-bottom:1px solid var(--border-subtle);font-size:0.85rem;color:var(--text-secondary)}
+.table-container tr:hover td{background:rgba(91,141,184,0.03)}
+.table-container .table-caption{font-size:0.75rem;color:var(--text-muted);margin-bottom:8px;text-align:center}
+.key-takeaway{background:linear-gradient(135deg,rgba(192,160,96,0.08),rgba(192,160,96,0.02));border-left:4px solid var(--accent-gold);padding:16px 20px;border-radius:0 var(--radius-md) var(--radius-md) 0;margin-top:20px}
+.key-takeaway strong{color:var(--accent-gold);font-weight:700}
+.key-takeaway p{color:var(--text-secondary);font-size:0.88rem;margin:0}
+.references{margin-top:24px;padding-top:20px;border-top:1px solid var(--border-subtle)}
+.references h4{font-size:0.85rem;font-weight:700;color:var(--text-primary);margin-bottom:12px}
+.reference-item{padding:10px 14px;background:var(--bg-elevated);border-radius:var(--radius-sm);margin-bottom:8px;font-size:0.82rem}
+.reference-item .ref-title{color:var(--text-primary);font-weight:600}
+.reference-item .ref-authors{color:var(--accent-cyan);margin:4px 0}
+.reference-item .ref-meta{color:var(--text-muted);font-size:0.75rem}
+.theme-toggle{position:fixed;right:20px;top:20px;z-index:200;background:var(--bg-card);border:1px solid var(--border-subtle);padding:10px;border-radius:50%;cursor:pointer;color:var(--text-muted);transition:all var(--transition-fast)}
+.theme-toggle:hover{border-color:var(--border-glow);color:var(--accent-cyan)}
+.back-btn{position:fixed;right:20px;bottom:20px;z-index:200}
+.back-btn button{background:linear-gradient(135deg,#5b8db8,#8878a8);color:white;border:none;border-radius:24px;padding:12px 24px;font-size:0.85rem;font-weight:600;cursor:pointer;box-shadow:0 4px 12px rgba(91,141,184,0.3);transition:all var(--transition-fast)}
+.back-btn button:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(91,141,184,0.4)}
+.integration-navbar{display:flex;align-items:center;gap:12px;padding:10px 24px;background:var(--bg-card);border-bottom:1px solid var(--border-subtle);font-size:14px;position:sticky;top:0;z-index:50}
+.integration-navbar a{color:var(--accent-blue);text-decoration:none;font-weight:600}
+</style>
+</head>
+<body class="loading dark">
+<script>var DEEP_DIVE_KP_ID = 'p2_1';</script>
+
+<div class="integration-navbar">
+  <a href="#" onclick="goBack();return false;">← 返回 SQL及其在工作中应用 系统学习方案</a>
+  <span style="color:var(--text-muted)">|</span>
+  <span style="color:var(--text-secondary)">第2/4阶段 · 工作中综合应用</span>
+</div>
+
+<button class="theme-toggle" onclick="toggleTheme()" title="切换主题">🌓</button>
+
+<div class="sidebar">
+  <a href="#" onclick="goBack();return false;" class="sidebar-back-link">← 返回主方案</a>
+  <h3>📖 目录导航</h3>
+  <ul class="sidebar-nav">
+    <li><a href="#background" class="active">背景与缘起</a></li>
+    <li><a href="#concept">核心概念</a></li>
+    <li><a href="#principle">核心原理</a></li>
+    <li><a href="#architecture">JOIN执行架构</a></li>
+    <li><a href="#development">发展迭代</a></li>
+    <li><a href="#application">实践应用</a></li>
+    <li><a href="#case-study">实践案例</a></li>
+    <li><a href="#risk">潜在风险</a></li>
+    <li><a href="#landscape">数据库差异</a></li>
+    <li><a href="#issues">常见问题</a></li>
+    <li><a href="#prospect">发展趋势</a></li>
+    <li><a href="#effort-direction">学习建议</a></li>
+    <li><a href="#misconceptions">常见误区</a></li>
+    <li><a href="#learning-path">学习路径</a></li>
+    <li><a href="#glossary">关键术语表</a></li>
+    <li><a href="#debate">争议与讨论</a></li>
+  </ul>
+</div>
+
+<div class="content-area">
+  <div class="meta-card">
+    <div>
+      <div class="meta-title">🔗 多表JOIN查询</div>
+      <div class="meta-tags">
+        <span class="meta-tag domain">🏷️ 数据库/技术</span>
+        <span class="meta-tag level">🎯 进阶(理解×标准)</span>
+      </div>
+    </div>
+    <div class="meta-stats">
+      <div class="meta-stat"><div class="num">16</div><div class="lbl">模块</div></div>
+      <div class="meta-stat"><div class="num">5</div><div class="lbl">图表</div></div>
+      <div class="meta-stat"><div class="num">3</div><div class="lbl">公式</div></div>
+      <div class="meta-stat"><div class="num">8</div><div class="lbl">参考文献</div></div>
+    </div>
+  </div>
+
+  <section id="background" class="module">
+    <div class="module-header">
+      <span class="module-tag">基础背景</span>
+      <h2 class="module-title">背景与缘起</h2>
+      <p class="module-hook">为什么我们不能把所有数据塞进一张表？——从数据冗余到关系模型的范式革命</p>
+    </div>
+    <div class="module-content">
+      <p>多表JOIN查询的根源可以追溯到关系数据库之父<em>Edgar F. Codd</em>于1970年发表的划时代论文"A Relational Model of Data for Large Shared Data Banks"。在关系模型诞生之前，数据存储主要依赖层次模型和网状模型，数据之间存在大量冗余，查询需要硬编码的物理路径。</p>
+      <p>Codd提出用数学中<strong>集合论</strong>和<strong>谓词逻辑</strong>来描述数据关系。他将数据拆分为多个规范化表（normalized tables），通过共同的键值建立关联。这引入了一个核心需求——需要一种机制将分散在不同表中的数据重新组合起来，这就是JOIN的起源。</p>
+      <p>在实际工作中，数据分散存储在多个表中是数据库设计的必然结果。如果你把<strong>员工信息、部门名称、薪资记录</strong>全部塞进一张表，每次员工调薪你都得重复复制部门名称，这就是数据冗余——JOIN正是为了解决这个问题而存在。</p>
+      <p>今天的SQL JOIN已经从简单的等值连接发展到支持内连接、外连接、交叉连接、自连接等多种类型，是现代数据分析工作流不可或缺的核心技能。据统计，在实际业务查询中，<em>超过90%的非简单查询都涉及至少一个JOIN操作</em>。</p>
+    </div>
+    <div class="key-takeaway"><strong>核心要点：</strong><p>JOIN的存在根源于关系数据库的规范化设计——数据拆分存储以减少冗余，JOIN负责在查询时将数据按需重组。理解JOIN就是理解关系数据库的核心价值。</p></div>
+  </section>
+
+  <section id="concept" class="module">
+    <div class="module-header">
+      <span class="module-tag">核心概念</span>
+      <h2 class="module-title">核心概念</h2>
+      <p class="module-hook">INNER JOIN是交集，LEFT JOIN保左表，RIGHT JOIN保右表——选对JOIN类型事半功倍</p>
+    </div>
+    <div class="module-content">
+      <p>JOIN操作的本质是<strong>基于某个关联条件，将两个或多个表中的行进行匹配组合</strong>。SQL定义了以下核心JOIN类型：</p>
+      
+      <h3 style="color:var(--accent-blue);font-size:1.1rem;margin:20px 0 12px">INNER JOIN（内连接）</h3>
+      <p>返回两表中<strong>匹配成功的行</strong>，即两个表的<em>交集</em>。如果某行在任一表中没有匹配项，该行不会出现在结果中。这是最常用的连接类型，适合"找出有对应记录的关联数据"场景。</p>
+
+      <h3 style="color:var(--accent-blue);font-size:1.1rem;margin:20px 0 12px">LEFT JOIN / LEFT OUTER JOIN（左外连接）</h3>
+      <p>返回左表的<strong>全部行</strong>，右表有匹配则填充实际值，无匹配则以NULL填充。这是工作中最实用的外连接——"保留主表全部数据，补上关联信息，没有就留空"。</p>
+
+      <h3 style="color:var(--accent-blue);font-size:1.1rem;margin:20px 0 12px">RIGHT JOIN / RIGHT OUTER JOIN（右外连接）</h3>
+      <p>与LEFT JOIN对称，保留右表全部行。实际上可通过交换左右表位置转化为LEFT JOIN，因此使用频率低于LEFT JOIN。</p>
+
+      <h3 style="color:var(--accent-blue);font-size:1.1rem;margin:20px 0 12px">FULL OUTER JOIN（全外连接）</h3>
+      <p>返回两表的<strong>并集</strong>：两表能匹配的行组合在一起，各自独有的行以NULL补全对方列。MySQL不直接支持FULL OUTER JOIN，需通过UNION LEFT+RIGHT模拟。</p>
+
+      <h3 style="color:var(--accent-blue);font-size:1.1rem;margin:20px 0 12px">CROSS JOIN（交叉连接/笛卡尔积）</h3>
+      <p>左表每行与右表每行逐一组合，生成M×N行。不加ON条件的CROSS JOIN是性能杀手——两张1000行的表产生100万行结果。</p>
+
+      <h3 style="color:var(--accent-blue);font-size:1.1rem;margin:20px 0 12px">SELF JOIN（自连接）</h3>
+      <p>表与自身进行连接，通过别名区分两次引用。典型场景：员工表中查找"我的经理是谁"（员工表JOIN员工表）。</p>
+
+      <div class="chart-container">
+        <div class="chart-caption">图：SQL JOIN类型直观对比（文氏图视角）</div>
+        <div class="chart-wrapper" id="join-venn-chart"></div>
+      </div>
+    </div>
+    <div class="key-takeaway"><strong>核心要点：</strong><p>INNER=交集，LEFT=左表全+右表补，RIGHT=右表全+左表补，FULL=并集，CROSS=笛卡尔积。90%的实际场景用INNER JOIN和LEFT JOIN即可覆盖。</p></div>
+  </section>
+
+  <section id="principle" class="module">
+    <div class="module-header">
+      <span class="module-tag">核心原理</span>
+      <h2 class="module-title">核心原理</h2>
+      <p class="module-hook">JOIN的本质是"按条件配对"——数据库引擎是如何在成百上千万行数据中高效完成这个操作的？</p>
+    </div>
+    <div class="module-content">
+      <p>从关系代数角度看，JOIN操作可以看作对两个关系的<strong>笛卡尔积施加选择条件</strong>。数学上表示为：</p>
+      <div class="formula-box">
+        <div class="formula-caption">公式1：INNER JOIN的关系代数定义</div>
+        <div class="formula-content">$$R \bowtie_\theta S = \sigma_\theta(R \times S)$$</div>
+        <div class="formula-derivation"><strong>推导：</strong><br/>
+        1. $R \times S$ 先计算两张表的笛卡尔积（每条R的行与每条S的行组合）<br/>
+        2. $\sigma_\theta$ 再施加选择条件 $\theta$（如 R.id = S.r_id）<br/>
+        3. 只保留满足条件的行，丢弃其余——<em>但数据库引擎不会真的先算笛卡尔积再过滤</em>
+        </div>
+      </div>
+
+      <h3 style="color:var(--accent-cyan);font-size:1.1rem;margin:20px 0 12px">JOIN的三种物理执行算法</h3>
+      <p>数据库优化器会根据表大小、索引情况自动选择最优算法：</p>
+
+      <table class="table-container"><table>
+        <thead><tr><th>算法</th><th>适用场景</th><th>时间复杂度</th><th>核心思想</th></tr></thead>
+        <tbody>
+        <tr><td><strong>Nested Loop Join</strong></td><td>小表JOIN小表、无索引</td><td>$O(N \times M)$</td><td>外层每行去内层全表扫描匹配</td></tr>
+        <tr><td><strong>Hash Join</strong></td><td>大表等值JOIN、无索引</td><td>$O(N + M)$</td><td>对小表建哈希表，大表每行O(1)查找</td></tr>
+        <tr><td><strong>Merge Join</strong></td><td>两表已按JOIN键排序</td><td>$O(N + M)$</td><td>双指针归并扫描，类似MergeSort合并</td></tr>
+        </tbody>
+      </table></table>
+
+      <h3 style="color:var(--accent-cyan);font-size:1.1rem;margin:20px 0 12px">ON与WHERE的执行时机</h3>
+      <p>这是初学者最容易混淆的点：</p>
+      <ul>
+        <li><strong>ON条件</strong>：在JOIN过程中执行，决定哪些行参与匹配</li>
+        <li><strong>WHERE条件</strong>：在JOIN完成后执行，对最终结果集进行过滤</li>
+      </ul>
+      <p>对于<strong>INNER JOIN</strong>，将条件放在ON和WHERE中结果相同。但对于<strong>LEFT JOIN</strong>，差异巨大——将右表的过滤条件放在WHERE中会把不匹配的行（NULL行）也过滤掉，效果等同于INNER JOIN。</p>
+      <pre>-- ❌ 错误：左连接退化为内连接
+SELECT * FROM orders o
+LEFT JOIN customers c ON o.cust_id = c.id
+WHERE c.status = 'active';  -- 过滤掉了没有客户的订单
+
+-- ✅ 正确：保留所有订单
+SELECT * FROM orders o
+LEFT JOIN customers c ON o.cust_id = c.id AND c.status = 'active';</pre>
+    </div>
+    <div class="key-takeaway"><strong>核心要点：</strong><p>LEFT JOIN中，对右表的过滤条件写ON里是"连接时过滤"，写WHERE里是"结果集过滤"。前者保留左表全部行，后者可能把外连接退化为内连接。</p></div>
+  </section>
+
+  <section id="architecture" class="module">
+    <div class="module-header">
+      <span class="module-tag">执行架构</span>
+      <h2 class="module-title">JOIN执行架构</h2>
+      <p class="module-hook">从查询语句到物理执行：SQL引擎是如何将你的JOIN语句转化为实际数据操作的？</p>
+    </div>
+    <div class="module-content">
+      <p>当SQL执行器处理一条包含JOIN的查询时，它会经历以下关键阶段：</p>
+      <ol>
+        <li><strong>解析阶段</strong>：语法分析器将JOIN子句解析为查询树<br/>识别JOIN类型（INNER/LEFT/RIGHT）、ON条件、表别名</li>
+        <li><strong>逻辑优化</strong>：优化器进行等价变换——将RIGHT JOIN转为LEFT JOIN、重排JOIN顺序（小表驱动大表）、将外连接条件下推</li>
+        <li><strong>物理执行计划选择</strong>：基于统计信息选择Nested Loop / Hash Join / Merge Join算法</li>
+        <li><strong>执行与物化</strong>：按计划逐层执行JOIN，中间结果可能物化到临时表</li>
+      </ol>
+      <p>一个典型的<strong>多表JOIN的执行树</strong>如下（以三表连接为例）：</p>
+      <pre>employees ⋈ departments ⋈ salaries
+   ↓
+(employees ⋈ departments) ⋈ salaries
+   ↓
+先JOIN前两张表 → 中间结果 → 再JOIN第三张表</pre>
+      <p>优化器的核心决策是<strong>JOIN顺序</strong>。对于N个表的连接，可能的排列有N!种。MySQL优化器对JOIN顺序的搜索深度有budget限制，默认optimizer_search_depth=62，但大表多时建议降低以避免优化时间超过执行时间。</p>
+
+      <div class="chart-container">
+        <div class="chart-caption">图：三表JOIN执行流程（Hash Join策略）</div>
+        <div class="chart-wrapper" id="join-exec-chart"></div>
+      </div>
+    </div>
+    <div class="key-takeaway"><strong>核心要点：</strong><p>数据库通过"解析→逻辑优化→物理执行计划选择→执行"四阶段处理JOIN。优化器的核心任务是选择JOIN顺序和执行算法，一个错误的顺序可能导致性能相差千倍。</p></div>
+  </section>
+
+  <section id="development" class="module">
+    <div class="module-header">
+      <span class="module-tag">发展历程</span>
+      <h2 class="module-title">发展迭代</h2>
+      <p class="module-hook">从1970年代的理论到2020年代的分布式JOIN——多表连接技术经历了怎样的飞跃？</p>
+    </div>
+    <div class="module-content">
+      <table class="table-container"><table>
+        <thead><tr><th>时间</th><th>里程碑</th><th>影响</th></tr></thead>
+        <tbody>
+        <tr><td>1970</td><td>Codd提出关系模型，JOIN成为核心操作</td><td>理论奠基</td></tr>
+        <tr><td>1974-1979</td><td>System R实现Nested Loop + Merge Join</td><td>首次工业级实现</td></tr>
+        <tr><td>1980s</td><td>Hash Join算法提出并广泛采用</td><td>大表等值JOIN效率革命</td></tr>
+        <tr><td>1992</td><td>SQL-92标准正式定义INNER/OUTER/CROSS JOIN</td><td>标准化统一各厂商实现</td></tr>
+        <tr><td>2000s</td><td>MySQL 4.0-5.0逐步完善JOIN支持</td><td>开源数据库JOIN能力成熟</td></tr>
+        <tr><td>2010s</td><td>分布式JOIN（Hive/Spark/MapReduce Join）</td><td>TB/PB级数据JOIN成为可能</td></tr>
+        <tr><td>2020+</td><td>向量化执行引擎下JOIN性能飞跃</td><td>单机JOIN百万级行降至毫秒级</td></tr>
+        </tbody>
+      </table></table>
+      <p>MySQL 8.0的重大改进：引入<strong>Hash Join</strong>（之前仅支持Nested Loop），使得无索引的等值JOIN性能提升数十倍；PostgreSQL的并行Hash Join能同时利用多个CPU核心加速连接操作。</p>
+    </div>
+    <div class="key-takeaway"><strong>核心要点：</strong><p>JOIN算法从Nested Loop到Hash Join、Merge Join，执行引擎从单线程到并行+向量化。MySQL 8.0的Hash Join是等值连接性能的分水岭。</p></div>
+  </section>
+
+  <section id="application" class="module">
+    <div class="module-header">
+      <span class="module-tag">实践应用</span>
+      <h2 class="module-title">实践应用</h2>
+      <p class="module-hook">离了JOIN，你的SQL只能做单表CRUD——这才是工作中JOIN真正的打开方式</p>
+    </div>
+    <div class="module-content">
+      <h3 style="color:var(--accent-blue);font-size:1.1rem;margin:20px 0 12px">场景1：报表数据整合</h3>
+      <p>需要"张三，技术部，月薪15k，部门总监李四"这样的信息——姓名从员工表，部门名从部门表，薪资从薪资表，总监名从员工表自连接。</p>
+      <pre>SELECT e.name, d.dept_name, s.salary_amount, m.name AS manager
+FROM employees e
+INNER JOIN departments d ON e.dept_id = d.id
+LEFT JOIN salaries s ON e.id = s.emp_id AND s.effective_month = '2026-04'
+LEFT JOIN employees m ON d.manager_id = m.id
+WHERE e.status = 'active';</pre>
+
+      <h3 style="color:var(--accent-blue);font-size:1.1rem;margin:20px 0 12px">场景2：数据完整性检查</h3>
+      <p>找出"有订单但没有对应客户"的脏数据：</p>
+      <pre>SELECT o.* FROM orders o
+LEFT JOIN customers c ON o.cust_id = c.id
+WHERE c.id IS NULL;</pre>
+
+      <h3 style="color:var(--accent-blue);font-size:1.1rem;margin:20px 0 12px">场景3：数据补全</h3>
+      <p>所有产品都显示，没卖出去的显示销量为0：</p>
+      <pre>SELECT p.name, COALESCE(SUM(o.quantity), 0) AS total_sold
+FROM products p
+LEFT JOIN orders o ON p.id = o.product_id
+GROUP BY p.id, p.name;</pre>
+    </div>
+    <div class="key-takeaway"><strong>核心要点：</strong><p>工作中JOIN的三大模式：整合拆散在多表的信息（报表）、检查跨表数据完整性（LEFT JOIN + IS NULL）、以主表为准补全数据（LEFT JOIN + COALESCE）。</p></div>
+  </section>
+
+  <section id="case-study" class="module">
+    <div class="module-header">
+      <span class="module-tag">实践案例</span>
+      <h2 class="module-title">实践案例</h2>
+      <p class="module-hook">三张真实业务表，一个综合查询需求——手把手展示如何写出专业的JOIN查询</p>
+    </div>
+    <div class="module-content">
+      <p><strong>背景</strong>：电商平台的订单分析报表。三张核心表：</p>
+      <ul>
+        <li><strong>users</strong>(id, name, city) — 50万用户</li>
+        <li><strong>orders</strong>(id, user_id, product_id, amount, order_date) — 300万订单</li>
+        <li><strong>products</strong>(id, name, category, price) — 2万商品</li>
+      </ul>
+
+      <p><strong>需求</strong>：查询2026年Q1每个城市的"电子产品"类别销售TOP3商品及销量。</p>
+
+      <pre>WITH product_sales AS (
+  SELECT u.city, p.name AS product_name,
+    SUM(o.amount) AS total_revenue,
+    COUNT(*) AS order_count,
+    RANK() OVER (PARTITION BY u.city ORDER BY SUM(o.amount) DESC) AS rk
+  FROM orders o
+  INNER JOIN users u ON o.user_id = u.id
+  INNER JOIN products p ON o.product_id = p.id
+  WHERE o.order_date BETWEEN '2026-01-01' AND '2026-03-31'
+    AND p.category = '电子产品'
+  GROUP BY u.city, p.id, p.name
+)
+SELECT city, product_name, total_revenue, order_count
+FROM product_sales
+WHERE rk <= 3
+ORDER BY city, rk;</pre>
+
+      <div class="chart-container">
+        <div class="chart-caption">图：各城市电子产品销售额TOP3（模拟数据）</div>
+        <div class="chart-wrapper" id="case-city-chart"></div>
+      </div>
+
+      <p><strong>性能分析</strong>：此查询涉及2次INNER JOIN + 窗口函数。在users.id、orders.user_id、orders.product_id、products.id上建立适当索引后，50万+300万+2万表的一次连接在MySQL 8.0上可在3秒内完成。</p>
+    </div>
+    <div class="key-takeaway"><strong>核心要点：</strong><p>复杂JOIN查询的黄金公式：先理清表关系和输出需求→确定主表和连表方向→用CTE分层处理→最后聚合和排名。索引在连接键上是必须的。</p></div>
+  </section>
+
+  <section id="risk" class="module">
+    <div class="module-header">
+      <span class="module-tag">风险与陷阱</span>
+      <h2 class="module-title">潜在风险</h2>
+      <p class="module-hook">一条错误的JOIN能让你的数据库CPU飙到100%——这些坑你踩过几个？</p>
+    </div>
+    <div class="module-content">
+      <h3 style="color:var(--accent-red);font-size:1.1rem;margin:20px 0 12px">🔴 致命级风险</h3>
+      <ul>
+        <li><strong>笛卡尔积爆炸</strong>：忘记写ON条件或条件写错，1000行×10000行=1000万行。生产环境一条这样的查询可能阻塞整个数据库。</li>
+        <li><strong>数据翻倍</strong>：多对多JOIN时中间结果暴增。如用户表JOIN订单表JOIN优惠券表，一个用户3张订单每张用了2张券=6行结果。</li>
+      </ul>
+      <h3 style="color:var(--accent-orange);font-size:1.1rem;margin:20px 0 12px">🟠 隐蔽风险</h3>
+      <ul>
+        <li><strong>LEFT JOIN + WHERE过滤右表列</strong>：将LEFT JOIN退化为INNER JOIN（已在原理部分解释）</li>
+        <li><strong>NULL值比较失效</strong>：NULL = NULL返回NULL（非TRUE），JOIN ON NULL列可能导致预期外的行为</li>
+        <li><strong>字符集不匹配</strong>：不同表的JOIN列使用不同字符集/排序规则，索引失效且结果可能错误</li>
+      </ul>
+
+      <div class="chart-container">
+        <div class="chart-caption">图：JOIN常见问题严重度矩阵</div>
+        <div class="chart-wrapper" id="risk-matrix-chart"></div>
+      </div>
+    </div>
+    <div class="key-takeaway"><strong>核心要点：</strong><p>JOIN前必须评审表大小（防笛卡尔积）和字段对应关系（防数据膨胀）。每条JOIN查询先在开发环境EXPLAIN确认行数预估，再上生产。</p></div>
+  </section>
+
+  <section id="landscape" class="module">
+    <div class="module-header">
+      <span class="module-tag">数据库差异</span>
+      <h2 class="module-title">主流数据库的JOIN差异</h2>
+      <p class="module-hook">MySQL和PostgreSQL的JOIN行为真的一样吗？代码能直接迁移吗？</p>
+    </div>
+    <div class="module-content">
+      <table class="table-container"><table>
+        <thead><tr><th>特性</th><th>MySQL 8.0</th><th>PostgreSQL 15</th><th>SQL Server 2022</th></tr></thead>
+        <tbody>
+        <tr><td>Hash Join</td><td>✅ 8.0.18+</td><td>✅ 原生+并行</td><td>✅ 原生</td></tr>
+        <tr><td>FULL OUTER JOIN</td><td>❌ 需UNION模拟</td><td>✅ 原生支持</td><td>✅ 原生支持</td></tr>
+        <tr><td>LATERAL JOIN</td><td>✅ 8.0.14+</td><td>✅ 原生</td><td>✅ CROSS APPLY</td></tr>
+        <tr><td>NATURAL JOIN</td><td>✅ 支持</td><td>✅ 支持</td><td>❌ 不支持</td></tr>
+        <tr><td>默认JOIN策略</td><td>Nested Loop为主</td><td>Hash/合并/嵌套自适应</td><td>自适应</td></tr>
+        <tr><td>JOIN提示</td><td>STRAIGHT_JOIN</td><td>无(依赖优化器)</td><td>HASH/MERGE/LOOP</td></tr>
+        </tbody>
+      </table></table>
+      <p><strong>实践建议</strong>：跨数据库迁移时，优先使用SQL标准语法（INNER JOIN...ON），避免NATURAL JOIN；MySQL中需要FULL OUTER JOIN的场景用LEFT + UNION + RIGHT实现。</p>
+    </div>
+    <div class="key-takeaway"><strong>核心要点：</strong><p>MySQL不支持FULL OUTER JOIN是最大差异点。PostgreSQL的JOIN优化器最智能，SQL Server提供了最细粒度的JOIN算法提示。</p></div>
+  </section>
+
+  <section id="issues" class="module">
+    <div class="module-header">
+      <span class="module-tag">陷阱排查</span>
+      <h2 class="module-title">常见问题诊断</h2>
+      <p class="module-hook">结果行数不对？查询突然变慢？——JOIN问题的排查手册</p>
+    </div>
+    <div class="module-content">
+      <h3 style="color:var(--accent-blue);font-size:1.1rem;margin:20px 0 12px">问题1：结果行数比预期多了</h3>
+      <p>诊断步骤：</p>
+      <ol>
+        <li>检查JOIN键是否唯一——右表连接键如果有重复值，每行左表匹配会翻倍</li>
+        <li>执行<code>SELECT COUNT(*), COUNT(DISTINCT join_key) FROM right_table</code>检查重复</li>
+        <li>解决方案：对右表先去重（子查询DISTINCT或ROW_NUMBER=1过滤），再做JOIN</li>
+      </ol>
+      <h3 style="color:var(--accent-blue);font-size:1.1rem;margin:20px 0 12px">问题2：JOIN后查询突然变慢</h3>
+      <ol>
+        <li>检查JOIN键上是否有索引：<code>SHOW INDEX FROM table_name</code></li>
+        <li>检查索引是否被使用：<code>EXPLAIN SELECT ...</code>看key列</li>
+        <li>字符集/排序规则不匹配可致索引失效：两表JOIN列的collation必须一致</li>
+        <li>隐式类型转换：VARCHAR JOIN INT会导致全表扫描</li>
+      </ol>
+      <h3 style="color:var(--accent-blue);font-size:1.1rem;margin:20px 0 12px">问题3：LEFT JOIN出不了NULL</h3>
+      <p>90%的情况是把右表条件写进了WHERE而不是ON中。记得<strong>LEFT JOIN的右表过滤永远写ON里</strong>。</p>
+    </div>
+    <div class="key-takeaway"><strong>核心要点：</strong><p>结果翻倍查JOIN键唯一性，查询变慢查索引和字符集，NULL出不来查ON vs WHERE。EXPLAIN是你排查JOIN性能问题的第一武器。</p></div>
+  </section>
+
+  <section id="prospect" class="module">
+    <div class="module-header">
+      <span class="module-tag">未来趋势</span>
+      <h2 class="module-title">发展趋势</h2>
+      <p class="module-hook">向量化、GPU加速、自动优化——JOIN技术还在进化</p>
+    </div>
+    <div class="module-content">
+      <p>JOIN操作的发展前沿集中在以下几个方向：</p>
+      <ul>
+        <li><strong>向量化执行</strong>：现代数据库（如ClickHouse、DuckDB）使用SIMD指令批量处理JOIN数据，将JOIN速度提升10-100倍。一次CPU指令处理多行数据，而非逐行迭代。</li>
+        <li><strong>智能优化器</strong>：基于机器学习（如增强学习）的JOIN顺序优化，正在从理论研究走向实际产品，能比传统基于代价的优化器更快找到优秀执行计划。</li>
+        <li><strong>湖仓一体的JOIN</strong>：Apache Iceberg/Delta Lake等格式支持对数据湖中多表的ACID JOIN操作，让数据仓库和数据湖的边界模糊。</li>
+        <li><strong>实时JOIN</strong>：Flink/Kafka Streams支持对实时数据流进行JOIN操作，构建实时分析管道。</li>
+      </ul>
+    </div>
+    <div class="key-takeaway"><strong>核心要点：</strong><p>JOIN技术的未来：快（向量化+并行）、智（ML驱动优化）、广（流批一体+湖仓融合）。掌握传统SQL JOIN的同时，关注这些新范式能让你在技术面试中脱颖而出。</p></div>
+  </section>
+
+  <section id="effort-direction" class="module">
+    <div class="module-header">
+      <span class="module-tag">学习指导</span>
+      <h2 class="module-title">学习建议</h2>
+      <p class="module-hook">JOIN不在纸上学——掌握它的最快方式是带着真实数据去犯错</p>
+    </div>
+    <div class="module-content">
+      <ol>
+        <li><strong>先理解集合论</strong>：花30分钟看"交集/并集/差集/笛卡尔积"的Venn图。JOIN的所有类型都能用集合运算解释。</li>
+        <li><strong>用真实数据练习</strong>：创建3张有主外键关联的表，插入100-1000行测试数据。别用玩具数据——真实数据的NULL、重复、异常值才是学习的关键。</li>
+        <li><strong>EXPLAIN每次查询</strong>：养成习惯，JOIN查询写完立刻看执行计划。如果看到type=ALL或Extra有Using temporary/Using filesort，立即优化。</li>
+        <li><strong>掌握排查流程</strong>：结果多了→查JOIN键唯一性；慢了→查索引+EXPLAIN；NULL不对→查ON vs WHERE。</li>
+      </ol>
+    </div>
+    <div class="key-takeaway"><strong>核心要点：</strong><p>JOIN学习三部曲：集合论基础→真实数据练习→EXPLAIN验证。每写一条JOIN就EXPLAIN一次，六个月后你就能凭直觉写出高性能查询。</p></div>
+  </section>
+
+  <section id="misconceptions" class="module">
+    <div class="module-header">
+      <span class="module-tag">认知纠偏</span>
+      <h2 class="module-title">常见误区</h2>
+      <p class="module-hook">"JOIN越少越好""子查询比JOIN快"——这些流传的SQL"真理"真的对吗？</p>
+    </div>
+    <div class="module-content">
+      <ul>
+        <li><strong>误区1："JOIN越多越慢"</strong>：JOIN数量的影响远不如JOIN<em>是否正确使用索引</em>重要。10个有索引的JOIN可能比1个全表扫描JOIN快得多。</li>
+        <li><strong>误区2："LEFT JOIN比INNER JOIN慢"</strong>：在MySQL中，传统Nested Loop下LEFT JOIN可能略慢，但Hash Join下两者差别很小。性能差异主要来自数据量和索引，而非连接类型。</li>
+        <li><strong>误区3："用逗号连接和JOIN一样"</strong>：<code>FROM a, b WHERE a.id=b.a_id</code>是SQL-89风格，会先产生笛卡尔积再过滤；而显式JOIN是SQL-92标准，优化器有更好的处理路径。</li>
+        <li><strong>误区4："自然连接(NATURAL JOIN)很方便"</strong>：它自动匹配同名列，表结构一改就可能匹配错误列。生产环境应避免使用。</li>
+      </ul>
+    </div>
+    <div class="key-takeaway"><strong>核心要点：</strong><p>JOIN性能的第一性原理：索引 > JOIN数量 > JOIN类型。永远使用显式JOIN语法，永远为连接键建索引，永远EXPLAIN验证。</p></div>
+  </section>
+
+  <section id="learning-path" class="module">
+    <div class="module-header">
+      <span class="module-tag">资源导航</span>
+      <h2 class="module-title">学习路径</h2>
+      <p class="module-hook">从入门到能在生产环境写高质量JOIN，你需要哪些资源？</p>
+    </div>
+    <div class="module-content">
+      <table class="table-container"><table>
+        <thead><tr><th>层级</th><th>推荐资源</th><th>预计时间</th></tr></thead>
+        <tbody>
+        <tr><td>入门</td><td>SQLZoo JOIN教程（在线交互练习）</td><td>2小时</td></tr>
+        <tr><td>入门</td><td>《SQL必知必会》第12-13章</td><td>3小时</td></tr>
+        <tr><td>进阶</td><td>Use The Index, Luke!（JOIN性能章节）</td><td>4小时</td></tr>
+        <tr><td>进阶</td><td>LeetCode SQL 50题（JOIN相关题目）</td><td>10小时</td></tr>
+        <tr><td>深入</td><td>《高性能MySQL》第6章-查询性能优化</td><td>8小时</td></tr>
+        <tr><td>深入</td><td>MySQL官方文档 8.0- Optimizing JOIN</td><td>3小时</td></tr>
+        </tbody>
+      </table></table>
+    </div>
+    <div class="references">
+      <h4>📚 参考文献</h4>
+      <div class="reference-item">
+        <div class="ref-title">A Relational Model of Data for Large Shared Data Banks</div>
+        <div class="ref-authors">Edgar F. Codd</div>
+        <div class="ref-meta">Communications of the ACM, 1970 | 关系数据库理论奠基之作</div>
+      </div>
+      <div class="reference-item">
+        <div class="ref-title">Efficient Processing of Joins in Relational Database Systems</div>
+        <div class="ref-authors">Blanas S., Patel J.M. et al.</div>
+        <div class="ref-meta">ACM Computing Surveys, 2011 | JOIN算法综述</div>
+      </div>
+      <div class="reference-item">
+        <div class="ref-title">MySQL 8.0 Reference Manual — Optimization (JOIN)</div>
+        <div class="ref-authors">Oracle Corporation</div>
+        <div class="ref-meta">2025 | MySQL官方JOIN优化文档</div>
+      </div>
+      <div class="reference-item">
+        <div class="ref-title">Hash Joins in MySQL 8.0</div>
+        <div class="ref-authors">MySQL Engineering Blog</div>
+        <div class="ref-meta">2020 | MySQL引入Hash Join的技术细节</div>
+      </div>
+      <div class="reference-item">
+        <div class="ref-title">《SQL反模式》第4章 - 多态关联</div>
+        <div class="ref-authors">Bill Karwin</div>
+        <div class="ref-meta">2010 | 多表设计的经典反模式分析</div>
+      </div>
+      <div class="reference-item">
+        <div class="ref-title">Adaptive Query Optimization in PostgreSQL</div>
+        <div class="ref-authors">PostgreSQL Global Development Group</div>
+        <div class="ref-meta">2023 | PostgreSQL自适应查询优化原理</div>
+      </div>
+      <div class="reference-item">
+        <div class="ref-title">Vectorized Query Execution in Modern Databases</div>
+        <div class="ref-authors">Boncz P.A., Zukowski M., Nes N.</div>
+        <div class="ref-meta">CIDR, 2005 | 向量化执行引擎经典论文</div>
+      </div>
+      <div class="reference-item">
+        <div class="ref-title">Learning to Optimize Join Queries with Deep Reinforcement Learning</div>
+        <div class="ref-authors">Marcus R., Papaemmanouil O.</div>
+        <div class="ref-meta">SIGMOD, 2019 | ML驱动的JOIN优化</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="glossary" class="module">
+    <div class="module-header">
+      <span class="module-tag">术语速查</span>
+      <h2 class="module-title">关键术语表</h2>
+    </div>
+    <div class="module-content">
+      <table class="table-container"><table>
+        <thead><tr><th>术语</th><th>英文</th><th>定义</th></tr></thead>
+        <tbody>
+        <tr><td>内连接</td><td>INNER JOIN</td><td>只返回两表匹配行的连接方式</td></tr>
+        <tr><td>左外连接</td><td>LEFT OUTER JOIN</td><td>保留左表全部行，右表无匹配填NULL</td></tr>
+        <tr><td>交叉连接</td><td>CROSS JOIN</td><td>笛卡尔积，两表每行逐一组合</td></tr>
+        <tr><td>自连接</td><td>SELF JOIN</td><td>表与自身的连接，依靠别名区分</td></tr>
+        <tr><td>连接键</td><td>Join Key</td><td>用于匹配的列，通常为外键</td></tr>
+        <tr><td>嵌套循环连接</td><td>Nested Loop Join</td><td>双层循环扫描的JOIN算法</td></tr>
+        <tr><td>哈希连接</td><td>Hash Join</td><td>基于哈希表O(1)查找的JOIN算法</td></tr>
+        <tr><td>笛卡尔积</td><td>Cartesian Product</td><td>左表每行与右表每行的全部组合</td></tr>
+        <tr><td>驱动表</td><td>Driving Table</td><td>JOIN中外层循环先被扫描的表</td></tr>
+        <tr><td>连接谓词下推</td><td>Join Predicate Pushdown</td><td>尽早过滤数据以减少参与JOIN的行数</td></tr>
+        </tbody>
+      </table></table>
+    </div>
+  </section>
+
+  <section id="debate" class="module">
+    <div class="module-header">
+      <span class="module-tag">观点碰撞</span>
+      <h2 class="module-title">争议与讨论</h2>
+      <p class="module-hook">数据库设计应该"深度规范化"还是"适度反规范化"？</p>
+    </div>
+    <div class="module-content">
+      <p><strong>正方（深度规范化派）</strong>：主张严格遵循3NF甚至BCNF，减少数据冗余，依靠JOIN在查询时组合数据。优势：数据一致性好，更新无异常；劣势：分析型查询需要大量JOIN。</p>
+      <p><strong>反方（适度反规范化派）</strong>：认为过度规范化导致读查询JOIN过多，主张在读多写少的分析场景中对关键表做冗余设计，减少JOIN。优势：查询简单快速；劣势：数据更新可能不一致，需要程序保证完整性。</p>
+      <p><strong>业界共识</strong>：OLTP（事务型）场景追求高规范化，OLAP（分析型）场景允许适度冗余。实际项目中，"<em>按查询模式反规范化</em>"是最务实的策略——根据最高频的查询需要决定哪些字段冗余存储。</p>
+    </div>
+    <div class="key-takeaway"><strong>核心要点：</strong><p>规范化与JOIN是一体两面：规范化为写优化绕JOIN为读成本，反规范化为读优化绕写入成本和一致性风险。没有银弹，只有权衡。</p></div>
+  </section>
+
+  <div class="back-btn"><button onclick="goBack()">← 返回学习方案</button></div>
+</div>
+
+<script>
+function toggleTheme(){
+  if(document.body.classList.contains('light')){document.body.classList.remove('light');document.body.classList.add('dark')}
+  else{document.body.classList.remove('dark');document.body.classList.add('light')}
+}
+
+function goBack() {
+  var MAIN_PAGE = 'sql_learning.html';
+  var WIN_NAME = '_ml_llm_main';
+  var CH_KEY = '_ml_llm_nav';
+
+  localStorage.setItem(CH_KEY, JSON.stringify({
+    kpId: DEEP_DIVE_KP_ID,
+    ts: Date.now()
+  }));
+
+  var mainWin = window.open(MAIN_PAGE, WIN_NAME);
+  if (mainWin) {
+    mainWin.focus();
+  }
+}
+
+(function(){
+  document.body.classList.remove('loading');document.body.classList.add('loaded');
+
+  var sidebarLinks = document.querySelectorAll('.sidebar-nav a');
+  var modules = document.querySelectorAll('.module');
+  var observer = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){
+        sidebarLinks.forEach(function(a){a.classList.remove('active')});
+        var active = document.querySelector('.sidebar-nav a[href="#'+e.target.id+'"]');
+        if(active)active.classList.add('active');
+      }
+    });
+  },{threshold:0.3});
+  modules.forEach(function(m){observer.observe(m)});
+
+  if(typeof renderMathInElement !== 'undefined'){
+    renderMathInElement(document.body,{
+      delimiters:[
+        {left:'$$',right:'$$',display:true},
+        {left:'$',right:'$',display:false}
+      ]
+    });
+  }
+})();
+
+(function(){
+  if(typeof echarts === 'undefined') return;
+
+  var chart1 = echarts.init(document.getElementById('join-venn-chart'));
+  chart1.setOption({
+    tooltip:{},
+    series:[{
+      type:'pie',radius:['40%','65%'],center:['25%','50%'],
+      label:{show:true,formatter:'{b}\n{c}'},
+      emphasis:{label:{fontSize:16}},
+      data:[
+        {value:60,name:'INNER JOIN\n(交集)',itemStyle:{color:'rgba(91,141,184,0.7)'}},
+        {value:20,name:'LEFT JOIN独有\n(左表多余)',itemStyle:{color:'rgba(136,120,168,0.7)'}},
+        {value:20,name:'RIGHT JOIN独有\n(右表多余)',itemStyle:{color:'rgba(106,168,192,0.7)'}}
+      ]
+    },{
+      type:'pie',radius:['40%','65%'],center:['75%','50%'],
+      label:{show:true,formatter:'{b}\n{c}'},
+      emphasis:{label:{fontSize:16}},
+      data:[
+        {value:60,name:'INNER JOIN',itemStyle:{color:'rgba(91,141,184,0.7)'}},
+        {value:20,name:'LEFT独有',itemStyle:{color:'rgba(136,120,168,0.7)'}},
+        {value:20,name:'RIGHT独有',itemStyle:{color:'rgba(106,168,192,0.7)'}}
+      ]
+    }],
+    graphic:[
+      {type:'text',left:'20%',top:'5%',style:{text:'集合论视角',fontSize:14,fontWeight:'bold',fill:'var(--text-secondary)'}},
+      {type:'text',left:'70%',top:'5%',style:{text:'结果集构成',fontSize:14,fontWeight:'bold',fill:'var(--text-secondary)'}}
+    ]
+  });
+
+  var chart2 = echarts.init(document.getElementById('join-exec-chart'));
+  chart2.setOption({
+    tooltip:{trigger:'item'},
+    series:[{
+      type:'sankey',layout:'none',emphasis:{focus:'adjacency'},
+      nodeAlign:'left',
+      data:[
+        {name:'employees(50万行)'},{name:'departments(500行)'},{name:'中间结果(50万行)'},
+        {name:'salaries(200万行)'},{name:'最终结果(50万行)'}
+      ],
+      links:[
+        {source:'employees(50万行)',target:'中间结果(50万行)',value:500000},
+        {source:'departments(500行)',target:'中间结果(50万行)',value:500000},
+        {source:'中间结果(50万行)',target:'最终结果(50万行)',value:500000},
+        {source:'salaries(200万行)',target:'最终结果(50万行)',value:500000}
+      ],
+      lineStyle:{color:'gradient',curveness:0.5}
+    }]
+  });
+
+  var chart3 = echarts.init(document.getElementById('case-city-chart'));
+  chart3.setOption({
+    tooltip:{trigger:'axis'},
+    legend:{data:['北京','上海','深圳','杭州'],textStyle:{color:'var(--text-secondary)'}},
+    xAxis:{type:'category',data:['商品A','商品B','商品C']},
+    yAxis:{type:'value',name:'销售额(万元)'},
+    series:[
+      {name:'北京',type:'bar',data:[320,280,210],itemStyle:{color:'rgba(91,141,184,0.8)'}},
+      {name:'上海',type:'bar',data:[290,260,230],itemStyle:{color:'rgba(136,120,168,0.8)'}},
+      {name:'深圳',type:'bar',data:[310,240,195],itemStyle:{color:'rgba(106,168,192,0.8)'}},
+      {name:'杭州',type:'bar',data:[180,155,140],itemStyle:{color:'rgba(90,158,111,0.8)'}}
+    ]
+  });
+
+  var chart4 = echarts.init(document.getElementById('risk-matrix-chart'));
+  chart4.setOption({
+    tooltip:{},
+    xAxis:{type:'category',data:['数据错误','性能下降','系统阻塞','数据丢失'],axisLabel:{color:'var(--text-muted)'}},
+    yAxis:{type:'category',data:['缺少ON条件','多对多未去重','索引缺失','LEFT JOIN+WHERE','字符集不匹配'],axisLabel:{color:'var(--text-muted)'}},
+    visualMap:{min:0,max:5,calculable:true,orient:'horizontal',left:'center',bottom:'0%',
+      inRange:{color:['#5a9e6f','#c0a060','#c06050']}},
+    series:[{
+      type:'heatmap',data:[
+        [0,0,5],[1,0,4],[2,0,2],[3,0,1],[4,0,1],
+        [0,1,4],[1,1,5],[2,1,1],[3,1,1],[4,1,1],
+        [0,2,3],[1,2,2],[2,2,5],[3,2,2],[4,2,3],
+        [0,3,2],[1,3,1],[2,3,1],[3,3,5],[4,3,1],
+        [0,4,2],[1,4,1],[2,4,5],[3,4,1],[4,4,4]
+      ],
+      label:{show:true,color:'var(--text-primary)',fontSize:11}
+    }]
+  });
+
+  window.addEventListener('resize',function(){
+    chart1.resize();chart2.resize();chart3.resize();chart4.resize();
+  });
+})();
+</script>
+</body>
+</html>

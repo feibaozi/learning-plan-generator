@@ -1,0 +1,65 @@
+{
+  "version": "1.0.0",
+  "templates": [
+    {
+      "id": "indigo-night",
+      "name": "靛蓝之夜",
+      "description": "深邃、专业、学术感。深靛蓝+紫色渐变。",
+      "mood": ["professional", "academic", "deep"],
+      "keywords": ["学术", "专业", "严谨", "深色", "紫色", "夜间", "论文"],
+      "best_for": ["数学", "物理", "计量经济学", "理论学科"],
+      "plan_css": "indigo-night/plan.css",
+      "deep_dive_css": "indigo-night/deep_dive.css"
+    },
+    {
+      "id": "cedar-dawn",
+      "name": "雪松晨曦",
+      "description": "温暖、自然、有机感。奶油米+雪松绿+暖灰。",
+      "mood": ["warm", "natural", "organic"],
+      "keywords": ["温暖", "自然", "木质", "奶油色", "柔和", "有机", "晨光"],
+      "best_for": ["生物学", "生态学", "人文", "可持续"],
+      "plan_css": "cedar-dawn/plan.css",
+      "deep_dive_css": "cedar-dawn/deep_dive.css"
+    },
+    {
+      "id": "graphite-studio",
+      "name": "石墨工作室",
+      "description": "极致简约、黑白灰主导、瑞士平面设计风格。",
+      "mood": ["minimal", "clean", "neutral"],
+      "keywords": ["极简", "黑白", "灰色", "瑞士风格", "干净", "无干扰"],
+      "best_for": ["编程", "架构设计", "工程", "系统设计"],
+      "plan_css": "graphite-studio/plan.css",
+      "deep_dive_css": "graphite-studio/deep_dive.css"
+    },
+    {
+      "id": "ocean-depth",
+      "name": "深海碧波",
+      "description": "清凉、科技感、海洋主题。深蓝绿+珊瑚橙对比。",
+      "mood": ["cool", "tech", "refreshing"],
+      "keywords": ["蓝色", "科技", "清凉", "海洋", "数据", "深海"],
+      "best_for": ["AI", "数据科学", "机器学习", "海洋学"],
+      "plan_css": "ocean-depth/plan.css",
+      "deep_dive_css": "ocean-depth/deep_dive.css"
+    },
+    {
+      "id": "sunset-amber",
+      "name": "琥珀日暮",
+      "description": "温暖、浓郁、工匠质感。琥珀橙+陶土红+深棕。",
+      "mood": ["warm", "rich", "classic"],
+      "keywords": ["暖色", "橙色", "人文", "经典", "金融", "浓郁", "黄昏"],
+      "best_for": ["金融", "历史", "哲学", "人文社科"],
+      "plan_css": "sunset-amber/plan.css",
+      "deep_dive_css": "sunset-amber/deep_dive.css"
+    },
+    {
+      "id": "arctic-frost",
+      "name": "极光冰霜",
+      "description": "清冽、北欧风、冰雪与极光。冰蓝+薄荷绿+淡紫。",
+      "mood": ["crisp", "nordic", "creative"],
+      "keywords": ["清冷", "冰蓝", "北欧", "清爽", "设计", "创意", "极光"],
+      "best_for": ["设计", "前端开发", "UX", "创意学科"],
+      "plan_css": "arctic-frost/plan.css",
+      "deep_dive_css": "arctic-frost/deep_dive.css"
+    }
+  ]
+}

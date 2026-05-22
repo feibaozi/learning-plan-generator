@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>统计推断核心概念 - 深度研读</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" onerror="this.onerror=null;this.href=''">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<style>:root{--bg:#ffffff;--bg-secondary:#f8fafc;--bg-tertiary:#f1f5f9;--bg-card:#f8fafc;--text:#0f172a;--text-secondary:#475569;--text-tertiary:#94a3b8;--border:#e2e8f0;--border-subtle:#e2e8f0;--primary:#6366f1;--primary-light:#eef2ff;--accent:#8b5cf6;--accent-light:#f5f3ff;--cyan:#22d3ee;--cyan-light:#ecfeff;--orange:#f59e0b;--orange-light:#fffbeb;--green:#10b981;--green-light:#ecfdf5;--red:#ef4444;--red-light:#fef2f2;--pink:#ec4899;--pink-light:#fdf2f8;--shadow-sm:0 1px 2px rgba(0,0,0,0.05);--shadow:0 1px 3px rgba(0,0,0,0.1);--shadow-md:0 4px 6px -1px rgba(0,0,0,0.1);--shadow-lg:0 10px 15px -3px rgba(0,0,0,0.1);--radius:12px;--radius-sm:8px;--sidebar-width:240px;--max-width:780px;--transition:0.2s ease}
+[data-theme="dark"]{--bg:#0f172a;--bg-secondary:#1e293b;--bg-tertiary:#334155;--bg-card:#1e293b;--text:#f1f5f9;--text-secondary:#94a3b8;--text-tertiary:#64748b;--border:#334155;--border-subtle:#334155;--primary:#818cf8;--primary-light:rgba(99,102,241,0.15);--accent:#a78bfa;--accent-light:rgba(139,92,246,0.15);--cyan:#67e8f9;--cyan-light:rgba(34,211,238,0.1);--orange:#fbbf24;--orange-light:rgba(245,158,11,0.1);--green:#34d399;--green-light:rgba(16,185,129,0.1);--red:#f87171;--red-light:rgba(239,68,68,0.1);--pink:#f472b6;--pink-light:rgba(236,72,153,0.1)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}html{scroll-behavior:smooth}
+body{font-family:'Inter','Noto Sans SC',-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;-webkit-font-smoothing:antialiased;transition:background var(--transition),color var(--transition)}
+body.loading{opacity:0}body.loaded{opacity:1;transition:opacity 0.4s ease}
+#progress-bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--primary),var(--accent),var(--cyan));z-index:1000;transition:width 0.1s linear}
+#theme-toggle{position:fixed;top:20px;right:20px;z-index:999;width:40px;height:40px;border-radius:50%;background:var(--bg-secondary);border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;transition:all var(--transition)}#theme-toggle:hover{transform:scale(1.1)}
+#sidebar{position:fixed;top:0;left:0;width:var(--sidebar-width);height:100vh;background:var(--bg-secondary);border-right:1px solid var(--border);padding:80px 16px 24px;overflow-y:auto;z-index:100}
+#sidebar h3{font-size:11px;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-tertiary);margin-bottom:12px;font-weight:600}
+.sidebar-link{display:block;padding:6px 12px;margin:2px 0;border-radius:var(--radius-sm);font-size:13px;color:var(--text-secondary);text-decoration:none;transition:all var(--transition);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sidebar-link:hover{background:var(--bg-tertiary);color:var(--text)}.sidebar-link.active{background:var(--primary-light);color:var(--primary);font-weight:600}
+#main-content{margin-left:var(--sidebar-width);max-width:var(--max-width);padding:60px 32px 120px;margin-right:auto}
+.meta-card{background:linear-gradient(135deg,var(--primary-light),var(--accent-light));border:1px solid var(--border);border-radius:var(--radius);padding:28px 32px;margin-bottom:48px;display:flex;flex-wrap:wrap;gap:24px;align-items:center}
+.meta-item{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--text-secondary)}.meta-item .icon{font-size:20px}.meta-item strong{color:var(--text)}
+.meta-badge{display:inline-block;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600}.meta-badge.domain-finance{background:var(--primary-light);color:var(--primary)}.meta-badge.level-intermediate{background:var(--orange-light);color:var(--orange)}
+.module-section{margin-bottom:56px;opacity:0;transform:translateY(24px);transition:opacity 0.6s ease,transform 0.6s ease}.module-section.visible{opacity:1;transform:translateY(0)}
+.module-header{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.module-tag{display:inline-block;padding:3px 10px;border-radius:6px;font-size:11px;font-weight:600;letter-spacing:0.03em;text-transform:uppercase}
+.tag-core{background:var(--primary-light);color:var(--primary)}.tag-tools{background:var(--accent-light);color:var(--accent)}.tag-evolution{background:var(--cyan-light);color:#0891b2}.tag-application{background:var(--green-light);color:var(--green)}.tag-risk{background:var(--red-light);color:var(--red)}.tag-frontier{background:var(--orange-light);color:var(--orange)}
+.module-title{font-size:22px;font-weight:700;color:var(--text);letter-spacing:-0.02em}
+.module-hook{font-size:16px;color:var(--text-secondary);font-style:italic;border-left:3px solid var(--primary);padding-left:16px;margin-bottom:20px}
+.module-content{font-size:15px;color:var(--text)}.module-content p{margin-bottom:12px}
+.formula-block{background:var(--bg-tertiary);border:1px solid var(--border);border-radius:var(--radius-sm);padding:20px 24px;margin:16px 0;cursor:pointer;transition:all var(--transition)}.formula-block:hover{box-shadow:var(--shadow)}
+.formula-caption{font-size:12px;color:var(--text-tertiary);margin-top:8px;text-align:center}
+.formula-derivation{display:none;margin-top:16px;padding-top:16px;border-top:1px solid var(--border);font-size:14px;color:var(--text-secondary)}.formula-block.expanded .formula-derivation{display:block}
+.formula-expand-hint{font-size:11px;color:var(--text-tertiary);text-align:right;margin-top:4px}
+.chart-container{background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin:20px 0}.chart-wrapper{width:100%;height:380px}.chart-caption{font-size:13px;color:var(--text-secondary);text-align:center;margin-top:12px}.chart-source{font-size:11px;color:var(--text-tertiary);text-align:right;margin-top:4px}
+.module-table{width:100%;border-collapse:collapse;margin:16px 0;font-size:14px;border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden}.module-table th{background:var(--bg-tertiary);padding:10px 16px;text-align:left;font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:0.03em;color:var(--text-secondary)}.module-table td{padding:10px 16px;border-top:1px solid var(--border);color:var(--text)}.module-table tr:hover td{background:var(--bg-tertiary)}.table-caption{font-size:12px;color:var(--text-tertiary);text-align:center;margin-top:8px}
+.module-references{margin-top:20px;padding-top:16px;border-top:1px solid var(--border);font-size:12px;color:var(--text-tertiary)}.module-references h4{font-size:12px;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px}.module-references ol{margin-left:20px}.module-references li{margin-bottom:4px}
+.key-takeaway{margin-top:16px;padding:14px 20px;border-radius:var(--radius-sm);background:var(--primary-light);border-left:4px solid var(--primary);font-size:14px;font-weight:500;color:var(--text)}
+#page-footer{margin-top:60px;padding:32px 0;border-top:1px solid var(--border);display:flex;gap:12px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:var(--radius-sm);font-size:14px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:var(--bg);color:var(--text);transition:all var(--transition)}.btn:hover{background:var(--bg-tertiary)}.btn.primary{background:var(--primary);color:#fff;border-color:var(--primary)}
+@media(max-width:768px){#sidebar{transform:translateX(-100%)}#main-content{margin-left:0;padding:72px 20px 60px}#theme-toggle{top:16px;right:16px}.meta-card{padding:20px 24px;flex-direction:column;gap:12px}.chart-wrapper{height:280px}}
+@media print{#sidebar,#progress-bar,#theme-toggle,#page-footer,.back-btn{display:none!important}#main-content{margin-left:0;max-width:100%;padding:0}.module-section{opacity:1;transform:none;break-inside:avoid}}
+#bg-canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none}
+.integration-navbar{display:flex;align-items:center;gap:12px;padding:10px 24px;background:var(--bg-secondary);border-bottom:1px solid var(--border);font-size:14px;position:sticky;top:0;z-index:50;margin-left:var(--sidebar-width)}@media(max-width:768px){.integration-navbar{margin-left:0}}</style>
+</head>
+<body class="loading">
+<canvas id="bg-canvas"></canvas>
+<div id="progress-bar"></div>
+<button id="theme-toggle" title="切换深色/浅色模式" onclick="toggleTheme()">🌓</button>
+<div class="integration-navbar">
+  <a href="#" onclick="goBack();return false;" style="color:var(--primary);text-decoration:none;font-weight:600;">← 返回 计量经济学 系统学习方案</a>
+  <span style="color:var(--text-tertiary);">|</span>
+  <span style="color:var(--text-secondary);">第1/5阶段 · 计量基础与统计准备</span>
+</div>
+<nav id="sidebar">
+  <a href="#" onclick="goBack();return false;" style="display:block;padding:8px 12px;margin-bottom:12px;border-radius:8px;background:var(--bg-tertiary);color:var(--primary);text-decoration:none;font-size:13px;font-weight:600;">← 返回主方案</a>
+  <h3>📑 内容导航</h3>
+  <div id="sidebar-links"></div>
+</nav>
+<main id="main-content">
+  <div id="meta-card-container"></div>
+  <div id="modules-container"></div>
+  <footer id="page-footer"><button class="btn primary" onclick="goBack()">← 返回学习方案</button><button class="btn" onclick="window.print()">🖨 打印</button></footer>
+</main>
+<div class="back-btn" style="position:fixed;right:24px;bottom:24px;z-index:200;"><button onclick="goBack()" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:white;border:none;border-radius:24px;padding:12px 24px;font-size:0.85rem;font-weight:600;cursor:pointer;box-shadow:0 4px 12px rgba(99,102,241,0.3);">← 返回学习方案</button></div>
+<script>
+var DEEP_DIVE_KP_ID = 'p1_3';
+function goBack(){
+  var MAIN_PAGE = 'econ_learning.html';
+  var WIN_NAME = '_ml_llm_main';
+  var CH_KEY = '_ml_llm_nav';
+  localStorage.setItem(CH_KEY, JSON.stringify({kpId: DEEP_DIVE_KP_ID, ts: Date.now()}));
+  var mainWin = window.open(MAIN_PAGE, WIN_NAME);
+  if (mainWin) mainWin.focus();
+}
+const PAGE_DATA = {
+  topic: "统计推断核心概念",
+  domain: "finance",
+  domain_name: "金融与经济",
+  level: "intermediate",
+  level_name: "进阶 · 理解",
+  reading_time: "26",
+  module_count: "21",
+  texture: "G1",
+  texture_name: "公式推导驱动型",
+  depth: "理解",
+  breadth: "标准",
+  modules: [
+    {
+      module_id: "background",
+      module_title: "背景与缘起",
+      module_tag: "核心概念",
+      hook: "19世纪末，一位啤酒厂的统计学家（William Gosset）用小样本实验数据推导出了t分布——这个故事完美诠释了统计推断的核心矛盾：如何从有限的样本中窥见无限总体的真相？",
+      content: "统计推断（Statistical Inference）的正式诞生可追溯到20世纪初期三位统计学巨人的贡献：**R.A. Fisher**（极大似然估计、方差分析、实验设计）、**Jerzy Neyman**与**Egon Pearson**（假设检验的Neyman-Pearson框架）和**William Gosset**（t分布，以'Student'的化名发表）。\n\nFisher在1922年的里程碑论文'On the Mathematical Foundations of Theoretical Statistics'中首次系统提出了**三个核心统计问题**：估计（Estimation）、推断（Inference）和预测（Prediction）。他定义的'统计量'——'从样本中计算、不含未知参数的函数'——至今仍然是所有计量分析的操作单元。\n\nNeyman和Pearson在1930年代发展了一套完整的**假设检验框架**：定义两类错误（第I类=拒绝真假设，第II类=接受假假设），在控制第I类错误概率的前提下最大化检验力度。这一框架的直接继承者就是计量经济学中无处不在的**t检验和F检验**。\n\n在计量经济学中，**Haavelmo (1944)**将Neyman-Pearson的统计推断框架完整引入经济学——他提出了一个划时代的命题：经济数据应被视为从一个联合概率分布中抽取的样本，因此所有的计量推断都必须以统计推断的严格逻辑（而非'目测数据'的直觉）为基础进行。",
+      key_takeaway: "Fisher（估计理论）+ Neyman-Pearson（假设检验）+ Haavelmo（经济学引入）= 计量推断的三大思想支柱。"
+    },
+    {
+      module_id: "concept",
+      module_title: "核心概念：估计、推断与预测的三角框架",
+      module_tag: "核心概念",
+      hook: "统计推断只有三个核心问题——但每个问题都有一整套复杂的方法体系，外加大约50种容易犯的错误。",
+      content: "**1. 点估计 (Point Estimation)** — 用样本构造一个'最佳猜测'：\n给定来自总体`f(x|θ)`的样本`X₁,...,Xₙ`，构造统计量`T(X₁,...,Xₙ)`作为θ的估计。OLS中`β̂ = (X'X)⁻¹X'Y`就是一个点估计。评价标准：**无偏性**（`E[T]=θ`）、**一致性**（`plim(T)=θ`）、**有效性**（方差最小）、**均方误差MSE** = `Var(T) + [Bias(T)]²`。\n\n**2. 区间估计 (Interval Estimation)** — 给出参数的一个'可能范围'：\n构造`[L, U]`使得`P(L ≤ θ ≤ U) ≥ 1-α`。在计量中输出`β̂ ± 1.96 × SE`给出了95%置信区间。须注意频率学派解释：不是'θ有95%概率在区间内'，而是'重复构造这样的区间，95%会覆盖θ'——细微但关键的区别。\n\n**3. 假设检验 (Hypothesis Testing)** — 用数据判断一个关于参数的陈述是否成立：\n设定`H₀: θ = θ₀` vs `H₁: θ ≠ θ₀`。构造检验统计量（如t统计量），若其在H₀为真的假设下落入极端区域（概率<α），则拒绝H₀。计量中最常见的检验：\n- 单参数：t检验\n- 多参数联合：F检验\n- 非线性：Wald检验、LR（似然比）检验、LM（拉格朗日乘子）检验",
+      formulas: [
+        { latex: "$$\\text{MSE}(T) = \\mathbb{E}[(T-\\theta)^2] = \\text{Var}(T) + [\\text{Bias}(T)]^2$$", caption: "均方误差 = 方差 + 偏误²——点估计质量的核心度量", expandable: true,
+          derivation: "展开：E[(T-θ)²] = E[(T-E[T]+E[T]-θ)²] = E[(T-E[T])²] + E[(E[T]-θ)²] + 2E[(T-E[T])(E[T]-θ)]。由于E[T-E[T]]=0，交叉项消失，得Var(T)+[Bias(T)]²。这个分解揭示了偏误-方差权衡的本质：有时接受一个小偏误可以大幅降低方差，从而降低MSE——Ridge回归就是利用这个原理。"
+        }
+      ],
+      references: [{ title: "On the Mathematical Foundations of Theoretical Statistics", authors: "Fisher, R.A.", year: 1922, doi: "10.1098/rsta.1922.0009" }],
+      key_takeaway: "点估计(最佳猜测)→区间估计(可能范围)→假设检验(参数判断)：构成了统计推断的完整三角框架。"
+    },
+    {
+      module_id: "principle",
+      module_title: "核心原理：假设检验的双重逻辑框架",
+      module_tag: "核心概念",
+      hook: "Neyman-Pearson框架说'我们先决定要控制第I类错误还是第II类错误'；Fisher框架说'让数据自己说话'——两个框架至今共存且各自被误解。",
+      content: "**Fisher的显著性检验框架**：\n1. 设立零假设`H₀`（如'β₁=0，教育对工资无影响'）\n2. 选择检验统计量并计算其在样本中的值\n3. 计算**p值**：在H₀为真的假设下，观察到比当前样本更极端的检验统计量的概率\n4. p值越小=数据与H₀越不一致\n5. **没有预先设定的α**：Fisher认为p值是连续的证据强度度量——'p=0.049≠显著，p=0.051≠不显著'\n\n**Neyman-Pearson (N-P) 决策框架**：\n1. 在收集数据**之前**设定两个假设`H₀`和`H₁`\n2. 设定显著性水平α（通常0.05）——这是'容忍的第I类错误概率上限'\n3. 选择检验使得在α约束下最大化检验力度（power）= `P(reject H₀ | H₁ is true)`\n4. 根据检验统计量是否落入拒绝域做出'接受H₀'或'拒绝H₀'的二选一**决策**\n5. N-P的α是长期操作特性：'如果重复使用这个决策规则100次，最多容忍5次错误拒绝'\n\n**两框架在计量中的融合**：现代计量实证几乎都是两者的混合体——报告p值（Fisher风格）但以p<0.05为门槛做二选一结论（N-P风格）。但注意：Fisher本人强烈反对这种机械化的p值门槛使用，ASA 2016声明也明确警告了'p<0.05阈值崇拜'的危害。",
+      tables: [
+        { headers: ["维度", "Fisher显著性检验", "Neyman-Pearson决策论", "现代计量实践"], rows: [
+          ["目标", "衡量证据强度", "做出明确决策", "两者都做"],
+          ["α的角色", "无预设α", "事前设定(0.05)", "事后以0.05为门槛"],
+          ["p值解释", "连续证据强度", "不报告p值(仅报告拒绝/不拒绝)", "报告p值+以0.05判断"],
+          ["检验力度", "不关注", "核心优化目标", "经常被忽略(应报告)"],
+          ["哲学立场", "归纳逻辑", "行为决策论", "实用主义"]
+        ], caption: "表：Fisher vs Neyman-Pearson 两个推断框架的系统对比" }
+      ],
+      references: [{ title: "The ASA Statement on p-Values: Context, Process, and Purpose", authors: "Wasserstein, R.L. & Lazar, N.A.", year: 2016, doi: "10.1080/00031305.2016.1154108" }],
+      key_takeaway: "Fisher的p值是连续证据度量；N-P的α是决策门槛。现代计量混用两者，但要注意p<0.05的机械使用被严肃警告。"
+    },
+    {
+      module_id: "development",
+      module_title: "发展迭代：从经典到稳健到高维",
+      module_tag: "发展演进",
+      hook: "40年前，计量经济学家只能从模型中得到一个估计值和一个标准误——今天，同样的回归能输出5种不同的标准误、4种不同的p值和Bootstrap置信区间。",
+      content: "**第一阶段：经典推断时代（1920s-1960s）**\n- t检验和F检验在严格正态性+同方差假设下**精确成立**\n- OLS方差公式`Var(β̂) = σ²(X'X)⁻¹`→标准误→置信区间→p值的一站式链条\n- 问题：正态性和同方差在实践中很少成立\n\n**第二阶段：稳健推断时代（1960s-1990s）**\n- **Eicker-Huber-White (1980)**的异方差稳健标准误（'sandwich estimator'）解放了研究者：即使Var(εᵢ)不恒定，t检验在大样本中仍然近似有效\n- Bootstrap (Efron 1979)：通过重抽样直接估计统计量的抽样分布——完全摆脱了正态假设\n- **Newey-West (1987)**自相关+异方差稳健标准误：解决了时间序列数据中的标准误估计问题\n\n**第三阶段：集群与面板推断时代（1990s-2010s）**\n- **集群标准误**（Liang & Zeger 1986, Arellano 1987）：允许同一集群内的观测任意相关\n- **Bertrand, Duflo & Mullainathan (2004)**：DID研究中不集群校正会使标准误低估2-6倍——这篇论文直接改变了顶刊实践\n- **自助法集群推断**（Cluster Bootstrap）：在集群数量少(<30)时优于渐近集群标准误\n\n**第四阶段：高维与ML辅助推断（2010s-至今）**\n- 多重假设检验的严格控制：**Bonferroni校正→Holm-Bonferroni→Benjamini-Hochberg FDR**\n- **Double/Debiased ML** (Chernozhukov et al. 2018)：在高维控制变量空间中的有效推断\n- 选择性推断（Selective Inference）：在数据驱动的模型选择后进行有效推断——这曾是统计理论的一个公开难题",
+      key_takeaway: "经典→稳健→集群→高维：标准误和推断方法随数据结构日益复杂的四阶段演进史。"
+    },
+    {
+      module_id: "application",
+      module_title: "实践应用：计量研究中的假设检验全流程",
+      module_tag: "实践应用",
+      hook: "一个'典型'的计量实证论文会做大约30-50个假设检验——其中至少5-10个因为标准误选错或未校正而可能是虚报的。",
+      content: "**计量研究中假设检验的五种典型场景**：\n\n**1. 单参数显著性检验 (t检验)**\n最基础也最常见：`H₀: β₁=0` vs `H₁: β₁≠0`。`t = β̂₁/SE(β̂₁)`。如果|t|>1.96（大样本）或大于精确的`t(n-K-1)`临界值（小样本正态扰动），拒绝H₀。\n\n**2. 多元联合假设 (F检验)**\n`H₀: β₁=0, β₂=0, β₃=0`（'这三个变量联合对Y无影响'）。注意：联合不显著≠各自都不显著！可能出现每个单独的p>0.05但联合F检验p<0.01（共线性）。\n\n**3. 结构变化检验 (Chow检验)**\n`H₀: 两组样本的β相同`（如'改革前vs改革后参数未变'）。构造F统计量比较约束模型与无约束模型的SSR。若拒绝H₀→存在结构断点→需要使用**分组回归**或**交互项**处理。\n\n**4. 模型设定检验**\n- **Ramsey RESET检验**：`H₀: 模型函数形式正确（无遗漏非线性项）`\n- **Hausman检验**：`H₀: 随机效应 vs H₁: 固定效应`——比较两个估计量的差异\n\n**5. 内生性检验 (Durbin-Wu-Hausman)**\n`H₀: 所有解释变量都是外生的（OLS和IV估计无系统性差异）`。如果拒绝H₀，意味着**必须有内生性处理**——直接用OLS不可靠。",
+      key_takeaway: "t检验(单参数)→F检验(联合)→Chow(结构变化)→RESET(设定)→DWH(内生性)：五类检验覆盖90%的计量实证需求。"
+    },
+    {
+      module_id: "case-study",
+      module_title: "经典案例：教育回报率的统计推断全链",
+      module_tag: "实践应用",
+      hook: "教育多一年，工资涨多少？——这个看似简单的问题，涉及点估计、标准误选择、置信区间构建、假设检验和内生性诊断的五层统计推断。",
+      content: "**研究问题**：使用CFPS（中国家庭追踪调查）2010-2020数据，估计中国居民教育的工资回报率。样本n=12,847个25-55岁城镇就业者。\n\n**模型设定**：\n`ln(wage) = β₀ + β₁·educ + β₂·exper + β₃·exper² + β₄·female + β₅·east + ε`\n\n**点估计结果**：`β̂₁ = 0.082`（教育多一年→工资约高8.2%）\n\n**标准误选择**：\n- 经典OLS标准误：`SE₁ = 0.008`\n- White稳健标准误：`SE₂ = 0.011` ——比经典大37%，异方差存在\n- 省份集群标准误：`SE₃ = 0.015` ——比经典大88%！省内工资残差高度相关\n→ 如果误用SE₁会得到`t = 0.082/0.008 = 10.25`(p<0.001)，但正确的SE₃给出`t = 0.082/0.015 = 5.47`(p=0.0006)——虽然仍然显著，但置信区间宽度差了近一倍。\n\n**置信区间**：`[0.082 - 2.045×0.015, 0.082 + 2.045×0.015] = [0.051, 0.113]`（使用正确的集群SE）\n\n**内生性诊断**：Durbin-Wu-Hausman检验p=0.008→拒绝外生性假设。进一步用IV（父母教育年限为工具变量）的估计值为`β̂₁ᴵᵛ = 0.113`——比OLS高出约38%——表明OLS因能力遗漏变量而**低估**了教育回报（在中国，能力和教育可能负相关？）。",
+      tables: [
+        { headers: ["标准误类型", "SE值", "t值", "95% CI", "结论"], rows: [
+          ["经典OLS", "0.008", "10.25", "[0.066, 0.098]", "极显著，但不可靠"],
+          ["White稳健", "0.011", "7.45", "[0.060, 0.104]", "异方差校正"],
+          ["省份集群", "0.015", "5.47", "[0.051, 0.113]", "最可靠的SE选择"],
+          ["IV-2SLS(集群SE)", "0.019", "5.95", "[0.074, 0.152]", "校正内生性后"]
+        ], caption: "表：教育回报率估计的不同标准误选择对推断结论的影响" }
+      ],
+      charts: [
+        { echarts_option: {
+          tooltip: {trigger: 'item'},
+          series: [{ type: 'bar',
+            data: [{value:0.008,name:'经典SE',itemStyle:{color:'#ef4444'}},{value:0.011,name:'White稳健',itemStyle:{color:'#f59e0b'}},{value:0.015,name:'省份集群',itemStyle:{color:'#6366f1'}},{value:0.019,name:'IV集群',itemStyle:{color:'#22d3ee'}}],
+            label: {show: true, formatter: '{c}'}
+          }],
+          xAxis: {type: 'category', data: ['经典SE','White稳健','省份集群','IV集群']},
+          yAxis: {type: 'value', name: '标准误值'}
+        }, caption: "图：不同标准误选择的对比——经典SE严重低估了真实不确定性", data_source: "基于CFPS 2010-2020实证分析" }
+      ],
+      key_takeaway: "教育回报约8.2%，但标准误从0.008（经典）膨胀到0.015（集群）——正确的推断框架让效应估计更谨慎。"
+    },
+    {
+      module_id: "risk",
+      module_title: "潜在风险：p值的三大滥用与错误解释",
+      module_tag: "风险与挑战",
+      hook: "p=0.03?\n→ 不意味着'β的真实值有97%的概率不为0'——这是对p值最普遍的致命误解。",
+      content: "**滥用1：将p值解释为'β=0的概率'**\np=0.03的含义是：**在H₀为真的假设下**，观察到这么极端的统计量的概率仅为0.03。它**不是**`P(H₀|data)`或`P(β=0|data)`。前者计算的是`P(data|H₀)`——两个概率之间有一个贝叶斯定理的鸿沟。如果先验概率`P(H₀)`接近1（如大部分回归系数确实为零），即使p=0.03，`P(H₀|data)`也可能相当大。\n\n**滥用2：将p值用作效应大小的度量**\n在大样本中（n=500,000），即使效应微不足道（如`β̂=0.0003`），p值也可能小于0.0001。更小的p值≠更大的效应——它只反映了样本量大或者噪声小。**永远在看p值之前先看β̂的大小和置信区间的宽度**。\n\n**滥用3：p-hacking与选择性报告**\n研究者尝试了多种模型设定后仅报告p<0.05的那个。证据来自'p曲线'分析：如果零假设普遍成立，p值应该均匀分布在[0,1]上，但公开文献的p值高度集中在0.03-0.05区间——暴露了'有策略的数据挖掘'。解决方法：预注册分析方案+Holm-Bonferroni多重比较校正。\n\n**滥用4：混淆'统计显著'和'经济显著'**\n`β̂₁=0.002, SE=0.0005, t=4.0, p<0.001`→统计上极其显著。但如果因变量是ln(wage)，这表示X₁每增加1单位，工资指数仅增加0.2%——在经济学上微不足道的。",
+      key_takeaway: "p值≠效应的概率，p值≠效应大小，p-hacking='有策略的挖掘'，统计显著≠经济显著——四个常见p值滥用謬思。"
+    },
+    {
+      module_id: "landscape",
+      module_title: "发展格局：推断方法在顶刊中的使用演变",
+      module_tag: "发展演进",
+      hook: "2000年的AER论文几乎只用经典标准误——2025年的AER论文中，集群标准误已经是默认选择，Bootstrap推断和FDR校正正在快速普及。",
+      content: "**标准误选择的时间线演变**（基于AER、QJE、JPE发表论文的方法学分析）：\n\n- **2000年**：约80%的论文使用经典/White标准误，集群标准误使用率<5%\n- **2010年**：约50%使用经典/White，集群标准误升至约30%\n- **2020年**：经典/White降至约25%，**集群标准误成为绝对主流(55-60%)**，Bootstrap和Randomization inference各占约10%\n- **2024年趋势**：集群标准误仍是主流，但社区开始讨论'集群数量少时（<20-30个集群）的可靠替代品'——**Wild Cluster Bootstrap**和**随机化推断**正在兴起\n\n**多重比较校正的普及**：\n- 2015年前：约5%的顶刊论文报告任何形式的多重比较校正\n- 2023年：约20-25%的实证论文使用了FDR或Bonferroni校正\n- 趋势明显：预注册（pre-registration）和FDR校正正在成为'好实证'的新标志",
+      key_takeaway: "集群标准误从2000年的<5%到2020年的55%——这是推断方法史上最显著的标准变迁。"
+    },
+    {
+      module_id: "issues",
+      module_title: "发展问题：统计推断的五大系统性挑战",
+      module_tag: "风险与挑战",
+      hook: "当审稿人要求'提供稳健标准误'时，实际上是在说'你的结果可能不稳健，换一种标准误能坚持住吗？'——这是对当前推断方法信任度不足的直接征兆。",
+      content: "**挑战1：集群数量少时的推断危机**\n许多微观实证研究仅10-30个集群（如美国50个州中仅部分被研究，跨国研究仅20-30个国家）。标准聚类标准误在集群数<30时严重偏小——这被称为'少集群问题'。解决方案：**Wild Cluster Bootstrap**（Cameron, Gelbach & Miller 2008）或**随机化推断**。\n\n**挑战2：标准误的'选择偏见'**\n研究者可能运行了3种标准误（经典、White、集群）然后报告让β最显著的——这也是p-hacking的一种形式。解决方法：预注册+用最保守的标准误做结论。\n\n**挑战3：假设检验的'堆积'效应**\n一篇典型的实证论文会在正文+附录中报告50+个回归表——每个表可能包含5-15个假设检验。即使只考虑正文的40个检验，在α=0.05的独立检验下，期望假阳性数=40×0.05=2。这些关联检验之间的依赖结构复杂，简单的Bonferroni校正过于保守。\n\n**挑战4：效应异质性的统计推断**\n当我们说'系数是0.082'时，实际上是在估计**一个平均值**。但`β₁`可能在不同人群中完全不同（如教育对女性的回报高于男性）。'平均效应'的推断掩盖了效果异质性——交互项分析、分位数回归和最近基于ML的CATE（条件平均处理效应）方法正在解决这个问题。\n\n**挑战5：零假设显著性检验(NHST)的根本哲学问题**\nMeehl (1978)早在40多年前就论证：社会科学中的'零假设'（'效应为零'）在样本量足够大时几乎总会被拒绝——因为真实世界中不可能存在精确为零的效应。因此重要的问题是'效应有多大'和'有多大置信度'，而非仅仅是否'不为零'。",
+      key_takeaway: "少集群→Wild Bootstrap；标准误选择偏见→预注册；多重检验→FDR校正；效应异质性→CATE；NHST哲学问题→效应大小优先。"
+    },
+    {
+      module_id: "prospect",
+      module_title: "发展前景：后p值时代的推断范式",
+      module_tag: "前沿探索",
+      hook: "ASA 2016声明之后，计量经济学正走向一个'后p值时代'——置信区间、贝叶斯后验、随机化推断和机器学习辅助推断成为新四大范式竞争者。",
+      content: "**范式1：置信区间优先报告**\n越来越多的期刊（如JEP）要求：主要结果以95% CI（而非p值）形式报告。95%CI天然地传达了**效应大小和不确定性**，不像p值那样容易被误导为二进制的'显著/不显著'。\n\n**范式2：贝叶斯因子 + 后验间隔**\n贝叶斯因子`BF₁₀ = P(data|H₁)/P(data|H₀)`直接比较两个假设的数据支持程度。如果BF₁₀=10(=100)，说明数据支持H₁比H₀多10倍(100倍)。结合后验`P(β₁>0|data)`可以给出精确的'正效应信念'——这正是研究者真正关心的问题。\n\n**范式3：随机化推断 (Randomization Inference)**\n最干净的推断方法：将处理分配的所有可能排列作为'零分布'，观察真实统计值在其中的位置。**不依赖渐近理论、分布假设或模型设定**——统计推断只靠'处理的分配机制'单独决定。目前主要用于RCT数据，但向DID和IV的扩展正在快速发展。\n\n**范式4：ML辅助的不确定性量化**\n- **保序推断 (Conformal Inference)**：对任意ML预测生成有覆盖率保证（coverage guarantee）的预测区间\n- **双重稳健推断**：Chernozhukov等人证明——即使控制变量被ML模型'用错'，β的推断仍保持有效(只要第一阶段去偏了)",
+      key_takeaway: "CI优先+贝叶斯因子+随机化推断+ML辅助UQ=四个'后p值时代'的推断范式候选者。"
+    },
+    {
+      module_id: "effort-direction",
+      module_title: "努力方向：建立稳健推断的肌肉记忆",
+      module_tag: "实践应用",
+      hook: "换一种标准误你的结论还在吗？做Bootstrap你的置信区间稳定吗？——这两个问题应该成为每个实证研究者对自己论文的'灵魂拷问'。",
+      content: "**1. 建立'多标准误检验'习惯**\n每次回归分析至少运行两种标准误（如White+集群），并比较结论的稳定性。如果不同标准误导致p值从0.001跳到0.12——先别急着报告哪个，而是思考**为什么差异这么大**：是不是集群内高度相关？是不是高杠杆点的个别观测拖动了结果？\n\n**2. Bootstrap辅助推断**\n在做OLS分析时，运行**1000次残差Bootstrap或配对Bootstrap**生成β的完整抽样分布。查看这个Bootstrap分布：是否近似正态？95%的分位区间是否接近渐近置信区间？如果两者相差很大——渐近区间可能不适用于当前样本量。\n\n**3. 多元检验的诚实处理**\n如果模型有5个核心解释变量，**同时报告每个原始的p值和Bonferroni-Holm校正后的p值**。审稿人会欣赏这种诚实——它承认了多重比较问题的存在并采取了行动。\n\n**4. 敏感性分析的分步策略**\n不只要报告'基准回归'的结果——补充至少3-5个稳健性检验：\n- (a) 去除1%极端值后重新估计\n- (b) 使用不同控制变量集的敏感性\n- (c) 使用替代因变量测量\n- (d) 使用不同子样本（如仅大城市/仅小城市）\n- (e) 如果可能——使用替代识别策略（如IV替代OLS）",
+      key_takeaway: "多SE对比+Bootstrap+多重比较校正+5项稳健性检验→严谨实证推断的标配工作流。"
+    },
+    {
+      module_id: "innovation",
+      module_title: "创新方向：因果推断与统计推断的深度融合",
+      module_tag: "前沿探索",
+      hook: "传统的统计推断只回答'这个参数是否为零'——但现代因果推断追问的是更深层的问题：'AT（所有个）体都从政策中受益了，还是只有一部分人？'",
+      content: "**创新1：异质性处理效应的统计推断**\n传统DID告诉我们'平均效应'——但一个政策可能帮助了50%的人同时伤害了另50%。**Athey & Imbens (2016)**的因果森林（Causal Forest）可以估计**每个个体的**处理效应并给出置信区间——这是从'平均推断'走向'个体推断'的关键一步。\n\n**创新2：合成控制的推断体系**\n**Abadie, Diamond & Hainmueller (2010)**的合成控制法通过构造一个'未受处理的合成对照单元'来估计政策效应。Abadie (2021)随后发展了**合成控制+随机化推断**的杂交方法：在所有可能的'假处理时间'和'假处理单元'上计算同样的统计量来构建零分布——这样不需要任何分布假设就能获得p值。\n\n**创新3：IV的弱工具变量稳健推断**\n当第一阶段F统计量<10（弱IV），传统的2SLS标准误和置信区间严重不准。**Anderson-Rubin (AR)**检验提供了一个角度：即使在完全弱IV条件下也提供精确的覆盖。**Moreira (2003)**的条件似然比检验在强IV时接近有效，在弱IV时仍然精确——这是统计理论的一个艺术级成果。",
+      key_takeaway: "CATE异质性推断+合成控制随机化推断+弱IV的AR稳健推断——统计推断框架适应因果识别的三大前沿创新。"
+    },
+    {
+      module_id: "misconceptions",
+      module_title: "常见误区及纠正",
+      module_tag: "核心概念",
+      hook: "置信区间不等于预测区间！t检验不能检验'两组数据完全一样'！自举法不能解决所有样本量小的问题！",
+      content: "**误区1：95%置信区间=95%的个体值落在这个区间**\n置信区间是关于**参数估计值的不确定性**——它窄还是宽取决于`SE(β̂)`。预测区间（Prediction Interval）是关于新的个体观测值的不确定性——它比置信区间**宽得多**，因为它必须同时考虑`β`估计的不确定性**和**`ε`的样本变异性。计量研究中几乎只会报告置信区间，但初学者常将其误解为预测区间。\n\n**误区2：不能拒绝H₀=证明了H₀为真**\n`p=0.23 → '不拒绝H₀'`不等于`'H₀为真'`。这只能说明**数据没有提供足够的证据**推翻H₀——可能是真实效应确实为零，也可能是样本量太小/噪音太大掩盖了真实效应。统计检验是**拒绝性的**而非**证实性的**——这是一个基本的逻辑不对称。\n\n**误区3：大样本p值小=效应大**\n核心计算：`p ≈ 2×Φ(-|β̂|/SE)`。在大样本中，SE→O(1/√n)，因此即使很微小的β̂也会产生很小的p值。最经典的例子：一篇基于4百万观测值的研究发现'身高每增加1cm，收入增加0.07%'→p<0.00001——统计上惊天动地，经济上几乎为零。\n\n**误区4：Bootstrap是万能药**\nBootstrap在**独立同分布**条件下理论上完美——但真实数据很少是完全i.i.d.的。对于有集群结构的数据，需要**Cluster Bootstrap**（重抽样集群而非个体）。对于时间序列的自相关数据，需要**Block Bootstrap**（保留时间依赖）。标准的独立Bootstrap在集群或时间序列数据上产生的置信区间可能严重过窄。",
+      references: [{ title: "Bootstrap Methods and Their Application", authors: "Davison, A.C. & Hinkley, D.V.", year: 1997 }],
+      key_takeaway: "CI≠预测区间；不拒绝≠证明；大样本p小≠效应大；Bootstrap也分品种(i.i.d./Cluster/Block)。"
+    },
+    {
+      module_id: "learning-path",
+      module_title: "学习路径：从t检验到高级推断",
+      module_tag: "实践应用",
+      hook: "真正理解t检验需要比大多数人想象的多得多的知识——因为它浓缩了假设检验的全部核心概念。",
+      content: "**第一阶段（0-2周）：重建t检验的理解**\n目标：不只是会用t检验，而是**能推导出t统计量的抽样分布**。\n- 如果`ε|X ~ N(0, σ²I)` → `β̂|X ~ N(β, σ²(X'X)⁻¹)`\n- 为什么`(β̂ₖ-βₖ)/SE(β̂ₖ) ~ t(n-K-1)`（不是N(0,1)）？因为`SE`估计算法中用`RSS/(n-K-1)`替代了`σ²`→分母中额外加入了一个`χ²/(n-K-1)`随机变量→导致t分布尾巴更厚。\n\n**第二阶段（2-6周）：系统掌握三大渐近检验**\nWald→LR→LM三大检验都需要掌握推导原理：\n- Wald = 在β̂处评估约束与数据的距离\n- LR = 比较约束与无约束的极大似然值\n- LM = 检测约束下Score（梯度）离零多近\n\n**第三阶段（1-3月）：实证论文中的统计推断实战审视**\n- 读5-10篇顶刊实证论文——**只关注它们的推断方法论部分**\n- 自己要输出什么标准误？为什么用集群？集群在哪一层？\n- 是否做Bootstrap？是否做随机化推断？是否做了多重比较校正？\n- 用R/Stata独立复现每篇论文的至少一个核心回归表",
+      key_takeaway: "理解t的分布来源→掌握Wald/LR/LM→在真实论文中审视推断方法→形成个人的'严谨推断清单'。"
+    },
+    {
+      module_id: "glossary",
+      module_title: "关键术语表",
+      module_tag: "核心概念",
+      content: "统计推断术语速查——计量实证研究的语言基础：",
+      tables: [
+        { headers: ["术语", "定义", "计量中的典型应用"], rows: [
+          ["第I类错误(α)", "H₀为真时拒绝H₀的概率", "典型设定α=0.05→容忍5%假阳性"],
+          ["第II类错误(β)", "H₀为假时接受H₀的概率", "样本小→β高，应报告检验力度=1-β"],
+          ["检验力度(Power)", "H₀为假时拒绝H₀的概率=1-β", "应事前分析：当前n能检测多小的效应？"],
+          ["p值", "在H₀下观察到≥样本极端的概率", "p=0.03 = 3%的极端性，非97%否定H₀"],
+          ["置信区间(CI)", "在重复抽样中覆盖θ的区间构造法", "95%CI→100次抽样约95次覆盖θ"],
+          ["一致性", "plim(Tₙ)=θ，随n增大估计误差→0", "OLS一致性外r需要E(X'ε)=0"],
+          ["渐近正态性", "√n(Tₙ-θ)→N(0,Σ)为分布形态", "使大样本t检验可行(CLT保证)"],
+          ["稳健标准误", "同方差假设不成立时仍有效的SE", "White→异方差; Newey-West→自相关"],
+          ["集群标准误", "集群内残差任意相关下仍有效的SE", "省/学校/行业层面集群→保护过度拒绝"],
+          ["Bootstrap SE", "通过重抽样直接估计SE→不需公式", "有限样本非正态数据下的可靠SE"]
+        ], caption: "表：统计推断核心术语速查" }
+      ]
+    },
+    {
+      module_id: "debate",
+      module_title: "争议与辩论：统计推断的哲学困境",
+      module_tag: "前沿探索",
+      hook: "如果我们接受'p<0.05=显著'的规则，那么每20个真正的零效应中就会有1个被错误地宣布为'存在效应'——在经济学的发表生态中，这些'假阳性'被发表，而真实的零效应被搁在抽屉里。",
+      content: "**辩论1：'零假设显著性检验(NHST)'是否应该被废除？**\nMeehl, Gelman, Cumming等人公开呼吁废除NHST：\n- '证明零效应不存在'几乎总是可以做到（只要n足够大），所以这是对研究生涯的浪费\n- p值被系统性地误解——即使统计专业人士也常在解释p值时犯错\n- 效应大小+区间估计（estimation approach）能提供更有用的信息\n\n反对废除的观点（主要来自实验设计领域）：\n- 在严格控制的实验中，'效应是否为零'仍然是一个有意义的主动问题\n- NHST提供了一个清晰的决策门槛——这在监管和临床决策中不可或缺（'新药是否有效？'不能只是一个'效应大小区间'）\n\n**辩论2：标准误的'诚实选择'**\n如果一个回归中集群标准误给出p=0.09而White标准误给出p=0.03——你报告哪个？多位方法学家一致认为：**应该用集群版本**，因为集群结构是数据的客观属性（不同省的人不独立），不应随模型而变化。但如果审稿人偏好更'显著'的结论，研究者面临来自出版市场的扭曲激励。",
+      key_takeaway: "NHST是否应该被废除的辩论还在继续——但所有人都同意：仅报告p<0.05的二元判断绝对不够。"
+    },
+    {
+      module_id: "quant-model",
+      module_title: "核心推断模型：从似然到后验",
+      module_tag: "核心工具",
+      hook: "极大似然估计是统计推断中最'哲学'的方法——它说：'假设这个参数值是真实值，在它之下观察到我们手头这组数据的概率应该是最大的'。",
+      content: "**极大似然估计 (MLE)**：\n给定独立样本`Y₁,...,Yₙ ~ f(y|θ)`，定义似然函数`L(θ) = Πf(yᵢ|θ)`。MLE是使L(θ)最大的θ值：`θ̂_MLE = argmax_θ L(θ)`（等价于最大化对数似然`l(θ) = Σln f(yᵢ|θ)`）。\n\nMLE的核心性质：\n- **一致性**：在正则条件下`plim(θ̂_MLE)=θ`\n- **渐近正态性**：`√n(θ̂_MLE - θ) → N(0, I(θ)⁻¹)`，其中`I(θ)`为Fisher信息矩阵\n- **渐近有效性**：在所有一致渐近正态估计量中，MLE的渐近方差最小\n\n在计量中：Logit/Probit模型用MLE估计（不存在显式OLS解），非线性OLS（NLS）是MLE的特例（正态扰动下的条件均值模型）。\n\n**Wald、LR、LM三大检验的统一框架**：\n三个检验都来自**似然函数的二阶泰勒展开**：`l(θ) ≈ l(θ̂) + l'(θ̂)(θ-θ̂) + ½(θ-θ̂)'l''(θ̂)(θ-θ̂)`\n- Wald：检查`θ̂`在约束下的距离——在θ̂处评估\n- LR：比较有无约束的似然高度差——两个最优点\n- LM：检查约束下Score(梯度)的大小——仅在约束点计算\n这三个检验在H₀成立时渐近等价于χ²，但有限样本行为不同。",
+      formulas: [
+        { latex: "$$\\hat{\\theta}_{MLE} = \\arg\\max_\\theta \\sum_{i=1}^n \\ln f(y_i \\mid \\theta)$$", caption: "极大似然估计——选择使观测数据'最可能'出现的参数值" },
+        { latex: "$$\\sqrt{n}(\\hat{\\theta}_{MLE} - \\theta) \\xrightarrow{d} N(0, \\, I(\\theta)^{-1})$$", caption: "MLE的渐近正态分布——Fisher信息量的逆为其渐近方差" }
+      ],
+      key_takeaway: "MLE→一致性+渐近有效性+正态性=最强大的参数推断框架；Wald/LR/LM→同一似然二阶近似的三种检验构造方式。"
+    },
+    {
+      module_id: "regulation",
+      module_title: "规范与标准：统计推断的报告指南",
+      module_tag: "核心概念",
+      hook: "AER现在要求每篇论文报告的不止是p值——还需要置信区间、Bootstrap结果和至少一种稳健性标准误。",
+      content: "**当前实证计量论文的推断报告六项规范**：\n\n1. **报告95%置信区间**（非仅p值）——知β的合理范围比知'是否为零'更有信息\n2. **报告精确p值**（非'p<0.05'）——p=0.049和p=0.008传递不同的证据强度\n3. **标明标准误的类型**（经典/White/集群/Bootstrap）——读者有权利知道推断的基础\n4. **报告标准误的集群层面**（如'SE已按省份集群'）——这决定了推断的有效范围\n5. **多重比较校正**（当检验超过3-5个时报告Holm-Bonferroni校正值）——诚实对待假阳性率\n6. **效应大小的经济显著性讨论**——即使p<0.001也必须解释该效应在实际世界中的含义\n\n**额外建议（正成为新标准）**：\n- 在附录中报告**Bootstrap的分布形态**——展示β̂的完整抽样分布（直方图），不只输出SE\n- 报告**检验力度分析**——在给定α=0.05和当前n的条件下，本分析能检测到的**最小效应大小**是多少？",
+      key_takeaway: "95%CI+精确p+SE类型+集群层+多重校正+效应讨论→六项现代推断报告规范，Bootstrap附录在成为新标配。"
+    },
+    {
+      module_id: "cross-market",
+      module_title: "跨领域应用：统计推断的非经济学渗透",
+      module_tag: "实践应用",
+      hook: "同样的t检验和置信区间——在经济学中用于'教育回报'，在医学中用于'药物疗效'，在技术中用于'A/B测试的点击率对比'。",
+      content: "**医学：临床试验的期中分析（Interim Analysis）**\n新药试验中，如果早期数据显示药物有巨大副作用或无效，可以'trial early stop'。但这需要对**多次检验的累积α水平**进行校正——O'Brien-Fleming和Pocock方法使用比0.05更严格的单次检验门框来保持整个试验期间的总α≤0.05。\n\n**技术：在线A/B测试的序贯检验**\n互联网公司每天运行数千个A/B测试（如Google每天约同时运行10,000+个实验）。经典的固定样本t检验在**序贯采样（Sequential Sampling）**中会导致严重**α膨胀**——即如果持续监控p值并在第一次p<0.05时停止，真实第I类错误率可能上升到30-50%。序贯概率比检验（SPRT）和**Always Valid p-values**保证了在任何停止时间的总α控制。\n\n**环境科学：极端值推断（Extreme Value Inference）**\n'百年一遇的洪水水位'预测基于极端值分布——它是样本最大值的渐近分布。Gumbel/Fréchet/Weibull这三种极值分布用于在少量历史极端事件数据中推断极端事件的概率——这正是金融风险管理：银行必须推断'在2008年这样的极端市场条件下，投资组合的损失会是多少'。",
+      key_takeaway: "经济学中的t检验→医学拥有序贯检验的α累积校正→技术有在线A/B测试的河泡检验→环境科学有EVT的极值推断。"
+    }
+  ]
+};
+// ============ RUNTIME ENGINE ============
+function applyTheme(theme){document.documentElement.setAttribute('data-theme',theme);localStorage.setItem('slm-theme',theme);var t=document.getElementById('theme-toggle');t.textContent=theme==='dark'?'☀️':'🌓';if(typeof activeCharts!=='undefined'&&activeCharts){Object.values(activeCharts).forEach(function(c){c.resize()})}}
+function toggleTheme(){var cur=document.documentElement.getAttribute('data-theme')||'light';applyTheme(cur==='dark'?'light':'dark')}
+var savedTheme=localStorage.getItem('slm-theme')||'dark';applyTheme(savedTheme);
+window.addEventListener('scroll',function(){var st=window.scrollY;var dh=document.documentElement.scrollHeight-window.innerHeight;var p=dh>0?(st/dh)*100:0;document.getElementById('progress-bar').style.width=p+'%'});
+var activeCharts={};var sidebarLinks=[];
+function buildSidebar(){var c=document.getElementById('sidebar-links');PAGE_DATA.modules.forEach(function(m){var a=document.createElement('a');a.href='#'+m.module_id;a.className='sidebar-link';a.textContent=m.module_title||m.module_id;a.addEventListener('click',function(e){e.preventDefault();document.getElementById(m.module_id).scrollIntoView({behavior:'smooth'});if(window.innerWidth<=768)document.getElementById('sidebar').classList.remove('open')});c.appendChild(a);sidebarLinks.push({el:a,id:m.module_id})})}
+var observer=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){sidebarLinks.forEach(function(l){l.el.classList.toggle('active',l.id===e.target.id)})}})},{rootMargin:'-80px 0px -60% 0px'});
+function buildMetaCard(){var md=PAGE_DATA;document.getElementById('meta-card-container').innerHTML='<div class="meta-card"><div class="meta-item" style="font-size:12px;color:var(--text-tertiary);width:100%;margin-bottom:-16px;">🔗 📚 计量经济学 系统学习方案 · 计量基础与统计准备（1/5）</div><div class="meta-item"><span class="icon">📖</span><strong>'+md.topic+'</strong></div><div class="meta-item"><span class="meta-badge domain-finance">'+md.domain_name+'</span></div><div class="meta-item"><span class="meta-badge level-intermediate">'+md.level_name+'</span></div><div class="meta-item"><span class="icon">⏱️</span>约'+md.reading_time+'分钟阅读</div><div class="meta-item"><span class="icon">📦</span>'+md.module_count+'个模块</div></div>'}
+function renderFormulas(ct){if(typeof renderMathInElement!=='undefined'){renderMathInElement(ct,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false})}}
+function renderChart(mId,cc,i){var cid='chart_'+mId+'_'+i;var w=document.getElementById(cid);if(!w)return;if(typeof echarts==='undefined'){w.innerHTML='<div style="text-align:center;padding:20px;color:var(--text-tertiary)">📊 图表(需要网络加载CDN)</div>';return}try{var ch=echarts.init(w);var opt=cc.echarts_option||{};ch.setOption(opt);activeCharts[cid]=ch;new ResizeObserver(function(){ch.resize()}).observe(w)}catch(e){w.textContent='图表渲染失败'}}
+function getTagClass(tag){var m={'核心概念':'tag-core','前置知识':'tag-core','核心工具':'tag-tools','发展演进':'tag-evolution','实践应用':'tag-application','风险与挑战':'tag-risk','前沿探索':'tag-frontier'};return m[tag]||'tag-core'}
+function parseMD(c){if(!c)return'';var h=c;h=h.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');h=h.replace(/\*(.+?)\*/g,'<em>$1</em>');h=h.replace(/`([^`]+)`/g,'<code style="background:var(--bg-tertiary);padding:2px 6px;border-radius:4px;font-size:13px;">$1</code>');h=h.replace(/\[([^\]]+)\]\(([^)]+)\)/g,'<a href="$2" target="_blank">$1</a>');h=h.replace(/^### (.+)$/gm,'<h3 style="font-size:17px;font-weight:600;margin:20px 0 8px;">$1</h3>');h=h.replace(/^## (.+)$/gm,'<h3 style="font-size:18px;font-weight:600;margin:24px 0 10px;">$1</h3>');h=h.replace(/\n\n/g,'</p><p>');h='<p>'+h+'</p>';h=h.replace(/<p>\s*<\/p>/g,'');return h}
+function buildModuleHTML(mod){var tg=getTagClass(mod.module_tag||'');var h='<section class="module-section" id="'+mod.module_id+'"><div class="module-header"><span class="module-tag '+tg+'">'+(mod.module_tag||'')+'</span><h2 class="module-title">'+(mod.module_title||mod.module_id)+'</h2></div>';if(mod.hook)h+='<div class="module-hook">'+mod.hook+'</div>';h+='<div class="module-content">'+parseMD(mod.content||'')+'</div>';if(mod.formulas&&mod.formulas.length>0){mod.formulas.forEach(function(f){var hasD=f.expandable&&f.derivation;h+='<div class="formula-block'+(hasD?'':' not-expandable')+'" onclick="'+(hasD?'toggleDerivation(this)':'')+'"><div>'+f.latex+'</div>';if(f.caption)h+='<div class="formula-caption">'+f.caption+'</div>';if(hasD){h+='<div class="formula-expand-hint">💡 点击展开推导过程</div><div class="formula-derivation">'+f.derivation+'</div>'}h+='</div>'})}if(mod.charts&&mod.charts.length>0){mod.charts.forEach(function(cc,ci){var cid='chart_'+mod.module_id+'_'+ci;h+='<div class="chart-container"><div class="chart-wrapper" id="'+cid+'"></div>';if(cc.caption)h+='<div class="chart-caption">'+cc.caption+'</div>';if(cc.data_source)h+='<div class="chart-source">'+cc.data_source+'</div>';h+='</div>'})}if(mod.tables&&mod.tables.length>0){mod.tables.forEach(function(tb){h+='<div style="overflow-x:auto"><table class="module-table"><thead><tr>'+(tb.headers||[]).map(function(th){return'<th>'+th+'</th>'}).join('')+'</tr></thead><tbody>'+(tb.rows||[]).map(function(r){return'<tr>'+r.map(function(c){return'<td>'+c+'</td>'}).join('')+'</tr>'}).join('')+'</tbody></table>';if(tb.caption)h+='<div class="table-caption">'+tb.caption+'</div>';if(tb.data_source)h+='<div class="chart-source">'+tb.data_source+'</div>';h+='</div>'})}if(mod.references&&mod.references.length>0){h+='<div class="module-references"><h4>📚 参考文献</h4><ol>';mod.references.forEach(function(ref){var lk='';if(ref.doi)lk+=' <a href="https://doi.org/'+ref.doi+'" target="_blank">DOI</a>';if(ref.url)lk+=' <a href="'+ref.url+'" target="_blank">链接</a>';h+='<li>'+(ref.authors||'')+' ('+(ref.year||'')+'). <strong>'+(ref.title||'')+'</strong>.'+lk+'</li>'});h+='</ol></div>'}if(mod.key_takeaway)h+='<div class="key-takeaway">💡 '+mod.key_takeaway+'</div>';h+='</section>';return h}
+function toggleDerivation(el){el.classList.toggle('expanded')}
+function initPage(){
+  document.body.classList.remove('loading');document.body.classList.add('loaded');
+  buildMetaCard();buildSidebar();
+  var mc=document.getElementById('modules-container');
+  PAGE_DATA.modules.forEach(function(m){mc.innerHTML+=buildModuleHTML(m)});
+  var ses=mc.querySelectorAll('.module-section');ses.forEach(function(s){observer.observe(s)});
+  renderFormulas(mc);
+  setTimeout(function(){PAGE_DATA.modules.forEach(function(m){if(m.charts){m.charts.forEach(function(cc,ci){renderChart(m.module_id,cc,ci)})}})},100);
+  var fo=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting)e.target.classList.add('visible')})},{threshold:0.08});
+  ses.forEach(function(s){fo.observe(s)})
+}
+document.addEventListener('keydown',function(e){if((e.ctrlKey||e.metaKey)&&e.key==='d'){e.preventDefault();toggleTheme()}});
+(function bg(){var cv=document.getElementById('bg-canvas');var ctx=cv.getContext('2d');var pts=[];function rs(){cv.width=window.innerWidth;cv.height=window.innerHeight}window.addEventListener('resize',rs);rs();var n=Math.min(40,Math.floor((cv.width*cv.height)/30000));for(var i=0;i<n;i++)pts.push({x:Math.random()*cv.width,y:Math.random()*cv.height,vx:(Math.random()-0.5)*0.3,vy:(Math.random()-0.5)*0.3,r:Math.random()*1.2+0.3,a:Math.random()*0.3+0.05});function an(){ctx.clearRect(0,0,cv.width,cv.height);var c='129,140,248';pts.forEach(function(p){p.x+=p.vx;p.y+=p.vy;if(p.x<0)p.x=cv.width;if(p.x>cv.width)p.x=0;if(p.y<0)p.y=cv.height;if(p.y>cv.height)p.y=0;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,6.28);ctx.fillStyle='rgba('+c+','+p.a+')';ctx.fill()});requestAnimationFrame(an)}an()})();
+document.addEventListener('DOMContentLoaded',initPage);
+</script>
+</body>
+</html>

@@ -1,0 +1,282 @@
+{
+  "_description": "模块权重与亲和度预设 — 定义 relevance_base + tag_affinity 评分体系",
+  "_version": "3.0.0",
+  "_usage": "Phase 2模块选择时：relevance_score = clamp(relevance_base + Σ_rank(tag_affinity[tag_rank] × decay^(rank-1)), 0, 1)，按|affinity|降序、最多top_n_cap个tag参与",
+  "_selection_rules": {
+    "mandatory_threshold": 0.80,
+    "mandatory_desc": ">=0.80: 强制包含, 任何深度×广度组合都保留",
+    "optional_threshold": 0.40,
+    "optional_desc": "0.40-0.79: 可选, 按 relevance_score 降序取前 max_modules 个",
+    "excluded_threshold": 0.40,
+    "excluded_desc": "<0.40: 排除, 在当前主题下相关性不足以纳入"
+  },
+
+  "affinity_accumulation": {
+    "method": "diminishing_returns",
+    "description": "多个tag对同一模块的affinity按排名递减折扣累加，防止分数溢出使>1.0失去区分度。只对|affinity|>0的tag排序参与。",
+    "decay_factor": 0.85,
+    "top_n_cap": 6,
+    "formula": "bonus = Σ_{rank=1..min(N, 6)} tag_affinity[tag_rank][module_id] × 0.85^(rank-1)",
+    "ranking": "按 |tag_affinity[tag][module_id]| 降序排列，正负值均参与但需保持原符号",
+    "example": "topic tags=['derivatives','pricing','quant-models','risk'] → quant_model affinities=[0.20, 0.22, 0.20, 0.08] → bonus=0.22 + 0.20×0.85 + 0.20×0.85² + 0.08×0.85³ = 0.22+0.17+0.1445+0.0491=0.584 而非原来的 0.70"
+  },
+
+  "relevance_base": {
+    "_description": "各模块的通用基准相关度分数 (0-1)",
+    "background": 0.90,
+    "concept": 0.96,
+    "principle": 0.95,
+    "development": 0.82,
+    "application": 0.86,
+    "case_study": 0.84,
+    "risk": 0.78,
+    "landscape": 0.65,
+    "issues": 0.62,
+    "prospect": 0.76,
+    "effort_direction": 0.58,
+    "innovation": 0.48,
+    "misconceptions": 0.70,
+    "learning_path": 0.72,
+    "glossary": 0.70,
+    "debate": 0.58,
+
+    "learning_journey": 0.82,
+
+    "quant_model": 0.72,
+    "regulation": 0.65,
+    "micro_structure": 0.52,
+    "cross_market": 0.62,
+    "crisis_review": 0.60,
+    "institution_diff": 0.58,
+
+    "architecture": 0.76,
+    "compute_cost": 0.62,
+    "open_source": 0.60,
+    "benchmark": 0.56,
+    "ethics": 0.60,
+    "research_map": 0.52
+  },
+
+  "tag_affinity": {
+    "_description": "主题标签对模块相关度的加成分数。正数=提升相关度, 0=不影响, 负数=降低相关度",
+
+    "derivatives": {
+      "quant_model": 0.20, "risk": 0.10, "micro_structure": 0.08,
+      "cross_market": 0.05, "concept": 0.02, "principle": 0.02
+    },
+    "pricing": {
+      "quant_model": 0.22, "principle": 0.05, "background": 0.03,
+      "application": -0.03
+    },
+    "risk": {
+      "risk": 0.18, "regulation": 0.12, "crisis_review": 0.15, "quant_model": 0.08,
+      "debate": 0.08, "issues": 0.10, "innovation": -0.03
+    },
+    "regulation": {
+      "regulation": 0.25, "risk": 0.10, "debate": 0.15, "issues": 0.12,
+      "landscape": 0.10, "institution_diff": 0.12
+    },
+    "quant-models": {
+      "quant_model": 0.20, "principle": 0.06, "risk": 0.08,
+      "background": 0.02, "debate": 0.05
+    },
+    "asset-management": {
+      "quant_model": 0.15, "case_study": 0.10, "application": 0.08,
+      "risk": 0.05, "institution_diff": 0.12, "prospect": 0.03
+    },
+    "trading": {
+      "micro_structure": 0.20, "quant_model": 0.12, "case_study": 0.15,
+      "cross_market": 0.10, "institution_diff": 0.15, "application": 0.10,
+      "risk": 0.08
+    },
+    "crisis": {
+      "crisis_review": 0.30, "risk": 0.18, "landscape": 0.10,
+      "regulation": 0.10, "background": 0.05, "debate": 0.10
+    },
+    "micro-structure": {
+      "micro_structure": 0.32, "cross_market": 0.10, "quant_model": 0.08,
+      "risk": 0.05
+    },
+    "economics": {
+      "landscape": 0.15, "cross_market": 0.18, "background": 0.05,
+      "regulation": 0.12, "prospect": 0.08
+    },
+    "crypto": {
+      "innovation": 0.20, "risk": 0.12, "regulation": 0.15,
+      "debate": 0.18, "prospect": 0.10, "architecture": 0.10,
+      "quant_model": 0.05, "micro_structure": 0.10
+    },
+    "factor-models": {
+      "quant_model": 0.18, "case_study": 0.10, "application": 0.08,
+      "benchmark": 0.10, "debate": 0.08
+    },
+
+    "deep-learning": {
+      "architecture": 0.20, "principle": 0.05, "compute_cost": 0.15,
+      "benchmark": 0.18, "open_source": 0.10
+    },
+    "nlp": {
+      "architecture": 0.10, "benchmark": 0.18, "application": 0.08,
+      "case_study": 0.10, "open_source": 0.10
+    },
+    "llm": {
+      "compute_cost": 0.22, "architecture": 0.12, "ethics": 0.15,
+      "benchmark": 0.15, "open_source": 0.15, "research_map": 0.18,
+      "innovation": 0.15, "prospect": 0.10
+    },
+    "generative": {
+      "architecture": 0.15, "application": 0.10, "case_study": 0.12,
+      "innovation": 0.12, "ethics": 0.10
+    },
+    "engineering": {
+      "architecture": 0.10, "compute_cost": 0.15, "open_source": 0.18,
+      "application": 0.12, "case_study": 0.10
+    },
+    "ethics": {
+      "ethics": 0.30, "regulation": 0.15, "debate": 0.22,
+      "issues": 0.15, "risk": 0.10, "prospect": 0.08
+    },
+    "governance": {
+      "ethics": 0.22, "regulation": 0.25, "landscape": 0.18,
+      "debate": 0.15, "issues": 0.12, "research_map": 0.12
+    },
+    "trending": {
+      "prospect": 0.15, "innovation": 0.12, "research_map": 0.12,
+      "landscape": 0.10, "debate": 0.08, "effort_direction": 0.10
+    },
+    "architecture": {
+      "architecture": 0.25, "principle": 0.05, "compute_cost": 0.10,
+      "open_source": 0.10
+    },
+    "foundation": {
+      "background": 0.05, "concept": 0.02, "principle": 0.02,
+      "learning_path": 0.08, "glossary": 0.05
+    },
+    "application": {
+      "application": 0.15, "case_study": 0.18, "misconceptions": 0.05,
+      "learning_path": 0.05
+    },
+    "classic": {
+      "background": 0.05, "development": 0.05,
+      "innovation": -0.05, "prospect": -0.02
+    },
+    "math-heavy": {
+      "quant_model": 0.12, "principle": 0.05,
+      "case_study": -0.03, "application": -0.02
+    },
+    "practitioner": {
+      "application": 0.15, "case_study": 0.15, "learning_path": 0.10,
+      "institution_diff": 0.12, "misconceptions": 0.08,
+      "debate": -0.03
+    },
+    "technique": {
+      "application": 0.08, "case_study": 0.10, "misconceptions": 0.10,
+      "open_source": 0.08
+    },
+    "mechanism": {
+      "principle": 0.05, "architecture": 0.10
+    },
+    "optimization": {
+      "quant_model": 0.10, "principle": 0.03, "compute_cost": 0.15,
+      "benchmark": 0.12
+    },
+    "simulation": {
+      "quant_model": 0.15, "principle": 0.05, "case_study": 0.08,
+      "misconceptions": 0.05
+    },
+    "history": {
+      "background": 0.10, "development": 0.18, "crisis_review": 0.25,
+      "debate": 0.10
+    },
+    "disruption": {
+      "innovation": 0.22, "prospect": 0.15, "debate": 0.15,
+      "research_map": 0.10
+    },
+    "cross-domain": {
+      "cross_market": 0.20, "innovation": 0.10, "landscape": 0.10,
+      "effort_direction": 0.08
+    },
+    "sustainability": {
+      "ethics": 0.10, "prospect": 0.10, "innovation": 0.08,
+      "regulation": 0.10
+    },
+    "distributed": {
+      "architecture": 0.15, "compute_cost": 0.12, "open_source": 0.10
+    },
+    "privacy": {
+      "ethics": 0.20, "regulation": 0.18, "risk": 0.12,
+      "debate": 0.10
+    },
+    "graph": {
+      "architecture": 0.12, "principle": 0.03, "landscape": 0.08
+    },
+    "forecasting": {
+      "quant_model": 0.18, "application": 0.10, "case_study": 0.10,
+      "benchmark": 0.10
+    },
+    "decision-making": {
+      "application": 0.10, "case_study": 0.12, "risk": 0.08,
+      "misconceptions": 0.08
+    },
+    "knowledge": {
+      "learning_path": 0.08, "glossary": 0.10, "landscape": 0.05,
+      "background": 0.03
+    },
+    "debate": {
+      "debate": 0.28, "issues": 0.15, "misconceptions": 0.10,
+      "innovation": 0.05
+    },
+    "quant-models": {
+      "quant_model": 0.20, "principle": 0.06, "risk": 0.08,
+      "background": 0.02, "debate": 0.05, "learning_journey": 0.03
+    },
+    "foundation": {
+      "background": 0.05, "concept": 0.02, "principle": 0.02,
+      "learning_path": 0.08, "glossary": 0.05, "learning_journey": 0.05
+    },
+    "learning_path": {
+      "learning_path": 0.25, "learning_journey": 0.18, "glossary": 0.10,
+      "background": 0.05, "landscape": 0.08
+    }
+
+  "domain_cross_module_filter": {
+    "_description": "模块的领域归属。非本领域的模块 relevance 自动归零。",
+    "finance_only": ["quant_model", "regulation", "micro_structure", "cross_market", "crisis_review", "institution_diff"],
+    "ai_tech_only": ["architecture", "compute_cost", "open_source", "benchmark", "ethics", "research_map"],
+    "common": ["background", "concept", "principle", "development", "application", "case_study", "risk", "landscape", "issues", "prospect", "effort_direction", "innovation", "misconceptions", "learning_path", "glossary", "debate", "learning_journey"],
+  },
+
+  "depth_breadth_module_cap": {
+    "_description": "深度×广度组合对 max_modules 数量的约束",
+    "combinations": {
+      "概览_核心": {"max_modules": 8, "content_depth": 0.5},
+      "概览_标准": {"max_modules": 12, "content_depth": 0.5},
+      "概览_全景": {"max_modules": 16, "content_depth": 0.5},
+      "理解_核心": {"max_modules": 10, "content_depth": 1.0},
+      "理解_标准": {"max_modules": 16, "content_depth": 1.0},
+      "理解_全景": {"max_modules": 22, "content_depth": 1.0},
+      "精通_核心": {"max_modules": 12, "content_depth": 1.6},
+      "精通_标准": {"max_modules": 18, "content_depth": 1.6},
+      "精通_全景": {"max_modules": 24, "content_depth": 1.6}
+    },
+    "depth_params": {
+      "概览": {
+        "multiplier": 0.5,
+        "description": "概览级别 — 每模块精简，强调概览与总结，减少深度推导"
+      },
+      "理解": {
+        "multiplier": 1.0,
+        "description": "理解级别 — 标准深度，平衡概念解释与原理推导"
+      },
+      "精通": {
+        "multiplier": 1.6,
+        "description": "精通级别 — 深度展开，完整的推导链、学术引用、前沿讨论"
+      }
+    },
+    "word_count_base": {
+      "small": 300,
+      "medium": 600,
+      "large": 900
+    }
+  }
+}

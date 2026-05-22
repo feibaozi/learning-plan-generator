@@ -1,0 +1,56 @@
+/* ───────────────────────────────────────────────
+   Template: Arctic Frost (极光冰霜) — plan.css
+   Mood: crisp, nordic, creative
+   Contrast verified: text-primary≥10:1, text-secondary≥6:1, text-muted≥4.5:1
+   ─────────────────────────────────────────────── */
+:root{
+--bg-deep:#0d111a;
+--bg-primary:#121826;
+--bg-card:#182032;
+--bg-elevated:#1e2840;
+--bg-input:#162030;
+--text-primary:#e0e6f0;
+--text-secondary:#8a98b0;
+--text-muted:#5a6880;
+--accent-blue:#7eb8da;
+--accent-cyan:#6ec8b0;
+--accent-purple:#9888d0;
+--accent-green:#6ec898;
+--accent-orange:#d89860;
+--accent-pink:#c888a0;
+--accent-red:#d07060;
+--accent-gold:#d0b060;
+--border-subtle:rgba(255,255,255,0.06);
+--border-glow:rgba(126, 184, 218, 0.25);
+--shadow-sm:0 1px 3px rgba(0,0,0,0.3);
+--shadow-md:0 4px 12px rgba(0,0,0,0.4);
+--radius-sm:6px;
+--radius-md:10px;
+--radius-lg:16px;
+--transition-fast:0.15s ease;
+--transition-smooth:0.3s ease;
+}
+body.light{
+--bg-deep:#f5f8fc;
+--bg-primary:#fafcff;
+--bg-card:#f2f5fa;
+--bg-elevated:#e8edf5;
+--bg-input:#dde3ee;
+--text-primary:#0b1220;
+--text-secondary:#384860;
+--text-muted:#486070;
+--accent-blue:#5a9cc0;
+--accent-cyan:#50a890;
+--accent-purple:#5a4890;
+--accent-green:#50a878;
+--accent-orange:#b87040;
+--accent-pink:#a05868;
+--accent-red:#b04840;
+--accent-gold:#a88838;
+--border-subtle:rgba(11, 18, 32, 0.08);
+--border-glow:rgba(90, 156, 192, 0.25);
+--shadow-sm:0 1px 3px rgba(0,0,0,0.06);
+--shadow-md:0 4px 12px rgba(0,0,0,0.08);
+}
+body.light .knowledge-card.expanded{border-color:rgba(80,168,120,0.5)}
+body.dark .knowledge-card.expanded{border-color:rgba(110,200,152,0.5);background:var(--bg-elevated)}

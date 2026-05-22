@@ -1,0 +1,77 @@
+{
+  "_description": "学习生态文件清单格式 — 记录所有已生成的学习方案和深度资料，实现 learning-plan-generator 与 smart-learning-materials 之间的双向链接",
+  "_version": "1.1.0",
+  "_shared_by": ["learning-plan-generator", "smart-learning-materials"],
+  "_writing_rules": {
+    "concurrency": "每次写入前必须读取最新版本再 merge；写入时检查 generated_at 是否比内存中的旧",
+    "backup": "每次写入前备份原文件为 .manifest.json.bak",
+    "validation": "写入后验证 JSON 可解析；失败则恢复 .bak",
+    "indentation": 2
+  },
+
+  "plans": {
+    "_schema": {
+      "id": "string — unique plan identifier (domain-learning)",
+      "title": "string — 方案标题",
+      "domain": "finance | ai-tech | cross-domain",
+      "texture": "G1 | G2 | G3 | G4 | G5 | G6 | G7 | G8",
+      "depth": "快速概览 | 标准学习 | 深度掌握",
+      "template_id": "indigo-night | cedar-dawn | graphite-studio | ocean-depth | sunset-amber | arctic-frost",
+      "markdown_file": "string — .md 文件路径 (相对)",
+      "html_file": "string — .html 文件路径 (相对)",
+      "generated_at": "ISO date string",
+      "topic_profile": {"abstract": "0-1", "systemic": "0-1", "math_density": "0-1", "temporal": "0-1"},
+      "phases": [
+        {
+          "id": "p1-pN",
+          "title": "阶段标题",
+          "weeks": "第X-Y周",
+          "kps": [
+            {
+              "id": "pX_N",
+              "name": "KP 名称",
+              "topic_id": "字符串或 null — topic_profiles.json 中的 topic ID",
+              "has_deep_dive": false
+            }
+          ]
+        }
+      ]
+    }
+  },
+
+  "materials": {
+    "_schema": {
+      "id": "string — unique material identifier (topic_id-deep)",
+      "kp_id": "string — KP id (如 p2_3)，由 SLM 写入",
+      "topic_id": "string — topic_profiles.json 中的 topic ID",
+      "topic_name": "string — 知识点名称",
+      "depth": "概览 | 理解 | 精通 — 中文值域。SLM 内部使用 beginner/intermediate/expert（英文），写入 manifest 时映射为中文值域",
+      "breadth": "核心 | 标准 | 全景",
+      "texture": "G1 | G2 | G3 | G4 | G5 | G6 | G7 | G8 — SLM 当前不写入此字段（留空或 null）",
+      "html_file": "string — .html 文件路径 (相对)",
+      "generated_at": "ISO date string",
+      "template_id": "indigo-night | cedar-dawn | graphite-studio | ocean-depth | sunset-amber | arctic-frost",
+      "status": "ready | lost — 由 SLM 写入，标记文件状态",
+      "note": "string — 可选，仅在 status: 'lost' 或需备注时填写",
+      "belongs_to_plan": "string 或 null — plans[].id，由 SLM 在集成模式下写入",
+      "belongs_to_phase": "string 或 null — 阶段 id，由 SLM 在集成模式下写入",
+      "belongs_to_kp": "string 或 null — KP id，由 SLM 在集成模式下写入"
+    }
+  },
+
+  "_depth_mapping": {
+    "_description": "跨 Skill depth 值域映射表。记录 LP / SLM / manifest_schema 三者各自的 depth 表达及对应关系。",
+    "_current_status": "SLM 当前直接写入 beginner/intermediate/expert（英文），与 manifest_schema 的中文值域不一致。由于 LP 的 syncKPsFromManifest 不依赖 depth 字段做匹配，当前无功能性影响。未来统一时建议以英文值域为准。",
+    "LP_plan_level": {"快速概览": "beginner", "标准学习": "intermediate", "深度掌握": "expert"},
+    "SLM_material_level": {"beginner": "概览", "intermediate": "理解", "expert": "精通"},
+    "manifest_schema_target": {"概览": "beginner", "理解": "intermediate", "精通": "expert"},
+    "_migration_note": "若要统一为英文值域：SLM 无需改动；manifest_schema 改为 beginnner/intermediate/expert；LP 读取时直接使用英文，无需反向映射。"
+  },
+
+  "_auto_match_rules": {
+    "_status": "aspirational — 当前未被任何 skill 的代码实现。保留作为未来自动匹配的参考规范。",
+    "kp_to_topic_id": "KP.name 与 topic_profiles.json 中的 aliases 做 Jaccard 相似度 > 0.4 → 匹配",
+    "material_to_plan": "materials[].topic_name 与 plans 中 KP.name 的 Jaccard 相似度 > 0.6 → 自动关联 belongs_to_plan/phase/kp",
+    "unmatched": "匹配不到的保持 null，不强制关联"
+  }
+}

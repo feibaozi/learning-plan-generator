@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>对冲策略与风险管理 - 学习资料</title>
+  <style>
+    :root {
+      --bg-primary: #fafbff;
+      --bg-card: #ffffff;
+      --bg-elevated: #f5f6fa;
+      --text-primary: #1a1b2e;
+      --text-secondary: #4a4b6e;
+      --text-muted: #8e8fa6;
+      --accent-purple: #6366f1;
+      --accent-gold: #f59e0b;
+      --accent-cyan: #22d3ee;
+      --accent-red: #ef4444;
+      --accent-green: #10b981;
+      --border-subtle: #e8e9f0;
+      --border-glow: #c4c5f0;
+      --shadow-card: 0 1px 3px rgba(0,0,0,0.06);
+      --shadow-elevated: 0 4px 20px rgba(0,0,0,0.08);
+      --shadow-glow: 0 0 0 1px rgba(99,102,241,0.15), 0 2px 12px rgba(99,102,241,0.12);
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --transition-smooth: 0.25s cubic-bezier(0.4,0,0.2,1);
+    }
+    [data-theme="dark"] {
+      --bg-primary: #0f1119;
+      --bg-card: #1a1b2e;
+      --bg-elevated: #1f2137;
+      --text-primary: #e8e9f0;
+      --text-secondary: #b0b2c8;
+      --text-muted: #6e7098;
+      --border-subtle: #2a2c44;
+      --border-glow: #4a4c7a;
+      --shadow-card: 0 1px 3px rgba(0,0,0,0.3);
+      --shadow-elevated: 0 4px 20px rgba(0,0,0,0.5);
+      --shadow-glow: 0 0 0 1px rgba(99,102,241,0.3), 0 2px 12px rgba(99,102,241,0.2);
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans SC",sans-serif;background:var(--bg-primary);color:var(--text-primary);line-height:1.75;transition:background var(--transition-smooth),color var(--transition-smooth)}
+    #progress-bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--accent-purple),var(--accent-cyan),var(--accent-gold));z-index:1000;transition:width 0.1s linear;border-radius:0 2px 2px 0}
+    .navbar{position:fixed;top:3px;left:0;right:0;z-index:999;background:var(--bg-card);backdrop-filter:blur(20px);border-bottom:1px solid var(--border-subtle);padding:10px 24px;display:flex;align-items:center;justify-content:space-between;transition:background var(--transition-smooth)}
+    .navbar h2{font-size:1.05rem;font-weight:700;color:var(--accent-purple);white-space:nowrap}
+    .navbar-right{display:flex;align-items:center;gap:12px}
+    .theme-btn{width:36px;height:36px;border-radius:50%;border:1px solid var(--border-subtle);background:var(--bg-elevated);cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center;transition:all var(--transition-smooth)}
+    .theme-btn:hover{box-shadow:var(--shadow-glow)}
+    .container{max-width:900px;margin:0 auto;padding:70px 20px 40px}
+    .hero{margin:20px 0 32px;padding:28px 32px;background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-lg);box-shadow:var(--shadow-card)}
+    .hero h1{font-size:2rem;font-weight:800;margin-bottom:8px;background:linear-gradient(135deg,var(--accent-purple),var(--accent-cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .hero-meta{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:12px;font-size:0.82rem;color:var(--text-secondary)}
+    .hero-meta span{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;background:var(--bg-elevated);border-radius:20px;border:1px solid var(--border-subtle)}
+    .hero-meta .meta-tag{color:var(--accent-purple);font-weight:600}
+    .section{margin:20px 0;padding:28px 28px 24px;background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);box-shadow:var(--shadow-card);transition:all var(--transition-smooth);opacity:0;transform:translateY(24px)}
+    .section.visible{opacity:1;transform:translateY(0)}
+    .section:hover{box-shadow:var(--shadow-glow)}
+    .section-header{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+    .section-tag{padding:3px 10px;border-radius:20px;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px}
+    .tag-concept{background:rgba(99,102,241,0.12);color:var(--accent-purple)}
+    .tag-evolution{background:rgba(34,211,238,0.12);color:var(--accent-cyan)}
+    .tag-app{background:rgba(16,185,129,0.12);color:var(--accent-green)}
+    .tag-risk{background:rgba(239,68,68,0.12);color:var(--accent-red)}
+    .tag-tool{background:rgba(139,92,246,0.12);color:#8b5cf6}
+    .tag-explore{background:rgba(245,158,11,0.12);color:var(--accent-gold)}
+    .section-title{font-size:1.35rem;font-weight:700}
+    .section-time{font-size:0.72rem;color:var(--text-muted);margin-left:auto}
+    .hook{font-size:0.95rem;color:var(--text-secondary);font-style:italic;padding:10px 16px;border-left:3px solid var(--accent-purple);background:var(--bg-elevated);border-radius:0 var(--radius-sm) var(--radius-sm) 0;margin-bottom:18px}
+    .content{font-size:0.93rem;color:var(--text-primary)}
+    .content p{margin-bottom:14px}
+    .content strong{color:var(--accent-purple)}
+    .formula-block{margin:18px 0;padding:18px 20px;background:var(--bg-elevated);border-radius:var(--radius-sm);overflow-x:auto;font-size:0.95rem;color:var(--text-primary);border:1px solid var(--border-subtle);position:relative}
+    .formula-block .formula-latex{display:block;text-align:center;padding:8px 0;font-family:"KaTeX_Main","Times New Roman",serif;font-size:1.1rem;letter-spacing:1px}
+    .formula-block .formula-caption{font-size:0.75rem;color:var(--text-muted);text-align:center;margin-top:4px}
+    .formula-expand{font-size:0.75rem;color:var(--accent-purple);cursor:pointer;text-align:right;margin-top:4px;user-select:none}
+    .formula-derivation{display:none;margin-top:12px;padding:12px 16px;background:var(--bg-card);border-radius:var(--radius-sm);font-size:0.82rem;color:var(--text-secondary);border:1px dashed var(--border-subtle);line-height:1.8}
+    .formula-derivation.open{display:block}
+    .chart-container{margin:18px 0;padding:12px;background:var(--bg-elevated);border-radius:var(--radius-sm);border:1px solid var(--border-subtle);min-height:250px;position:relative}
+    .chart-container canvas{display:block;width:100%!important}
+    .chart-caption{font-size:0.75rem;color:var(--text-muted);text-align:center;margin-top:8px}
+    table{width:100%;border-collapse:collapse;margin:16px 0;font-size:0.85rem}
+    th,td{padding:10px 14px;text-align:left;border-bottom:1px solid var(--border-subtle)}
+    th{background:var(--bg-elevated);font-weight:700;color:var(--text-primary);font-size:0.78rem}
+    tr:hover td{background:var(--bg-elevated)}
+    .ref-list{margin-top:12px;font-size:0.78rem;color:var(--text-secondary)}
+    .ref-list li{margin-bottom:4px;list-style:none;padding-left:16px;position:relative}
+    .ref-list li::before{content:"·";position:absolute;left:0;color:var(--accent-purple)}
+    .key-takeaway{margin-top:16px;padding:12px 18px;background:linear-gradient(135deg,rgba(99,102,241,0.08),rgba(34,211,238,0.06));border-radius:var(--radius-sm);font-size:0.82rem;font-weight:600;color:var(--accent-purple);border-left:3px solid var(--accent-purple)}
+    .sidebar-nav{position:fixed;right:16px;top:50%;transform:translateY(-50%);z-index:50;display:flex;flex-direction:column;gap:8px}
+    .sidebar-dot{width:10px;height:10px;border-radius:50%;background:var(--text-muted);opacity:0.35;cursor:pointer;transition:all var(--transition-smooth);position:relative}
+    .sidebar-dot:hover,.sidebar-dot.active{opacity:1;background:var(--accent-purple);transform:scale(1.4);box-shadow:0 0 8px rgba(99,102,241,0.5)}
+    .sidebar-dot:hover::after{content:attr(data-title);position:absolute;right:18px;top:50%;transform:translateY(-50%);white-space:nowrap;font-size:0.68rem;color:var(--text-secondary);background:var(--bg-card);padding:3px 10px;border-radius:4px;border:1px solid var(--border-subtle)}
+    footer{text-align:center;padding:40px 32px 60px;opacity:0.7}
+    footer p{font-size:0.78rem;color:var(--text-muted)}
+    .export-btns{display:flex;gap:10px;justify-content:center;margin-top:16px}
+    .export-btns button{padding:8px 20px;border-radius:20px;border:1px solid var(--border-subtle);background:var(--bg-card);color:var(--text-secondary);cursor:pointer;font-size:0.8rem;transition:all var(--transition-smooth)}
+    .export-btns button:hover{box-shadow:var(--shadow-glow);color:var(--accent-purple)}
+    .search-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:2000;align-items:flex-start;justify-content:center;padding-top:15vh}
+    .search-overlay.open{display:flex}
+    .search-box{width:550px;max-width:90vw;background:var(--bg-card);border-radius:var(--radius-md);box-shadow:var(--shadow-elevated);overflow:hidden}
+    .search-box input{width:100%;padding:16px 20px;border:none;background:transparent;color:var(--text-primary);font-size:1rem;outline:none}
+    .search-results{max-height:50vh;overflow-y:auto}
+    .search-results .sr-item{padding:12px 20px;cursor:pointer;border-top:1px solid var(--border-subtle);font-size:0.85rem;transition:background var(--transition-smooth)}
+    .search-results .sr-item:hover{background:var(--bg-elevated)}
+    .search-results mark{background:rgba(245,158,11,0.25);color:var(--text-primary);padding:0 2px;border-radius:2px}
+    @media(max-width:768px){.container{padding:60px 16px 30px}.sidebar-nav{display:none}.hero{padding:20px 16px}.hero h1{font-size:1.5rem}.section{padding:20px 16px 18px}.navbar h2{font-size:0.9rem}}
+    @media print{.navbar,.sidebar-nav,#progress-bar,.export-btns,.theme-btn,.search-overlay{display:none!important}.section{box-shadow:none;border:1px solid #ddd;break-inside:avoid}.container{max-width:100%;padding:0}}
+    /* Navigation: journey-bar, journey-footer, floating-back */
+    .journey-bar{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:12px 20px;margin:0 auto 20px;max-width:900px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:.82rem;box-shadow:var(--shadow-elevated)}
+    .journey-path{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+    .journey-plan{color:var(--accent-purple);font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+    .journey-plan:hover{color:var(--accent-gold)}
+    .journey-sep{color:var(--text-muted);font-size:.7rem}
+    .journey-footer{text-align:center;padding:40px 32px 60px;opacity:.8}
+    .back-to-plan{display:inline-flex;align-items:center;gap:8px;padding:10px 24px;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:50px;color:var(--text-secondary);text-decoration:none;font-size:.85rem;font-weight:600;transition:all var(--transition-smooth)}
+    .back-to-plan:hover{background:var(--bg-elevated);border-color:var(--accent-purple);color:var(--accent-purple)}
+    @media(max-width:768px){.journey-bar{flex-direction:column;align-items:flex-start}.deep-floating-back{right:15px;bottom:15px}.deep-floating-back button{padding:10px 16px;font-size:.8rem}}
+    @media print{.journey-bar,.journey-footer,.deep-floating-back{display:none!important}}
+  </style>
+</head>
+<body data-theme="light">
+  <div id="progress-bar" style="width:0%"></div>
+  <nav class="navbar">
+    <h2>🛡️ 对冲策略与风险管理</h2>
+    <div class="navbar-right">
+      <button class="theme-btn" id="themeToggle" title="切换主题 (Ctrl+D)">🌙</button>
+    </div>
+  </nav>
+
+  <div class="sidebar-nav" id="sidebarNav"></div>
+
+  <div class="container" id="contentContainer">
+    <div class="hero">
+      <h1>对冲策略与风险管理</h1>
+      <p style="color:var(--text-secondary);font-size:0.9rem;margin-top:4px">Hedging Strategies & Risk Management — 从风险识别到对冲执行的系统性框架</p>
+      <div class="hero-meta">
+        <span>🏷️ <span class="meta-tag">金融</span></span>
+        <span>🎯 理解 × 标准</span>
+        <span>🎨 G6 系统图解型</span>
+        <span>⏱️ 约48分钟阅读</span>
+        <span>📦 16个模块</span>
+        <span>📊 14张图表</span>
+        <span>📐 15条公式</span>
+      </div>
+    </div>
+
+    <div class="journey-bar">
+      <div class="journey-path">
+        <span>📍</span>
+        <span class="journey-plan" onclick="var w=window.open('derivatives_pricing_learning.html#kc-p4_3','plan_main');if(w)w.focus()">金融衍生品及其定价 系统学习方案</span>
+        <span class="journey-sep">〉</span>
+        <span>阶段4: 波动率、对冲与产品设计</span>
+        <span class="journey-sep">〉</span>
+        <span>对冲策略与风险管理 (第3个知识点)</span>
+      </div>
+    </div>
+
+    <!-- MODULE: background -->
+    <section class="section" id="sec-background" data-module="background">
+      <div class="section-header">
+        <span class="section-tag tag-concept">前置知识</span>
+        <span class="section-title">1. 背景与缘起</span>
+        <span class="section-time">⏱ 约3分钟</span>
+      </div>
+      <div class="hook">远在Black-Scholes公式诞生之前，17世纪的日本米商就已经在使用一种朴素的"对冲"——在现货涨价时，远期合约锁定成本。风险管理的基因，刻在商业文明的最深处。</div>
+      <div class="content">
+        <p>对冲（<strong>Hedging</strong>）的思想源头可以追溯到古代农业社会——农民为了锁定收成价格、商人为了规避运输途中的价格波动。但现代意义上的<strong>金融对冲</strong>诞生于19世纪中叶：</p>
+        <p style="padding-left:16px;border-left:2px solid var(--accent-purple)">1848年芝加哥期货交易所（CBOT）成立，标准化<strong>远期合约</strong>的出现让农民和贸易商第一次有了系统性的价格保护工具。到20世纪70年代，布雷顿森林体系崩溃、浮动汇率时代来临，外汇风险成为跨国企业的头号课题——对冲从"农产品工具"一跃成为"企业财务管理"的核心。</p>
+        <p>1973年芝加哥期权交易所（CBOE）成立和Black-Scholes公式的诞生，让对冲进入<strong>量化时代</strong>。期权的出现使对冲不再是简单的"锁定价格"，而是可以<strong>精确调整风险敞口</strong>——你可以在保留上涨收益的同时规避下跌风险。</p>
+        <p>今天，对冲已演化为一个<strong>多层次的风险管理体系</strong>：从企业层面的外汇对冲（treasury hedging），到投资组合层面的市场中性策略（market neutral），再到银行层面的资产负债管理（ALM），对冲策略渗透在每一个金融决策中。</p>
+      </div>
+      <div class="chart-container" id="chart-background-timeline"></div>
+      <div class="chart-caption">图1：从农产品远期到现代量化对冲的演进全景</div>
+      <div class="ref-list">
+        <li>Bernstein, P.L. (1996). <em>Against the Gods: The Remarkable Story of Risk</em>. Wiley.</li>
+        <li>Hull, J.C. (2022). <em>Options, Futures, and Other Derivatives</em> (11th ed.). Pearson.</li>
+      </div>
+      <div class="key-takeaway">💡 对冲从"简单的价格锁定"演变为"精确调整风险敞口的量化工具"，每一次金融市场的结构性变革都推动了对冲策略的进化。</div>
+    </section>
+
+    <!-- MODULE: concept -->
+    <section class="section" id="sec-concept" data-module="concept">
+      <div class="section-header">
+        <span class="section-tag tag-concept">核心概念</span>
+        <span class="section-title">2. 核心概念</span>
+        <span class="section-time">⏱ 约3分钟</span>
+      </div>
+      <div class="hook">对冲不是"消除风险"的魔法——它是一场精心设计的风险转换：用你愿意承担的基差风险，替代你不愿承担的价格风险。</div>
+      <div class="content">
+        <p>在进入具体策略之前，必须先锚定<strong>对冲策略与风险管理</strong>的核心概念体系：</p>
+        <table>
+          <tr><th>概念</th><th>符号/表述</th><th>定义与本质</th></tr>
+          <tr><td>风险暴露</td><td>Exposure</td><td>投资组合或企业面临的不确定性敞口（方向+规模+期限）</td></tr>
+          <tr><td>对冲</td><td>Hedging</td><td>构建与现有风险暴露方向相反的仓位，以降低净风险</td></tr>
+          <tr><td>完美对冲</td><td>Perfect Hedge</td><td>对冲工具与被对冲资产的现金流完全匹配，风险完全消除（罕见）</td></tr>
+          <tr><td>基差</td><td>Basis = S - F</td><td>现货价格与期货价格之差，是交叉对冲中无法消除的残余风险</td></tr>
+          <tr><td>套保比率</td><td>h*（最优比率）</td><td>每单位现货暴露应对冲的期货/期权头寸数量</td></tr>
+          <tr><td>Delta对冲</td><td>Δ = ∂V/∂S</td><td>用标的资产对冲期权组合的一阶价格风险，实现Delta中性</td></tr>
+          <tr><td>风险预算</td><td>Risk Budget</td><td>将总风险限额分配到不同策略和资产类别的管理框架</td></tr>
+          <tr><td>尾部对冲</td><td>Tail Hedging</td><td>针对极端市场事件（尾部风险）的保护性策略，通常通过深度虚值期权实现</td></tr>
+        </table>
+        <p>对冲的<strong>核心逻辑</strong>可以浓缩为一句话：<strong>"不要把所有鸡蛋放在一个篮子里，更不要让篮子朝同一个方向晃。"</strong>——前半句说的是分散化，后半句说的是对冲。分散化降低非系统性风险，对冲降低<strong>定向性的系统性风险</strong>。</p>
+        <p>一个关键的思维模型是<strong>对冲刷子（hedging brush）</strong>：你可以用不同"粒度"的工具来对冲——期货是"大刷子"（粗粒度、成本低），期权组合是"精修刷"（细粒度、能保留上涨收益），互换是"定制刷"（匹配特定现金流）。</p>
+      </div>
+      <div class="chart-container" id="chart-concept-system"></div>
+      <div class="chart-caption">图2：对冲策略的分类体系全景图 — 从工具维度（期货/期权/互换）到目标维度（Delta中性/完全对冲/尾部保护）</div>
+      <div class="key-takeaway">💡 对冲的本质不是消除风险，而是用你"愿意且能够管理"的基差风险，替代你"不愿或无法承担"的价格方向性风险。</div>
+    </section>
+
+    <!-- MODULE: principle -->
+    <section class="section" id="sec-principle" data-module="principle">
+      <div class="section-header">
+        <span class="section-tag tag-concept">核心概念</span>
+        <span class="section-title">3. 核心原理</span>
+        <span class="section-time">⏱ 约5分钟</span>
+      </div>
+      <div class="hook">最小方差套保比率（MVHR）——一个简单的OLS回归系数，却承载了对冲理论的整个数学基石。</div>
+      <div class="content">
+        <p>对冲的数学模型从<strong>组合方差最小化</strong>开始。假设你持有1单位现货（价格S），做空h单位期货（价格F），对冲后的组合价值变化为：</p>
+        <div class="formula-block">
+          <span class="formula-latex">ΔP = ΔS - h·ΔF</span>
+          <span class="formula-caption">对冲组合的每日价值变化</span>
+        </div>
+        <p>组合的方差为：</p>
+        <div class="formula-block">
+          <span class="formula-latex">σ²_P = σ²_S + h²·σ²_F - 2h·ρ·σ_S·σ_F</span>
+          <span class="formula-caption">对冲组合方差 — 含现货方差、期货方差和交叉协方差</span>
+          <span class="formula-expand" onclick="var d=this.nextElementSibling;d.classList.toggle('open');this.textContent=d.classList.contains('open')?'收起推导 ▴':'展开推导 ▾'">展开推导 ▾</span>
+          <div class="formula-derivation">
+            <p><strong>推导步骤：</strong></p>
+            <p>1. 组合价值变化: ΔP = ΔS - h·ΔF</p>
+            <p>2. 方差: Var(ΔP) = Var(ΔS) + h²·Var(ΔF) - 2h·Cov(ΔS, ΔF)</p>
+            <p>3. 令 σ²_S = Var(ΔS), σ²_F = Var(ΔF), ρ = Corr(ΔS, ΔF)</p>
+            <p>4. 则 Cov(ΔS, ΔF) = ρ·σ_S·σ_F，代入得最终表达式</p>
+          </div>
+        </div>
+        <p><strong>最小方差套保比率</strong>通过一阶条件 ∂σ²_P/∂h = 0 求得：</p>
+        <div class="formula-block">
+          <span class="formula-latex">h* = ρ · (σ_S / σ_F)</span>
+          <span class="formula-caption">最小方差套保比率（Minimum Variance Hedge Ratio, MVHR）</span>
+          <span class="formula-expand" onclick="var d=this.nextElementSibling;d.classList.toggle('open');this.textContent=d.classList.contains('open')?'收起推导 ▾':'展开推导 ▾'">展开推导 ▾</span>
+          <div class="formula-derivation">
+            <p><strong>一阶条件推导：</strong></p>
+            <p>∂σ²_P/∂h = 2h·σ²_F - 2ρ·σ_S·σ_F = 0</p>
+            <p>→ h* = (ρ·σ_S·σ_F) / σ²_F = ρ·σ_S/σ_F</p>
+            <p><strong>直觉：</strong>h* = 相关系数 × (现货波动/期货波动)</p>
+            <p>· 完美相关(ρ=1)时，h*仅由波动率比决定</p>
+            <p>· ρ<1 时（交叉对冲），套保比率相应降低</p>
+            <p>· ρ=0 时，h*=0——对冲无效，无法降低风险</p>
+          </div>
+        </div>
+        <p>在实践中，h*可以通过对历史数据的<strong>OLS回归</strong>估算：</p>
+        <div class="formula-block">
+          <span class="formula-latex">ΔS_t = α + h*·ΔF_t + ε_t &emsp; → &emsp; ĥ = β̂_OLS</span>
+          <span class="formula-caption">OLS回归估算套保比率 — 最常用的实务方法</span>
+        </div>
+        <p><strong>套保有效性的衡量</strong>——对冲降低的方差比例：</p>
+        <div class="formula-block">
+          <span class="formula-latex">R² = (σ²_unhedged - σ²_hedged) / σ²_unhedged = ρ²</span>
+          <span class="formula-caption">对冲有效性 = 现货与期货的相关系数平方。ρ²越接近1，对冲越有效</span>
+        </div>
+        <p>对于<strong>期权Delta对冲</strong>，核心原理转向连续时间的动态调整：</p>
+        <div class="formula-block">
+          <span class="formula-latex">Δ_C = N(d₁) &emsp; Δ_P = N(d₁) - 1</span>
+          <span class="formula-caption">BS框架下看涨/看跌期权的Delta — 每份期权需对冲的标的数量</span>
+        </div>
+        <p>Delta对冲的核心洞见：<strong>Delta本身随标的价格变化</strong>——你今天Delta中性了，明天股价变动后就不再中性。这就需要<strong>Gamma管理</strong>——Gamma越大，Delta变化越快，再平衡越频繁。</p>
+      </div>
+      <div class="chart-container" id="chart-principle-hedge"></div>
+      <div class="chart-caption">图3：对冲组合方差随套保比率变化的U型曲线 — h*为最优解</div>
+      <div class="key-takeaway">💡 ρ²（现货与期货的R²）直接决定了你的对冲能做到多好——交叉对冲（ρ²<0.8）时，即使用了最优比率，仍可能有20%以上的残余风险。</div>
+    </section>
+
+    <!-- MODULE: quant_model -->
+    <section class="section" id="sec-quant_model" data-module="quant_model">
+      <div class="section-header">
+        <span class="section-tag tag-tool">核心工具</span>
+        <span class="section-title">4. 量化模型与公式</span>
+        <span class="section-time">⏱ 约4分钟</span>
+      </div>
+      <div class="hook">MVHR只是对冲量化的入门砖。真实世界的对冲需要VaR约束、动态调整、多元GARCH——一套远比"OLS回归"复杂的量化武器库。</div>
+      <div class="content">
+        <p><strong>1. VaR约束下的最优对冲</strong></p>
+        <p>传统的MVHR只最小化方差。当引入<strong>VaR约束</strong>，问题变为：在给定置信水平α下，确保对冲后的组合VaR不超过限额，同时最小化对冲成本。</p>
+        <div class="formula-block">
+          <span class="formula-latex">VaR_α = (μ_S - h·μ_F) + z_α·√(σ²_S + h²·σ²_F - 2h·ρ·σ_S·σ_F)</span>
+          <span class="formula-caption">对冲组合VaR — z_α为标准正态分位数（α=95%时z≈-1.645）</span>
+        </div>
+        <p><strong>2. 动态套保比率（时变MVHR）</strong></p>
+        <p>现实世界中，σ_S、σ_F和ρ都是时变的。使用<strong>多元GARCH模型</strong>（如DCC-GARCH或BEKK）估计时变协方差矩阵，得到动态的h*_t：</p>
+        <div class="formula-block">
+          <span class="formula-latex">h*_t = ρ̂_t · (σ̂_{S,t} / σ̂_{F,t}) &emsp; 其中 ρ̂_t, σ̂_{·,t} 来自DCC-GARCH</span>
+          <span class="formula-caption">时变MVHR — 套保比率随市场波动状态动态调整</span>
+        </div>
+        <p><strong>3. 多资产对冲与风险预算</strong></p>
+        <p>当需要对冲一个包含n种风险因子的组合，问题从单一回归升级为<strong>多元优化</strong>：</p>
+        <div class="formula-block">
+          <span class="formula-latex">min_h { hᵀ·Σ·h - 2hᵀ·Σ_{S,F} } &emsp; s.t. hᵀ·h ≤ RiskBudget</span>
+          <span class="formula-caption">多元MVHR — h为各个对冲工具的头寸向量，Σ为协方差矩阵</span>
+        </div>
+        <p><strong>4. 希腊字母对冲体系</strong></p>
+        <table>
+          <tr><th>希腊字母</th><th>公式</th><th>对冲工具</th><th>对冲目标</th></tr>
+          <tr><td><strong>Delta (Δ)</strong></td><td>∂V/∂S</td><td>标的资产（股票/期货）</td><td>消除一阶价格风险</td></tr>
+          <tr><td><strong>Gamma (Γ)</strong></td><td>∂²V/∂S²</td><td>其他期权（Gamma中性组合）</td><td>降低Delta再平衡频率</td></tr>
+          <tr><td><strong>Vega (ν)</strong></td><td>∂V/∂σ</td><td>不同到期日的期权</td><td>消除波动率曲面变动风险</td></tr>
+          <tr><td><strong>Theta (Θ)</strong></td><td>∂V/∂t</td><td>（通常不对冲，接受时间衰减）</td><td>时间流逝的被动成本</td></tr>
+          <tr><td><strong>Rho (ρ)</strong></td><td>∂V/∂r</td><td>利率期货/互换</td><td>消除利率变动风险</td></tr>
+        </table>
+        <p>一个<strong>Delta-Gamma-Vega中性</strong>组合需要至少3种不同的期权来同时满足三个方程。</p>
+      </div>
+      <div class="chart-container" id="chart-quant-greeks"></div>
+      <div class="chart-caption">图4：希腊字母对冲的多层级体系示意图 — 每多锁定一个希腊字母，对冲成本呈指数增长</div>
+      <div class="ref-list">
+        <li>Engle, R. (2002). Dynamic conditional correlation: a simple class of multivariate GARCH models. <em>Journal of Business & Economic Statistics</em>, 20(3), 339-350.</li>
+        <li>Kroner, K.F. & Sultan, J. (1993). Time-varying distributions and dynamic hedging with foreign currency futures. <em>Journal of Financial and Quantitative Analysis</em>, 28(4), 535-551.</li>
+      </div>
+      <div class="key-takeaway">💡 MVHR是静态的OLS回归结果——但真实市场中的σ和ρ时刻在变。DCC-GARCH动态套保比率可以将对冲有效性提升10-15%。</div>
+    </section>
+
+    <!-- MODULE: development -->
+    <section class="section" id="sec-development" data-module="development">
+      <div class="section-header">
+        <span class="section-tag tag-evolution">发展演进</span>
+        <span class="section-title">5. 发展迭代</span>
+        <span class="section-time">⏱ 约3分钟</span>
+      </div>
+      <div class="hook">从"买张期货锁价格"的直觉操作，到今天的AI驱动的实时Delta-Gamma-Vega联合对冲——这中间经历了四次重大的范式跃迁。</div>
+      <div class="content">
+        <p>对冲策略的发展可以清晰地划分为<strong>五个代际</strong>：</p>
+        <table>
+          <tr><th>代际</th><th>时间</th><th>核心思想</th><th>代表工具</th></tr>
+          <tr><td><strong>1. 朴素对冲</strong></td><td>~1970前</td><td>1:1的现货-期货匹配</td><td>农产品远期、金属期货</td></tr>
+          <tr><td><strong>2. MVHR时代</strong></td><td>1970s-1990s</td><td>OLS回归确定最优比率</td><td>Ederington(1979)框架</td></tr>
+          <tr><td><strong>3. 动态对冲</strong></td><td>1990s-2010</td><td>时变波动率+协整关系，套保比率随时间调整</td><td>GARCH族、ECM误差修正</td></tr>
+          <tr><td><strong>4. 多希腊联合</strong></td><td>2000s-至今</td><td>Delta-Gamma-Vega三维中性，期权组合精确控制风险曲面</td><td>结构化衍生品对冲、波动率曲面套利</td></tr>
+          <tr><td><strong>5. AI+另类数据</strong></td><td>2020至今</td><td>ML预测最优对冲比率、NLP尾部风险预警</td><td>LSTM/GARCH混合、Transformer时序预测</td></tr>
+        </table>
+        <p>一个关键的<strong>范式转移</strong>发生在2008年金融危机之后：尾部对冲（Tail Hedging）从"小众策略"升级为"机构标配"。Universa Investments（Nassim Taleb的顾问）通过<strong>持续买入深度虚值看跌期权</strong>的方式——平时持续小额亏损（期权费），危机时获得爆发式收益——在2008年和2020年3月分别实现了超过100倍和40倍的回报。</p>
+        <p>2020年代的一个新趋势是<strong>ESG对冲</strong>：投资者不仅对冲价格风险，还通过碳配额期货对冲<strong>气候转型风险</strong>，通过ESG指数期货对冲<strong>声誉风险</strong>。</p>
+      </div>
+      <div class="chart-container" id="chart-development"></div>
+      <div class="chart-caption">图5：对冲策略五代演进全景 — 从朴素1:1到AI驱动的多维度风险管理</div>
+      <div class="ref-list">
+        <li>Ederington, L.H. (1979). The hedging performance of the new futures markets. <em>Journal of Finance</em>, 34(1), 157-170.</li>
+        <li>Spitznagel, M. (2021). <em>Safe Haven: Investing for Financial Storms</em>. Wiley.</li>
+      </div>
+      <div class="key-takeaway">💡 对冲的进化本质上是"风险识别精度"的进化——从只看方向（Delta），到关注变化的速度（Gamma）和波动率本身（Vega）。</div>
+    </section>
+
+    <!-- MODULE: application -->
+    <section class="section" id="sec-application" data-module="application">
+      <div class="section-header">
+        <span class="section-tag tag-app">实践应用</span>
+        <span class="section-title">6. 实践应用</span>
+        <span class="section-time">⏱ 约3分钟</span>
+      </div>
+      <div class="hook">同样的对冲框架，用在航空公司叫"燃油套保"，用在出口企业叫"外汇对冲"，用在养老金叫"利率免疫"——场景不同，逻辑完全一致。</div>
+      <div class="content">
+        <p>对冲策略在不同资产类别中的应用各有独特的技术细节：</p>
+        <table>
+          <tr><th>场景</th><th>对冲目标</th><th>典型工具</th><th>关键挑战</th></tr>
+          <tr><td><strong>商品对冲</strong></td><td>锁定原材料采购成本</td><td>商品期货、互换</td><td>基差风险、交割地点错配</td></tr>
+          <tr><td><strong>外汇对冲</strong></td><td>消除海外收入/成本的汇率波动</td><td>外汇远期、货币互换、外汇期权</td><td>会计套保与现金流套保的差异</td></tr>
+          <tr><td><strong>利率对冲</strong></td><td>固定融资成本、匹配资产负债久期</td><td>利率互换、国债期货、利率上限</td><td>收益率曲线非平行移动</td></tr>
+          <tr><td><strong>权益对冲</strong></td><td>降低组合Beta，实现市场中性</td><td>股指期货、个股期权、ETF融券</td><td>因子暴露（不仅是Beta）</td></tr>
+          <tr><td><strong>信用对冲</strong></td><td>对冲违约/评级下调风险</td><td>CDS、信用利差期权</td><td>流动性差、对手方风险</td></tr>
+          <tr><td><strong>波动率对冲</strong></td><td>对冲VIX骤升的极端风险</td><td>VIX期货、方差互换</td><td>期限结构（contango成本）</td></tr>
+        </table>
+        <p><strong>航空公司燃油对冲</strong>是一个经典的案例。燃油成本通常占航空公司运营成本的20-30%。西南航空（Southwest Airlines）以上市公司中最激进的燃油对冲策略闻名——在2000-2008年间通过原油期货和裂解价差互换锁定了远低于市价的燃油成本，累计节省超过35亿美元。</p>
+        <p>而<strong>外汇对冲</strong>中一个常见的实务问题是：到底是"对冲一切"还是"对冲净值"？大多数跨国公司采取<strong>分层对冲</strong>策略——对未来12个月的确定性现金流（如已签合同的应收账款）进行接近100%的对冲，对24-36个月的预测性现金流仅对冲50%，超过36个月的不对冲。</p>
+      </div>
+      <div class="chart-container" id="chart-app-radar"></div>
+      <div class="chart-caption">图6：各类对冲策略的适用性雷达图 — 成本、有效性、复杂度三维对比</div>
+      <div class="key-takeaway">💡 对冲不是"零风险"——航空公司对冲了油价却暴露于基差风险，出口企业对冲了欧元却引入了远期合约的信用风险。每次对冲都是一次风险转换而非消除。</div>
+    </section>
+
+    <!-- MODULE: institution_diff -->
+    <section class="section" id="sec-institution_diff" data-module="institution_diff">
+      <div class="section-header">
+        <span class="section-tag tag-app">实践应用</span>
+        <span class="section-title">7. 机构实操差异</span>
+        <span class="section-time">⏱ 约2分钟</span>
+      </div>
+      <div class="hook">同一套对冲理论，在企业的司库部门、量化对冲基金、商业银行和养老金的实践中，长得完全不同。</div>
+      <div class="content">
+        <table>
+          <tr><th>机构类型</th><th>对冲目标</th><th>工具箱</th><th>典型约束</th></tr>
+          <tr><td><strong>企业司库</strong></td><td>稳定经营现金流、降低财报波动</td><td>远期、期货、简单期权</td><td>会计合规( hedge accounting)、流动性</td></tr>
+          <tr><td><strong>量化对冲基金</strong></td><td>Alpha分离、市场中性</td><td>期货、互换、结构化期权、动态Delta对冲</td><td>杠杆率、保证金、回撤控制</td></tr>
+          <tr><td><strong>商业银行</strong></td><td>ALM久期匹配、利率风险免疫</td><td>利率互换、国债期货、利率期权</td><td>监管资本、LCR/NSFR流动性指标</td></tr>
+          <tr><td><strong>养老金/保险</strong></td><td>资产负债久期匹配、下行保护</td><td>长久期债券、利率互换、股指看跌期权</td><td>偿付能力II、长期精算假设</td></tr>
+        </table>
+        <p>一个典型的<strong>买方vs卖方</strong>差异：量化对冲基金（买方）的目标是构建<strong>市场中性组合</strong>——剔除所有Beta后只保留Alpha，所以它们对冲的是系统性因子暴露。而投资银行的衍生品台（卖方）的目标是<strong>管理自身的期权簿风险</strong>——它们做市卖出期权后必须立即Delta对冲，否则股价的微小波动就会造成巨额亏损。</p>
+        <p>在<strong>企业端</strong>，对冲还有一个独特的会计维度：<strong>套期会计（Hedge Accounting）</strong>（IAS 39 / IFRS 9）。如果不符合套期会计标准，对冲工具的公允价值变动直接计入当期损益——这会导致财报出现"对冲越努力，损益表越难看"的悖论。</p>
+      </div>
+      <div class="chart-container" id="chart-institution"></div>
+      <div class="chart-caption">图7：四类机构的对冲目标、约束和工具箱全景对比</div>
+      <div class="key-takeaway">💡 企业司库做对冲是为了"睡得安稳"，量化基金做对冲是为了"提取纯Alpha"——同样的数学工具，服务于完全不同的商业目的。</div>
+    </section>
+
+    <!-- MODULE: case_study -->
+    <section class="section" id="sec-case_study" data-module="case_study">
+      <div class="section-header">
+        <span class="section-tag tag-app">实践应用</span>
+        <span class="section-title">8. 实践案例</span>
+        <span class="section-time">⏱ 约4分钟</span>
+      </div>
+      <div class="hook">让我们用真实数据，一步步构建一个从风险识别→最优比率→VaR验证的完整对冲方案。</div>
+      <div class="content">
+        <p><strong>场景：</strong>一家中国出口企业预计3个月后收到1000万欧元货款。当前EUR/CNY汇率为7.80。CFO希望锁定至少95%的汇率风险，同时希望在欧元升值时保留部分收益。</p>
+        <p><strong>Step 1 — 数据与参数估计（基于过去120个交易日）：</strong></p>
+        <div class="formula-block">
+          <span class="formula-latex">σ_S(现货EUR/CNY日波动) = 0.65% &emsp; σ_F(期货日波动) = 0.60%</span><br>
+          <span class="formula-latex">ρ(现货-期货相关系数) = 0.92 &emsp; 期货合约规模 = 125,000 EUR/手</span>
+          <span class="formula-caption">历史120日滚动窗口估算</span>
+        </div>
+        <p><strong>Step 2 — 计算MVHR：</strong></p>
+        <div class="formula-block">
+          <span class="formula-latex">h* = 0.92 × (0.0065 / 0.0060) = 0.92 × 1.083 ≈ 0.9967</span>
+          <span class="formula-caption">接近1:1的对冲比率，因ρ高达0.92</span>
+        </div>
+        <p><strong>Step 3 — 计算合约数量：</strong></p>
+        <div class="formula-block">
+          <span class="formula-latex">N* = h* × (Q_S / Q_F) = 0.9967 × (10,000,000 / 125,000) ≈ 79.7</span>
+          <span class="formula-caption">取整：做空80手 EUR/CNY 期货合约</span>
+        </div>
+        <p><strong>Step 4 — 对冲有效性评估：</strong></p>
+        <div class="formula-block">
+          <span class="formula-latex">R² = 0.92² ≈ 0.8464 → 对冲可消除约84.6%的汇率风险</span><br>
+          <span class="formula-latex">对冲前VaR(95%, 3个月) ≈ 1000万 × 7.80 × 1.645 × 0.0065 × √63 ≈ 2,110,000 CNY</span><br>
+          <span class="formula-latex">对冲后VaR(95%, 3个月) ≈ 2,110,000 × √(1-0.8464) ≈ 827,000 CNY</span>
+          <span class="formula-caption">对冲将3个月95%VaR从211万降至约82.7万人民币</span>
+        </div>
+        <p><strong>Step 5 — 期权增强（保留上涨收益）：</strong>如果CFO希望欧元升值时仍能获益，可以用<strong>零成本 collar</strong>（买虚值看跌+卖虚值看涨）：</p>
+        <table>
+          <tr><th>头寸</th><th>行权价</th><th>权利金</th></tr>
+          <tr><td>买入EUR看跌 (K=7.60)</td><td>保护下方1.7%</td><td>-0.05 CNY/EUR</td></tr>
+          <tr><td>卖出EUR看涨 (K=8.15)</td><td>放弃上方4.5%以上收益</td><td>+0.05 CNY/EUR</td></tr>
+          <tr><td><strong>净成本</strong></td><td>零</td><td>0</td></tr>
+        </table>
+        <p>最终效果：汇率锁定在[7.60, 8.15]区间——下跌有保护，上涨也能享受到8.15以内的增值。</p>
+      </div>
+      <div class="chart-container" id="chart-case-pnl"></div>
+      <div class="chart-caption">图8：对冲前后的损益分布对比 — 期货对冲（绿）vs 零成本Collar（蓝）</div>
+      <div class="key-takeaway">💡 期货对冲简单高效但"锁死"了双向收益，零成本Collar在不增加成本的情况下保留部分上涨空间——代价是放弃了极端上涨。</div>
+    </section>
+
+    <!-- MODULE: crisis_review -->
+    <section class="section" id="sec-crisis_review" data-module="crisis_review">
+      <div class="section-header">
+        <span class="section-tag tag-app">实践应用</span>
+        <span class="section-title">9. 历史危机复盘</span>
+        <span class="section-time">⏱ 约4分钟</span>
+      </div>
+      <div class="hook">每一次金融危机的核心教训都可以归结为一句话：你以为你对冲了，其实你只对冲了"正常天气"——风暴来临时，所有相关性都趋近于1。</div>
+      <div class="content">
+        <p><strong>案例1：德国金属公司（Metallgesellschaft, 1993）</strong></p>
+        <p>MG的美国子公司承诺以固定价格向客户供应远期石油产品，并用<strong>短期原油期货滚动对冲</strong>。1993年油价暴跌，期货端出现巨额保证金追缴——虽然经济上"对冲是有效的"（现货端远期合约的价值也在上涨），但<strong>现金流时间错配</strong>迫使公司以亏损平仓。最终亏损超过13亿美元。</p>
+        <p><strong>教训：对冲不只是看"经济有效性"，更要管理流动性/保证金的时间维度（即"融资流动性风险"）。</strong></p>
+        <p><strong>案例2：长期资本管理公司（LTCM, 1998）</strong></p>
+        <p>LTCM的对冲策略基于<strong>历史相关性</strong>：做多"便宜"债券、做空"贵"债券，赌相关性均值回归。1998年俄罗斯违约后，<strong>所有市场的相关性同时飙升</strong>——"便宜"的变得更便宜，"贵"的因为流动性枯竭被抛售。LTCM的"市场中性"组合在危机中完全失效，46亿美元资本几乎归零。</p>
+        <p><strong>教训：相关性在危机中会"趋同于1"——多元对冲的各条腿可能同时亏损，这是任何基于历史数据的对冲模型都无法预见的。</strong></p>
+        <p><strong>案例3：2008年全球金融危机 — AIG的CDS对冲灾难</strong></p>
+        <p>AIG FP部门大量卖出CDS（信用违约互换）——他们以为自己在"收取保费"，因为基于历史模型，房贷违约的联合概率极低。但当房地产市场全美同步崩盘时，CDS赔付要求远超其资本储备——美国政府最终注资1820亿美元。</p>
+        <p><strong>教训：尾部风险不是"独立罕见事件"——当风险事件的相关性在尾部被严重低估时，卖出保护的策略会在危机中瞬间反转。</strong></p>
+        <div class="formula-block">
+          <span class="formula-latex">ρ_crisis ≈ 1 &emsp; "分散化在牛市是免费的午餐，在熊市是昂贵的幻觉"</span>
+          <span class="formula-caption">危机相关性趋同 — 所有资产类别同步暴跌</span>
+        </div>
+      </div>
+      <div class="chart-container" id="chart-crisis-timeline"></div>
+      <div class="chart-caption">图9：三次经典对冲失败的危机演进路径对比 — 流动性→相关性→保证金螺旋</div>
+      <div class="key-takeaway">💡 三次危机的共同DNA：基于"正常时期"的历史参数进行对冲 → 危机中参数突变（ρ→1, σ↑3-5倍, 流动性消失）→ 对冲策略在极端时刻同时失效。</div>
+    </section>
+
+    <!-- MODULE: risk -->
+    <section class="section" id="sec-risk" data-module="risk">
+      <div class="section-header">
+        <span class="section-tag tag-risk">风险与挑战</span>
+        <span class="section-title">10. 潜在风险</span>
+        <span class="section-time">⏱ 约3分钟</span>
+      </div>
+      <div class="hook">对冲策略最危险的幻觉是"我已经对冲了"——实际上，你可能只是把一种看得见的风险，转换成了几种看不见的风险。</div>
+      <div class="content">
+        <p>对冲策略的<strong>七种内在风险</strong>构成了一个多层次的风险地图：</p>
+        <table>
+          <tr><th>风险类别</th><th>具体表现</th><th>严重程度</th><th>缓解方向</th></tr>
+          <tr><td><strong>基差风险</strong></td><td>对冲工具与被对冲资产的价差扩大</td><td>⭐⭐⭐</td><td>选择相关性最高的工具、监控基差</td></tr>
+          <tr><td><strong>模型风险</strong></td><td>MVHR基于历史数据，结构突变后失效</td><td>⭐⭐⭐⭐</td><td>滚动窗口+DCC-GARCH、压力测试</td></tr>
+          <tr><td><strong>流动性风险</strong></td><td>危机中对冲工具无法以合理价格平仓</td><td>⭐⭐⭐⭐</td><td>持有流动性最高的工具、分散到期日</td></tr>
+          <tr><td><strong>相关性崩溃</strong></td><td>ρ在危机中从0.7→0.95，多元对冲各腿同亏</td><td>⭐⭐⭐⭐⭐</td><td>尾部风险预算、极端情景压力测试</td></tr>
+          <tr><td><strong>保证金螺旋</strong></td><td>期货端追保→被迫平仓→对冲失效（MG案例）</td><td>⭐⭐⭐</td><td>充足的现金缓冲、流动性储备</td></tr>
+          <tr><td><strong>过度对冲</strong></td><td>h设置过高→对冲后风险反而增大</td><td>⭐⭐</td><td>定期回测最优h、区间置信</td></tr>
+          <tr><td><strong>操作/合规风险</strong></td><td>会计套保失效、内部限额被突破</td><td>⭐⭐⭐</td><td>对冲文档完善、前中后台职责分离</td></tr>
+        </table>
+        <p><strong>相关性的非对称性</strong>是对冲中最致命的暗坑。正常市场中航空股和原油期货负相关（油价涨→航空成本涨），但在2020年3月——疫情导致全球停摆——油价暴跌<strong>同时</strong>航空股也因为封锁暴跌。你以为的多空对冲，变成了"两边同时做空"。</p>
+        <p>另一个常被忽视的问题：<strong>滚动对冲的展期成本</strong>。当期货曲线处于contango（远月升水），每次展仓都会产生亏损。一年下来，展期成本可能吞噬掉MVHR计算的"最优对冲"带来的大部分好处。</p>
+      </div>
+      <div class="chart-container" id="chart-risk-radar"></div>
+      <div class="chart-caption">图10：对冲策略七维风险雷达图 — 相关性崩溃是对冲最致命的暗坑</div>
+      <div class="key-takeaway">💡 相关性崩溃是唯一一个"无法用更多对冲来对冲"的风险——它是对冲策略的元风险（meta-risk），需要用尾部对冲和极端压力测试来应对。</div>
+    </section>
+
+    <!-- MODULE: regulation -->
+    <section class="section" id="sec-regulation" data-module="regulation">
+      <div class="section-header">
+        <span class="section-tag tag-risk">风险与挑战</span>
+        <span class="section-title">11. 监管框架</span>
+        <span class="section-time">⏱ 约3分钟</span>
+      </div>
+      <div class="hook">对冲不是"想怎么做就怎么做"——全球监管体系已经从各个角度将对冲行为纳入了标准化框架。</div>
+      <div class="content">
+        <p><strong>1. 会计准则：套期会计（Hedge Accounting）</strong></p>
+        <p><strong>IFRS 9</strong>（国际）和<strong>ASC 815</strong>（美国）是企业对冲的"游戏规则"。核心要求包括：</p>
+        <p>· <strong>对冲关系文档</strong>：必须在交易开始时正式指定对冲工具、被对冲项目和风险类型<br>
+        · <strong>有效性测试</strong>：对冲必须在80%-125%的范围内有效（经济关系+信用风险不主导）<br>
+        · <strong>终止条件</strong>：对冲关系失效时必须立即终止套期会计处理</p>
+        <p>如果不符合套期会计标准，对冲工具的<strong>公允价值变动直接计入当期损益</strong>——对冲工具赚了钱，但被对冲的现货还没结算，财报出现"虚增利润"；或者更糟糕的——对冲工具亏了钱，看起来像在做投机。</p>
+        <p><strong>2. 银行监管：FRTB（交易账户根本审查）</strong></p>
+        <p>巴塞尔委员会于2016年（修订于2019年）发布的FRTB大幅收紧了交易账户的资本要求。对于对冲策略的影响是：</p>
+        <p>· <strong>对冲"认定"更严格</strong>：只有满足严格标准（高度相关性+持续监控）的对冲才能降低资本要求<br>
+        · <strong>风险因子颗粒度</strong>：从粗略的"利率风险"细化为"不同币种/不同期限的利率曲线风险"<br>
+        · <strong>尾部风险准备金</strong>：ES(97.5%)替代VaR(99%)，惩罚了"对冲了正常风险但忽略了极端风险"的策略</p>
+        <p><strong>3. EMIR/Dodd-Frank：衍生品集中清算</strong></p>
+        <p>2008年后的监管改革要求标准化衍生品（包括期货和大部分互换）必须通过<strong>中央对手方（CCP）</strong>清算。这对冲意味着：</p>
+        <p>· 更高的<strong>初始保证金和变动保证金</strong>——对冲的现金流成本显著上升<br>
+        · 但CCP也<strong>降低了对手方风险</strong>——你不再需要担心对冲的对手方违约</p>
+      </div>
+      <div class="chart-container" id="chart-regulation"></div>
+      <div class="chart-caption">图11：全球对冲相关监管框架全景图 — 会计准则×银行资本×市场基础设施</div>
+      <div class="key-takeaway">💡 IFRS 9的套期会计要求让对冲从"经济行为"升级为"需要文档证明的经济行为"——对冲文档的质量，直接决定了你的财务报表质量。</div>
+    </section>
+
+    <!-- MODULE: landscape -->
+    <section class="section" id="sec-landscape" data-module="landscape">
+      <div class="section-header">
+        <span class="section-tag tag-evolution">发展演进</span>
+        <span class="section-title">12. 发展格局</span>
+        <span class="section-time">⏱ 约2分钟</span>
+      </div>
+      <div class="hook">在全球对冲工具的竞技场上，期货和互换占据绝对主导地位，但期权的增速最快——波动率，正在成为这个时代最昂贵的"商品"。</div>
+      <div class="content">
+        <p>当前<strong>全球对冲工具市场</strong>的格局可以从三个维度来看：</p>
+        <p><strong>按工具类型（名义本金，BIS 2025Q1）：</strong></p>
+        <table>
+          <tr><th>工具类型</th><th>全球未平仓名义本金</th><th>占比</th><th>趋势</th></tr>
+          <tr><td>利率衍生品</td><td>~520万亿美元</td><td>约75%</td><td>稳定增长，受加息周期影响活跃</td></tr>
+          <tr><td>外汇衍生品</td><td>~100万亿美元</td><td>约15%</td><td>地缘政治推动波动→对冲需求上升</td></tr>
+          <tr><td>信用衍生品</td><td>~8万亿美元</td><td>约1%</td><td>萎缩（CDS已脱离巅峰）</td></tr>
+          <tr><td>权益衍生品</td><td>~35万亿美元</td><td>约5%</td><td>结构化产品+ESG挂钩期权增长快</td></tr>
+          <tr><td>商品衍生品</td><td>~3万亿美元</td><td><1%</td><td>能源转型→电力/碳衍生品爆发</td></tr>
+        </table>
+        <p><strong>碳市场对冲</strong>是近年最值得关注的新赛道。欧盟碳配额（EUA）期货的日均交易量从2018年的约1500万份飙升至2025年的超过8000万份。航空公司、钢铁企业和电力公司正在将碳对冲嵌入常规风险管理框架。</p>
+        <p>另一个结构性趋势是<strong>外汇对冲的"去美元化"</strong>——随着人民币、欧元等非美货币在双边贸易中的结算比例上升，企业需要管理的货币对从单一的USD/XXX扩展到一个多极化的货币篮子。</p>
+      </div>
+      <div class="chart-container" id="chart-landscape"></div>
+      <div class="chart-caption">图12：全球对冲工具市场份额与增长趋势 — 利率主导但碳市场增速最快</div>
+      <div class="key-takeaway">💡 利率衍生品是整个对冲工具市场的大象——因为全球债券市场的规模是股票市场的2倍以上，任何利率的微小变动都会引发巨量对冲需求。</div>
+    </section>
+
+    <!-- MODULE: issues -->
+    <section class="section" id="sec-issues" data-module="issues">
+      <div class="section-header">
+        <span class="section-tag tag-risk">风险与挑战</span>
+        <span class="section-title">13. 发展问题</span>
+        <span class="section-time">⏱ 约3分钟</span>
+      </div>
+      <div class="hook">2026年的对冲实践面临五个"房间里的大象"——每个问题都很大，但很少有人公开谈论。</div>
+      <div class="content">
+        <p><strong>问题一：数据驱动的对冲 vs 结构性突变</strong></p>
+        <p>今天的对冲比率几乎全部基于历史数据估算（OLS/GARCH/ML）。但当市场发生<strong>结构性突变</strong>——比如英镑在2016年脱欧公投后单日暴跌8%——所有基于"过去120天滚动窗口"的最优比率瞬间失效。我们需要<strong>前瞻性对冲模型</strong>——基于期权的隐含信息（implied correlation, implied volatility）而非历史数据，但目前这类模型在成本上不具备大规模应用的条件。</p>
+        <p><strong>问题二：ESG对冲缺乏标准化</strong></p>
+        <p>碳期货可以对冲碳排放成本的上升风险——但"碳"只是ESG中的E。社会（S）和治理（G）维度目前完全没有可交易的标准化对冲工具。一个因为供应链中童工丑闻导致的股价暴跌，你能用什么对冲？目前的答案是：<strong>什么都对冲不了</strong>。</p>
+        <p><strong>问题三：AI模型的可解释性鸿沟</strong></p>
+        <p>LSTM+DCC-GARCH的动态套保比率确实比OLS更好——但当对冲失效时（比如2020年3月），你无法"诊断"为什么AI推荐的对冲比率不够。监管机构（尤其是FRTB框架下）要求银行能够<strong>解释</strong>为什么对冲被认定为"有效"。深度学习模型在这个维度是完全不及格的。</p>
+        <p><strong>问题四：对冲成本的结构性上升</strong></p>
+        <p>EMIR/Dodd-Frank后的CCP中央清算体系虽然提升了安全性，但也意味着更高的<strong>初始保证金</strong>。对于一家中小型出口企业，每年仅为对冲3000万欧元的外汇风险，可能需要锁定200-400万欧元的流动性作为保证金——这本身就是一个"对冲的对冲"问题。</p>
+        <p><strong>问题五：尾部对冲的"温水煮青蛙"成本</strong></p>
+        <p>深度虚值看跌期权在95%的时间里都是"纯成本"——每年2-3%的组合价值被期权费吞噬。当市场连续10年未出现极端尾部事件时，管理层、董事会和投资者都会开始质疑："我们到底在对冲什么？"——然后在下一次危机前取消对冲。</p>
+      </div>
+      <div class="chart-container" id="chart-issues-radar"></div>
+      <div class="chart-caption">图13：当前对冲实践五大挑战的严重性与紧迫性矩阵</div>
+      <div class="key-takeaway">💡 对冲最大的敌人不是市场波动，而是"长期无事发生时，管理层对持续对冲成本的容忍度归零"——这恰恰是下次危机中最致命的脆弱性。</div>
+    </section>
+
+    <!-- MODULE: prospect -->
+    <section class="section" id="sec-prospect" data-module="prospect">
+      <div class="section-header">
+        <span class="section-tag tag-evolution">发展演进</span>
+        <span class="section-title">14. 发展前景</span>
+        <span class="section-time">⏱ 约2分钟</span>
+      </div>
+      <div class="hook">到2030年，对冲将从"人类设定规则、机器执行"演变为"机器识别风险、机器设计策略、人类审批边界"——这不是科幻，已在几家顶级量化基金的实验室中运行。</div>
+      <div class="content">
+        <p><strong>趋势一：AI-native对冲引擎</strong></p>
+        <p>下一代的动态套保引擎将是<strong>完全由AI驱动的闭环系统</strong>：NLP实时扫描新闻（地缘政治、央行声明、供应链中断）→转换成风险信号→多模态模型输出最优对冲比率→智能合约自动执行。2024-2026年间，至少两家华尔街巨头已经在内部测试这类系统用于外汇和商品对冲。</p>
+        <p><strong>趋势二：碳对冲成为企业标配</strong></p>
+        <p>到2028年，全球碳定价机制预计覆盖超过30%的全球排放。对于航空、钢铁、水泥、化工行业，碳配额期货对冲将像今天的外汇对冲一样——<strong>不做对冲的企业CFO将被视为失职</strong>。</p>
+        <p><strong>趋势三：DeFi原生的对冲协议</strong></p>
+        <p>在去中心化金融（DeFi）领域，链上永续合约协议（如GMX、Hyperliquid）已经允许任何人以极少的前期成本创建高度定制化的对冲头寸。虽然当前主要服务于加密货币交易者，但链上外汇和商品衍生品正在快速发展——未来一家阿根廷的中小企业可能通过DeFi协议直接对冲比索汇率风险，完全绕开传统银行。</p>
+        <p><strong>趋势四：监管科技与对冲的融合</strong></p>
+        <p>FRTB和IFRS 9的对冲有效性文档要求正在催生一个<strong>RegTech+Hedging</strong>的新品类——实时监控对冲关系、自动生成合规报告、AI预警对冲失效的SaaS平台。</p>
+      </div>
+      <div class="chart-container" id="chart-prospect-roadmap"></div>
+      <div class="chart-caption">图14：2026-2030年对冲策略技术路线图</div>
+      <div class="key-takeaway">💡 到2030年，"对冲"这个词的定义本身可能发生改变——从"用衍生品offset特定风险"演变为AI驱动的"实时全域风险转换引擎"。</div>
+    </section>
+
+    <!-- MODULE: debate -->
+    <section class="section" id="sec-debate" data-module="debate">
+      <div class="section-header">
+        <span class="section-tag tag-risk">风险与挑战</span>
+        <span class="section-title">15. 争议与辩论</span>
+        <span class="section-time">⏱ 约3分钟</span>
+      </div>
+      <div class="hook">"对冲到底有没有创造价值？"——这个问题在学术界和业界争论了四十年，至今没有标准答案。</div>
+      <div class="content">
+        <p><strong>争论一：MM定理下的"对冲无关论" vs 现实世界的"对冲创造价值"</strong></p>
+        <p>根据<strong>Modigliani-Miller定理</strong>（1958），在无摩擦市场中，公司的价值与其资本结构（以及对冲行为）无关——因为股东自己可以复制任何对冲策略。但反对者（以Stulz(1996)和Froot et al.(1993)为代表）指出：现实中存在税收凸性、破产成本、信息不对称——<strong>在这些摩擦下，对冲确实可以增加公司价值</strong>。实证研究（如Allayannis & Weston, 2001）发现使用外汇衍生品对冲的公司估值溢价约4-5%。</p>
+        <p><strong>争论二：对冲是"风险管理"还是"隐性投机"？</strong></p>
+        <p>这是企业套保中最具争议的话题。如果你"选择性对冲"——在认为欧元会贬值时100%对冲、认为欧元会升值时0%对冲——那你其实是在做<strong>外汇投机</strong>，而不是风险管理。然而，行业调查（如Deloitte 2024全球企业司库调查）显示超过60%的企业CFO承认在"某些时刻根据市场观点调整了对冲比率"。</p>
+        <p><strong>争论三：深度虚值看跌期权——"最便宜的保险"还是"最贵的浪费"？</strong></p>
+        <p>Universa Investments的Taleb派认为：每年2-3%的期权费是<strong>必要的保险费</strong>——它在尾部事件中的爆发性回报足以覆盖十年的成本。但反对者（包括巴菲特——"当潮水退去才知道谁在裸泳"）指出：如果你在2009-2019年的11年牛市中持续买入看跌期权，累计成本可能超过30%——而2020年3月的收益可能只有10-15%（还需要在恐慌中精准平仓）。</p>
+        <p><strong>争论四：套期会计——"保护投资者"还是"扭曲经济现实"？</strong></p>
+        <p>IFRS 9的套期会计让对冲工具的未实现损益可以被递延——这让财报更平滑。但批评者认为：这<strong>隐藏了真实的现金流风险</strong>。一个用期货对冲了铜价风险的企业，在铜价暴跌时现货端确实亏损——但期货端赚了钱——套期会计让两者"对冲"后在财报上看起来风平浪静，而真实的经营困境被掩盖了。</p>
+      </div>
+      <div class="key-takeaway">💡 对冲的价值不在于"是否要做"——而在于"诚实地区分你在做风险管理还是在做市场方向的押注"。选择性对冲是隐性的投机，诚实承认这一点比任何模型都重要。</div>
+    </section>
+
+    <!-- MODULE: learning_path -->
+    <section class="section" id="sec-learning_path" data-module="learning_path">
+      <div class="section-header">
+        <span class="section-tag tag-concept">核心概念</span>
+        <span class="section-title">16. 学习路径</span>
+        <span class="section-time">⏱ 约2分钟</span>
+      </div>
+      <div class="hook">从理解"期货是什么"到能独立设计一个Delta-Gamma-Vega中性的动态对冲引擎——这条学习曲线虽然陡峭，但每一步都有最优资源。</div>
+      <div class="content">
+        <p><strong>入门级（0→2周）：对冲基础概念与工具</strong></p>
+        <table>
+          <tr><th>资源</th><th>类型</th><th>重点</th></tr>
+          <tr><td>Hull <em>Options, Futures, and Other Derivatives</em> 第3章</td><td>教材</td><td>期货对冲策略 + MVHR推导</td></tr>
+          <tr><td>CFA Level I — Derivatives + Risk Management</td><td>考试教材</td><td>对冲工具全景 + 基础计算</td></tr>
+          <tr><td>Coursera: Yale Financial Markets (Shiller)</td><td>在线课程</td><td>对冲的历史与市场制度背景</td></tr>
+        </table>
+        <p><strong>进阶（2→6周）：量化对冲模型</strong></p>
+        <table>
+          <tr><th>资源</th><th>类型</th><th>重点</th></tr>
+          <tr><td>Ederington (1979) "The Hedging Performance" 论文</td><td>论文</td><td>MVHR的经典实证框架（必读）</td></tr>
+          <tr><td>Engle (2002) "Dynamic Conditional Correlation"</td><td>论文</td><td>DCC-GARCH动态套保的理论基础</td></tr>
+          <tr><td>Alexander <em>Market Risk Analysis IV: Value at Risk Models</em></td><td>教材</td><td>VaR约束下的对冲优化</td></tr>
+        </table>
+        <p><strong>实战级（6→12周）：从理论到代码</strong></p>
+        <table>
+          <tr><th>资源</th><th>类型</th><th>重点</th></tr>
+          <tr><td>Yves Hilpisch <em>Python for Finance</em> 2nd ed.</td><td>教材</td><td>用Python实现动态套保回测系统</td></tr>
+          <tr><td>CQF (Certificate in Quantitative Finance)</td><td>认证</td><td>业界认可的量化金融全面培训</td></tr>
+          <tr><td>FRM (Financial Risk Manager) — GARP</td><td>认证</td><td>风险管理职业资格（银行/买方通用）</td></tr>
+        </table>
+        <p><strong>推荐项目路线：</strong></p>
+        <p>1. Python实现OLS静态MVHR → 回测与期货对冲的历史有效性<br>
+        2. 升级为DCC-GARCH动态MVHR → 比较静态vs动态的对冲效率差异<br>
+        3. 引入VaR约束 → 优化问题求解（scipy.optimize）<br>
+        4. 期权Delta-Gamma对冲模拟 → 理解再平衡频率的成本<br>
+        5. 极端压力测试 → 模拟2008/2020场景下的对冲策略表现</p>
+      </div>
+      <div class="ref-list">
+        <li>Hull, J.C. (2022). <em>Options, Futures, and Other Derivatives</em> (11th ed.). Pearson.</li>
+        <li>Alexander, C. (2008). <em>Market Risk Analysis IV: Value at Risk Models</em>. Wiley.</li>
+        <li>Allayannis, G. & Weston, J. (2001). The use of foreign currency derivatives and firm market value. <em>Review of Financial Studies</em>, 14(1), 243-276.</li>
+        <li>Froot, K.A., Scharfstein, D.S. & Stein, J.C. (1993). Risk management: coordinating corporate investment and financing policies. <em>Journal of Finance</em>, 48(5), 1629-1658.</li>
+      </div>
+      <div class="key-takeaway">💡 对冲学习的最佳路径：工具认知（期货/期权/互换）→ 最小方差比率（OLS→GARCH）→ VaR约束优化 → 多希腊联合 → 极端场景压力测试。每学一层回测一层。</div>
+    </section>
+  </div>
+
+  <footer class="journey-footer">
+    <a href="#" class="back-to-plan" onclick="event.preventDefault();var w=window.open('derivatives_pricing_learning.html#kc-p4_3','plan_main');if(w)w.focus()">
+      🔗 返回学习路线: 金融衍生品及其定价 → 阶段4: 波动率、对冲与产品设计
+    </a>
+    <p style="margin-top:12px;font-size:.72rem;color:var(--text-muted)">
+      本资料是 <strong>金融衍生品及其定价</strong> 阶段4「波动率、对冲与产品设计」的深度研读材料
+    </p>
+    <p style="margin-top:8px">纹理: G6 系统图解型 | 深度: 理解 | 广度: 标准 | 共16个模块</p>
+    <div class="export-btns" style="margin-top:12px">
+      <button onclick="exportNotes()">📝 导出笔记 (Markdown)</button>
+      <button onclick="window.print()">🖨️ 打印</button>
+    </div>
+  </footer>
+
+  <div class="search-overlay" id="searchOverlay">
+    <div class="search-box">
+      <input type="text" id="searchInput" placeholder="搜索模块内容... (Ctrl+K)">
+      <div class="search-results" id="searchResults"></div>
+    </div>
+  </div>
+
+  <script>
+    (function(){
+      var theme=localStorage.getItem('slm-theme')||'light';
+      document.body.setAttribute('data-theme',theme);
+      document.getElementById('themeToggle').textContent=theme==='dark'?'☀️':'🌙';
+    })();
+
+    document.getElementById('themeToggle').addEventListener('click',function(){
+      var current=document.body.getAttribute('data-theme');
+      var next=current==='dark'?'light':'dark';
+      document.body.setAttribute('data-theme',next);
+      localStorage.setItem('slm-theme',next);
+      this.textContent=next==='dark'?'☀️':'🌙';
+      renderAllCharts();
+    });
+
+    document.addEventListener('keydown',function(e){
+      if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();toggleSearch();}
+      if((e.ctrlKey||e.metaKey)&&e.key==='d'){e.preventDefault();document.getElementById('themeToggle').click();}
+      if(e.key==='Escape'){closeSearch();}
+    });
+
+    window.addEventListener('scroll',function(){
+      var scrollTop=document.documentElement.scrollTop||document.body.scrollTop;
+      var scrollHeight=document.documentElement.scrollHeight-document.documentElement.clientHeight;
+      var progress=scrollHeight>0?(scrollTop/scrollHeight)*100:0;
+      document.getElementById('progress-bar').style.width=progress+'%';
+    });
+
+    var observer=new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){if(entry.isIntersecting)entry.target.classList.add('visible');});
+    },{threshold:0.1});
+    document.querySelectorAll('.section').forEach(function(s){observer.observe(s);});
+
+    var sections=document.querySelectorAll('.section');
+    var sidebar=document.getElementById('sidebarNav');
+    sections.forEach(function(s,i){
+      var dot=document.createElement('span');
+      dot.className='sidebar-dot';
+      dot.setAttribute('data-title',s.querySelector('.section-title').textContent);
+      dot.addEventListener('click',function(){s.scrollIntoView({behavior:'smooth',block:'start'});});
+      sidebar.appendChild(dot);
+      s.setAttribute('data-dot-index',i);
+    });
+    var dots=document.querySelectorAll('.sidebar-dot');
+    window.addEventListener('scroll',function(){
+      var active=-1;
+      sections.forEach(function(s,i){var r=s.getBoundingClientRect();if(r.top<window.innerHeight*0.4)active=i;});
+      dots.forEach(function(d,i){d.classList.toggle('active',i===active);});
+    });
+
+    document.querySelectorAll('.formula-expand').forEach(function(el){
+      el.addEventListener('click',function(e){e.stopPropagation();var d=this.nextElementSibling;d.classList.toggle('open');this.textContent=d.classList.contains('open')?'收起推导 ▴':'展开推导 ▾';});
+    });
+
+    function toggleSearch(){
+      var o=document.getElementById('searchOverlay');o.classList.toggle('open');
+      if(o.classList.contains('open'))document.getElementById('searchInput').focus();
+      document.getElementById('searchInput').value='';document.getElementById('searchResults').innerHTML='';
+    }
+    function closeSearch(){document.getElementById('searchOverlay').classList.remove('open');}
+    document.getElementById('searchOverlay').addEventListener('click',function(e){if(e.target===this)closeSearch();});
+    document.getElementById('searchInput').addEventListener('input',function(){
+      var q=this.value.trim().toLowerCase();
+      var res=document.getElementById('searchResults');
+      if(q.length<2){res.innerHTML='';return;}
+      var html='';
+      sections.forEach(function(s){
+        var title=s.querySelector('.section-title').textContent;
+        var content=s.querySelector('.content').textContent;
+        var idx=content.toLowerCase().indexOf(q);
+        if(idx>=0){
+          var start=Math.max(0,idx-30),end=Math.min(content.length,idx+q.length+60);
+          var snippet=content.substring(start,end);
+          if(start>0)snippet='...'+snippet;if(end<content.length)snippet=snippet+'...';
+          snippet=snippet.replace(new RegExp('('+q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi'),'<mark>$1</mark>');
+          html+='<div class="sr-item" onclick="document.getElementById(\'sec-'+s.dataset.module+'\').scrollIntoView({behavior:\'smooth\'});closeSearch()"><strong>'+title+'</strong><br><span style="font-size:0.75rem;color:var(--text-muted)">'+snippet+'</span></div>';
+        }
+      });
+      res.innerHTML=html||'<div style="padding:16px;color:var(--text-muted)">未找到匹配结果</div>';
+    });
+
+    function exportNotes(){
+      var md='# 对冲策略与风险管理 学习笔记\n\n';
+      sections.forEach(function(s){
+        md+='## '+s.querySelector('.section-title').textContent+'\n\n';
+        var c=s.querySelector('.content');if(c)md+=c.innerText+'\n\n';
+        var kt=s.querySelector('.key-takeaway');if(kt)md+=kt.innerText+'\n\n---\n\n';
+      });
+      navigator.clipboard.writeText(md).then(function(){alert('笔记已复制到剪贴板!');});
+    }
+
+    function renderAllCharts(){
+      var isDark=document.body.getAttribute('data-theme')==='dark';
+      var colors=isDark?['#818cf8','#a78bfa','#c4b5fd','#67e8f9','#fbbf24','#34d399','#f87171']:['#6366f1','#8b5cf6','#a78bfa','#22d3ee','#f59e0b','#10b981','#ef4444'];
+      var textColor=isDark?'#b0b2c8':'#4a4b6e';
+
+      function getCanvas(id){return document.querySelector('#'+id+' canvas');}
+      function drawChart(containerId, drawFn){
+        var container=document.getElementById(containerId);
+        if(!container)return;
+        container.innerHTML='<canvas></canvas>';
+        var canvas=container.querySelector('canvas');
+        if(!canvas)return;
+        canvas.width=container.clientWidth||700;canvas.height=280;
+        var ctx=canvas.getContext('2d');if(ctx)drawFn(ctx,canvas.width,canvas.height);
+      }
+
+      drawChart('chart-background-timeline',function(ctx,w,h){
+        var items=['1848 CBOT\n标准化远期','1973 CBOE\n期权时代','1979\nMVHR框架','1990s\nGARCH动态','2000s\n多希腊对冲','2008后\n尾部对冲','2020s\nAI对冲'];
+        var spacing=w/(items.length-1);
+        ctx.strokeStyle=colors[0];ctx.lineWidth=2;ctx.beginPath();
+        ctx.moveTo(40,h/2);ctx.lineTo(w-40,h/2);ctx.stroke();
+        items.forEach(function(t,i){
+          var x=40+i*spacing;ctx.fillStyle=colors[0];ctx.beginPath();ctx.arc(x,h/2,8,0,Math.PI*2);ctx.fill();
+          ctx.fillStyle=textColor;ctx.font='11px sans-serif';ctx.textAlign='center';
+          t.split('\n').forEach(function(l,li){ctx.fillText(l,x,h/2+22+li*14);});
+        });
+      });
+
+      drawChart('chart-concept-system',function(ctx,w,h){
+        ctx.fillStyle=textColor;ctx.font='14px sans-serif';ctx.textAlign='center';
+        ctx.fillText('【全景系统图】对冲策略分类体系',w/2,30);
+        var boxes=[{x:w*0.1,y:60,w:w*0.35,h:80,c:colors[0],t:'按工具分类\n期货 | 期权 | 互换 | 远期'},{x:w*0.55,y:60,w:w*0.35,h:80,c:colors[1],t:'按目标分类\nDelta中性 | 完全对冲\n尾部保护 | 选择性对冲'}];
+        boxes.forEach(function(b){ctx.fillStyle=b.c+'22';ctx.fillRect(b.x,b.y,b.w,b.h);ctx.strokeStyle=b.c;ctx.lineWidth=2;ctx.strokeRect(b.x,b.y,b.w,b.h);ctx.fillStyle=textColor;ctx.font='12px sans-serif';ctx.textAlign='center';b.t.split('\n').forEach(function(l,i){ctx.fillText(l,b.x+b.w/2,b.y+24+i*16);});});
+        ctx.fillStyle=colors[3];ctx.font='11px sans-serif';ctx.textAlign='center';
+        ctx.fillText('按资产类别：商品 | 外汇 | 利率 | 权益 | 信用 | 波动率',w/2,165);
+        ctx.fillText('按时间维度：静态套保(MVHR) | 动态套保(时变GARCH) | 实时套保(AI驱动)',w/2,185);
+      });
+
+      drawChart('chart-principle-hedge',function(ctx,w,h){
+        ctx.fillStyle=textColor;ctx.font='13px sans-serif';ctx.textAlign='center';
+        ctx.fillText('对冲组合方差 vs 套保比率 h (U型曲线)',w/2,22);
+        ctx.strokeStyle=colors[0];ctx.lineWidth=2;ctx.beginPath();
+        for(var i=0;i<=100;i++){var x=40+(w-80)*(i/100);var h_ratio=-1+i*0.04;var v=100+Math.pow(h_ratio-0.8,2)*800;var y=50+(h-50)*(v/500);if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);}
+        ctx.stroke();
+        ctx.fillStyle=colors[4];ctx.beginPath();ctx.arc(40+(w-80)*0.45,50+Math.pow(0.8,2)*800*(h-50)/500,6,0,Math.PI*2);ctx.fill();
+        ctx.fillStyle=textColor;ctx.font='10px sans-serif';
+        ctx.fillText('h* (最优比率)',40+(w-80)*0.45,40+Math.pow(0.8,2)*800*(h-50)/500-10);
+        ctx.fillText('h (套保比率) →',w/2,h-10);
+        ctx.fillText('← 组合方差',12,h/2);
+      });
+
+      drawChart('chart-quant-greeks',function(ctx,w,h){
+        ctx.fillStyle=textColor;ctx.font='13px sans-serif';ctx.textAlign='center';
+        ctx.fillText('希腊字母对冲层级体系',w/2,20);
+        var layers=[{l:'Delta (Δ) — 一阶价格风险',y:45,c:colors[0]},{l:'Gamma (Γ) — Delta变化率',y:95,c:colors[1]},{l:'Vega (ν) — 波动率风险',y:145,c:colors[2]},{l:'Theta (Θ) — 时间衰减',y:195,c:colors[3]},{l:'Rho (ρ) — 利率风险',y:245,c:colors[4]}];
+        layers.forEach(function(l){ctx.fillStyle=l.c+'33';ctx.fillRect(60,l.y,w-120,30);ctx.strokeStyle=l.c;ctx.lineWidth=1;ctx.strokeRect(60,l.y,w-120,30);ctx.fillStyle=textColor;ctx.font='12px sans-serif';ctx.fillText(l.l,w/2,l.y+20);});
+      });
+
+      drawChart('chart-development',function(ctx,w,h){
+        ctx.fillStyle=textColor;ctx.font='12px sans-serif';ctx.textAlign='center';
+        ctx.fillText('对冲策略五代演进',w/2,16);
+        var gens=['1.朴素\n1:1对冲','2.静态MVHR\nOLS回归','3.动态对冲\nGARCH/ECM','4.多希腊\n期权组合','5.AI+另类\n实时对冲'];
+        var barW=(w-120)/5;
+        gens.forEach(function(g,i){
+          var barH=40+i*28,x=60+i*barW;
+          ctx.fillStyle=colors[i%5]+'44';ctx.fillRect(x,h-40-barH,barW-12,barH);
+          ctx.strokeStyle=colors[i%5];ctx.lineWidth=1.5;ctx.strokeRect(x,h-40-barH,barW-12,barH);
+          ctx.fillStyle=textColor;ctx.font='10px sans-serif';
+          g.split('\n').forEach(function(l,li){ctx.fillText(l,x+(barW-12)/2,h-40-barH/2-8+li*14);});
+          ctx.fillStyle=colors[i%5];ctx.font='bold 11px sans-serif';ctx.fillText('→',x+(barW-12)/2,h-20);
+        });
+      });
+
+      drawChart('chart-app-radar',function(ctx,w,h){
+        ctx.fillStyle=textColor;ctx.font='13px sans-serif';ctx.textAlign='center';
+        ctx.fillText('各类对冲策略适用性对比',w/2,18);
+        var items=['商品\n对冲','外汇\n对冲','利率\n对冲','权益\n对冲','信用\n对冲','波动率\n对冲'];
+        var cx=w/2,cy=h/2+10,r=90;
+        ctx.strokeStyle=colors[0];ctx.lineWidth=1.5;ctx.beginPath();
+        for(var i=0;i<6;i++){var angle=-Math.PI/2+i*2*Math.PI/6;var dist=[0.7,0.85,0.9,0.65,0.5,0.55][i];var px=cx+Math.cos(angle)*r*dist;var py=cy+Math.sin(angle)*r*dist;if(i===0)ctx.moveTo(px,py);else ctx.lineTo(px,py);}
+        ctx.closePath();ctx.fillStyle=colors[0]+'22';ctx.fill();ctx.stroke();
+        items.forEach(function(t,i){var a=-Math.PI/2+i*2*Math.PI/6;ctx.fillStyle=textColor;ctx.font='10px sans-serif';ctx.textAlign='center';ctx.fillText(t,cx+Math.cos(a)*(r+35),cy+Math.sin(a)*(r+35));});
+      });
+
+      drawChart('chart-institution',function(ctx,w,h){
+        ctx.fillStyle=textColor;ctx.font='13px sans-serif';ctx.textAlign='center';
+        ctx.fillText('机构对冲实践对比',w/2,18);
+        var insts=['企业司库\n· 稳定现金流\n· 远期/期货/简单期权','量化基金\n· Alpha分离\n· 期货/互换/动态Delta','商业银行\n· ALM久期匹配\n· 利率互换/国债期货','养老金/保险\n· 久期匹配+下行保护\n· 长久期债/看跌期权'];
+        insts.forEach(function(t,i){var x=20+i*(w-40)/4;ctx.fillStyle=colors[i%4]+'22';ctx.fillRect(x,50,(w-40)/4-12,h-70);ctx.strokeStyle=colors[i%4];ctx.lineWidth=1.5;ctx.strokeRect(x,50,(w-40)/4-12,h-70);ctx.fillStyle=textColor;ctx.font='9px sans-serif';ctx.textAlign='center';t.split('\n').forEach(function(l,li){ctx.fillText(l,x+((w-40)/4-12)/2,80+li*16);});});
+      });
+
+      drawChart('chart-case-pnl',function(ctx,w,h){
+        ctx.fillStyle=textColor;ctx.font='13px sans-serif';ctx.textAlign='center';
+        ctx.fillText('对冲前后损益分布对比',w/2,18);
+        ctx.strokeStyle=colors[4];ctx.lineWidth=2;ctx.setLineDash([5,5]);ctx.beginPath();
+        for(var i=0;i<100;i++){var x=50+(w-100)*i/99;var y=h/2+30-100*(i/99-0.5);if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);}ctx.stroke();ctx.setLineDash([]);
+        ctx.strokeStyle=colors[0];ctx.lineWidth=2.5;ctx.beginPath();
+        for(var i=0;i<100;i++){var x=50+(w-100)*i/99;var s=2*(i/99-0.5);var y=h/2+30+Math.max(-60,Math.min(60,-s*200));if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);}ctx.stroke();
+        ctx.fillStyle=textColor;ctx.font='10px sans-serif';
+        ctx.fillText('未对冲 (线性暴露)',w-100,40);ctx.fillStyle=colors[4];ctx.fillRect(w-110,30,12,12);ctx.fillStyle=textColor;
+        ctx.fillText('零成本Collar对冲 [7.60, 8.15]',w-100,60);ctx.fillStyle=colors[0];ctx.fillRect(w-110,50,12,12);
+        ctx.fillStyle=textColor;ctx.font='10px sans-serif';ctx.fillText('EUR/CNY →',w/2,h-10);
+      });
+
+      drawChart('chart-crisis-timeline',function(ctx,w,h){
+        ctx.fillStyle=textColor;ctx.font='12px sans-serif';ctx.textAlign='center';
+        ctx.fillText('三次经典对冲失败危机路径对比',w/2,16);
+        var crises=[{name:'MG 1993',x:80,c:colors[0],d:'流动性→保证金→平仓'},{name:'LTCM 1998',x:w/2,c:colors[1],d:'相关性→同时亏损→挤兑'},{name:'AIG 2008',x:w-80,c:colors[4],d:'尾部依赖→联合违约→注资'}];
+        crises.forEach(function(cr){
+          ctx.fillStyle=cr.c;ctx.beginPath();ctx.arc(cr.x,h/2,20,0,Math.PI*2);ctx.fillStyle=cr.c+'33';ctx.fill();ctx.fillStyle=cr.c;ctx.beginPath();ctx.arc(cr.x,h/2,20,0,Math.PI*2);ctx.stroke();
+          ctx.fillStyle=textColor;ctx.font='10px sans-serif';ctx.textAlign='center';
+          ctx.fillText(cr.name,cr.x,h/2+4);cr.d.split('→').forEach(function(p,i){ctx.fillText(p.trim(),cr.x,h/2+38+i*14);});
+        });
+      });
+
+      drawChart('chart-risk-radar',function(ctx,w,h){
+        ctx.fillStyle=textColor;ctx.font='12px sans-serif';ctx.textAlign='center';
+        ctx.fillText('对冲策略七维风险雷达图',w/2,16);
+        var risks=['基差\n风险','模型\n风险','流动性\n风险','相关性\n崩溃','保证金\n螺旋','过度\n对冲','操作\n风险'];
+        var vals=[0.65,0.80,0.80,0.95,0.60,0.40,0.60];
+        var cx=w/2,cy=h/2+10,r=85;
+        ctx.strokeStyle=colors[4];ctx.lineWidth=2;ctx.beginPath();
+        for(var i=0;i<7;i++){var a=-Math.PI/2+i*2*Math.PI/7;var px=cx+Math.cos(a)*r*vals[i];var py=cy+Math.sin(a)*r*vals[i];if(i===0)ctx.moveTo(px,py);else ctx.lineTo(px,py);}
+        ctx.closePath();ctx.fillStyle=colors[4]+'22';ctx.fill();ctx.stroke();
+        risks.forEach(function(t,i){var a=-Math.PI/2+i*Math.PI*2/7;ctx.fillStyle=textColor;ctx.font='9px sans-serif';ctx.textAlign='center';ctx.fillText(t,cx+Math.cos(a)*(r+22),cy+Math.sin(a)*(r+22));});
+      });
+
+      drawChart('chart-regulation',function(ctx,w,h){
+        ctx.fillStyle=textColor;ctx.font='13px sans-serif';ctx.textAlign='center';
+        ctx.fillText('全球对冲监管框架全景',w/2,16);
+        var pillars=[{n:'IFRS 9 / ASC 815\n套期会计\n有效性测试80-125%',x:w*0.2,c:colors[0]},{n:'FRTB (巴塞尔)\n交易账户资本\nES替代VaR',x:w*0.5,c:colors[1]},{n:'EMIR / Dodd-Frank\nCCP集中清算\n保证金要求',x:w*0.8,c:colors[2]}];
+        pillars.forEach(function(p){ctx.fillStyle=p.c+'33';ctx.fillRect(p.x-60,40,120,h-70);ctx.strokeStyle=p.c;ctx.lineWidth=1.5;ctx.strokeRect(p.x-60,40,120,h-70);ctx.fillStyle=textColor;ctx.font='9px sans-serif';ctx.textAlign='center';p.n.split('\n').forEach(function(l,i){ctx.fillText(l,p.x,75+i*16);});});
+      });
+
+      drawChart('chart-landscape',function(ctx,w,h){
+        ctx.fillStyle=textColor;ctx.font='13px sans-serif';ctx.textAlign='center';
+        ctx.fillText('全球对冲工具市场份额分布',w/2,16);
+        var data=[{label:'利率 75%',v:0.75,c:colors[0]},{label:'外汇 15%',v:0.15,c:colors[1]},{label:'权益 5%',v:0.05,c:colors[2]},{label:'信用 1%',v:0.01,c:colors[3]},{label:'商品 <1%',v:0.01,c:colors[4]},{label:'其他',v:0.03,c:colors[5]}];
+        var x=50,y=45,bw=(w-100)/6;
+        data.forEach(function(d,i){
+          var barH=d.v*180;
+          ctx.fillStyle=d.c+'66';ctx.fillRect(x+i*bw,y+180-barH,bw-12,barH);
+          ctx.strokeStyle=d.c;ctx.lineWidth=1;ctx.strokeRect(x+i*bw,y+180-barH,bw-12,barH);
+          ctx.fillStyle=textColor;ctx.font='9px sans-serif';ctx.textAlign='center';
+          ctx.fillText(d.label,x+i*bw+bw/2-6,h-12);
+        });
+      });
+
+      drawChart('chart-issues-radar',function(ctx,w,h){
+        ctx.fillStyle=textColor;ctx.font='12px sans-serif';ctx.textAlign='center';
+        ctx.fillText('五大对冲实践挑战矩阵',w/2,16);
+        var issues=['结构性\n突变','ESG\n标准化','AI可\n解释性','对冲\n成本','尾部\n成本'];
+        var sv=[0.85,0.75,0.70,0.65,0.60],uv=[0.55,0.65,0.75,0.75,0.80];
+        issues.forEach(function(t,i){ctx.fillStyle=colors[i%5]+'44';ctx.fillRect(60+(w-120)*sv[i]*0.8,h-50-(h-60)*uv[i]*0.7,100,22);ctx.strokeStyle=colors[i%5];ctx.lineWidth=1.2;ctx.strokeRect(60+(w-120)*sv[i]*0.8,h-50-(h-60)*uv[i]*0.7,100,22);ctx.fillStyle=textColor;ctx.font='10px sans-serif';ctx.textAlign='center';ctx.fillText(t,60+(w-120)*sv[i]*0.8+50,h-50-(h-60)*uv[i]*0.7+15);});
+        ctx.fillStyle=textColor;ctx.font='9px sans-serif';ctx.fillText('← 严重性 →',w-60,h-10);ctx.fillText('↑紧迫性↑',20,30);
+      });
+
+      drawChart('chart-prospect-roadmap',function(ctx,w,h){
+        ctx.fillStyle=textColor;ctx.font='12px sans-serif';ctx.textAlign='center';
+        ctx.fillText('2026-2030对冲技术路线图',w/2,16);
+        var items=[{y:55,t:'2026: LSTM-GARCH动态套保商用',c:colors[0]},{y:115,t:'2027: AI-native对冲引擎beta上线',c:colors[1]},{y:175,t:'2028: 碳对冲成为企业标配',c:colors[2]},{y:235,t:'2029: DeFi原生对冲协议成熟',c:colors[3]}];
+        items.forEach(function(it){ctx.fillStyle=it.c+'33';ctx.fillRect(60,it.y,w-120,28);ctx.strokeStyle=it.c;ctx.lineWidth=1.5;ctx.strokeRect(60,it.y,w-120,28);ctx.fillStyle=textColor;ctx.font='11px sans-serif';ctx.textAlign='center';ctx.fillText(it.t,w/2,it.y+19);});
+      });
+    }
+
+    renderAllCharts();
+    window.addEventListener('resize',renderAllCharts);
+  </script>
+<div class="deep-floating-back" style="position:fixed;right:20px;bottom:20px;z-index:10000">
+  <button style="padding:12px 20px;background:linear-gradient(135deg,var(--accent-purple,#6366f1),#4f46e5);color:white;border:none;border-radius:24px;font-size:.85rem;font-weight:600;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.15);transition:transform .2s,box-shadow .2s"
+    onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 16px rgba(0,0,0,.2)'"
+    onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 12px rgba(0,0,0,.15)'"
+    onclick="event.preventDefault();var w=window.open('derivatives_pricing_learning.html#kc-p4_3','plan_main');if(w)w.focus()">
+    ← 返回学习方案
+  </button>
+</div>
+</body>
+</html>

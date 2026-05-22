@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>基因工程完整学习方案 · 15周从中心法则到基因编辑</title>
+<meta name="description" content="基因工程完整学习方案 - 15周从DNA结构到CRISPR/CAR-T/合成生物学">
+<meta name="theme-color" content="#050a10">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg-deep:#050a10;--bg-card:#0a1520;--bg-card-hover:#0f2035;--bg-elevated:#152545;--border-subtle:#1e3050;--border-glow:#2a4a75;--text-primary:#e4f0fb;--text-secondary:#8ab4d6;--text-muted:#5588b0;--accent-blue:#4fc3f7;--accent-green:#66bb6a;--accent-amber:#ffa726;--accent-purple:#ab47bc;--accent-red:#ef5350;--accent-cyan:#26c6da;--accent-pink:#ec407a;--gradient-hero:linear-gradient(135deg,#4fc3f7 0%,#66bb6a 25%,#ffa726 55%,#ef5350 80%,#ab47bc 100%);--gradient-dna:linear-gradient(135deg,#4fc3f7 0%,#66bb6a 50%,#ab47bc 100%);--radius-sm:8px;--radius-md:14px;--radius-lg:22px;--shadow-glow:0 0 40px rgba(79,195,247,0.08);--tf:150ms cubic-bezier(0.4,0,0.2,1);--ts:350ms cubic-bezier(0.4,0,0.2,1);--tb:500ms cubic-bezier(0.34,1.56,0.64,1)}
+*{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:80px}
+body{font-family:'Noto Sans SC',sans-serif;background:var(--bg-deep);color:var(--text-primary);line-height:1.7;overflow-x:hidden}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg-deep)}::-webkit-scrollbar-thumb{background:var(--border-glow);border-radius:3px}
+#bg-canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:0.35}
+.top-nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(5,10,16,0.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--border-subtle);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between}
+.top-nav.scrolled{box-shadow:0 4px 30px rgba(79,195,247,0.12)}
+.nav-logo{font-family:'Orbitron',monospace;font-size:1.05rem;font-weight:700;background:var(--gradient-dna);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:1px;cursor:pointer}
+.nav-links{display:flex;gap:16px;list-style:none}
+.nav-links a{color:var(--text-secondary);text-decoration:none;font-size:0.78rem;font-weight:500;transition:color var(--tf);position:relative}
+.nav-links a:hover,.nav-links a.active{color:var(--accent-green)}
+.nav-links a::after{content:'';position:absolute;bottom:-4px;left:0;width:0;height:2px;background:var(--accent-green);transition:width var(--ts);border-radius:1px}
+.nav-links a:hover::after,.nav-links a.active::after{width:100%}
+.nav-right-group{display:flex;align-items:center;gap:12px}
+.nav-search-btn{width:34px;height:34px;border-radius:50%;border:1px solid var(--border-subtle);background:transparent;color:var(--text-muted);cursor:pointer;font-size:0.95rem;display:flex;align-items:center;justify-content:center;transition:all var(--tf)}
+.nav-search-btn:hover{border-color:var(--accent-green);color:var(--accent-green)}
+.nav-cta{padding:7px 18px;border-radius:var(--radius-sm);background:var(--gradient-dna);border:none;color:#050a10;font-weight:700;font-size:0.78rem;cursor:pointer;transition:all var(--ts);font-family:'Noto Sans SC',sans-serif}
+.nav-cta:hover{transform:scale(1.04);box-shadow:0 0 30px rgba(79,195,247,0.35)}
+.hamburger{display:none;flex-direction:column;gap:4px;background:transparent;border:none;cursor:pointer;padding:4px;z-index:110}
+.hamburger span{display:block;width:22px;height:2px;background:var(--text-primary);border-radius:1px;transition:all var(--ts)}
+.hamburger.open span:nth-child(1){transform:rotate(45deg) translate(4px,4px)}.hamburger.open span:nth-child(2){opacity:0}.hamburger.open span:nth-child(3){transform:rotate(-45deg) translate(4px,-4px)}
+.mobile-menu{position:fixed;top:0;left:0;right:0;bottom:0;z-index:105;background:rgba(5,10,16,0.98);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;opacity:0;pointer-events:none;transition:opacity var(--ts)}.mobile-menu.open{opacity:1;pointer-events:auto}.mobile-menu a{color:var(--text-secondary);text-decoration:none;font-size:1.15rem;font-weight:600}
+.search-overlay{position:fixed;top:0;left:0;right:0;bottom:0;z-index:200;background:rgba(5,10,16,0.95);display:flex;flex-direction:column;align-items:center;padding-top:120px;opacity:0;pointer-events:none;transition:opacity var(--ts)}.search-overlay.open{opacity:1;pointer-events:auto}
+.search-input-wrap{width:90%;max-width:560px;position:relative}.search-input-wrap input{width:100%;padding:16px 50px;border-radius:var(--radius-lg);border:2px solid var(--border-glow);background:var(--bg-elevated);color:var(--text-primary);font-size:1.1rem;outline:none;font-family:'Noto Sans SC',sans-serif;transition:border-color var(--tf)}.search-input-wrap input:focus{border-color:var(--accent-green)}.search-icon{position:absolute;left:18px;top:50%;transform:translateY(-50%);color:var(--accent-green)}.search-close{position:absolute;right:18px;top:50%;transform:translateY(-50%);background:transparent;border:none;color:var(--text-muted);font-size:1.3rem;cursor:pointer}.search-results{width:90%;max-width:560px;margin-top:16px;max-height:400px;overflow-y:auto}.search-result-item{padding:14px 18px;margin-bottom:6px;border-radius:var(--radius-md);background:var(--bg-card);border:1px solid var(--border-subtle);cursor:pointer}.search-result-item:hover{border-color:var(--accent-green);background:var(--bg-card-hover)}.sr-title{font-weight:600;font-size:0.9rem;color:var(--accent-green)}.sr-snippet{font-size:0.76rem;color:var(--text-muted);margin-top:4px}
+.side-progress{position:fixed;right:20px;top:50%;transform:translateY(-50%);z-index:90;display:flex;flex-direction:column;gap:10px}.progress-dot{width:10px;height:10px;border-radius:50%;background:var(--text-muted);cursor:pointer;transition:all var(--tb);position:relative}.progress-dot.active{background:var(--accent-green);box-shadow:0 0 16px var(--accent-green);width:14px;height:14px}.progress-tooltip{position:absolute;right:22px;top:50%;transform:translateY(-50%);background:var(--bg-elevated);color:var(--text-primary);padding:4px 12px;border-radius:var(--radius-sm);font-size:0.66rem;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity var(--tf);border:1px solid var(--border-glow)}.progress-dot:hover .progress-tooltip{opacity:1}
+.back-to-top{position:fixed;bottom:28px;right:20px;z-index:95;width:42px;height:42px;border-radius:50%;background:var(--bg-elevated);border:1px solid var(--border-glow);color:var(--text-muted);cursor:pointer;font-size:1.2rem;display:flex;align-items:center;justify-content:center;opacity:0;transform:translateY(20px);pointer-events:none;transition:all var(--tb)}.back-to-top.visible{opacity:1;transform:translateY(0);pointer-events:auto}.back-to-top:hover{border-color:var(--accent-green);color:var(--accent-green)}
+.hero{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:120px 24px 80px}.hero-badge{display:inline-flex;align-items:center;gap:8px;padding:6px 18px;border-radius:50px;border:1px solid var(--border-glow);background:rgba(102,187,106,0.06);font-size:0.8rem;color:var(--accent-green);margin-bottom:28px;animation:fadeInUp 0.8s ease-out}.hero-badge .dot{width:7px;height:7px;border-radius:50%;background:var(--accent-green);animation:pulse 2s infinite}.hero h1{font-weight:900;font-size:clamp(2rem,5vw,3.6rem);line-height:1.2;max-width:860px;animation:fadeInUp 0.8s ease-out 0.1s both}.hero h1 .gradient-text{background:var(--gradient-hero);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}.hero p{color:var(--text-secondary);font-size:1.05rem;max-width:640px;margin:20px 0 36px;animation:fadeInUp 0.8s ease-out 0.2s both}.hero-stats{display:flex;gap:40px;margin-bottom:40px;animation:fadeInUp 0.8s ease-out 0.3s both}.hero-stat{text-align:center}.hero-stat .num{font-family:'Orbitron',monospace;font-size:1.8rem;font-weight:700;background:var(--gradient-hero);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}.hero-stat .lbl{font-size:0.76rem;color:var(--text-muted);margin-top:4px}.hero-btns{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;animation:fadeInUp 0.8s ease-out 0.4s both}.btn-primary{padding:14px 36px;border-radius:var(--radius-md);border:none;background:var(--gradient-dna);color:#050a10;font-weight:700;font-size:0.95rem;cursor:pointer;transition:all var(--ts);font-family:'Noto Sans SC',sans-serif}.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 40px rgba(79,195,247,0.3)}.btn-outline{padding:14px 36px;border-radius:var(--radius-md);border:1.5px solid var(--border-glow);color:var(--text-primary);background:transparent;font-weight:600;font-size:0.95rem;cursor:pointer;transition:all var(--ts);font-family:'Noto Sans SC',sans-serif}.btn-outline:hover{border-color:var(--accent-green);color:var(--accent-green)}.btn-danger{padding:10px 22px;border-radius:var(--radius-sm);background:transparent;border:1px solid rgba(239,83,80,0.4);color:var(--accent-red);cursor:pointer;font-size:0.78rem;font-weight:600;transition:all var(--tf);font-family:'Noto Sans SC',sans-serif}.btn-danger:hover{background:rgba(239,83,80,0.1)}.hero-scroll-indicator{position:absolute;bottom:40px;left:50%;transform:translateX(-50%);cursor:pointer;animation:float 2.5s ease-in-out infinite;color:var(--text-muted);font-size:1.6rem;z-index:2}
+.section{position:relative;z-index:1;padding:80px 24px}.section-header{text-align:center;margin-bottom:60px}.section-tag{display:inline-block;padding:4px 14px;border-radius:50px;background:rgba(102,187,106,0.08);color:var(--accent-green);font-size:0.7rem;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;margin-bottom:16px;font-family:'Orbitron',monospace}.section-header h2{font-size:1.9rem;font-weight:700}.section-header h2 span{background:var(--gradient-hero);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}.section-header .subtitle{color:var(--text-muted);font-size:0.9rem;margin-top:10px;max-width:500px;margin-left:auto;margin-right:auto}
+.roadmap-section{max-width:1000px;margin:0 auto}.roadmap-track{position:relative;padding-left:40px}.roadmap-track::before{content:'';position:absolute;left:16px;top:0;bottom:0;width:2px;background:linear-gradient(to bottom,var(--accent-blue),var(--accent-green),var(--accent-amber),var(--accent-purple),var(--accent-red),var(--accent-pink),var(--accent-cyan));border-radius:1px}.roadmap-item{position:relative;margin-bottom:36px;opacity:0;transform:translateY(30px);transition:opacity .6s,transform .6s}.roadmap-item.visible{opacity:1;transform:translateY(0)}.roadmap-dot{position:absolute;left:-30px;top:20px;width:14px;height:14px;border-radius:50%;border:3px solid var(--bg-deep);z-index:2}.roadmap-item:nth-child(1) .roadmap-dot{background:var(--accent-blue)}.roadmap-item:nth-child(2) .roadmap-dot{background:var(--accent-green)}.roadmap-item:nth-child(3) .roadmap-dot{background:var(--accent-amber)}.roadmap-item:nth-child(4) .roadmap-dot{background:var(--accent-purple)}.roadmap-item:nth-child(5) .roadmap-dot{background:var(--accent-red)}.roadmap-item:nth-child(6) .roadmap-dot{background:var(--accent-pink)}.roadmap-item:nth-child(7) .roadmap-dot{background:var(--accent-cyan)}
+.roadmap-content{padding:24px;border-radius:var(--radius-lg);background:var(--bg-card);border:1px solid var(--border-subtle);cursor:pointer;transition:all var(--ts)}.roadmap-content:hover{background:var(--bg-card-hover);border-color:var(--border-glow);transform:translateX(6px);box-shadow:var(--shadow-glow)}.phase-badge{display:inline-block;padding:3px 10px;border-radius:50px;font-size:0.66rem;font-weight:700;font-family:'Orbitron',monospace;letter-spacing:1px;margin-bottom:8px}.phase-badge.c1{background:rgba(79,195,247,0.12);color:var(--accent-blue)}.phase-badge.c2{background:rgba(102,187,106,0.12);color:var(--accent-green)}.phase-badge.c3{background:rgba(255,167,38,0.12);color:var(--accent-amber)}.phase-badge.c4{background:rgba(171,71,188,0.12);color:var(--accent-purple)}.phase-badge.c5{background:rgba(239,83,80,0.12);color:var(--accent-red)}.phase-badge.c6{background:rgba(236,64,122,0.12);color:var(--accent-pink)}.phase-badge.c7{background:rgba(38,198,218,0.12);color:var(--accent-cyan)}.roadmap-content h3{font-size:1.15rem;font-weight:700;margin-bottom:4px}.roadmap-content .week{font-size:0.8rem;color:var(--text-muted);margin-bottom:10px}.roadmap-content ul{list-style:none;display:flex;flex-wrap:wrap;gap:6px}.roadmap-content ul li{font-size:0.72rem;padding:2px 10px;border-radius:50px;background:var(--bg-elevated);color:var(--text-secondary);border:1px solid var(--border-subtle)}.goto-link{display:inline-block;margin-top:12px;font-size:0.76rem;color:var(--accent-green);font-weight:600}
+.phase-container{max-width:900px;margin:0 auto}.phase-detail{margin-bottom:12px;border-radius:var(--radius-lg);background:var(--bg-card);border:1px solid var(--border-subtle);overflow:hidden;transition:all var(--ts)}.phase-detail.open{border-color:var(--border-glow);box-shadow:0 0 30px rgba(79,195,247,0.06)}.phase-detail-header{padding:20px 24px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:background var(--tf);gap:16px;user-select:none}.phase-detail-header:hover{background:var(--bg-card-hover)}.phase-detail-header .left{display:flex;align-items:center;gap:16px;flex:1;min-width:0}.phase-detail-header .icon{width:48px;height:48px;border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0}.phase-detail-header h3{font-size:1rem;font-weight:700}.phase-detail-header .meta{font-size:0.75rem;color:var(--text-muted);margin-top:2px}.phase-arrow{font-size:0.8rem;color:var(--text-muted);transition:transform var(--ts);flex-shrink:0}.phase-detail.open .phase-arrow{transform:rotate(180deg)}.phase-body{display:grid;grid-template-rows:0fr;transition:grid-template-rows var(--ts)}.phase-detail.open .phase-body{grid-template-rows:1fr}.phase-body-inner{overflow:hidden;padding:0 24px}.phase-detail.open .phase-body-inner{padding:6px 24px 24px}
+.skill-grid{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}.skill-chip{padding:6px 14px;border-radius:var(--radius-sm);background:var(--bg-elevated);border:1px solid var(--border-subtle);font-size:0.78rem;transition:all var(--tf);display:inline-flex;align-items:center;white-space:nowrap}.skill-chip code{color:var(--accent-blue);font-family:'JetBrains Mono',monospace;font-size:0.76rem;font-weight:600}.skill-chip:hover{border-color:var(--accent-green)}.skill-chip.skill-link{cursor:pointer;padding-right:10px;border-color:var(--border-glow)}.skill-chip.skill-link:hover{border-color:var(--accent-green);background:rgba(102,187,106,0.06);transform:translateY(-1px);box-shadow:0 2px 8px rgba(79,195,247,0.12)}.skill-chip.skill-link:hover code{color:var(--accent-green)}.skill-chip .chip-arrow{font-size:0.6rem;margin-left:5px;color:var(--accent-green);font-weight:700;opacity:0.7}.skill-chip.skill-link:hover .chip-arrow{opacity:1}
+.code-block{margin:12px 0;border-radius:var(--radius-md);overflow:hidden;background:rgba(0,0,0,0.5);border:1px solid var(--border-subtle)}.code-header{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;background:rgba(5,10,16,0.8);border-bottom:1px solid var(--border-subtle)}.code-lang{font-size:0.72rem;color:var(--text-muted);font-family:'JetBrains Mono',monospace}.copy-btn{padding:4px 14px;border-radius:var(--radius-sm);background:transparent;border:1px solid var(--border-subtle);color:var(--text-secondary);cursor:pointer;font-size:0.72rem;font-weight:500;transition:all var(--tf)}.copy-btn:hover{border-color:var(--accent-green);color:var(--accent-green)}.copy-btn.copied{color:var(--accent-green)!important;border-color:var(--accent-green)!important}.code-block pre{padding:16px;overflow-x:auto;font-size:0.77rem;line-height:1.65}.code-block code{font-family:'JetBrains Mono',monospace;color:var(--text-primary)}
+.phase-drawing-tag{display:inline-block;padding:3px 10px;border-radius:50px;font-size:0.66rem;margin:4px;font-weight:700}.draw-must{border:1px solid #ef5350;color:var(--accent-red);background:rgba(239,83,80,0.08)}.draw-suggest{border:1px solid #ffa726;color:var(--accent-amber);background:rgba(255,167,38,0.08)}.draw-optional{border:1px solid rgba(79,195,247,0.4);color:var(--accent-blue);background:rgba(79,195,247,0.05)}
+.knowledge-section{max-width:900px;margin:0 auto}.knowledge-filter-bar{display:flex;gap:6px;margin-bottom:20px;flex-wrap:wrap}.knowledge-filter{padding:5px 14px;border-radius:50px;background:transparent;border:1px solid var(--border-subtle);color:var(--text-muted);cursor:pointer;font-size:0.72rem;font-weight:600;transition:all var(--tf);font-family:'Noto Sans SC',sans-serif}.knowledge-filter:hover,.knowledge-filter.active{color:var(--accent-green);border-color:var(--accent-green)}.knowledge-card{margin-bottom:12px;border-radius:var(--radius-md);background:var(--bg-card);border:1px solid var(--border-subtle);overflow:hidden;transition:all var(--ts)}.knowledge-card.open{border-color:var(--border-glow)}.knowledge-card-header{padding:14px 18px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;gap:10px;user-select:none;transition:background var(--tf)}.knowledge-card-header:hover{background:var(--bg-card-hover)}.knowledge-card-header .kl{display:flex;align-items:center;gap:10px;flex:1;min-width:0}.knowledge-card-header .kl h4{font-size:0.88rem;font-weight:700}.knowledge-card-header .k-arrow{font-size:0.65rem;color:var(--text-muted);transition:transform var(--ts);flex-shrink:0}.knowledge-card.open .k-arrow{transform:rotate(180deg)}.knowledge-card-body{display:grid;grid-template-rows:0fr;transition:grid-template-rows var(--ts)}.knowledge-card.open .knowledge-card-body{grid-template-rows:1fr}.knowledge-card-inner{overflow:hidden;padding:0 18px}.knowledge-card.open .knowledge-card-inner{padding:6px 18px 18px}.knowledge-card-inner .k-concept{font-size:0.76rem;color:var(--text-secondary);line-height:1.7;margin-bottom:12px}.knowledge-card-inner .k-formula{display:inline-block;padding:6px 14px;margin:4px 4px 4px 0;border-radius:var(--radius-sm);background:var(--bg-elevated);border:1px solid var(--border-glow);font-family:'JetBrains Mono',monospace;font-size:0.74rem;color:var(--accent-blue)}.diagram-box{margin:12px 0;padding:16px;border-radius:var(--radius-sm);background:rgba(0,0,0,0.45);border:1px solid var(--border-subtle);font-family:'JetBrains Mono',monospace;font-size:0.64rem;line-height:1.4;color:var(--accent-blue);overflow-x:auto;white-space:pre}.k-summary{font-size:0.74rem;color:var(--accent-green);font-weight:600;margin-top:8px}
+.knowledge-summary-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px}.knowledge-summary-bar .ks-count{font-size:0.78rem;color:var(--text-muted)}.knowledge-summary-bar .ks-count strong{color:var(--accent-green)}.knowledge-summary-bar .ks-expand-all{padding:5px 14px;border-radius:50px;background:transparent;border:1px solid var(--border-subtle);color:var(--text-muted);cursor:pointer;font-size:0.7rem;font-weight:600;transition:all var(--tf)}.knowledge-summary-bar .ks-expand-all:hover{border-color:var(--accent-green);color:var(--accent-green)}
+.math-tags{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:18px}.math-tag{padding:6px 16px;border-radius:50px;font-size:0.74rem;font-weight:600;display:inline-flex;align-items:center;gap:5px}.tag-molecular{background:rgba(79,195,247,0.1);color:var(--accent-blue);border:1px solid rgba(79,195,247,0.25)}.tag-enzyme{background:rgba(102,187,106,0.1);color:var(--accent-green);border:1px solid rgba(102,187,106,0.25)}.tag-vector{background:rgba(171,71,188,0.1);color:var(--accent-purple);border:1px solid rgba(171,71,188,0.25)}.tag-omics{background:rgba(38,198,218,0.1);color:var(--accent-cyan);border:1px solid rgba(38,198,218,0.25)}.tag-edit{background:rgba(239,83,80,0.1);color:var(--accent-red);border:1px solid rgba(239,83,80,0.25)}.tag-stat{background:rgba(236,64,122,0.1);color:var(--accent-pink);border:1px solid rgba(236,64,122,0.25)}.tag-ethics{background:rgba(255,167,38,0.1);color:var(--accent-amber);border:1px solid rgba(255,167,38,0.25)}
+.draw-levels{display:flex;gap:14px;margin-top:32px;flex-wrap:wrap;justify-content:center}.draw-level{padding:10px 20px;border-radius:var(--radius-md);font-size:0.8rem;font-weight:600;text-align:center;min-width:140px}.draw-level.must{background:rgba(239,83,80,0.1);border:1.5px solid #ef5350;color:var(--accent-red)}.draw-level.suggest{background:rgba(255,167,38,0.1);border:1.5px solid #ffa726;color:var(--accent-amber)}.draw-level.optional{background:rgba(79,195,247,0.07);border:1.5px solid rgba(79,195,247,0.3);color:var(--accent-blue)}
+.drawing-method{display:flex;gap:20px;margin-bottom:40px;flex-wrap:wrap}.method-card{flex:1;min-width:220px;padding:28px 20px;border-radius:var(--radius-lg);background:var(--bg-card);border:1px solid var(--border-subtle);text-align:center;transition:all var(--ts)}.method-card:hover{border-color:var(--border-glow);transform:translateY(-4px)}.method-card .step-num{font-family:'Orbitron',monospace;font-size:1.6rem;font-weight:900;color:var(--accent-green);margin-bottom:6px}.method-card h4{font-size:1rem;margin-bottom:6px}.method-card p{font-size:0.76rem;color:var(--text-muted)}
+.formula-section{max-width:1000px;margin:0 auto}.formula-tabs{display:flex;margin-bottom:24px;border-radius:var(--radius-md);overflow:hidden;border:1px solid var(--border-subtle);flex-wrap:wrap}.formula-tab{flex:1;min-width:100px;padding:12px 10px;text-align:center;background:var(--bg-card);color:var(--text-muted);cursor:pointer;font-size:0.78rem;font-weight:600;border:none;transition:all var(--tf);font-family:'Noto Sans SC',sans-serif;white-space:nowrap}.formula-tab:hover{color:var(--text-primary)}.formula-tab.active{background:var(--bg-elevated);color:var(--accent-green)}.formula-panel{display:none}.formula-panel.active{display:block}.formula-table{width:100%;border-collapse:collapse;font-size:0.84rem}.formula-table th{padding:12px 16px;text-align:left;font-weight:600;border-bottom:2px solid var(--border-glow);color:var(--accent-green);font-family:'Orbitron',monospace;font-size:0.66rem;letter-spacing:1.5px}.formula-table td{padding:10px 16px;border-bottom:1px solid var(--border-subtle)}.formula-table td:first-child{font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:var(--accent-blue)}.formula-table tr:hover{background:var(--bg-card-hover)}
+.exercise-section{max-width:780px;margin:0 auto}.exercise-filters{display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap;justify-content:center}.exercise-filter{padding:7px 18px;border-radius:50px;background:transparent;border:1px solid var(--border-subtle);color:var(--text-muted);cursor:pointer;font-size:0.76rem;font-weight:600;transition:all var(--tf);font-family:'Noto Sans SC',sans-serif}.exercise-filter:hover{color:var(--text-primary)}.exercise-filter.active{background:var(--gradient-dna);color:#050a10;border-color:transparent}.exercise-counter{margin-bottom:16px;text-align:center;font-size:0.82rem;color:var(--text-muted)}.exercise-counter strong{color:var(--accent-green)}.exercise-item{display:flex;align-items:flex-start;gap:14px;padding:18px;margin-bottom:10px;border-radius:var(--radius-md);background:var(--bg-card);border:1px solid var(--border-subtle);cursor:pointer;transition:all var(--ts)}.exercise-item:hover{background:var(--bg-card-hover)}.exercise-item.expanded{background:var(--bg-card-hover);border-color:var(--accent-green)}.ei-content{flex:1;min-width:0}.ei-title{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.ei-title-text{font-size:0.88rem;font-weight:500}.diff{padding:2px 8px;border-radius:50px;font-size:0.64rem;font-weight:700;white-space:nowrap}.diff-easy{background:rgba(102,187,106,0.12);color:var(--accent-green)}.diff-medium{background:rgba(79,195,247,0.12);color:var(--accent-blue)}.diff-hard{background:rgba(255,167,38,0.12);color:var(--accent-amber)}.diff-project{background:rgba(239,83,80,0.12);color:var(--accent-red)}.ei-answer{display:none;margin-top:10px;padding:12px;border-radius:var(--radius-sm);background:var(--bg-elevated);border:1px solid var(--border-subtle);font-size:0.76rem;color:var(--text-secondary)}.exercise-item.expanded .ei-answer{display:block}.ei-check{width:26px;height:26px;border-radius:50%;border:2px solid var(--border-subtle);cursor:pointer;flex-shrink:0;transition:all var(--tb);display:flex;align-items:center;justify-content:center;font-size:0.66rem;margin-top:3px}.ei-check:hover{border-color:var(--accent-green)}.ei-check.done{background:var(--accent-green);border-color:var(--accent-green);color:var(--bg-deep)}
+.resources-section{max-width:900px;margin:0 auto}.resource-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px}.resource-card{padding:20px;border-radius:var(--radius-md);background:var(--bg-card);border:1px solid var(--border-subtle);transition:all var(--ts);cursor:pointer;text-decoration:none;color:inherit;display:block}.resource-card:hover{transform:translateY(-4px);border-color:var(--border-glow);box-shadow:0 8px 36px rgba(79,195,247,0.08)}.resource-card h4{font-size:0.92rem;margin-bottom:4px}.resource-card p{font-size:0.74rem;color:var(--text-muted)}.res-domain{display:inline-block;margin-top:8px;padding:2px 8px;border-radius:50px;font-size:0.64rem;font-weight:600;background:rgba(102,187,106,0.08);color:var(--accent-green)}
+.tracker-section{max-width:700px;margin:0 auto}.tracker-list{margin-bottom:24px}.tracker-row{display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid var(--border-subtle);font-size:0.82rem}.tracker-check{width:24px;height:24px;border-radius:50%;border:2px solid var(--border-subtle);cursor:pointer;flex-shrink:0;transition:all var(--tb);display:flex;align-items:center;justify-content:center;font-size:0.62rem}.tracker-check:hover{border-color:var(--accent-green)}.tracker-check.done{background:var(--accent-green);border-color:var(--accent-green);color:#050a10}.tracker-bar{flex:1;min-width:0;height:6px;border-radius:3px;background:var(--bg-elevated);overflow:hidden}.tracker-bar-fill{height:100%;background:var(--gradient-dna);border-radius:3px;transition:width var(--ts)}.tracker-summary{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}.tracker-summary .total{font-family:'Orbitron',monospace;font-size:1.2rem;color:var(--accent-green)}
+.confirm-overlay{position:fixed;top:0;left:0;right:0;bottom:0;z-index:300;background:rgba(5,10,16,0.9);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity var(--ts)}.confirm-overlay.open{opacity:1;pointer-events:auto}.confirm-dialog{padding:36px;border-radius:var(--radius-lg);background:var(--bg-card);border:1px solid var(--border-glow);text-align:center;max-width:380px;margin:0 16px}.confirm-dialog h4{font-size:1.1rem;margin-bottom:8px;color:var(--accent-red)}.confirm-dialog p{font-size:0.85rem;color:var(--text-muted);margin-bottom:20px}.confirm-btns{display:flex;gap:10px;justify-content:center}
+.toast{position:fixed;bottom:40px;left:50%;transform:translateX(-50%) translateY(20px);z-index:400;padding:12px 28px;border-radius:50px;background:var(--bg-elevated);color:var(--text-primary);border:1px solid var(--border-glow);font-size:0.85rem;font-weight:600;opacity:0;pointer-events:none;transition:all var(--tb);white-space:nowrap}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.footer{padding:36px 24px;text-align:center;border-top:1px solid var(--border-subtle);z-index:1;position:relative;color:var(--text-muted);font-size:0.78rem}
+@media(max-width:768px){.nav-links,.side-progress{display:none}.hamburger{display:flex}.hero-stats{gap:20px}.hero-stat .num{font-size:1.3rem}.roadmap-track{padding-left:28px;}.roadmap-track::before{left:10px;}.roadmap-dot{left:-24px}.drawing-method{flex-direction:column}.phase-detail-header{padding:16px;}.phase-detail-header .icon{width:38px;height:38px;font-size:1.1rem}.resource-grid{grid-template-columns:1fr}}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+@keyframes float{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(10px)}}
+</style>
+</head>
+<body>
+
+<canvas id="bg-canvas"></canvas>
+<nav class="top-nav" id="topNav">
+<div class="nav-logo" onclick="window.scrollTo({top:0,behavior:'smooth'})">GENE::BIO</div>
+<ul class="nav-links"><li><a href="#roadmap">路线图</a></li><li><a href="#drawing">图解法</a></li><li><a href="#knowledge">知识点</a></li><li><a href="#phases">阶段</a></li><li><a href="#formulas">公式</a></li><li><a href="#exercises">练习</a></li><li><a href="#resources">资料</a></li><li><a href="#tracker">进度</a></li></ul>
+<div class="nav-right-group"><button class="nav-search-btn" onclick="oS()" title="搜索 Ctrl+K">🔍</button><button class="nav-cta" onclick="document.getElementById('roadmap').scrollIntoView({behavior:'smooth'})">开始</button><button class="hamburger" id="hamburgerBtn" onclick="tMM()"><span></span><span></span><span></span></button></div></nav>
+<div class="mobile-menu" id="mobileMenu"><a href="#roadmap" onclick="tMM()">路线图</a><a href="#drawing" onclick="tMM()">图解法</a><a href="#knowledge" onclick="tMM()">知识点</a><a href="#phases" onclick="tMM()">阶段</a><a href="#formulas" onclick="tMM()">公式</a><a href="#exercises" onclick="tMM()">练习</a><a href="#resources" onclick="tMM()">资料</a><a href="#tracker" onclick="tMM()">进度</a></div>
+<div class="search-overlay" id="searchOverlay"><div class="search-input-wrap"><span class="search-icon">🔍</span><input id="searchInput" placeholder="搜索概念、酶、技术..." oninput="doSearch()" type="text"><button class="search-close" onclick="cS()">✕</button></div><div class="search-results" id="searchResults"></div></div>
+<div class="side-progress" id="sideProgress"></div>
+<button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+<div class="confirm-overlay" id="confirmOverlay"><div class="confirm-dialog"><h4>确认重置</h4><p>将清除所有学习进度和练习标记</p><div class="confirm-btns"><button class="btn-outline" onclick="cC()" style="padding:10px 24px">取消</button><button class="btn-danger" onclick="rA()">确认重置</button></div></div></div>
+<div class="toast" id="toast"></div>
+
+<header class="hero"><div class="hero-badge"><span class="dot"></span>v1.0 深度搭建 · 图解学习 · 机制驱动</div><h1>基因工程<br><span class="gradient-text">完整学习方案</span></h1><p>从DNA双螺旋到CRISPR/CAR-T · 15周系统构建芯片图谱知识体系</p><div class="hero-stats"><div class="hero-stat"><span class="num" data-count="15">0</span><div class="lbl">学习周数</div></div><div class="hero-stat"><span class="num" data-count="7">0</span><div class="lbl">学习阶段</div></div><div class="hero-stat"><span class="num" data-count="21">0</span><div class="lbl">实操练习</div></div><div class="hero-stat"><span class="num" data-count="21">0</span><div class="lbl">必画通路</div></div></div>
+<div class="hero-btns"><button class="btn-primary" onclick="document.getElementById('roadmap').scrollIntoView({behavior:'smooth'})">查看完整路线图</button><button class="btn-outline" onclick="document.getElementById('resources').scrollIntoView({behavior:'smooth'})">学习资料清单</button></div><div class="hero-scroll-indicator" onclick="document.getElementById('roadmap').scrollIntoView({behavior:'smooth'})">⌄</div></header>
+
+<section class="section" id="roadmap"><div class="section-header"><div class="section-tag">LEARNING ROADMAP</div><h2><span>7 阶段 · 15 周</span> 分子→载体→编辑→精准</h2><p class="subtitle">点击任意阶段跳转完整内容与代码示例</p></div><div class="roadmap-section" id="roadmapContainer"></div></section>
+<section class="section" id="drawing"><div class="diagram-section"><div class="diagram-intro"><div class="section-tag">VISUAL LEARNING</div><h2><span>图解学习法</span></h2><p>基因工程80%的\"学不懂\"来源于无法模拟分子操作的空间流程</p></div><div class="drawing-method" id="drawingMethod"></div><div class="math-tags" id="mathTags"></div><div class="draw-levels" id="drawLevels"></div></div></section>
+<section class="section" id="knowledge"><div class="section-header"><div class="section-tag">DEEP DIVE</div><h2><span>知识点详解</span></h2><p class="subtitle">30个深度概念：图解+机制+学科标注</p></div><div class="knowledge-section"><div class="knowledge-filter-bar" id="knowledgeFilterBar"></div><div class="knowledge-summary-bar"><span class="ks-count" id="knowledgeCount">共<strong>0</strong>个</span><button class="ks-expand-all" onclick="tAK()">展开全部</button></div><div id="knowledgeContainer"></div></div></section>
+<section class="section" id="phases"><div class="section-header"><div class="section-tag">PHASE DETAILS</div><h2><span>阶段详情</span></h2><p class="subtitle">展开获取内容+代码+画图标记</p></div><div class="phase-container" id="phaseContainer"></div></section>
+<section class="section" id="formulas"><div class="section-header"><div class="section-tag">QUICK REFERENCE</div><h2><span>核心数据</span>速查</h2><p class="subtitle">5大表——从DNA参数到抗生素浓度</p></div><div class="formula-section"><div class="formula-tabs" id="formulaTabs"></div><div id="formulaPanels"></div></div></section>
+<section class="section" id="exercises"><div class="section-header"><div class="section-tag">PRACTICE</div><h2><span>实操练习</span>题库</h2><p class="subtitle">5初+7中+6高+3项目</p></div><div class="exercise-section"><div class="exercise-filters" id="exerciseFilters"></div><div class="exercise-counter" id="exerciseCounter"></div><div id="exerciseList"></div></div></section>
+<section class="section" id="resources"><div class="section-header"><div class="section-tag">MATERIALS</div><h2><span>学习资料</span>清单</h2><p class="subtitle">教材·论文·在线工具·数据库一站配齐</p></div><div class="resources-section"><div class="resource-grid" id="resourceList"></div></div></section>
+<section class="section" id="tracker"><div class="section-header"><div class="section-tag">PROGRESS</div><h2><span>学习进度</span>跟踪</h2><p class="subtitle">数据保存在本地</p></div><div class="tracker-section"><div class="tracker-list" id="trackerList"></div><div class="tracker-summary"><span>完成：<span class="total" id="trackerTotal">0/7</span></span><button class="btn-danger" onclick="oC()" style="font-size:0.75rem;padding:6px 16px">重置进度</button></div></div></section>
+<footer class="footer"><p>\"基因工程让我们能阅读和书写生命的语言\"</p><p style="margin-top:8px;font-size:0.7rem">本方案仅供学习参考 · 实验操作请严格遵守生物安全规范</p></footer>
+<script>
+(function(){var c=document.getElementById('bg-canvas'),ctx=c.getContext('2d'),w=window.innerWidth,h=window.innerHeight,p=[];
+function rs(){w=c.width=window.innerWidth;h=c.height=window.innerHeight}rs();window.addEventListener('resize',rs);
+var cs=['#4fc3f7','#66bb6a','#ffa726','#ab47bc'];
+for(var i=0;i<60;i++)p.push({x:Math.random()*w,y:Math.random()*h,vx:(Math.random()-.5)*.2,vy:(Math.random()-.5)*.2,r:Math.random()*2+.3,c:cs[Math.floor(Math.random()*4)],ph:Math.random()*6.28});
+function d(){ctx.clearRect(0,0,w,h);for(var i=0;i<p.length;i++){var o=p[i];o.x+=o.vx;o.y+=o.vy;if(o.x<0)o.x=w;if(o.x>w)o.x=0;if(o.y<0)o.y=h;if(o.y>h)o.y=0;o.ph+=0.01;ctx.beginPath();ctx.arc(o.x,o.y,o.r+Math.sin(o.ph)*0.3,0,6.28);ctx.fillStyle=o.c;ctx.globalAlpha=0.4;ctx.fill();ctx.globalAlpha=1;
+for(var j=i+1;j<p.length;j++){var q=p[j],dx=o.x-q.x,dy=o.y-q.y,ds=Math.sqrt(dx*dx+dy*dy);if(ds<130){ctx.beginPath();ctx.moveTo(o.x,o.y);ctx.lineTo(q.x,q.y);ctx.strokeStyle=o.c;ctx.globalAlpha=0.03*(1-ds/130);ctx.lineWidth=.5;ctx.stroke();ctx.globalAlpha=1}}}requestAnimationFrame(d)}d()})();
+
+var KP={
+k01:{phase:'p1',tag:'molecular',lvl:'must',title:'DNA双螺旋——基因工程的基石',d:'B-DNA: 直径2.0nm, 螺距3.4nm(10.5bp/圈)。A=T(2氢键), G≡C(3氢键)。核苷酸=碱基+脱氧核糖+磷酸。大沟(2.2nm)=蛋白质识别位点。GC越高→Tm越高',f:'Tm(Wallace)=4(G+C)+2(A+T)  MW=660g/mol/bp',diagram:'B-DNA:\n5\'-ATGC-3\'\n  ││││\n3\'-TACG-5\'\n\n大沟 2.2nm ←蛋白识别\n小沟 1.2nm\nGC=3氢键 > AT=2氢键\n→ DNA稳定性差异的分子根源',sum:'DNA=基因工程的操作对象——理解双螺旋参数是设计一切实验的前提'},
+k02:{phase:'p1',tag:'molecular',lvl:'must',title:'中心法则——生命的信息流',d:'Replication: DNA Pol+dNTP 5\'→3\'\nTranscription: RNA Pol+NTP DNA→mRNA\nTranslation: Ribosome+tRNA+GTP mRNA→Protein\nReverseTranscription: RTase RNA→cDNA\n每一步都有专属酶、专一底物、固定方向',f:'表达量∝转录效率×mRNA稳定性×翻译效率',diagram:'中心法则:\nDNA ─DNA Pol─→ DNA (复制)\n │RNA Pol\n ↓\nmRNA ─Ribosome─→ Protein (翻译)\n          N端→C端\nmRNA 5\'→3\'方向决定蛋白顺序',sum:'中心法则=所有基因工程操作的游戏规则——每一步都需要对应的酶'},
+k03:{phase:'p1',tag:'enzyme',lvl:'must',title:'PCR三步——DNA的分子复印机',d:'1.变性94-98°C: dsDNA→ssDNA\n2.退火50-65°C: 引物特异性结合靶序列\n3.延伸72°C: Taq Pol从引物3\'-OH延伸(~1kb/min)\n产物=起始×2^n, 上限约10^6~10^7倍',f:'产物=起始×2^n  实际上限~10^6~10^7',diagram:'PCR三步:\n① 94°C 解链\n  ═══ → ══ + ═══\n② 55°C 引物结合\n  ══[Primer]==→══\n③ 72°C Taq延伸\n  ══[Primer]==══→══→\n      新合成链 5\'→3\'',sum:'PCR发明=Mullis 1993化学诺奖——无PCR无现代基因工程'},
+k04:{phase:'p1',tag:'enzyme',lvl:'must',title:'引物设计六大黄金法则',d:'①长度18-25bp ②GC=40-60% ③正反向Tm差<5°C ④3\'端最后1-2nt最好G/C(GC夹) ⑤避免发夹/二聚体 ⑥3\'端避免连续3个以上G/C。推荐工具:Primer3+Primer-BLAST双保险',f:'最优GC=45-55%  Tm_diff<5°C  Ta=低Tm+3~5°C',sum:'引物设计失误=PCR失败第一原因——用Primer3+Primer-BLAST双保险'},
+k05:{phase:'p2',tag:'enzyme',lvl:'must',title:'II型限制酶——DNA的分子剪刀',d:'II型:识别=切割位点(基因工程主力)。EcoRI:G^AATTC(5\'突出), BamHI:G^GATCC, HindIII:A^AGCTT。粘性末端效率>平末端(碱基互补预稳定)。同尾酶=识别相同序列; 兼容末端=不同酶切出相同突出',f:'EcoRI: 5\'-G↓AATTC-3\'  BamHI: 5\'-G↓GATCC-3\'',diagram:'粘性末端(EcoRI):\n5\'-G       AATTC-3\'\n3\'-CTTAA       G-5\'\n    ↑互补配对→高连接效率\n\n平末端(SmaI):\n5\'-CCC   GGG-3\'\n3\'-GGG   CCC-5\' 无突出',sum:'II型限制酶=基因工程的起点——1978 Arber/Nathans/Smith诺奖'},
+k06:{phase:'p2',tag:'vector',lvl:'must',title:'质粒核心元件——基因的运输车',d:'标准质粒元件: ①ori(pUC~500copy高拷;pBR322~15-20低拷) ②抗性基因(Amp/Kan 筛选转化子) ③MCS多克隆位点(10-20+单一切点) ④lacZ\'(蓝白斑α互补) ⑤启动子(T7/lac/CMV 驱动表达)',f:'pUC ori:~500copy/cell  pBR322 ori:~15-20copy/cell',sum:'质粒=基因工程最常用载体——读懂质粒图谱是克隆设计的第一步'},
+k07:{phase:'p3',tag:'enzyme',lvl:'must',title:'Gibson组装——一管三酶的神奇',d:'Gibson Assembly(2009): ①T5外切核酸酶产生3\'突出 ②同源臂(~15-40bp)互补退火 ③Phusion聚合酶补平缺口 ④Taq连接酶封口→完整环化! 50°C 15-60min一步完成。不依赖限制酶位点',f:'同源臂:15-40bp  Tm>48°C  GC>40%  一次组装2-6片段',diagram:'Gibson三步:\n①T5外切(5\'→3\')\n →产生3\'突出\n②同源臂(~20bp)退火\n  ═══[ARM]═══\n③Pol补平+Ligase封口\n  ════════════════\n→完整环化! ',sum:'Gibson Assembly 2009=颠覆性克隆方法——抛弃限制酶全靠同源臂'},
+k08:{phase:'p3',tag:'molecular',lvl:'must',title:'蓝白斑筛选——α-互补的分子逻辑',d:'lacZ编码β-半乳糖苷酶(1024aa)。N端~60aa=α肽段。宿主菌lacZΔM15=缺失α肽(无活性)。质粒携带lacZ\'(α肽段)→空载体时α互补=完整酶=X-gal→蓝斑。MCS插入破坏lacZ\'→α肽断裂→白斑!',f:'蓝斑=空载体(α互补OK)  白斑=有插入(α肽破坏)  假阳性≈5-10%',diagram:'蓝白斑机制:\n宿主lacZΔM15(缺α=无活性)\n  +\npUC19(lacZ\'=α肽段)\n  ↓\n[空载体]:α互补→活性酶\n   X-gal→蓝色=蓝斑\n\n[有插入]:lacZ\'断裂\n   无α互补→无活性→白斑',sum:'蓝白斑≠完美筛选(假阳性~5-10%)——最终靠PCR/测序验证'},
+k09:{phase:'p4',tag:'molecular',lvl:'must',title:'lac操纵子——IPTG诱导的分子开关',d:'lacI→阻遏蛋白→结合lacO(-IPTG)→RNAPol被阻→OFF。+IPTG(乳糖类似物)→结合阻遏蛋白→变构脱落→T7Pol表达→T7启动子驱动目的基因→可达30-50%总蛋白! IPTG不被代谢→恒定诱导',f:'IPTG常用浓度:0.1-1mM(常规0.5mM)  OD600诱导:0.4-0.8',diagram:'lac操纵子开关:\n-IPTG:\nlacI→Repressor→lacO\n           ↓阻遏\n      RNA Pol OFF\n\n+IPTG:\nIPTG→Repressor(变构)\n           ↓脱落\n      RNA Pol ON\n→T7 Pol→高表达(30-50%)',sum:'IPTG=lac操纵子的分子开关——不可代谢=表达水平稳定可控'},
+k10:{phase:'p4',tag:'enzyme',lvl:'suggest',title:'His-tag蛋白纯化——亲和层析原理',d:'His₆(6×His)与Ni²⁺-NTA树脂特异性配位结合。洗涤10-50mM咪唑去除背景蛋白。洗脱250-500mM咪唑竞争→游离目的蛋白。其他标签:GST→Glutathione,MBP→Amylose,FLAG→抗体,Strep→Strep-Tactin',f:'洗涤:10-50mM咪唑  洗脱:250-500mM咪唑  His₆~1kDa不影响功能',diagram:'Ni-NTA纯化:\n上清(含His-蛋白)\n  ↓\n[Ni²⁺-NTA柱]\nHis挂柱√ 杂蛋白流穿×\n  ↓ 20mM咪唑洗涤\n去除弱结合杂蛋白\n  ↓ 300mM咪唑\n目的蛋白!→SDS-PAGE验证',sum:'His-tag=蛋白纯化首选——仅1kDa,Mini亲和,廉价Ni²⁺'},
+k11:{phase:'p4',tag:'molecular',lvl:'must',title:'SDS-PAGE——蛋白分子筛原理',d:'SDS(阴离子去垢剂):变性蛋白,+均匀负电荷→迁移率只取决于MW。浓缩胶5%pH6.8:Gly⁻/Cl⁻离子梯度压缩蛋白带。分离胶8-15%pH8.8:按分子量分离(大慢小快)。迁移率∝logMW',f:'Rf=条带距离/前沿  logMW∝Rf  高浓度胶=分低MW',diagram:'SDS-PAGE:\n 负极(-)\n┌Stacking 5% pH6.8┐\n│Gly-/Cl-压缩成薄带 │\n├Resolving 8-15%   │\n│       大(慢)     │pH8.8\n│  ←  ←   ←       │\n│  ← 小(快)  →     │\n└──────────────────┘\n   正极(+)',sum:'SDS=让所有蛋白统一穿负电外衣——跑得快慢只看分子量'},
+k12:{phase:'p4',tag:'molecular',lvl:'must',title:'Western Blot——从SDS到化学发光',d:'6步:①SDS-PAGE ②转膜(PVDF/NC) ③封闭(5%脱脂牛奶1h阻断非特异) ④一抗孵育(特异性) ⑤洗涤3次+二抗HRP孵育 ⑥ECL底物→HRP→光信号→检测。每一步失败都可能导致无信号',f:'一抗:1:500~1:5000  二抗:1:5000~1:20000  ECL曝光:1s~10min',sum:'Western Blot=蛋白检测金标准——6步每一环节都要优化'},
+k13:{phase:'p5',tag:'edit',lvl:'must',title:'CRISPR/Cas9完整分子机制',d:'细菌免疫3阶段:①适应(获取spacer→CRISPR阵列) ②表达(pre-crRNA→成熟crRNA:tracrRNA) ③干扰(Cas9扫描PAM NGG→20nt sgRNA互补→HNH切互补链+RuvC切非互补链→DSB在PAM上游3nt)',f:'PAM=NGG(SpCas9)  DSB位置=PAM上游3bp  sgRNA=20nt靶点+支架',diagram:'Cas9+sgRNA:\n扫描基因组→找PAM(NGG)\n  ├PAM识别→DNA解旋\n  ├20nt sgRNA互补靶DNA\n  ├HNH切割互补链(3nt上游)\n  └RuvC切割非互补链\n→双链断裂(DSB)!',sum:'CRISPR=Cas9蛋白+sgRNA+PAM——三要素一个不能少'},
+k14:{phase:'p5',tag:'edit',lvl:'must',title:'NHEJ vs HDR——修复通路决定编辑结果',d:'DSB→两条路:NHEJ(快速·易错·indel→KO移码终止)。HDR(精确·需要donor模板·低效)→KI/点突变。策略:要KO→只用sgRNA依赖NHEJ;要KI→还需ssODN/dsDonor+优化HDR条件',f:'KO=sgRNA+NHEJ(高频)  KI=sgRNA+donor+HDR(低频需优化)',diagram:'DSB分裂:\n      ┌──NHEJ(默认)\n      │快速·易错·indel\nDSB ─┤→基因敲除(KO)\n      │\n      └──HDR(+donor)\n       精确·依赖同源模板\n       →基因敲入(KI)/点突变',sum:'NHEJ vs HDR=KO vs KI的分子分叉——选错了白等好几个月'},
+k15:{phase:'p5',tag:'edit',lvl:'suggest',title:'碱基编辑与先导编辑——精准的基因字编辑器',d:'CBE=Cas9n+APOBEC1+UGI→C→T(不需DSB)。ABE=Cas9n+TadA*→A→G(不需DSB)。PE=Cas9n+RTase+pegRNA→任意替换(插入/删除/点突变均可,不需DSB/HDR)。BE效率高;PE范围广但优化中',f:'CBE:C→T  ABE:A→G  PE:任意编辑  ~60%人类疾病SNP=C-T或T-C',diagram:'Base(2016):\n融合脱氨酶→单链切C→T/G→A\n无DSB!安全高效\n→60%疾病点突变可纠正!\n\nPrime(2019):\n逆转录酶+pegRNA\n任意del/ins/sub均可\n不限位点但效率尚需优化',sum:'BASE和Prime=精准基因编辑——不靠DSB不靠HDR直达目标'},
+
+k16:{phase:'p5',tag:'edit',lvl:'must',title:'sgRNA设计——编辑成败的指挥棒',d:'设计原则:①GC=40-70% ②避免4+T(polIII终止信号) ③种子区(近PAM10-12nt)最重要→脱靶预测核心 ④用2-3条sgRNA选最优 ⑤优先靶向5\'编码外显子产生早期STOP=更有效KO ⑥CHOPCHOP/CRISPick在线设计',f:'种子序列=PAM近端10-12nt 脱靶评分:MIT/CFD算法',sum:'sgRNA设计=CRISPR实验的第一步决定因子——种子区错配是最大脱靶来源'},
+k17:{phase:'p6',tag:'edit',lvl:'must',title:'CAR-T——合成免疫细胞的工程',d:'CAR=Chimeric Antigen Receptor:胞外scFv(识别肿瘤抗原如CD19)→铰链/跨膜(CD8/CD28)→共刺激域(CD28或4-1BB)→激活域CD3ζ。2代CAR(FDA批准2017):Kymriah/Yescarta。4代\"装甲CAR-T\"分泌IL-12重塑微环境',f:'2代CAR:Kymriah(CD19-CD28-CD3ζ)  有效率80%+  CRS≥3级:22-46%',diagram:'CAR结构演进:\n1st: scFv-CD3ζ (无效)\n2nd:+CD28/41BB(2017FDA)\n   Kymriah/Yescarta\n3rd:+CD28+41BB(更强)\n4th:+IL-12(装甲→微环境)\n一代一个共刺激域进化',sum:'2代CAR-T=2017肿瘤免疫治疗革命——CD19靶向已治愈数千例白血病'},
+k18:{phase:'p6',tag:'ethics',lvl:'must',title:'基因治疗——体内体外的分水岭',d:'体细胞治疗(ex vivo取细胞→编辑→筛选→回输,不遗传):CAR-T/Casgevy(镰刀贫血FDA2023)。生殖系治疗(编辑精子/卵子/胚胎→可遗传后代)全球禁止!2018贺建奎非法编辑CCR5婴儿。体内(in vivo)递送:AAV载体直接注射',f:'ex vivo:取→编→筛→输  in vivo:AAV/LNP直接注射  可遗传:禁止!',sum:'体细胞OK·生殖系NO——Casgevy(2023)证明CRISPR可以安全治病'},
+k19:{phase:'p6',tag:'molecular',lvl:'suggest',title:'转基因动物与植物——基因工程的应用基石',d:'CRISPR小鼠:受精卵注射Cas9mRNA+sgRNA→NHEJ→移码KO(2-3月)。或+ssODN donor→HDR→KI/点突变(6-12月)。转基因植物:农杆菌Ti质粒→T-DNA区整合植物基因组→抗性或GFP标记筛选',f:'小鼠KO:2-3月  点突变KI:6-12月  植物抗性筛选:Kan/Hyg/Basta',sum:'CRISPR小鼠=科研的万能工具——KO/KI/条件性等位基因都是Cas9+1~2条sgRNA'},
+k20:{phase:'p6',tag:'omics',lvl:'suggest',title:'合成生物学——生命的设计工程',d:'三大支柱:①BioBricks标准化模块(启动子-RBS-CDS-终止子) ②最小基因组Syn3.0(473基因=最小生命JCVI) ③代谢通路工程(酵母产青蒿素Keasling2006,大肠杆菌产胰岛素)。核心=标准化+正交化+可预测',f:'Syn3.0:473个基因 最小生命  BioBricks:标准化模块连接',sum:'合成生物学=基因工程的高级阶段——从修复到设计生命'},
+
+k21:{phase:'p7',tag:'omics',lvl:'must',title:'Illumina NGS测序——边合成边测序',d:'SBS流程:①文库构:片段+接头→Flowcell ②桥式PCR→簇生成(clusters) ③每次加1荧光标记dNTP→照相→切荧光→下一轮。读长PE150-300bp。NovaSeqX:通量Tb/run级→可同时测几十亿DNA分子!',f:'PE150=双端150bp  通量:HiSeqX~1.6Tb/run  误差率~0.1%',diagram:'Illumina SBS:\n1.文库+接头→Flowcell\n2.桥式PCR→Clusters\n3.+荧光dNTP→照相\n4.切荧光→下一轮\n→每循环=1bp读\nPE150=从两端各150bp',sum:'NGS=现代生物学上帝之眼——一次run看到几十亿个DNA分子同时测序'},
+k22:{phase:'p7',tag:'omics',lvl:'must',title:'RNA-seq——全转录组差异表达分析',d:'总RNA→oligo-dT富集mRNA→片段化→RT为cDNA→+adapter→PCR→NGS。分析:FastQC→Trimmo→HISAT2/STAR比对到基因组→featureCounts计数→DESeq2差异表达→GO/KEGG功能富集→GSEA通路分析',f:'TPM=RPKM/ΣRPKM×10^6  TPM跨样品可比  DESeq2:FDR校正p',diagram:'RNA-seq全流程:\nRaw RNA\n→FastQC(QC)\n→Trimmomatic(trim)\n→STAR(align to genome)\n→featureCounts(count)\n→DESeq2(差异表达)\n→GO/KEGG(功能富集)\n→GSEA(通路分析)',sum:'RNA-seq=基因表达的大全景——差异表达必须用FDR校正p'},
+k23:{phase:'p7',tag:'stat',lvl:'must',title:'FDR多重检验校正——统计严谨的底线',d:'做20,000个基因t检验→若全无差异(H0),期望20000×0.05=1000个假阳性!Bonferroni:p×n(太严几乎全不显著)。Benjamini-Hochberg(BH):排序p(i)→每个p×n/i→控制假发现率。RNA-seq必须报告FDR!',f:'Bonferroni:p×n(极严)  BH:FDR按p(i)×n/i  常用adj.p<0.05',diagram:'为什么必须FDR:\n20000基因×0.05\n=1000假阳性(p=paper假)\n→不校正=论文崩塌!\n\nBH方法→控制假发现率\n→使用p.adjust(FDR)\n→adj.p<0.05才是真显著',sum:'FDR=RNA-seq发表红线——不校正就有1000假阳性!BH是标准方法'},
+k24:{phase:'p7',tag:'edit',lvl:'suggest',title:'CRISPR Screen——全基因组功能普查',d:'GeCKO库(~120,000sgRNA=~6/基因×19000基因)。慢病毒包装→感染Cas9细胞(MOI≈0.3)→Puro筛选→加药/缺氧→NGS定量sg丰度→MAGeCK分析。丰度下降=必需基因;丰度上升=耐药靶标',f:'正气屏←细胞死亡→必需基因  负气屏:Survival+→耐药靶点',sum:'CRISPR Screen=全基因组功能筛选——一次实验找到所有必需/耐药基因'},
+k25:{phase:'p7',tag:'omics',lvl:'must',title:'BLAST序列比对——核酸的Google搜索',d:'BLAST类型:BLASTn(DNA→DNA), BLASTp(蛋白→蛋白), BLASTx(翻译DNA→搜蛋白库), tBLASTn(蛋白→搜翻译DNA库)。E-value=随机匹配得分以上的期望次数(E<0.001=显著)。Bit score=归一化相似度',f:'E-value<0.001显著  Bit score独立于数据库大小  六读框翻译=3×2',sum:'BLAST=序列分析的必备工具——E-value越小越可信'}
+};
+
+var MATH_TAGS_DATA=[
+{cls:'tag-molecular',code:'[分子]',label:'分子生物学'},
+{cls:'tag-enzyme',code:'[酶学]',label:'酶学与工具酶'},
+{cls:'tag-vector',code:'[载体]',label:'载体与递送'},
+{cls:'tag-omics',code:'[组学]',label:'组学技术'},
+{cls:'tag-edit',code:'[编辑]',label:'基因编辑'},
+{cls:'tag-stat',code:'[统计]',label:'生物统计学'},
+{cls:'tag-ethics',code:'[伦理]',label:'生物伦理'}
+];
+
+var PHASES=[
+{id:'p1',week:'第1-2周',title:'分子生物学基础',sub:'DNA结构→中心法则→PCR→电泳',color:'#4fc3f7',icon:'🧬',cls:'c1',
+skills:[{code:'DNA双螺旋',kp:'k01'},{code:'中心法则',kp:'k02'},{code:'PCR',kp:'k03'},{code:'引物设计',kp:'k04'},{code:'凝胶电泳'},{code:'限制图谱'}],
+codes:[{lang:'python — Tm计算+引物评估',code:`def tm_wallace(seq):
+    return 4*(seq.count('G')+seq.count('C'))+2*(seq.count('A')+seq.count('T'))
+
+def gc_content(seq):
+    return (seq.count('G')+seq.count('C'))/len(seq)*100
+
+def primer_check(fwd, rev):
+    tm_f=tm_wallace(fwd); tm_r=tm_wallace(rev)
+    ok=abs(tm_f-tm_r)<5 and 40<=gc_content(fwd)<=60
+    return tm_f, tm_r, ok`}],
+drawings:[{lvl:'must',text:'[必画] DNA双螺旋标注(直径/螺距/大小沟)'},{lvl:'must',text:'[必画] 中心法则完整流程图'},{lvl:'must',text:'[必画] PCR三步循环原理图'}]},
+
+{id:'p2',week:'第3-4周',title:'工具酶与载体系统',sub:'限制酶→连接酶→质粒→感受态→转化',color:'#66bb6a',icon:'🔬',cls:'c2',
+skills:[{code:'II型限制酶',kp:'k05'},{code:'质粒元件',kp:'k06'},{code:'T4连接酶'},{code:'CaCl₂转化'},{code:'电转化'},{code:'大肠杆菌菌株'}],
+codes:[{lang:'python — 查找限制酶位点',code:`SITES={'EcoRI':'GAATTC','BamHI':'GGATCC','HindIII':'AAGCTT'}
+
+def find_sites(seq):
+    result={}
+    for name, pattern in SITES.items():
+        pos=[]; idx=0
+        while True:
+            idx=seq.find(pattern, idx)
+            if idx==-1: break
+            pos.append(idx); idx+=1
+        if pos: result[name]=pos
+    return result`}],
+drawings:[{lvl:'must',text:'[必画] 粘性末端vs平末端切割示意'},{lvl:'must',text:'[必画] 标准质粒图谱5大元件'},{lvl:'must',text:'[必画] CaCl₂热激转化流程'}]},
+
+{id:'p3',week:'第5-6周',title:'克隆技术与文库构建',sub:'Gibson组装→GoldenGate→蓝白斑→文库',color:'#ffa726',icon:'🧩',cls:'c3',
+skills:[{code:'Gibson组装',kp:'k07'},{code:'蓝白斑筛选',kp:'k08'},{code:'TA克隆'},{code:'Golden Gate'},{code:'Gateway'},{code:'菌落PCR'}],
+codes:[{lang:'python — Gibson引物设计(简化)',code:`def gibson_primers(frags, homology=20):
+    primers=[]
+    for i, f in enumerate(frags):
+        prev=frags[i-1][-homology:] if i>0 else frags[-1][-homology:]
+        fwd=prev+f[:30]
+        nxt=frags[(i+1)%len(frags)]
+        rev=reverse_complement(nxt[:homology])+reverse_complement(f[-30:])
+        primers.append((fwd, rev))
+    return primers`}],
+drawings:[{lvl:'must',text:'[必画] Gibson组装三步三酶机制'},{lvl:'must',text:'[必画] 蓝白斑α互补分子机制'},{lvl:'suggest',text:'[建议画] Golden Gate IIs型组装'}]},
+
+{id:'p4',week:'第7-8周',title:'基因表达与蛋白工程',sub:'lac操纵子→诱导表达→纯化→SDS-PAGE→WB',color:'#ab47bc',icon:'🔤',cls:'c4',
+skills:[{code:'lac/IPTG',kp:'k09'},{code:'His-tag',kp:'k10'},{code:'SDS-PAGE',kp:'k11'},{code:'Western Blot',kp:'k12'},{code:'T7启动子'},{code:'包含体复性'}],
+codes:[{lang:'python — SDS-PAGE MW推算',code:`def estimate_mw(rf, marker_rfs, marker_mws):
+    import numpy as np
+    x=np.log10(marker_mws)
+    y=np.array(marker_rfs)
+    coef=np.polyfit(y, x, 1)
+    return 10**(coef[0]*rf+coef[1])`}],
+drawings:[{lvl:'must',text:'[必画] lac操纵子IPTG诱导开关'},{lvl:'must',text:'[必画] Western Blot完整6步流程'},{lvl:'suggest',text:'[建议画] His-tag Ni-NTA纯化原理'}]},
+
+{id:'p5',week:'第9-10周',title:'基因编辑技术',sub:'CRISPR→sgRNA→NHEJ/HDR→BE→PE',color:'#ef5350',icon:'⚡',cls:'c5',
+skills:[{code:'CRISPR/Cas9',kp:'k13'},{code:'NHEJ vs HDR',kp:'k14'},{code:'基编辑BE/PE',kp:'k15'},{code:'sgRNA设计',kp:'k16'},{code:'Cas9变体(Cas9n/dCas9)'},{code:'TIDE分析'}],
+codes:[{lang:'python — sgRNA脱靶评分(MIT简化)',code:`def mit_score(on, off):
+    seed_mm=sum(1 for a,b in zip(on[:12],off[:12]) if a!=b)
+    if seed_mm>2: return 0
+    return 100/(1+seed_mm)
+
+def find_guides(genome, pos, pam='NGG'):
+    region=genome[pos-200:pos+200]
+    guides=[]
+    for i in range(len(region)-23):
+        if region[i+21]=='G' and region[i+22]=='G':
+            g=region[i:i+20]
+            gc=(g.count('G')+g.count('C'))/20
+            if 0.4<=gc<=0.7:
+                guides.append({'seq':g,'gc':gc,'start':pos-200+i})
+    return guides`}],
+drawings:[{lvl:'must',text:'[必画] CRISPR免疫三阶段完整机制'},{lvl:'must',text:'[必画] NHEV vs HDR修复分叉对比'},{lvl:'suggest',text:'[建议画] BE vs PE编辑窗口对比'}]},
+
+{id:'p6',week:'第11-13周',title:'前沿应用',sub:'CAR-T→基因治疗→转基因→合成生物学',color:'#ec407a',icon:'💊',cls:'c6',
+skills:[{code:'CAR-T',kp:'k17'},{code:'基因治疗',kp:'k18'},{code:'转基因',kp:'k19'},{code:'合成生物学',kp:'k20'},{code:'AAV/Lentivirus'},{code:'iPSC重编程'}],
+codes:[{lang:'python — 慢病毒包装滴度计算',code:`def titer_calc(n_positive, dilution, volume_ul):
+    # n_positive: GFP+ colonies
+    # dilution: infection dilution factor
+    # volume_ul: virus volume used (uL)
+    titer=n_positive/(volume_ul*1e-3*dilution)
+    return titer  # TU/mL`}],
+drawings:[{lvl:'must',text:'[必画] 1代→4代CAR结构演进图'},{lvl:'must',text:'[必画] 基因治疗exvivo vs invivo'},{lvl:'suggest',text:'[建议画] 农杆菌转基因植物流程'}]},
+
+{id:'p7',week:'第14-15周',title:'组学与生物信息学',sub:'NGS→RNA-seq→CRISPR Screen→BLAST→FDR',color:'#26c6da',icon:'💻',cls:'c7',
+skills:[{code:'NGS/Illumina',kp:'k21'},{code:'RNA-seq',kp:'k22'},{code:'FDR校正',kp:'k23'},{code:'CRISPR Screen',kp:'k24'},{code:'BLAST',kp:'k25'},{code:'Galaxy平台'}],
+codes:[{lang:'bash — RNA-seq 命令行(Trim→Align→Count)',code:`# Trim adapters + low quality
+trimmomatic PE -phred33 R1.fq R2.fq \
+  R1_paired.fq R1_unpaired.fq \
+  R2_paired.fq R2_unpaired.fq \
+  ILLUMINACLIP:adapters.fa:2:30:10 \
+  LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:36
+
+# Align to reference genome
+STAR --genomeDir star_index \
+  --readFilesIn R1_paired.fq R2_paired.fq \
+  --outSAMtype BAM SortedByCoordinate --quantMode GeneCounts
+
+# Differential expression with DESeq2 (R)
+# see gene_learning.md for R code`}],
+drawings:[{lvl:'must',text:'[必画] Illumina SBS边合成边测序'},{lvl:'must',text:'[必画] RNA-seq全分析流程'},{lvl:'suggest',text:'[建议画] NGS PE文库结构'}]}];
+
+var FORMULA_TABS=[
+{label:'DNA & PCR参数'},
+{label:'连接 & 转化'},
+{label:'蛋白分析'},
+{label:'基因编辑效率'},
+{label:'常用抗生素浓度'}
+];
+
+var FORMULAS=[
+[{c:'DNA MW',f:'660 g/mol/bp'},{c:'Tm(Wallace)',f:'4GC+2AT'},{c:'Tm(精确)',f:'SantaLucia ΔH/ΔS'},
+{c:'PCR产量',f:'N₀×2^n; cap~10^6'},{c:'GC含量',f:'(G+C)/len×100%'}],
+[{c:'载体:插入比',f:'1:3 ~ 1:10 mol'},{c:'连接体积',f:'10-20 μL越小越浓'},
+{c:'化学效率',f:'~10^6-10^8 CFU/μg'},{c:'电转效率',f:'~10^9-10^10 CFU/μg'},
+{c:'热激关键',f:'42°C 45-90s'}],
+[{c:'SDS-PAGE胶%',f:'8%>100kD;12%20-100;15%<20'},{c:'Rf比移率',f:'d条带/d前沿'},
+{c:'Bradford',f:'检测限~1μg/mL'},{c:'咪唑洗涤',f:'10-50mM'},
+{c:'咪唑洗脱',f:'250-500mM'}],
+[{c:'indel%(KO)',f:'TIDE/ICE分析Sanger'},{c:'HDR%(KI)',f:'ddPCR或NGS定量'},
+{c:'脱靶检测',f:'GUIDE/CIRCLE/CHANGE-seq'},{c:'sgRNA评分',f:'MIT/CFD算法'},
+{c:'PAM多样性',f:'SpCas9:NGG; Sa:NNGRRT'}],
+[{c:'Ampicillin',f:'100 μg/mL(coli)'},{c:'Kanamycin',f:'50 μg/mL(coli)'},
+{c:'Puromycin',f:'1-2 μg/mL(mamm)'},{c:'Blasticidin',f:'5-10 μg/mL(mamm)'},
+{c:'G418(Geneticin)',f:'400-800 μg/mL(mamm)'}]
+];
+
+var EXERCISES=[
+{id:'e01',diff:'easy',text:'计算22bp引物ATGCGTACTAGGCGATATCGGC的Tm(Wallace)和GC%'},
+{id:'e02',diff:'easy',text:'画出EcoRI切割GAATTC产生的粘性末端(标注突出方向)'},
+{id:'e03',diff:'easy',text:'设计一个标准50μL PCR体系(10μM引物1ng/μL模板Taq0.5U/μL)'},
+{id:'e04',diff:'easy',text:'在NCBI找TP53的CDS序列标注Start/Stop密码子'},
+{id:'e05',diff:'easy',text:'画出pUC19质粒的核心元件(至少5个+各自功能)'},
+{id:'e06',diff:'medium',text:'设计3片段Gibson组装引物:Promoter+CDS+Terminator各20bp同源臂'},
+{id:'e07',diff:'medium',text:'解释蓝白斑白斑≠100%有插入(完整分子机制)'},
+{id:'e08',diff:'medium',text:'设计CRISPR KO GFP:sgRNA靶外显子+NHEJ原理+验证'},
+{id:'e09',diff:'medium',text:'设计His-tag纯化+TEV酶切删除His的完整流程'},
+{id:'e10',diff:'medium',text:'用Primer3设计qPCR引物+BLAST验证特异性'},
+{id:'e11',diff:'medium',text:'DESeq2差异表达为何用FDR而不用p——完整推演'},
+{id:'e12',diff:'medium',text:'解读一篇CAR-T临床论文中VCN拷贝数的意义'},
+{id:'e13',diff:'hard',text:'设计Cas9+GeCKO文库慢病毒包装+滴度测定完整方案'},
+{id:'e14',diff:'hard',text:'Gibson+Golden Gate组合构建8kb多基因代谢通路方案'},
+{id:'e15',diff:'hard',text:'Python实现sgRNA脱靶预测——找基因组中<3mm位置'},
+{id:'e16',diff:'hard',text:'建立Tet-On可诱导shRNA细胞系完整方案'},
+{id:'e17',diff:'hard',text:'解译Sanger双峰色谱——TIDE算法分析杂合indel原理'},
+{id:'e18',diff:'hard',text:'设计CRISPR KO小鼠全流程时间线(靶→F0→建系→鉴定)'},
+{id:'e19',diff:'project',text:'[项目1] 设计CAR-T载体SOP:靶点→CAR序列→慢病毒包装→质检'},
+{id:'e20',diff:'project',text:'[项目2] Galaxy完整RNA-seq分析(QC→Trim→Align→Count→DE→GO)写报告'},
+{id:'e21',diff:'project',text:'[项目3] 研读PE原文+梳理CRISPR/HDR/BE/PE对比适用场景表'}
+];
+
+var RESOURCES=[
+{t:'Molecular Cloning(Sambrook)',d:'基因克隆圣经4th ed.(实验百科全书)',dm:'核心教材',u:''},
+{t:'Molecular Biology of the Gene(Watson)',d:'分子生物学经典教材7th ed.',dm:'核心教材',u:''},
+{t:'Gene Cloning & DNA Analysis(Brown)',d:'入门友好8th ed.',dm:'教材',u:''},
+{t:'A Crack in Creation(Doudna)',d:'CRISPR发现者撰·科学+人文',dm:'科普延伸',u:''},
+{t:'Benchling',d:'分子克隆设计·sgRNA·在线协作',dm:'在线工具',u:'https://benchling.com'},
+{t:'SnapGene Viewer(免费)',d:'质粒图谱·酶切分析·Gibson模拟',dm:'在线工具',u:'https://snapgene.com'},
+{t:'Primer3/Primer-BLAST',d:'引物设计+BLAST自动脱靶检查',dm:'设计工具',u:'https://www.ncbi.nlm.nih.gov/tools/primer-blast/'},
+{t:'CHOPCHOP sgRNA设计',d:'智能sgRNA·脱靶预测·在线评分',dm:'设计工具',u:'https://chopchop.cbu.uib.no'},
+{t:'Addgene质粒共享库',d:'查找+订购已有质粒(10万+!)',dm:'资源库',u:'https://addgene.org'},
+{t:'Biorender绘图平台',d:'科研级通路/机制图·一键美化',dm:'绘图工具',u:'https://biorender.com'},
+{t:'Galaxy分析平台',d:'无需编程在线生物信息分析',dm:'分析平台',u:'https://usegalaxy.org'},
+{t:'CRISPResso2',d:'CRISPR编辑NGS数据分析·在线+本地',dm:'分析工具',u:''},
+{t:'NEBcutter 2.0',d:'在线限制酶位点查找',dm:'分析工具',u:'https://nc2.neb.com/NEBcutter/'},
+{t:'UniProt蛋白数据库',d:'蛋白序列+功能+修饰权威来源',dm:'数据库',u:'https://uniprot.org'},
+{t:'CRISPick(原GuideScan)',d:'sgRNA设计+脱靶预测算法新星',dm:'设计工具',u:''}
+];
+
+var TRACKER_ITEMS=[
+{id:'t1',p:'P1',w:'1-2周',d:'DNA结构+中心法则+PCR+电泳'},
+{id:'t2',p:'P2',w:'3-4周',d:'限制酶+质粒+感受态+转化'},
+{id:'t3',p:'P3',w:'5-6周',d:'Gibson组装+蓝白斑+Gateway'},
+{id:'t4',p:'P4',w:'7-8周',d:'lac/IPTG诱导+纯化+SDS-PAGE+WB'},
+{id:'t5',p:'P5',w:'9-10周',d:'CRISPR+Cas9+sgRNA+NHEJ/HDR+BE/PE'},
+{id:'t6',p:'P6',w:'11-13周',d:'CAR-T+基因治疗+转基因+合成生物学'},
+{id:'t7',p:'P7',w:'14-15周',d:'NGS+RNA-seq+BLAST+FDR+Screen'}
+];
+
+function hR(){
+document.getElementById('roadmapContainer').innerHTML='<div class="roadmap-track">'+PHASES.map(function(p){
+return '<div class="roadmap-item" id="ri-'+p.id+'"><div class="roadmap-dot"></div><div class="roadmap-content" onclick="document.getElementById(\'phase-'+p.id+'\').scrollIntoView({behavior:\'smooth\'});setTimeout(function(){document.getElementById(\'phase-'+p.id+'\').classList.add(\'open\')},400)"><span class="phase-badge '+p.cls+'">'+p.id.toUpperCase()+'</span><h3>'+p.title+'</h3><div class="week">'+p.week+' · '+p.sub+'</div><ul>'+p.skills.map(function(s){return '<li>'+s.code+'</li>'}).join('')+'</ul><span class="goto-link">点击查看详情 →</span></div></div>';
+}).join('')+'</div>';
+}
+
+function hPD(){
+var c=document.getElementById('phaseContainer');
+c.innerHTML=PHASES.map(function(p){
+var skillsHtml=p.skills.map(function(s){
+if(s.kp)return '<span class="skill-chip skill-link" onclick="goK(\''+s.kp+'\')" title="点击查看:'+s.code+'"><code>'+s.code+'</code><span class="chip-arrow">›</span></span>';
+return '<span class="skill-chip"><code>'+s.code+'</code></span>';
+}).join('');
+var codesHtml=p.codes.map(function(cd){
+return '<div class="code-block"><div class="code-header"><span class="code-lang">'+cd.lang+'</span><button class="copy-btn" onclick="cpC(this)">复制</button></div><pre><code>'+cd.code.replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</code></pre></div>';
+}).join('');
+var drawHtml=p.drawings.map(function(d){
+var cls=d.lvl==='must'?'draw-must':d.lvl==='suggest'?'draw-suggest':'draw-optional';
+return '<span class="phase-drawing-tag '+cls+'">'+d.text+'</span>';
+}).join('');
+return '<div class="phase-detail" id="phase-'+p.id+'"><div class="phase-detail-header" onclick="tP(\'phase-'+p.id+'\')"><div class="left"><div class="icon" style="background:'+p.color+'22;color:'+p.color+'">'+p.icon+'</div><div><h3 style="color:'+p.color+'">'+p.title+'</h3><div class="meta">'+p.week+' · '+p.sub+'</div></div></div><span class="phase-arrow">▼</span></div><div class="phase-body"><div class="phase-body-inner"><div class="skill-grid">'+skillsHtml+'</div>'+drawHtml+codesHtml+'</div></div></div>';
+}).join('');
+setTimeout(function(){var f=document.querySelector('.phase-detail');if(f)f.classList.add('open');},200);
+}
+
+function hDS(){
+document.getElementById('drawingMethod').innerHTML=[
+{num:'01',t:'抄图',d:'照着教材画PCR原理/质粒图谱/CRISPR机制'},
+{num:'02',t:'默图',d:'不看资料凭理解画lac操纵子/信号通路'},
+{num:'03',t:'讲图',d:'指着自己画的图讲Western Blot六步——费曼方法'}
+].map(function(m){return '<div class="method-card"><div class="step-num">'+m.num+'</div><h4>'+m.t+'</h4><p>'+m.d+'</p></div>';}).join('');
+document.getElementById('mathTags').innerHTML=MATH_TAGS_DATA.map(function(t){
+return '<span class="math-tag '+t.cls+'">'+t.code+' '+t.label+'</span>';
+}).join('');
+document.getElementById('drawLevels').innerHTML=[
+{cls:'must',t:'[必画] 核心通路',a:'必须手绘——不画学不懂'},
+{cls:'suggest',t:'[建议画] 重要机制',a:'强烈建议——加深理解'},
+{cls:'optional',t:'[可选画] 辅助内容',a:'学有余力·锦上添花'}
+].map(function(d){return '<div class="draw-level '+d.cls+'">'+d.t+'<br><small style="font-weight:400;font-size:0.66rem">'+d.a+'</small></div>';}).join('');
+}
+
+function hFs(){
+document.getElementById('formulaTabs').innerHTML=FORMULA_TABS.map(function(t,i){
+return '<button class="formula-tab'+(i===0?' active':'')+'" onclick="sFT('+i+')">'+t.label+'</button>';
+}).join('');
+document.getElementById('formulaPanels').innerHTML=FORMULAS.map(function(fs,i){
+return '<div class="formula-panel'+(i===0?' active':'')+'" id="fp-'+i+'"><table class="formula-table"><thead><tr><th>概念</th><th>公式/数值</th><th>说明</th></tr></thead><tbody>'+fs.map(function(f){return '<tr><td>'+f.c+'</td><td>'+f.f+'</td><td>'+(f.t||'')+'</td></tr>'}).join('')+'</tbody></table></div>';
+}).join('');
+}
+
+function sFT(i){
+document.querySelectorAll('.formula-tab').forEach(function(t,x){t.classList.toggle('active',x===i)});
+document.querySelectorAll('.formula-panel').forEach(function(p,x){p.classList.toggle('active',x===i)});
+}
+
+var _kf='all',_ka=false;
+
+function hK(){
+var ks=Object.values(KP);
+var tags=[
+{v:'all',l:'全部'},{v:'molecular',l:'[分子]'},{v:'enzyme',l:'[酶学]'},
+{v:'vector',l:'[载体]'},{v:'edit',l:'[编辑]'},{v:'omics',l:'[组学]'},
+{v:'stat',l:'[统计]'},{v:'ethics',l:'[伦理]'}
+];
+document.getElementById('knowledgeFilterBar').innerHTML=tags.map(function(t){
+return '<button class="knowledge-filter'+(t.v===_kf?' active':'')+'" onclick="fK(\''+t.v+'\',this)">'+t.l+'</button>';
+}).join('');
+fK(_kf);
+}
+
+function fK(tag,btn){
+_kf=tag;
+if(btn){document.querySelectorAll('.knowledge-filter').forEach(function(b){b.classList.remove('active')});btn.classList.add('active')}
+var map={molecular:'[分子]',enzyme:'[酶学]',vector:'[载体]',omics:'[组学]',edit:'[编辑]',stat:'[统计]',ethics:'[伦理]'};
+var tls={molecular:'tag-molecular',enzyme:'tag-enzyme',vector:'tag-vector',omics:'tag-omics',edit:'tag-edit',stat:'tag-stat',ethics:'tag-ethics'};
+var fl=tag==='all'?Object.values(KP):Object.values(KP).filter(function(k){return k.tag===tag});
+document.getElementById('knowledgeCount').innerHTML='共<strong>'+fl.length+'</strong>个';
+document.getElementById('knowledgeContainer').innerHTML=fl.map(function(k){
+var tcl=tls[k.tag]||'';
+return '<div class="knowledge-card"><div class="knowledge-card-header" onclick="tK(this)"><div class="kl"><span class="math-tag '+tcl+'" style="font-size:0.62rem;padding:3px 8px">'+map[k.tag]+'</span><h4>'+k.title+'</h4></div><span class="k-arrow">▼</span></div><div class="knowledge-card-body"><div class="knowledge-card-inner"><div class="k-concept">'+k.d+'</div>'+(k.f?'<span class="k-formula">'+k.f.replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</span>':'')+(k.diagram?'<div class="diagram-box">'+k.diagram+'</div>':'')+(k.sum?'<div class="k-summary">💡 '+k.sum+'</div>':'')+'</div></div></div>';
+}).join('');
+if(_ka){setTimeout(function(){document.querySelectorAll('.knowledge-card').forEach(function(c){c.classList.add('open')})},50)}
+}
+
+function tK(h){h.closest('.knowledge-card').classList.toggle('open')}
+function tAK(){
+_ka=!_ka;
+var btn=document.querySelector('.ks-expand-all');btn.textContent=_ka?'收起全部':'展开全部';
+document.querySelectorAll('.knowledge-card').forEach(function(c){c.classList.toggle('open',_ka)});
+}
+
+function goK(kpId){
+var k=KP[kpId];if(!k)return;
+document.getElementById('knowledge').scrollIntoView({behavior:'smooth'});
+setTimeout(function(){
+document.querySelectorAll('.knowledge-card').forEach(function(el){
+var h4=el.querySelector('h4');
+if(h4&&h4.textContent===k.title){el.classList.add('open');el.scrollIntoView({behavior:'smooth',block:'center'});}
+});
+},500);
+}
+
+function cpC(btn){
+var cd=btn.closest('.code-block').querySelector('code').textContent;
+navigator.clipboard.writeText(cd).then(function(){
+btn.textContent='已复制 ✓';btn.classList.add('copied');
+setTimeout(function(){btn.textContent='复制';btn.classList.remove('copied')},1800);
+}).catch(function(){
+var ta=document.createElement('textarea');ta.value=cd;ta.style.position='fixed';ta.style.left='-9999px';
+document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
+btn.textContent='已复制 ✓';btn.classList.add('copied');
+setTimeout(function(){btn.textContent='复制';btn.classList.remove('copied')},1800);
+});
+}
+
+function tP(id){
+var e=document.getElementById(id);
+e.classList.toggle('open');
+e.querySelector('.phase-detail-header').setAttribute('aria-expanded',e.classList.contains('open'));
+}
+
+var _cef=0;
+
+function hEx(){
+document.getElementById('exerciseFilters').innerHTML=['全部','初级','中级','高级','大作业'].map(function(f,i){
+return '<button class="exercise-filter'+(i===0?' active':'')+'" onclick="fEx('+i+',this)">'+f+'</button>';
+}).join('');
+fEx(0);
+}
+
+function fEx(i,btn){
+_cef=i;if(btn){document.querySelectorAll('.exercise-filter').forEach(function(b){b.classList.remove('active')});btn.classList.add('active')}
+var m=['all','easy','medium','hard','project'];
+var t=m[i]||'all';
+var fl=t==='all'?EXERCISES:EXERCISES.filter(function(e){return e.diff===t});
+var dn=JSON.parse(localStorage.getItem('ge_done')||'[]');
+var dc=fl.filter(function(e){return dn.includes(e.id)}).length;
+document.getElementById('exerciseCounter').innerHTML='共<strong>'+fl.length+'</strong>题 · 已完成<strong>'+dc+'</strong>';
+var dl={easy:'初级',medium:'中级',hard:'高级',project:'大作业'};
+var dc2={easy:'diff-easy',medium:'diff-medium',hard:'diff-hard',project:'diff-project'};
+document.getElementById('exerciseList').innerHTML=fl.map(function(e){
+var is=dn.includes(e.id);
+return '<div class="exercise-item" onclick="tEx(this)"><div class="ei-check'+(is?' done':'')+'" onclick="event.stopPropagation();tExCk(\''+e.id+'\')">'+(is?'✓':'')+'</div><div class="ei-content"><div class="ei-title"><span class="ei-title-text">'+e.text+'</span><span class="diff '+dc2[e.diff]+'">'+dl[e.diff]+'</span></div><div class="ei-answer">展开查看提示 · 点⭕标记</div></div></div>';
+}).join('');
+}
+
+function tEx(el){el.classList.toggle('expanded')}
+function tExCk(id){
+var dn=JSON.parse(localStorage.getItem('ge_done')||'[]');
+if(dn.includes(id)){dn=dn.filter(function(x){return x!==id});sT('已取消标记')}
+else{dn.push(id);sT('✓ 完成！')}
+localStorage.setItem('ge_done',JSON.stringify(dn));
+fEx(_cef);
+}
+
+function hRes(){
+document.getElementById('resourceList').innerHTML=RESOURCES.map(function(r){
+return '<a class="resource-card"'+(r.u?' href="'+r.u+'" target="_blank" rel="noopener"':'')+'><h4>'+r.t+'</h4><p>'+r.d+'</p><span class="res-domain">'+r.dm+'</span></a>';
+}).join('');
+}
+
+function hTr(){
+var dn=JSON.parse(localStorage.getItem('ge_tr')||'[]');
+document.getElementById('trackerList').innerHTML=TRACKER_ITEMS.map(function(t){
+var is=dn.includes(t.id);
+return '<div class="tracker-row"><span style="font-size:0.7rem;color:var(--text-muted);min-width:38px">'+t.w+'</span><span style="min-width:36px;font-weight:700">'+t.p+'</span><div class="tracker-check'+(is?' done':'')+'" onclick="tTr(\''+t.id+'\')">'+(is?'✓':'')+'</div><span style="flex:1;font-size:0.78rem;color:var(--text-secondary)">'+t.d+'</span></div>';
+}).join('');
+uTS();
+}
+
+function tTr(id){
+var dn=JSON.parse(localStorage.getItem('ge_tr')||'[]');
+if(dn.includes(id)){dn=dn.filter(function(x){return x!==id});sT('已取消')}
+else{dn.push(id);sT('✓ 完成！')}
+localStorage.setItem('ge_tr',JSON.stringify(dn));hTr();
+}
+
+function uTS(){
+var dn=JSON.parse(localStorage.getItem('ge_tr')||'[]');
+document.getElementById('trackerTotal').textContent=dn.length+'/7';
+var fb=document.getElementById('trackerBarFill');
+if(!fb){
+var bar=document.createElement('div');bar.id='trackerBarFill';
+var tb=document.querySelector('.tracker-summary');
+if(tb)tb.innerHTML='<span>完成：<span class="total" id="trackerTotal">'+dn.length+'/7</span></span><div class="tracker-bar" style="flex:1;margin-left:16px"><div class="tracker-bar-fill" id="trackerBarFill" style="width:'+(dn.length/7*100)+'%"></div></div><button class="btn-danger" onclick="oC()" style="font-size:0.75rem;padding:6px 16px">重置进度</button>';
+fb=document.getElementById('trackerBarFill');
+}
+if(fb)fb.style.width=(dn.length/7*100)+'%';
+}
+
+function hSP(){
+document.getElementById('sideProgress').innerHTML=PHASES.map(function(p){
+return '<div class="progress-dot" onclick="document.getElementById(\'phase-'+p.id+'\').scrollIntoView({behavior:\'smooth\'})"><span class="progress-tooltip">'+p.title.substring(0,6)+'</span></div>';
+}).join('');
+}
+
+var oS=function(){document.getElementById('searchOverlay').classList.add('open');document.getElementById('searchInput').focus()};
+var cS=function(){document.getElementById('searchOverlay').classList.remove('open');document.getElementById('searchInput').value='';document.getElementById('searchResults').innerHTML=''};
+
+function doSearch(){
+var q=document.getElementById('searchInput').value.toLowerCase().trim();
+var rs=document.getElementById('searchResults');
+if(!q){rs.innerHTML='';return}
+var h=[];
+PHASES.forEach(function(p){
+var t=(p.title+p.sub+p.skills.map(function(s){return s.code}).join(' ')).toLowerCase();
+if(t.includes(q))h.push({id:p.id,t:p.week+' · '+p.title,s:p.sub});
+});
+EXERCISES.forEach(function(e){if(e.text.toLowerCase().includes(q))h.push({t:'练习:'+e.text.substring(0,30),s:e.id})});
+RESOURCES.forEach(function(r){if((r.t+r.d).toLowerCase().includes(q))h.push({u:r.u||'',t:r.t,s:r.dm})});
+Object.values(KP).forEach(function(k){if((k.title+k.d+k.sum).toLowerCase().includes(q))h.push({t:'知识点:'+k.title,s:k.tag})});
+if(!h.length){rs.innerHTML='<p style="text-align:center;color:var(--text-muted);padding:20px">无匹配</p>';return}
+rs.innerHTML=h.slice(0,12).map(function(x){
+return '<div class="search-result-item" onclick="'+(x.id?'document.getElementById(\'phase-'+x.id+'\').scrollIntoView({behavior:\'smooth\'});cS()':x.u?'window.open(\''+x.u+'\',\'_blank\');cS()':'cS()')+'"><div class="sr-title">'+x.t+'</div><div class="sr-snippet">'+x.s+'</div></div>';
+}).join('');
+}
+
+var tMM=function(){document.getElementById('mobileMenu').classList.toggle('open');document.getElementById('hamburgerBtn').classList.toggle('open')};
+var oC=function(){document.getElementById('confirmOverlay').classList.add('open')};
+var cC=function(){document.getElementById('confirmOverlay').classList.remove('open')};
+var rA=function(){localStorage.removeItem('ge_done');localStorage.removeItem('ge_tr');hTr();fEx(0);cC();sT('已重置')};
+
+var _tt;
+function sT(m){
+var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');
+clearTimeout(_tt);_tt=setTimeout(function(){t.classList.remove('show')},2200);
+}
+
+function onScroll(){
+document.getElementById('topNav').classList.toggle('scrolled',window.scrollY>60);
+document.getElementById('backToTop').classList.toggle('visible',window.scrollY>500);
+document.querySelectorAll('.roadmap-item').forEach(function(e){
+var r=e.getBoundingClientRect();if(r.top<window.innerHeight*.85&&r.bottom>0)e.classList.add('visible');
+});
+var ai=-1;
+document.querySelectorAll('.phase-detail').forEach(function(e,i){if(e.getBoundingClientRect().top<window.innerHeight*.5)ai=i});
+document.querySelectorAll('.progress-dot').forEach(function(d,i){d.classList.toggle('active',i===ai)});
+document.querySelectorAll('.nav-links a').forEach(function(a){
+var id=a.getAttribute('href').replace('#',''),el=document.getElementById(id);
+if(el){var r=el.getBoundingClientRect();a.classList.toggle('active',r.top<120&&r.bottom>60)}
+});
+}
+
+function cUp(){
+document.querySelectorAll('.hero-stat .num[data-count]').forEach(function(el){
+new IntersectionObserver(function(entries,obs){
+if(entries[0].isIntersecting){
+var tg=parseInt(el.dataset.count),st=performance.now();
+(function step(ts){var p=Math.min((ts-st)/1600,1);el.textContent=Math.floor(p*tg);if(p<1)requestAnimationFrame(step);else el.textContent=tg})();
+obs.disconnect();
+}},{threshold:.3}).observe(el);
+});
+}
+
+(function init(){
+hR();hPD();hDS();hK();hFs();hEx();hRes();hTr();hSP();cUp();
+window.addEventListener('scroll',onScroll,{passive:true});onScroll();
+document.addEventListener('keydown',function(e){if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();oS()}});
+})();
+</script></body></html>

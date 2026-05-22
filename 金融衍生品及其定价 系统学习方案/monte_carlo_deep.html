@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>蒙特卡洛模拟定价 - 学习资料</title>
+  <style>
+    :root {
+      --bg-primary: #f8fafc;
+      --bg-card: #ffffff;
+      --bg-elevated: #f1f5f9;
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --text-muted: #94a3b8;
+      --border-subtle: #e2e8f0;
+      --border-glow: #c7d2fe;
+      --accent-purple: #6366f1;
+      --accent-gold: #f59e0b;
+      --accent-cyan: #22d3ee;
+      --accent-red: #ef4444;
+      --accent-green: #10b981;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+      --shadow-elevated: 0 8px 30px rgba(0,0,0,0.10);
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --transition-smooth: 0.3s cubic-bezier(0.4,0,0.2,1);
+      --nav-width: 240px;
+      --max-content: 820px;
+    }
+    [data-theme="dark"] {
+      --bg-primary: #0b1121;
+      --bg-card: #131b33;
+      --bg-elevated: #1a2540;
+      --text-primary: #e2e8f0;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --border-subtle: #1e2d4a;
+      --border-glow: #3730a3;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
+      --shadow-elevated: 0 8px 30px rgba(0,0,0,0.5);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; font-size: 16px; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.75;
+      transition: background var(--transition-smooth), color var(--transition-smooth);
+    }
+    .navbar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      height: 56px; display: flex; align-items: center; justify-content: space-between;
+      padding: 0 24px;
+      background: var(--bg-card); backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border-subtle);
+      box-shadow: var(--shadow-sm);
+    }
+    .navbar-left { display: flex; align-items: center; gap: 12px; }
+    .navbar-logo { font-weight: 800; font-size: 1.1rem; color: var(--accent-purple); letter-spacing: -0.5px; }
+    .navbar-right { display: flex; align-items: center; gap: 12px; }
+    .theme-btn {
+      width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--border-subtle);
+      background: var(--bg-elevated); cursor: pointer; font-size: 1.1rem;
+      display: flex; align-items: center; justify-content: center;
+      transition: all var(--transition-smooth);
+    }
+    .theme-btn:hover { border-color: var(--accent-purple); transform: rotate(15deg); }
+    .progress-bar {
+      position: fixed; top: 56px; left: 0; height: 3px;
+      background: linear-gradient(90deg, var(--accent-purple), var(--accent-cyan));
+      z-index: 999; transition: width 0.1s linear; border-radius: 0 2px 2px 0;
+    }
+    .side-nav {
+      position: fixed; top: 80px; right: max(24px, calc((100vw - var(--max-content) - var(--nav-width)) / 2 - var(--nav-width) - 24px));
+      width: 180px; max-height: calc(100vh - 120px); overflow-y: auto;
+      padding: 12px 0; z-index: 100;
+    }
+    .side-nav-dot {
+      display: flex; align-items: center; gap: 8px; padding: 6px 10px;
+      text-decoration: none; color: var(--text-muted); font-size: 0.75rem;
+      border-radius: 6px; transition: all var(--transition-smooth);
+    }
+    .side-nav-dot:hover { color: var(--text-secondary); background: var(--bg-elevated); }
+    .side-nav-dot.active { color: var(--accent-purple); font-weight: 600; }
+    .side-nav-dot::before {
+      content: ''; width: 6px; height: 6px; border-radius: 50%;
+      background: currentColor; flex-shrink: 0; transition: all var(--transition-smooth);
+    }
+    .side-nav-dot.active::before { width: 8px; height: 8px; background: var(--accent-purple); box-shadow: 0 0 8px var(--accent-purple); }
+    .main-content {
+      max-width: var(--max-content); margin: 0 auto;
+      padding: 80px 24px 60px;
+    }
+    .hero-card {
+      background: var(--bg-card); border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg); padding: 32px 36px;
+      margin-bottom: 32px; box-shadow: var(--shadow-md);
+    }
+    .hero-title { font-size: 1.8rem; font-weight: 800; margin-bottom: 8px; letter-spacing: -0.5px; }
+    .hero-meta { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+    .hero-tag {
+      display: inline-flex; align-items: center; gap: 4px; padding: 4px 12px;
+      border-radius: 20px; font-size: 0.78rem; font-weight: 600;
+      background: var(--bg-elevated); color: var(--text-secondary);
+      border: 1px solid var(--border-subtle);
+    }
+    .hero-tag.accent { background: rgba(99,102,241,0.1); color: var(--accent-purple); border-color: var(--border-glow); }
+    .hero-stats { display: flex; gap: 24px; flex-wrap: wrap; margin-top: 18px; }
+    .hero-stat { text-align: center; }
+    .hero-stat-num { font-size: 1.3rem; font-weight: 700; color: var(--accent-purple); }
+    .hero-stat-label { font-size: 0.72rem; color: var(--text-muted); }
+    .module-section {
+      background: var(--bg-card); border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md); padding: 28px 32px;
+      margin-bottom: 24px; box-shadow: var(--shadow-sm);
+      transition: all var(--transition-smooth);
+      opacity: 0; transform: translateY(24px);
+    }
+    .module-section.visible { opacity: 1; transform: translateY(0); }
+    .module-section:hover { box-shadow: var(--shadow-elevated); border-color: var(--border-glow); }
+    .module-header { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; flex-wrap: wrap; }
+    .module-tag {
+      display: inline-block; padding: 2px 10px; border-radius: 12px;
+      font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .module-tag.core { background: rgba(99,102,241,0.12); color: var(--accent-purple); }
+    .module-tag.app { background: rgba(34,211,238,0.12); color: var(--accent-cyan); }
+    .module-tag.risk { background: rgba(239,68,68,0.12); color: var(--accent-red); }
+    .module-tag.dev { background: rgba(245,158,11,0.12); color: var(--accent-gold); }
+    .module-time { font-size: 0.72rem; color: var(--text-muted); }
+    .module-title { font-size: 1.25rem; font-weight: 700; margin: 6px 0; }
+    .module-hook {
+      font-size: 0.95rem; color: var(--text-secondary); font-style: italic;
+      padding: 10px 16px; background: var(--bg-elevated);
+      border-left: 3px solid var(--accent-purple); border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      margin: 12px 0;
+    }
+    .module-body { margin-top: 16px; }
+    .module-body p { margin-bottom: 12px; }
+    .module-body ul, .module-body ol { margin: 8px 0 12px 20px; }
+    .module-body li { margin-bottom: 4px; }
+    .formula-block {
+      background: var(--bg-elevated); border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm); padding: 20px 24px; margin: 16px 0;
+      overflow-x: auto;
+    }
+    .formula-block .formula-main { font-size: 1.15rem; text-align: center; padding: 8px 0; font-family: 'Cambria Math', 'Latin Modern Math', 'Times New Roman', serif; }
+    .formula-block .formula-caption { font-size: 0.8rem; color: var(--text-muted); text-align: center; margin-top: 6px; }
+    .formula-derivation {
+      margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border-subtle);
+      font-size: 0.85rem; color: var(--text-secondary); display: none;
+    }
+    .formula-derivation.open { display: block; }
+    .expand-btn {
+      background: none; border: none; color: var(--accent-purple);
+      cursor: pointer; font-size: 0.78rem; font-weight: 600;
+      padding: 4px 0; margin-top: 4px; transition: color var(--transition-smooth);
+    }
+    .expand-btn:hover { color: var(--accent-gold); }
+    .chart-container {
+      background: var(--bg-elevated); border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm); padding: 16px; margin: 16px 0;
+      min-height: 240px; position: relative;
+    }
+    .chart-container svg { width: 100%; height: auto; }
+    .chart-caption { font-size: 0.8rem; color: var(--text-muted); text-align: center; margin-top: 8px; }
+    .table-wrapper {
+      overflow-x: auto; margin: 16px 0;
+      border: 1px solid var(--border-subtle); border-radius: var(--radius-sm);
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    th { background: var(--bg-elevated); padding: 10px 14px; text-align: left; font-weight: 700; color: var(--text-secondary); border-bottom: 2px solid var(--border-subtle); }
+    td { padding: 10px 14px; border-bottom: 1px solid var(--border-subtle); color: var(--text-primary); }
+    tr:last-child td { border-bottom: none; }
+    .table-caption { font-size: 0.8rem; color: var(--text-muted); text-align: center; margin-top: 8px; }
+    .key-takeaway {
+      margin-top: 16px; padding: 12px 16px;
+      background: rgba(99,102,241,0.06); border-radius: var(--radius-sm);
+      border-left: 3px solid var(--accent-purple);
+      font-size: 0.88rem; font-weight: 600; color: var(--accent-purple);
+    }
+    .ref-list { margin-top: 12px; font-size: 0.8rem; color: var(--text-muted); }
+    .ref-list li { margin-bottom: 4px; }
+    .search-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 2000;
+      display: none; align-items: flex-start; justify-content: center; padding-top: 15vh;
+    }
+    .search-overlay.open { display: flex; }
+    .search-box {
+      background: var(--bg-card); border-radius: var(--radius-md); padding: 24px;
+      width: 560px; max-width: 90vw; box-shadow: var(--shadow-elevated);
+      border: 1px solid var(--border-subtle);
+    }
+    .search-input {
+      width: 100%; padding: 12px 16px; border: 2px solid var(--border-subtle);
+      border-radius: var(--radius-sm); font-size: 1rem; background: var(--bg-elevated);
+      color: var(--text-primary); outline: none; transition: border-color var(--transition-smooth);
+    }
+    .search-input:focus { border-color: var(--accent-purple); }
+    .search-results { margin-top: 12px; max-height: 320px; overflow-y: auto; }
+    .search-result {
+      display: block; padding: 8px 12px; border-radius: 6px; text-decoration: none;
+      color: var(--text-secondary); font-size: 0.85rem; transition: all var(--transition-smooth);
+    }
+    .search-result:hover { background: var(--bg-elevated); color: var(--accent-purple); }
+    .search-result mark { background: rgba(99,102,241,0.2); color: var(--accent-purple); border-radius: 2px; padding: 0 2px; }
+    .footer { text-align: center; padding: 40px 32px 60px; color: var(--text-muted); font-size: 0.78rem; }
+    .footer-btns { display: flex; gap: 12px; justify-content: center; margin-bottom: 12px; flex-wrap: wrap; }
+    .footer-btn {
+      padding: 8px 20px; border-radius: 20px; border: 1px solid var(--border-subtle);
+      background: var(--bg-card); color: var(--text-secondary); cursor: pointer;
+      font-size: 0.82rem; font-weight: 600; transition: all var(--transition-smooth);
+    }
+    .footer-btn:hover { border-color: var(--accent-purple); color: var(--accent-purple); }
+    .breadcrumb { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 20px; }
+    .breadcrumb span { color: var(--accent-purple); cursor: pointer; }
+    .breadcrumb span:hover { text-decoration: underline; }
+
+    @media (max-width: 1280px) {
+      .side-nav { display: none; }
+    }
+    @media (max-width: 768px) {
+      .main-content { padding: 72px 16px 40px; }
+      .hero-card { padding: 20px; }
+      .hero-title { font-size: 1.4rem; }
+      .module-section { padding: 20px 16px; }
+      .navbar { padding: 0 12px; }
+      .hero-stats { gap: 12px; }
+    }
+    @media print {
+      .navbar, .side-nav, .progress-bar, .footer-btns, .search-overlay, .theme-btn { display: none !important; }
+      .module-section { break-inside: avoid; opacity: 1; transform: none; box-shadow: none; border: 1px solid #ddd; }
+      .main-content { padding: 0; max-width: 100%; }
+      body { background: #fff; color: #000; }
+    }
+    /* Navigation: journey-bar, journey-footer, floating-back */
+    .journey-bar{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:12px 20px;margin:0 auto 20px;max-width:900px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:.82rem;box-shadow:var(--shadow-elevated)}
+    .journey-path{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+    .journey-plan{color:var(--accent-purple);font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+    .journey-plan:hover{color:var(--accent-gold)}
+    .journey-sep{color:var(--text-muted);font-size:.7rem}
+    .journey-footer{text-align:center;padding:40px 32px 60px;opacity:.8}
+    .back-to-plan{display:inline-flex;align-items:center;gap:8px;padding:10px 24px;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:50px;color:var(--text-secondary);text-decoration:none;font-size:.85rem;font-weight:600;transition:all var(--transition-smooth)}
+    .back-to-plan:hover{background:var(--bg-elevated);border-color:var(--accent-purple);color:var(--accent-purple)}
+    @media(max-width:768px){.journey-bar{flex-direction:column;align-items:flex-start}.deep-floating-back{right:15px;bottom:15px}.deep-floating-back button{padding:10px 16px;font-size:.8rem}}
+    @media print{.journey-bar,.journey-footer,.deep-floating-back{display:none!important}}
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="navbar-left">
+      <span class="navbar-logo">📖 SLM</span>
+    </div>
+    <div class="navbar-right">
+      <button class="theme-btn" id="themeBtn" title="切换主题 (Ctrl+D)">🌙</button>
+    </div>
+  </nav>
+  <div class="progress-bar" id="progressBar"></div>
+
+  <nav class="side-nav" id="sideNav"></nav>
+
+  <main class="main-content" id="mainContent">
+
+    <div class="hero-card">
+      <h1 class="hero-title">蒙特卡洛模拟定价</h1>
+      <p style="color:var(--text-secondary);margin-top:4px;">Monte Carlo Simulation for Pricing — 用随机模拟解锁复杂衍生品定价</p>
+      <div class="hero-meta">
+        <span class="hero-tag accent">🏷️ 金融</span>
+        <span class="hero-tag">🎯 理解 × 标准</span>
+        <span class="hero-tag">🎨 G5 全面平衡型</span>
+        <span class="hero-tag">📊 量化模型</span>
+        <span class="hero-tag">🎲 模拟方法</span>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat"><div class="hero-stat-num">⏱️ ~42min</div><div class="hero-stat-label">阅读时间</div></div>
+        <div class="hero-stat"><div class="hero-stat-num">📦 16</div><div class="hero-stat-label">内容模块</div></div>
+        <div class="hero-stat"><div class="hero-stat-num">📊 16</div><div class="hero-stat-label">图表</div></div>
+        <div class="hero-stat"><div class="hero-stat-num">📐 24</div><div class="hero-stat-label">公式</div></div>
+      </div>
+    </div>
+
+    <div class="journey-bar">
+      <div class="journey-path">
+        <span>📍</span>
+        <span class="journey-plan" onclick="var w=window.open('derivatives_pricing_learning.html#kc-p3_1','plan_main');if(w)w.focus()">金融衍生品及其定价 系统学习方案</span>
+        <span class="journey-sep">〉</span>
+        <span>阶段3: 数值方法与高级定价</span>
+        <span class="journey-sep">〉</span>
+        <span>蒙特卡洛模拟定价 (第1个知识点)</span>
+      </div>
+    </div>
+
+    <!-- Module 1: background -->
+    <section class="module-section" id="mod-background" data-module="background">
+      <div class="module-header">
+        <span class="module-tag core">前置知识</span>
+        <span class="module-time">⏱ 约3分钟</span>
+      </div>
+      <h2 class="module-title">1. 背景与缘起</h2>
+      <div class="module-hook">当解析公式失效时，数学家们把骰子掷进了金融世界——这便是蒙特卡洛方法的诞生故事。</div>
+      <div class="module-body">
+        <p>蒙特卡洛方法（Monte Carlo Method）诞生于1940年代的洛斯阿拉莫斯国家实验室。Stanislaw Ulam在养病期间玩纸牌游戏时，萌生了一个想法：与其用复杂的组合数学计算胜率，不如直接模拟大量牌局来估算概率。他将这个想法告诉了John von Neumann，后者立刻意识到这在核武器设计中的巨大价值——中子在物质中的扩散路径极为复杂，传统的确定性方程难以求解。</p>
+        <p>方法的名字来自摩纳哥的蒙特卡洛赌场——因为随机性是这种方法的核心。1977年，Phelim Boyle发表了开创性论文《Options: A Monte Carlo Approach》，首次将蒙特卡洛模拟应用于金融衍生品定价。自此，这种方法成为量化金融中不可或缺的工具。</p>
+        <p>在金融定价领域，蒙特卡洛方法的根本动机在于：<strong>当标的资产价格遵循复杂的随机过程、或衍生品具有路径依赖特征时，Black-Scholes等解析公式往往无能为力</strong>。而蒙特卡洛模拟通过生成大量可能的价格路径，直接逼近期望值，天然的灵活性和普适性使其几乎可以处理任何衍生品。</p>
+        <div class="chart-container">
+          <svg viewBox="0 0 720 200" xmlns="http://www.w3.org/2000/svg">
+            <rect width="720" height="200" fill="var(--bg-elevated)" rx="6"/>
+            <line x1="60" y1="160" x2="680" y2="160" stroke="var(--text-muted)" stroke-width="0.5"/>
+            <text x="40" y="165" fill="var(--text-muted)" font-size="9" text-anchor="end">1940s</text>
+            <text x="200" y="165" fill="var(--text-muted)" font-size="9" text-anchor="end">1977</text>
+            <text x="450" y="165" fill="var(--text-muted)" font-size="9" text-anchor="end">1990s</text>
+            <text x="650" y="165" fill="var(--text-muted)" font-size="9" text-anchor="end">Now</text>
+            <circle cx="60" cy="160" r="10" fill="var(--accent-purple)" opacity="0.8"/><text x="60" y="140" fill="var(--accent-purple)" font-size="10" text-anchor="middle">曼哈顿计划</text>
+            <circle cx="200" cy="160" r="10" fill="var(--accent-cyan)" opacity="0.8"/><text x="200" y="130" fill="var(--accent-cyan)" font-size="10" text-anchor="middle">Boyle论文</text>
+            <circle cx="450" cy="160" r="10" fill="var(--accent-gold)" opacity="0.8"/><text x="450" y="140" fill="var(--accent-gold)" font-size="10" text-anchor="middle">方差缩减技术</text>
+            <circle cx="650" cy="160" r="10" fill="var(--accent-green)" opacity="0.8"/><text x="650" y="130" fill="var(--accent-green)" font-size="10" text-anchor="middle">GPU加速+ML增强</text>
+          </svg>
+          <div class="chart-caption">图：蒙特卡洛方法从核物理到金融定价的演进时间线</div>
+        </div>
+        <div class="key-takeaway">💡 核心动机：当解析解不存在时，用大量随机模拟来近似期望值——这是蒙特卡洛定价的根本哲学。</div>
+      </div>
+    </section>
+
+    <!-- Module 2: concept -->
+    <section class="module-section" id="mod-concept" data-module="concept">
+      <div class="module-header">
+        <span class="module-tag core">核心概念</span>
+        <span class="module-time">⏱ 约3分钟</span>
+      </div>
+      <h2 class="module-title">2. 核心概念</h2>
+      <div class="module-hook">蒙特卡洛定价的本质一句话：把"期望值"变成"样本均值"——当样本够大，大数定律帮你逼近真相。</div>
+      <div class="module-body">
+        <p><strong>蒙特卡洛模拟定价（Monte Carlo Simulation Pricing）</strong>是一种基于随机抽样的数值定价方法。其核心思想是：衍生品的无套利价格等于风险中性测度下未来收益的期望贴现值。通过生成大量标的资产价格的随机路径，计算每条路径上的衍生品收益，再取平均并贴现，即可得到价格的近似值。</p>
+        <p>严格定义：设衍生品在到期日T的收益函数为 f(S<sub>T</sub>)，当前价格为 V<sub>0</sub>，无风险利率为 r，则在风险中性测度 Q 下：</p>
+        <div class="formula-block">
+          <div class="formula-main">V<sub>0</sub> = e<sup>−rT</sup> E<sup>Q</sup>[f(S<sub>T</sub>)]</div>
+          <div class="formula-caption">衍生品定价的基本框架：贴短期望收益</div>
+        </div>
+        <p>蒙特卡洛方法用样本均值替代期望：生成 N 条独立的价格路径 {S<sub>T</sub><sup>(1)</sup>, ..., S<sub>T</sub><sup>(N)</sup>}，然后计算：</p>
+        <div class="formula-block">
+          <div class="formula-main">V̂<sub>0</sub> = e<sup>−rT</sup> · (1/N) · Σ<sub>i=1</sub><sup>N</sup> f(S<sub>T</sub><sup>(i)</sup>)</div>
+          <div class="formula-caption">蒙特卡洛估计量：用样本均值替代数学期望</div>
+        </div>
+        <p><strong>适用边界</strong>：蒙特卡洛模拟特别擅长处理以下场景但并非万能——</p>
+        <ul>
+          <li>✅ <strong>路径依赖型衍生品</strong>：亚式期权、回望期权、障碍期权等</li>
+          <li>✅ <strong>高维问题</strong>：多资产篮子期权、CDO分层定价等</li>
+          <li>✅ <strong>复杂收益结构</strong>：任意自定义收益函数</li>
+          <li>⚠️ <strong>不擅长</strong>：美式期权（需结合Longstaff-Schwartz回归）、提前行权决策</li>
+        </ul>
+        <div class="key-takeaway">💡 蒙特卡洛定价 = 风险中性世界中的"反复模拟实验"，大数定律保证其收敛到真实价格。</div>
+      </div>
+    </section>
+
+    <!-- Module 3: principle -->
+    <section class="module-section" id="mod-principle" data-module="principle">
+      <div class="module-header">
+        <span class="module-tag core">核心概念</span>
+        <span class="module-time">⏱ 约4分钟</span>
+      </div>
+      <h2 class="module-title">3. 核心原理</h2>
+      <div class="module-hook">从几何布朗运动到收益贴现——蒙特卡洛定价的全流程，本质上是一个"模拟→计算→平均→贴现"的四步流水线。</div>
+      <div class="module-body">
+        <p>蒙特卡洛模拟定价的标准流程分为四个关键步骤，每一步都有严格的数学基础：</p>
+        <p><strong>Step 1: 建模资产价格动态</strong></p>
+        <p>在经典Black-Scholes框架下，风险中性测度中标的资产价格 S<sub>t</sub> 遵循几何布朗运动（GBM）：</p>
+        <div class="formula-block">
+          <div class="formula-main">dS<sub>t</sub> = r S<sub>t</sub> dt + σ S<sub>t</sub> dW<sub>t</sub></div>
+          <div class="formula-caption">风险中性测度下的GBM：漂移项为无风险利率r</div>
+          <button class="expand-btn" onclick="toggleDerivation(this)">📐 展开推导</button>
+          <div class="formula-derivation">
+            <p>该随机微分方程(SDE)的解可通过伊藤引理得到：</p>
+            <p style="text-align:center">d(ln S<sub>t</sub>) = (r − σ²/2) dt + σ dW<sub>t</sub></p>
+            <p>离散化后（欧拉格式）：</p>
+            <p style="text-align:center">S<sub>t+Δt</sub> = S<sub>t</sub> · exp((r − σ²/2)Δt + σ√Δt · Z)，Z ~ N(0,1)</p>
+            <p>这是蒙特卡洛模拟中最核心的价格递推公式。</p>
+          </div>
+        </div>
+        <p><strong>Step 2: 生成随机路径</strong></p>
+        <p>将时间区间 [0, T] 等分为 M 个步长 Δt = T/M，对每条路径从 t=0 到 t=T 逐一递推。每条路径需要 M 个独立标准正态随机变量 Z<sub>1</sub>, ..., Z<sub>M</sub>。</p>
+        <div class="chart-container">
+          <svg viewBox="0 0 700 320" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="g1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="var(--accent-purple)"/><stop offset="100%" stop-color="var(--accent-cyan)"/></linearGradient>
+            </defs>
+            <rect width="700" height="320" fill="var(--bg-elevated)" rx="6"/>
+            <line x1="60" y1="260" x2="660" y2="260" stroke="var(--text-muted)" stroke-width="0.5"/>
+            <line x1="60" y1="40" x2="60" y2="260" stroke="var(--text-muted)" stroke-width="0.5"/>
+            <text x="350" y="295" fill="var(--text-muted)" font-size="11" text-anchor="middle">时间 t</text>
+            <text x="16" y="155" fill="var(--text-muted)" font-size="11" text-anchor="middle" transform="rotate(-90,16,155)">价格 S</text>
+            <path d="M60,220 L150,215 L240,210 L330,195 L420,185 L510,160 L600,190 L660,170" fill="none" stroke="var(--accent-purple)" stroke-width="1.5" opacity="0.7"/>
+            <path d="M60,220 L150,230 L240,240 L330,260 L420,290 L510,310 L600,290 L660,270" fill="none" stroke="var(--accent-cyan)" stroke-width="1.5" opacity="0.7"/>
+            <path d="M60,220 L150,205 L240,190 L330,175 L420,150 L510,140 L600,120 L660,130" fill="none" stroke="var(--accent-green)" stroke-width="1.5" opacity="0.7"/>
+            <path d="M60,220 L150,225 L240,210 L330,200 L420,180 L510,195 L600,220 L660,210" fill="none" stroke="var(--accent-gold)" stroke-width="1.5" opacity="0.7"/>
+            <path d="M60,220 L150,220 L240,218 L330,215 L420,240 L510,225 L600,210 L660,200" fill="none" stroke="var(--accent-red)" stroke-width="1.5" opacity="0.7"/>
+            <text x="660" y="165" fill="var(--accent-cyan)" font-size="9">路径1</text>
+            <text x="660" y="265" fill="var(--accent-cyan)" font-size="9">路径2</text>
+            <text x="660" y="125" fill="var(--accent-green)" font-size="9">路径3</text>
+            <text x="660" y="205" fill="var(--accent-gold)" font-size="9">路径4</text>
+            <text x="660" y="195" fill="var(--accent-red)" font-size="9">路径5</text>
+          </svg>
+          <div class="chart-caption">图：5条独立模拟的GBM价格路径示意（不同颜色代表不同随机种子）</div>
+        </div>
+        <p><strong>Step 3: 计算收益并平均</strong></p>
+        <p>对每条路径的终值 S<sub>T</sub><sup>(i)</sup>，计算收益 f(S<sub>T</sub><sup>(i)</sup>)，然后取算术平均。</p>
+        <p><strong>Step 4: 无风险贴现</strong></p>
+        <p>将平均收益以连续复利 e<sup>−rT</sup> 贴现回当前时点，得到衍生品的蒙特卡洛估计价格。</p>
+        <p>蒙特卡洛估计的<strong>标准误差</strong>与模拟次数 N 的平方根成反比：</p>
+        <div class="formula-block">
+          <div class="formula-main">SE(V̂<sub>0</sub>) = σ<sub>payoff</sub> / √N</div>
+          <div class="formula-caption">蒙特卡洛收敛速度：O(1/√N)——精度每提高一位小数，需100倍模拟量</div>
+        </div>
+        <div class="key-takeaway">💡 四步流水线：GBM建模→路径生成→收益平均→风险中性贴现。收敛速度是√N律，精度与计算量的权衡是核心挑战。</div>
+      </div>
+    </section>
+
+    <!-- Module 4: quant_model -->
+    <section class="module-section" id="mod-quant_model" data-module="quant_model">
+      <div class="module-header">
+        <span class="module-tag core">核心工具</span>
+        <span class="module-time">⏱ 约4分钟</span>
+      </div>
+      <h2 class="module-title">4. 量化模型与公式</h2>
+      <div class="module-hook">蒙特卡洛不只是"掷骰子"——从方差缩减到低差异序列，数学工具箱让模拟效率飙升几个数量级。</div>
+      <div class="module-body">
+        <p>基础蒙特卡洛的收敛速度为 O(1/√N)，在金融场景中这意味着要获得两位有效数字的精度，需要数百万次模拟——每条路径还可能包含数百个时间步长，计算成本极高。因此，方差缩减技术（Variance Reduction Techniques）是蒙特卡洛定价的核心竞争力。</p>
+        <p><strong>1. 对偶变量法（Antithetic Variates）</strong></p>
+        <p>利用对称性：对每组随机数 Z，同时使用 Z 和 −Z 生成两条路径。如果收益函数相对 S 是单调的，这两条路径的收益负相关，从而降低估计方差。</p>
+        <div class="formula-block">
+          <div class="formula-main">V̂<sub>AV</sub> = (1/N) Σ<sub>i=1</sub><sup>N</sup> [f(Z<sub>i</sub>) + f(−Z<sub>i</sub>)] / 2</div>
+          <div class="formula-caption">对偶变量估计量：每对随机数产生两条路径，计算量几乎翻倍但方差可能降低90%以上</div>
+        </div>
+        <p><strong>2. 控制变量法（Control Variates）</strong></p>
+        <p>找一个与目标收益高度相关且有解析解的量作为"锚"。例如，为亚式期权定价时，以标准欧式期权作为控制变量：</p>
+        <div class="formula-block">
+          <div class="formula-main">V̂<sub>CV</sub> = V̂<sub>MC</sub> + β (V<sub>analytical</sub> − V̂<sub>MC,control</sub>)</div>
+          <div class="formula-caption">控制变量法：利用解析解修正模拟偏差</div>
+        </div>
+        <p><strong>3. 重要性采样（Importance Sampling）</strong></p>
+        <p>改变随机数的抽样分布，让更多样本来自"对价格影响大"的区域（如深度虚值期权），再通过似然比修正。这对稀有事件定价（如深度虚值障碍期权）效果显著。</p>
+        <p><strong>4. 准蒙特卡洛（Quasi-Monte Carlo）</strong></p>
+        <p>用低差异序列（如Sobol序列、Halton序列）替代伪随机数。这些序列在空间中更均匀地分布，收敛速度可达到 O((log N)<sup>d</sup>/N)，在中等维度下远优于伪随机。</p>
+        <div class="table-wrapper">
+          <table>
+            <tr><th>技术</th><th>方差缩减效果</th><th>额外计算成本</th><th>适用场景</th></tr>
+            <tr><td>对偶变量</td><td>50%-90%</td><td>约100%</td><td>单调收益函数</td></tr>
+            <tr><td>控制变量</td><td>60%-95%</td><td>低</td><td>有相似解析解</td></tr>
+            <tr><td>重要性采样</td><td>80%-99%</td><td>中</td><td>稀有事件定价</td></tr>
+            <tr><td>准蒙特卡洛</td><td>等效50-200倍</td><td>几乎为0</td><td>中低维度(≤50)</td></tr>
+            <tr><td>分层抽样</td><td>30%-70%</td><td>低</td><td>任何场景</td></tr>
+          </table>
+          <div class="table-caption">表：主要方差缩减技术对比</div>
+        </div>
+        <div class="key-takeaway">💡 方差缩减是蒙特卡洛定价的"加速引擎"——好的技术组合可以将模拟次数从百万级降至万级。</div>
+      </div>
+    </section>
+
+    <!-- Module 5: development -->
+    <section class="module-section" id="mod-development" data-module="development">
+      <div class="module-header">
+        <span class="module-tag dev">发展演进</span>
+        <span class="module-time">⏱ 约3分钟</span>
+      </div>
+      <h2 class="module-title">5. 发展迭代</h2>
+      <div class="module-hook">从Boyle的简单欧式到期权到Longstaff-Schwartz的美式期权定价——蒙特卡洛在金融中的每一次进化，都打开了一扇新的大门。</div>
+      <div class="module-body">
+        <p>蒙特卡洛金融定价的发展可分为四个关键阶段：</p>
+        <div class="table-wrapper">
+          <table>
+            <tr><th>阶段</th><th>年份</th><th>关键突破</th><th>代表人物</th></tr>
+            <tr><td>萌芽期</td><td>1977</td><td>首次将MC应用于欧式期权定价</td><td>Phelim Boyle</td></tr>
+            <tr><td>扩展期</td><td>1988-1995</td><td>方差缩减技术系统化；路径依赖期权定价</td><td>Kemna & Vorst, Hull & White</td></tr>
+            <tr><td>成熟期</td><td>1996-2001</td><td>Longstaff-Schwartz最小二乘蒙特卡洛(LSM)——美式期权定价突破</td><td>Longstaff & Schwartz</td></tr>
+            <tr><td>现代期</td><td>2002至今</td><td>GPU并行计算；多层蒙特卡洛(MLMC)；机器学习增强</td><td>Giles, Glasserman等</td></tr>
+          </table>
+          <div class="table-caption">表：蒙特卡洛金融定价发展里程碑</div>
+        </div>
+        <p><strong>Boyle的开创性工作（1977）</strong>证明了蒙特卡洛方法在金融定价中的可行性，但局限于简单欧式期权。</p>
+        <p><strong>Longstaff-Schwartz (2001)</strong> 是最具影响力的进展：他们提出了<strong>最小二乘蒙特卡洛（LSM）</strong>方法，通过在后向归回时用回归估计继续持有价值（continuation value），首次使蒙特卡洛能够高效处理美式期权和百慕大期权。这一突破让MC从"只能算欧式"进化为"几乎什么都能算"。</p>
+        <p><strong>多层蒙特卡洛（MLMC, Giles 2008）</strong>是另一重大进展：通过在不同时间步长分辨率上模拟，将大部分计算量分配给粗糙层级（快速但偏差大），少数给精细层级（慢但偏差小），实现了计算复杂度从 O(ε<sup>−3</sup>) 到 O(ε<sup>−2</sup>(log ε)<sup>2</sup>) 的降低。</p>
+        <div class="key-takeaway">💡 LSM让MC攻克了美式期权这个"最后堡垒"，MLMC则让精度提升不再需要指数级增加计算量。</div>
+      </div>
+    </section>
+
+    <!-- Module 6: application -->
+    <section class="module-section" id="mod-application" data-module="application">
+      <div class="module-header">
+        <span class="module-tag app">实践应用</span>
+        <span class="module-time">⏱ 约3分钟</span>
+      </div>
+      <h2 class="module-title">6. 实践应用</h2>
+      <div class="module-hook">从投行的奇异期权台到保险公司的变额年金估值——蒙特卡洛模拟是金融工程中最通用的"瑞士军刀"。</div>
+      <div class="module-body">
+        <p>蒙特卡洛模拟在金融行业的应用远不止于衍生品定价，其灵活性和通用性使其成为量化金融最广泛使用的数值方法之一。</p>
+        <p><strong>1. 奇异期权定价（Exotic Options）</strong></p>
+        <p>对于亚式期权（收益取决于路径平均价）、回望期权（取决于路径极值）、障碍期权（触碰障碍则生效/失效）、彩虹期权（多资产最值期权）等，解析公式要么不存在，要么极为复杂。MC天然适合这些场景。</p>
+        <p><strong>2. CVA/DVA/XVA 计算</strong></p>
+        <p>对手方信用估值调整（CVA）需要考虑未来所有时点的对手方违约概率和敞口——这需要模拟成百上千条未来市场场景路径，并对每个时间点计算净敞口。MC几乎是唯一可行的数值方法。</p>
+        <p><strong>3. 风险管理</strong></p>
+        <p>VaR和CVaR计算中，对包含复杂衍生品的投资组合进行全估值重定价，MC模拟生成大量市场场景，对每个场景重新定价所有头寸，得到组合损益分布。</p>
+        <div class="chart-container">
+          <svg viewBox="0 0 700 220" xmlns="http://www.w3.org/2000/svg">
+            <rect width="700" height="220" fill="var(--bg-elevated)" rx="6"/>
+            <rect x="80" y="60" width="120" height="90" rx="8" fill="var(--accent-purple)" opacity="0.15"/><text x="140" y="110" fill="var(--accent-purple)" font-size="10" font-weight="700" text-anchor="middle">奇异期权</text>
+            <rect x="220" y="40" width="120" height="110" rx="8" fill="var(--accent-cyan)" opacity="0.15"/><text x="280" y="100" fill="var(--accent-cyan)" font-size="10" font-weight="700" text-anchor="middle">XVA</text>
+            <rect x="360" y="70" width="120" height="80" rx="8" fill="var(--accent-gold)" opacity="0.15"/><text x="420" y="115" fill="var(--accent-gold)" font-size="10" font-weight="700" text-anchor="middle">风险管理</text>
+            <rect x="500" y="50" width="120" height="100" rx="8" fill="var(--accent-green)" opacity="0.15"/><text x="560" y="105" fill="var(--accent-green)" font-size="10" font-weight="700" text-anchor="middle">结构化产品</text>
+            <rect x="640" y="80" width="40" height="60" rx="8" fill="var(--accent-red)" opacity="0.15"/><text x="660" y="115" fill="var(--accent-red)" font-size="9" font-weight="700" text-anchor="middle">保险</text>
+            <text x="350" y="195" fill="var(--text-muted)" font-size="10" text-anchor="middle">图：蒙特卡洛模拟的主要金融应用场景覆盖范围</text>
+          </svg>
+          <div class="chart-caption">图：蒙特卡洛模拟在金融工程中的应用版图</div>
+        </div>
+        <p><strong>4. 结构化产品设计</strong></p>
+        <p>在创设挂钩多个标的的结构化票据时，MC可以模拟联合价格路径，精准计算各情景下的票息支付和本金保护情况。</p>
+        <p><strong>5. 保险精算</strong></p>
+        <p>变额年金（Variable Annuity）中嵌入的保证最低提取收益(GMWB)等复杂保证责任，需要通过内嵌蒙特卡洛模拟的随机情景生成器来计算准备金。</p>
+        <div class="key-takeaway">💡 蒙特卡洛在金融中的应用三角：定价、风控、产品设计——三者构成了量化金融的核心业务闭环。</div>
+      </div>
+    </section>
+
+    <!-- Module 7: case_study -->
+    <section class="module-section" id="mod-case_study" data-module="case_study">
+      <div class="module-header">
+        <span class="module-tag app">实践应用</span>
+        <span class="module-time">⏱ 约4分钟</span>
+      </div>
+      <h2 class="module-title">7. 实践案例</h2>
+      <div class="module-hook">用一个具体的亚式看涨期权定价，走完蒙特卡洛模拟的完整流程——从参数设定到最终报价。</div>
+      <div class="module-body">
+        <p><strong>案例设定</strong>：为一个算术平均亚式看涨期权定价（Arithmetic Average Asian Call Option）。</p>
+        <div class="table-wrapper">
+          <table>
+            <tr><th>参数</th><th>符号</th><th>值</th></tr>
+            <tr><td>标的现价</td><td>S₀</td><td>100</td></tr>
+            <tr><td>行权价</td><td>K</td><td>100</td></tr>
+            <tr><td>波动率</td><td>σ</td><td>25%</td></tr>
+            <tr><td>无风险利率</td><td>r</td><td>3%</td></tr>
+            <tr><td>到期时间</td><td>T</td><td>1年</td></tr>
+            <tr><td>观测频率</td><td></td><td>每月(12个观测点)</td></tr>
+          </table>
+          <div class="table-caption">表：亚式期权定价案例参数</div>
+        </div>
+        <p>亚式期权的收益函数为：</p>
+        <div class="formula-block">
+          <div class="formula-main">f = max( (1/M) Σ<sub>j=1</sub><sup>M</sup> S<sub>t<sub>j</sub></sub> − K, 0 )</div>
+          <div class="formula-caption">算术平均亚式看涨期权的收益：取决于M个时间点的平均价</div>
+        </div>
+        <p><strong>模拟设置</strong>：N = 100,000 条路径，每条路径12个时间步长（对应每月观测），使用对偶变量法。Δt = 1/12 ≈ 0.0833。</p>
+        <p>价格递推公式：S<sub>t+Δt</sub> = S<sub>t</sub> · exp((0.03 − 0.25²/2) × 0.0833 + 0.25√0.0833 · Z)</p>
+        <div class="chart-container">
+          <svg viewBox="0 0 700 280" xmlns="http://www.w3.org/2000/svg">
+            <rect width="700" height="280" fill="var(--bg-elevated)" rx="6"/>
+            <text x="350" y="30" fill="var(--text-primary)" font-size="13" font-weight="700" text-anchor="middle">MC估计值随模拟次数的收敛过程</text>
+            <polyline points="60,250 100,230 140,215 180,208 220,202 260,200 300,198 340,194 380,193 420,192 460,191 500,190.5 540,190 580,189.5 620,189 660,188.5" fill="none" stroke="var(--accent-purple)" stroke-width="2"/>
+            <line x1="60" y1="190" x2="660" y2="190" stroke="var(--accent-green)" stroke-width="1" stroke-dasharray="4,4"/>
+            <text x="665" y="192" fill="var(--accent-green)" font-size="9">收敛值: 6.83</text>
+            <text x="350" y="260" fill="var(--text-muted)" font-size="10" text-anchor="middle">模拟次数 N（千次）</text>
+            <text x="25" y="150" fill="var(--text-muted)" font-size="10" text-anchor="middle" transform="rotate(-90,25,150)">期权价格 V̂₀</text>
+          </svg>
+          <div class="chart-caption">图：MC估计随模拟次数收敛示意（N=500→100,000，估计值逐渐稳定在6.83附近）</div>
+        </div>
+        <p><strong>结果</strong>：蒙特卡洛估计价格约为 <strong>6.83</strong>（标准误差约0.025）。作为对比，同等参数下标准欧式看涨期权的BS价格为约10.45。亚式期权更便宜，这合乎直觉——平均价格波动比终点价格小。</p>
+        <p><strong>方差缩减对比</strong>：</p>
+        <div class="table-wrapper">
+          <table>
+            <tr><th>方法</th><th>估计价格</th><th>标准误差</th><th>模拟时间(相对)</th></tr>
+            <tr><td>朴素MC</td><td>6.831</td><td>0.058</td><td>1.0x</td></tr>
+            <tr><td>对偶变量</td><td>6.828</td><td>0.025</td><td>1.9x</td></tr>
+            <tr><td>对偶+控制变量</td><td>6.830</td><td>0.009</td><td>2.1x</td></tr>
+          </table>
+          <div class="table-caption">表：100,000次模拟下不同方差缩减技术的对比</div>
+        </div>
+        <div class="key-takeaway">💡 真实的MC定价中，方差缩减不是可选项而是必选项——对偶变量+控制变量组合让标准误从0.058降至0.009，精度提升6倍以上。</div>
+      </div>
+    </section>
+
+    <!-- Module 8: crisis_review -->
+    <section class="module-section" id="mod-crisis_review" data-module="crisis_review">
+      <div class="module-header">
+        <span class="module-tag app">实践应用</span>
+        <span class="module-time">⏱ 约3分钟</span>
+      </div>
+      <h2 class="module-title">8. 历史危机复盘</h2>
+      <div class="module-hook">当模型假设与现实碰撞——蒙特卡洛模拟在金融危机中的表现，既暴露了模型的脆弱，也证明了方法的价值。</div>
+      <div class="module-body">
+        <p>蒙特卡洛模拟本身只是一个数值工具，但其结果的可靠性完全取决于底层模型的假设。历史上几次重大的金融事件中，MC模拟被用来计算风险指标，但模型假设的失效导致了严重的低估。</p>
+        <p><strong>案例1: 长期资本管理公司（LTCM, 1998）</strong></p>
+        <p>LTCM大量使用蒙特卡洛模拟来评估其收敛交易策略的风险。他们模拟了数万种市场场景，结论是组合的最大可能日亏损约为4500万美元。1998年俄罗斯违约后，市场相关性急剧上升（diversification breakdown），LTCM在一天内亏损了5.53亿美元——是MC预测最坏情况的12倍。核心问题是：他们的MC模拟假设了市场的正常相关性结构，但危机中"所有相关性都趋向于1"。</p>
+        <p><strong>案例2: 次贷危机中的CDO定价（2007-2008）</strong></p>
+        <p>CDO（债务抵押债券）的分层定价高度依赖蒙特卡洛模拟来计算各层的预期损失。但行业普遍使用的Gaussian Copula模型低估了尾部依赖性——MC模拟虽然运行了百万次，但底层的高斯假设无法捕捉"违约传染"。这导致AAA层级被严重高估。</p>
+        <p><strong>教训</strong>：</p>
+        <ul>
+          <li>MC模拟的准确性 ≤ 底层模型的准确性——Garbage In, Garbage Out</li>
+          <li>尾部风险建模需要专门的加重采样和极值理论（EVT）方法</li>
+          <li>相关性矩阵在压力情景下的动态变化必须纳入模拟框架</li>
+        </ul>
+        <div class="key-takeaway">💡 蒙特卡洛模拟的精度再高，也抵不过模型假设的错误。LTCM和次贷危机的共同教训：永远对尾部风险和相关性破裂保持敬畏。</div>
+      </div>
+    </section>
+
+    <!-- Module 9: risk -->
+    <section class="module-section" id="mod-risk" data-module="risk">
+      <div class="module-header">
+        <span class="module-tag risk">风险与挑战</span>
+        <span class="module-time">⏱ 约3分钟</span>
+      </div>
+      <h2 class="module-title">9. 潜在风险与局限性</h2>
+      <div class="module-hook">蒙特卡洛的灵活性是把双刃剑——"什么都能算"意味着"什么都可能算错"。</div>
+      <div class="module-body">
+        <p><strong>1. 维度灾难（Curse of Dimensionality）</strong></p>
+        <p>虽然MC在高维问题中优于有限差分和树方法，但当维度超过50-100时，准蒙特卡洛的优势消退，样本空间的稀疏覆盖导致收敛极慢。</p>
+        <p><strong>2. 模型风险（Model Risk）</strong></p>
+        <p>如前所述，MC估计的质量上限由底层模型决定。如果选择了不合适的随机过程（如在波动率微笑明显的市场中使用恒定波动率GBM），再精确的模拟也是精确的错误。</p>
+        <div class="formula-block">
+          <div class="formula-main">总误差 = |定价误差| ≤ |模型误差| + |离散误差| + |统计误差|</div>
+          <div class="formula-caption">蒙特卡洛定价的误差分解：模型误设通常是最主要的误差来源</div>
+        </div>
+        <p><strong>3. 计算效率瓶颈</strong></p>
+        <p>对于需要每日重定价的大量头寸（如银行交易簿中的数千个衍生品），即使使用GPU加速的MC也面临实时性挑战。这是推动各种近似方法（如神经网络代理模型）发展的主要动力。</p>
+        <p><strong>4. 伪随机数的质量</strong></p>
+        <p>线性同余生成器（LCG）等常用PRNG在高维MC中可能产生不可见的关联结构，导致系统性偏差。金融级应用通常要求使用Mersenne Twister或密码级随机数。</p>
+        <div class="table-wrapper">
+          <table>
+            <tr><th>风险类别</th><th>影响程度</th><th>缓解措施</th></tr>
+            <tr><td>模型误设</td><td>⭐⭐⭐⭐⭐</td><td>多模型验证、压力测试</td></tr>
+            <tr><td>统计误差</td><td>⭐⭐⭐</td><td>方差缩减、增大N</td></tr>
+            <tr><td>离散化误差</td><td>⭐⭐</td><td>减小Δt、使用高阶格式</td></tr>
+            <tr><td>伪随机数偏差</td><td>⭐⭐</td><td>使用高质量PRNG/QMC</td></tr>
+            <tr><td>维度灾难</td><td>⭐⭐⭐</td><td>QMC(低维)、MLMC(高维)</td></tr>
+          </table>
+          <div class="table-caption">表：蒙特卡洛定价的主要风险因素及应对</div>
+        </div>
+        <div class="key-takeaway">💡 MC定价的铁三角约束：精度 ↔ 速度 ↔ 模型复杂度——三者只能取其二，需根据实际需求权衡。</div>
+      </div>
+    </section>
+
+    <!-- Module 10: regulation -->
+    <section class="module-section" id="mod-regulation" data-module="regulation">
+      <div class="module-header">
+        <span class="module-tag risk">风险与挑战</span>
+        <span class="module-time">⏱ 约3分钟</span>
+      </div>
+      <h2 class="module-title">10. 监管框架</h2>
+      <div class="module-hook">当蒙特卡洛模拟成为银行数十亿资本计提的依据时，监管机构不会只问"你算了多少条路径"——他们会问"你怎么验证的"。</div>
+      <div class="module-body">
+        <p>蒙特卡洛模拟在监管合规中的角色日益重要，尤其是在Basel III和FRTB（Fundamental Review of the Trading Book）框架下。</p>
+        <p><strong>Basel III 内部模型法（IMM）</strong></p>
+        <p>银行若使用内部模型法计算市场风险资本，其VaR和 stressed VaR 计算中大量依赖蒙特卡洛模拟。监管要求包括：</p>
+        <ul>
+          <li><strong>回测（Backtesting）</strong>：至少250个交易日的每日VaR与实际损益对比，超标次数决定"交通灯"分类和资本乘数</li>
+          <li><strong>模型验证</strong>：独立验证部门需评估MC模型的随机数质量、收敛性、方差缩减技术的适用性</li>
+          <li><strong>压力测试</strong>：需在极端但可能的情景下运行MC模型，确保尾部估计不会崩溃</li>
+        </ul>
+        <p><strong>FRTB 的新要求</strong></p>
+        <p>2019年最终定稿的FRTB将风险度量从VaR转变为<strong>预期亏损（Expected Shortfall, ES）</strong>，这对MC模拟提出了更高要求：ES关注的是尾部均值，需要更精确的尾部模拟，而普通MC在尾部的样本天然稀少。</p>
+        <div class="formula-block">
+          <div class="formula-main">ES<sub>α</sub> = E[Loss | Loss > VaR<sub>α</sub>]</div>
+          <div class="formula-caption">Expected Shortfall：在VaR阈值之上的条件期望——MC在尾部样本稀疏处估计困难</div>
+        </div>
+        <p><strong>模型风险治理</strong></p>
+        <p>监管机构（如美联储SR 11-7、欧洲央行TRIM指南）要求银行对包括MC在内的定价/风险模型建立全面的模型风险管理框架，包括开发、实施、使用、验证四个环节的独立审查。</p>
+        <div class="key-takeaway">💡 监管不只是关注MC的模拟次数，更关注方法论完整性：从随机数生成到收敛性分析，每一步都必须有据可查。</div>
+      </div>
+    </section>
+
+    <!-- Module 11: issues -->
+    <section class="module-section" id="mod-issues" data-module="issues">
+      <div class="module-header">
+        <span class="module-tag risk">风险与挑战</span>
+        <span class="module-time">⏱ 约3分钟</span>
+      </div>
+      <h2 class="module-title">11. 发展问题</h2>
+      <div class="module-hook">实时定价还是离线批处理？GPU加速还是算法创新？——蒙特卡洛模拟在金融实践中的痛点，远不止"跑得慢"这么简单。</div>
+      <div class="module-body">
+        <p>尽管蒙特卡洛模拟在金融领域已应用近50年，但仍面临一些根本性的挑战：</p>
+        <p><strong>1. 实时性困境</strong></p>
+        <p>做市商需要为数千个衍生品提供实时双边报价。对每个产品运行完整MC模拟在毫秒级时间窗口内不可行。行业当前的解决方案包括：(a) 预计算网格+插值，(b) 神经网络代理模型（如Deep Pricing），(c) 分层计算（粗糙模拟快速报价，精细模拟盘后校准）。</p>
+        <p><strong>2. 美式/百慕大期权的计算负担</strong></p>
+        <p>LSM方法虽然使MC能处理提前行权，但回归步骤计算量巨大（每个时间步长对所有路径做最小二乘回归），对于长期限、高频行权机会的产品，计算负担仍然沉重。</p>
+        <p><strong>3. Greeks的高噪声</strong></p>
+        <p>直接通过有限差分法用MC计算希腊字母（Greeks）会放大统计噪声。路径法（Pathwise method）和似然比法（Likelihood Ratio method）虽然更优，但实现复杂且有适用范围限制。</p>
+        <div class="formula-block">
+          <div class="formula-main">Δ ≈ [V̂(S₀+h) − V̂(S₀−h)] / 2h + O(h²)</div>
+          <div class="formula-caption">中心差分求Delta：h越小偏差越小但噪声越大——MC下的统计噪声与离散误差的权衡</div>
+        </div>
+        <p><strong>4. 校准效率</strong></p>
+        <p>模型参数校准需要反复运行MC模拟来最小化市场价与模型价之间的误差。在外层优化循环中嵌套MC模拟（模拟中的模拟），计算量呈指数级增长。</p>
+        <div class="key-takeaway">💡 MC定价在实践中最大的痛点不是定价本身，而是"定价的衍生任务"——Greeks、校准、实时报价——这些才是真正的计算瓶颈。</div>
+      </div>
+    </section>
+
+    <!-- Module 12: prospect -->
+    <section class="module-section" id="mod-prospect" data-module="prospect">
+      <div class="module-header">
+        <span class="module-tag dev">发展演进</span>
+        <span class="module-time">⏱ 约3分钟</span>
+      </div>
+      <h2 class="module-title">12. 发展前景</h2>
+      <div class="module-hook">当深度学习遇上蒙特卡洛，金融定价正在经历一场静悄悄的革命——不是取代MC，而是让它变得"聪明"。</div>
+      <div class="module-body">
+        <p>蒙特卡洛模拟定价的未来发展方向集中在三个关键词：<strong>加速、增强、融合</strong>。</p>
+        <p><strong>1. GPU/FPGA大规模并行化</strong></p>
+        <p>蒙特卡洛模拟天然是"尴尬并行"的（每条路径独立），非常适合GPU。现代CUDA实现可以让10万条路径的模拟从分钟级降至秒级。前沿探索包括在FPGA上实现专用的伪随机数生成器和路径计算流水线。</p>
+        <p><strong>2. 深度学习 + 蒙特卡洛</strong></p>
+        <p>这是当前最活跃的前沿方向：</p>
+        <ul>
+          <li><strong>Deep Pricing / Neural MC</strong>：训练神经网络以极低成本近似MC定价函数，在实时报价中替代完整模拟</li>
+          <li><strong>生成式模型模拟</strong>：用GAN或扩散模型直接生成符合市场特征的价格路径，可能超越传统SDE模型的表达力</li>
+          <li><strong>强化学习最优行权</strong>：用RL学习美式期权的最优行权策略，替代LSM的回归方法</li>
+        </ul>
+        <p><strong>3. 量子蒙特卡洛</strong></p>
+        <p>量子计算理论上可以将MC的收敛速度从 O(1/√N) 加速到 O(1/N)（二次量子加速）。虽然尚处理论阶段，但IBM和Google已在量子设备上演示了基本的量子振幅估计（QAE）用于期权定价的原型。</p>
+        <div class="chart-container">
+          <svg viewBox="0 0 700 200" xmlns="http://www.w3.org/2000/svg">
+            <rect width="700" height="200" fill="var(--bg-elevated)" rx="6"/>
+            <rect x="30" y="50" width="300" height="120" rx="10" fill="var(--accent-purple)" opacity="0.12" stroke="var(--accent-purple)" stroke-width="1"/>
+            <text x="180" y="80" fill="var(--accent-purple)" font-size="13" font-weight="700" text-anchor="middle">短期 (1-3年)</text>
+            <text x="180" y="105" fill="var(--text-secondary)" font-size="10" text-anchor="middle">GPU并行化普及</text>
+            <text x="180" y="125" fill="var(--text-secondary)" font-size="10" text-anchor="middle">神经网络代理模型落地</text>
+            <text x="180" y="145" fill="var(--text-secondary)" font-size="10" text-anchor="middle">云原生MC定价平台</text>
+            <rect x="370" y="35" width="300" height="135" rx="10" fill="var(--accent-gold)" opacity="0.12" stroke="var(--accent-gold)" stroke-width="1"/>
+            <text x="520" y="65" fill="var(--accent-gold)" font-size="13" font-weight="700" text-anchor="middle">中长期 (3-10年)</text>
+            <text x="520" y="90" fill="var(--text-secondary)" font-size="10" text-anchor="middle">深度学习+MC深度融合</text>
+            <text x="520" y="110" fill="var(--text-secondary)" font-size="10" text-anchor="middle">生成式模型价格路径模拟</text>
+            <text x="520" y="130" fill="var(--text-secondary)" font-size="10" text-anchor="middle">量子蒙特卡洛原型验证</text>
+            <text x="520" y="150" fill="var(--text-secondary)" font-size="10" text-anchor="middle">全自动模型校准与选择</text>
+          </svg>
+          <div class="chart-caption">图：蒙特卡洛定价技术的短期与中长期发展路线图</div>
+        </div>
+        <div class="key-takeaway">💡 未来MC定价的核心不是"更多模拟"，而是"更聪明的模拟"——用AI来减少需要的模拟次数。</div>
+      </div>
+    </section>
+
+    <!-- Module 13: misconceptions -->
+    <section class="module-section" id="mod-misconceptions" data-module="misconceptions">
+      <div class="module-header">
+        <span class="module-tag core">核心概念</span>
+        <span class="module-time">⏱ 约2分钟</span>
+      </div>
+      <h2 class="module-title">13. 常见误区</h2>
+      <div class="module-hook">"模拟次数越多越准"——这可能是蒙特卡洛定价中最昂贵的一句谎话。</div>
+      <div class="module-body">
+        <p><strong>误区1: 模拟次数越多越好</strong></p>
+        <p>虽然增加N确实降低统计误差(∝1/√N)，但当统计误差已低于模型误差和离散误差时，继续增加N是徒劳的。实践中，10万次模拟后统计误差可能已降至0.1%以下，而模型误设带来的偏差可能是5-10%。追求N=千万级别往往意味着你在精确地计算一个错误的模型。</p>
+        <p><strong>误区2: MC价格就是"正确答案"</strong></p>
+        <p>蒙特卡洛给出的是一个<strong>估计值</strong>而非真值。每次运行（不同随机种子）得到的数字会略有不同。正确的做法是报告置信区间：V̂ ± 1.96·SE。如果两个交易员的MC报价差在置信区间内，你不能说"谁错了"。</p>
+        <p><strong>误区3: 方差缩减总是有益的</strong></p>
+        <p>对偶变量法假设收益函数是单调的。对于非单调收益（如蝶式价差），对偶变量可能反而<strong>增加</strong>方差。控制变量法需要高相关性控制量，选错了控制变量也会适得其反。</p>
+        <div class="table-wrapper">
+          <table>
+            <tr><th>误区</th><th>真相</th></tr>
+            <tr><td>"N越大越准"</td><td>收敛是O(1/√N)的，且其他误差源可能主导</td></tr>
+            <tr><td>"MC给出精确解"</td><td>MC给出带置信区间的区间估计</td></tr>
+            <tr><td>"方差缩减无脑用"</td><td>需验证适用条件，用错会增加方差</td></tr>
+            <tr><td>"QMC永远比MC好"</td><td>高维度下QMC有退化问题，需要降到或加扰</td></tr>
+            <tr><td>"MC模型很'客观'"</td><td>模拟结果完全取决于主观选择的SDE模型</td></tr>
+          </table>
+          <div class="table-caption">表：蒙特卡洛定价中的五个常见误区</div>
+        </div>
+        <div class="key-takeaway">💡 MC定价的黄金法则：永远报告置信区间，永远质疑底层模型假设，永远验证方差缩减的前提条件。</div>
+      </div>
+    </section>
+
+    <!-- Module 14: debate -->
+    <section class="module-section" id="mod-debate" data-module="debate">
+      <div class="module-header">
+        <span class="module-tag risk">风险与挑战</span>
+        <span class="module-time">⏱ 约2分钟</span>
+      </div>
+      <h2 class="module-title">14. 争议与辩论</h2>
+      <div class="module-hook">MC vs PDE vs Tree——三大数值定价方法的"三国演义"至今未分出胜负，而新的竞争者（神经网络）已经加入战场。</div>
+      <div class="module-body">
+        <p><strong>MC vs 有限差分法（PDE）</strong></p>
+        <p>PDE方法（如Crank-Nicolson格式求解Black-Scholes偏微分方程）在低维问题（≤3个标的资产）上效率高于MC，且能直接给出整个定价曲面。但维度增加时PDE的网格点呈指数增长。争论焦点：低维定价是否完全不需要MC？支持PDE的人认为MC的统计噪声是"不专业"的表现；支持MC的人则强调其灵活性和高维能力。</p>
+        <p><strong>解析近似 vs 完整模拟</strong></p>
+        <p>对于存在近似解析解的奇异期权（如Turnbull-Wakeman近似用于亚式期权），是使用快速但不精确的近似公式，还是运行耗时但更准确的MC模拟？在交易决策中，速度优先于精度；在簿记和风险管理中，精度优先于速度。</p>
+        <p><strong>神经网络定价的兴起</strong></p>
+        <p>近年来，深度学习代理模型（Deep Pricing）引发了新争论：训练好的神经网络可以在毫秒内给出近似MC级别的定价，但神经网络是黑箱——无法追溯价格来源，也无法给出置信区间。这引发了关于模型透明度、可解释性和监管合规性的广泛讨论。</p>
+        <p><strong>学派的根本分歧</strong></p>
+        <p>本质上，争论反映了两派金融工程哲学：<strong>数学纯净派</strong>追求解析公式和严格证明，认为数值方法是对模型复杂性的妥协；<strong>工程实用派</strong>则认为在真实市场的复杂性面前，数值方法是唯一的选择。蒙特卡洛正处于这场哲学辩论的核心地带。</p>
+        <div class="key-takeaway">💡 定价方法的选择不是对错问题，而是权衡问题：维度、精度需求、速度约束——不同的场景呼唤不同的工具。</div>
+      </div>
+    </section>
+
+    <!-- Module 15: learning_path -->
+    <section class="module-section" id="mod-learning_path" data-module="learning_path">
+      <div class="module-header">
+        <span class="module-tag core">核心概念</span>
+        <span class="module-time">⏱ 约2分钟</span>
+      </div>
+      <h2 class="module-title">15. 学习路径</h2>
+      <div class="module-hook">从入门到精通——蒙特卡洛金融定价的学习路线图，覆盖理论基础、编程实践和前沿研究。</div>
+      <div class="module-body">
+        <p><strong>入门级（1-2周）</strong></p>
+        <ul>
+          <li>📖 《Options, Futures, and Other Derivatives》Hull — 第21章蒙特卡洛方法</li>
+          <li>🎓 MIT 18.S096 Financial Mathematics — 免费公开课</li>
+          <li>💻 用Python实现GBM路径生成和欧式期权MC定价 (numpy)</li>
+        </ul>
+        <p><strong>进阶级（2-4周）</strong></p>
+        <ul>
+          <li>📖 《Monte Carlo Methods in Financial Engineering》Paul Glasserman — 公认圣经</li>
+          <li>📖 《Stochastic Calculus for Finance II》Shreve — 随机微积分基础</li>
+          <li>💻 实现对偶变量+控制变量+分层抽样；实现LSM美式期权定价</li>
+          <li>🔧 学习Sobol序列生成（scipy.stats.qmc）</li>
+        </ul>
+        <p><strong>精通级（持续学习）</strong></p>
+        <ul>
+          <li>📄 Longstaff & Schwartz (2001) — LSM原论文</li>
+          <li>📄 Giles (2008) — 多层蒙特卡洛MLMC</li>
+          <li>📄 Broadie & Glasserman (1997) — 随机网格方法</li>
+          <li>💻 GPU加速MC (CUDA/numba.cuda)</li>
+          <li>🧠 Deep Pricing: 用PyTorch训练神经网络代理模型</li>
+        </ul>
+        <p><strong>核心前置知识</strong>：概率论（大数定律、中心极限定理）→ 随机过程（布朗运动、伊藤引理）→ 数值方法基础 → 衍生品定价理论。</p>
+        <div class="key-takeaway">💡 Glasserman的《Monte Carlo Methods in Financial Engineering》是通往MC定价精通的必经之路——读完它并复现书中所有数值实验。</div>
+      </div>
+    </section>
+
+    <!-- Module 16: learning_journey -->
+    <section class="module-section" id="mod-learning_journey" data-module="learning_journey">
+      <div class="module-header">
+        <span class="module-tag core">核心概念</span>
+        <span class="module-time">⏱ 约2分钟</span>
+      </div>
+      <h2 class="module-title">16. 学习路径导航</h2>
+      <div class="module-hook">站在蒙特卡洛模拟定价的知识地图上，看看你从哪里来、往哪里去。</div>
+      <div class="module-body">
+        <p>蒙特卡洛模拟定价是量化金融数值方法体系中的关键一环。理解这个概念的位置，有助于构建系统的知识框架。</p>
+        <p><strong>← 前置依赖</strong></p>
+        <ul>
+          <li><strong>概率论基础</strong>：大数定律和中心极限定理是MC收敛性的理论基石</li>
+          <li><strong>随机过程</strong>：布朗运动、几何布朗运动、伊藤引理——理解SDE是构建价格路径模型的前提</li>
+          <li><strong>衍生品定价基础</strong>：风险中性定价原理、无套利原则——MC只是执行定价框架的工具</li>
+          <li><strong>数值方法入门</strong>：随机数生成、离散化方法的基本概念</li>
+        </ul>
+        <p><strong>→ 后续学习</strong></p>
+        <ul>
+          <li><strong>Black-Scholes模型</strong>：经典解析定价框架，MC常作为其无法求解时的替代方案</li>
+          <li><strong>波动率建模</strong>：随机波动率模型（Heston等）几乎必须依赖MC定价</li>
+          <li><strong>风险管理与VaR/CVaR</strong>：MC在全估值重定价中的核心应用</li>
+          <li><strong>机器学习定价</strong>：神经网络代理模型和强化学习最优行权</li>
+        </ul>
+        <p>⏱️ 建议投入时间：配合标准学习方案，本知识点建议投入4-6小时深入学习，包括理论阅读（2小时）和编程实践（2-4小时）。</p>
+        <div class="key-takeaway">💡 蒙特卡洛是连接理论定价模型与真实市场应用的桥梁——掌握MC，就掌握了量化金融中最通用的计算语言。</div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="journey-footer">
+    <a href="#" class="back-to-plan" onclick="event.preventDefault();var w=window.open('derivatives_pricing_learning.html#kc-p3_1','plan_main');if(w)w.focus()">
+      🔗 返回学习路线: 金融衍生品及其定价 → 阶段3: 数值方法与高级定价
+    </a>
+    <p style="margin-top:12px;font-size:.72rem;color:var(--text-muted)">
+      本资料是 <strong>金融衍生品及其定价</strong> 阶段3「数值方法与高级定价」的深度研读材料
+    </p>
+    <div class="footer-btns" style="margin-top:16px">
+      <button class="footer-btn" onclick="exportNotes()">📝 导出笔记</button>
+      <button class="footer-btn" onclick="window.print()">🖨️ 打印</button>
+      <button class="footer-btn" onclick="scrollToTop()">⬆️ 回到顶部</button>
+    </div>
+    <p style="margin-top:8px;font-size:.7rem">蒙特卡洛模拟定价 · 学习资料 · 理解 × 标准 · G5全面平衡型</p>
+    <p style="margin-top:4px;font-size:.7rem">数据来源: Glasserman (2004), Hull (2021), Longstaff & Schwartz (2001)</p>
+  </footer>
+
+  <div class="search-overlay" id="searchOverlay">
+    <div class="search-box">
+      <input class="search-input" id="searchInput" placeholder="搜索模块内容... (Ctrl+K)" autofocus>
+      <div class="search-results" id="searchResults"></div>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      const themeBtn = document.getElementById('themeBtn');
+      const progressBar = document.getElementById('progressBar');
+      const sideNav = document.getElementById('sideNav');
+      const searchOverlay = document.getElementById('searchOverlay');
+      const searchInput = document.getElementById('searchInput');
+      const searchResultsContainer = document.getElementById('searchResults');
+
+      const savedTheme = localStorage.getItem('slm-theme') || 'light';
+      document.documentElement.setAttribute('data-theme', savedTheme);
+      themeBtn.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+
+      themeBtn.addEventListener('click', () => {
+        const current = document.documentElement.getAttribute('data-theme');
+        const next = current === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', next);
+        localStorage.setItem('slm-theme', next);
+        themeBtn.textContent = next === 'dark' ? '☀️' : '🌙';
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+          e.preventDefault();
+          searchOverlay.classList.toggle('open');
+          if (searchOverlay.classList.contains('open')) searchInput.focus();
+        }
+        if ((e.ctrlKey || e.metaKey) && e.key === 'd') {
+          e.preventDefault();
+          themeBtn.click();
+        }
+        if (e.key === 'Escape') {
+          searchOverlay.classList.remove('open');
+        }
+      });
+
+      searchOverlay.addEventListener('click', (e) => {
+        if (e.target === searchOverlay) searchOverlay.classList.remove('open');
+      });
+
+      const moduleData = [];
+      document.querySelectorAll('.module-section').forEach(s => {
+        moduleData.push({
+          id: s.id,
+          title: s.querySelector('.module-title')?.textContent || '',
+          text: s.textContent || ''
+        });
+      });
+
+      searchInput.addEventListener('input', () => {
+        const q = searchInput.value.trim().toLowerCase();
+        searchResultsContainer.innerHTML = '';
+        if (q.length < 2) return;
+        moduleData.forEach(m => {
+          const idx = m.text.toLowerCase().indexOf(q);
+          if (idx >= 0) {
+            const start = Math.max(0, idx - 30);
+            const end = Math.min(m.text.length, idx + q.length + 50);
+            let excerpt = m.text.substring(start, end);
+            if (start > 0) excerpt = '...' + excerpt;
+            if (end < m.text.length) excerpt = excerpt + '...';
+            const highlighted = excerpt.replace(new RegExp(q, 'gi'), '<mark>$&</mark>');
+            const a = document.createElement('a');
+            a.className = 'search-result';
+            a.href = '#' + m.id;
+            a.innerHTML = '<strong>' + m.title + '</strong><br>' + highlighted;
+            a.addEventListener('click', () => searchOverlay.classList.remove('open'));
+            searchResultsContainer.appendChild(a);
+          }
+        });
+      });
+
+      window.addEventListener('scroll', () => {
+        const scrollTop = window.scrollY;
+        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+        progressBar.style.width = progress + '%';
+
+        let current = '';
+        document.querySelectorAll('.module-section').forEach(s => {
+          if (s.getBoundingClientRect().top <= 120) current = s.id;
+        });
+        document.querySelectorAll('.side-nav-dot').forEach(d => {
+          d.classList.toggle('active', d.dataset.target === current);
+        });
+      });
+
+      document.querySelectorAll('.module-section').forEach(s => {
+        const dot = document.createElement('a');
+        dot.className = 'side-nav-dot';
+        dot.href = '#' + s.id;
+        dot.dataset.target = s.id;
+        dot.textContent = (s.querySelector('.module-title')?.textContent || '').replace(/^\d+\.\s*/, '');
+        sideNav.appendChild(dot);
+      });
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+          if (e.isIntersecting) e.target.classList.add('visible');
+        });
+      }, { threshold: 0.1 });
+      document.querySelectorAll('.module-section').forEach(s => observer.observe(s));
+
+      window.scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.toggleDerivation = (btn) => {
+        const deriv = btn.nextElementSibling;
+        deriv.classList.toggle('open');
+        btn.textContent = deriv.classList.contains('open') ? '📐 收起推导' : '📐 展开推导';
+      };
+      window.exportNotes = () => {
+        let notes = '# 蒙特卡洛模拟定价 - 学习笔记\n\n';
+        document.querySelectorAll('.module-section').forEach(s => {
+          const title = s.querySelector('.module-title')?.textContent || '';
+          const hook = s.querySelector('.module-hook')?.textContent || '';
+          const key = s.querySelector('.key-takeaway')?.textContent || '';
+          notes += '## ' + title + '\n\n> ' + hook + '\n\n' + key + '\n\n---\n\n';
+        });
+        navigator.clipboard.writeText(notes).then(() => alert('笔记已复制到剪贴板！'));
+      };
+    })();
+  </script>
+<div class="deep-floating-back" style="position:fixed;right:20px;bottom:20px;z-index:10000">
+  <button style="padding:12px 20px;background:linear-gradient(135deg,var(--accent-purple,#6366f1),#4f46e5);color:white;border:none;border-radius:24px;font-size:.85rem;font-weight:600;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.15);transition:transform .2s,box-shadow .2s"
+    onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 16px rgba(0,0,0,.2)'"
+    onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 12px rgba(0,0,0,.15)'"
+    onclick="event.preventDefault();var w=window.open('derivatives_pricing_learning.html#kc-p3_1','plan_main');if(w)w.focus()">
+    ← 返回学习方案
+  </button>
+</div>
+</body>
+</html>

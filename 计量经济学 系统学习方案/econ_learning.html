@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>计量经济学 系统学习方案</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" integrity="sha384-n8MVd4RsNHsDFYFv4cNdLJe8CYm2OFPsOLvdBvAKDE0TP6sbHcJxhANBL+PvKqd" crossorigin="anonymous">
+<style>
+:root{
+--bg-deep:#050a10;--bg-primary:#0a1018;--bg-card:#0d1520;
+--bg-elevated:#111b28;--bg-input:#141e2d;
+--text-primary:#e2e8f0;--text-secondary:#94a3b8;--text-muted:#64748b;
+--accent-blue:#60a5fa;--accent-cyan:#38bdf8;--accent-purple:#a78bfa;
+--accent-green:#34d399;--accent-orange:#fb923c;--accent-pink:#f472b6;
+--border-subtle:rgba(255,255,255,0.06);--border-glow:rgba(96,165,250,0.25);
+--shadow-sm:0 1px 3px rgba(0,0,0,0.3);--shadow-md:0 4px 12px rgba(0,0,0,0.4);
+--radius-sm:6px;--radius-md:10px;--radius-lg:16px;
+--transition-fast:0.15s ease;--transition-smooth:0.3s ease;
+}
+body.light{
+--bg-deep:#f8fafc;--bg-primary:#ffffff;--bg-card:#f8fafc;
+--bg-elevated:#f1f5f9;--bg-input:#e2e8f0;
+--text-primary:#0f172a;--text-secondary:#475569;--text-muted:#94a3b8;
+--accent-blue:#3b82f6;--accent-cyan:#06b6d4;--accent-purple:#8b5cf6;
+--accent-green:#10b981;--accent-orange:#f59e0b;--accent-pink:#ec4899;
+--border-subtle:rgba(0,0,0,0.08);--border-glow:rgba(59,130,246,0.25);
+--shadow-sm:0 1px 3px rgba(0,0,0,0.06);--shadow-md:0 4px 12px rgba(0,0,0,0.08);
+}
+body.light .knowledge-card.expanded{border-color:rgba(16,185,129,0.5)}
+body.dark .knowledge-card.expanded{border-color:rgba(16,185,129,0.5);background:var(--bg-elevated)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter','Noto Sans SC',-apple-system,sans-serif;background:var(--bg-deep);color:var(--text-primary);line-height:1.6;overflow-x:hidden}
+body.loading{opacity:0}body.loaded{opacity:1;transition:opacity 0.4s ease}
+.container{max-width:1200px;margin:0 auto;padding:0 24px}
+
+.hero{text-align:center;padding:80px 0 60px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;
+  background:radial-gradient(ellipse at 50% 0%,#60a5fa 0%,transparent 50%),radial-gradient(ellipse at 80% 50%,#a78bfa 0%,transparent 40%);
+  opacity:0.15;z-index:0}
+.hero>*{position:relative;z-index:1}
+.hero h1{font-size:2.6rem;font-weight:900;letter-spacing:-0.02em;margin-bottom:16px;background:linear-gradient(135deg,#60a5fa,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{font-size:1.05rem;color:var(--text-secondary);max-width:700px;margin:0 auto 32px}
+.hero-stats{display:flex;gap:24px;justify-content:center;flex-wrap:wrap}
+.hero-stat{background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:16px 28px;text-align:center;min-width:100px}
+.hero-stat .num{font-size:2rem;font-weight:800;color:var(--accent-blue)}
+.hero-stat .lbl{font-size:0.75rem;color:var(--text-muted);margin-top:4px}
+
+.topbar{position:sticky;top:0;z-index:100;background:rgba(5,10,16,0.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border-subtle);padding:10px 0}
+.topbar .container{display:flex;gap:12px;align-items:center;overflow-x:auto}
+.topbar a{color:var(--text-secondary);text-decoration:none;font-size:0.78rem;font-weight:600;padding:6px 14px;border-radius:50px;transition:all var(--transition-fast);white-space:nowrap}
+.topbar a:hover{color:var(--accent-cyan);background:rgba(56,189,248,0.08)}
+.topbar .theme-toggle,.topbar .search-toggle{background:var(--bg-elevated);border:1px solid var(--border-subtle);color:var(--text-secondary);font-size:0.78rem;padding:6px 14px;border-radius:50px;cursor:pointer;font-family:inherit;font-weight:600;transition:all var(--transition-fast)}
+.topbar .theme-toggle:hover,.topbar .search-toggle:hover{color:var(--accent-cyan);border-color:var(--border-glow)}
+
+.search-overlay{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px)}
+.search-overlay.show{display:flex;align-items:flex-start;justify-content:center;padding-top:120px}
+.search-box{background:var(--bg-card);border:1px solid var(--border-glow);border-radius:var(--radius-md);padding:20px;width:90%;max-width:600px;box-shadow:0 16px 48px rgba(0,0,0,0.5)}
+.search-box input{width:100%;background:var(--bg-input);border:1px solid var(--border-subtle);border-radius:var(--radius-sm);padding:12px 16px;color:var(--text-primary);font-size:0.95rem;font-family:inherit;outline:none}
+.search-box input:focus{border-color:var(--accent-cyan)}
+.search-results{margin-top:12px;max-height:300px;overflow-y:auto}
+.search-result{padding:10px 14px;border-radius:var(--radius-sm);cursor:pointer;font-size:0.82rem;transition:background var(--transition-fast)}
+.search-result:hover{background:rgba(56,189,248,0.08)}
+.search-result .sr-title{font-weight:700;color:var(--accent-cyan)}
+.search-result .sr-detail{color:var(--text-muted);font-size:0.72rem;margin-top:2px}
+
+.section{padding:60px 0}
+.section-title{font-size:1.5rem;font-weight:800;margin-bottom:28px;display:flex;align-items:center;gap:10px}
+
+.phase-list{display:flex;flex-direction:column;gap:16px}
+.phase-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-lg);overflow:hidden;transition:all var(--transition-smooth)}
+.phase-card:hover{border-color:var(--border-glow)}
+.phase-card.open{border-color:var(--border-glow)}
+.phase-header{padding:20px 24px;cursor:pointer;display:flex;align-items:center;gap:14px;transition:background var(--transition-fast);user-select:none}
+.phase-header:hover{background:rgba(96,165,250,0.03)}
+.phase-icon{width:42px;height:42px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0}
+.phase-info{flex:1}.phase-info h3{font-size:1.05rem;font-weight:700}.phase-info .phase-week{font-size:0.72rem;color:var(--text-muted);margin-top:2px}.phase-sub{font-size:0.72rem;padding:3px 10px;border-radius:50px;font-weight:600}
+.phase-arrow{font-size:1.1rem;color:var(--text-muted);transition:transform var(--transition-smooth)}.phase-card.open .phase-arrow{transform:rotate(90deg)}
+.phase-body{display:none;padding:0 24px 20px;border-top:1px solid var(--border-subtle)}
+.phase-card.open .phase-body{display:block}
+.phase-body-inner{padding-top:16px}
+.phase-skills{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.skill-chip{padding:3px 12px;background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:50px;font-size:0.72rem;color:var(--text-secondary)}
+.phase-desc{font-size:0.82rem;color:var(--text-muted);margin-bottom:12px;line-height:1.7}
+.phase-codes{margin-top:8px}.phase-codes pre{background:rgba(0,0,0,0.3);border-radius:var(--radius-sm);padding:12px 16px;overflow-x:auto;font-size:0.72rem;font-family:'JetBrains Mono',monospace;color:var(--accent-cyan)}
+.footer{text-align:center;padding:40px 0;color:var(--text-muted);font-size:0.72rem;border-top:1px solid var(--border-subtle)}
+
+.knowledge-toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px}
+.knowledge-filters{display:flex;gap:6px;flex-wrap:wrap}
+.knowledge-filter{background:var(--bg-elevated);border:1px solid var(--border-subtle);color:var(--text-secondary);padding:4px 14px;border-radius:50px;cursor:pointer;font-size:0.72rem;font-weight:600;font-family:inherit;transition:all var(--transition-fast)}
+.knowledge-filter:hover{color:var(--accent-cyan);border-color:var(--border-glow)}
+.knowledge-filter.active{background:rgba(56,189,248,0.12);color:var(--accent-cyan);border-color:var(--accent-cyan)}
+.knowledge-count{font-size:0.68rem;color:var(--text-muted)}
+.knowledge-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px}
+@media(max-width:768px){.knowledge-grid{grid-template-columns:1fr}}
+
+.knowledge-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);overflow:hidden;cursor:default;transition:all var(--transition-smooth);position:relative}
+.knowledge-card:hover{border-color:var(--border-glow);box-shadow:var(--shadow-sm)}
+.knowledge-card.open{border-color:var(--border-glow)}
+.knowledge-card.expanded{grid-column:1/-1;border-color:var(--accent-green);box-shadow:var(--shadow-md)}
+.card-header{padding:14px 18px;cursor:pointer;display:flex;align-items:center;gap:10px;flex-wrap:wrap;transition:background var(--transition-fast);user-select:none}
+.card-header:hover{background:rgba(124,92,231,0.03)}
+.card-icon{font-size:1.1rem;flex-shrink:0}.card-title{font-weight:700;font-size:0.85rem;flex:1}
+.math-tag{padding:2px 10px;border-radius:50px;font-size:0.6rem;font-weight:700;cursor:pointer;transition:all var(--transition-fast);color:#fff}
+.math-tag:hover{opacity:0.8}
+.card-back{display:none;font-size:0.65rem;color:var(--text-muted);cursor:pointer;padding:2px 8px;border-radius:50px;background:var(--bg-elevated)}
+.knowledge-card.expanded .card-back,.knowledge-card.open .card-back{display:inline}
+.card-detail{display:none;padding:0 18px 16px;font-size:0.82rem;color:var(--text-secondary);line-height:1.7}
+.knowledge-card.open .card-detail,.knowledge-card.expanded .card-detail{display:block}
+.card-detail p{margin-bottom:8px}
+.card-formula{background:var(--bg-elevated);border:1px solid var(--border-glow);border-radius:var(--radius-sm);padding:14px 18px;margin-bottom:12px;font-size:0.95rem;text-align:center;color:var(--accent-blue);overflow-x:auto}
+.card-sum{background:rgba(251,191,36,0.06);border-left:3px solid var(--accent-orange);padding:10px 14px;margin-bottom:10px;border-radius:0 var(--radius-sm) var(--radius-sm) 0;font-size:0.78rem;color:var(--accent-orange)}
+.card-related{margin-top:4px;margin-bottom:8px;padding:12px 14px;background:rgba(255,255,255,0.015);border:1px dashed var(--border-subtle);border-radius:var(--radius-sm)}
+.cr-title{font-size:0.72rem;font-weight:700;color:var(--text-secondary);margin-bottom:8px}
+.cr-links{display:flex;flex-wrap:wrap;gap:6px}
+.cr-link{font-size:0.68rem;padding:4px 10px;border-radius:50px;border:1px solid var(--border-subtle);color:var(--accent-cyan);cursor:pointer;transition:all var(--transition-fast)}
+.cr-link:hover{background:rgba(38,198,218,0.1);border-color:var(--accent-cyan)}
+.skill-link{cursor:pointer;border-color:rgba(79,195,247,0.3);color:var(--accent-blue)}
+.skill-link:hover{background:rgba(79,195,247,0.1);transform:translateY(-1px)}
+.ks-expand-all{background:transparent;border:1px solid var(--border-subtle);color:var(--accent-cyan);padding:3px 10px;border-radius:50px;font-size:0.68rem;cursor:pointer;font-weight:600;transition:all var(--transition-fast);font-family:inherit;margin-left:8px}
+.ks-expand-all:hover{border-color:var(--accent-cyan);background:rgba(38,198,218,0.08)}
+@media(max-width:768px){.knowledge-card.expanded{grid-column:auto}}
+.deep-dive-bar{padding:0 0 8px;text-align:right;display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+.deep-dive-btn{background:linear-gradient(135deg,rgba(139,92,246,0.15),rgba(99,102,241,0.1));border:1px solid rgba(139,92,246,0.3);color:var(--accent-purple);padding:6px 16px;border-radius:50px;cursor:pointer;font-size:0.78rem;font-weight:600;font-family:inherit;transition:all var(--transition-smooth)}
+.deep-dive-btn:hover{border-color:rgba(139,92,246,0.6);box-shadow:0 0 16px rgba(139,92,246,0.15);transform:translateY(-1px)}
+.dd-ready .deep-dive-btn{background:rgba(16,185,129,0.1);border-color:rgba(16,185,129,0.3);color:var(--accent-green)}
+.dd-hint{font-size:0.65rem;color:var(--text-muted);opacity:0.7}
+.deep-dive-open-btn{background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);color:var(--accent-green);border-radius:50px;width:26px;height:26px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;font-size:0.75rem;font-weight:700;font-family:inherit;transition:all var(--transition-fast)}
+.deep-dive-open-btn:hover{background:rgba(16,185,129,0.25)}
+.dd-toast{animation:ddToastIn 0.3s ease}
+@keyframes ddToastIn{from{opacity:0;transform:translate(-50%,20px)}to{opacity:1;transform:translate(-50%,0)}}
+.phase-dd-batch{padding-top:16px;border-top:1px solid var(--border-subtle);display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.batch-deep-dive-btn{background:var(--bg-elevated);border:1px dashed var(--border-glow);color:var(--text-secondary);padding:8px 20px;border-radius:50px;cursor:pointer;font-size:0.82rem;font-weight:600;font-family:inherit;transition:all var(--transition-smooth)}
+.batch-deep-dive-btn:hover{border-style:solid;border-color:rgba(139,92,246,0.5);color:var(--accent-purple)}
+
+.method-steps{display:grid;gap:16px;max-width:800px}
+.method-step{display:flex;gap:16px;align-items:flex-start}
+.method-step-num{width:36px;height:36px;border-radius:50%;background:var(--accent-purple);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:0.9rem;flex-shrink:0}
+.method-step-text h4{font-size:0.9rem;color:var(--text-primary);margin-bottom:4px}
+.method-step-text p{font-size:0.78rem;color:var(--text-secondary);line-height:1.6}
+
+.formula-tabs{display:flex;gap:6px;margin-bottom:20px;flex-wrap:wrap}
+.formula-tab{background:var(--bg-elevated);border:1px solid var(--border-subtle);color:var(--text-secondary);padding:6px 16px;border-radius:50px;cursor:pointer;font-size:0.72rem;font-weight:600;font-family:inherit;transition:all var(--transition-fast)}
+.formula-tab:hover{color:var(--accent-cyan);border-color:var(--border-glow)}
+.formula-tab.active{background:rgba(56,189,248,0.12);color:var(--accent-cyan);border-color:var(--accent-cyan)}
+.formula-panel{display:none}
+.formula-panel.active{display:block}
+.formula-table{width:100%;border-collapse:collapse;font-size:0.78rem}
+.formula-table th{text-align:left;padding:10px 14px;background:var(--bg-elevated);color:var(--accent-cyan);font-weight:700;border-bottom:2px solid var(--border-glow)}
+.formula-table td{padding:9px 14px;border-bottom:1px solid var(--border-subtle);color:var(--text-secondary);font-family:'JetBrains Mono',monospace}
+
+.exercise-filters{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.exercise-filter{padding:4px 14px;border-radius:50px;font-size:0.68rem;cursor:pointer;font-weight:600;border:1px solid var(--border-subtle);color:var(--text-secondary);background:var(--bg-elevated);font-family:inherit;transition:all var(--transition-fast)}
+.exercise-filter:hover{color:var(--accent-cyan);border-color:var(--border-glow)}
+.exercise-filter.active{background:rgba(56,189,248,0.12);color:var(--accent-cyan);border-color:var(--accent-cyan)}
+.exercise-count{font-size:0.68rem;color:var(--text-muted);margin-bottom:12px}
+.exercise-list{display:flex;flex-direction:column;gap:8px}
+.exercise-item{display:flex;gap:12px;align-items:center;background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:12px 16px;transition:all var(--transition-fast)}
+.exercise-item:hover{border-color:var(--border-glow)}
+.exercise-num{font-size:0.7rem;color:var(--text-muted);font-family:'JetBrains Mono',monospace;min-width:28px}
+.ei-content{flex:1}.ei-title{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.ei-title-text{font-size:0.84rem;font-weight:600}
+.diff{padding:2px 8px;border-radius:50px;font-size:0.6rem;font-weight:700}
+.diff.easy{background:rgba(16,185,129,0.1);color:var(--accent-green)}
+.diff.medium{background:rgba(251,191,36,0.1);color:var(--accent-orange)}
+.diff.hard{background:rgba(239,68,68,0.1);color:#ef4444}
+.diff.project{background:rgba(139,92,246,0.1);color:var(--accent-purple)}
+.ei-check{width:28px;height:28px;border-radius:50%;border:2px solid var(--border-subtle);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:0.75rem;transition:all var(--transition-fast);flex-shrink:0}
+.ei-check:hover{border-color:var(--accent-green)}
+.ei-check.done{background:var(--accent-green);border-color:var(--accent-green);color:#fff}
+
+.resource-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.resource-item{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:16px 18px;transition:all var(--transition-fast)}
+.resource-item:hover{border-color:var(--border-glow)}
+.resource-item .ri-type{font-size:0.6rem;font-weight:700;padding:2px 8px;border-radius:50px;display:inline-block;margin-bottom:8px}
+.ri-type.book{background:rgba(96,165,250,0.1);color:var(--accent-blue)}
+.ri-type.paper{background:rgba(251,191,36,0.1);color:var(--accent-orange)}
+.ri-type.site{background:rgba(16,185,129,0.1);color:var(--accent-green)}
+.ri-type.tool{background:rgba(139,92,246,0.1);color:var(--accent-purple)}
+.resource-item h4{font-size:0.85rem;font-weight:700;margin-bottom:4px}.resource-item p{font-size:0.72rem;color:var(--text-muted);line-height:1.5}
+.resource-item a{font-size:0.68rem;color:var(--accent-cyan);text-decoration:none;font-weight:600}
+.resource-item a:hover{text-decoration:underline}
+
+.tracker-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+.tracker-item{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:14px 16px;cursor:pointer;transition:all var(--transition-fast);display:flex;align-items:center;gap:10px;user-select:none}
+.tracker-item:hover{border-color:var(--border-glow)}
+.tracker-check{width:24px;height:24px;border-radius:50%;border:2px solid var(--border-subtle);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all var(--transition-fast)}
+.tracker-item.done .tracker-check{background:var(--accent-green);border-color:var(--accent-green)}
+.tracker-check::after{content:'✓';color:transparent;font-size:0.7rem;font-weight:700}
+.tracker-item.done .tracker-check::after{color:#fff}
+.tracker-item.done .tracker-label{text-decoration:line-through;opacity:0.5}
+.tracker-label{font-size:0.78rem;font-weight:600}
+
+.progress-bar-container{width:100%;height:6px;background:var(--bg-elevated);border-radius:3px;margin:20px 0;overflow:hidden}
+.progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--accent-blue),var(--accent-green));border-radius:3px;transition:width 0.4s ease}
+
+.deep-floating-back{position:fixed;right:20px;bottom:20px;z-index:10000}
+.deep-floating-back button{padding:12px 20px;background:linear-gradient(135deg,var(--accent-color,#4a90d9),var(--accent-dark,#2d6cb0));color:white;border:none;border-radius:24px;font-size:0.85rem;font-weight:600;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.15);transition:transform 0.2s,box-shadow 0.2s}
+.deep-floating-back button:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,0.2)}
+@media(max-width:768px){.deep-floating-back{right:15px;bottom:15px}.deep-floating-back button{padding:10px 16px;font-size:0.8rem}}
+
+.drawing-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.drawing-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:18px;transition:all var(--transition-fast)}
+.drawing-card:hover{border-color:var(--border-glow)}
+.drawing-card h4{font-size:0.85rem;font-weight:700;margin-bottom:8px;color:var(--accent-purple)}
+.drawing-card p{font-size:0.75rem;color:var(--text-muted);line-height:1.6}
+</style>
+</head>
+<body class="loading dark">
+
+<div class="topbar">
+  <div class="container">
+    <a href="#phases">📋 阶段</a><a href="#knowledge">💡 知识点</a>
+    <a href="#graph">🧠 图谱</a>
+    <a href="#method">📐 方法论</a>
+    <a href="#formulas">📋 公式</a>
+    <a href="#exercises">✏️ 练习</a><a href="#resources">📚 资料</a><a href="#tracker">✅ 进度</a>
+    <button class="theme-toggle" onclick="toggleTheme()" title="切换主题">🌓</button>
+    <button class="search-toggle" onclick="searchOpen()" title="搜索 (Ctrl+K)">🔍</button>
+  </div>
+</div>
+
+<div class="search-overlay" id="searchOverlay" onclick="event.target===this&&searchClose()">
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="搜索知识点..." oninput="searchKPs()" onkeydown="if(event.key==='Escape')searchClose()">
+    <div class="search-results" id="searchResults"></div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="hero">
+    <h1>计量经济学 系统学习方案</h1>
+    <p>基于G1公式推导驱动纹理 · 标准学习深度 · 5阶段14周 — 从概率统计基础到现代因果推断，系统掌握计量经济学的理论推导与实证分析能力</p>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="num">14</div><div class="lbl">学习周数</div></div>
+<div class="hero-stat"><div class="num">5</div><div class="lbl">学习阶段</div></div>
+<div class="hero-stat"><div class="num">18</div><div class="lbl">知识要点</div></div>
+<div class="hero-stat"><div class="num">13</div><div class="lbl">练习题目</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+<section class="section" id="phases">
+  <div class="section-title">📋 学习阶段</div>
+  <div class="phase-list" id="phaseList"></div>
+</section>
+
+<section class="section" id="knowledge">
+  <div class="section-title">💡 知识要点</div>
+  <div class="knowledge-toolbar">
+    <div class="knowledge-filters" id="knowledgeFilters"></div>
+    <div><span class="knowledge-count" id="knowledgeCount"></span><button class="ks-expand-all" onclick="eAK()">📖 展开全部</button></div>
+  </div>
+  <div class="knowledge-grid" id="knowledgeContainer"></div>
+</section>
+
+<section class="section" id="graph">
+  <div class="section-title">🧠 知识图谱</div>
+  <canvas id="graphCanvas" width="1000" height="400"></canvas>
+</section>
+
+<section class="section" id="method">
+  <div class="section-title">📐 推导方法论</div>
+  <div class="method-steps"><div class="method-step"><div class="method-step-num">1</div><div class="method-step-text"><h4>模型设定先行</h4><p>先明确总体回归函数的经济含义，再讨论估计方法。问自己：Y和X之间的经济学逻辑是什么？扰动项包含了哪些不可观测因素？</p></div></div><div class="method-step"><div class="method-step-num">2</div><div class="method-step-text"><h4>从简单到复杂递进</h4><p>OLS → GLS → IV → GMM，每一步理解假设条件的放松。二变量回归 → 多元回归 → 违背经典假设 → 更高级的方法扩展。</p></div></div><div class="method-step"><div class="method-step-num">3</div><div class="method-step-text"><h4>假设是推导的生命线</h4><p>每次推导前先列出所有假设，推导后检查哪些假设被使用。Gauss-Markov五条假设是OLS性质的基石，违背每一条都有对应的诊断方法和补救措施。</p></div></div><div class="method-step"><div class="method-step-num">4</div><div class="method-step-text"><h4>代数和几何双视角</h4><p>矩阵代数给出紧凑表达，投影几何提供直观理解。β̂ = (X&apos;X)&sup1;X&apos;Y 等价于 Y 在 X 列空间上的正交投影。</p></div></div><div class="method-step"><div class="method-step-num">5</div><div class="method-step-text"><h4>模拟验证理解</h4><p>用蒙特卡洛模拟验证理论性质（无偏性、一致性、检验功效）。生成已知参数的模拟数据 → 反复估计 → 观察估计量的抽样分布。</p></div></div></div>
+</section>
+
+<section class="section" id="formulas">
+  <div class="section-title">📋 公式速查</div>
+  <div class="formula-tabs" id="formulaTabs"></div>
+  <div id="formulaPanels"></div>
+</section>
+
+<section class="section" id="exercises">
+  <div class="section-title">✏️ 练习题库</div>
+  <div class="exercise-filters" id="exerciseFilters"></div>
+  <div class="exercise-count" id="exerciseCount"></div>
+  <div class="exercise-list" id="exerciseList"></div>
+</section>
+
+<section class="section" id="resources">
+  <div class="section-title">📚 资料清单</div>
+  <div class="resource-grid" id="resourceGrid"></div>
+</section>
+
+<section class="section" id="tracker">
+  <div class="section-title">✅ 进度追踪</div>
+  <div class="progress-bar-container"><div class="progress-bar-fill" id="progressBar" style="width:0%"></div></div>
+  <div class="tracker-grid" id="trackerGrid"></div>
+</section>
+</div>
+
+<footer class="footer">计量经济学 系统学习方案 · G1公式推导驱动 · 5阶段14周 · 生成于2026-05-16</footer>
+
+<div id="ddToast" style="display:none;position:fixed;bottom:30px;left:50%;transform:translateX(-50%);z-index:10000;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:8px;padding:14px 24px;box-shadow:0 4px 16px rgba(0,0,0,0.15);font-size:0.85rem;"><span id="ddToastMsg"></span></div>
+
+<script>
+var STORAGE_KEY = 'econometrics_learning';
+var PLAN = {"id":"econometrics-learning","title":"计量经济学 系统学习方案","html_file":"econ_learning.html"};
+var LS_PREFIX = STORAGE_KEY;
+
+var PHASES = [
+{id:'p1',week:'第1-4周',title:'计量基础与统计准备',sub:'基础奠基',color:'#4fc3f7',icon:'📐',cls:'c1',
+ skills:['计量经济学概述','概率论基础回顾','统计推断核心概念','矩阵代数速览','回归思想入门'],
+ phase_kps:['p1_1','p1_2','p1_3','p1_4','p1_5'],
+ deep_dive_batch:'📦 批量生成深度资料 - 计量基础与统计准备'},
+{id:'p2',week:'第5-7周',title:'经典线性回归模型',sub:'核心工具',color:'#66bb6a',icon:'🔧',cls:'c2',
+ skills:['多元回归模型设定','OLS估计量推导','Gauss-Markov定理','假设检验体系'],
+ phase_kps:['p2_1','p2_2','p2_3','p2_4'],
+ deep_dive_batch:'📦 批量生成深度资料 - 经典线性回归模型'},
+{id:'p3',week:'第8-10周',title:'回归诊断与模型修正',sub:'核心工具',color:'#ffa726',icon:'🔍',cls:'c3',
+ skills:['函数形式选择','多重共线性诊断','异方差性处理','自相关修正'],
+ phase_kps:['p3_1','p3_2','p3_3','p3_4'],
+ deep_dive_batch:'📦 批量生成深度资料 - 回归诊断与模型修正'},
+{id:'p4',week:'第11-12周',title:'内生性与工具变量',sub:'整合应用',color:'#ab47bc',icon:'🔗',cls:'c4',
+ skills:['内生性问题诊断','工具变量法','面板数据入门'],
+ phase_kps:['p4_1','p4_2','p4_3'],
+ deep_dive_batch:'📦 批量生成深度资料 - 内生性与工具变量'},
+{id:'p5',week:'第13-14周',title:'现代计量方法前沿',sub:'进阶前沿',color:'#ef5350',icon:'🚀',cls:'c5',
+ skills:['时间序列计量','因果推断方法'],
+ phase_kps:['p5_1','p5_2'],
+ deep_dive_batch:'📦 批量生成深度资料 - 现代计量方法前沿'}
+];
+
+var KPS = [
+{id:'p1_1',n:'计量经济学的定义与范围',p:'p1',tag:'concept',
+ d:'计量经济学是利用统计方法分析经济数据的学科。它的核心任务是量化经济关系、检验经济理论和预测经济变量。经济数据分为三种类型：横截面数据（同一时点多个个体）、时间序列数据（同一个体多个时点）和面板数据（多个个体多个时点）。计量经济学区别于纯粹统计学的关键在于它关注因果推断——从观测数据中识别因果效应，而非仅描述相关关系。',
+ f:'Y_i = \\beta_0 + \\beta_1 X_i + \\varepsilon_i',
+ s:'计量经济学 = 经济理论 + 统计数据 + 统计推断，核心是从数据中识别因果关系',
+ rel:['p1_2','p1_5'],
+ deep_dive:{query:'计量经济学 基础概念 数据类型 因果推断',topic_id:'econometrics-intro',prompt:'',status:'ready',html_file:'econometrics-intro_deep.html'}},
+{id:'p1_2',n:'概率论基础回顾',p:'p1',tag:'concept',
+ d:'概率论是计量经济学的语言基础。随机变量分为离散型和连续型两类。期望E(X)度量了随机变量的中心位置，具有线性性质：E(aX+bY)=aE(X)+bE(Y)。方差Var(X)=E[(X-μ)²]度量离散程度。协方差Cov(X,Y)描述两个变量之间的线性关联方向。条件期望E(Y|X)是计量经济学中最重要的概念——回归函数本质上就是对条件期望的建模，回答了"给定X，Y的平均值是多少"。',
+ f:'E(Y|X) = \\int y f_{Y|X}(y|x)\\,dy',
+ s:'条件期望E(Y|X)是回归分析的理论根基',
+ rel:['p1_1','p1_3','p1_5'],
+ deep_dive:{query:'概率论 条件期望 计量经济学基础',topic_id:'probability-review',prompt:'',status:'ready',html_file:'probability-review_intermediate.html'}},
+{id:'p1_3',n:'统计推断核心概念',p:'p1',tag:'concept',
+ d:'统计推断解决如何从样本推断总体的规律。一个好的估计量应满足三个标准：无偏性（E(θ̂)=θ）、有效性（方差最小）和一致性（样本增大时收敛到真值）。区间估计给出了参数的置信区间，以1-α的概率包含真实参数。假设检验的基本逻辑是：设定原假设H₀→计算检验统计量→比较p值与显著性水平α→决定是否拒绝H₀。第I类错误（拒真）和第II类错误（取伪）之间存在权衡。',
+ f:'\\hat{\\theta} \\xrightarrow{p} \\theta \\quad \\text{(一致性: } \\lim_{n\\to\\infty} P(|\\hat{\\theta}-\\theta|>\\varepsilon)=0\\text{)}',
+ s:'无偏性 + 有效性 + 一致性 = 好估计量的三个标准',
+ rel:['p1_2','p2_3','p2_4'],
+ deep_dive:{query:'统计推断 点估计 假设检验 p值 计量经济学',topic_id:'statistical-inference',prompt:'',status:'ready',html_file:'statistical-inference_intermediate.html'}},
+{id:'p1_4',n:'矩阵代数速览',p:'p1',tag:'concept',
+ d:'矩阵代数是理解多元回归估计量β̂=(X\'X)⁻¹X\'Y的必备工具。核心概念包括：矩阵的秩（rank）——线性无关列/行的最大数量；逆矩阵——要求方阵满秩；投影矩阵P=X(X\'X)⁻¹X\'具有幂等性P²=P；正定矩阵——所有特征值>0，保证二次型>0。矩阵微积分规则（∂(β\'X\'Xβ)/∂β=2X\'Xβ）是OLS推导的关键。掌握这些工具后，多元回归的推导将变得简洁而优雅。',
+ f:'\\hat{\\beta} = (X\'X)^{-1}X\'Y, \\quad H = X(X\'X)^{-1}X\', \\quad H^2=H',
+ s:'矩阵运算是理解多元回归OLS估计量的数学语言',
+ rel:['p1_5','p2_1','p2_2'],
+ deep_dive:{query:'矩阵代数 投影矩阵 正定矩阵 计量经济学 OLS推导',topic_id:'matrix-algebra',prompt:'',status:'ready',html_file:'matrix-algebra_intermediate.html'}},
+{id:'p1_5',n:'从数据到模型：回归思想入门',p:'p1',tag:'concept',
+ d:'回归分析的目标是找到Y与X之间的系统性关系。简单线性回归模型Yᵢ=β₀+β₁Xᵢ+εᵢ的OLS估计量通过最小化残差平方和Σ(Yᵢ-β₀-β₁Xᵢ)²解得。β̂₁=Cov̂(X,Y)/Var̂(X)，形象地说就是X每变化一个单位，Y平均变化β̂₁个单位。R²=1-SSR/SST度量了X对Y变异的解释比例。相关关系≠因果关系——这是计量经济学反复强调的核心警示。',
+ f:'\\hat{\\beta}_1 = \\frac{\\sum(X_i-\\bar{X})(Y_i-\\bar{Y})}{\\sum(X_i-\\bar{X})^2}, \\quad R^2 = 1 - \\frac{\\operatorname{SSR}}{\\operatorname{SST}}',
+ s:'OLS本质是最小化残差平方和，相关关系不等于因果关系',
+ rel:['p1_1','p1_4','p2_1','p2_2'],
+ deep_dive:{query:'简单线性回归 OLS 最小二乘法 推导',topic_id:'regression-intro',prompt:'',status:'ready',html_file:'regression-intro_intermediate.html'}},
+{id:'p2_1',n:'多元线性回归模型设定',p:'p2',tag:'concept',
+ d:'多元线性回归模型用矩阵表示为Y=Xβ+ε，其中Y是n×1因变量向量，X是n×(k+1)解释变量矩阵（第一列全为1对应截距项），β是(k+1)×1参数向量。每个系数βⱼ的解释是"保持其他变量不变时，Xⱼ对Y的偏效应"（ceteris paribus）。经典线性回归模型有五条关键假设（GM1-GM5）：线性性、严格外生性E(ε|X)=0、无完全多重共线性rank(X)=k+1、球形扰动Var(ε|X)=σ²I、正态性ε|X~N(0,σ²I)。',
+ f:'Y = X\\beta + \\varepsilon, \\quad Y_{n\\times 1}, X_{n\\times(k+1)}, \\beta_{(k+1)\\times 1}',
+ s:'多元回归模型中每个系数代表"保持其他变量不变的偏效应"',
+ rel:['p1_4','p1_5','p2_2'],
+ deep_dive:{query:'多元线性回归模型 矩阵表示 经典假设 Gauss-Markov',topic_id:null,prompt:'',status:'ready',html_file:'multiple-linear-regression-specification_intermediate.html'}},
+{id:'p2_2',n:'OLS估计量推导',p:'p2',tag:'derivation',
+ d:'OLS估计量通过最小化残差平方和SSR(β)=(Y-Xβ)\'(Y-Xβ)得到。一阶条件∂SSR/∂β=-2X\'Y+2X\'Xβ=0给出正规方程X\'Xβ̂=X\'Y，解得β̂=(X\'X)⁻¹X\'Y。定义帽子矩阵H=X(X\'X)⁻¹X\'，则拟合值Ŷ=HY，残差e=Y-Ŷ=(I-H)Y=MY。H和M都是对称幂等矩阵，且H+M=I，tr(H)=k+1。残差平方和SSR=e\'e=Y\'MY=ε\'Mε。σ²的无偏估计量为s²=SSR/(n-k-1)。',
+ f:'\\hat{\\beta} = (X\'X)^{-1}X\'Y, \\quad \\hat{Y}=HY, \\quad e=MY, \\quad s^2 = \\frac{e\'e}{n-k-1}',
+ s:'OLS的核心是正规方程X\'Xβ̂=X\'Y，β̂是Y的线性函数',
+ rel:['p2_1','p2_3','p2_4'],
+ deep_dive:{query:'OLS估计量推导 正规方程 帽子矩阵 残差',topic_id:null,prompt:'',status:'ready',html_file:'ols-estimator-derivation_intermediate.html'}},
+{id:'p2_3',n:'Gauss-Markov定理与有限样本性质',p:'p2',tag:'derivation',
+ d:'Gauss-Markov定理是计量经济学最重要的理论结果之一：在GM1-GM4假设下（不需要正态性），OLS估计量是BLUE——即Best（方差最小）、Linear（Y的线性函数）、Unbiased（无偏）、Estimator。证明的关键在于：对任意其他线性无偏估计量β̃=CY，其方差Var(β̃)=σ²CC\'必定不小于Var(β̂)=σ²(X\'X)⁻¹。OLS的代数性质包括：残差之和为零（若含截距）、拟合值与残差正交X\'e=0。',
+ f:'E(\\hat{\\beta}|X)=\\beta, \\quad \\operatorname{Var}(\\hat{\\beta}|X)=\\sigma^2(X\'X)^{-1}, \\quad \\operatorname{Var}(\\tilde{\\beta}) - \\operatorname{Var}(\\hat{\\beta}) \\succeq 0',
+ s:'在GM1-GM4下，OLS是所有线性无偏估计量中方差最小的（BLUE）',
+ rel:['p2_1','p2_2','p2_4','p3_2'],
+ deep_dive:{query:'Gauss-Markov定理 BLUE 证明 计量经济学',topic_id:null,prompt:'',status:'none',html_file:''}},
+{id:'p2_4',n:'假设检验体系',p:'p2',tag:'derivation',
+ d:'在正态性假设（GM5）下，β̂~N(β,σ²(X\'X)⁻¹)。对单个参数的显著性检验H₀:βⱼ=0使用t统计量t=β̂ⱼ/SE(β̂ⱼ)~t(n-k-1)。对多个线性约束H₀:Rβ=r使用F统计量：F=[(SSR_R-SSR_UR)/q]/[SSR_UR/(n-k-1)]~F(q,n-k-1)。拟合优度R²=1-SSR/SST反映了模型对Y变异的解释比例，但R²随着变量增加总是上升——调整R²=1-(1-R²)(n-1)/(n-k-1)对此进行了惩罚。',
+ f:'t = \\frac{\\hat{\\beta}_j}{\\operatorname{SE}(\\hat{\\beta}_j)} \\sim t_{n-k-1}, \\quad F = \\frac{(\\operatorname{SSR}_R-\\operatorname{SSR}_{UR})/q}{\\operatorname{SSR}_{UR}/(n-k-1)} \\sim F_{q,n-k-1}',
+ s:'t检验检验单个系数，F检验检验多个线性约束，R²度量模型拟合度',
+ rel:['p2_2','p2_3','p3_1'],
+ deep_dive:{query:'t检验 F检验 假设检验 线性回归 计量经济学',topic_id:null,prompt:'',status:'none',html_file:''}},
+{id:'p3_1',n:'模型设定与函数形式选择',p:'p3',tag:'concept',
+ d:'函数形式的选择直接影响参数的解释方式。对数-对数模型(logY=β₀+β₁logX)的β₁解释为弹性；对数-线性模型(logY=β₀+β₁X)的β₁×100≈Y的百分比变化率。多项式回归(Y=β₀+β₁X+β₂X²)允许边际效应随X变化。交互项(Y=β₀+β₁X₁+β₂X₂+β₃X₁X₂)允许一个变量的效应依赖于另一个变量。RESET检验（Regression Specification Error Test）通过加入拟合值的幂次来检测函数形式误设。',
+ f:'\\ln Y = \\beta_0 + \\beta_1 \\ln X \\implies \\beta_1 = \\frac{dY/Y}{dX/X} \\text{ (弹性)}, \\quad \\ln Y = \\beta_0 + \\beta_1 X \\implies 100\\beta_1 \\approx \\%\\Delta Y',
+ s:'函数形式决定参数的解释方式——弹性、半弹性还是边际效应',
+ rel:['p2_4','p3_2','p3_3'],
+ deep_dive:{query:'回归模型 函数形式 对数变换 交互项 RESET检验',topic_id:null,prompt:'',status:'ready',html_file:'model-specification_intermediate.html'}},
+{id:'p3_2',n:'多重共线性',p:'p3',tag:'diagnosis',
+ d:'多重共线性指解释变量之间存在近似的线性关系。不完全共线性下OLS仍然BLUE，但系数方差会膨胀：Var(β̂ⱼ)=σ²/[(1-R²ⱼ)SSTⱼ]，其中1/(1-R²ⱼ)就是VIF（方差膨胀因子）。VIF>10通常被视为严重共线性的信号。条件数κ=√(λ_max/λ_min)从矩阵角度度量共线性。处理方法：增加样本量（最理想）、变量选择或合并、岭回归（引入有偏但降低方差）。',
+ f:'\\operatorname{VIF}_j = \\frac{1}{1-R^2_j}, \\quad \\operatorname{Var}(\\hat{\\beta}_j) = \\frac{\\sigma^2}{\\operatorname{SST}_j} \\cdot \\operatorname{VIF}_j',
+ s:'VIF度量因共线性导致的方差膨胀倍数，VIF>10需警惕',
+ rel:['p2_2','p2_3','p3_1'],
+ deep_dive:{query:'多重共线性 VIF 条件数 岭回归 计量经济学',topic_id:null,prompt:'',status:'ready',html_file:'multicollinearity_intermediate.html'}},
+{id:'p3_3',n:'异方差性',p:'p3',tag:'diagnosis',
+ d:'异方差性指扰动项的方差不恒定Var(εᵢ|Xᵢ)=σ²ᵢ≠常数。异方差下OLS仍无偏且一致，但不再有效（非BLUE），且标准误估计有偏→t检验和F检验不可靠。诊断方法：Breusch-Pagan检验（检验σ²ᵢ是否与X线性相关）、White检验（更一般，检验σ²ᵢ与X和X²的关系）。最简便的修正方法是使用异方差稳健标准误（Huber-White-Eicker），修正后t检验渐近有效。如果已知异方差形式σ²ᵢ=σ²h(Xᵢ)，可用加权最小二乘法(WLS)获得BLUE。',
+ f:'\\operatorname{WLS}: \\hat{\\beta}_{\\operatorname{WLS}} = (X\'WX)^{-1}X\'WY, \\quad w_i = 1/h(X_i)',
+ s:'异方差不导致偏误但使检验失效，稳健标准误是最简便的修正方法',
+ rel:['p2_3','p3_1','p3_4'],
+ deep_dive:{query:'异方差性 White检验 WLS 稳健标准误 计量经济学',topic_id:null,prompt:'',status:'ready',html_file:'heteroskedasticity_intermediate.html'}},
+{id:'p3_4',n:'自相关',p:'p3',tag:'diagnosis',
+ d:'自相关常见于时间序列数据，指不同时期的扰动项存在相关性。以一阶自相关AR(1)为例：εₜ=ρεₜ₋₁+uₜ。自相关的后果与异方差类似——OLS无偏但无效，标准误低估导致过度拒绝。Durbin-Watson统计量d=Σ(eₜ-eₜ₋₁)²/Σeₜ²≈2(1-ρ̂)检验一阶自相关。Breusch-Godfrey LM检验可检测高阶自相关。修正方法包括：Cochrane-Orcutt迭代法（FGLS）、Newey-West异方差自相关一致（HAC）标准误。',
+ f:'\\operatorname{DW} = \\frac{\\sum_{t=2}^n(e_t-e_{t-1})^2}{\\sum_{t=1}^n e_t^2} \\approx 2(1-\\hat{\\rho}), \\quad \\varepsilon_t = \\rho\\varepsilon_{t-1} + u_t',
+ s:'自相关使标准误估计有偏，Durbin-Watson统计量检测一阶自相关',
+ rel:['p3_3','p5_1'],
+ deep_dive:{query:'自相关 Durbin-Watson Newey-West 时间序列 计量经济学',topic_id:null,prompt:'',status:'ready',html_file:'autocorrelation_intermediate.html'}},
+{id:'p4_1',n:'内生性问题的诊断',p:'p4',tag:'concept',
+ d:'内生性是计量经济学中最核心也最棘手的问题，指Cov(X,ε)≠0。来源有三：遗漏变量偏误（真实模型含W，但Cov(X,W)≠0且W被遗漏）、测量误差（X被错误测量，测量误差进入扰动项）、联立性（Y与X相互决定）。内生性使OLS不一致：plim(β̂)=β+Cov(X,ε)/Var(X)≠β。经典例子——教育回报率估计中，\"能力\"是遗漏变量，高能力者倾向接受更多教育且收入更高，导致OLS高估教育回报。',
+ f:'\\operatorname{plim}(\\hat{\\beta}) = \\beta + \\frac{\\operatorname{Cov}(X,\\varepsilon)}{\\operatorname{Var}(X)} \\neq \\beta \\quad \\text{(若 }\\operatorname{Cov}(X,\\varepsilon)\\neq 0\\text{)}',
+ s:'内生性是OLS不一致的根源，来自遗漏变量、测量误差或联立性',
+ rel:['p2_3','p4_2'],
+ deep_dive:{query:'内生性 遗漏变量偏误 测量误差 计量经济学 OLS不一致',topic_id:'endogeneity-diagnosis',prompt:'',status:'ready',html_file:'endogeneity-diagnosis_intermediate.html'}},
+{id:'p4_2',n:'工具变量法',p:'p4',tag:'derivation',
+ d:'工具变量法是解决内生性的主要方法。工具变量Z需满足两个条件：相关性（Cov(Z,X)≠0，Z与内生变量相关）和外生性（Cov(Z,ε)=0，Z通过X影响Y而无直接路径）。恰好识别时IV估计量β̂_IV=(Z\'X)⁻¹Z\'Y。过度识别（工具变量多于内生变量）时使用两阶段最小二乘法(2SLS)：第一阶段X̂=P_Z X，第二阶段β̂_2SLS=(X̂\'X̂)⁻¹X̂\'Y。第一阶段F>10是判断弱工具变量的经验规则。过度识别约束可用Sargan/Hansen J检验验证。',
+ f:'\\hat{\\beta}_{IV} = (Z\'X)^{-1}Z\'Y, \\quad \\hat{\\beta}_{2SLS} = (\\hat{X}\'\\hat{X})^{-1}\\hat{X}\'Y',
+ s:'工具变量需满足相关性和外生性，2SLS是过度识别下的标准方法',
+ rel:['p4_1','p4_3','p5_2'],
+ deep_dive:{query:'工具变量 2SLS 过度识别 Sargan检验 计量经济学',topic_id:'instrumental-variables',prompt:'',status:'ready',html_file:'instrumental-variables_intermediate.html'}},
+{id:'p4_3',n:'面板数据方法入门',p:'p4',tag:'concept',
+ d:'面板数据Yᵢₜ同时有截面（i）和时间（t）维度，最大优势是可控制不可观测的个体异质性αᵢ。固定效应模型(FE)：Yᵢₜ=αᵢ+Xᵢₜβ+εᵢₜ，通过组内去均值变换ÿᵢₜ=Yᵢₜ-Ȳᵢ消去αᵢ后OLS估计，允许αᵢ与X相关但不能估计时不变变量的系数。随机效应模型(RE)假设αᵢ与X不相关，使用GLS估计更高效。Hausman检验：H₀下FE和RE都一致但RE更高效，H₁下仅FE一致——若差异显著则选FE。',
+ f:'\\tilde{Y}_{it} = Y_{it} - \\bar{Y}_i, \\quad H = (\\hat{\\beta}_{FE}-\\hat{\\beta}_{RE})\'[Var(\\hat{\\beta}_{FE})-Var(\\hat{\\beta}_{RE})]^{-1}(\\hat{\\beta}_{FE}-\\hat{\\beta}_{RE})',
+ s:'面板数据可控制个体异质性，固定效应和随机效应的选择取决于Hausman检验',
+ rel:['p4_2','p5_2'],
+ deep_dive:{query:'面板数据 固定效应 随机效应 Hausman检验 计量经济学',topic_id:'panel-data-methods',prompt:'',status:'ready',html_file:'panel-data-methods_intermediate.html'}},
+{id:'p5_1',n:'时间序列计量基础',p:'p5',tag:'concept',
+ d:'时间序列计量的基础概念是平稳性：弱平稳要求均值、方差和自协方差不随时间变化。许多经济时间序列（如GDP、股价）是非平稳的，表现为单位根过程Yₜ=Yₜ₋₁+εₜ。ADF检验通过回归ΔYₜ=γYₜ₋₁+ΣδᵢΔYₜ₋ᵢ+εₜ检验H₀:γ=0（存在单位根）。若两个非平稳序列的线性组合是平稳的，则称它们存在协整关系——意味着长期均衡的存在。此时应使用误差修正模型(ECM)而非直接差分。',
+ f:'\\Delta Y_t = \\gamma Y_{t-1} + \\sum_{i=1}^p \\delta_i \\Delta Y_{t-i} + \\varepsilon_t, \\quad H_0: \\gamma=0',
+ s:'平稳性是时间序列分析的前提，协整揭示了非平稳序列间的长期均衡',
+ rel:['p3_4','p5_2'],
+ deep_dive:{query:'时间序列 单位根 ADF检验 协整 ECM 计量经济学',topic_id:'time-series',prompt:'',status:'ready',html_file:'time-series_deep.html'}},
+{id:'p5_2',n:'因果推断与现代方法前沿',p:'p5',tag:'concept',
+ d:'现代计量经济学正经历从"描述相关性"到"识别因果关系"的范式转变。Rubin因果模型（潜在结果框架）定义了处理效应ATE=E[Y(1)-Y(0)]。自然实验方法包括：双重差分法DID比较处理组和对照组在政策前后的差异；断点回归RDD利用断点附近的局部随机性识别因果；倾向得分匹配PSM在可观测特征上匹配处理组和对照组。广义矩方法GMM提供了一个统一框架，OLS、IV、2SLS都是其特例。',
+ f:'\\hat{\\tau}_{DID} = (\\bar{Y}_{T,post}-\\bar{Y}_{T,pre}) - (\\bar{Y}_{C,post}-\\bar{Y}_{C,pre}), \\quad \\hat{\\beta}_{GMM} = \\arg\\min_{\\beta} \\bar{g}(\\beta)\'W\\bar{g}(\\beta)',
+ s:'DID、RDD、PSM是现代因果推断的三大自然实验方法，GMM是统一框架',
+ rel:['p4_2','p4_3','p5_1'],
+ deep_dive:{query:'因果推断 DID RDD PSM GMM 计量经济学',topic_id:'causal-inference',prompt:'',status:'ready',html_file:'causal-inference_deep.html'}}
+];
+
+var FORMULA_TABS = [
+{n:'概率与统计基础'},{n:'经典线性回归'},{n:'假设检验'},{n:'模型诊断与修正'},{n:'高级方法与面板数据'}
+];
+
+var FORMULAS = [
+{r:[['期望','E(X) = \\int x f(x)dx'],['方差','\\operatorname{Var}(X) = E[(X-\\mu)^2] = E(X^2)-[E(X)]^2'],['协方差','\\operatorname{Cov}(X,Y) = E[(X-\\mu_X)(Y-\\mu_Y)]'],['条件期望','E(Y|X) = \\int y f_{Y|X}(y|x)dy'],['正态分布','X\\sim N(\\mu,\\sigma^2), f(x)=\\frac{1}{\\sigma\\sqrt{2\\pi}}e^{-\\frac{(x-\\mu)^2}{2\\sigma^2}}']]},
+{r:[['总体回归','Y = X\\beta + \\varepsilon'],['OLS估计量','\\hat{\\beta} = (X\'X)^{-1}X\'Y'],['帽子矩阵','H = X(X\'X)^{-1}X\', \\hat{Y}=HY'],['残差生成矩阵','M = I-H, e=MY'],['OLS方差矩阵','\\operatorname{Var}(\\hat{\\beta}|X) = \\sigma^2(X\'X)^{-1}']]},
+{r:[['t统计量','t = \\frac{\\hat{\\beta}_j}{\\operatorname{SE}(\\hat{\\beta}_j)} \\sim t_{n-k-1}'],['F统计量','F = \\frac{(R^2_{UR}-R^2_R)/q}{(1-R^2_{UR})/(n-k-1)}'],['拟合优度','R^2 = 1 - \\frac{\\operatorname{SSR}}{\\operatorname{SST}}'],['调整R²','\\bar{R}^2 = 1 - \\frac{(1-R^2)(n-1)}{n-k-1}'],['置信区间','\\hat{\\beta}_j \\pm t_{\\alpha/2} \\cdot \\operatorname{SE}(\\hat{\\beta}_j)']]},
+{r:[['VIF','\\operatorname{VIF}_j = \\frac{1}{1-R^2_j}'],['White检验','nR^2_{aux} \\sim \\chi^2_p'],['Durbin-Watson','\\operatorname{DW} = \\frac{\\sum(e_t-e_{t-1})^2}{\\sum e_t^2}'],['WLS估计量','\\hat{\\beta}_{\\operatorname{WLS}} = (X\'WX)^{-1}X\'WY'],['Newey-West HAC','\\operatorname{Var}_{HAC}(\\hat{\\beta}) = (X\'X)^{-1}\\hat{S}(X\'X)^{-1}']]},
+{r:[['IV估计量','\\hat{\\beta}_{\\operatorname{IV}} = (Z\'X)^{-1}Z\'Y'],['2SLS估计量','\\hat{\\beta}_{2SLS} = (\\hat{X}\'\\hat{X})^{-1}\\hat{X}\'Y'],['固定效应(组内)','\\tilde{Y}_{it}=Y_{it}-\\bar{Y}_i, \\tilde{\\beta}=(\\tilde{X}\'\\tilde{X})^{-1}\\tilde{X}\'\\tilde{Y}'],['Hausman检验','H=(\\hat{\\beta}_{\\operatorname{FE}}-\\hat{\\beta}_{\\operatorname{RE}})\'[\\operatorname{Var}(\\hat{\\beta}_{\\operatorname{FE}})-\\operatorname{Var}(\\hat{\\beta}_{\\operatorname{RE}})]^{-1}(\\hat{\\beta}_{\\operatorname{FE}}-\\hat{\\beta}_{\\operatorname{RE}})'],['GMM目标函数','\\hat{\\beta}_{\\operatorname{GMM}}=\\arg\\min_\\beta \\bar{g}(\\beta)\'W\\bar{g}(\\beta)']]}
+];
+
+var EXERCISES = [
+{n:1,t:'简单回归计算：给定数据集手工计算OLS斜率β̂₁和截距β̂₀，计算R²',d:'easy'},
+{n:2,t:'假设检验实操：利用回归输出（系数、标准误、样本量）进行t检验',d:'easy'},
+{n:3,t:'矩阵运算练习：用矩阵计算β̂=(X\'X)⁻¹X\'Y，验证与软件计算结果一致',d:'easy'},
+{n:4,t:'Gauss-Markov假设验证：从DGP出发证明违背某假设时OLS性质变化',d:'medium'},
+{n:5,t:'异方差诊断与修正：模拟异方差数据，比较OLS、WLS和稳健标准误',d:'medium'},
+{n:6,t:'函数形式选择：同一数据用线性/对数/二次建模，用RESET选择最佳',d:'medium'},
+{n:7,t:'多重共线性处理：诊断共线性，计算VIF，尝试岭回归或主成分回归',d:'medium'},
+{n:8,t:'自相关诊断：DW检验时间序列残差，用Newey-West或FGLS修正',d:'medium'},
+{n:9,t:'内生性分析：设计含遗漏变量的DGP，用2SLS获得一致估计',d:'hard'},
+{n:10,t:'面板数据分析：估计混合OLS/FE/RE，进行Hausman检验并解释结果',d:'hard'},
+{n:11,t:'弱工具变量诊断：模拟弱IV场景，比较2SLS和LIML的有限样本表现',d:'hard'},
+{n:12,t:'协整与ECM：对非平稳序列完成单位根→协整→ECM完整分析流程',d:'hard'},
+{n:13,t:'实证研究项目：选经济问题→收集数据→建模→诊断→修正→撰写报告',d:'project'}
+];
+
+var RESOURCES = [
+{t:'book',n:'《计量经济学导论：现代观点》Wooldridge',d:'最适合初学者的入门教材，强调直觉理解和实证应用'},
+{t:'book',n:'《计量经济学》Stock & Watson',d:'应用导向，案例丰富，适合配合软件实操练习'},
+{t:'book',n:'《基本无害的计量经济学》Angrist & Pischke',d:'因果推断视角的经典之作，培养研究设计思维'},
+{t:'book',n:'《计量经济分析》Greene',d:'高级参考书，理论推导详尽，适合进阶查阅'},
+{t:'book',n:'《应用计量经济学：时间序列分析》Enders',d:'时间序列计量的最佳入门教材之一'},
+{t:'paper',n:'Mostly Harmless Econometrics — Angrist & Pischke',d:'将计量方法讲得通俗易懂的经典综述论文'},
+{t:'paper',n:'A Survey of Weak Instruments — Stock, Wright & Yogo',d:'弱工具变量问题的权威综述，必读论文'},
+{t:'tool',n:'Stata',d:'计量经济学最广泛使用的专业软件，命令简洁高效'},
+{t:'tool',n:'R语言 + plm/sandwich/AER包',d:'开源计量分析利器，扩展包生态极为丰富'},
+{t:'tool',n:'Python + statsmodels/linearmodels',d:'Python生态中的计量分析库，适合Python用户'},
+{t:'tool',n:'RStudio + RMarkdown',d:'可重复研究的最佳实践环境，学术论文标配'},
+{t:'tool',n:'EViews',d:'时间序列计量的专用软件，操作界面友好'},
+{t:'site',n:'statsmodels官方文档',d:'Python计量分析的完整API文档和教程'},
+{t:'site',n:'R-bloggers计量经济学分类',d:'大量计量分析实战案例，涵盖各种方法'},
+{t:'site',n:'EconML (Microsoft)',d:'微软开源因果推断Python库，适合学习现代因果方法'}
+];
+
+var TRACKER_ITEMS = [
+{id:'phase1',n:'第1阶段：计量基础与统计准备'},
+{id:'phase2',n:'第2阶段：经典线性回归模型'},
+{id:'phase3',n:'第3阶段：回归诊断与模型修正'},
+{id:'phase4',n:'第4阶段：内生性与工具变量'},
+{id:'phase5',n:'第5阶段：现代计量方法前沿'}
+];
+
+function safeGetLS(key,fallback){
+  try{var v=localStorage.getItem(key);return v!==null?v:fallback;}catch(e){return fallback;}
+}
+function safeSetLS(key,val){
+  try{localStorage.setItem(key,val);}catch(e){}
+}
+
+function renderFormula(fk){
+  if(typeof katex==='undefined')return;
+  if(fk.querySelector('.katex'))return;
+  var txt=fk.textContent.replace('💰 ','');
+  if(!txt)return;
+  try{katex.render(txt,fk,{throwOnError:false});}
+  catch(e){fk.textContent='⚠ '+txt;}
+}
+
+function renderAllFormulas(){
+  if(typeof katex==='undefined'){setTimeout(renderAllFormulas,300);return;}
+  var all=document.querySelectorAll('.card-formula,.ft-formula');
+  for(var i=0;i<all.length;i++){
+    if(all[i].querySelector('.katex'))continue;
+    var txt=all[i].textContent.replace('💰 ','');
+    if(!txt)continue;
+    try{katex.render(txt,all[i],{throwOnError:false});}
+    catch(e){all[i].textContent='⚠ '+txt;}
+  }
+}
+
+function collapseCard(el){el.classList.remove('expanded');el.classList.remove('open');var g=el.parentElement;if(g){var anyExpanded=g.querySelector('.knowledge-card.expanded');if(!anyExpanded)g.classList.remove('has-expanded');}}
+
+function kf(pid){
+  var cnt=document.getElementById('knowledgeCount');
+  var fil=pid==='all'?KPS:KPS.filter(function(k){return k.p===pid;});
+  var h='';
+  fil.forEach(function(kp){
+    var fh=kp.f?'<div class="card-formula">💰 '+kp.f+'</div>':'';
+    var sh=kp.s?'<div class="card-sum">💡 '+kp.s+'</div>':'';
+    var rh='';
+    if(kp.rel&&kp.rel.length){rh='<div class="card-related"><div class="cr-title">🔗 关联知识</div><div class="cr-links">';
+      kp.rel.forEach(function(r){var rk=KPS.find(function(x){return x.id===r;});
+        rh+='<span class="cr-link" onclick="event.stopPropagation();kfP(\''+r+'\')">'+(rk?rk.n:r)+'</span>';});
+      rh+='</div></div>';}
+    var ddSection='';
+    if(kp.deep_dive){
+      var ddStatus=kp.deep_dive.status||'none';
+      var ddArrow='';var ddBtnTxt='📖 深度研读';var ddHint='点击复制提示词';
+      if(ddStatus==='ready'&&kp.deep_dive.html_file){
+        ddArrow='<button class="deep-dive-open-btn" onclick="event.stopPropagation();ddOpen(\''+kp.id+'\')" title="打开深度研读资料">↗</button>';
+        ddBtnTxt='✅ 查看深度研读';
+        ddHint='点击 ↗ 打开资料';
+      }
+      ddSection='<div class="deep-dive-bar dd-'+ddStatus+'">'+ddArrow+
+        '<button class="deep-dive-btn" onclick="event.stopPropagation();ddTrigger(\''+kp.id+'\')">'+ddBtnTxt+'</button>'+
+        '<span class="dd-hint">'+ddHint+'</span></div>';
+    }
+    h+='<div class="knowledge-card" id="kc-'+kp.id+'" data-p="'+kp.p+'">'+
+      '<div class="card-header" onclick="tKCT(\''+kp.id+'\')">'+
+      '<span class="card-icon">📘</span>'+
+      '<span class="card-title">'+kp.n+'</span>'+
+      '<span class="math-tag" style="background:'+((PHASES.find(function(x){return x.id===kp.p;})||{color:'#6366f1'}).color)+'" onclick="event.stopPropagation();gP(\''+kp.p+'\')">'+
+      (PHASES.findIndex(function(x){return x.id===kp.p;})>=0?'P'+(PHASES.findIndex(function(x){return x.id===kp.p;})+1):'')+
+      '</span>'+
+      '<span class="card-back" onclick="event.stopPropagation();tKC_bk(\''+kp.id+'\')">收起 ✕</span>'+
+      '</div><div class="card-detail"><p>'+kp.d+'</p>'+fh+sh+rh+ddSection+'</div></div>';
+  });
+  document.getElementById('knowledgeContainer').innerHTML=h;
+  document.getElementById('knowledgeCount').textContent='显示 '+fil.length+'/'+KPS.length;
+  var btns=document.querySelectorAll('.knowledge-filter');
+  for(var i=0;i<btns.length;i++)btns[i].classList.remove('active');
+  var act=document.querySelector('.knowledge-filter[data-kp="'+pid+'"]');
+  if(act)act.classList.add('active');
+}
+
+function kfP(id){tKC_go(id);}
+
+function AHDS(ph){
+  var el=document.getElementById('phase-'+ph.id);if(!el)return;
+  var inner=el.querySelector('.phase-body-inner');if(!inner)return;
+  var sh='';
+  if(ph.skills&&ph.skills.length>0){
+    sh='<div class="phase-skills">'+
+      ph.skills.map(function(s,idx){var kpId=(ph.phase_kps&&ph.phase_kps[idx])?ph.phase_kps[idx]:'';
+        return '<span class="skill-chip skill-link" onclick="event.stopPropagation();kfP(\''+kpId+'\')">'+s+'</span>';}).join('')+
+      '</div>';
+  }
+  var ch='';
+  if(ph.codes&&ph.codes.length>0){ch='<div class="phase-codes">'+
+    ph.codes.map(function(c){return '<pre><code>'+c+'</code></pre>';}).join('')+'</div>';}
+  var bh='';
+  if(ph.deep_dive_batch){
+    bh='<div class="phase-dd-batch">'+
+      '<button class="batch-deep-dive-btn" onclick="event.stopPropagation();ddBatch(\''+ph.id+'\')">📦 生成本阶段全部深度资料</button>'+
+      '<span class="dd-hint">一键复制本阶段所有知识点的生成提示词</span></div>';
+  }
+  inner.innerHTML=sh+'<div class="phase-desc">深入了解核心概念与技巧。</div>'+ch+bh;
+}
+
+function tKCT(id){
+  var el=document.getElementById('kc-'+id);
+  if(!el)return;
+  if(el.classList.contains('expanded')){collapseCard(el);return;}
+  if(el.classList.contains('open')&&!el.classList.contains('expanded')){el.classList.remove('open');return;}
+  var kp=KPS.find(function(x){return x.id===id;});
+  if(!kp)return;
+  var g=el.parentElement;
+  el.classList.add('expanded');
+  el.classList.add('open');
+  g.classList.add('has-expanded');
+  setTimeout(function(){
+    var det=el.querySelector('.card-detail');
+    if(det){var fk=det.querySelector('.card-formula');if(fk)renderFormula(fk);}
+  },150);
+  var pd=document.getElementById('phase-'+kp.p);
+  if(pd)pd.classList.add('open');
+  el.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function tKC_go(id){
+  var b=document.querySelectorAll('.knowledge-filter');
+  for(var i=0;i<b.length;i++)b[i].classList.remove('active');
+  var a=document.querySelector('.knowledge-filter[data-kp="all"]');
+  if(a)a.classList.add('active');
+  kf('all');
+  setTimeout(function(){
+    var el=document.getElementById('kc-'+id);
+    if(!el)return;
+    var g=el.parentElement;
+    el.classList.add('expanded');
+    el.classList.add('open');
+    g.classList.add('has-expanded');
+    setTimeout(function(){
+      var det=el.querySelector('.card-detail');
+      if(det){var fk=det.querySelector('.card-formula');if(fk)renderFormula(fk);}
+    },150);
+    var kp=KPS.find(function(x){return x.id===id;});
+    if(kp){var pd=document.getElementById('phase-'+kp.p);if(pd)pd.classList.add('open');}
+    el.scrollIntoView({behavior:'smooth',block:'center'});
+  },100);
+}
+
+function tKC_bk(id){var el=document.getElementById('kc-'+id);if(el)collapseCard(el);}
+
+function eAK(){
+  var all=document.querySelectorAll('.knowledge-card');
+  var btn=document.querySelector('.ks-expand-all');
+  var isExp=btn&&btn.textContent.indexOf('收起')>=0;
+  if(isExp){
+    for(var i=0;i<all.length;i++)collapseCard(all[i]);
+    if(btn)btn.textContent='📖 展开全部';
+  }else{
+    for(var i=0;i<all.length;i++){
+      all[i].classList.add('open');all[i].classList.add('expanded');
+      all[i].parentElement.classList.add('has-expanded');
+      var fk=all[i].querySelector('.card-formula');if(fk)renderFormula(fk);
+    }
+    if(btn)btn.textContent='📕 全部收起';
+  }
+}
+
+function gP(id){
+  var s=document.getElementById('phase-'+id);
+  if(s){s.scrollIntoView({behavior:'smooth'});setTimeout(function(){s.classList.add('open');},400);}
+}
+
+function sFT(id,btn){
+  var tabs=document.querySelectorAll('.formula-tab');
+  for(var i=0;i<tabs.length;i++)tabs[i].classList.remove('active');
+  btn.classList.add('active');
+  var panels=document.querySelectorAll('.formula-panel');
+  for(var i=0;i<panels.length;i++)panels[i].classList.remove('active');
+  document.getElementById('fp-'+id).classList.add('active');
+}
+
+var DEEP_DIVE_WINDOWS={};
+function ddOpen(kpId){
+  var kp=KPS.find(function(k){return k.id===kpId;});
+  if(!kp||!kp.deep_dive||!kp.deep_dive.html_file)return;
+  var winName='dd_'+kpId;
+  if(DEEP_DIVE_WINDOWS[kpId]&&!DEEP_DIVE_WINDOWS[kpId].closed){DEEP_DIVE_WINDOWS[kpId].focus();return;}
+  var w=window.open(kp.deep_dive.html_file,winName);
+  if(w){DEEP_DIVE_WINDOWS[kpId]=w;setInterval(function(){if(w.closed)DEEP_DIVE_WINDOWS[kpId]=null;},1000);}
+}
+
+function encodeForContext(value){
+  if(typeof value!=='string')value=String(value||'');
+  return value.replace(/"/g,'\\"').replace(/;/g,'\\;').replace(/\[/g,'\\[').replace(/\]/g,'\\]');
+}
+
+function buildKPDeepDivePrompt(kp,ph,plan){
+  var prereqList=(kp.prerequisites||[]).join(',');
+  var nextKpList=(kp.next_kps||[]).join(',');
+  var phIndex=PHASES.findIndex(function(x){return x.id===ph.id;})+1;
+  var contextMarker='[context_plan: '+
+    'plan_id="'+encodeForContext(plan.id)+'"; '+
+    'plan_name="'+encodeForContext(plan.title)+'"; '+
+    'plan_file="'+encodeForContext(plan.html_file)+'"; '+
+    'phase_id="'+encodeForContext(ph.id)+'"; '+
+    'phase_name="'+encodeForContext(ph.title)+'"; '+
+    'phase_position="'+phIndex+'/'+PHASES.length+'"; '+
+    'kp_id="'+encodeForContext(kp.id)+'"; '+
+    'kp_name="'+encodeForContext(kp.n||kp.name)+'"; '+
+    'prerequisites="'+encodeForContext(prereqList)+'"; '+
+    'next_kps="'+encodeForContext(nextKpList)+'"'+
+  ']\n\n';
+  return contextMarker+'请为以下知识点生成 理解×标准 的深度研读资料：\n知识点：'+(kp.n||kp.name)+'\n（已在上方提供完整上下文信息）';
+}
+
+var DD_TOAST_TIMEOUT;
+function ddTrigger(kpId){
+  var kp=KPS.find(function(k){return k.id===kpId;});
+  if(!kp)return;
+  var ph=PHASES.find(function(p){return p.id===kp.p;});
+  if(!ph)ph={id:kp.p,title:'未知阶段'};
+  var promptText=typeof PLAN!=='undefined'?buildKPDeepDivePrompt(kp,ph,PLAN):
+    '请为"'+(kp.n||kp.name)+'"生成 理解×标准 的深度研读资料';
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(promptText).then(function(){showDDToast('✅ 提示词已复制！粘贴到对话中生成深度资料',kp);})
+    .catch(function(){fallbackCopy(promptText);showDDToast('✅ 提示词已复制！',kp);});
+  }else{fallbackCopy(promptText);showDDToast('✅ 提示词已复制！',kp);}
+}
+
+function fallbackCopy(text){
+  var ta=document.createElement('textarea');ta.value=text;
+  document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
+}
+
+function showDDToast(msg,kp){
+  var toastEl=document.getElementById('ddToast');
+  var toastMsgEl=document.getElementById('ddToastMsg');
+  if(!toastEl||!toastMsgEl)return;
+  toastMsgEl.innerHTML=msg;
+  if(kp&&kp.deep_dive&&kp.deep_dive.status==='ready'&&kp.deep_dive.html_file){
+    toastMsgEl.innerHTML+='<br>📄 已有深度资料: <a href="#" onclick="event.preventDefault();ddOpen(\''+kp.id+'\')" style="color:var(--accent-color);text-decoration:underline;">点击打开</a>';
+  }
+  toastEl.style.display='block';
+  if(DD_TOAST_TIMEOUT)clearTimeout(DD_TOAST_TIMEOUT);
+  DD_TOAST_TIMEOUT=setTimeout(function(){toastEl.style.display='none';},4000);
+}
+
+function ddBatch(phaseId){
+  var phaseKps=KPS.filter(function(k){return k.p===phaseId&&k.deep_dive;});
+  if(phaseKps.length===0)return;
+  var ph=PHASES.find(function(p){return p.id===phaseId;});
+  if(!ph)ph={id:phaseId,title:'未知阶段'};
+  var batchText='📦 批量生成深度资料 - '+(ph.title||phaseId)+'\n\n';
+  phaseKps.forEach(function(kp){
+    if(typeof PLAN!=='undefined'){batchText+=buildKPDeepDivePrompt(kp,ph,PLAN)+'\n\n---\n\n';}
+    else{batchText+='请为"'+(kp.n||kp.name)+'"生成 理解×标准 的深度研读资料\n\n---\n\n';}
+  });
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(batchText).then(function(){showDDToast('✅ '+phaseKps.length+' 个提示词已复制到剪贴板！');})
+    .catch(function(){fallbackCopy(batchText);showDDToast('✅ '+phaseKps.length+' 个提示词已复制！');});
+  }else{fallbackCopy(batchText);showDDToast('✅ '+phaseKps.length+' 个提示词已复制！');}
+}
+
+function hES(){
+  var fH='<span class="exercise-filter active" onclick="fE(\'all\')">全部 ('+EXERCISES.length+')</span>';
+  fH+='<span class="exercise-filter" onclick="fE(\'easy\')">🟢 基础 ('+EXERCISES.filter(function(e){return e.d==='easy';}).length+')</span>';
+  fH+='<span class="exercise-filter" onclick="fE(\'medium\')">🟡 进阶 ('+EXERCISES.filter(function(e){return e.d==='medium';}).length+')</span>';
+  fH+='<span class="exercise-filter" onclick="fE(\'hard\')">🔴 挑战 ('+EXERCISES.filter(function(e){return e.d==='hard';}).length+')</span>';
+  fH+='<span class="exercise-filter" onclick="fE(\'project\')">📦 项目 ('+EXERCISES.filter(function(e){return e.d==='project';}).length+')</span>';
+  document.getElementById('exerciseFilters').innerHTML=fH;
+  fE('all');
+}
+
+function fE(diff){
+  var d=LS_PREFIX+'_done',dr=JSON.parse(safeGetLS(d,'[]'));
+  var fil=diff==='all'?EXERCISES:EXERCISES.filter(function(e){return e.d===diff;});
+  var h='';
+  fil.forEach(function(e){
+    var isD=dr.indexOf(parseInt(e.n))>=0;
+    var dCls='diff '+e.d;var dLbl={easy:'基础',medium:'进阶',hard:'挑战',project:'项目'};
+    h+='<div class="exercise-item"><span class="exercise-num">#'+e.n+'</span>'+
+      '<div class="ei-content"><div class="ei-title">'+
+      '<span class="ei-title-text">'+e.t+'</span>'+
+      '<span class="'+dCls+'">'+dLbl[e.d]+'</span></div></div>'+
+      '<div class="ei-check'+(isD?' done':'')+'" onclick="tE('+e.n+',this)">'+(isD?'✓':'')+'</div></div>';
+  });
+  document.getElementById('exerciseList').innerHTML=h;
+  uEC();
+  var btns=document.querySelectorAll('.exercise-filter');
+  for(var i=0;i<btns.length;i++)btns[i].classList.remove('active');
+  var a=document.querySelector('.exercise-filter[onclick="fE(\''+diff+'\')"]');
+  if(a)a.classList.add('active');
+}
+
+function tE(n,el){
+  var d=LS_PREFIX+'_done',dr=JSON.parse(safeGetLS(d,'[]'));
+  var idx=dr.indexOf(n);
+  if(idx>=0){dr.splice(idx,1);el.classList.remove('done');el.textContent='';}
+  else{dr.push(n);el.classList.add('done');el.textContent='✓';}
+  safeSetLS(d,JSON.stringify(dr));
+  uEC();
+}
+
+function uEC(){
+  var d=LS_PREFIX+'_done',dr=JSON.parse(safeGetLS(d,'[]'));
+  document.getElementById('exerciseCount').innerHTML='已完成 <strong>'+dr.length+'</strong>/'+EXERCISES.length;
+}
+
+function drawGraph(){
+  var canvas=document.getElementById('graphCanvas');
+  if(!canvas)return;
+  var ctx=canvas.getContext('2d');
+  var dpr=window.devicePixelRatio||1;
+  var rect=canvas.parentElement.getBoundingClientRect();
+  canvas.width=rect.width*dpr;canvas.height=380*dpr;
+  canvas.style.width=rect.width+'px';canvas.style.height='380px';
+  ctx.scale(dpr,dpr);
+  var W=rect.width,H=380;
+  var cols=PHASES.length;var colW=W/(cols+0.5);var padding=40;
+  for(var i=0;i<PHASES.length;i++){var p=PHASES[i];
+    var cx=padding+colW*(i+0.3);
+    ctx.fillStyle=p.color+'22';ctx.fillRect(cx-colW*0.35,20,colW*0.7,H-40);
+    ctx.strokeStyle=p.color+'44';ctx.strokeRect(cx-colW*0.35,20,colW*0.7,H-40);
+    ctx.fillStyle=p.color;ctx.font='bold 13px "Noto Sans SC","Microsoft YaHei",sans-serif';ctx.textAlign='center';
+    ctx.fillText(p.icon+' '+p.title,cx,H-10);
+  }
+  var kpPos={};
+  for(var i=0;i<KPS.length;i++){var kp=KPS[i];
+    var pi=PHASES.findIndex(function(x){return x.id===kp.p;});if(pi<0)continue;
+    var hash=0;for(var c=0;c<kp.id.length;c++){hash=((hash<<5)-hash)+kp.id.charCodeAt(c);hash|=0;}
+    var ny=60+Math.abs(hash%(H-120));
+    var nx=padding+colW*(pi+0.3);var r=4;
+    ctx.beginPath();ctx.arc(nx,ny,r,0,Math.PI*2);ctx.fillStyle=PHASES[pi].color;ctx.fill();
+    ctx.strokeStyle=PHASES[pi].color+'88';ctx.lineWidth=0.5;ctx.stroke();
+    kpPos[kp.id]={x:nx,y:ny};
+  }
+  for(var i=0;i<KPS.length;i++){var kp2=KPS[i];if(!kp2.rel)continue;
+    var srcPos=kpPos[kp2.id];if(!srcPos)continue;
+    kp2.rel.forEach(function(rid){
+      var dstPos=kpPos[rid];if(!dstPos)return;
+      ctx.beginPath();ctx.moveTo(srcPos.x,srcPos.y);ctx.lineTo(dstPos.x,dstPos.y);
+      ctx.strokeStyle='#6366f122';ctx.lineWidth=0.5;ctx.setLineDash([2,4]);ctx.stroke();ctx.setLineDash([]);
+    });
+  }
+}
+
+function hRS(){
+  var h='';
+  for(var i=0;i<RESOURCES.length;i++){var r=RESOURCES[i];
+    h+='<div class="resource-item"><span class="ri-type '+r.t+'">'+r.t+'</span><h4>'+r.n+'</h4><p>'+r.d+'</p></div>';
+  }
+  document.getElementById('resourceGrid').innerHTML=h;
+}
+
+function hTR(){
+  var h='';var d=LS_PREFIX+'_tracker';var dr=JSON.parse(safeGetLS(d,'[]'));
+  for(var i=0;i<TRACKER_ITEMS.length;i++){var t=TRACKER_ITEMS[i];var done=dr.indexOf(t.id)>=0;
+    h+='<div class="tracker-item'+(done?' done':'')+'" onclick="tTR(\''+t.id+'\',this)">'+
+      '<div class="tracker-check"></div><span class="tracker-label">'+t.n+'</span></div>';
+  }
+  document.getElementById('trackerGrid').innerHTML=h;
+  uPB();
+}
+
+function tTR(id,el){
+  var d=LS_PREFIX+'_tracker';var dr=JSON.parse(safeGetLS(d,'[]'));
+  var idx=dr.indexOf(id);
+  if(idx>=0){dr.splice(idx,1);el.classList.remove('done');}
+  else{dr.push(id);el.classList.add('done');}
+  safeSetLS(d,JSON.stringify(dr));
+  uPB();
+}
+
+function uPB(){
+  var d=LS_PREFIX+'_tracker';var dr=JSON.parse(safeGetLS(d,'[]'));
+  var pct=TRACKER_ITEMS.length>0?Math.round(dr.length/TRACKER_ITEMS.length*100):0;
+  document.getElementById('progressBar').style.width=pct+'%';
+}
+
+function hFs(){
+  var tabsEl=document.getElementById('formulaTabs');if(!tabsEl)return;
+  var th='';
+  for(var i=0;i<FORMULA_TABS.length;i++){
+    th+='<span class="formula-tab'+(i===0?' active':'')+'" onclick="sFT(\'ft'+(i+1)+'\',this)">'+FORMULA_TABS[i].n+'</span>';
+  }
+  tabsEl.innerHTML=th;
+  var panelsEl=document.getElementById('formulaPanels');if(!panelsEl)return;
+  var ph='';
+  for(var i=0;i<FORMULAS.length;i++){
+    var f=FORMULAS[i];var fr='';
+    for(var j=0;j<f.r.length;j++){fr+='<tr><td>'+f.r[j][0]+'</td><td class="ft-formula">'+f.r[j][1]+'</td></tr>';}
+    ph+='<div class="formula-panel'+(i===0?' active':'')+'" id="fp-ft'+(i+1)+'">'+
+      '<table class="formula-table"><thead><tr><th>名称</th><th>公式</th></tr></thead><tbody>'+fr+'</tbody></table></div>';
+  }
+  panelsEl.innerHTML=ph;
+}
+
+function hDS(){
+  var grid=document.getElementById('drawingGrid');if(!grid)return;
+  var h='';
+  for(var i=0;i<PHASES.length;i++){var ph=PHASES[i];
+    if(ph.drawings&&ph.drawings.length){
+      for(var j=0;j<ph.drawings.length;j++){
+        h+='<div class="drawing-card"><h4>'+ph.drawings[j]+'</h4><p>阶段'+(i+1)+'：'+ph.title+'</p></div>';
+      }
+    }
+  }
+  grid.innerHTML=h||'<p style="color:var(--text-muted);font-size:0.85rem">各阶段的图表推导要点将在此展示。</p>';
+}
+
+function searchOpen(){document.getElementById('searchOverlay').classList.add('show');document.getElementById('searchInput').focus();}
+function searchClose(){document.getElementById('searchOverlay').classList.remove('show');}
+function searchKPs(){
+  var q=document.getElementById('searchInput').value.toLowerCase();
+  var res=KPS.filter(function(k){return k.n.toLowerCase().indexOf(q)>=0||(k.d||'').toLowerCase().indexOf(q)>=0;});
+  var h='';
+  for(var i=0;i<Math.min(res.length,10);i++){
+    h+='<div class="search-result" onclick="searchClose();tKC_go(\''+res[i].id+'\')">'+
+      '<div class="sr-title">'+res[i].n+'</div><div class="sr-detail">'+(res[i].d||'').substring(0,60)+'</div></div>';
+  }
+  document.getElementById('searchResults').innerHTML=h||'<div style="color:var(--text-muted);padding:10px">无结果</div>';
+}
+
+function loadTheme(){var t=safeGetLS(STORAGE_KEY+'_theme','dark');
+  if(t==='light'){document.body.classList.add('light');document.body.classList.remove('dark');}
+  else{document.body.classList.add('dark');document.body.classList.remove('light');}}
+function toggleTheme(){var t=safeGetLS(STORAGE_KEY+'_theme','dark');t=t==='dark'?'light':'dark';
+  safeSetLS(STORAGE_KEY+'_theme',t);loadTheme();}
+
+function syncKPsFromManifest(){
+  try{
+    fetch('manifest.json').then(function(r){
+      if(!r.ok)return;
+      return r.json();
+    }).then(function(manifest){
+      if(!manifest||!manifest.materials)return;
+      var currentPlan=manifest.plan_id||'econometrics-learning';
+      if(currentPlan!=='econometrics-learning')return;
+      for(var i=0;i<manifest.materials.length;i++){
+        var mat=manifest.materials[i];
+        if(!mat.html_file)continue;
+        var kpIndex=-1;
+        for(var j=0;j<KPS.length;j++){
+          if(KPS[j].id===mat.kp_id){kpIndex=j;break;}
+        }
+        if(kpIndex<0)continue;
+        var dd=KPS[kpIndex].deep_dive;
+        if(!dd){KPS[kpIndex].deep_dive={status:'ready',html_file:mat.html_file};}
+        else{dd.status='ready';dd.html_file=dd.html_file||mat.html_file;}
+        var kcEl=document.getElementById('kc-'+mat.kp_id);
+        if(!kcEl)continue;
+        var ddBtn=kcEl.querySelector('.deep-dive-btn');
+        if(ddBtn)ddBtn.textContent='✅ 查看深度研读';
+        var ddHint=kcEl.querySelector('.dd-hint');
+        if(ddHint)ddHint.textContent='点击 ↗ 打开资料';
+        var ddOpenBtn=kcEl.querySelector('.deep-dive-open-btn');
+        if(!ddOpenBtn){
+          var ddBar=kcEl.querySelector('.deep-dive-bar');
+          if(ddBar){
+            var btn=document.createElement('button');
+            btn.className='deep-dive-open-btn';
+            btn.title='打开深度研读资料';
+            btn.textContent='↗';
+            btn.onclick=function(kpId){return function(e){e.stopPropagation();ddOpen(kpId);};}(mat.kp_id);
+            ddBar.insertBefore(btn,ddBar.firstChild);
+          }
+        }
+      }
+    }).catch(function(){});
+  }catch(e){}
+}
+
+function init(){
+  loadTheme();
+  var pl=document.getElementById('phaseList');
+  for(var i=0;i<PHASES.length;i++){var ph=PHASES[i];
+    var c=document.createElement('div');c.className='phase-card';c.id='phase-'+ph.id;
+    c.innerHTML='<div class="phase-header" onclick="event.stopPropagation();this.parentElement.classList.toggle(\'open\')">'+
+      '<div class="phase-icon" style="background:'+ph.color+'22;color:'+ph.color+'">'+ph.icon+'</div>'+
+      '<div class="phase-info"><h3>'+ph.title+'</h3><div class="phase-week">'+ph.week+'</div></div>'+
+      '<span class="phase-sub" style="background:'+ph.color+'22;color:'+ph.color+'">'+ph.sub+'</span>'+
+      '<span class="phase-arrow">▶</span>'+
+      '</div><div class="phase-body"><div class="phase-body-inner"></div></div>';
+    pl.appendChild(c);
+    AHDS(ph);
+  }
+  var fd=document.getElementById('knowledgeFilters');
+  fd.innerHTML='<button class="knowledge-filter active" data-kp="all" onclick="kf(\'all\')">全部</button>';
+  for(var i=0;i<PHASES.length;i++){fd.innerHTML+='<button class="knowledge-filter" data-kp="'+PHASES[i].id+'" onclick="kf(\''+PHASES[i].id+'\')">阶段'+(i+1)+'</button>';}
+  kf('all');
+  hFs();
+  hES();
+  hRS();
+  hTR();
+  hDS();
+  if(document.getElementById('graphCanvas')){drawGraph();window.addEventListener('resize',drawGraph);}
+  document.body.classList.remove('loading');document.body.classList.add('loaded');
+  syncKPsFromManifest();
+  setTimeout(renderAllFormulas,100);
+}
+
+init();
+
+document.addEventListener('keydown',function(e){if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();searchOpen();}});
+
+(function(){var hash=location.hash;if(hash&&hash.indexOf('#kc-')===0){
+  var kid=hash.replace('#kc-','');setTimeout(function(){tKC_go(kid);},300);}})();
+
+var gc=document.getElementById('graphCanvas');if(gc){gc.addEventListener('click',function(){drawGraph();});}
+
+(function() {
+  var CH_KEY = '_ml_llm_nav';
+
+  function processNav() {
+    var raw = localStorage.getItem(CH_KEY);
+    if (!raw) return;
+    try {
+      var data = JSON.parse(raw);
+      if (Date.now() - data.ts > 10000) {
+        localStorage.removeItem(CH_KEY);
+        return;
+      }
+      if (data.kpId) {
+        localStorage.removeItem(CH_KEY);
+        if (typeof kf === 'function') kf('all');
+        setTimeout(function() {
+          if (typeof tKC_go === 'function') tKC_go(data.kpId);
+        }, 200);
+      }
+    } catch(e) {
+      localStorage.removeItem(CH_KEY);
+    }
+  }
+
+  window.addEventListener('storage', function(e) {
+    if (e.key === CH_KEY) processNav();
+  });
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+      setTimeout(processNav, 300);
+    });
+  } else {
+    setTimeout(processNav, 300);
+  }
+})();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+</body>
+</html>

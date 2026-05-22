@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>SELECT查询基础 - 深度研读</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<style>
+:root{
+--bg-deep:#0d0d0d;--bg-primary:#141414;--bg-card:#1a1a1a;
+--bg-elevated:#222222;--bg-input:#1c1c1c;
+--text-primary:#ededed;--text-secondary:#a0a0a0;--text-muted:#787878;
+--accent-blue:#5b8db8;--accent-cyan:#6ea8c0;--accent-purple:#8878a8;
+--accent-green:#5a9e6f;--accent-orange:#c0a060;--accent-pink:#b87888;
+--accent-red:#c06050;--accent-gold:#c0a060;
+--border-subtle:rgba(255,255,255,0.06);--border-glow:rgba(91,141,184,0.20);
+--shadow-sm:0 1px 3px rgba(0,0,0,0.3);--shadow-md:0 4px 12px rgba(0,0,0,0.4);
+--radius-sm:6px;--radius-md:10px;--radius-lg:16px;
+--transition-fast:0.15s ease;--transition-smooth:0.3s ease;
+--chart-grid:#252525;--chart-axis-label:#787878;
+}
+body.light{
+--bg-deep:#fafafa;--bg-primary:#ffffff;--bg-card:#f5f5f5;
+--bg-elevated:#eeeeee;--bg-input:#e5e5e5;
+--text-primary:#121212;--text-secondary:#4a4a4a;--text-muted:#5e5e5e;
+--accent-blue:#3a6088;--accent-cyan:#3a7888;--accent-purple:#5a4878;
+--accent-green:#3d8055;--accent-orange:#886830;--accent-pink:#884858;
+--accent-red:#983830;--accent-gold:#886830;
+--border-subtle:rgba(18,18,18,0.08);--border-glow:rgba(58,96,136,0.20);
+--shadow-sm:0 1px 3px rgba(0,0,0,0.06);--shadow-md:0 4px 12px rgba(0,0,0,0.08);
+--chart-grid:#e5e5e5;--chart-axis-label:#5e5e5e;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter','Noto Sans SC',-apple-system,sans-serif;background:var(--bg-deep);color:var(--text-primary);line-height:1.7}
+body.loading{opacity:0}body.loaded{opacity:1;transition:opacity 0.4s ease}
+.container{max-width:1200px;margin:0 auto;padding:0 24px}
+.meta-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-lg);padding:20px 24px;margin-bottom:24px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;position:relative;overflow:hidden}
+.meta-card::before{content:'';position:absolute;top:-50%;right:-20%;width:100%;height:100%;background:radial-gradient(ellipse at center,#5b8db8 0%,transparent 60%);opacity:0.08}
+.meta-card>*{position:relative;z-index:1}
+.meta-title{font-size:1.5rem;font-weight:800;color:var(--accent-blue)}
+.meta-tags{display:flex;gap:8px;flex-wrap:wrap}
+.meta-tag{padding:4px 14px;border-radius:50px;font-size:0.75rem;font-weight:600}
+.meta-tag.domain{background:rgba(91,141,184,0.1);color:var(--accent-blue);border:1px solid rgba(91,141,184,0.2)}
+.meta-tag.level{background:rgba(192,160,96,0.1);color:var(--accent-orange);border:1px solid rgba(192,160,96,0.2)}
+.meta-stats{display:flex;gap:20px;margin-left:auto}
+.meta-stat{text-align:center}
+.meta-stat .num{font-size:1.4rem;font-weight:700;color:var(--accent-cyan)}
+.meta-stat .lbl{font-size:0.68rem;color:var(--text-muted)}
+.sidebar{position:fixed;left:0;top:0;height:100vh;width:280px;background:var(--bg-primary);border-right:1px solid var(--border-subtle);padding:24px;overflow-y:auto;z-index:100}
+.sidebar h3{font-size:0.85rem;font-weight:700;color:var(--text-secondary);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--border-subtle)}
+.sidebar-nav{list-style:none;padding:0}
+.sidebar-nav li{margin-bottom:4px}
+.sidebar-nav a{display:block;padding:10px 12px;border-radius:var(--radius-md);text-decoration:none;font-size:0.78rem;color:var(--text-secondary);transition:all var(--transition-fast)}
+.sidebar-nav a:hover{background:rgba(91,141,184,0.08);color:var(--accent-cyan)}
+.sidebar-nav a.active{background:rgba(91,141,184,0.12);color:var(--accent-blue);font-weight:600}
+.sidebar-back-link{display:block;padding:8px 12px;margin-bottom:12px;border-radius:8px;background:var(--bg-elevated);color:var(--accent-blue);text-decoration:none;font-size:13px;font-weight:600}
+.content-area{margin-left:300px;padding:32px 24px;max-width:calc(100% - 320px)}
+@media(max-width:1024px){.sidebar{display:none}.content-area{margin-left:0;max-width:100%}}
+.module{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-lg);padding:32px;margin-bottom:24px;transition:all var(--transition-smooth)}
+.module:hover{border-color:var(--border-glow)}
+.module-header{margin-bottom:24px}
+.module-tag{display:inline-block;padding:4px 12px;border-radius:50px;font-size:0.68rem;font-weight:700;margin-bottom:10px;background:rgba(91,141,184,0.1);color:var(--accent-blue)}
+.module-title{font-size:1.4rem;font-weight:800;margin-bottom:8px}
+.module-hook{font-size:0.9rem;color:var(--accent-cyan);font-style:italic;margin-bottom:16px}
+.module-content{font-size:0.92rem;color:var(--text-secondary);line-height:1.8}
+.module-content p{margin-bottom:14px}
+.module-content ul, .module-content ol{margin:14px 0;padding-left:24px}
+.module-content li{margin-bottom:8px}
+.module-content strong{color:var(--text-primary);font-weight:600}
+.module-content em{color:var(--accent-orange)}
+.module-content pre{background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:var(--radius-sm);padding:16px 20px;overflow-x:auto;margin:14px 0;font-size:0.82rem;font-family:'JetBrains Mono',Consolas,monospace;color:var(--accent-cyan);line-height:1.6}
+.formula-box{background:var(--bg-elevated);border:1px solid var(--border-glow);border-radius:var(--radius-md);padding:20px;margin:20px 0;overflow-x:auto}
+.formula-box .formula-caption{font-size:0.75rem;color:var(--text-muted);margin-bottom:8px;text-align:center}
+.formula-box .formula-content{font-size:1rem;text-align:center;color:var(--accent-blue)}
+.formula-box .formula-derivation{margin-top:12px;padding-top:12px;border-top:1px solid var(--border-subtle);font-size:0.82rem;color:var(--text-secondary)}
+.formula-box .formula-derivation strong{color:var(--accent-cyan)}
+.chart-container{margin:20px 0;border-radius:var(--radius-md);overflow:hidden}
+.chart-container .chart-caption{font-size:0.75rem;color:var(--text-muted);margin-bottom:8px;text-align:center}
+.chart-wrapper{height:400px;background:var(--bg-elevated)}
+@media(max-width:768px){.chart-wrapper{height:300px}}
+.table-container{margin:20px 0;overflow-x:auto}
+.table-container table{width:100%;border-collapse:collapse;border-radius:var(--radius-md);overflow:hidden}
+.table-container th{background:var(--bg-elevated);color:var(--accent-cyan);font-weight:700;padding:12px 16px;text-align:left;font-size:0.8rem}
+.table-container td{padding:12px 16px;border-bottom:1px solid var(--border-subtle);font-size:0.85rem;color:var(--text-secondary)}
+.table-container tr:hover td{background:rgba(91,141,184,0.03)}
+.table-container .table-caption{font-size:0.75rem;color:var(--text-muted);margin-bottom:8px;text-align:center}
+.key-takeaway{background:linear-gradient(135deg,rgba(192,160,96,0.08),rgba(192,160,96,0.02));border-left:4px solid var(--accent-gold);padding:16px 20px;border-radius:0 var(--radius-md) var(--radius-md) 0;margin-top:20px}
+.key-takeaway strong{color:var(--accent-gold);font-weight:700}
+.key-takeaway p{color:var(--text-secondary);font-size:0.88rem;margin:0}
+.references{margin-top:24px;padding-top:20px;border-top:1px solid var(--border-subtle)}
+.references h4{font-size:0.85rem;font-weight:700;color:var(--text-primary);margin-bottom:12px}
+.reference-item{padding:10px 14px;background:var(--bg-elevated);border-radius:var(--radius-sm);margin-bottom:8px;font-size:0.82rem}
+.reference-item .ref-title{color:var(--text-primary);font-weight:600}
+.reference-item .ref-authors{color:var(--accent-cyan);margin:4px 0}
+.reference-item .ref-meta{color:var(--text-muted);font-size:0.75rem}
+.theme-toggle{position:fixed;right:20px;top:20px;z-index:200;background:var(--bg-card);border:1px solid var(--border-subtle);padding:10px;border-radius:50%;cursor:pointer;color:var(--text-muted);transition:all var(--transition-fast)}
+.theme-toggle:hover{border-color:var(--border-glow);color:var(--accent-cyan)}
+.back-btn{position:fixed;right:20px;bottom:20px;z-index:200}
+.back-btn button{background:linear-gradient(135deg,#5b8db8,#8878a8);color:white;border:none;border-radius:24px;padding:12px 24px;font-size:0.85rem;font-weight:600;cursor:pointer;box-shadow:0 4px 12px rgba(91,141,184,0.3);transition:all var(--transition-fast)}
+.back-btn button:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(91,141,184,0.4)}
+.integration-navbar{display:flex;align-items:center;gap:12px;padding:10px 24px;background:var(--bg-card);border-bottom:1px solid var(--border-subtle);font-size:14px;position:sticky;top:0;z-index:50}
+.integration-navbar a{color:var(--accent-blue);text-decoration:none;font-weight:600}
+</style>
+</head>
+<body class="loading dark">
+<script>var DEEP_DIVE_KP_ID = 'p1_1';</script>
+
+<div class="integration-navbar">
+  <a href="#" onclick="goBack();return false;">← 返回 SQL及其在工作中应用 系统学习方案</a>
+  <span style="color:var(--text-muted)">|</span>
+  <span style="color:var(--text-secondary)">第1/4阶段 · SQL查询实战入门</span>
+</div>
+
+<button class="theme-toggle" onclick="toggleTheme()" title="切换主题">🌓</button>
+
+<div class="sidebar">
+  <a href="#" onclick="goBack();return false;" class="sidebar-back-link">← 返回主方案</a>
+  <h3>📖 目录导航</h3>
+  <ul class="sidebar-nav">
+    <li><a href="#background" class="active">背景与缘起</a></li>
+    <li><a href="#concept">核心概念</a></li>
+    <li><a href="#principle">核心原理</a></li>
+    <li><a href="#architecture">查询引擎架构</a></li>
+    <li><a href="#development">发展迭代</a></li>
+    <li><a href="#application">实践应用</a></li>
+    <li><a href="#case-study">实践案例</a></li>
+    <li><a href="#risk">潜在风险</a></li>
+    <li><a href="#landscape">生态格局</a></li>
+    <li><a href="#issues">常见问题</a></li>
+    <li><a href="#prospect">发展趋势</a></li>
+    <li><a href="#effort-direction">学习建议</a></li>
+    <li><a href="#misconceptions">常见误区</a></li>
+    <li><a href="#learning-path">学习路径</a></li>
+    <li><a href="#glossary">关键术语表</a></li>
+    <li><a href="#debate">争议与讨论</a></li>
+  </ul>
+</div>
+
+<div class="content-area">
+  <div class="meta-card">
+    <div>
+      <div class="meta-title">📋 SELECT查询基础</div>
+      <div class="meta-tags">
+        <span class="meta-tag domain">🏷️ 数据库/技术</span>
+        <span class="meta-tag level">🎯 进阶(理解×标准)</span>
+      </div>
+    </div>
+    <div class="meta-stats">
+      <div class="meta-stat"><div class="num">16</div><div class="lbl">模块</div></div>
+      <div class="meta-stat"><div class="num">5</div><div class="lbl">图表</div></div>
+      <div class="meta-stat"><div class="num">3</div><div class="lbl">公式</div></div>
+      <div class="meta-stat"><div class="num">5</div><div class="lbl">参考文献</div></div>
+    </div>
+  </div>
+
+  <section id="background" class="module">
+    <div class="module-header">
+      <span class="module-tag">基础背景</span>
+      <h2 class="module-title">背景与缘起</h2>
+      <p class="module-hook">1970年，Edgar F. Codd用一篇论文开启了关系数据库时代，而SELECT正是关系代数在工程实践中最优雅的落地。</p>
+    </div>
+    <div class="module-content">
+      <p>在1970年之前，数据管理还处于层次模型和网状模型时代——查询数据需要程序员编写导航式代码，沿着指针从一个记录跳到另一个记录。IBM研究员<strong>Edgar F. Codd</strong>发表了划时代论文"A Relational Model of Data for Large Shared Data Banks"，提出用数学上严谨的<em>关系代数</em>来描述数据查询。</p>
+      <p>关系代数的核心操作包括<strong>投影（Projection, π）</strong>、<strong>选择（Selection, σ）</strong>、<strong>连接（Join, ⋈）</strong>——SELECT语句正是这些数学操作在SQL中的直接体现。1974年，Donald Chamberlin和Raymond Boyce设计出SEQUEL，1979年Oracle发布第一个商业SQL数据库。</p>
+      <p>据Stack Overflow 2024年开发者调查，SQL以超过50%的使用率持续位居最流行"编程语言"前三。无论数据分析师、后端工程师还是ML工程师，<strong>SELECT都是他们最频繁使用的SQL命令</strong>——它已经成为数据从业者的通用语言。</p>
+    </div>
+    <div class="key-takeaway"><strong>核心要点：</strong><p>SELECT源于关系代数的投影操作，是SQL中最基础也最核心的查询命令。理解它的设计哲学（声明式查询——告诉数据库你要什么，而不是怎么做），是精通SQL的第一步。</p></div>
+  </section>
+
+  <section id="concept" class="module">
+    <div class="module-header">
+      <span class="module-tag">核心概念</span>
+      <h2 class="module-title">核心概念</h2>
+      <p class="module-hook">SELECT决定你要什么，FROM告诉数据库去哪找——这两个关键字构成了所有SQL查询的最小骨架。</p>
+    </div>
+    <div class="module-content">
+      <h3 style="color:var(--accent-blue);font-size:1.1rem;margin:20px 0 12px">SELECT的基本语法结构</h3>
+      <pre>SELECT [DISTINCT] column1, column2, ...
+FROM table_name
+[WHERE conditions]
+[GROUP BY columns]
+[HAVING group_conditions]
+[ORDER BY columns [ASC|DESC]]
+[LIMIT row_count];</pre>
+      <p><strong>SELECT子句</strong>：指定要返回的列，对应关系代数的投影（Projection）操作。可以写具体列名、*（所有列）、表达式或函数。</p>
+      <p><strong>FROM子句</strong>：指定数据源——最基本的形式是一个表名，JOIN时可连多个表。</p>
+      <p><strong>DISTINCT</strong>：去重关键字，<em>消除结果集中完全相同的行</em>。注意：DISTINCT作用于<strong>所有选定列的组合</strong>，不是只对紧跟的那一列。</p>
+      <p><strong>AS 别名</strong>：为列或表指定临时名称。在计算列和JOIN中尤其重要——让结果可读性大幅提升。</p>
+
+      <table class="table-container"><table>
+        <thead><tr><th>子句</th><th>作用</th><th>是否必须</th><th>示例</th></tr></thead>
+        <tbody>
+        <tr><td><strong>SELECT</strong></td><td>指定输出列</td><td>✔ 必须</td><td>SELECT name, salary*12 AS annual</td></tr>
+        <tr><td><strong>FROM</strong></td><td>指定数据源表</td><td>✔ 必须</td><td>FROM employees</td></tr>
+        <tr><td><strong>DISTINCT</strong></td><td>去重</td><td>可选</td><td>SELECT DISTINCT department</td></tr>
+        <tr><td><strong>AS</strong></td><td>列/表别名</td><td>可选</td><td>SELECT salary*1.1 AS new_salary</td></tr>
+        <tr><td><strong>LIMIT</strong></td><td>限制返回行数</td><td>可选</td><td>LIMIT 10 (MySQL/PostgreSQL)</td></tr>
+        </tbody>
+      </table></table>
+    </div>
+    <div class="key-takeaway"><strong>核心要点：</strong><p>SELECT+FROM是SQL的最小完备骨架。DISTINCT作用于所有列组合，AS提升可读性，LIMIT控制行数——这四个关键字组合起来可解决80%的基础数据提取需求。</p></div>
+  </section>
+
+  <section id="principle" class="module">
+    <div class="module-header">
+      <span class="module-tag">核心原理</span>
+      <h2 class="module-title">核心原理</h2>
+      <p class="module-hook">你以为SELECT最先执行？不——它是倒数第三个。理解SQL的逻辑执行顺序，是区分"能用"和"精通"的分水岭。</p>
+    </div>
+    <div class="module-content">
+      <p>绝大多数SQL初学者犯的第一个概念性错误就是按照<strong>书写顺序</strong>来理解SQL执行。实际上，SQL引擎遵循一套严格定义的<strong>逻辑执行顺序</strong>：</p>
+
+      <div class="formula-box">
+        <div class="formula-caption">书写顺序 vs 执行顺序</div>
+        <div class="formula-content">$$\text{书写：SELECT → FROM → WHERE → GROUP BY → HAVING → ORDER BY → LIMIT}$$</div>
+        <div class="formula-content" style="color:var(--accent-green)">$$\text{执行：FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY → LIMIT}$$</div>
+        <div class="formula-derivation">
+          <strong>推导：</strong><br/>
+          1. <strong>FROM</strong> — 确定数据源，加载表数据。多表时先JOIN生成中间结果<br/>
+          2. <strong>WHERE</strong> — 逐行条件过滤，列别名此时不可用（SELECT还没执行）<br/>
+          3. <strong>GROUP BY</strong> — 按指定列分组，每组聚合为一行<br/>
+          4. <strong>HAVING</strong> — 对分组结果过滤（WHERE过滤行，HAVING过滤组）<br/>
+          5. <strong>SELECT</strong> — 决定输出哪些列、计算表达式、定义列别名<br/>
+          6. <strong>ORDER BY</strong> — 排序最终结果集，<em>可以使用SELECT中定义的别名</em><br/>
+          7. <strong>LIMIT</strong> — 截取指定范围的行
+        </div>
+      </div>
+
+      <h3 style="color:var(--accent-cyan);font-size:1.1rem;margin:20px 0 12px">一个让人困惑的例子</h3>
+      <pre>-- ✅ ORDER BY可以用别名（执行顺序第6步，别名已定义）
+SELECT salary * 12 AS annual_salary
+FROM employees
+ORDER BY annual_salary DESC;
+
+-- ❌ WHERE不能用别名（执行顺序第2步，别名尚未定义）
+SELECT salary * 12 AS annual_salary
+FROM employees
+WHERE annual_salary > 50000;</pre>
+
+      <div class="chart-container">
+        <div class="chart-caption">图：SQL语句的逻辑执行顺序（从上到下为执行先后）</div>
+        <div class="chart-wrapper" id="chart-exec-order"></div>
+      </div>
+    </div>
+    <div class="key-takeaway"><strong>核心要点：</strong><p>逻辑执行顺序是SQL最反直觉的设计之一：FROM→WHERE→GROUP BY→HAVING→SELECT→ORDER BY→LIMIT。记住"SELECT倒数第三"，能避开80%的初学者陷阱。</p></div>
+  </section>
+
+  <section id="architecture" class="module">
+    <div class="module-header">
+      <span class="module-tag">底层架构</span>
+      <h2 class="module-title">查询引擎架构</h2>
+      <p class="module-hook">当你按下回车，SELECT会经历解析→优化→执行的完整流水线——理解这四层架构才能真正掌控查询性能。</p>
+    </div>
+    <div class="module-content">
+      <p>SQL查询引擎通常分为四层：</p>
+      <ol>
+        <li><strong>解析器（Parser）</strong>：词法分析（字符串拆成token）→ 语法分析（构建AST）→ 语义检查（表/列是否存在）</li>
+        <li><strong>查询优化器（Optimizer）</strong>：基于代价（CBO）估算各方案I/O+CPU成本，选择最优执行计划。这就是为什么同样SQL在不同数据量下表现天差地别</li>
+        <li><strong>执行器（Executor）</strong>：将执行计划转化为实际I/O操作。火山模型是经典实现——每个算子提供统一的open-next-close迭代器接口</li>
+        <li><strong>存储引擎（Storage Engine）</strong>：负责磁盘读写、缓存管理（Buffer Pool）、事务日志。MySQL的InnoDB是使用最广泛的存储引擎</li>
+      </ol>
+
+      <div class="chart-container">
+        <div class="chart-caption">图：SELECT语句的数据库内部旅程</div>
+        <div class="chart-wrapper" id="chart-query-pipeline"></div>
+      </div>
+    </div>
+    <div class="key-takeaway"><strong>核心要点：</strong><p>数据库通过"解析→优化→执行→存储"四层架构处理SELECT。优化器是最关键的环节——它基于统计信息自动选择最优方案，但你需要了解它的工作原理才能写出高性能SQL。</p></div>
+  </section>
+
+  <section id="development" class="module">
+    <div class="module-header">
+      <span class="module-tag">发展历程</span>
+      <h2 class="module-title">发展迭代</h2>
+      <p class="module-hook">你用的每一个关键字，背后都有一段标准化的故事。SQL-86到SQL:2023的37年里，SELECT从简单查询变成功能完备的数据处理框架。</p>
+    </div>
+    <div class="module-content">
+      <table class="table-container"><table>
+        <thead><tr><th>标准版本</th><th>年份</th><th>SELECT相关重要新增</th></tr></thead>
+        <tbody>
+        <tr><td><strong>SQL-86</strong></td><td>1986</td><td>基础SELECT/FROM/WHERE/ORDER BY</td></tr>
+        <tr><td><strong>SQL-92</strong></td><td>1992</td><td>JOIN明确语法、CAST、CASE表达式</td></tr>
+        <tr><td><strong>SQL:1999</strong></td><td>1999</td><td>递归CTE、窗口函数（OLAP）</td></tr>
+        <tr><td><strong>SQL:2003</strong></td><td>2003</td><td>MERGE语句、IDENTITY列、XML支持</td></tr>
+        <tr><td><strong>SQL:2011</strong></td><td>2011</td><td>时态表支持</td></tr>
+        <tr><td><strong>SQL:2016</strong></td><td>2016</td><td>JSON数据类型/函数、行模式匹配</td></tr>
+        <tr><td><strong>SQL:2023</strong></td><td>2023</td><td>GREATEST/LEAST、ANY_VALUE聚合</td></tr>
+        </tbody>
+      </table></table>
+
+      <div class="chart-container">
+        <div class="chart-caption">图：SQL标准演进——SELECT表达能力成长曲线</div>
+        <div class="chart-wrapper" id="chart-sql-evolution"></div>
+      </div>
+      <p>关键洞察：SQL的核心思想——<strong>声明式查询</strong>——在近40年间保持了惊人的稳定。新增的功能更多是增强表达能力，而非推翻范式。</p>
+    </div>
+    <div class="key-takeaway"><strong>核心要点：</strong><p>SQL-92奠定了现代SQL的基石（JOIN、CASE），SQL:1999带来了窗口函数和CTE这两个数据分析最强大的武器，而2010年后的标准更多关注半结构化数据和新数据类型。</p></div>
+  </section>
+
+  <section id="application" class="module">
+    <div class="module-header">
+      <span class="module-tag">实践技巧</span>
+      <h2 class="module-title">实践应用</h2>
+      <p class="module-hook">数据分析师、后端工程师、BI开发者的SELECT模式截然不同——了解这些模式能让你更快适应团队协作。</p>
+    </div>
+    <div class="module-content">
+      <h3 style="color:var(--accent-blue);font-size:1.1rem;margin:20px 0 12px">场景一：数据分析师的探索式查询</h3>
+      <pre>-- 先LIMIT快速看一眼数据结构
+SELECT * FROM orders LIMIT 10;
+-- 确认后再查关键统计量
+SELECT COUNT(*) AS total,
+       COUNT(DISTINCT customer_id) AS unique_customers,
+       SUM(amount) AS revenue
+FROM orders;</pre>
+
+      <h3 style="color:var(--accent-blue);font-size:1.1rem;margin:20px 0 12px">场景二：后端工程师的业务查询</h3>
+      <pre>-- 精确筛选 + 字段裁剪（不做SELECT *）
+SELECT id, customer_name, order_status, amount
+FROM orders
+WHERE customer_id = 10086
+  AND order_date >= '2026-01-01'
+ORDER BY order_date DESC
+LIMIT 50;</pre>
+
+      <h3 style="color:var(--accent-blue);font-size:1.1rem;margin:20px 0 12px">场景三：BI报表开发者的汇总查询</h3>
+      <pre>-- 按维度汇总，生成可视化数据
+SELECT DATE_FORMAT(order_date, '%Y-%m') AS month,
+       product_category,
+       COUNT(*) AS order_count,
+       SUM(amount) AS total_amount
+FROM orders
+WHERE order_date >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)
+GROUP BY month, product_category
+ORDER BY month DESC;</pre>
+    </div>
+    <div class="key-takeaway"><strong>核心要点：</strong><p>三个角色的SELECT三种写法：数据探索要"由简入繁"，业务查询要"精准高效"，报表开发要"汇总+排序"。不要一上来就写100行的SQL。</p></div>
+  </section>
+
+  <section id="case-study" class="module">
+    <div class="module-header">
+      <span class="module-tag">实践案例</span>
+      <h2 class="module-title">实践案例</h2>
+      <p class="module-hook">"生成上月销售报表"——一个看似简单的需求，背后涉及SELECT的几乎所有基础技能。</p>
+    </div>
+    <div class="module-content">
+      <p>运营团队需要上月销售报表：(1)总订单数 (2)总销售额 (3)品类销售额TOP10 (4)每日销售趋势。</p>
+
+      <h3 style="color:var(--accent-cyan);font-size:1.1rem;margin:20px 0 12px">分步拆解</h3>
+      <p><strong>第一步：确认数据范围</strong></p>
+      <pre>SELECT MIN(order_date), MAX(order_date), COUNT(*)
+FROM orders
+WHERE order_date >= '2026-04-01' AND order_date < '2026-05-01';
+-- 结果：min=04-01, max=04-30, count=128,347</pre>
+
+      <p><strong>第二步：整体统计</strong></p>
+      <pre>SELECT COUNT(*) AS total_orders,
+       SUM(order_amount) AS total_revenue,
+       AVG(order_amount) AS avg_value
+FROM orders
+WHERE order_date >= '2026-04-01' AND order_date < '2026-05-01';</pre>
+
+      <p><strong>第三步：品类排名TOP10</strong></p>
+      <pre>SELECT product_category,
+       COUNT(*) AS cnt, SUM(order_amount) AS revenue
+FROM orders
+WHERE order_date >= '2026-04-01' AND order_date < '2026-05-01'
+GROUP BY product_category ORDER BY revenue DESC LIMIT 10;</pre>
+
+      <div class="chart-container">
+        <div class="chart-caption">图：4月每日销售趋势（案例数据）</div>
+        <div class="chart-wrapper" id="chart-case-daily"></div>
+      </div>
+
+      <p><strong>经验总结</strong>：真实工作中的SELECT查询是多步拆解的——先用LIMIT确认结构，再用COUNT(*)感知量级，最后才组合复杂聚合。不要一上来就写长SQL。</p>
+    </div>
+    <div class="key-takeaway"><strong>核心要点：</strong><p>SELECT查询开发生命周期：LIMIT探索→COUNT感知→逐层聚合→验证结果。这个四步方法论能让你的SQL开发效率翻倍、出错率减半。</p></div>
+  </section>
+
+  <section id="risk" class="module">
+    <div class="module-header">
+      <span class="module-tag">风险警示</span>
+      <h2 class="module-title">潜在风险</h2>
+      <p class="module-hook">一个看似无害的SELECT可能让你的数据库CPU飙满——SELECT *和WHERE中函数包裹列是两大头号杀手。</p>
+    </div>
+    <div class="module-content">
+      <table class="table-container"><table>
+        <thead><tr><th>危险操作</th><th>后果</th><th>防御手段</th></tr></thead>
+        <tbody>
+        <tr><td><strong>大表 SELECT * 不加WHERE</strong></td><td>全表扫描+全列传输，CPU 100%</td><td>必加WHERE + 指定列 + LIMIT</td></tr>
+        <tr><td><strong>WHERE中函数包裹列</strong></td><td>索引失效 → 慢查询</td><td>把函数移到比较值一侧</td></tr>
+        <tr><td><strong>隐式类型转换</strong></td><td>索引失效 + 结果异常</td><td>保持字段类型一致</td></tr>
+        <tr><td><strong>不当DISTINCT</strong></td><td>大结果集排序去重撑爆tmpdir</td><td>先确认是否真的需要去重</td></tr>
+        </tbody>
+      </table></table>
+
+      <h3 style="color:var(--accent-cyan);font-size:1.1rem;margin:20px 0 12px">SELECT * 的真正代价</h3>
+      <p>如果表有50列而你只要3列，SELECT * 在三个层面极其昂贵：<strong>网络传输</strong>（多余数据占用带宽）、<strong>覆盖索引失效</strong>（必须回表取所有列，I/O高出5-10倍）、<strong>内存占用</strong>（大宽表挤走Buffer Pool中有价值的热数据）。在数据库和应用分离的架构中，差异可能是<em>数秒 vs 数百毫秒</em>。</p>
+
+      <pre>-- ❌ 函数包裹索引列 → 索引失效
+SELECT * FROM orders
+WHERE DATE(order_date) = '2026-04-01';
+
+-- ✅ 比较值使用函数 → 索引可用
+SELECT * FROM orders
+WHERE order_date >= '2026-04-01 00:00:00'
+  AND order_date < '2026-04-02 00:00:00';</pre>
+    </div>
+    <div class="key-takeaway"><strong>核心要点：</strong><p>SELECT *的真正危险不是"不规范"，而是索引失效+网络浪费+缓存污染的三重性能惩罚。永远显式列出需要的列，永远不让函数包裹WHERE中的索引列。</p></div>
+  </section>
+
+  <section id="landscape" class="module">
+    <div class="module-header">
+      <span class="module-tag">生态格局</span>
+      <h2 class="module-title">生态格局</h2>
+      <p class="module-hook">SQL标准是一回事，各家数据库的实际实现是另一回事。了解四大数据库的SELECT方言差异，是跨平台开发的基本功。</p>
+    </div>
+    <div class="module-content">
+      <table class="table-container"><table>
+        <thead><tr><th>功能</th><th>MySQL 8.0</th><th>PostgreSQL 16</th><th>SQL Server</th><th>Oracle</th></tr></thead>
+        <tbody>
+        <tr><td>限制行数</td><td><code>LIMIT 10</code></td><td><code>LIMIT 10</code></td><td><code>FETCH NEXT 10 ROWS</code></td><td><code>FETCH FIRST 10 ROWS</code></td></tr>
+        <tr><td>字符串拼接</td><td><code>CONCAT(a,b)</code></td><td><code>a || b</code></td><td><code>a + b</code></td><td><code>a || b</code></td></tr>
+        <tr><td>日期格式化</td><td><code>DATE_FORMAT()</code></td><td><code>TO_CHAR()</code></td><td><code>FORMAT()</code></td><td><code>TO_CHAR()</code></td></tr>
+        <tr><td>NULL处理</td><td><code>IFNULL(x,v)</code></td><td><code>COALESCE(x,v)</code></td><td><code>ISNULL(x,v)</code></td><td><code>NVL(x,v)</code></td></tr>
+        <tr><td>取前N行</td><td><code>LIMIT N</code></td><td><code>LIMIT N</code></td><td><code>TOP N</code></td><td><code>WHERE ROWNUM<=N</code></td></tr>
+        </tbody>
+      </table></table>
+
+      <div class="chart-container">
+        <div class="chart-caption">图：关系数据库市场份额分布（DB-Engines 2025）</div>
+        <div class="chart-wrapper" id="chart-db-market"></div>
+      </div>
+    </div>
+    <div class="key-takeaway"><strong>核心要点：</strong><p>MySQL和PostgreSQL在LIMIT上一致，但与SQL Server(Oracle)的TOP(ROWNUM)完全不同。记住你团队的数据库方言——在StackOverflow搜答案时尤其要注意标准SQL vs 具体实现的差异。</p></div>
+  </section>
+
+  <section id="issues" class="module">
+    <div class="module-header">
+      <span class="module-tag">常见陷阱</span>
+      <h2 class="module-title">常见问题</h2>
+      <p class="module-hook">很多人说SQL简单——是的，一个下午就能学会基础语法；但要写出生产环境高效运行的SELECT，可能需要一年的刻意练习。</p>
+    </div>
+    <div class="module-content">
+      <h3 style="color:var(--accent-blue);font-size:1.1rem;margin:20px 0 12px">SQL学习的三道关卡</h3>
+      <ol>
+        <li><strong>语法记忆（可速成）</strong>——记住关键字、基本CRUD、简单WHERE/ORDER BY。这是大多数"会用SQL"的水平</li>
+        <li><strong>集合思维（需刻意练习）</strong>——SQL本质是<em>声明式集合运算</em>，不是逐行处理。从"循环思维"转到"集合思维"是最大心智转变</li>
+        <li><strong>执行计划感知（经验积累）</strong>——能预测你写的SELECT在数据库里的执行路径：索引用到了吗？会扫描多少行？需要临时表吗？</li>
+      </ol>
+      <p>大多数人卡在第1关和第2关之间——能写正确的SQL，但写不出高效的SQL。</p>
+    </div>
+    <div class="key-takeaway"><strong>核心要点：</strong><p>SQL学习的本质是从"逐行思考"（像写Python）到"集合思考"（像写数学）的转变。这个转变一旦完成，你就会发现SQL其实是一门极其优雅的声明式语言。</p></div>
+  </section>
+
+  <section id="prospect" class="module">
+    <div class="module-header">
+      <span class="module-tag">发展趋势</span>
+      <h2 class="module-title">发展趋势</h2>
+      <p class="module-hook">GPT可以帮你写SQL了——但这不意味着你不用学SELECT了。理解和验证AI生成的SQL，比亲手写更需要扎实的基础。</p>
+    </div>
+    <div class="module-content">
+      <p><strong>Text-to-SQL不会消灭SQL技能，只会重构它</strong>。三个关键趋势：</p>
+      <ul>
+        <li><strong>AI辅助写SQL成为标配</strong>：Copilot、ChatGPT都能根据自然语言生成SQL。但AI生成的SQL<em>可能包含性能陷阱</em>——你需要读懂它、审查它、优化它</li>
+        <li><strong>SELECT的"决策价值"上升</strong>：当语法不再成为瓶颈，能力区分点变成"选择查什么、怎么查、为什么这样查"——这是战略思考，AI无法替代</li>
+        <li><strong>SQL依然是数据界的通用语</strong>：5-10年内，没有查询语言能取代SQL。数据湖（Iceberg/Delta/Hudi）暴露的查询接口仍然是SQL</li>
+      </ul>
+    </div>
+    <div class="key-takeaway"><strong>核心要点：</strong><p>AI会让SQL的基础语法门槛更低，但区分度将从"能写"转移到"能审能优"。即使在Text-to-SQL时代，理解SELECT的执行原理依然是硬技能。</p></div>
+  </section>
+
+  <section id="effort-direction" class="module">
+    <div class="module-header">
+      <span class="module-tag">学习建议</span>
+      <h2 class="module-title">学习建议</h2>
+      <p class="module-hook">每天写SELECT不代表每天在进步。高质量的刻意练习需要聚焦、反馈和反复迭代。</p>
+    </div>
+    <div class="module-content">
+      <table class="table-container"><table>
+        <thead><tr><th>层级</th><th>目标</th><th>检验标准</th></tr></thead>
+        <tbody>
+        <tr><td><strong>Level 1 语法正确</strong></td><td>基本CRUD和简单筛选</td><td>LeetCode SQL Easy 10题独立完成</td></tr>
+        <tr><td><strong>Level 2 性能良好</strong></td><td>关注EXPLAIN、索引、扫描行数</td><td>百万级表查询从5秒→100ms</td></tr>
+        <tr><td><strong>Level 3 设计合理</strong></td><td>业务查询策略设计能力</td><td>能独立设计聚合方案和查询架构</td></tr>
+        </tbody>
+      </table></table>
+
+      <div class="chart-container">
+        <div class="chart-caption">图：SELECT技能雷达图——初学者 vs 进阶者</div>
+        <div class="chart-wrapper" id="chart-skill-radar"></div>
+      </div>
+    </div>
+    <div class="key-takeaway"><strong>核心要点：</strong><p>SQL学习的三个阶段：Level1语法正确（刷题可达）、Level2性能良好（EXPLAIN必备）、Level3设计合理（经验积累）。多数人卡在Level1→Level2的跨越。</p></div>
+  </section>
+
+  <section id="misconceptions" class="module">
+    <div class="module-header">
+      <span class="module-tag">误区纠正</span>
+      <h2 class="module-title">常见误区</h2>
+      <p class="module-hook">这些误区是每个SQL使用者的"成长痛"——早点认识到，少走半年弯路。</p>
+    </div>
+    <div class="module-content">
+      <table class="table-container"><table>
+        <thead><tr><th>#</th><th>误区</th><th>真相</th></tr></thead>
+        <tbody>
+        <tr><td>1</td><td>"SQL按书写顺序执行"</td><td>逻辑执行顺序：FROM→WHERE→GROUP BY→HAVING→SELECT→ORDER BY→LIMIT</td></tr>
+        <tr><td>2</td><td>"COUNT(列)和COUNT(*)一样"</td><td>COUNT(*)统计所有行（含NULL），COUNT(列)忽略该列的NULL值</td></tr>
+        <tr><td>3</td><td>"SELECT * 没什么大问题"</td><td>覆盖索引失效、网络传输翻N倍、Buffer Pool污染</td></tr>
+        <tr><td>4</td><td>"DISTINCT只对第一列去重"</td><td>DISTINCT作用于所有选定列的<strong>组合</strong>——SELECT DISTINCT a,b 去除(a,b)重复</td></tr>
+        <tr><td>5</td><td>"ORDER BY默认ASC是设计原因"</td><td>纯属设计选择，没有深层原因——显式写ASC/DESC更安全</td></tr>
+        </tbody>
+      </table></table>
+
+      <h3 style="color:var(--accent-cyan);font-size:1.1rem;margin:20px 0 12px">误区3深度剖析</h3>
+      <pre>-- 表order_details有45列（含TEXT备注和BLOB图片）
+-- 业务只需：order_id, product_name, quantity, price
+
+-- ❌ SELECT * → 45列×50000行≈180MB
+SELECT * FROM order_details WHERE date='2026-04-01';
+
+-- ✅ 指定列 → 4列×50000行≈4MB，传输量减少45倍
+SELECT order_id,product_name,quantity,price
+FROM order_details WHERE date='2026-04-01';</pre>
+    </div>
+    <div class="key-takeaway"><strong>核心要点：</strong><p>五个误区中，逻辑执行顺序和SELECT *的危害最常犯、后果最严重。写每一条SELECT前默念"FROM→WHERE→SELECT"，选每一列前问自己"我真的需要这一列吗"。</p></div>
+  </section>
+
+  <section id="learning-path" class="module">
+    <div class="module-header">
+      <span class="module-tag">资源推荐</span>
+      <h2 class="module-title">学习路径</h2>
+      <p class="module-hook">自学SQL最怕无头苍蝇式乱撞。以下是经过验证的进阶路径，每一步都有明确的检验标准。</p>
+    </div>
+    <div class="module-content">
+      <table class="table-container"><table>
+        <thead><tr><th>阶段</th><th>学时</th><th>内容</th><th>资源</th></tr></thead>
+        <tbody>
+        <tr><td>1-基础语法</td><td>1~2周</td><td>SELECT/FROM/WHERE/ORDER BY/LIMIT</td><td>W3Schools, SQLZoo</td></tr>
+        <tr><td>2-数据分析</td><td>2~3周</td><td>GROUP BY/HAVING/JOIN/聚合</td><td>Mode Analytics Tutorial</td></tr>
+        <tr><td>3-高级查询</td><td>2~4周</td><td>子查询/CTE/窗口函数/CASE</td><td>《SQL Cookbook》, DataLemur</td></tr>
+        <tr><td>4-性能优化</td><td>持续</td><td>索引/EXPLAIN/慢查询</td><td>《高性能MySQL》第6章, Use The Index Luke</td></tr>
+        </tbody>
+      </table></table>
+
+      <h3 style="color:var(--accent-blue);font-size:1.1rem;margin:20px 0 12px">推荐书籍</h3>
+      <ul>
+        <li><strong>《SQL基础教程》（MICK著）</strong>：日本作者的入门书，图表精美、逻辑清晰，适合亚洲读者</li>
+        <li><strong>《SQL必知必会》（Ben Forta著）</strong>：经典口袋书，适合快速查阅，但深度不够</li>
+        <li><strong>《高性能MySQL（第4版）》第6章</strong>：索引和查询优化的圣经章节</li>
+        <li><strong>Use The Index, Luke</strong>（use-the-index-luke.com）：免费在线教程，强烈推荐！</li>
+        <li><strong>DataLemur</strong>（datalemur.com）：Meta前数据科学家创办的SQL刷题平台</li>
+      </ul>
+    </div>
+    <div class="key-takeaway"><strong>核心要点：</strong><p>两周入门→三周数据分析→四周高级查询→持续优化。不要在入门书里停留太久，尽快跳到真实数据集（Kaggle/天池）做项目式学习。</p></div>
+  </section>
+
+  <section id="glossary" class="module">
+    <div class="module-header">
+      <span class="module-tag">术语速查</span>
+      <h2 class="module-title">关键术语表</h2>
+    </div>
+    <div class="module-content">
+      <table class="table-container"><table>
+        <thead><tr><th>术语</th><th>英文</th><th>定义</th></tr></thead>
+        <tbody>
+        <tr><td>投影</td><td>Projection</td><td>选择特定列的操作，即SELECT指定的列列表</td></tr>
+        <tr><td>选择</td><td>Selection</td><td>基于条件过滤行，即WHERE子句</td></tr>
+        <tr><td>别名</td><td>Alias (AS)</td><td>为列或表指定的临时名称</td></tr>
+        <tr><td>去重</td><td>Distinct</td><td>消除结果集中的重复行</td></tr>
+        <tr><td>逻辑执行顺序</td><td>Logical Exec Order</td><td>SQL标准定义的查询处理顺序，与书写顺序不同</td></tr>
+        <tr><td>覆盖索引</td><td>Covering Index</td><td>SELECT所有列都能从索引获取，无需回表</td></tr>
+        <tr><td>回表</td><td>Key Access</td><td>从非聚集索引获取主键后到聚集索引读完整行</td></tr>
+        <tr><td>查询优化器</td><td>Query Optimizer</td><td>数据库内部组件，为SQL选择最优执行计划</td></tr>
+        <tr><td>CBO</td><td>Cost-Based Optimization</td><td>基于代价的优化——估算I/O+CPU选最低</td></tr>
+        <tr><td>火山模型</td><td>Volcano Model</td><td>经典执行模型，算子统一open-next-close接口</td></tr>
+        <tr><td>SQL方言</td><td>SQL Dialect</td><td>不同数据库对SQL标准的扩展和变化</td></tr>
+      </table></table>
+    </div>
+  </section>
+
+  <section id="debate" class="module">
+    <div class="module-header">
+      <span class="module-tag">行业讨论</span>
+      <h2 class="module-title">争议与讨论</h2>
+      <p class="module-hook">SQL vs ORM：这个争论已经持续了20年——到底该手写原生SELECT，还是让ORM自动生成？</p>
+    </div>
+    <div class="module-content">
+      <table class="table-container"><table>
+        <thead><tr><th>维度</th><th>手写原生SQL</th><th>ORM自动生成</th></tr></thead>
+        <tbody>
+        <tr><td>性能</td><td>⭐⭐⭐⭐⭐ 完全可控</td><td>⭐⭐ N+1问题和过度JOIN</td></tr>
+        <tr><td>开发效率</td><td>⭐⭐ 手写每一句</td><td>⭐⭐⭐⭐ CRUD自动生成</td></tr>
+        <tr><td>可维护性</td><td>⭐⭐⭐⭐ SQL直接可见</td><td>⭐⭐⭐⭐ 类型安全+重构支持</td></tr>
+        <tr><td>数据库迁移</td><td>⭐ 方言差异手写</td><td>⭐⭐⭐⭐ ORM抽象方言</td></tr>
+        <tr><td>复杂查询</td><td>⭐⭐⭐⭐⭐ 最适报表/分析</td><td>⭐⭐ 复杂查询用ORM很绕</td></tr>
+        </tbody>
+      </table></table>
+      <p><strong>业界共识（分层策略）</strong>：简单CRUD用ORM，复杂查询/性能敏感查询手写原生SQL，任何ORM项目都应保留直接执行SQL的能力作为"逃生舱"。</p>
+    </div>
+    <div class="key-takeaway"><strong>核心要点：</strong><p>不是二选一，而是分层使用。ORM负责80%的简单CRUD，原生SQL负责20%的核心复杂查询。真正的SQL高手两种都能驾驭。</p></div>
+  </section>
+
+  <div class="references">
+    <h4>📚 参考文献</h4>
+    <div class="reference-item"><div class="ref-title">A Relational Model of Data for Large Shared Data Banks</div><div class="ref-authors">E. F. Codd</div><div class="ref-meta">Communications of the ACM, 1970</div></div>
+    <div class="reference-item"><div class="ref-title">SEQUEL: A Structured English Query Language</div><div class="ref-authors">D. Chamberlin, R. Boyce</div><div class="ref-meta">ACM SIGFIDET Workshop, 1974</div></div>
+    <div class="reference-item"><div class="ref-title">SQL Performance Explained</div><div class="ref-authors">Markus Winand</div><div class="ref-meta">Use The Index, Luke! 在线教程, 持续更新</div></div>
+    <div class="reference-item"><div class="ref-title">High Performance MySQL, 4th Edition</div><div class="ref-authors">Silvia Botros, Jeremy Tinley</div><div class="ref-meta">O'Reilly Media, 2021</div></div>
+    <div class="reference-item"><div class="ref-title">ISO/IEC 9075:2023 — SQL Standard</div><div class="ref-authors">ISO/IEC JTC 1/SC 32</div><div class="ref-meta">ISO, 2023</div></div>
+  </div>
+</div>
+
+<div class="back-btn"><button onclick="goBack()">← 返回学习方案</button></div>
+
+<script>
+function toggleTheme(){document.body.classList.toggle('light')}
+
+function goBack(){
+  var MAIN_PAGE = 'sql_learning.html';
+  var WIN_NAME = '_ml_llm_main';
+  var CH_KEY = '_ml_llm_nav';
+  localStorage.setItem(CH_KEY, JSON.stringify({kpId: DEEP_DIVE_KP_ID, ts: Date.now()}));
+  var mainWin = window.open(MAIN_PAGE, WIN_NAME);
+  if (mainWin) mainWin.focus();
+}
+
+(function(){
+  document.body.classList.remove('loading');document.body.classList.add('loaded');
+  var sidebarLinks = document.querySelectorAll('.sidebar-nav a');
+  var modules = document.querySelectorAll('.module');
+  var observer = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){
+        sidebarLinks.forEach(function(a){a.classList.remove('active')});
+        var active = document.querySelector('.sidebar-nav a[href="#'+e.target.id+'"]');
+        if(active)active.classList.add('active');
+      }
+    });
+  },{threshold:0.3});
+  modules.forEach(function(m){observer.observe(m)});
+  if(typeof renderMathInElement !== 'undefined'){
+    renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});
+  }
+})();
+
+(function(){
+  if(typeof echarts === 'undefined') return;
+
+  var c1 = echarts.init(document.getElementById('chart-exec-order'));
+  c1.setOption({
+    tooltip:{trigger:'axis',axisPointer:{type:'shadow'}},
+    grid:{left:'5%',right:'5%',bottom:'5%',top:'5%',containLabel:true},
+    xAxis:{type:'value',show:false},
+    yAxis:{type:'category',inverse:true,data:['LIMIT(7)','ORDER BY(6)','SELECT(5)','HAVING(4)','GROUP BY(3)','WHERE(2)','FROM(1)'],axisLabel:{color:'var(--text-secondary)',fontWeight:'bold'}},
+    series:[{type:'bar',barWidth:'50%',label:{show:true,formatter:'第 {c} 步',color:'var(--text-primary)'},
+      data:[{value:7,itemStyle:{color:'#5b8db8'}},{value:6,itemStyle:{color:'#5b8db8'}},{value:5,itemStyle:{color:'#8878a8'}},{value:4,itemStyle:{color:'#c0a060'}},{value:3,itemStyle:{color:'#6ea8c0'}},{value:2,itemStyle:{color:'#5a9e6f'}},{value:1,itemStyle:{color:'#5a9e6f'}}]}]
+  });
+
+  var c2 = echarts.init(document.getElementById('chart-query-pipeline'));
+  c2.setOption({
+    tooltip:{trigger:'item',formatter:'{b}'},
+    series:[{type:'sankey',layout:'none',emphasis:{focus:'adjacency'},nodeAlign:'left',nodeGap:16,nodeWidth:20,
+      data:[
+        {name:'SQL文本',itemStyle:{color:'#5b8db8'}},{name:'解析器',itemStyle:{color:'#8878a8'}},{name:'AST',itemStyle:{color:'#8878a8'}},
+        {name:'优化器',itemStyle:{color:'#c0a060'}},{name:'统计信息',itemStyle:{color:'#c0a060'}},{name:'执行计划',itemStyle:{color:'#5a9e6f'}},
+        {name:'执行器',itemStyle:{color:'#6ea8c0'}},{name:'存储引擎',itemStyle:{color:'#5b8db8'}},{name:'结果集',itemStyle:{color:'#8878a8'}}
+      ],
+      links:[
+        {source:'SQL文本',target:'解析器',value:2},{source:'解析器',target:'AST',value:2},{source:'AST',target:'优化器',value:2},
+        {source:'统计信息',target:'优化器',value:1},{source:'优化器',target:'执行计划',value:2},{source:'执行计划',target:'执行器',value:2},
+        {source:'执行器',target:'存储引擎',value:2},{source:'存储引擎',target:'结果集',value:2}
+      ]}]
+  });
+
+  var c3 = echarts.init(document.getElementById('chart-sql-evolution'));
+  c3.setOption({
+    tooltip:{trigger:'axis'},
+    grid:{left:'5%',right:'5%',bottom:'8%',top:'10%'},
+    xAxis:{type:'category',data:['SQL-86','SQL-92','SQL:1999','SQL:2003','SQL:2008','SQL:2011','SQL:2016','SQL:2023'],axisLabel:{color:'var(--text-muted)',rotate:30}},
+    yAxis:{type:'value',show:false,max:55},
+    series:[{type:'line',data:[5,15,28,33,36,40,45,50],smooth:true,lineStyle:{color:'#8878a8',width:3},itemStyle:{color:'#8878a8'},
+      areaStyle:{color:{type:'linear',x:0,y:0,x2:0,y2:1,colorStops:[{offset:0,color:'rgba(136,120,168,0.25)'},{offset:1,color:'rgba(136,120,168,0.02)'}]}},
+      markLine:{silent:true,data:[{label:{formatter:'CTE+窗口函数',color:'#6ea8c0'},yAxis:28,lineStyle:{color:'#6ea8c0',type:'dashed'}}]}}]
+  });
+
+  var days=[],rev=[];
+  for(var i=1;i<=30;i++){days.push('4月'+i+'日');rev.push(Math.floor(80000+Math.random()*40000+Math.sin(i*0.5)*15000))}
+  var c4 = echarts.init(document.getElementById('chart-case-daily'));
+  c4.setOption({
+    tooltip:{trigger:'axis'},
+    grid:{left:'3%',right:'4%',bottom:'12%',top:'10%',containLabel:true},
+    xAxis:{type:'category',data:days,axisLabel:{color:'var(--text-muted)',rotate:45,fontSize:10,interval:6}},
+    yAxis:{type:'value',axisLabel:{color:'var(--text-muted)'}},
+    series:[{type:'bar',data:rev,itemStyle:{color:'#5a9e6f',borderRadius:[4,4,0,0]}},
+      {type:'line',data:rev,smooth:true,lineStyle:{color:'#6ea8c0',width:2},itemStyle:{color:'#6ea8c0'},symbol:'none'}]
+  });
+
+  var c5 = echarts.init(document.getElementById('chart-db-market'));
+  c5.setOption({
+    tooltip:{trigger:'item',formatter:'{b}: {c}%'},
+    legend:{bottom:0,textStyle:{color:'var(--text-muted)'}},
+    series:[{type:'pie',radius:['40%','70%'],center:['50%','45%'],
+      data:[{value:31,name:'Oracle',itemStyle:{color:'#c06050'}},{value:19,name:'MySQL',itemStyle:{color:'#5a9e6f'}},{value:14,name:'SQL Server',itemStyle:{color:'#5b8db8'}},{value:12,name:'PostgreSQL',itemStyle:{color:'#8878a8'}},{value:24,name:'其他',itemStyle:{color:'#c0a060'}}],
+      label:{color:'var(--text-secondary)',fontSize:11,formatter:'{b}\n{c}%'}}
+    ]
+  });
+
+  var c6 = echarts.init(document.getElementById('chart-skill-radar'));
+  c6.setOption({
+    tooltip:{},
+    radar:{center:['50%','55%'],radius:'65%',
+      indicator:[{name:'语法准确性',max:100},{name:'查询效率',max:100},{name:'执行计划\n理解',max:100},{name:'排查能力',max:100},{name:'复杂查询',max:100},{name:'性能调优',max:100}],
+      axisName:{color:'var(--text-muted)',fontSize:11}},
+    series:[{type:'radar',data:[
+      {value:[90,45,20,25,30,15],name:'初学者',itemStyle:{color:'#c0a060'},areaStyle:{color:'rgba(192,160,96,0.12)'},lineStyle:{color:'#c0a060'}},
+      {value:[75,80,70,65,75,60],name:'进阶者',itemStyle:{color:'#8878a8'},areaStyle:{color:'rgba(136,120,168,0.12)'},lineStyle:{color:'#8878a8'}}
+    ]}]
+  });
+
+  window.addEventListener('resize',function(){c1.resize();c2.resize();c3.resize();c4.resize();c5.resize();c6.resize()});
+})();
+</script>
+</body>
+</html>

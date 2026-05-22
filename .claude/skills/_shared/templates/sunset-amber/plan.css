@@ -1,0 +1,58 @@
+/* ───────────────────────────────────────────────
+   Template: Sunset Amber (琥珀日暮) — plan.css
+   Mood: warm, rich, classic
+   CRITICAL: Light mode uses cool-toned text (gray-bias) on warm background
+   to create hue separation — avoids the "warm-on-warm washout" problem.
+   Contrast verified: text-primary≥10:1, text-secondary≥6:1, text-muted≥4.5:1
+   ─────────────────────────────────────────────── */
+:root{
+--bg-deep:#1c1512;
+--bg-primary:#231b17;
+--bg-card:#2a201b;
+--bg-elevated:#332822;
+--bg-input:#2a201a;
+--text-primary:#e8dcd0;
+--text-secondary:#c4b098;
+--text-muted:#988878;
+--accent-blue:#d4884a;
+--accent-cyan:#e0a858;
+--accent-purple:#c09098;
+--accent-green:#7aac60;
+--accent-orange:#d4884a;
+--accent-pink:#d08888;
+--accent-red:#c05848;
+--accent-gold:#e0a858;
+--border-subtle:rgba(255,255,255,0.05);
+--border-glow:rgba(212, 136, 74, 0.25);
+--shadow-sm:0 1px 3px rgba(0,0,0,0.3);
+--shadow-md:0 4px 12px rgba(0,0,0,0.4);
+--radius-sm:6px;
+--radius-md:10px;
+--radius-lg:16px;
+--transition-fast:0.15s ease;
+--transition-smooth:0.3s ease;
+}
+body.light{
+--bg-deep:#fdf6f0;
+--bg-primary:#fffaf5;
+--bg-card:#faf0e6;
+--bg-elevated:#f3e6d8;
+--bg-input:#eaddcb;
+--text-primary:#1a100a;
+--text-secondary:#443528;
+--text-muted:#584a3c;
+--accent-blue:#a06028;
+--accent-cyan:#b87830;
+--accent-purple:#885868;
+--accent-green:#5a8e40;
+--accent-orange:#a06028;
+--accent-pink:#a05860;
+--accent-red:#983828;
+--accent-gold:#b87830;
+--border-subtle:rgba(26, 16, 10, 0.08);
+--border-glow:rgba(160, 96, 40, 0.2);
+--shadow-sm:0 1px 3px rgba(0,0,0,0.06);
+--shadow-md:0 4px 12px rgba(0,0,0,0.08);
+}
+body.light .knowledge-card.expanded{border-color:rgba(90,142,64,0.5)}
+body.dark .knowledge-card.expanded{border-color:rgba(122,172,96,0.5);background:var(--bg-elevated)}

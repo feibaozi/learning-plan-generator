@@ -1,0 +1,1077 @@
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>王者荣耀打野位 — 15周系统学习方案</title>
+<style>
+:root{
+  --bg-deep:#08050a;--bg-card:#120a15;--bg-card-hover:#1a0f20;--bg-elevated:#1f1228;
+  --border-subtle:#2a1835;--border-glow:#4a2860;--text-primary:#f5eef8;--text-secondary:#c0a8d0;--text-muted:#8058a0;
+  --gradient-hero:linear-gradient(135deg,#c9a54b 0%,#e8783c 30%,#d43838 60%,#8b2040 100%);
+  --gradient-dna:linear-gradient(90deg,#c9a54b,#e8783c,#d43838);
+  --accent-gold:#c9a54b;--accent-orange:#e8783c;--accent-red:#d43838;--accent-darkred:#8b2040;
+  --accent-hero:#4fc3f7;--accent-rhythm:#66bb6a;--accent-vision:#ffa726;--accent-macro:#ab47bc;
+  --accent-teamfight:#ef5350;--accent-invade:#ec407a;--accent-draft:#26c6da;
+  --accent-green:#66bb6a;--accent-cyan:#26c6da;--accent-purple:#ab47bc;
+  --nav-bg:rgba(10,5,18,0.85);--overlay-bg:rgba(0,0,0,0.7);
+  --shadow-glow:0 0 30px rgba(201,165,75,0.15);--shadow-elevated:0 8px 32px rgba(0,0,0,0.5);
+  --radius-sm:8px;--radius-md:14px;--radius-lg:22px;
+  --transition-fast:0.15s ease;--transition-smooth:0.3s cubic-bezier(0.4,0,0.2,1);
+  --transition-bounce:0.5s cubic-bezier(0.34,1.56,0.64,1);
+  --gradient-nuclear:linear-gradient(90deg,#c9a54b,#e8783c,#d43838,#8b2040);
+}
+body.light{
+  --bg-deep:#faf7fc;--bg-card:#ffffff;--bg-card-hover:#f5eef8;--bg-elevated:#ede0f5;
+  --border-subtle:#e0cce8;--border-glow:#c098d8;--text-primary:#1a1020;--text-secondary:#504060;--text-muted:#807090;
+  --nav-bg:rgba(250,247,252,0.9);--overlay-bg:rgba(0,0,0,0.35);
+  --shadow-glow:0 0 30px rgba(139,32,64,0.1);--shadow-elevated:0 8px 32px rgba(0,0,0,0.08);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-padding-top:100px}
+body{font-family:'Noto Sans SC','Microsoft YaHei',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg-deep);color:var(--text-primary);line-height:1.7;overflow-x:hidden;transition:background var(--transition-smooth),color var(--transition-smooth)}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg-elevated)}::-webkit-scrollbar-thumb{background:var(--border-glow);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--accent-orange)}
+#bg-canvas{position:fixed;top:0;left:0;z-index:0;pointer-events:none}
+.top-nav{position:fixed;top:0;left:0;right:0;z-index:100;background:transparent;padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:56px;transition:all var(--transition-smooth)}
+.top-nav.scrolled{background:var(--nav-bg);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);box-shadow:0 2px 20px rgba(0,0,0,0.3)}
+.light .top-nav.scrolled{box-shadow:0 2px 20px rgba(0,0,0,0.06)}
+.nav-brand{font-weight:800;font-size:1.05rem;background:var(--gradient-nuclear);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:-0.02em}
+.nav-links{display:flex;gap:8px;align-items:center}
+.nav-links a{color:var(--text-secondary);text-decoration:none;font-size:0.78rem;font-weight:600;padding:6px 12px;border-radius:50px;transition:all var(--transition-fast)}
+.nav-links a:hover,.nav-links a.active{color:var(--accent-gold);background:rgba(201,165,75,0.08)}
+.nav-actions{display:flex;gap:6px;align-items:center}
+.nav-actions button{background:transparent;border:1px solid var(--border-subtle);color:var(--text-secondary);padding:6px 14px;border-radius:50px;font-size:0.75rem;cursor:pointer;font-weight:600;transition:all var(--transition-fast);font-family:inherit}
+.nav-actions button:hover{border-color:var(--accent-gold);color:var(--accent-gold)}
+.theme-btn{padding:6px!important;width:34px;height:34px;display:flex;align-items:center;justify-content:center;font-size:1rem!important}
+.hamburger{display:none;flex-direction:column;gap:4px;cursor:pointer;background:transparent;border:none;padding:4px}
+.hamburger span{display:block;width:22px;height:2px;background:var(--text-secondary);border-radius:2px;transition:all var(--transition-fast)}
+.mobile-menu{position:fixed;top:56px;left:0;right:0;z-index:99;background:var(--nav-bg);backdrop-filter:blur(20px);padding:20px 32px;display:flex;flex-direction:column;gap:6px;opacity:0;pointer-events:none;transform:translateY(-8px);transition:all var(--transition-smooth)}
+.mobile-menu.open{opacity:1;pointer-events:auto;transform:translateY(0)}
+.mobile-menu a{color:var(--text-secondary);text-decoration:none;font-size:0.85rem;font-weight:600;padding:8px 12px;border-radius:8px;transition:all var(--transition-fast)}
+.mobile-menu a:hover{color:var(--accent-gold);background:rgba(201,165,75,0.08)}
+.scroll-progress{position:fixed;top:0;left:0;height:3px;background:var(--gradient-hero);z-index:101;transition:width 0.3s;width:0%}
+.hero{position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:120px 32px 80px;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at center,var(--accent-darkred) 0%,transparent 70%);opacity:0.15}
+.hero-content{position:relative;z-index:1;max-width:800px}
+.hero h1{font-family:'Orbitron','Noto Sans SC',sans-serif;font-size:clamp(2rem,5vw,3.5rem);font-weight:900;background:var(--gradient-hero);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.2;margin-bottom:20px;letter-spacing:-0.02em}
+.hero p{font-size:clamp(0.95rem,1.5vw,1.15rem);color:var(--text-secondary);max-width:600px;margin:0 auto 40px}
+.hero-stats{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+.hero-stat{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:20px 28px;min-width:130px;box-shadow:var(--shadow-elevated);transition:all var(--transition-smooth)}
+.hero-stat:hover{border-color:var(--accent-gold);transform:translateY(-4px);box-shadow:var(--shadow-glow)}
+.hero-stat .num{display:block;font-size:2.2rem;font-weight:900;background:var(--gradient-hero);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-stat .lbl{display:block;font-size:0.78rem;color:var(--text-muted);margin-top:4px;font-weight:500}
+.section{padding:80px 32px;max-width:1200px;margin:0 auto;position:relative;z-index:1}
+.section-header{text-align:center;margin-bottom:48px}
+.section-tag{display:inline-block;font-size:0.65rem;font-weight:700;color:var(--accent-gold);letter-spacing:0.15em;padding:4px 12px;border:1px solid rgba(201,165,75,0.25);border-radius:50px;margin-bottom:12px}
+.section-header h2{font-size:clamp(1.5rem,3vw,2.2rem);font-weight:800;margin-bottom:8px;letter-spacing:-0.01em}
+.subtitle{font-size:0.9rem;color:var(--text-muted);font-weight:400}
+.reading-time{font-size:0.72rem;color:var(--text-muted);opacity:0.7;margin-left:8px}
+.roadmap-container{position:relative;padding-left:60px}
+.roadmap-container::before{content:'';position:absolute;left:28px;top:0;bottom:0;width:2px;background:linear-gradient(180deg,var(--accent-gold),var(--accent-darkred),var(--accent-cyan))}
+.roadmap-item{position:relative;margin-bottom:28px;opacity:0;transform:translateX(-20px);transition:all 0.6s cubic-bezier(0.4,0,0.2,1)}
+.roadmap-item.visible{opacity:1;transform:translateX(0)}
+.roadmap-marker{position:absolute;left:-45px;top:4px;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:0.85rem;color:#fff;border:3px solid;box-shadow:0 0 20px rgba(201,165,75,0.2);z-index:1}
+.roadmap-content{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:22px 26px;cursor:pointer;transition:all var(--transition-smooth);box-shadow:var(--shadow-elevated)}
+.roadmap-content:hover{border-color:var(--accent-gold);transform:translateX(4px);box-shadow:var(--shadow-glow)}
+.roadmap-content h3{font-size:1.1rem;font-weight:700;margin-bottom:6px}
+.rm-week{font-size:0.75rem;color:var(--accent-gold);font-weight:600;margin-bottom:8px}
+.rm-desc{font-size:0.82rem;color:var(--text-secondary)}
+.graph-section{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-lg);padding:10px 10px 20px;overflow:hidden}
+.graph-canvas{width:100%;display:block;cursor:pointer}
+.graph-legend{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;padding:8px 10px 0}
+.graph-legend-item{font-size:0.68rem;color:var(--text-secondary);cursor:pointer;padding:4px 10px;border-radius:50px;transition:all var(--transition-fast);display:flex;align-items:center;gap:5px;border:1px solid transparent;font-weight:600}
+.graph-legend-item:hover{border-color:var(--border-subtle);background:var(--bg-elevated)}
+.graph-legend-item.active-highlight{border-color:var(--accent-gold)!important;background:rgba(201,165,75,0.08)!important;color:var(--accent-gold)!important}
+.graph-legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.phase-container{display:flex;flex-direction:column;gap:14px}
+.phase-detail{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);overflow:hidden;transition:all var(--transition-smooth)}
+.phase-detail:hover{border-color:var(--border-subtle)}
+.phase-detail-header{cursor:pointer;padding:20px 24px;display:flex;gap:16px;align-items:center;user-select:none;transition:all var(--transition-fast)}
+.phase-detail-header:hover{background:var(--bg-card-hover)}
+.phase-detail-header .icon{width:42px;height:42px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0}
+.phase-detail-header .info{flex:1;min-width:0}
+.phase-detail-header h4{font-size:1.05rem;font-weight:700;margin-bottom:2px}
+.ph-week{font-size:0.72rem;color:var(--text-muted)}
+.phase-detail-header .arrow{font-size:0.7rem;color:var(--text-muted);transition:transform var(--transition-smooth);flex-shrink:0}
+.phase-detail.open .arrow{transform:rotate(180deg)}
+.phase-body{max-height:0;overflow:hidden;transition:max-height 0.5s cubic-bezier(0.4,0,0.2,1)}
+.phase-detail.open .phase-body{max-height:2000px}
+.phase-body-inner{padding:0 24px 22px;display:flex;flex-direction:column;gap:16px}
+.skill-list{display:flex;flex-wrap:wrap;gap:8px}
+.skill-chip{display:inline-block;font-size:0.72rem;padding:5px 12px;border-radius:50px;background:rgba(255,255,255,0.03);border:1px solid var(--border-subtle);color:var(--text-secondary);font-weight:600;transition:all var(--transition-fast)}
+.skill-link{cursor:pointer;border-color:rgba(201,165,75,0.3);color:var(--accent-gold)}
+.skill-link:hover{background:rgba(201,165,75,0.1);transform:translateY(-1px)}
+.draw-lvl-must{border-color:rgba(239,83,80,0.35);color:#ef5350;background:rgba(239,83,80,0.06)}
+.draw-lvl-suggest{border-color:rgba(255,167,38,0.35);color:#ffa726;background:rgba(255,167,38,0.06)}
+.draw-lvl-optional{border-color:rgba(38,198,218,0.35);color:#26c6da;background:rgba(38,198,218,0.06)}
+.code-block{position:relative;background:#0a0610;border:1px solid var(--border-subtle);border-radius:var(--radius-sm);padding:14px 16px;overflow-x:auto}
+.code-block pre{margin:0}
+.code-block code{font-family:'JetBrains Mono',monospace;font-size:0.75rem;line-height:1.6;color:#d4c8e0}
+.copy-btn{position:absolute;top:8px;right:8px;background:var(--bg-elevated);border:1px solid var(--border-subtle);color:var(--text-muted);padding:4px 10px;border-radius:4px;font-size:0.65rem;cursor:pointer;font-weight:600;transition:all var(--transition-fast);font-family:inherit}
+.copy-btn:hover{border-color:var(--accent-cyan);color:var(--accent-cyan);background:rgba(38,198,218,0.08)}
+.drawing-method{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.dm-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:24px 20px;text-align:center;transition:all var(--transition-smooth)}
+.dm-card:hover{border-color:var(--accent-gold);box-shadow:var(--shadow-glow);transform:translateY(-2px)}
+.dm-card h4{font-size:0.95rem;font-weight:700;margin-bottom:8px;color:var(--accent-gold)}
+.dm-card p{font-size:0.78rem;color:var(--text-secondary)}
+.math-tag{display:inline-block;font-size:0.62rem;padding:3px 8px;border-radius:3px;font-weight:700;border:1px solid}
+.tag-hero{color:#4fc3f7;border-color:rgba(79,195,247,0.35);background:rgba(79,195,247,0.06)}
+.tag-rhythm{color:#66bb6a;border-color:rgba(102,187,106,0.35);background:rgba(102,187,106,0.06)}
+.tag-vision{color:#ffa726;border-color:rgba(255,167,38,0.35);background:rgba(255,167,38,0.06)}
+.tag-macro{color:#ab47bc;border-color:rgba(171,71,188,0.35);background:rgba(171,71,188,0.06)}
+.tag-teamfight{color:#ef5350;border-color:rgba(239,83,80,0.35);background:rgba(239,83,80,0.06)}
+.tag-invade{color:#ec407a;border-color:rgba(236,64,122,0.35);background:rgba(236,64,122,0.06)}
+.tag-draft{color:#26c6da;border-color:rgba(38,198,218,0.35);background:rgba(38,198,218,0.06)}
+.math-tags-grid{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.draw-levels-title{text-align:center;font-size:0.85rem;font-weight:700;color:var(--text-secondary);margin:20px 0 12px}
+.draw-level-list{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.draw-level-item{font-size:0.72rem;padding:5px 12px;border-radius:50px;background:var(--bg-elevated);color:var(--text-secondary)}
+.draw-level-item.must{border:1px solid rgba(239,83,80,0.25)}
+.draw-level-item.suggest{border:1px solid rgba(255,167,38,0.25)}
+.draw-level-item.optional{border:1px solid rgba(38,198,218,0.25)}
+.knowledge-filter-bar,.phase-filter-row{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:18px}
+.knowledge-filter,.phase-filter-btn{background:var(--bg-elevated);border:1px solid var(--border-subtle);color:var(--text-secondary);padding:6px 16px;border-radius:50px;font-size:0.72rem;cursor:pointer;font-weight:600;transition:all var(--transition-fast);font-family:inherit}
+.knowledge-filter:hover,.phase-filter-btn:hover{border-color:var(--accent-gold);color:var(--accent-gold)}
+.knowledge-filter.active,.phase-filter-btn.active{background:rgba(201,165,75,0.1);border-color:var(--accent-gold);color:var(--accent-gold)}
+.knowledge-count{text-align:center;font-size:0.78rem;color:var(--text-muted);margin-bottom:16px}
+.ks-expand-all{background:transparent;border:1px solid var(--border-subtle);color:var(--accent-cyan);padding:3px 10px;border-radius:50px;font-size:0.68rem;cursor:pointer;font-weight:600;transition:all var(--transition-fast);font-family:inherit;margin-left:8px}
+.ks-expand-all:hover{border-color:var(--accent-cyan);background:rgba(38,198,218,0.08)}
+.knowledge-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;align-items:start}
+.knowledge-grid.has-expanded .knowledge-card{will-change:transform}
+.knowledge-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);cursor:pointer;transition:all var(--transition-smooth);display:flex;flex-direction:column}
+.knowledge-card:hover{border-color:var(--border-glow);box-shadow:var(--shadow-glow)}
+.knowledge-card.expanded{grid-column:1/-1;cursor:default}
+.knowledge-card.expanded:hover{border-color:var(--border-subtle);box-shadow:var(--shadow-elevated)}
+.card-header{display:flex;align-items:center;gap:8px;padding:14px 16px;background:var(--bg-card-hover);border-bottom:1px solid var(--border-subtle);flex-wrap:wrap;position:sticky;top:56px;z-index:10;min-height:50px}
+.knowledge-card.expanded .card-header{cursor:pointer}
+.knowledge-card.expanded .card-header:hover{background:rgba(201,165,75,0.06)}
+.card-title{font-size:0.82rem;font-weight:700;flex:1;min-width:0;line-height:1.3}
+.card-icon{font-size:1rem;flex-shrink:0}
+.card-back{background:transparent;border:1px solid var(--border-subtle);color:var(--text-muted);padding:2px 8px;border-radius:50px;font-size:0.62rem;cursor:pointer;transition:all var(--transition-fast);font-family:inherit;white-space:nowrap}
+.card-back:hover{border-color:var(--accent-gold);color:var(--accent-gold)}
+.card-detail{max-height:0;overflow:hidden;transition:max-height 0.35s ease;padding:0 16px}
+.knowledge-card.open .card-detail{max-height:2000px;padding:16px}
+.card-detail p{font-size:0.8rem;color:var(--text-secondary);line-height:1.65;margin-bottom:12px}
+.card-formula{background:rgba(255,255,255,0.02);border:1px solid var(--border-subtle);border-radius:var(--radius-sm);padding:12px 16px;font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:var(--accent-gold);margin-bottom:12px;word-break:break-all}
+.card-draw-box{background:rgba(0,0,0,0.2);border:1px solid var(--border-subtle);border-radius:var(--radius-sm);padding:14px;font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--text-secondary);white-space:pre;overflow-x:auto;margin-bottom:12px;line-height:1.35}
+.card-sum{font-size:0.75rem;color:var(--text-muted);font-style:italic;padding:10px 14px;background:rgba(201,165,75,0.04);border-left:3px solid var(--accent-gold);border-radius:0 var(--radius-sm) var(--radius-sm) 0;margin-bottom:12px}
+.card-related{margin-top:4px;margin-bottom:8px;padding:12px 14px;background:rgba(255,255,255,0.015);border:1px dashed var(--border-subtle);border-radius:var(--radius-sm)}
+.cr-title{font-size:0.72rem;font-weight:700;color:var(--text-secondary);margin-bottom:8px}
+.cr-links{display:flex;flex-wrap:wrap;gap:6px}
+.cr-link{font-size:0.68rem;padding:4px 10px;border-radius:50px;border:1px solid var(--border-subtle);color:var(--accent-cyan);cursor:pointer;transition:all var(--transition-fast)}
+.cr-link:hover{background:rgba(38,198,218,0.1);border-color:var(--accent-cyan)}
+.formula-tabs{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:20px}
+.formula-tab{background:var(--bg-elevated);border:1px solid var(--border-subtle);color:var(--text-secondary);padding:8px 20px;border-radius:50px;font-size:0.8rem;cursor:pointer;font-weight:600;transition:all var(--transition-fast);font-family:inherit}
+.formula-tab:hover{border-color:var(--accent-cyan);color:var(--accent-cyan)}
+.formula-tab.active{background:rgba(38,198,218,0.1);border-color:var(--accent-cyan);color:var(--accent-cyan)}
+.formula-panel{display:none}
+.formula-panel.active{display:block}
+.formula-table{width:100%;border-collapse:collapse;font-size:0.8rem}
+.formula-table thead{background:rgba(255,255,255,0.02)}
+.formula-table th{text-align:left;padding:12px 16px;font-size:0.72rem;font-weight:700;color:var(--accent-gold);border-bottom:2px solid var(--border-subtle);text-transform:uppercase;letter-spacing:0.05em}
+.formula-table td{padding:10px 16px;border-bottom:1px solid var(--border-subtle);color:var(--text-secondary);font-family:'JetBrains Mono',monospace;font-size:0.73rem}
+.formula-table td:first-child{color:var(--text-primary);font-weight:600;font-family:'Noto Sans SC','Microsoft YaHei',sans-serif}
+.exercise-filters{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:16px}
+.exercise-filter{background:var(--bg-elevated);border:1px solid var(--border-subtle);color:var(--text-secondary);padding:6px 16px;border-radius:50px;font-size:0.72rem;cursor:pointer;font-weight:600;transition:all var(--transition-fast);font-family:inherit}
+.exercise-filter:hover{border-color:var(--accent-green);color:var(--accent-green)}
+.exercise-filter.active{background:rgba(102,187,106,0.08);border-color:var(--accent-green);color:var(--accent-green)}
+.exercise-counter{text-align:center;font-size:0.75rem;color:var(--text-muted);margin-bottom:12px}
+.exercise-list{display:flex;flex-direction:column;gap:8px}
+.exercise-item{display:flex;align-items:flex-start;gap:12px;background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:16px 18px;cursor:pointer;transition:all var(--transition-smooth)}
+.exercise-item:hover{border-color:var(--border-glow);box-shadow:var(--shadow-glow)}
+.exercise-num{font-family:'JetBrains Mono',monospace;font-size:0.7rem;font-weight:700;color:var(--accent-gold);flex-shrink:0;width:36px;text-align:center;padding-top:2px}
+.ei-content{flex:1;min-width:0}
+.ei-title{display:flex;gap:10px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap}
+.ei-title-text{font-size:0.85rem;font-weight:600;flex:1;min-width:200px;line-height:1.45}
+.diff{font-size:0.6rem;padding:2px 8px;border-radius:4px;font-weight:700;flex-shrink:0;white-space:nowrap}
+.diff.easy{background:rgba(102,187,106,0.12);color:#66bb6a;border:1px solid rgba(102,187,106,0.3)}
+.diff.medium{background:rgba(255,167,38,0.12);color:#ffa726;border:1px solid rgba(255,167,38,0.3)}
+.diff.hard{background:rgba(239,83,80,0.12);color:#ef5350;border:1px solid rgba(239,83,80,0.3)}
+.diff.project{background:rgba(171,71,188,0.12);color:#ab47bc;border:1px solid rgba(171,71,188,0.3)}
+.ei-answer{max-height:0;overflow:hidden;transition:max-height 0.35s ease;font-size:0.75rem;color:var(--text-secondary);line-height:1.6;white-space:pre-wrap}
+.exercise-item.open .ei-answer{max-height:600px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border-subtle)}
+.ei-check{width:32px;height:32px;border-radius:50%;border:2px solid var(--border-subtle);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all var(--transition-fast);font-size:0.8rem;align-self:flex-start;margin-top:2px}
+.ei-check:hover{border-color:var(--accent-green)}
+.ei-check.done{background:var(--accent-green);border-color:var(--accent-green);color:#fff}
+.resource-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px}
+.resource-card{display:block;background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:20px 22px;text-decoration:none;color:inherit;transition:all var(--transition-smooth)}
+.resource-card:hover{border-color:var(--accent-gold);box-shadow:var(--shadow-glow);transform:translateY(-2px)}
+.resource-card h4{font-size:0.9rem;font-weight:700;margin-bottom:6px;color:var(--text-primary)}
+.resource-card p{font-size:0.78rem;color:var(--text-secondary);margin-bottom:8px}
+.res-tag{display:inline-block;font-size:0.62rem;padding:2px 8px;border-radius:4px;background:rgba(201,165,75,0.08);color:var(--accent-gold);border:1px solid rgba(201,165,75,0.2);font-weight:600}
+.res-link{font-size:0.68rem;color:var(--accent-cyan);font-weight:600}
+.tracker-list{display:flex;flex-direction:column;gap:8px}
+.tracker-row{display:flex;align-items:center;gap:14px;background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:14px 18px;transition:all var(--transition-smooth)}
+.tracker-row:hover{border-color:var(--border-glow)}
+.tracker-check{width:28px;height:28px;border-radius:50%;border:2px solid var(--border-subtle);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all var(--transition-fast);font-size:0.7rem}
+.tracker-check:hover{border-color:var(--accent-green)}
+.tracker-check.done{background:var(--accent-green);border-color:var(--accent-green);color:#fff}
+.tracker-info{flex:1;display:flex;flex-direction:column;gap:2px}
+.tracker-info strong{font-size:0.85rem;font-weight:700}
+.tracker-info span{font-size:0.72rem;color:var(--text-muted)}
+.tracker-total{text-align:center;font-size:0.85rem;color:var(--text-secondary);margin-top:14px;font-weight:600}
+.search-overlay{position:fixed;inset:0;z-index:200;background:var(--overlay-bg);backdrop-filter:blur(10px);display:flex;align-items:flex-start;justify-content:center;padding-top:20vh;opacity:0;pointer-events:none;transition:opacity var(--transition-smooth)}
+.search-overlay.open{opacity:1;pointer-events:auto}
+.search-box{width:90%;max-width:600px;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow-elevated)}
+.search-input-wrap{padding:16px 20px;border-bottom:1px solid var(--border-subtle);display:flex;gap:12px;align-items:center}
+.search-input-wrap input{flex:1;background:transparent;border:none;color:var(--text-primary);font-size:1.1rem;outline:none;font-family:inherit}
+.search-input-wrap input::placeholder{color:var(--text-muted)}
+.search-close{background:transparent;border:none;color:var(--text-muted);font-size:1.3rem;cursor:pointer;padding:4px}
+.search-results{max-height:50vh;overflow-y:auto;padding:8px}
+.search-result-item{padding:12px 16px;cursor:pointer;border-radius:var(--radius-sm);transition:all var(--transition-fast);border:1px solid transparent}
+.search-result-item:hover{background:var(--bg-elevated);border-color:var(--border-subtle)}
+.sr-title{font-size:0.85rem;font-weight:700;margin-bottom:4px}
+.sr-title mark{background:rgba(201,165,75,0.2);color:var(--accent-gold);padding:1px 4px;border-radius:2px}
+.sr-snippet{font-size:0.72rem;color:var(--text-muted)}
+.confirm-overlay{position:fixed;inset:0;z-index:300;background:var(--overlay-bg);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity var(--transition-smooth)}
+.confirm-overlay.open{opacity:1;pointer-events:auto}
+.confirm-box{background:var(--bg-card);border:1px solid var(--border-glow);border-radius:var(--radius-lg);padding:32px;text-align:center;max-width:400px;box-shadow:var(--shadow-elevated)}
+.confirm-box h4{font-size:1.05rem;margin-bottom:8px}
+.confirm-box p{font-size:0.82rem;color:var(--text-muted);margin-bottom:20px}
+.confirm-btns{display:flex;gap:10px;justify-content:center}
+.confirm-btns button{padding:8px 24px;border-radius:50px;font-size:0.8rem;font-weight:700;cursor:pointer;transition:all var(--transition-fast);font-family:inherit}
+.btn-cancel{background:var(--bg-elevated);border:1px solid var(--border-subtle);color:var(--text-secondary)}
+.btn-danger{background:rgba(239,83,80,0.1);border:1px solid rgba(239,83,80,0.3);color:#ef5350}
+.btn-danger:hover{background:rgba(239,83,80,0.2)}
+.help-overlay{position:fixed;inset:0;z-index:250;background:var(--overlay-bg);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity var(--transition-smooth)}
+.help-overlay.open{opacity:1;pointer-events:auto}
+.help-box{background:var(--bg-card);border:1px solid var(--border-glow);border-radius:var(--radius-lg);padding:28px 32px;max-width:480px;width:90%;box-shadow:var(--shadow-elevated);text-align:center}
+.help-box h4{font-size:1rem;margin-bottom:16px;color:var(--accent-gold)}
+.kbd-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);font-size:0.78rem;color:var(--text-secondary)}
+.kbd-key{background:var(--bg-elevated);border:1px solid var(--border-subtle);padding:2px 10px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:0.68rem;color:var(--accent-cyan);font-weight:600}
+.kbd-desc{font-size:0.78rem;color:var(--text-secondary)}
+.toast{position:fixed;bottom:40px;left:50%;transform:translateX(-50%) translateY(20px);z-index:400;background:var(--accent-green);color:#000;padding:10px 24px;border-radius:50px;font-size:0.82rem;font-weight:700;opacity:0;transition:all 0.3s cubic-bezier(0.4,0,0.2,1);white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.side-progress{position:fixed;right:24px;top:50%;transform:translateY(-50%);z-index:50;display:flex;flex-direction:column;gap:10px}
+.progress-dot{width:10px;height:10px;border-radius:50%;background:var(--border-subtle);cursor:pointer;transition:all var(--transition-fast);position:relative}
+.progress-dot:hover,.progress-dot.active{background:var(--accent-gold);box-shadow:0 0 8px var(--accent-gold)}
+.progress-dot:hover::after{content:attr(data-label);position:absolute;right:18px;top:50%;transform:translateY(-50%);background:var(--bg-elevated);color:var(--text-primary);font-size:0.65rem;padding:3px 10px;border-radius:4px;white-space:nowrap;border:1px solid var(--border-subtle)}
+.back-to-top{position:fixed;bottom:100px;right:28px;z-index:50;width:40px;height:40px;border-radius:50%;background:var(--bg-card);border:1px solid var(--border-glow);color:var(--text-secondary);display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:0;pointer-events:none;transition:all var(--transition-smooth);font-size:1.1rem}
+.back-to-top.visible{opacity:1;pointer-events:auto}
+.back-to-top:hover{background:var(--accent-gold);color:#000;border-color:var(--accent-gold)}
+.mobile-bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:102;background:var(--nav-bg);backdrop-filter:blur(20px);border-top:1px solid var(--border-subtle);padding:6px 0;justify-content:space-around}
+.mbn-item{display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:4px 10px;border-radius:8px;transition:all var(--transition-fast);text-decoration:none;font-size:0.6rem;color:var(--text-muted);border:1px solid transparent}
+.mbn-item .mbn-icon{font-size:1rem}
+.mbn-item.mbn-active{color:var(--accent-gold)}
+.footer{padding:40px 32px;text-align:center;border-top:1px solid var(--border-subtle);color:var(--text-muted);font-size:0.72rem;position:relative;z-index:1}
+@media(max-width:768px){
+  .nav-links{display:none}.hamburger{display:flex}.hero-stats{flex-direction:column;align-items:center;gap:10px}.hero-stat{min-width:200px}
+  .roadmap-container{padding-left:40px}.roadmap-container::before{left:18px}.roadmap-marker{left:-32px;width:28px;height:28px;font-size:0.7rem}
+  .drawing-method{grid-template-columns:1fr}.knowledge-grid{grid-template-columns:1fr}
+  .resource-list{grid-template-columns:1fr}.section{padding:50px 18px}.top-nav{padding:0 16px}
+  .side-progress{display:none}.back-to-top{bottom:80px;right:16px}
+  .mobile-bottom-nav{display:flex}
+  .search-box{width:95%}
+}
+@media print{
+  .top-nav,.side-progress,.back-to-top,.mobile-bottom-nav,.scroll-progress,.search-overlay,.confirm-overlay,.help-overlay,#bg-canvas{display:none!important}
+  body{background:#fff;color:#000}*{color:#000!important;background:#fff!important;box-shadow:none!important;border-color:#ddd!important}
+}
+</style>
+</head>
+<body>
+<div class="scroll-progress" id="scrollProgressBar"></div>
+<canvas id="bg-canvas"></canvas>
+
+<nav class="top-nav" id="topNav">
+  <div class="nav-brand">HOK · 打野位</div>
+  <div class="nav-links">
+    <a href="#roadmap">路线图</a><a href="#graph">知识图谱</a><a href="#knowledge">知识点</a><a href="#phases">阶段详情</a>
+    <a href="#formulas">速查表</a><a href="#exercises">练习</a><a href="#resources">资料</a><a href="#tracker">进度</a>
+  </div>
+  <div class="nav-actions">
+    <button onclick="oS()">🔍</button>
+    <button class="theme-btn" id="themeBtn" onclick="window._toggleTheme()">🌙</button>
+    <button class="hamburger" onclick="tMM()"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#roadmap" onclick="tMM()">🗺 路线图</a><a href="#graph" onclick="tMM()">🔬 知识图谱</a>
+  <a href="#knowledge" onclick="tMM()">📎 知识点</a><a href="#phases" onclick="tMM()">📑 阶段详情</a>
+  <a href="#formulas" onclick="tMM()">📋 速查表</a><a href="#exercises" onclick="tMM()">✏ 练习</a>
+  <a href="#resources" onclick="tMM()">📚 资料</a><a href="#tracker" onclick="tMM()">✅ 进度</a>
+</div>
+
+<div class="search-overlay" id="searchOverlay">
+  <div class="search-box">
+    <div class="search-input-wrap">
+      <input type="text" id="searchInput" placeholder="搜索知识点、阶段、资源..." oninput="doSearch()">
+      <button class="search-close" onclick="cS()">✕</button>
+    </div>
+    <div class="search-results" id="searchResults"></div>
+  </div>
+</div>
+
+<div class="side-progress" id="sideProgress"></div>
+<div class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</div>
+
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-box">
+    <h4>⚠️ 重置所有进度</h4>
+    <p>这将清除所有练习打卡和阶段完成状态，<br>此操作不可撤销。</p>
+    <div class="confirm-btns">
+      <button class="btn-cancel" onclick="cC()">取消</button>
+      <button class="btn-danger" onclick="rA()">确认重置</button>
+    </div>
+  </div>
+</div>
+
+<div class="help-overlay" id="helpOverlay">
+  <div class="help-box">
+    <h4>⌨ 键盘快捷键</h4>
+    <div class="kbd-row"><span class="kbd-key">Ctrl+K</span><span class="kbd-desc">打开搜索</span></div>
+    <div class="kbd-row"><span class="kbd-key">Esc</span><span class="kbd-desc">关闭弹窗 / 收起知识点卡片</span></div>
+    <div class="kbd-row"><span class="kbd-key">Shift+?</span><span class="kbd-desc">显示此帮助面板</span></div>
+    <div style="text-align:center;margin-top:14px"><span style="font-size:0.72rem;color:var(--text-muted)">按 Esc 关闭</span></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<header class="hero">
+  <div class="hero-content">
+    <p style="font-size:0.8rem;color:var(--accent-gold);font-weight:700;margin-bottom:8px;letter-spacing:0.1em">HONOR OF KINGS · JUNGLE ROLE</p>
+    <h1>王者荣耀打野位<br>15周系统学习方案</h1>
+    <p>从野区霸主到节奏大师——掌握时间与空间的艺术，成为全队的发动机</p>
+    <div class="hero-stats">
+      <div class="hero-stat"><span class="num" data-count="15">0</span><div class="lbl">学习周数</div></div>
+      <div class="hero-stat"><span class="num" data-count="7">0</span><div class="lbl">学习阶段</div></div>
+      <div class="hero-stat"><span class="num" data-count="21">0</span><div class="lbl">实操练习</div></div>
+      <div class="hero-stat"><span class="num" data-count="28">0</span><div class="lbl">知识点卡片</div></div>
+    </div>
+  </div>
+</header>
+
+<section class="section" id="roadmap">
+  <div class="section-header"><span class="section-tag">ROADMAP</span><h2>🗺 总体学习路线图</h2><p class="subtitle" id="roadmapSub">15周 · 7阶段 · 循序渐进</p></div>
+  <div class="roadmap-container" id="roadmapContainer"></div>
+</section>
+
+<section class="section" id="graph">
+  <div class="section-header"><span class="section-tag">KNOWLEDGE GRAPH</span><h2>🔬 打野知识图谱</h2><p class="subtitle" id="graphSub">点击节点跳转到对应阶段或知识点</p></div>
+  <div class="graph-section">
+    <canvas class="graph-canvas" id="graphCanvas" width="960" height="550"></canvas>
+    <div class="graph-legend" id="graphLegend"></div>
+  </div>
+</section>
+
+<section class="section" id="drawing">
+  <div class="section-header"><span class="section-tag">VISUAL LEARNING</span><h2>🎨 图解学习法</h2><p class="subtitle" id="drawingSub">打野是最依赖空间思维的MOBA位置——画图能把抽象的地图意识变为肌肉记忆</p></div>
+  <div class="drawing-method" id="drawingMethod"></div>
+  <div class="draw-levels-title">🎯 画图层级</div>
+  <div class="draw-level-list" id="drawLevels"></div>
+  <div class="draw-levels-title">🏷 打野标注体系</div>
+  <div class="math-tags-grid" id="mathTags"></div>
+</section>
+
+<section class="section" id="knowledge">
+  <div class="section-header"><span class="section-tag">KNOWLEDGE POINTS</span><h2>📎 打野知识点详解</h2><p class="subtitle" id="knowledgeSub">共 <strong id="knowledgeCountRaw">28</strong> 个核心知识点 · 点击卡片展开详情 · 点击↩返回阶段</p></div>
+  <div class="knowledge-filter-bar" id="knowledgeFilterBar"></div>
+  <div class="knowledge-count" id="knowledgeCount">共 <strong>28</strong> 个知识点</div>
+  <div class="knowledge-grid" id="knowledgeContainer"></div>
+</section>
+
+<section class="section" id="phases">
+  <div class="section-header"><span class="section-tag">PHASE DETAILS</span><h2>📑 阶段详情</h2><p class="subtitle" id="phasesSub">每个阶段的学习内容、代码示例与练习要求</p></div>
+  <div class="phase-container" id="phaseContainer"></div>
+</section>
+
+<section class="section" id="formulas">
+  <div class="section-header"><span class="section-tag">QUICK REFERENCE</span><h2>📋 核心概念速查表</h2><p class="subtitle" id="formulasSub">5张速查表 · 刷新时间/Gank指标/Timing/英雄梯度/Counter关系</p></div>
+  <div class="formula-tabs" id="formulaTabs"></div>
+  <div id="formulaPanels"></div>
+</section>
+
+<section class="section" id="exercises">
+  <div class="section-header"><span class="section-tag">PRACTICE</span><h2>✏ 分层练习</h2><p class="subtitle" id="exercisesSub">初级5题 · 中级7题 · 高级6题 · 大作业3题</p></div>
+  <div class="exercise-filters" id="exerciseFilters"></div>
+  <div class="exercise-counter" id="exerciseCounter"></div>
+  <div class="exercise-list" id="exerciseList"></div>
+</section>
+
+<section class="section" id="resources">
+  <div class="section-header"><span class="section-tag">RESOURCES</span><h2>📚 学习资料</h2><p class="subtitle" id="resourcesSub">从官方工具到社区攻略 · 社区 · 视频 · 数据库</p></div>
+  <div class="resource-list" id="resourceList"></div>
+</section>
+
+<section class="section" id="tracker">
+  <div class="section-header"><span class="section-tag">PROGRESS</span><h2>✅ 进度追踪</h2><p class="subtitle" id="trackerSub">勾选完成阶段 · 自动保存至浏览器</p></div>
+  <div class="tracker-list" id="trackerList"></div>
+  <div class="tracker-total" id="trackerTotal">0/7</div>
+  <div style="text-align:center;margin-top:16px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+    <button style="background:var(--bg-elevated);border:1px solid var(--border-subtle);color:var(--text-secondary);padding:8px 20px;border-radius:50px;font-size:0.75rem;cursor:pointer;font-weight:600;transition:all var(--transition-fast)" onclick="oC()">🔄 重置数据</button>
+    <button style="background:var(--accent-gold);border:1px solid var(--accent-gold);color:#000;padding:8px 20px;border-radius:50px;font-size:0.75rem;cursor:pointer;font-weight:600;transition:all var(--transition-fast)" onclick="exportNotes()">📤 导出笔记</button>
+  </div>
+</section>
+
+<div class="mobile-bottom-nav" id="mobileBottomNav">
+  <div class="mbn-item" onclick="document.getElementById('roadmap').scrollIntoView({behavior:'smooth'})"><span class="mbn-icon">🗺</span>路线图</div>
+  <div class="mbn-item" onclick="document.getElementById('knowledge').scrollIntoView({behavior:'smooth'})"><span class="mbn-icon">📎</span>知识点</div>
+  <div class="mbn-item" onclick="document.getElementById('exercises').scrollIntoView({behavior:'smooth'})"><span class="mbn-icon">✏</span>练习</div>
+  <div class="mbn-item" onclick="document.getElementById('tracker').scrollIntoView({behavior:'smooth'})"><span class="mbn-icon">✅</span>进度</div>
+</div>
+
+<footer class="footer">
+  © 2025 王者荣耀打野位系统学习方案 · 15周从入门到精通 · 基于learning-plan-generator生成
+</footer>
+
+<!--JS_PLACEHOLDER-->
+</body>
+</html>
+<script>
+(function(){
+var cv=document.getElementById('bg-canvas'),ctx=cv.getContext('2d'),pts=[];
+function rs(){cv.width=window.innerWidth;cv.height=window.innerHeight}
+rs();window.addEventListener('resize',rs);
+for(var i=0;i<60;i++)pts.push({x:Math.random()*window.innerWidth,y:Math.random()*window.innerHeight,r:Math.random()*1.5+0.5,vx:(Math.random()-0.5)*0.3,vy:(Math.random()-0.5)*0.3,a:Math.random()*0.3+0.1});
+function draw(){
+  ctx.clearRect(0,0,cv.width,cv.height);
+  pts.forEach(function(p,i){
+    p.x+=p.vx;p.y+=p.vy;
+    if(p.x<0)p.x=cv.width;if(p.x>cv.width)p.x=0;if(p.y<0)p.y=cv.height;if(p.y>cv.height)p.y=0;
+    ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,6.28);ctx.fillStyle='rgba(201,165,75,'+p.a+')';ctx.fill();
+    for(var j=i+1;j<pts.length;j++){
+      var d=Math.hypot(p.x-pts[j].x,p.y-pts[j].y);
+      if(d<100){ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(pts[j].x,pts[j].y);ctx.strokeStyle='rgba(201,165,75,'+(0.06*(1-d/100))+')';ctx.lineWidth=0.5;ctx.stroke()}
+    }
+  });
+  requestAnimationFrame(draw);
+}
+draw();
+})();
+</script>
+<script>
+const KP={k01:{phase:'p1',tag:'hero',lvl:'must',title:'打野位核心定位：节奏发动机 vs 副Carry',d:'打野是全队唯一不受"对线"约束的位置——你的存在本身就是最大的不对称武器。定位分层：①节奏发动机(控制比赛节奏) ②资源分配者(龙/Buff/塔的决策权) ③地图控制者(视野+信息)。核心公式：打野影响力=(Gank成功率×推塔数+资源控制率×经济转化)/死亡数。',f:'打野影响力 = (Gank成功率×推塔数 + 资源控制率×经济转化) / 死亡数',diagram:'打野决策金字塔：\n        ┌──────────────┐\n        │   创造优势    │  ← 终极目标\n        ├──────────────┤\n        │ 推塔 · 拿龙  │  ← 中期目标\n        ├──────────────┤\n        │  Gank · 反野 │  ← 前期手段\n        ├──────────────┤\n        │  刷野 · 发育 │  ← 基础运营\n        └──────────────┘',sum:'打野不是刷野——是掌控时间与空间的艺术；你的每一个决策都在重塑地图的权力格局'},
+k02:{phase:'p1',tag:'rhythm',lvl:'must',title:'野区刷新机制：你的内置时钟',d:'红/蓝Buff：刷新间隔90s，持续时间70s。小野(三猪/双狼/蜥蜴)：刷新间隔70s。河道蟹：60s一刷，上下河道各一只。暴君/主宰：前10分钟2分钟一刷，10分钟后3分钟一刷。风暴龙王：20分钟后240s一刷。打野的节奏本质是"倒计时"——每一组野怪的刷新间隔都是你的节奏节拍器。',f:'红蓝Buff: 90s刷新 70s持续 | 小野: 70s | 河道蟹: 60s | 暴君/主宰: 120s/180s | 风暴龙王: 240s',diagram:'野区刷新时间线：\n0:00  开局\n0:30  Buff刷新\n1:05  小野刷新完成 → 到达四级\n1:30  河道蟹出现 ← 第一个争夺点\n2:00  第一条暴君/主宰\n4:00  防御塔护盾消失\n10:00 黑暗暴君/暗影主宰\n20:00 风暴龙王 ← 决胜时刻',sum:'每一组野怪的刷新间隔都是你的时钟——掌握它们就掌握了比赛的脉搏'},
+k03:{phase:'p1',tag:'rhythm',lvl:'must',title:'时间轴意识：从0到20分钟的全盘掌控',d:'王者荣耀的节奏是可预测的——关键时间节点决定了打野的行动优先级。1:30河道蟹是第一波节奏的起点；2:00第一条龙的归属决定前期主动权；4:00防御塔护盾消失后推塔收益恢复正常→节奏加速；10:00黑暗暴君/暗影主宰决定中期走向；20:00风暴龙王=决胜点。',f:'关键Timing链: 1:30河道蟹→2:00龙→4:00护盾消失→10:00黑暴/主宰→20:00风暴龙王',diagram:'打野节奏Timeline：\n0:00   ─开局\n1:30   ─河道蟹争夺 ← 第一波节奏\n2:00   ─龙刷新     ← 前期主动权\n4:00   ─护盾消失   ← 推塔窗口打开\n8:00   ─中期过渡   ← 装备成型\n10:00  ─黑暴/主宰  ← 中期决战\n15:00  ─高地争夺\n20:00  ─风暴龙王   ← 决胜时刻',sum:'在打野的世界里，时间就是最强的武器——知道什么时候做什么，比赛已经赢了一半'},
+k04:{phase:'p1',tag:'vision',lvl:'must',title:'基础视野概念：MOBA游戏的第一生产力',d:'视野=信息=先手权。核心视野位：①河道草丛(监控打野游走) ②Buff背后草丛(保护/入侵) ③龙坑上方草丛(控制龙区)。视野原则：知道自己在哪不重要，知道敌人在哪才值钱。小地图是打野的"第二屏幕"——每3秒扫一眼小地图是打野的基本功。',f:'视野价值 = 提前获知敌方位置时间 × 己方反应调整效率',diagram:'关键眼位(蓝方视角)：\n         [龙坑上方草] ← 控制暴君区\n        /\n [河道中央] ← 监控中路游走\n        \\\n [红buff背后草] ← 保护红区\n\n视野黄金法则：\n每3秒扫一眼小地图\n每次过河道先探草丛\n敌打野未亮相 = 默认在蹲你',sum:'视野是MOBA游戏的第一生产力——信息差是最致命的不对称武器'},
+k05:{phase:'p2',tag:'hero',lvl:'must',title:'刺客打野精通：镜/澜/裴擒虎',d:'刺客打野=高爆发+低容错。镜：镜像机制创造2v1局面，大招飞雷神是核心(镜像与本体的位置互换)。澜：水下潜行+大招收割，2技能强化普攻是主要输出。裴擒虎：双形态切换，人形态消耗→虎形态收割，1级入侵能力全打野最强。精通标准：50场同一英雄，胜率≥55%。',f:'刺客打野核心数据：爆发期(4级/8级/12级)伤害阈值 + 技能CD循环 = 击杀窗口',diagram:'刺客打野Counter链：\n裴擒虎 ←→ 镜：老虎前期入侵压制镜\n     (1级强度碾压)\n镜    ←→ 澜：镜的镜像机制克制澜的突进\n澜    ←→ 露露：澜的机动性可规避露露爆发\n\n选刺客的时机：\n✓ 对面多脆皮(无前排)\n✓ 己方有开团坦克\n✗ 对面有多个硬控(张良/东皇)',sum:'刺客打野=高风险高回报的艺术——一个完美的进场可以终结比赛，一次失误足以葬送全局'},
+k06:{phase:'p2',tag:'hero',lvl:'must',title:'战士打野精通：赵云/铠/橘右京',d:'战士打野=半肉+持续作战。赵云：被动减伤(血越少越硬)+大招击飞群控，万金油型打野。铠：大招变身+格挡机制，后期开大正面团战无敌。橘右京：远程消耗+近身控制，1技能燕返=进退自如。战士打野容错率高于刺客——适合"稳中求胜"的排位环境。',f:'战士打野优势：容错率 = 半肉出装×(控制技能+持续输出) > 刺客的全输出爆发',diagram:'战士 vs 刺客定位对比：\n        刺客           战士\n伤害    ★★★★★       ★★★\n坦度    ★             ★★★\n控制    ★★           ★★★★\n容错    ★             ★★★★\n滚雪球  ★★★★★       ★★★\n逆风能力 ★            ★★★★\n\n选战士的时机：\n✓ 对面有保护体系\n✓ 己方缺前排\n✓ 不确定能滚起雪球',sum:'战士打野=稳中求胜——你可能不会Carry全场，但你永远不会成为队伍的突破口'},
+k07:{phase:'p2',tag:'hero',lvl:'suggest',title:'蓝领打野理解：阿古朵/盘古',d:'蓝领打野=让资源+保C位。阿古朵：放生野怪机制→极速清野+召唤野怪助战，经济主要来自推塔和助攻。盘古：缴械机制克制一切普攻型英雄，大招裂地=区域控制。蓝领打野的核心思维：①让蓝Buff给法师 ②让红Buff给射手(后期) ③经济占比控制在18-22% ④以控图和保C为第一优先级。',f:'蓝领打野经济分配：打野20% + 射手25% + 法师22% + 边路18% + 辅助15%',diagram:'蓝领打野决策树：\n阵容不缺输出？\n├─ Yes → 选蓝领打野\n│        ├─ 对面多普攻英雄？→ 盘古\n│        └─ 需要快速推塔？  → 阿古朵\n└─ No  → 选刺客/战士打野\n\n蓝领打野的核心任务：\n① 让Buff → 提升C位经济\n② 控龙   → 团队资源\n③ 保后排 → 团战生存率',sum:'蓝领打野=团队至上的哲学——你不是主角，但你是让主角发光的人'},
+k08:{phase:'p2',tag:'invade',lvl:'must',title:'1级入侵判断：信息差的艺术',d:'1级入侵的三大判断条件：①双方阵容强度(P1战斗力排名) ②中路是否有线权(抢线快=支援快) ③敌方打野的已知开局路线(Buff选择)。裴擒虎/镜等前期强势英雄适合1级直接入侵敌方蓝/红Buff。关键技巧：让辅助先探草丛→确认敌方打野不在→入侵/撤退决策。',f:'入侵成功率 ∝ (己方阵容前期强度 × 线权优势) / (敌方打野反应速度 × 敌方支援速度)',diagram:'1级入侵决策流程：\n我方打野强度高？\n├─ Yes → 中路有线权？\n│        ├─ Yes → 入侵！成功率>70%\n│        └─ No  → 观望→稳妥红开\n└─ No  → 正常开局\n         防止被反入侵\n\n入侵路线：\n红开 → 反敌方蓝Buff → 三猪 → 回己方蓝区\n蓝开 → 反敌方红Buff → 河道蟹 → 回己方红区',sum:'1级入侵=用信息差换取前期优势——但一次失败的入侵可能直接葬送开局'},
+k09:{phase:'p3',tag:'rhythm',lvl:'must',title:'Gank优先级法则：帮优不帮劣',d:'Gank不是见人就抓——每一次Gank都在消耗时间(≈30s)。Gank优先级：①敌方压线过河道且无闪现→成功率>70%→抓！②敌方残血塔下+我方兵线进塔→越塔→推塔 ③双方和平发育→刷野/反蹲/拿龙 ④己方劣势路→除非100%击杀否则不帮。核心原则：帮优不帮劣——帮劣势路可能双双送死，帮优势路滚雪球更快。',f:'Gank优先级 = (击杀概率 × 推塔收益 + 逼闪收益 × 下波击杀概率) / 投入时间',diagram:'Gank优先级判定流程：\n观察小地图 →\n├─ 压线过河道？→ 抓！(>70%)\n├─ 残血在塔下？→ 看兵线\n│                  ├─ 兵线进塔 → 越塔\n│                  └─ 无兵线  → 放弃\n├─ 和平发育？→ 刷野/反蹲/拿龙\n└─ 敌方打野露出？→ 判断位置\n                   ├─ 远侧 → 入侵他的另一边\n                   └─ 近侧 → 反蹲我方被压路线',sum:'帮优不帮劣——这是打野的第一铁律；你的时间是全队最宝贵的资源，不能浪费在填坑上'},
+k10:{phase:'p3',tag:'macro',lvl:'must',title:'防御塔护盾机制与4分钟节点',d:'4分钟前：防御塔拥有护盾，推塔收益减半。这意味着：4分钟前的Gank重点不是推塔，而是击杀/逼闪/逼回城后→反野/拿龙。4分钟后：护盾消失，推塔收益恢复正常→节奏窗口打开——此时连续拿下两座外塔即可建立无法逆转的视野和经济优势。',f:'推塔收益：4分钟前 = 50%效率 | 4分钟后 = 100%效率 → 前期Gank重心 = 创造资源差而非推塔',diagram:'4分钟护盾机制变化：\n 前4分钟：\n ╔═══防御塔═══╗\n ║ 🛡护盾🛡  ║ 推塔收益减半\n ╚═══════════╝\n → Gank目标：击杀+反野+拿龙\n\n 4分钟后：\n ╔═══防御塔═══╗\n ║  (无护盾)  ║ 推塔收益全满\n ╚═══════════╝\n → Gank目标：推塔优先！',sum:'4分钟是王者荣耀的"灰姑娘时刻"——护盾消失的那一刻，比赛的节奏正式加速'},
+k11:{phase:'p3',tag:'vision',lvl:'must',title:'蹲草卡视野：制造看不见的杀机',d:'蹲草是打野的"隐藏技能"——利用草丛边缘的视野差制造"看不见的杀机"。核心技巧：①在敌方必经之路的草丛提前5-10秒蹲守(等技能CD) ②使用假视野技术：故意暴露行踪→反向移动→蹲草等待敌方"确认安全"后走位失误 ③蹲草位置必须在小地图上"最后出现位置"的光学路径之外。',f:'蹲草击杀概率 = 位置隐蔽性 × 敌方路线可预测性 × 自身爆发能力',diagram:'蹲草黄金位置：\n① Buff背后草丛 ← 等敌方来拿Buff\n② 河道中央草丛 ← 拦截中路游走\n③ 边路外塔旁草丛 ← 配合边路Gank\n④ 龙坑上方草丛 ← 等敌方开龙\n\n蹲草心理战：\n"让敌方以为你走了，\n 你才能在最意想不到的时刻出现"',sum:'蹲草=打野的"隐形"—你不需要隐身技能，你只需要知道什么时候、在哪里等待'},
+k12:{phase:'p3',tag:'macro',lvl:'must',title:'兵线处理与Gank联动',d:'兵线是Gank的"倍增器"：兵线到塔=推塔压力→敌方必须选择清兵或接团。最优Gank时机=己方兵线进塔的瞬间——敌方在清兵时无法同时应对你的Gank。兵线处理原则：①Gank前先帮推一波兵线进塔 ②Gank后利用存活兵线推塔 ③团战前保证至少两条兵线推到河道(输赢都有退路)。',f:'Gank收益最大化 = 击杀/逼退 + 兵线进塔 = 推塔 + 吃塔皮经济',diagram:'完整Gank链条：\n① 观察兵线 → 己方兵线即将进塔？\n② 到达草丛 → 兵线进塔瞬间\n③ 发起Gank → 敌方清兵/接团两难\n④ 击杀/逼退 → 兵线存活\n⑤ 推塔   → 最大化收益\n\n"兵线到塔下再抓，\n 等于免费送你一座塔"',sum:'兵线是Gank最好的朋友——让兵线先到，你再跟上，这座塔就是你的'},
+k13:{phase:'p4',tag:'invade',lvl:'must',title:'入侵野区时机：基于信息的决策',d:'入侵野区(反野)的三大条件：①敌方打野在远侧露头(如上路)→立即入侵他的另一侧(下路红/蓝区) ②己方有2级以上线权→线上队友可以支援 ③确认敌方Buff刷新状态→入侵时有明确目标。偷野不是偷完就跑——偷完必须做视野，让敌方打野回来时看到"空野区+你的视野"，制造心理压力。',f:'入侵收益率 = 偷取野怪经验值 + 敌方打野损失发育时间 - 入侵风险(被抓损失)',diagram:'反野决策流程：\n判断敌方打野位置 →\n├─ 上路露头？→ 入侵红区！\n│                ├─ 红Buff在？ → 偷红\n│                └─ 红不在？   → 偷小野+做视野\n├─ 位置未知？→ 看Buff状态\n│              ├─ 刷新中 → 蹲草反蹲\n│              └─ 无信息 → 正常发育\n└─ 正被入侵？→ 信号集合队友\n               ├─ 人数优势 → 反杀\n               └─ 人数劣势 → 换野区止损',sum:'反野=偷的不是野怪，是敌方打野的时间和心态——让他回来看见空野区的心理打击远超经济差'},
+k14:{phase:'p4',tag:'vision',lvl:'must',title:'假视野技术：信息战的高级艺术',d:'假视野=故意暴露行踪→反向移动→制造信息差。操作步骤：①在中路/河道故意让小兵或敌方英雄看到你 ②迅速向相反方向移动(清掉小兵后立即反向) ③敌方小地图显示你"去上路"，实际你在下路蹲守。核心收益：敌方误判你的位置→改变自己的路线→你获得信息差优势。',f:'假视野有效时间 = 敌方上一次看到你的位置到下一次获取你信息的时间间隔',diagram:'假视野操作：\n步骤①：中路清兵\n  (让敌方看到你 → 小地图标红点)\n步骤②：向上路移动2秒\n  (敌方判断：打野去上！)\n步骤③：反向回下路\n  (实际上你在下路蹲守)\n\n关键点：\n- 清兵后立即反向(不能被敌方兵线再看到)\n- 移动距离不要太远(浪费时间)\n- 2-3秒的视野差足以改变局势',sum:'假视野=MOBA游戏的信息战——让敌方在错误的假设下做出错误的决策'},
+k15:{phase:'p4',tag:'vision',lvl:'must',title:'关键眼位布控：打野的视野地图',d:'三个关键眼位决定了打野的信息优势：①龙坑上方草丛：控制暴君/主宰区视野，提前知道敌方是否在偷龙 ②Buff背后草丛：保护己方Buff或蹲守敌方来偷Buff ③河道中央草丛：监控中路打野的游走路线。眼位布控不是辅助的专属工作——打野的视野决定了全队的行动自由度。',f:'视野覆盖率 = 关键区域被点亮面积 / 关键区域总面积 → 理想>60%',diagram:'关键眼位地图：\n         [龙坑上方草] ← P1\n        /             ←控制龙区\n [河道中央] ← P2       ←拦截中路\n        \\\n  [Buff背后草] ← P3   ←保护/入侵\n  \n视野红绿灯：\n🟢 我看到了他 → 主动出击\n🟡 我没看到他 → 谨慎发育\n🔴 他看到了我 → 立即调整位置',sum:'视野=打野的第二条命——知道敌人在哪比知道去哪更重要'},
+k16:{phase:'p4',tag:'invade',lvl:'must',title:'防守型反野：止损的艺术',d:'当队友(边路)被压制时，防守型反野是最优止损策略：①敌方打野在上路Gank+推塔→你立即入侵他下路红/蓝区→偷走所有野怪 ②不能阻止队友被压→但可以确保敌方打野无法将优势滚成全图雪球 ③关键：偷完后在敌方野区做视野→下次他来刷野你提前知道→继续反野。止损公式：敌方Gank收益-你反野收益=敌方净收益(压低这个值就是你的任务)。',f:'止损效率 = (你反野获得的经济/经验) / (敌方打野Gank获得的经济/经验) → 理想 > 0.7',diagram:'防守型反野示例：\n敌方打野在上路Gank\n  ↓\n敌方上路推到塔下\n  ↓\n你 → 入侵敌方红区\n  ├─ 偷红Buff\n  ├─ 偷三猪\n  └─ 做视野\n  ↓\n敌方打野回来：\n  "我野区呢？？"\n  ↓\n他的Gank收益被你的反野对冲',sum:'防守型反野=逆风局中的止损艺术——你不能阻止队友掉塔，但你可以确保敌方打野也亏'},
+k17:{phase:'p5',tag:'macro',lvl:'must',title:'团战前兵线处理：胜负的隐藏变量',d:'团战前兵线处理是最被低估的高端局技能。法则：至少保证两条兵线推到河道→团战。这样：①赢了→顺势推塔甚至一波 ②输了→敌方需要先处理兵线→无法直接推塔→你有时间复活。做不到两条兵线推到河道→不要主动开团——这是从王者50星到百星的分水岭。',f:'团战期望收益 = 团战胜率 × (推塔数×塔经济 + 龙收益) - 团战败率 × (被推塔数×塔经济 + 丢龙损失) × 兵线位置修正因子',diagram:'团战前兵线检查：\n┌─────────────────┐\n│ 上路兵线：河道？✓/✗│\n│ 中路兵线：河道？✓/✗│\n│ 下路兵线：河道？✓/✗│\n├─────────────────┤\n│ ≥2条在河道 → 可以开团│\n│ <2条在河道 → 先处理兵线│\n└─────────────────┘\n\n兵线的惩罚：\n赢了但兵线在己方塔下→推不了塔→赢=白赢\n输了且兵线在己方塔下→被推高地→一塔换一高→巨亏',sum:'兵线是团战的保险——两条兵线过河道=赢则终结比赛，输则止损保命'},
+k18:{phase:'p5',tag:'teamfight',lvl:'must',title:'打野团战职责：三种定位三种打法',d:'刺客打野(镜/澜)：侧翼/后方进场→等敌方关键控制交出→切入敌方C位(射手>法师>辅助)→一套爆发后撤出→等CD→二次进场。战士打野(铠/赵云)：跟团正面/半前排→保护己方阵型→等敌方前排血线降低→大招开团/反手。蓝领打野(盘古/阿古朵)：保C>输出→站位在己方射手和法师之间→控制敌方进场→让你的C位自由输出。',f:'团战贡献 = (输出占比 × 0.3) + (承受伤害占比 × 0.2) + (控制时长 × 0.3) + (击杀参与率 × 0.2)',diagram:'刺客打野团战四阶段：\n│ 等待 │→ 观察敌方关键控制\n│      │   张飞大？东皇大？交了吗？\n│ 切入 │→ 侧翼/后方进场\n│      │   目标：射手>法师>辅助\n│ 爆发 │→ 一套技能全交\n│      │   时间窗口：2-3秒\n│ 撤退 │→ CD期拉出战场\n│      │   等技能转好→再次进场\n\n记住：打野不是坦克！',sum:'不同的打野有不同的团战角色——知道自己该做什么比用操作多杀一个人更重要'},
+k19:{phase:'p5',tag:'draft',lvl:'must',title:'BP决策模板：从Ban/Pick到胜利的第一步',d:'BP阶段的打野决策模板：①看双方前3楼→确定己方阵容类型(保护体系/进攻体系) ②根据阵容确定打野类型(刺客/战士/蓝领) ③Ban克制你准备选的英雄(如你准备玩镜→Ban盘古) ④Counter Pick：看到对面先选打野→选克制英雄(对面镜→你选裴擒虎)。',f:'BP优势度 = Counter Pick效果 × 0.4 + 阵容搭配度 × 0.35 + 个人熟练度 × 0.25',diagram:'BP阶段决策流程：\n看双方前三楼 →\n├─ 对面多脆皮？→选刺客(镜/澜)\n├─ 对面有保护？→选战士(铠/赵云)\n├─ 己方缺前排？→选蓝领(阿古朵)\n└─ 对面先选打野？→Counter Pick\n                     ├─ 镜→选裴擒虎\n                     ├─ 澜→选镜\n                     └─ 铠→选盘古\n\nBan位优先级：\n1. 盘古(克制所有普攻打野)\n2. 张良/东皇(克制所有进场打野)\n3. 敌方熟练度最高的打野',sum:'BP阶段就已经决定了30%的胜率——选对英雄比玩好英雄更事半功倍'},
+k20:{phase:'p5',tag:'rhythm',lvl:'must',title:'逆风局处理：从防守到翻盘',d:'逆风局四大法则：①避战发育(不打无把握的团→刷野+带线拖经济) ②带线牵制(用1-2条兵线逼迫敌方分人→创造以多打少的机会) ③抓单翻盘(等敌方有人走位失误→5抓1→形成人数优势→拿龙/推塔) ④心态管理(逆风局是检验打野能力的最佳试金石——"一个不会打逆风的打野不配打顺风")。关键数据：逆风局中打野经济不低于全队平均→衡量抗压刷野能力。',f:'逆风翻盘概率 = (经济差距减小速度) × (抓单机会次数) × (风暴龙王控制概率)',diagram:'逆风局打野生存法则：\n① 避战发育\n   不打无把握的团\n   → 刷己方野+蹭边路线\n\n② 带线牵制\n   1-2条兵线推进\n   → 逼敌方分人防守\n   → 创造多打少机会\n\n③ 抓单翻盘\n   等敌方走位失误\n   → 5抓1\n   → 拿龙+推塔\n\n"逆风不崩=顺风必赢"',sum:'逆风局是打野的终极试炼——真正的强者不是顺风碾压，而是逆风翻盘'},
+k21:{phase:'p6',tag:'rhythm',lvl:'must',title:'录像复盘"停·问·改"法',d:'录像复盘是打野进阶最快的方法。"停·问·改"三步：①【停】每2分钟暂停→记录：你在哪？敌打野在哪？龙还有多久刷？②【问】对关键节点提5问：为什么在这里？敌打野在做什么？这波Gank成败原因？最优选择是什么？这个决策影响了多久的局势？③【改】提炼1-2条可立即执行的改进→写成"下次XX情况→我要XX"。每天复盘2场，坚持一个月=脱胎换骨。',f:'复盘效率 = 发现问题数量 × 改进措施可行性 / 复盘耗时',diagram:'录像复盘"停·问·改"法：\n│【停】每2分钟暂停一次│\n│ 你在哪？敌打野在哪？  │\n│          ↓             │\n│【问】关键节点5问：    │\n│ ①为什么在这里？       │\n│ ②敌打野在做什么？     │\n│ ③Gank成败原因？       │\n│ ④最优选择是什么？     │\n│ ⑤影响多久的局势？     │\n│          ↓             │\n│【改】写下改进措施     │\n│ "下次XX→我要XX"      │',sum:'复盘是打野的"时间机器"——每一次复盘都是给自己一次重来的机会'},
+k22:{phase:'p6',tag:'rhythm',lvl:'suggest',title:'专项训练模块：逆风/团战/视野',d:'专项训练=有目的地重复特定场景。①逆风局特训：连续5场故意模拟经济落后→训练抗压刷野+带线牵制+抓单 ②后期团战特训：关注5场排位中的"成功团战"与"失误团战"比例→记录每次团战你的进场时机和目标选择 ③视野布控特训：每局设定3个必须做视野的时间点→赛后检查。',f:'专项训练效果 = 训练场景次数 × 每次训练的意识提升值',diagram:'三大专项训练：\n┌────────────────────┐\n│ 逆风局特训(5场)     │\n│ → 经济落后时如何止损│\n│ → 带线牵制创造空间  │\n├────────────────────┤\n│ 团战特训(5场)       │\n│ → 统计成功/失误团战 │\n│ → 记录进场时机选择  │\n├────────────────────┤\n│ 视野特训(5场)       │\n│ → 设定3个必做视野点│\n│ → 赛后检查完成度    │\n└────────────────────┘',sum:'专项训练=有目的地重复——不是打100场，而是把1个场景练100次'},
+k23:{phase:'p6',tag:'hero',lvl:'must',title:'排位冲刺：连续15场同一英雄',d:'肌肉记忆来自重复。排位冲刺方法：连续15场排位只用同一个打野英雄→不放回→不换英雄。前5场=习惯英雄节奏，6-10场=熟练连招和Timing，11-15场=形成肌肉记忆。跟踪指标：前5场胜率 vs 最后5场胜率→提升幅度=你的学习效率。辅助指标：Gank成功率、KDA、经济转化率。',f:'英雄熟练度 = 场次数 / 目标场次 × 100% | 目标：50场入门→100场精通',diagram:'15场冲刺追踪：\n场次  1-5    6-10   11-15\n      ───    ───    ───\n阶段  适应   熟练   精通\n变化  →     →      →\n\n追踪指标：\n胜率：__% → __% → __%\nKDA：__._ → __._ → ___._\nGank成功率：__% → __%\n经济转化率：__% → __%',sum:'肌肉记忆=重复的礼物——连续15场同一英雄，你会发现操作变成了本能'},
+k24:{phase:'p6',tag:'teamfight',lvl:'suggest',title:'参团时机判断：何时进何时退',d:'参团时机的核心判断：①敌方关键控制是否已交(张飞大/东皇大/张良大→已交=可以进场) ②敌方C位是否走位失误(站位靠前/孤立→窗口打开) ③己方是否有开团技能就绪(鬼谷子大/牛魔大→跟上) ④自身技能CD状态(全技能就绪=可进场/CD中=等待)。统计5场排位中"成功团战"(击杀≥2且己方不减员)与"失误团战"(击杀<2或己方被团灭)的比例。',f:'团战成功率 = 成功团战数 / 总参团数 → 理想>65%',diagram:'参团时机检查表：\n┌─────────────────┐\n│ ✓ 敌方关键控制已交？│\n│ ✓ 敌方C位走位失误？│\n│ ✓ 己方开团技能就绪？│\n│ ✓ 自身技能CD完成？ │\n├─────────────────┤\n│ ≥3个✓ = 可以进场   │\n│ <3个✓ = 继续等待   │\n└─────────────────┘\n\n黄金法则：\n"宁可错过一次不完美的团战\n也不要参与一次必输的团战"',sum:'参团时机=打野的"第六感"——知道什么时候不进比知道什么时候进更难'},
+k25:{phase:'p7',tag:'draft',lvl:'must',title:'版本迭代追踪：解读方法',d:'版本更新解读模板：①英雄调整→增强/削弱→是否影响打野梯度？②装备调整→打野刀改动→清野路线是否需要调整？防御/攻击装改动→出装顺序是否需要调整？③地图/机制调整→野怪属性变化→清除时间±多少秒？防御塔/龙改动→节奏是否提速/减速？④总结新版本打野核心思路(1句话)→例如"前期压制面积扩大、中期龙团决胜、后期依赖风暴龙王"。',f:'版本影响力 = Σ(英雄调整影响×0.4 + 装备调整影响×0.35 + 地图调整影响×0.25)',diagram:'版本更新解读模板：\n┌──────────────────┐\n│ 更新公告         │\n├──────────────────┤\n│ 英雄调整：       │\n│ 增强→是否进入T1？│\n│ 削弱→是否跌出T0？│\n├──────────────────┤\n│ 装备调整：       │\n│ 打野刀改动→路线？│\n│ 装备改动→出装？  │\n├──────────────────┤\n│ 地图/机制：      │\n│ 野怪属性→清野速度│\n│ 塔/龙改动→节奏？│\n├──────────────────┤\n│ 核心思路(1句话)  │\n│                  │\n└──────────────────┘',sum:'版本是打野的风向标——一周不关注版本变化=落后一个段位的理解'},
+k26:{phase:'p7',tag:'invade',lvl:'suggest',title:'创新打法探索：打破常规的勇气',d:'非常规路线的探索价值：①2级直接入侵→放弃4级节奏→用前期的压制力换短期优势→测试可行性 ②4级强越塔→放弃稳健运营→高风险高收益→适合打野Carry型队伍 ③双Buff开局→放弃河道蟹→用双Buff压制单线。探索方法：自定义/匹配中测试→记录可行性→排位中根据具体情况使用。',f:'创新打法成功率 = 匹配测试成功率 × 排位环境适应系数',diagram:'创新打法探索流程：\n① 提出假设\n   "2级入侵能否持续获利？"\n\n② 自定义测试(3-5场)\n   记录：成功率+敌方反应\n\n③ 匹配验证(5-10场)\n   记录：稳定性+变数\n\n④ 排位应用(特殊情况)\n   只在"条件满足"时使用\n\n⑤ 复盘优化\n   改进执行细节',sum:'创新打法=用别人不知道的方式赢比赛——但先验证再实战，别拿排位分做实验'},
+k27:{phase:'p7',tag:'macro',lvl:'suggest',title:'教学输出：教是最好的学',d:'费曼学习法在打野中的应用：①撰写万字打野入门教程帖→需要将认知从隐性转化为显性→迫使你填补知识空白 ②录制教学视频并解说→口头表达让你发现逻辑漏洞 ③带人上分→教别人时你会重新审视自己的决策习惯。输出要求：教程帖需配GIF动图/小地图标注→发布NGA/B站→收集反馈→迭代。',f:'学习吸收率: 阅读10% < 实践70% < 教授他人90% (费曼学习法)',diagram:'教学输出三层金字塔：\n      ┌─────┐\n      │教别人│ ← 90%吸收率\n      ├─────┤   \n     │实践  │ ← 70%吸收率\n    ├───────┤\n   │阅读/观看│ ← 10%吸收率\n  └─────────┘\n\n输出形式：\n1. 教程帖(NGA/B站图文)\n2. 教学视频(B站/抖音)\n3. 带人上分(实战教学)\n4. 赛季总结报告',sum:'教别人的那一刻，你才真正理解自己学的东西——这是打野进阶的终极加速器'},
+k28:{phase:'p7',tag:'rhythm',lvl:'suggest',title:'目标设定与成长体系',d:'打野长期成长路径：排位分数→巅峰赛分数→战力英雄榜(小国标/大国标)。同时建立闭环：实战训练→教练/复盘→带人上分→教学输出→迭代认知。每赛季设定具体目标：如"巅峰赛1800分"→分解为月度目标→每周追踪进度。辅助体系：个人英雄池表格+每日任务+复盘笔记(飞书/Notion)。',f:'成长速度 = (训练量 × 训练质量 × 复盘效率 × 版本适应力) / 时间周期',diagram:'长期成长体系：\n排位分数 → 巅峰赛分数\n     ↓           ↓\n 战力英雄榜(小国标/大国标)\n     ↓\n 教练/复盘能力\n     ↓\n 带人上分\n     ↓\n 教学输出 → 形成闭环\n\n赛季目标分解：\n赛季目标 → 月度目标 → 每周目标 → 每日任务',sum:'没有目标的打野就像没有小地图的游戏——你在动，但你不知道目的地在哪里'}};
+
+const MATH_TAGS_DATA=[
+  {cls:'tag-hero',code:'[英雄]',label:'英雄操作与Counter关系'},
+  {cls:'tag-rhythm',code:'[节奏]',label:'时间轴管理与节奏运营'},
+  {cls:'tag-vision',code:'[视野]',label:'视野控制与信息战'},
+  {cls:'tag-macro',code:'[运营]',label:'大局运营与兵线处理'},
+  {cls:'tag-teamfight',code:'[团战]',label:'团战处理与进场时机'},
+  {cls:'tag-invade',code:'[反野]',label:'野区博弈与入侵路线'},
+  {cls:'tag-draft',code:'[BP]',label:'阵容博弈与Ban/Pick策略'}
+];
+
+const PHASES=[
+  {id:'p1',week:'第1-2周',title:'打野基础认知',sub:'从野区刷新到时间轴——建立打野的世界观',color:'#4fc3f7',icon:'🗺',cls:'c1',
+   skills:[{code:'打野位定位',kp:'k01'},{code:'野区刷新机制',kp:'k02'},{code:'时间轴意识',kp:'k03'},{code:'基础视野',kp:'k04'}],
+   codes:[{lang:'Python:打野效率计算器',code:'JUNGLE_CAMPS={\n  "红Buff":{"exp":120,"gold":85,"respawn":90},\n  "蓝Buff":{"exp":120,"gold":85,"respawn":90},\n  "三猪":{"exp":75,"gold":55,"respawn":70},\n  "双狼":{"exp":65,"gold":45,"respawn":70},\n  "蜥蜴":{"exp":80,"gold":50,"respawn":70},\n  "河道蟹":{"exp":90,"gold":70,"respawn":60},\n}\ndef route_efficiency(route,clear_time_sec):\n    total_exp=sum(JUNGLE_CAMPS[c]["exp"] for c in route)\n    return total_exp/clear_time_sec\nblue_side=["红Buff","三猪","蓝Buff","河道蟹"]\neff=route_efficiency(blue_side,75)\nprint(f"蓝方标准路线效率:{eff:.1f}经验/秒")'}],
+   drawings:[{lvl:'must',text:'[必画] 打野决策金字塔(创造优势→推塔/拿龙→Gank/反野→刷野)'},{lvl:'must',text:'[必画] 蓝方标准红开路线图(红Buff→三猪→蓝Buff→河道蟹→抓上/中)'},{lvl:'must',text:'[必画] 野区刷新时间轴(0:00-20:00标注所有关键节点)'},{lvl:'suggest',text:'[建议画] 红方vs蓝方开局路线对比图'},{lvl:'suggest',text:'[建议画] 河道蟹争夺路线分析图'}]},
+
+  {id:'p2',week:'第3-4周',title:'核心英雄池',sub:'刺客/战士/蓝领——构建你的打野武器库',color:'#66bb6a',icon:'⚔',cls:'c2',
+   skills:[{code:'刺客打野精通',kp:'k05'},{code:'战士打野精通',kp:'k06'},{code:'蓝领打野理解',kp:'k07'},{code:'1级入侵判断',kp:'k08'}],
+   codes:[{lang:'Python:英雄池熟练度追踪',code:'hero_pool={\n  "镜":{"type":"刺客","games":0,"wr":0.0,"target":50},\n  "澜":{"type":"刺客","games":0,"wr":0.0,"target":30},\n  "赵云":{"type":"战士","games":0,"wr":0.0,"target":40},\n  "铠":{"type":"战士","games":0,"wr":0.0,"target":30},\n}\ndef hero_progress(name):\n    h=hero_pool[name]\n    pct=min(100,h["games"]/h["target"]*100)\n    return f"{name} 熟练度: {pct:.0f}% ({h[\'games\']}/{h[\'target\']}场)"\nfor name in hero_pool:print(hero_progress(name))'}],
+   drawings:[{lvl:'must',text:'[必画] 打野英雄分类决策树(刺客/战士/蓝领选择逻辑)'},{lvl:'must',text:'[必画] 刺客打野Counter链关系图(裴擒虎→镜→澜→露露)'},{lvl:'must',text:'[必画] 1级入侵决策流程图(强度→线权→入侵/撤退)'},{lvl:'suggest',text:'[建议画] 镜/澜/裴擒虎连招流程图'}]},
+
+  {id:'p3',week:'第5-6周',title:'节奏运营',sub:'从Gank到兵线——节奏是打野的灵魂',color:'#ffa726',icon:'⏱',cls:'c3',
+   skills:[{code:'Gank优先级法则',kp:'k09'},{code:'防御塔护盾机制',kp:'k10'},{code:'蹲草卡视野',kp:'k11'},{code:'兵线联动',kp:'k12'}],
+   codes:[{lang:'Gank决策框架(伪代码)',code:'def gank_decision(lane_state,enemy_vision):\n    if enemy_overextended():\n        if enemy_no_flash():return "GANK_NOW"\n        else:return "GANK_FOR_FLASH"\n    elif enemy_low_hp_under_tower():\n        if our_creeps_approaching():return "DIVE"\n        else:return "SKIP"\n    elif enemy_jungler_visible_far():\n        if can_invade_opposite():return "INVADE"\n        else:return "COUNTER_GANK"\n    else:return "FARM_OR_DRAGON"'}],
+   drawings:[{lvl:'must',text:'[必画] Gank优先级判定流程图(完整分支)'},{lvl:'must',text:'[必画] 资源优先级时间轴(1:30河道蟹→2:00龙→4:00推塔)'},{lvl:'must',text:'[必画] 蹲草黄金位置地图(4个最佳蹲草点)'},{lvl:'suggest',text:'[建议画] "兵线→Gank→推塔"完整节奏链示意图'}]},
+
+  {id:'p4',week:'第7-8周',title:'进阶策略',sub:'反野与视野——信息战的核心技术',color:'#ab47bc',icon:'👁',cls:'c4',
+   skills:[{code:'入侵野区时机',kp:'k13'},{code:'假视野技术',kp:'k14'},{code:'关键眼位布控',kp:'k15'},{code:'防守型反野',kp:'k16'}],
+   codes:[{lang:'假视野操作步骤',code:'# 假视野技术执行步骤:\n# 1. 在中路清兵 (让敌方看到你)\n# 2. 向上路移动2秒 (敌方判断:打野去上!)\n# 3. 反向回下路 (实际你在下路蹲守)\n# 关键:清兵后立即反向, 不能再被敌方兵线看到\n# 有效时间窗口: 2-3秒的信息差足以改变局势\n'}],
+   drawings:[{lvl:'must',text:'[必画] 反野决策流程图(敌打野位置→入侵/反蹲/换野区)'},{lvl:'must',text:'[必画] 关键眼位地图(龙坑上方草/河道中央/Buff背后草)'},{lvl:'must',text:'[必画] 假视野操作时序图(暴露→反向→蹲守)'},{lvl:'suggest',text:'[建议画] 防守型反野示例(止损流程图)'}]},
+
+  {id:'p5',week:'第9-10周',title:'高端局节奏',sub:'从BP到团战——决定比赛走向的高阶技能',color:'#ef5350',icon:'🏆',cls:'c5',
+   skills:[{code:'团战前兵线处理',kp:'k17'},{code:'打野团战职责',kp:'k18'},{code:'BP决策模板',kp:'k19'},{code:'逆风局处理',kp:'k20'}],
+   codes:[{lang:'BP决策框架(伪代码)',code:'def bp_decision(our_picks,enemy_picks):\n    our_type=analyze_team_comp(our_picks)\n    enemy_type=analyze_team_comp(enemy_picks)\n    if enemy_has_many_squishies()and not enemy_has_hard_cc():\n        return"PICK_ASSASSIN"  # 镜/澜\n    elif our_team_lacks_frontline():\n        return"PICK_BRUISER"   # 铠/赵云\n    elif our_team_has_enough_damage():\n        return"PICK_SUPPORT"   # 阿古朵\n    else:\n        jg=best_counter_pick(enemy_picks[0])\n        ban=[counter_pick(jg)for c in our_picks[:3]]\n        return f"PICK:{jg} BAN:{ban}"'}],
+   drawings:[{lvl:'must',text:'[必画] BP阶段打野决策模板(阵容分析→类型选择→Counter Pick→Ban)'},{lvl:'must',text:'[必画] 团战进场时机判断图(等待→切入→爆发→撤退四阶段)'},{lvl:'must',text:'[必画] 逆风局处理策略图(避战→带线→抓单→翻盘)'},{lvl:'suggest',text:'[建议画] 兵线推河道的区域控制图'}]},
+
+  {id:'p6',week:'第11-13周',title:'实战演练',sub:'从复盘到冲刺——将知识转化为肌肉记忆',color:'#ec407a',icon:'🎯',cls:'c6',
+   skills:[{code:'录像复盘法',kp:'k21'},{code:'专项训练',kp:'k22'},{code:'排位冲刺',kp:'k23'},{code:'参团时机',kp:'k24'}],
+   codes:[{lang:'录像复盘检查清单',code:'# 录像复盘「停·问·改」法:\n# 【停】每2分钟暂停一次\n#   记录: 你在哪?敌打野在哪?龙还有多久?\n# 【问】关键节点5问:\n#   1.为什么在这里? 2.敌打野在做什么?\n#   3.成败原因? 4.最优选择? 5.影响多久?\n# 【改】提炼1-2条改进措施\n#   "下次XX情况→我要XX而不是XX"\n# 每天复盘2场×一个月=脱胎换骨'}],
+   drawings:[{lvl:'must',text:'[必画] 录像复盘"停·问·改"完整流程图'},{lvl:'must',text:'[必画] 15场冲刺追踪表(场次分段×关键指标)'},{lvl:'must',text:'[必画] 参团时机检查表(4个条件→≥3=进场)'},{lvl:'suggest',text:'[建议画] 专项训练三模块对比图'}]},
+
+  {id:'p7',week:'第14-15周',title:'综合提升',sub:'从版本追踪到教学输出——打野之路的终点与起点',color:'#26c6da',icon:'🚀',cls:'c7',
+   skills:[{code:'版本迭代追踪',kp:'k25'},{code:'创新打法探索',kp:'k26'},{code:'教学输出',kp:'k27'},{code:'目标设定',kp:'k28'}],
+   codes:[{lang:'赛季总结报告模板',code:'# 赛季打野位总结报告\n# 英雄池数据:\n# 主练英雄: __ 场次:__ 胜率:__%\n# 副练英雄: __ 场次:__ 胜率:__%\n# 关键指标:\n# Gank成功率:__% KDA:__._ \n# 经济转化率:__% 参团率:__%\n# 下赛季目标:\n# 排位分数:__ 巅峰赛:__\n# 主练方向:__ 新增英雄:__'}],
+   drawings:[{lvl:'must',text:'[必画] 版本更新解读模板(英雄/装备/地图/机制四维度)'},{lvl:'must',text:'[必画] 长期成长体系图(排位→巅峰→国标→教学闭环)'},{lvl:'suggest',text:'[建议画] 创新打法探索流程(假设→测试→验证→应用→优化)'},{lvl:'suggest',text:'[建议画] 费曼学习法金字塔(阅读→实践→教学)'}]}
+];
+
+const FORMULA_TABS=[
+  {label:'野区刷新时间'},
+  {label:'Gank效率指标'},
+  {label:'关键Timing'},
+  {label:'英雄强度梯度'},
+  {label:'Counter关系简表'}
+];
+const FORMULAS=[
+  [{c:'红/蓝Buff刷新',f:'90s',n:'从被击杀开始计时'},{c:'Buff持续时间',f:'70s',n:'红/蓝Buff持有时间'},{c:'小野刷新',f:'70s',n:'三猪/双狼/蜥蜴'},{c:'河道蟹刷新',f:'60s',n:'上下河道各一只'},{c:'暴君/主宰刷新',f:'120s→180s(后期)',n:'前10分钟2分钟一刷/后10分钟3分钟一刷'},{c:'风暴龙王刷新',f:'240s',n:'20分钟后刷新'}],
+  [{c:'Gank成功率',f:'成功击杀/逼闪次数 / Gank总次数',n:'理想>60%'},{c:'时间利用率',f:'(刷野+Gank+拿龙时间) / 总游戏时间',n:'理想>85%'},{c:'资源转化率',f:'推塔数 / Gank成功数',n:'衡量Gank→推塔的转化'},{c:'经济占比',f:'打野总经济 / 全队总经济',n:'合理范围20-25%'},{c:'KDA',f:'(击杀+助攻) / 死亡数',n:'打野理想KDA>3.0'}],
+  [{c:'1级开野完成',f:'约55-65s',n:'视英雄清野速度而定'},{c:'河道蟹出现',f:'1:30',n:'打野第一个关键争夺点'},{c:'第一条暴君/主宰',f:'2:00',n:'决定前期主动权'},{c:'防御塔护盾消失',f:'4:00',n:'推塔收益恢复正常→节奏加速'},{c:'10分钟黑暴/主宰',f:'10:00',n:'中期争夺核心'},{c:'20分钟风暴龙王',f:'20:00',n:'决胜资源'}],
+  [{c:'T0',f:'镜、裴擒虎',n:'前期压制+高爆发，职业赛常客'},{c:'T1',f:'澜、赵云、铠、露露',n:'综合能力强，适合排位上分'},{c:'T2',f:'橘右京、曜、雅典娜',n:'操作要求高，上限高下限低'},{c:'T3',f:'盘古、阿古朵',n:'蓝领体系，依赖阵容'}],
+  [{c:'裴擒虎克制',f:'铠(后期打不动)',n:'铠克制老虎'},{c:'镜克制',f:'盘古(缴械断连招)',n:'盘古克制镜'},{c:'澜克制',f:'张良(硬控锁定)',n:'张良克制澜'},{c:'铠克制',f:'吕布(真伤无视护甲)',n:'吕布克制铠'},{c:'裴擒虎→克→镜',f:'前期入侵压制',n:'裴擒虎克镜'},{c:'镜→克→澜',f:'镜像机制克制',n:'镜克澜'}]
+];
+
+const EXERCISES=[
+  {id:'e01',diff:'easy',text:'默写王者峡谷的全部野怪位置、首次刷新时间、后续刷新间隔',a:'红/蓝Buff: 开局30s刷新,间隔90s\n小野(三猪/双狼/蜥蜴): 开局30s刷新,间隔70s\n河道蟹: 开局30s刷新,间隔60s\n暴君/主宰: 2:00首刷,前10分钟间隔120s,后10分钟间隔180s\n风暴龙王: 20:00首刷,间隔240s\n关键:记住每个野怪的间距就能预判敌方路线'},
+  {id:'e02',diff:'easy',text:'在训练营中完成裴擒虎/镜的1级红开→三猪→蓝→河道蟹路线，计时并记录到秒',a:'标准蓝方红开路线:\n红Buff(0:30)→三猪(0:42)→蓝Buff(0:52)→河道蟹(1:30)\n从红Buff到河道蟹约1分钟\n裴擒虎利用虎形态+2技能加速可缩短至55s\n关键:镜利用镜像双刷三猪→1技能收掉→时间最优'},
+  {id:'e03',diff:'easy',text:'连续10场排位使用同一个打野英雄，记录每场的Gank次数、成功率、对位打野的路线',a:'追踪表格:\n场次 | 英雄 | Gank次数 | 成功次数 | 成功率 | 敌打野路线\n1    | 镜   | 8       | 5       | 62.5%  | 蓝开抓下\n...\n10场后分析:\n- 平均Gank成功率>60%?\n- 是否在固定的时间节点(1:30/2:00/4:00)有行动?\n- 对位打野是否有规律可循?'},
+  {id:'e04',diff:'easy',text:'画出蓝方和红方各3种标准开局路线（红开/蓝开/入侵）',a:'蓝方路线:\n①红开:红→三猪→蓝→河道蟹→抓上/中→回红区\n②蓝开:蓝→双狼→红→河道蟹→抓下/中→回蓝区\n③入侵:反红(30s)→回红→三猪→蓝→河道蟹\n红方同理(上下路互换).每个路线标注时间点'},
+  {id:'e05',diff:'easy',text:'观看1场KPL比赛回放，追踪双方打野的每分钟位置并画出轨迹图',a:'追踪方法:\n1. 打开KPL比赛回放\n2. 每分钟暂停一次\n3. 在小地图上标注双方打野位置\n4. 连线形成轨迹\n观察点:\n- 双方打野是否在同一半边?\n- 资源点(龙/河道蟹)争夺时双方位置?\n- 谁的轨迹预测更准确?(贴着对方打野路线的=高手)'},
+  {id:'e06',diff:'medium',text:'对10场排位进行"假视野"技术测试：至少3次故意暴露→反向移动→记录敌方反应',a:'测试记录:\n场次 | 假视野次数 | 敌方误判次数 | 成功率\n1    | 3          | 2           | 66%\n...\n关键观察:\n- 敌方是否根据你的"假位置"改变了路线?\n- 你反向蹲守后是否成功击杀?\n- 哪个位置做假视野效果最好?(中路清兵)'},
+  {id:'e07',diff:'medium',text:'设计一份"反野时机检查表"：列出己方入侵前必须确认的3个条件，并在5场排位中严格执行',a:'反野时机检查表:\n□ 敌方打野在远侧露头?\n□ 己方对应路有2级以上线权?\n□ 目标Buff处于刷新状态?\n≥2个✓ = 可以入侵\n\n5场排位记录:\n场次 | 条件满足 | 是否入侵 | 结果\n1    | ✓✓✓    | 是       | 偷红Buff成功'},
+  {id:'e08',diff:'medium',text:'统计20场排位中"第一条龙的控制率"与胜率的关系（你和敌方打野各拿了几条）',a:'统计表格:\n我方拿龙 | 敌方拿龙 | 结果(赢/输)\n12      | 8       | 赢6输2\n...\n分析:\n- 第一条龙控制率与胜率的皮尔逊相关系数?\n- 4分钟前推塔 vs 拿龙哪个更有助于胜利?\n- 不同英雄(镜vs铠)的控龙率差异?'},
+  {id:'e09',diff:'medium',text:'选择一名你准备精通的打野英雄，写出完整的3级/4级/6级连招伤害计算',a:'以镜为例:\n3级(未学大招):\n1技能+普攻+2技能+普攻 = X伤害\n利用镜像双刷打出双倍伤害\n\n4级(学大招):\n大招飞雷神:镜像→1技能→普攻→2技能→换位→普攻\n伤害最大化:镜像复制全部技能\n\n6级(2级大招):\n飞雷神持续伤害+镜像伤害+技能全交\n约可击杀80%生命值的脆皮'},
+  {id:'e10',diff:'medium',text:'在不同对局中记录敌方打野的常用开局路线，连续10场后总结出你所处分段的打野习惯模式',a:'10场统计:\n敌方打野开局模式:\n红开抓下: 4场 (40%)\n蓝开抓上: 3场 (30%)\n入侵反红: 2场 (20%)\n不确定: 1场 (10%)\n\n分段习惯总结:\n你所处分段打野"红开抓下"占比最高\n→1:35左右下路最危险\n→可以提前反蹲或在敌方去下时入侵上路'},
+  {id:'e11',diff:'medium',text:'针对镜/澜/裴擒虎各写出1份CounterPick方案（用什么英雄克制、用什么策略应对）',a:'Counter方案:\n1. Counter镜:选盘古(缴械断飞雷神连招)|策略:前期避战发育,团战优先打掉镜像\n2. Counter澜:选张良/东皇(硬控锁定水下)|策略:留控制和爆发等他钻进人群再出手\n3. Counter裴擒虎:选铠(后期打不动)|策略:前期猥琐发育回避老虎入侵,中期抱团打架'},
+  {id:'e12',diff:'medium',text:'在5场排位中仅凭小地图信息（不切屏看具体位置）推断敌方打野位置，赛后看录像验证准确率',a:'小地图推断记录:\n时间   | 我的推断       | 实际位置 | 是否正确\n1:30  | 敌在上路河道蟹 | 上路      | ✓\n2:00  | 敌在开龙       | 暴君处    | ✓\n...\n准确率:__%\n\n推断依据:\n- Buff刷新时间→预判路线\n- 我方兵线位置→预判Gank目标\n- 敌方英雄露头→预判可能位置'},
+  {id:'e13',diff:'hard',text:'选取3场败局录像，用"停·问·改"法进行完整复盘，输出至少2000字的复盘报告',a:'复盘报告框架:\n1. 对局信息(时间/分段/英雄)\n2. 三场败局的共性问题\n3. 每场复盘:\n   - 停: 关键暂停点的位置和状态\n   - 问: 5个问题的逐一回答\n   - 改: 具体的改进措施\n4. 总结: 最需改进的3个方面\n5. 行动计划: 接下来10场的改善目标'},
+  {id:'e14',diff:'hard',text:'冲刺同一英雄连续20场排位：前10场和后10场的胜率/KDA/Gank成功率对比分析',a:'对比分析:\n指标       | 前10场 | 后10场 | 变化\n胜率       | 50%   | 65%   | +15%\nKDA        | 2.5   | 3.8   | +1.3\nGank成功率 | 45%   | 62%   | +17%\n经济占比   | 22%   | 23.5% | +1.5%\n\n结论:后10场各项指标显著提升→肌肉记忆开始形成\n建议:对下降的指标(如有)进行针对性训练'},
+  {id:'e15',diff:'hard',text:'设计3套不同的"4级后节奏路线"（抓中压塔型/入侵反野型/控龙发育型），各测试5场',a:'三套节奏路线:\n1. 抓中压塔型:4级→抓中→推中塔→解放中路→入侵敌方野区\n   测试5场 | 胜率:__% | 推塔数:__\n2. 入侵反野型:4级→反敌方红/蓝Buff→压制敌方打野→滚野区经济\n   测试5场 | 胜率:__% | 反野次数:__\n3. 控龙发育型:4级→控河道蟹→2分钟拿龙→稳定发育→10分钟团战\n   测试5场 | 胜率:__% | 控龙率:__'},
+  {id:'e16',diff:'hard',text:'制定BP阶段的"Ban/Pick决策模板"：根据我方1-2楼选人→确定打野选择范围→Ban克制英雄',a:'BP决策模板:\nStep 1:分析我方1-2楼\n→有坦克/辅助? 打野类型更自由\n→双C已定? 打野需要补足缺失(输出/控制/前排)\n\nStep 2:确定打野选择范围\n→对面多脆皮?→刺客(镜/澜/裴擒虎)\n→己方缺前排?→战士(铠/赵云)\n→阵容不缺输出?→蓝领(阿古朵)\n\nStep 3:Ban克制英雄\n1.Ban盘古(克制所有普攻打野)\n2.Ban张良/东皇(克制进场打野)'},
+  {id:'e17',diff:'hard',text:'分析当前赛季打野T0/T1英雄的胜率/出场率/Ban率数据，推断版本核心打法（控龙/入侵/发育）',a:'赛季数据分析:\n英雄      | 胜率  | 出场率 | Ban率\n镜        | 52.3% | 18.5%  | 35.2%\n裴擒虎    | 51.8% | 12.1%  | 28.7%\n澜        | 50.9% | 15.3%  | 22.1%\n...\n\n推断:\n- 高Ban率英雄=版本强势→优先练习\n- 高胜率+低出场率=冷门强势→抄底机会\n- 版本核心打法:T0多为高爆发刺客→版本偏进攻'},
+  {id:'e18',diff:'hard',text:'收集5场"被压制/崩盘"局的数据：在被压的情况下你的Gank成功率/经济占比变化曲线',a:'崩盘局数据追踪:\n时间   | 经济差距 | 我的经济占比 | Gank成功率\n0-4分  | -500    | 21%         | 50%\n4-8分  | -2000   | 17%         | 25%\n8-12分 | -5000   | 14%         | 0%\n...\n\n分析:\n- 经济差距>2000时Gank成功率暴跌\n- 经济占比<15%时基本丧失节奏能力\n- 结论:经济落后2000前必须采取止损措施(换野/防守)'},
+  {id:'e19',diff:'project',text:'【大作业】打野位综合能力评估：Self-review 200场排位数据→雷达图评估（刷野效率/Gank成功率/资源控制/团战表现/KDA/经济转化）→制定下赛季目标',a:'六维度雷达图评估:\n维度       | 评分(1-5) | 数据参考\n刷野效率   | __       | 清野用时/经验获取\nGank成功率 | __       | 击杀+逼闪/Gank次数\n资源控制   | __       | 控龙率/河道蟹率\n团战表现   | __       | 成功团战/总参团\nKDA        | __       | (击杀+助攻)/死亡\n经济转化   | __       | 推塔数/Gank成功\n\n下赛季目标:\n巅峰赛目标:__分 | 主练英雄:__ | 新增英雄:__'},
+  {id:'e20',diff:'project',text:'【大作业】教学输出：撰写1篇万字打野入门教程帖（配GIF动图/小地图标注）→发布至NGA/B站→收集反馈并迭代',a:'教程帖大纲:\n一、打野位概述(什么是打野，为什么重要)\n二、野区基础(野怪刷新/经验值/路线)\n三、英雄池建设(刺客/战士/蓝领的选择)\n四、节奏运营(Gank优先级/时间轴/兵线)\n五、进阶技巧(反野/假视野/视野布控)\n六、高端局思维(BP/团战/逆风处理)\n七、实战建议(复盘方法/专项训练/目标设定)\n发布后追踪:阅读量/评论反馈/后续更新计划'},
+  {id:'e21',diff:'project',text:'【大作业】英雄池扩展计划：在当前英雄池基础上新增2名打野英雄→制定"50场入门→100场精通"的练习计划→追踪胜率提升曲线',a:'英雄池扩展计划:\n新英雄1:__ (类型:__)\n- 第1-10场:训练营+匹配→熟练连招和刷野路线\n- 第11-30场:排位→从低分段开始适应实战\n- 第31-50场:达到"入门"水平(胜率≥50%)\n- 第51-100场:达到"精通"水平(胜率≥55%)\n\n追踪曲线:\n场次  10  20  30  50  80  100\n胜率  __  __  __  __  __  __\n目标:50场后胜率≥50%,100场后≥55%'}
+];
+
+const RESOURCES=[
+  {t:'王者营地App',d:'官方数据分析工具：对局回顾、热力图、胜率统计',dm:'工具',u:''},
+  {t:'NGA王者荣耀板块',d:'中文最大MOBA攻略社区：英雄深度攻略、版本解读',dm:'社区',u:'https://bbs.nga.cn'},
+  {t:'KPL官方赛事录像',d:'职业联赛回放：学习打野位的BP逻辑、运营节奏',dm:'视频',u:''},
+  {t:'职业选手第一视角',d:'暖阳/无畏/小胖等高分段打野直播或录像',dm:'视频',u:''},
+  {t:'王者荣耀wiki',d:'英雄数据、技能数值、装备属性对照',dm:'数据库',u:'https://pvp.qq.com'},
+  {t:'苏苏的荣耀助手',d:'战力查询、巅峰榜、英雄梯度排行',dm:'工具',u:''},
+  {t:'暴走的巅峰赛',d:'深度巅峰赛/职业比赛对局分析视频',dm:'分析',u:''},
+  {t:'虎扑王者荣耀区',d:'版本讨论+职业选手Rank战绩追踪',dm:'资讯',u:'https://bbs.hupu.com'},
+  {t:'B站打野教学Up主',d:'系统化打野入门→进阶教学系列视频',dm:'教学',u:''},
+  {t:'营地巅峰榜',d:'各英雄国服玩家的出装、铭文参考',dm:'工具',u:''},
+  {t:'王者荣耀国际服',d:'Honor of Kings国际版：全球赛事与Meta对比',dm:'电竞',u:'https://honorofkings.com'},
+  {t:'WeChat/QQ战队群',d:'固定队伍训练：团队配合',dm:'社群',u:''},
+  {t:'自建训练文档',d:'个人英雄池表格+每日任务+复盘笔记',dm:'文档',u:''},
+  {t:'打野计时器App',d:'自定义Buff/龙刷新提醒练习工具',dm:'工具',u:''},
+  {t:'王者荣耀官方公众号',d:'新英雄/版本更新公告第一手来源',dm:'官方',u:''}
+];
+
+const TRACKER_ITEMS=[
+  {id:'t1',p:'P1',w:'1-2周',d:'打野基础:野怪刷新、时间轴、打野定位、基础视野'},
+  {id:'t2',p:'P2',w:'3-4周',d:'英雄池:刺客/战士/蓝领精通、1级入侵、Counter关系'},
+  {id:'t3',p:'P3',w:'5-6周',d:'节奏运营:Gank优先级、防御塔机制、蹲草、兵线联动'},
+  {id:'t4',p:'P4',w:'7-8周',d:'进阶策略:入侵时机、假视野、眼位布控、防守型反野'},
+  {id:'t5',p:'P5',w:'9-10周',d:'高端局:团战前兵线、团战职责、BP决策、逆风处理'},
+  {id:'t6',p:'P6',w:'11-13周',d:'实战演练:录像复盘、专项训练、排位冲刺、参团判断'},
+  {id:'t7',p:'P7',w:'14-15周',d:'综合提升:版本追踪、创新打法、教学输出、目标设定'}
+];
+
+function hR(){
+  var html=PHASES.map(function(p,i){
+    return '<div class="roadmap-item"><div class="roadmap-marker" style="background:'+p.color+';border-color:'+p.color+'">'+(i+1)+'</div><div class="roadmap-content" onclick="tP(\''+p.id+'\');document.getElementById(\'phases\').scrollIntoView({behavior:\'smooth\'})"><h3>'+p.title+'</h3><div class="rm-week">'+p.week+' · '+p.sub+'</div><div class="rm-desc">'+p.skills.map(function(s){return '· '+s.code}).join('  ')+'</div></div></div>';
+  }).join('');
+  document.getElementById('roadmapContainer').innerHTML=html;
+  setTimeout(function(){
+    var obs=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target)}})});
+    document.querySelectorAll('.roadmap-item').forEach(function(el){obs.observe(el)});
+  },100);
+}
+
+function hPD(){
+  document.getElementById('phaseContainer').innerHTML=PHASES.map(function(p,i){
+    var r=parseInt(p.color.substr(1,2),16),g=parseInt(p.color.substr(3,2),16),b=parseInt(p.color.substr(5,2),16);
+    return '<div class="phase-detail" id="phase-'+p.id+'"><div class="phase-detail-header" onclick="tP(\''+p.id+'\')"><div class="icon" style="background:rgba('+r+','+g+','+b+',0.12)">'+p.icon+'</div><div class="info"><h4 style="color:'+p.color+'">'+p.title+'</h4><div class="ph-week">'+p.week+' · '+p.sub+'</div></div><span class="arrow">&#9660;</span></div><div class="phase-body"><div class="phase-body-inner"><div class="skill-list">'+p.skills.map(function(s){return s.kp?'<span class="skill-chip skill-link" onclick="event.stopPropagation();goK(\''+s.kp+'\')">'+s.code+' →</span>':'<span class="skill-chip">'+s.code+'</span>'}).join('')+'</div>'+(p.codes?p.codes.map(function(c){return '<div class="code-block"><button class="copy-btn" onclick="var cd=this.nextElementSibling.textContent;navigator.clipboard.writeText(cd);this.textContent=\'已复制\';var t=this;setTimeout(function(){t.textContent=\'复制\'},2000)">复制</button><pre><code>'+c.code.replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</code></pre></div>'}).join(''):'')+'<div class="skill-list">'+p.drawings.map(function(d){var cls=d.lvl==='must'?'draw-lvl-must':(d.lvl==='suggest'?'draw-lvl-suggest':'draw-lvl-optional');return '<span class="skill-chip '+cls+'">'+d.text+'</span>'}).join('')+'</div></div></div></div>';
+  }).join('');
+}
+
+function hDS(){
+  var method=[{n:'01',t:'抄图 Copy',d:'对着小地图手绘野区布局、Gank路线、视野点位'},{n:'02',t:'默图 Memorize',d:'不看参考，凭记忆还原关键路线和时机'},{n:'03',t:'讲图 Explain',d:'向自己/队友讲解图中每一步的决策逻辑'}];
+  document.getElementById('drawingMethod').innerHTML=method.map(function(m){return '<div class="dm-card"><h4>'+m.n+' '+m.t+'</h4><p>'+m.d+'</p></div>'}).join('');
+  document.getElementById('mathTags').innerHTML=MATH_TAGS_DATA.map(function(t){return '<span class="math-tag '+t.cls+'">'+t.code+' '+t.label+'</span>'}).join('');
+  document.getElementById('drawLevels').innerHTML=[{cls:'must',t:'[必画] 核心',n:'约15张',d:'野区路线+Gank流程+Timeline'},{cls:'suggest',t:'[建议画] 辅助',n:'约12张',d:'连招流程+团战站位+决策树'},{cls:'optional',t:'[可选画] 拓展',n:'约6张',d:'BP矩阵+Counter网+版本变化'}].map(function(l){return '<div class="draw-level-item '+l.cls+'"><strong>'+l.t+' </strong>'+l.n+' · '+l.d+'</div>'}).join('');
+}
+
+function hFs(){
+  document.getElementById('formulaTabs').innerHTML=FORMULA_TABS.map(function(t,i){return '<button class="formula-tab'+(i===0?' active':'')+'" onclick="sFT('+i+')">'+t.label+'</button>'}).join('');
+  document.getElementById('formulaPanels').innerHTML=FORMULAS.map(function(rows,i){return '<div class="formula-panel'+(i===0?' active':'')+'"><table class="formula-table"><thead><tr><th>概念</th><th>公式/数值</th><th>说明</th></tr></thead><tbody>'+rows.map(function(r){return '<tr><td>'+r.c+'</td><td>'+r.f.replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</td><td>'+(r.n||'')+'</td></tr>'}).join('')+'</tbody></table></div>'}).join('');
+}
+
+function sFT(i){
+  document.querySelectorAll('.formula-tab').forEach(function(b,j){b.classList.toggle('active',j===i)});
+  document.querySelectorAll('.formula-panel').forEach(function(p,j){p.classList.toggle('active',j===i)});
+}
+
+var _kf='all',_ka=false,_kph='all',_expandedKp=null;
+
+function hK(){
+  var ks=Object.values(KP),tags=[{v:'all',l:'全部'},{v:'hero',l:'[英雄]'},{v:'rhythm',l:'[节奏]'},{v:'vision',l:'[视野]'},{v:'macro',l:'[运营]'},{v:'teamfight',l:'[团战]'},{v:'invade',l:'[反野]'},{v:'draft',l:'[BP]'}];
+  document.getElementById('knowledgeFilterBar').innerHTML=tags.map(function(t){return '<button class="knowledge-filter'+(t.v===_kf?' active':'')+'" onclick="fK(\''+t.v+'\',this)">'+t.l+'</button>'}).join('');
+  var phContainer=document.getElementById('knowledgeContainer');
+  var phFilterRow=document.createElement('div');phFilterRow.className='phase-filter-row';phFilterRow.id='phaseFilterRow';
+  phContainer.parentNode.insertBefore(phFilterRow,phContainer);
+  hPhaseFilters();
+  fK(_kf);
+}
+
+function hPhaseFilters(){
+  var phases=[{v:'all',l:'全部'},{v:'p1',l:'P1·基础'},{v:'p2',l:'P2·英雄'},{v:'p3',l:'P3·节奏'},{v:'p4',l:'P4·策略'},{v:'p5',l:'P5·高端'},{v:'p6',l:'P6·实战'},{v:'p7',l:'P7·提升'}];
+  var row=document.getElementById('phaseFilterRow');
+  if(!row)return;
+  row.innerHTML=phases.map(function(p){return '<button class="phase-filter-btn'+(p.v===_kph?' active':'')+'" onclick="setPhaseFilter(\''+p.v+'\',this)">'+p.l+'</button>'}).join('');
+}
+
+function setPhaseFilter(ph,btn){
+  _kph=ph;hPhaseFilters();fK(_kf);
+}
+
+function getRelatedKPs(k){
+  var samePh=Object.values(KP).filter(function(o){return o.phase===k.phase&&o.title!==k.title});
+  if(samePh.length===0)return'';
+  var scored=samePh.map(function(o){var sc=o.tag===k.tag?2:1;return{k:o,s:sc}});
+  scored.sort(function(a,b){return b.s-a.s});
+  var top=scored.slice(0,3);
+  return '<div class="card-related"><div class="cr-title">🔗 相关知识点</div><div class="cr-links">'+top.map(function(t){
+    var eId=encodeURIComponent(t.k.title.replace(/[^a-z\u4e00-\u9fa5]/g,'').substring(0,12));
+    return '<span class="cr-link" onclick="event.stopPropagation();goRelatedKp(\''+eId+'\')">'+t.k.title+'</span>';
+  }).join('')+'</div></div>';
+}
+
+function flipAnimate(grid, oldRects){
+  var cards=[].slice.call(grid.querySelectorAll('.knowledge-card'));
+  cards.forEach(function(card){
+    var old=oldRects[card.id];if(!old)return;
+    var cur=card.getBoundingClientRect();
+    var dx=old.left-cur.left;var dy=old.top-cur.top;
+    if(Math.abs(dx)>0.5||Math.abs(dy)>0.5){
+      card.style.transform='translate('+dx+'px,'+dy+'px)';card.style.transition='none';
+    }
+  });
+  if(cards.length>0)void cards[0].offsetHeight;
+  cards.forEach(function(card){
+    card.style.transition='transform 0.4s cubic-bezier(0.25,0.1,0.25,1)';card.style.transform='';
+  });
+  setTimeout(function(){cards.forEach(function(c){c.style.transition=''})},450);
+}
+
+function collapseExpanded(grid){
+  if(!grid.classList.contains('has-expanded'))return false;
+  var oldRects={};[].slice.call(grid.querySelectorAll('.knowledge-card')).forEach(function(c){oldRects[c.id]=c.getBoundingClientRect()});
+  [].slice.call(grid.querySelectorAll('.knowledge-card')).forEach(function(c){c.classList.remove('expanded','open')});
+  grid.classList.remove('has-expanded');
+  _expandedKp=null;
+  if(grid.querySelector('.knowledge-card.expanded'))return true;
+  flipAnimate(grid,oldRects);
+  return true;
+}
+
+function goRelatedKp(cid){
+  var grid=document.getElementById('knowledgeContainer');
+  collapseExpanded(grid);
+  var el=document.getElementById(cid);
+  if(el){
+    expandCard(grid,el);
+    setTimeout(function(){el.scrollIntoView({behavior:'smooth',block:'nearest'})},150);
+  }
+}
+
+function goGraphToKp(cid){
+  document.getElementById('knowledge').scrollIntoView({behavior:'smooth'});
+  setTimeout(function(){
+    var el=document.getElementById('kc-'+cid);
+    if(el){
+      var grid=document.getElementById('knowledgeContainer');
+      collapseExpanded(grid);
+      expandCard(grid,el);
+      setTimeout(function(){el.scrollIntoView({behavior:'smooth',block:'center'})},200);
+    }
+  },500);
+}
+
+function goBackFromKp(ph){
+  document.getElementById('phases').scrollIntoView({behavior:'smooth'});
+  var pid='phase-'+ph;
+  if(pid){setTimeout(function(){
+    var el=document.getElementById(pid);
+    if(el){el.classList.add('open');el.scrollIntoView({behavior:'smooth',block:'center'})}
+  },400)}
+}
+
+function fK(tag,btn){
+  _kf=tag;if(btn){document.querySelectorAll('.knowledge-filter').forEach(function(b){b.classList.remove('active')});btn.classList.add('active')}
+  _expandedKp=null;
+  var map={hero:'[英雄]',rhythm:'[节奏]',vision:'[视野]',macro:'[运营]',teamfight:'[团战]',invade:'[反野]',draft:'[BP]'},fl=Object.values(KP);
+  if(tag!=='all')fl=fl.filter(function(k){return k.tag===tag});
+  if(_kph!=='all')fl=fl.filter(function(k){return k.phase===_kph});
+  document.getElementById('knowledgeCount').innerHTML='共 <strong>'+fl.length+'</strong> 个知识点 <button class="ks-expand-all" onclick="toggleAllKnowledge()">展开全部</button>';
+  var tls={hero:'tag-hero',rhythm:'tag-rhythm',vision:'tag-vision',macro:'tag-macro',teamfight:'tag-teamfight',invade:'tag-invade',draft:'tag-draft'};
+  var phMap={p1:'P1',p2:'P2',p3:'P3',p4:'P4',p5:'P5',p6:'P6',p7:'P7'};
+  var grid=document.getElementById('knowledgeContainer');
+  grid.className='knowledge-grid';
+  grid.innerHTML=fl.map(function(k){
+    var tcl=tls[k.tag]||'';
+    var ph=phMap[k.phase]||'';
+    var eId=encodeURIComponent(k.title.replace(/[^a-z\u4e00-\u9fa5]/g,'').substring(0,12));
+    var tid='kc-'+eId;
+    return '<div class="knowledge-card" id="'+tid+'" onclick="tK(event,this)"><div class="card-header"><span class="card-icon">🎮</span><span class="card-title">'+k.title+'</span><span class="math-tag '+tcl+'" style="font-size:0.62rem;padding:3px 8px">'+map[k.tag]+'</span><span style="font-size:0.6rem;padding:2px 6px;border-radius:3px;background:var(--bg-elevated);color:var(--text-muted);margin:0 4px">'+ph+'</span><button class="card-back" onclick="event.stopPropagation();goBackFromKp(\''+k.phase+'\')">↩</button></div><div class="card-detail"><p>'+k.d+'</p>'+(k.f?'<div class="card-formula">'+k.f.replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</div>':'')+(k.diagram?'<div class="card-draw-box">'+k.diagram+'</div>':'')+(k.sum?'<div class="card-sum">💡 '+k.sum+'</div>':'')+getRelatedKPs(k)+'</div></div>';
+  }).join('');
+}
+
+function expandCard(grid, card){
+  var allCards=[].slice.call(grid.querySelectorAll('.knowledge-card'));
+  var oldRects={};allCards.forEach(function(c){oldRects[c.id]=c.getBoundingClientRect()});
+  card.classList.add('expanded','open');
+  grid.classList.add('has-expanded');
+  _expandedKp=card.id;
+  flipAnimate(grid,oldRects);
+}
+
+function tK(evt,h){
+  var card=h.closest('.knowledge-card');if(!card)return;
+  var grid=document.getElementById('knowledgeContainer');
+  if(card.classList.contains('expanded')){
+    if(!evt.target.closest('.card-header'))return;
+    collapseExpanded(grid);return;
+  }
+  if(grid.classList.contains('has-expanded'))collapseExpanded(grid);
+  expandCard(grid,card);
+  setTimeout(function(){card.scrollIntoView({behavior:'smooth',block:'nearest'})},150);
+}
+
+function goK(kpId){
+  var k=KP[kpId];if(!k)return;
+  var eId=encodeURIComponent(k.title.replace(/[^a-z\u4e00-\u9fa5]/g,'').substring(0,12));
+  var tid='kc-'+eId;
+  document.getElementById('knowledge').scrollIntoView({behavior:'smooth'});
+  var tagVal=k.tag||'all';
+  document.querySelectorAll('.knowledge-filter').forEach(function(b){b.classList.remove('active')});
+  var matchBtn=null;document.querySelectorAll('.knowledge-filter').forEach(function(b){
+    var t=b.getAttribute('onclick')||'';
+    if(t.indexOf("'"+tagVal+"'")!==-1)matchBtn=b
+  });
+  fK(tagVal,matchBtn);
+  setTimeout(function(){
+    var el=document.getElementById(tid);
+    if(el){
+      var grid=document.getElementById('knowledgeContainer');
+      collapseExpanded(grid);
+      expandCard(grid,el);
+      setTimeout(function(){el.scrollIntoView({behavior:'smooth',block:'center'})},200);
+    }
+  },600);
+}
+
+function toggleAllKnowledge(){
+  _ka=!_ka;var btn=document.querySelector('.ks-expand-all');if(btn)btn.textContent=_ka?'收起全部':'展开全部';
+  var grid=document.getElementById('knowledgeContainer');
+  if(_ka&&grid.classList.contains('has-expanded'))collapseExpanded(grid);
+  [].slice.call(grid.querySelectorAll('.knowledge-card')).forEach(function(c){
+    if(_ka){c.classList.remove('expanded')}
+    c.classList.toggle('open',_ka);
+  });
+  if(_ka){grid.classList.remove('has-expanded');_expandedKp=null}
+}
+
+function hEx(){
+  document.getElementById('exerciseFilters').innerHTML=[{v:'all',l:'全部'},{v:'easy',l:'初级'},{v:'medium',l:'中级'},{v:'hard',l:'高级'},{v:'project',l:'大作业'}].map(function(t){return '<button class="exercise-filter'+(t.v==='all'?' active':'')+'" onclick="fEx(\''+t.v+'\',this)">'+t.l+'</button>'}).join('');
+  fEx('all');
+}
+
+var _exDiff='all';
+
+function fEx(diff,btn){
+  _exDiff=diff;if(btn){document.querySelectorAll('.exercise-filter').forEach(function(b){b.classList.remove('active')});btn.classList.add('active')}
+  var done=JSON.parse(localStorage.getItem('hok_done')||'{}');
+  var filtered=EXERCISES.filter(function(e){return diff==='all'||e.diff===diff});
+  document.getElementById('exerciseCounter').innerHTML='显示 <strong>'+filtered.length+'</strong> / '+EXERCISES.length+' 题，已完成 <strong>'+(Object.values(done).filter(function(v){return v}).length)+'</strong>';
+  document.getElementById('exerciseList').innerHTML=filtered.map(function(e){
+    var labels={easy:'初级',medium:'中级',hard:'高级',project:'大作业'};
+    var clss={easy:'diff easy',medium:'diff medium',hard:'diff hard',project:'diff project'};
+    return '<div class="exercise-item" onclick="this.classList.toggle(\'open\')"><span class="exercise-num">'+e.id.toUpperCase()+'</span><div class="ei-content"><div class="ei-title"><span class="ei-title-text">'+e.text+'</span><span class="'+clss[e.diff]+'">'+labels[e.diff]+'</span></div><div class="ei-answer">'+(e.a||'💡 动手思考：先独立解决再查阅参考答案')+'</div></div><div class="ei-check'+(done[e.id]?' done':'')+'" onclick="event.stopPropagation();tExCk(\''+e.id+'\',this)">'+(done[e.id]?'✓':'')+'</div></div>';
+  }).join('');
+}
+
+function tExCk(id,el){
+  var done=JSON.parse(localStorage.getItem('hok_done')||'{}');
+  done[id]=!done[id];
+  localStorage.setItem('hok_done',JSON.stringify(done));
+  el.classList.toggle('done',done[id]);el.innerHTML=done[id]?'✓':'';
+  fEx(_exDiff);
+}
+
+function hRes(){
+  document.getElementById('resourceList').innerHTML=RESOURCES.map(function(r){return '<a class="resource-card"'+(r.u?' href="'+r.u+'" target="_blank" rel="noopener"':' onclick="event.preventDefault()"')+'><h4>'+r.t+'</h4><p>'+r.d+'</p><span class="res-tag">'+r.dm+'</span>'+(r.u?'<span class="res-link">访问 &rarr;</span>':'')+'</a>'}).join('');
+}
+
+function hTr(){
+  var done=JSON.parse(localStorage.getItem('hok_tr')||'{}');
+  var total=TRACKER_ITEMS.length,completed=0;
+  document.getElementById('trackerList').innerHTML=TRACKER_ITEMS.map(function(t){
+    var isDone=done[t.id];if(isDone)completed++;
+    return '<div class="tracker-row"><div class="tracker-check'+(isDone?' done':'')+'" onclick="tTr(\''+t.id+'\',this)">'+(isDone?'✓':'')+'</div><div class="tracker-info"><strong>'+t.p+' '+t.w+'</strong><span>'+t.d+'</span></div></div>';
+  }).join('');
+  document.getElementById('trackerTotal').textContent=completed+'/'+total;
+}
+
+function tTr(id,el){
+  var done=JSON.parse(localStorage.getItem('hok_tr')||'{}');
+  done[id]=!done[id];
+  localStorage.setItem('hok_tr',JSON.stringify(done));
+  hTr();
+}
+
+function exportNotes(){
+  var doneEx=JSON.parse(localStorage.getItem('hok_done')||'{}');
+  var doneTr=JSON.parse(localStorage.getItem('hok_tr')||'{}');
+  var lines=['# 王者荣耀打野位学习笔记','','生成日期: '+new Date().toLocaleDateString('zh-CN'),''];
+  lines.push('## 学习进度 (阶段完成)');
+  TRACKER_ITEMS.forEach(function(t){
+    lines.push(doneTr[t.id]?'- [x] '+t.p+' '+t.w+': '+t.d:'- [ ] '+t.p+' '+t.w+': '+t.d);
+  });
+  lines.push('');lines.push('## 已完成的练习');
+  var compEx=EXERCISES.filter(function(e){return doneEx[e.id]});
+  if(compEx.length>0){
+    var labels={easy:'初级',medium:'中级',hard:'高级',project:'大作业'};
+    compEx.forEach(function(e){lines.push('- ['+e.id.toUpperCase()+']('+labels[e.diff]+') '+e.text)});
+  } else {lines.push('(暂未完成任何练习)')}
+  lines.push('');lines.push('## 学习统计');
+  var donePhases={};Object.keys(doneTr).forEach(function(k){if(doneTr[k])donePhases[k]=true});
+  lines.push('完成阶段: '+Object.keys(donePhases).length+'/7');
+  lines.push('完成练习: '+compEx.length+'/'+EXERCISES.length);
+  var notes=lines.join('\n');
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(notes).then(function(){sT('✅ 学习笔记已复制到剪贴板!')});
+  } else {
+    var ta=document.createElement('textarea');ta.value=notes;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
+    sT('✅ 学习笔记已复制到剪贴板!');
+  }
+}
+
+function hSP(){
+  document.getElementById('sideProgress').innerHTML=['roadmap','graph','knowledge','phases','formulas','exercises','resources','tracker'].map(function(s,i){return '<div class="progress-dot" data-label="'+(i===0?'路线图':i===1?'图谱':i===2?'知识点':i===3?'阶段':i===4?'速查表':i===5?'练习':i===6?'资料':'进度')+'" onclick="document.getElementById(\''+s+'\').scrollIntoView({behavior:\'smooth\'})"></div>'}).join('');
+}
+
+function cUp(){
+  var obs=new IntersectionObserver(function(es){es.forEach(function(e){
+    if(e.isIntersecting){
+      e.target.querySelectorAll('[data-count]').forEach(function(el){
+        var target=parseInt(el.getAttribute('data-count')),start=0,dur=1500,fps=30;
+        var inc=Math.ceil(target/(dur/1000*fps)),iv=setInterval(function(){
+          start+=inc;if(start>=target){start=target;clearInterval(iv)}el.textContent=start;
+        },1000/fps);
+      });
+      obs.unobserve(e.target);
+    }
+  })});
+  var hero=document.querySelector('.hero-stats');if(hero)obs.observe(hero);
+}
+
+function addReadingTimes(){
+  var times={roadmap:2,graph:1,knowledge:4,phases:5,formulas:1,exercises:3,resources:1,tracker:1};
+  Object.keys(times).forEach(function(id){
+    var el=document.getElementById(id);if(!el)return;
+    var sub=el.querySelector('.subtitle');
+    if(sub&&!sub.querySelector('.reading-time')){
+      var span=document.createElement('span');span.className='reading-time';
+      span.textContent='⏱ 约 '+times[id]+' 分钟';
+      if(sub.childNodes.length>0)sub.appendChild(document.createTextNode(' '));
+      sub.appendChild(span);
+    }
+  });
+}
+
+function tP(id){var el=document.getElementById('phase-'+id);if(el)el.classList.toggle('open')}
+
+function oS(){document.getElementById('searchOverlay').classList.add('open');document.getElementById('searchInput').focus()}
+function cS(){document.getElementById('searchOverlay').classList.remove('open');document.getElementById('searchInput').value='';document.getElementById('searchResults').innerHTML=''}
+
+function doSearch(){
+  var q=document.getElementById('searchInput').value;
+  var ql=q.toLowerCase();
+  if(!q||ql.length<2){document.getElementById('searchResults').innerHTML='';return}
+  function hl(t){if(!t)return'';var i=t.toLowerCase().indexOf(ql);if(i===-1)return t.replace(/</g,'&lt;').replace(/>/g,'&gt;');var b=t.substr(0,i)+'<mark>'+t.substr(i,q.length)+'</mark>'+t.substr(i+q.length);return b.replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/&lt;mark&gt;/g,'<mark>').replace(/&lt;\/mark&gt;/g,'</mark>')}
+  var results=[];
+  Object.entries(KP).forEach(function(e){var k=e[1],id=e[0];if(k.title.toLowerCase().indexOf(ql)!==-1||k.d.toLowerCase().indexOf(ql)!==-1||(k.f||'').toLowerCase().indexOf(ql)!==-1||(k.sum||'').toLowerCase().indexOf(ql)!==-1)results.push({id:id,title:hl(k.title),snippet:(k.sum||'').replace(/</g,'&lt;'),tag:k.tag})});
+  PHASES.forEach(function(p){if(p.title.toLowerCase().indexOf(ql)!==-1||p.sub.toLowerCase().indexOf(ql)!==-1)results.push({id:p.id,title:hl(p.title),snippet:hl(p.sub),tag:'phase'})});
+  RESOURCES.forEach(function(r,i){if(r.t.toLowerCase().indexOf(ql)!==-1||r.d.toLowerCase().indexOf(ql)!==-1)results.push({id:i,title:hl(r.t),snippet:hl(r.d),tag:'res'})});
+  document.getElementById('searchResults').innerHTML=results.slice(0,15).map(function(r){
+    return '<div class="search-result-item" onclick="(function(){'+
+      'if(\''+r.tag+'\'===\'phase\'){document.getElementById(\'phases\').scrollIntoView({behavior:\'smooth\'});setTimeout(function(){tP(\''+r.id+'\')},400)}'+
+      'else if(\''+r.tag+'\'===\'res\'){document.getElementById(\'resources\').scrollIntoView({behavior:\'smooth\'})}'+
+      'else{goK(\''+r.id+'\')};cS()})()"><div class="sr-title">'+r.title+'</div><div class="sr-snippet">'+r.snippet+'</div></div>';
+  }).join('')||'<div style="color:var(--text-muted);text-align:center;padding:20px">无匹配结果</div>';
+}
+
+function tMM(){document.getElementById('mobileMenu').classList.toggle('open');}
+function oC(){document.getElementById('confirmOverlay').classList.add('open')}
+function cC(){document.getElementById('confirmOverlay').classList.remove('open')}
+function rA(){localStorage.removeItem('hok_done');localStorage.removeItem('hok_tr');window.location.reload()}
+
+function sT(m){
+  var el=document.getElementById('toast');el.textContent=m;el.classList.add('show');
+  setTimeout(function(){el.classList.remove('show')},2200);
+}
+
+function onScroll(){
+  var sy=window.scrollY;
+  document.getElementById('topNav').classList.toggle('scrolled',sy>50);
+  document.getElementById('backToTop').classList.toggle('visible',sy>500);
+  var dh=document.documentElement.scrollHeight-window.innerHeight;
+  var pct=dh>0?Math.min(100,(sy/dh)*100):0;
+  var pb=document.getElementById('scrollProgressBar');
+  if(pb)pb.style.width=pct+'%';
+  document.querySelectorAll('.roadmap-item').forEach(function(el){if(el.getBoundingClientRect().top<window.innerHeight*0.85)el.classList.add('visible')});
+  var secs=['roadmap','graph','knowledge','phases','formulas','exercises','resources','tracker'];
+  var activeIdx=-1;
+  secs.forEach(function(s,i){
+    var el=document.getElementById(s);if(!el)return;
+    var top=el.getBoundingClientRect().top;
+    if(top<120&&top>-el.offsetHeight+120)activeIdx=i;
+    document.querySelectorAll('.nav-links a').forEach(function(a){a.classList.remove('active')});
+    var nav=document.querySelector('.nav-links a[href="#'+secs[i]+'"]');if(nav)nav.classList.toggle('active',i===activeIdx);
+    document.querySelectorAll('.progress-dot').forEach(function(d,j){d.classList.toggle('active',j===i&&i===activeIdx)});
+  });
+  var mbnItems=document.querySelectorAll('.mbn-item');
+  mbnItems.forEach(function(b,i){b.classList.toggle('mbn-active',i===activeIdx)});
+}
+
+document.getElementById('helpOverlay').addEventListener('click',function(e){
+  if(e.target===this)this.classList.remove('open');
+});
+
+window._toggleTheme=function(){
+  var b=document.body,isLight=b.classList.contains('light');
+  if(isLight){b.classList.remove('light');localStorage.setItem('hok_theme','dark')}
+  else{b.classList.add('light');localStorage.setItem('hok_theme','light')}
+  var btn=document.getElementById('themeBtn');if(btn)btn.textContent=isLight?'🌙':'☀';
+};
+
+(function loadTheme(){
+  var t=localStorage.getItem('hok_theme');
+  if(t==='light'){document.body.classList.add('light');var btn=document.getElementById('themeBtn');if(btn)btn.textContent='☀'}
+  else if(!t){if(window.matchMedia&&window.matchMedia('(prefers-color-scheme:light)').matches){document.body.classList.add('light');var btn=document.getElementById('themeBtn');if(btn)btn.textContent='☀'}}
+})();
+
+(function drawGraph(){
+  var cv=document.getElementById('graphCanvas');
+  if(!cv)return;
+  var ctx=cv.getContext('2d'),nodes=[],w=700,h=520;
+  cv.width=w*2;cv.height=h*2;ctx.scale(2,2);
+  function rs(){w=(cv.parentElement?cv.parentElement.clientWidth:700)-2;cv.width=w*2;cv.height=h*2;ctx.scale(2,2);drawAll()}
+  window.addEventListener('resize',function(){rs()});
+  var phColors=['#4fc3f7','#66bb6a','#ffa726','#ab47bc','#ef5350','#ec407a','#26c6da'];
+  var phases=['打野基础认知','核心英雄池','节奏运营','进阶策略','高端局节奏','实战演练','综合提升'];
+  var phAbbr=['P1:基础','P2:英雄','P3:节奏','P4:策略','P5:高端','P6:实战','P7:提升'];
+
+  var phKeys=[];
+  for(var pi=0;pi<7;pi++){
+    var pn='p'+(pi+1);
+    var phKs=Object.values(KP).filter(function(k){return k.phase===pn});
+    phKeys.push({phase:pn,kps:phKs,color:phColors[pi]});
+  }
+
+  var _graphFilterPhase=null;
+
+  function layout(){
+    nodes=[];
+    for(var pi=0;pi<7;pi++){
+      var startX=80+pi*(w-160)/6;
+      var startY=80;
+      var data=phKeys[pi];
+      data.kps.forEach(function(kp,ki){
+        var x=startX;var y=startY+ki*44;
+        var npId=encodeURIComponent(kp.title.replace(/[^a-z\u4e00-\u9fa5]/g,'').substring(0,12));
+        nodes.push({id:kp.title.substring(0,20),x:x,y:y,r:Math.min(10+ki*1.5,16),color:phColors[pi],phase:data.phase,title:kp.title,sum:kp.sum||'',kpTag:kp.tag,kpId:npId});
+      });
+      nodes.push({id:'P'+(pi+1),x:startX,y:startY-30,r:20,color:phColors[pi],phase:'p'+(pi+1),title:phases[pi],sum:'阶段'+(pi+1),isPhase:true});
+    }
+  }
+
+  function drawAll(){
+    ctx.clearRect(0,0,w,h);
+    layout();
+    for(var pi=1;pi<7;pi++){
+      var prev=phKeys[pi-1],cur=phKeys[pi];
+      if(prev&&cur&&prev.kps.length>0&&cur.kps.length>0){
+        var pn=80+(prev.kps.length-1)*44+44;
+        var cn=80+(cur.kps.length-1)*44+44;
+        var pX=80+(pi-1)*(w-160)/6;
+        var cX=80+pi*(w-160)/6;
+        ctx.beginPath();ctx.moveTo(pX,pn);ctx.lineTo(cX,cn);
+        ctx.strokeStyle=phColors[pi-1];ctx.globalAlpha=0.12;ctx.lineWidth=2;ctx.setLineDash([6,8]);ctx.stroke();ctx.setLineDash([]);ctx.globalAlpha=1;
+      }
+    }
+    nodes.forEach(function(n){
+      var dim=_graphFilterPhase&&!n.isPhase&&n.phase!==_graphFilterPhase;
+      if(!n.isPhase){
+        ctx.beginPath();ctx.arc(n.x,n.y,n.r,0,6.28);ctx.fillStyle=n.color;ctx.globalAlpha=dim?0.06:0.15;ctx.fill();ctx.globalAlpha=1;
+        ctx.beginPath();ctx.arc(n.x,n.y,n.r,0,6.28);ctx.fillStyle=n.color;ctx.globalAlpha=dim?0.2:0.8;ctx.fill();ctx.globalAlpha=1;
+      } else {
+        ctx.beginPath();ctx.arc(n.x,n.y,n.r,0,6.28);ctx.fillStyle=n.color;ctx.globalAlpha=0.25;ctx.fill();
+        ctx.beginPath();ctx.arc(n.x,n.y,n.r,0,6.28);ctx.strokeStyle=n.color;ctx.lineWidth=2.5;ctx.globalAlpha=dim?0.2:0.6;ctx.stroke();ctx.globalAlpha=1;
+        ctx.fillStyle='#08050a';ctx.font='bold 9px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(n.id,n.x,n.y);
+        ctx.fillStyle=n.color;ctx.globalAlpha=dim?0.3:1;ctx.fillText(n.id,n.x,n.y);ctx.globalAlpha=1;
+      }
+    });
+    var leg=document.getElementById('graphLegend');
+    if(leg){leg.innerHTML=phAbbr.map(function(p,i){return '<div class="graph-legend-item'+(phKeys[i]&&_graphFilterPhase===phKeys[i].phase?' active-highlight':'')+'" onclick="window._toggleGraphFilter(\''+phKeys[i].phase+'\')"><span class="graph-legend-dot" style="background:'+phColors[i]+'"></span>'+p+'</div>'}).join('')+
+              '<div class="graph-legend-item" onclick="window._toggleGraphFilter(null)" style="font-size:0.68rem;color:var(--text-muted)">✕ 清除过滤</div>'}
+  }
+
+  cv.addEventListener('click',function(e){
+    var r=cv.getBoundingClientRect(),mx=e.clientX-r.left,my=e.clientY-r.top;
+    var hit=null;
+    for(var i=nodes.length-1;i>=0;i--){var n=nodes[i],dx=mx-n.x,dy=my-n.y;if(Math.sqrt(dx*dx+dy*dy)<n.r){hit=n;break}}
+    if(hit){
+      if(hit.isPhase){
+        document.getElementById('phases').scrollIntoView({behavior:'smooth'});
+        var pid='phase-'+hit.phase;
+        setTimeout(function(){var el=document.getElementById(pid);if(el){el.classList.add('open');el.scrollIntoView({behavior:'smooth',block:'center'})}},400);
+      } else if(hit.kpId){
+        goGraphToKp(hit.kpId);
+      }
+    }
+  });
+
+  window._toggleGraphFilter=function(ph){
+    if(_graphFilterPhase===ph){_graphFilterPhase=null}else{_graphFilterPhase=ph}
+    drawAll();
+  };
+  drawAll();
+  rs();
+})();
+
+(function init(){
+  hR();hPD();hDS();hK();hFs();hEx();hRes();hTr();hSP();cUp();addReadingTimes();
+  window.addEventListener('scroll',onScroll,{passive:true});onScroll();
+  document.addEventListener('keydown',function(e){
+    if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();oS();}
+    if(e.key==='Escape'){
+      if(document.getElementById('searchOverlay').classList.contains('open')){cS();return}
+      if(document.getElementById('helpOverlay').classList.contains('open')){document.getElementById('helpOverlay').classList.remove('open');return}
+      var grid=document.getElementById('knowledgeContainer');
+      if(grid.classList.contains('has-expanded')){collapseExpanded(grid);return}
+    }
+    if(e.shiftKey&&e.key==='?'||e.key==='?'){e.preventDefault();document.getElementById('helpOverlay').classList.add('open')}
+  });
+})();
+</script>

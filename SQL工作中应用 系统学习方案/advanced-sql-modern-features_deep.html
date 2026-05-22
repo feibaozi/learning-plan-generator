@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>高级SQL与现代特性 - 深度研读</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<style>
+:root{
+--bg-base:#0d0d0d;--bg-card:#1a1a1a;--bg-elevated:#222222;
+--bg-overlay:rgba(0,0,0,.6);--bg-primary:#141414;--bg-tertiary:#2a2a2a;
+--text-primary:#ededed;--text-secondary:#a0a0a0;--text-muted:#787878;
+--accent-indigo:#5b8db8;--accent-purple:#8878a8;--accent-cyan:#6ea8c0;
+--accent-gold:#c0a060;--accent-green:#5a9e6f;--accent-red:#c06050;
+--accent-blue:#5b8db8;--accent-color:#5b8db8;--accent-dark:#3a6088;
+--border-subtle:rgba(160,160,160,.15);--border-glow:rgba(91,141,184,.2);
+--shadow-sm:0 1px 3px rgba(0,0,0,.3);--shadow-md:0 4px 16px rgba(0,0,0,.4);
+--shadow-lg:0 8px 32px rgba(0,0,0,.5);--shadow-elevated:0 8px 32px rgba(0,0,0,.5);
+--radius-sm:6px;--radius-md:10px;--radius-lg:16px;
+--font-sans:'Segoe UI',system-ui,-apple-system,sans-serif;
+--font-mono:Consolas,'Cascadia Code',monospace;
+--transition:.25s cubic-bezier(.4,0,.2,1);--transition-smooth:.3s ease;
+--nav-h:56px;--accent-color-rgb:91,141,184;
+--chart-grid:#252525;--chart-axis-label:#787878;
+}
+[data-theme="light"]{
+--bg-base:#fafafa;--bg-card:#ffffff;--bg-elevated:#eeeeee;
+--bg-overlay:rgba(0,0,0,.3);--bg-primary:#ffffff;--bg-tertiary:#e8e8e8;
+--text-primary:#121212;--text-secondary:#4a4a4a;--text-muted:#5e5e5e;
+--accent-indigo:#3a6088;--accent-purple:#5a4878;--accent-cyan:#3a7888;
+--accent-gold:#886830;--accent-green:#3d8055;--accent-red:#983830;
+--accent-blue:#3a6088;--accent-color:#3a6088;--accent-dark:#284868;
+--border-subtle:rgba(18,18,18,.08);--border-glow:rgba(58,96,136,.2);
+--shadow-sm:0 1px 3px rgba(0,0,0,.06);--shadow-md:0 4px 16px rgba(0,0,0,.08);
+--shadow-lg:0 8px 32px rgba(0,0,0,.12);--shadow-elevated:0 8px 32px rgba(0,0,0,.12);
+--accent-color-rgb:58,96,136;--chart-grid:#e5e5e5;--chart-axis-label:#5e5e5e;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter','Noto Sans SC',-apple-system,sans-serif;background:var(--bg-base);color:var(--text-primary);line-height:1.75;overflow-x:hidden}
+body.loading{opacity:0}body.loaded{opacity:1;transition:opacity .4s ease}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg-base)}::-webkit-scrollbar-thumb{background:var(--border-glow);border-radius:3px}
+.container{max-width:1200px;margin:0 auto;padding:0 24px}
+
+.progress-bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--accent-indigo),var(--accent-purple),var(--accent-cyan));z-index:200;transition:width .1s linear}
+.navbar{position:fixed;top:3px;left:0;right:0;z-index:100;background:var(--bg-card);border-bottom:1px solid var(--border-subtle);backdrop-filter:blur(16px);height:var(--nav-h);display:flex;align-items:center;justify-content:space-between;padding:0 24px}
+.nav-left{display:flex;align-items:center;gap:12px;font-size:.82rem;font-weight:600;color:var(--accent-indigo)}
+.nav-right{display:flex;align-items:center;gap:8px}
+.nav-right button{background:var(--bg-elevated);border:1px solid var(--border-subtle);color:var(--text-secondary);padding:6px 12px;border-radius:var(--radius-sm);cursor:pointer;font-size:.75rem;transition:all var(--transition)}
+.nav-right button:hover{border-color:var(--border-glow);color:var(--accent-indigo)}
+
+.side-dots{position:fixed;right:16px;top:50%;transform:translateY(-50%);z-index:80;display:flex;flex-direction:column;gap:8px}
+.side-dot{width:8px;height:8px;border-radius:50%;border:2px solid var(--border-glow);cursor:pointer;transition:all var(--transition)}
+.side-dot.active,.side-dot:hover{background:var(--accent-indigo);border-color:var(--accent-indigo)}
+
+.sidebar{position:fixed;left:0;top:59px;bottom:0;width:260px;background:var(--bg-card);border-right:1px solid var(--border-subtle);padding:20px;overflow-y:auto;z-index:40}
+.sidebar-back-link{display:block;padding:8px 12px;margin-bottom:12px;border-radius:8px;background:var(--bg-tertiary);color:var(--accent-blue);text-decoration:none;font-size:13px;font-weight:600}
+.sidebar-nav{list-style:none;padding:0}
+.sidebar-nav li{margin-bottom:4px}
+.sidebar-nav a{display:block;padding:8px 12px;color:var(--text-secondary);text-decoration:none;font-size:.82rem;border-radius:6px;transition:all var(--transition)}
+.sidebar-nav a:hover{background:rgba(91,141,184,.08);color:var(--accent-cyan)}
+.sidebar-nav a.active{background:rgba(136,120,168,.15);color:var(--accent-purple);font-weight:600}
+.main-content{margin-left:284px;padding:24px 0 100px}
+
+.integration-navbar{display:flex;align-items:center;gap:12px;padding:10px 24px;background:var(--bg-card);border-bottom:1px solid var(--border-subtle);font-size:14px;position:sticky;top:0;z-index:50}
+.integration-navbar a{color:var(--accent-blue);text-decoration:none;font-weight:600}
+.integration-navbar span{color:var(--text-muted)}
+
+.hero{text-align:center;padding:48px 24px 28px}
+.hero h1{font-size:2rem;font-weight:900;background:linear-gradient(135deg,var(--accent-indigo),var(--accent-purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:8px}
+.hero .tags{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:12px}
+.hero .tags span{font-size:.7rem;padding:4px 12px;border-radius:50px;border:1px solid var(--border-glow);color:var(--accent-indigo);background:rgba(91,141,184,.06)}
+
+.meta-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:20px 24px;margin:0 auto 32px;max-width:700px;display:flex;justify-content:center;gap:36px;flex-wrap:wrap;box-shadow:var(--shadow-md)}
+.meta-item{text-align:center}
+.meta-item .val{font-size:1.4rem;font-weight:800;color:var(--accent-indigo)}
+.meta-item .lbl{font-size:.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px}
+
+.journey-bar{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:12px 20px;margin:0 auto 24px;max-width:900px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:.82rem;box-shadow:var(--shadow-elevated)}
+.journey-path{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.journey-icon{font-size:1rem}
+.journey-plan{color:var(--accent-purple);font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.journey-plan:hover{color:var(--accent-gold)}
+.journey-sep{color:var(--text-muted);font-size:.7rem}
+.journey-phase{color:var(--text-secondary);font-weight:600}
+.journey-kp{color:var(--text-primary);font-weight:700}
+.journey-pos{color:var(--text-muted);font-size:.72rem}
+.journey-nav{display:flex;align-items:center;gap:8px;font-size:.75rem}
+.journey-prev,.journey-next{color:var(--text-muted)}
+
+.module{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:28px 28px 24px;margin-bottom:20px;
+opacity:0;transform:translateY(24px);transition:opacity .5s ease,transform .5s ease;box-shadow:var(--shadow-sm)}
+.module.visible{opacity:1;transform:translateY(0)}
+.module:hover{border-color:var(--border-glow)}
+.module h2{font-size:1.15rem;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.module .m-tag{font-size:.65rem;padding:2px 10px;border-radius:50px;background:rgba(91,141,184,.1);border:1px solid rgba(91,141,184,.2);color:var(--accent-indigo);font-weight:600}
+.module .hook{font-size:.9rem;color:var(--accent-purple);font-weight:600;margin:12px 0 16px;padding-left:12px;border-left:3px solid var(--accent-purple)}
+.module .content{font-size:.88rem;color:var(--text-secondary);line-height:1.8}
+.module .content p{margin-bottom:12px}
+
+.formula-block{background:rgba(91,141,184,.04);border:1px solid rgba(91,141,184,.12);border-radius:var(--radius-sm);padding:14px 18px;margin:14px 0;font-family:var(--font-mono);font-size:.82rem;color:var(--accent-cyan);overflow-x:auto;position:relative}
+.formula-block .f-cap{font-size:.7rem;color:var(--text-muted);margin-bottom:6px;display:block}
+.derivation-toggle{font-size:.7rem;color:var(--accent-gold);cursor:pointer;border:none;background:none;padding:4px 0;font-family:inherit;display:block;margin-top:6px}
+.derivation-toggle:hover{text-decoration:underline}
+.derivation-content{display:none;margin-top:8px;padding:12px 16px;background:rgba(192,160,96,.04);border-radius:var(--radius-sm);border-left:3px solid var(--accent-gold);font-size:.8rem;color:var(--text-secondary)}
+.derivation-content.open{display:block}
+
+.chart-wrap{background:rgba(91,141,184,.03);border-radius:var(--radius-sm);padding:8px;margin:14px 0;text-align:center}
+.chart-wrap canvas{max-width:100%}
+.chart-wrap .ch-cap{font-size:.72rem;color:var(--text-muted);margin-top:6px}
+
+.data-table{width:100%;border-collapse:collapse;margin:12px 0;font-size:.82rem}
+.data-table th{text-align:left;padding:8px 12px;background:rgba(91,141,184,.08);border-bottom:2px solid var(--border-glow);color:var(--accent-indigo);font-weight:700}
+.data-table td{padding:8px 12px;border-bottom:1px solid var(--border-subtle);color:var(--text-secondary)}
+.data-table tr:hover td{background:rgba(91,141,184,.03)}
+
+.takeaway{font-size:.82rem;background:rgba(90,158,111,.06);border-left:3px solid var(--accent-green);padding:10px 14px;margin-top:16px;border-radius:0 var(--radius-sm) var(--radius-sm) 0;color:var(--accent-green)}
+
+.ref-list{list-style:none;padding:0;margin-top:8px;font-size:.78rem}
+.ref-list li{padding:4px 0;color:var(--text-muted)}
+.ref-list li::before{content:'📄 '}
+
+.journey-footer{text-align:center;padding:40px 32px 60px;opacity:.8}
+.back-to-plan{display:inline-flex;align-items:center;gap:8px;padding:10px 24px;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:50px;color:var(--text-secondary);text-decoration:none;font-size:.85rem;font-weight:600;transition:all var(--transition-smooth)}
+.back-to-plan:hover{background:var(--bg-elevated);border-color:var(--accent-purple);color:var(--accent-purple)}
+
+.deep-floating-back{position:fixed;right:20px;bottom:20px;z-index:10000}
+.deep-floating-back button{padding:12px 20px;background:linear-gradient(135deg,var(--accent-color),var(--accent-dark));color:white;border:none;border-radius:24px;font-size:.85rem;font-weight:600;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.15);transition:transform .2s,box-shadow .2s}
+.deep-floating-back button:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.2)}
+
+.dd-toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);z-index:10001;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:8px;padding:14px 24px;box-shadow:0 4px 16px rgba(0,0,0,.15);font-size:.85rem;display:none}
+.toast-in{animation:toastIn .3s ease}
+@keyframes toastIn{from{opacity:0;transform:translate(-50%,20px)}to{opacity:1;transform:translate(-50%,0)}}
+
+@media print{.navbar,.progress-bar,.side-dots,.sidebar,.journey-bar,.journey-footer,.deep-floating-back{display:none!important}.module{break-inside:avoid;opacity:1!important;transform:none!important;box-shadow:none}body{background:#fff}.main-content{margin-left:0}}
+@media(max-width:768px){.sidebar{display:none}.main-content{margin-left:0}.hero h1{font-size:1.4rem}.module{padding:20px}.meta-card{font-size:.72rem;padding:12px 16px}}
+</style>
+</head>
+<body class="loading" data-theme="dark">
+
+<div class="progress-bar" id="progressBar" style="width:0%"></div>
+
+<nav class="navbar">
+  <div class="nav-left">📖 高级SQL与现代特性</div>
+  <div class="nav-right">
+    <button onclick="toggleTheme()" title="切换主题">🌓 主题</button>
+    <button onclick="openSearch()" title="搜索">🔍 搜索</button>
+  </div>
+</nav>
+
+<div class="side-dots" id="sideDots"></div>
+
+<div class="search-overlay" id="searchOverlay">
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="搜索模块内容..." oninput="doSearch()" onkeydown="if(event.key==='Escape')closeSearch()">
+    <div class="search-results" id="searchResults"></div>
+  </div>
+</div>
+
+<div class="sidebar">
+  <a href="#" onclick="goBack();return false;" class="sidebar-back-link">← 返回主方案</a>
+  <nav><ul class="sidebar-nav" id="sidebarNav"></ul></nav>
+</div>
+
+<div class="main-content">
+<div class="container">
+
+<div class="integration-navbar">
+  <a href="#" onclick="goBack();return false;">← 返回 SQL及其在工作中应用 系统学习方案</a>
+  <span>|</span>
+  <span>第4/4阶段 · 进阶优化与新特性</span>
+</div>
+
+<div class="hero">
+  <h1>高级SQL与现代特性</h1>
+  <div class="tags">
+    <span>🏷️ 数据库</span>
+    <span>🎯 进阶</span>
+    <span>🆕 现代SQL</span>
+  </div>
+</div>
+
+<div class="meta-card">
+  <div class="meta-item"><div class="val">📖</div><div class="lbl">高级SQL与现代特性</div></div>
+  <div class="meta-item"><div class="val">🏷️</div><div class="lbl">技术领域</div></div>
+  <div class="meta-item"><div class="val">🎯</div><div class="lbl">进阶层级</div></div>
+  <div class="meta-item"><div class="val">⏱️</div><div class="lbl">约35分钟</div></div>
+  <div class="meta-item"><div class="val">21</div><div class="lbl">模块</div></div>
+  <div class="meta-item"><div class="val">11</div><div class="lbl">图表</div></div>
+</div>
+
+<div class="journey-bar">
+  <div class="journey-path">
+    <span class="journey-icon">📍</span>
+    <span class="journey-plan" onclick="goBack();return false;">SQL及其在工作中应用 系统学习方案</span>
+    <span class="journey-sep">〉</span>
+    <span class="journey-phase">进阶优化与新特性</span>
+    <span class="journey-sep">〉</span>
+    <span class="journey-kp">高级SQL与现代特性</span>
+    <span class="journey-pos">(4/4)</span>
+  </div>
+  <div class="journey-nav">
+    <span class="journey-prev">← 前置</span>
+    <span>|</span>
+    <span class="journey-next">后续 →</span>
+  </div>
+</div>
+
+<!-- Module 01 -->
+<div class="module" id="module-background">
+  <h2><span class="m-tag">背景与缘起</span> SQL为什么需要"现代化"？</h2>
+  <div class="hook">很多人对SQL的印象停留在1986年的标准——"SELECT/FROM/WHERE就完了"。但今天的SQL已经支持JSON、递归、窗口分析、地理空间运算，功能比大部分NoSQL数据库更强大。</div>
+  <div class="content">
+    <p>SQL语言的演进经历了三个关键阶段。第一阶段（1986-1999）确立了SQL-86到SQL-99的核心标准：JOIN、子查询、事务。第二阶段（2003-2011）引入了SQL:2003和SQL:2008，增加了窗口函数（OVER）、MERGE语句、XML支持。第三阶段（2016至今）是SQL现代化的爆发期：SQL:2016引入JSON支持（JSON_TABLE）、行模式匹配；SQL:2023增加了GRAPH查询、ANY_VALUE聚合函数、GREATEST/LEAST等便利函数。</p>
+    <p>推动SQL现代化的核心动力来自<strong>NoSQL的竞争压力</strong>：MongoDB等文档数据库用JSON数据结构吸引了大量开发者，关系数据库不得不在SQL中提供原生JSON支持。同时，<strong>OLAP分析场景</strong>的崛起（BI报表、数据科学）要求SQL具备窗口分析、递归遍历、数组/嵌套数据处理等"类编程语言"能力。</p>
+    <p>今天，MySQL 8.0+、PostgreSQL 15+、SQL Server 2022、Oracle 21c等主流数据库都已支持大量现代SQL特性——<strong>了解这些特性，意味着你可以用一条SQL做完以前需要应用层几十行代码才能完成的事。</strong></p>
+  </div>
+  <div class="takeaway">SQL不是过时的语言——它正在经历第三次复兴，新增的功能让它成为"全能型"数据处理语言。</div>
+  <ul class="ref-list"><li>ISO/IEC 9075, "SQL:2023 Standard", ISO, 2023</li><li>Markus Winand, "Modern SQL", modern-sql.com</li></ul>
+</div>
+
+<!-- Module 02 -->
+<div class="module" id="module-concept">
+  <h2><span class="m-tag">核心概念</span> 什么是"现代SQL"？</h2>
+  <div class="hook">如果你还在用2005年的SQL写法处理2025年的数据需求——JSON字段全部存为TEXT、层级数据用自连接N次——那你正在用<strong>算盘解决微积分问题</strong>。</div>
+  <div class="content">
+    <p>"现代SQL"（Modern SQL）不是SQL的一个独立版本，而是<strong>SQL:2003标准之后引入的一系列新特性的总称</strong>。其核心主张是：尽可能在数据库层完成数据处理，减少应用层的循环、转换和计算。</p>
+    <p>现代SQL的四大支柱：</p>
+    <p><strong>1. 结构化半结构化融合</strong>：JSON列类型 + JSON路径表达式。MySQL的 <code>JSON_EXTRACT(doc, '$.user.name')</code>，PostgreSQL的 <code>doc->>'name'</code>。不再需要把所有数据都拆成关系表。</p>
+    <p><strong>2. 递归与层级处理</strong>：WITH RECURSIVE（递归CTE）让遍历组织树、BOM物料清单、社交关系图在一句SQL中完成。</p>
+    <p><strong>3. 窗口分析</strong>：OVER()语法让每一行都能"看到"同组其他行，且不减少行数。滑动窗口帧（ROWS/RANGE/GROUPS）提供了灵活的数据范围定义。</p>
+    <p><strong>4. 跨数据库互操作</strong>：MERGE（UPSERT）语句统一了INSERT和UPDATE；LATERAL JOIN让子查询能引用前面的表列。</p>
+  </div>
+  <div class="data-table"><table>
+    <tr><th>特性类别</th><th>经典SQL写法</th><th>现代SQL写法</th></tr>
+    <tr><td>层级查询</td><td>N层自连接JOIN</td><td>WITH RECURSIVE</td></tr>
+    <tr><td>JSON处理</td><td>TEXT存储+应用解析</td><td>JSON列+路径表达式</td></tr>
+    <tr><td>排名分析</td><td>SET @rownum变量</td><td>ROW_NUMBER() OVER()</td></tr>
+    <tr><td>合并写入</td><td>先SELECT再IF判断</td><td>MERGE / ON DUPLICATE KEY</td></tr>
+  </table></div>
+  <div class="takeaway">现代SQL的核心思想：让数据库做它最擅长的事——数据处理，而不是只把它当成一个"存取"工具。</div>
+  <ul class="ref-list"><li>Markus Winand, "Modern SQL: A lot has changed since SQL-92", use-the-index-luke.com</li></ul>
+</div>
+
+<!-- Module 03 -->
+<div class="module" id="module-principle">
+  <h2><span class="m-tag">核心原理</span> 递归CTE与窗口帧的底层机制</h2>
+  <div class="hook">递归CTE不是循环——它是一次从<strong>"锚点"出发的迭代不动点计算</strong>，每一轮都只在上轮基础上扩展，直到结果集不再增长。</div>
+  <div class="content">
+    <p><strong>递归CTE（WITH RECURSIVE）的执行原理</strong>：</p>
+    <p>递归CTE由两部分组成：<strong>基础查询（Anchor Member）</strong>返回初始结果集 + <strong>递归查询（Recursive Member）</strong>引用CTE自身。<strong>执行过程</strong>：初始轮（R0）执行基础查询 → 第1轮（R1）用R0的结果执行递归查询 → 第2轮（R2）用R1的结果执行 → ...→ 直到某轮返回空集（不动点），递归终止。</p>
+    <p>以组织架构树为例：基础查询找到CEO（parent_id IS NULL），然后每轮递归找到上一轮结果的直接下级。执行轮次 = 树的深度 + 1。</p>
+    <p><strong>窗口帧（Window Frame）的三类模式</strong>：ROWS按物理行偏移量（前后N行）；RANGE按值的逻辑范围（ORDER BY col的值差）；GROUPS按同级分组的数量偏移。这是理解滑动窗口计算的关键。</p>
+  </div>
+  <div class="formula-block">
+    <span class="f-cap">递归CTE的形式化定义</span>
+    $$R_0 = Anchor(\text{基础查询结果})$$
+    $$R_{i+1} = Recursive(R_i)$$
+    $$\text{Final} = R_0 \cup R_1 \cup ... \cup R_n \quad (R_{n+1} = \emptyset)$$
+    <button class="derivation-toggle" onclick="var c=this.nextElementSibling;c.classList.toggle('open');this.textContent=c.classList.contains('open')?'▾ 收起推导':'▸ 展开推导'">▸ 展开推导</button>
+    <div class="derivation-content">
+      <p><strong>推导说明</strong>：</p>
+      <p>- R₀为Anchor Member返回的初始行集（如CEO所在行）</p>
+      <p>- 每次递归迭代i+1中，Recursive Member以Rᵢ的行集为输入，通过JOIN找到下一层级的行</p>
+      <p>- 当某次迭代返回0行（R_{n+1} = ∅）时，递归自动停止</p>
+      <p>- 最终结果 = R₀ ∪ R₁ ∪ ... ∪ Rₙ（所有迭代结果的并集，MySQL默认为UNION ALL即不去重）</p>
+      <p>- MySQL默认限制递归深度为1000层（cte_max_recursion_depth），防止无限递归</p>
+    </div>
+  </div>
+  <div class="takeaway">递归CTE本质是迭代不动点计算——数据库自动管理每次迭代的输入和输出，比手动循环更安全高效。</div>
+  <ul class="ref-list"><li>MySQL 8.0 Reference Manual, "WITH (Common Table Expressions)", dev.mysql.com</li><li>PostgreSQL Documentation, "WITH Queries (Common Table Expressions)", postgresql.org</li></ul>
+</div>
+
+<!-- Module 04 -->
+<div class="module" id="module-architecture">
+  <h2><span class="m-tag">技术架构</span> 各数据库的现代SQL支持全景</h2>
+  <div class="hook">同一个SQL特性，在不同数据库中的实现可能天差地别——PostgreSQL的JSON操作符是 <code>->></code>，MySQL是 <code>JSON_EXTRACT()</code>，SQL Server是 <code>JSON_VALUE()</code>。写对了数据库的方言，就是正确的一半。</div>
+  <div class="content">
+    <p>主流数据库对现代SQL特性的支持度差异显著：</p>
+    <p><strong>MySQL 8.0+</strong>：窗口函数（ROW_NUMBER/RANK/DENSE_RANK/LAG/LEAD）、CTE（含递归）、JSON数据类型+函数族、LATERAL DERIVED TABLES、CHECK约束增强。但不支持MERGE语句、EXCLUDE子句、窗口函数的GROUPS帧。</p>
+    <p><strong>PostgreSQL 15+</strong>：窗口函数全支持（含GROUPS/EXCLUDE）、递归CTE、JSON/JSONB类型+12个操作符、LATERAL JOIN、MERGE语句（PG15+）、数组类型、RANGE类型。一般被认为是对现代SQL标准兼容最好的开源数据库。</p>
+    <p><strong>SQL Server 2022</strong>：窗口函数丰富（含PERCENTILE_DISC/CONT）、递归CTE含MAXRECURSION控制、JSON支持、STRING_AGG、GREATEST/LEAST。强调与Azure生态集成。</p>
+  </div>
+  <div class="chart-wrap"><div id="chart_arch_01" style="width:100%;height:360px"></div><div class="ch-cap">图：主流数据库现代SQL特性支持度雷达图</div></div>
+  <div class="takeaway">选数据库就是选方言——了解各数据库对现代SQL的支持程度，是跨平台开发的前提。</div>
+  <ul class="ref-list"><li>PostgreSQL Feature Matrix, postgresql.org/about/featurematrix</li></ul>
+</div>
+
+<!-- Module 05 -->
+<div class="module" id="module-compute-cost">
+  <h2><span class="m-tag">算力与成本</span> 复杂SQL特性的性能账单</h2>
+  <div class="hook">递归CTE看起来优雅，但如果树的深度是500层，数据库需要执行<strong>501次迭代查询</strong>——每一轮都可能触发全表扫描。优雅背后可能藏着性能陷阱。</div>
+  <div class="content">
+    <p>现代SQL特性虽然强大，但每个特性都有其性能成本：</p>
+    <p><strong>递归CTE</strong>：每次迭代都是一次独立查询，复杂度为 O(depth × cost_per_iteration)。如果递归成员没有合适的索引支持（如parent_id索引），每次迭代都可能全表扫描。</p>
+    <p><strong>JSON函数</strong>：JSON_EXTRACT需要解析JSON文本，代价约为普通列读取的3-10倍。PG的JSONB类型（二进制存储）比MySQL的JSON（文本存储）查询效率高一个数量级。</p>
+    <p><strong>窗口函数</strong>：OVER(ORDER BY ...)需要额外排序；PARTITION BY需要分组哈希或排序。ROWS帧比RANGE帧高效（前者只需物理偏移，后者需要值比较）。最昂贵的窗口帧类型是RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW。</p>
+  </div>
+  <div class="chart-wrap"><div id="chart_cost_01" style="width:100%;height:300px"></div><div class="ch-cap">图：不同SQL特性在100万行数据下的相对查询耗时</div></div>
+  <div class="takeaway">现代SQL特性让开发更便捷，但需要理解其代价——不是所有问题都适合在SQL层解决。</div>
+</div>
+
+<!-- Module 06 -->
+<div class="module" id="module-open-source">
+  <h2><span class="m-tag">开源生态</span> 现代SQL的第三方增强工具</h2>
+  <div class="hook">数据库的原生SQL能力只是开始——社区工具能把它<strong>扩展到你想象不到的地方</strong>：从类型安全SQL生成到自动化迁移管理。</div>
+  <div class="content">
+    <p>围绕现代SQL生态的关键开源工具：</p>
+    <p><strong>SQL代码生成与类型安全</strong>：<code>sqlc</code>（Go生态，从SQL自动生成类型安全代码，支持PostgreSQL/MySQL）；<code>Prisma</code>（现代ORM，Schema-first设计，自动生成类型安全的客户端）；<code>Drizzle ORM</code>（类SQL的TypeScript ORM，零抽象层开销）。</p>
+    <p><strong>SQL分析与格式</strong>：<code>sqlfluff</code>（SQL Linter，支持自定义规则，自动修复格式问题）；<code>SQLMesh</code>（数据转换框架，含SQL版本控制和CI/CD）。</p>
+    <p><strong>数据库迁移</strong>：<code>Flyway</code> + <code>Atlas</code>（声明式Schema管理，自动生成迁移SQL）。</p>
+  </div>
+  <div class="takeaway">现代SQL不必手写全部——工具链的成熟让SQL开发也有了IDE级别的效率和安全保障。</div>
+  <ul class="ref-list"><li>sqlc Documentation, docs.sqlc.dev</li><li>sqlfluff, github.com/sqlfluff/sqlfluff</li></ul>
+</div>
+
+<!-- Module 07 -->
+<div class="module" id="module-benchmark">
+  <h2><span class="m-tag">Benchmark</span> 传统SQL vs 现代SQL写法对比</h2>
+  <div class="hook">同一个业务需求——"展示每个部门销售额的前3名员工"——用传统SQL可能需要<strong>临时表 + 多步存储过程</strong>，而现代SQL用一<strong>个窗口函数</strong>就搞定。</div>
+  <div class="content">
+    <p>以下是几种典型的"传统 vs 现代"SQL对比（均基于MySQL 8.0）：</p>
+    <p><strong>场景1：各组Top N</strong>。传统方案：SET @rownum变量+子查询排序（依赖MySQL变量赋值副作用，不推荐）。现代方案：<code>ROW_NUMBER() OVER (PARTITION BY dept ORDER BY sales DESC)</code>，标准安全。</p>
+    <p><strong>场景2：组织树遍历</strong>。传统方案：N层自连接（但部门层级未知则无法写死）。现代方案：WITH RECURSIVE 一句遍历到叶子节点，代码从20行降到6行。</p>
+    <p><strong>场景3：JSON日志解析</strong>。传统：读取为TEXT，应用层解析→存到报表表。现代：直接在SQL中用JSON_EXTRACT/->>提取字段聚合。</p>
+  </div>
+  <div class="chart-wrap"><div id="chart_bm_01" style="width:100%;height:320px"></div><div class="ch-cap">图：传统SQL vs 现代SQL代码行数对比（实现同一业务逻辑）</div></div>
+  <div class="takeaway">现代SQL不仅"能做"而是"用更少的代码做"——代码越少，bug越少。</div>
+</div>
+
+<!-- Module 08 -->
+<div class="module" id="module-development">
+  <h2><span class="m-tag">发展迭代</span> SQL标准从1986到2023的关键里程碑</h2>
+  <div class="hook">SQL-86总共定义了不到20个关键字；SQL:2023的关键字列表已经超过<strong>300个</strong>——这门语言在近40年里从未停止进化。</div>
+  <div class="content">
+    <p><strong>SQL-92（SQL2）</strong>：引入JOIN语法（INNER/LEFT/RIGHT）、CHECK约束、级联删除。这是大多数人学SQL时的"标准版本"。</p>
+    <p><strong>SQL:1999（SQL3）</strong>：最"跳跃"的版本——窗口函数、递归查询、LATERAL、触发器、存储过程、BOOLEAN类型。但实现滞后严重（MySQL直到8.0才支持窗口函数和CTE！）。</p>
+    <p><strong>SQL:2011</strong>：系统版本化表（Temporal Tables）、Pipelined DML。SQL Server是最早完整实现此版本的数据库。</p>
+    <p><strong>SQL:2016</strong>：JSON支持（JSON_TABLE, JSON_EXISTS, JSON_VALUE）、行模式识别（MATCH_RECOGNIZE）。这是SQL正式接纳半结构化数据的标志。</p>
+    <p><strong>SQL:2023</strong>：图查询（GRAPH_TABLE）、GREATEST/LEAST、ANY_VALUE()聚合函数、UNIQUE NULLS DISTINCT。</p>
+  </div>
+  <div class="chart-wrap"><div id="chart_dev_01" style="width:100%;height:280px"></div><div class="ch-cap">图：SQL标准各版本引入的关键特性数量增长</div></div>
+  <div class="takeaway">SQL标准每5-7年一个大版本——别停留在SQL-92，那个时代的SQL已经满足不了今天的业务需求。</div>
+  <ul class="ref-list"><li>ISO/IEC 9075 Series, "SQL Standards", iso.org</li></ul>
+</div>
+
+<!-- Module 09 -->
+<div class="module" id="module-application">
+  <h2><span class="m-tag">实践应用</span> 日常工作中的现代SQL实战场景</h2>
+  <div class="hook">以下5个真实工作场景，如果不了解现代SQL，你需要<strong>10行Python + 3次数据库查询</strong>；但如果会用——<strong>一句SQL写完直接在报表里用</strong>。</div>
+  <div class="content">
+    <p><strong>场景1：JSON日志字段提取（BI分析）</strong>——后端把请求日志全量存为JSON字段（event_data JSON）。产品想分析"支付失败中哪种支付方式占比最高"。用 <code>JSON_EXTRACT(event_data, '$.payment_method')</code> + GROUP BY，30秒出报表。</p>
+    <p><strong>场景2：树形分类的深度标签（电商后台）</strong>——"电子产品 → 手机 → 智能手机 → 5G手机"是一个4级分类树。需要找到"电子产品"下所有深度>2的子分类。用递归CTE + WHERE depth > 2即可。</p>
+    <p><strong>场景3：移动平均与环比（运营看板）</strong>——用LAG+窗口帧：<code>AVG(sales) OVER (ORDER BY month ROWS 2 PRECEDING)</code> 计算3月移动平均。</p>
+    <p><strong>场景4：复杂UPSERT逻辑（数据同步管道）</strong>——外部数据每天全量推送，需要"存在则更新，不存在则插入"。PostgreSQL 15直接用MERGE语句，MySQL用ON DUPLICATE KEY UPDATE。</p>
+    <p><strong>场景5：行列转换（交叉报表）</strong>——Pivot能力：用CASE WHEN + GROUP BY模拟，或用FILTER（PG专有语法）更简洁。</p>
+  </div>
+  <div class="takeaway">工作中80%的"复杂数据处理"其实可以用现代SQL一句搞定——只是很多人不知道SQL已经支持了。</div>
+</div>
+
+<!-- Module 10 -->
+<div class="module" id="module-case-study">
+  <h2><span class="m-tag">实践案例</span> 用现代SQL重构老代码</h2>
+  <div class="hook">一段200行的Python脚本——读取DB、递归遍历树、JSON解析、排序聚合——被一条<strong>35行的SQL</strong>替代，执行时间从8秒降至<strong>0.6秒</strong>。</div>
+  <div class="content">
+    <p><strong>案例一：物流轨迹JSON分析</strong></p>
+    <p>需求：快递轨迹数据存储在MySQL JSON列中，需要按省份统计平均配送时长。原方案：应用层逐行JSON.parse → Python字典嵌套解析 → Pandas聚合。问题：每次全量拉取200万行到应用内存。</p>
+    <p>优化：用MySQL JSON_TABLE将嵌套JSON展开为行，再普通GROUP BY。SQL直接在数据库完成所有处理，只需要返回100行聚合结果。</p>
+    <p><strong>案例二：企业组织架构变更影响分析</strong></p>
+    <p>需求：某部门合并，需找出受影响的所有子部门（任意深度）。原方案：Java应用从根部门出发，逐层递归查询数据库（N次数据库查询，部门有1500个时执行100+次）。</p>
+    <p>优化：用 <code>WITH RECURSIVE org_tree AS (...)</code>，一次查询返回所有下级。</p>
+    <p>效果：数据库查询从100+次降至1次，端到端时间从12秒降至0.4秒。</p>
+  </div>
+  <div class="takeaway">把数据处理逻辑从应用层移回数据库层——这是现代SQL最大的架构价值。</div>
+</div>
+
+<!-- Module 11 -->
+<div class="module" id="module-risk">
+  <h2><span class="m-tag">潜在风险</span> 现代SQL并非没有代价</h2>
+  <div class="hook">递归CTE写错了会<strong>无限循环直到数据库超时</strong>；JSON函数用多了会让你的<strong>表变成"NoSQL垃圾桶"</strong>——现代特性用不好，比老老实实写老SQL更危险。</div>
+  <div class="content">
+    <p><strong>1. 递归CTE失控</strong>：如果递归条件写错（比如忘了写ON条件或写了自引用JOIN条件恒真），数据库将持续递归直到达到 max_recursion_depth（MySQL默认1000）或超时。在生产执行前务必用LIMIT限制结果行数进行安全测试。</p>
+    <p><strong>2. JSON字段反模式</strong>：有了JSON列后，开发者倾向于把所有"不那么确定的字段"全部塞进一个JSON——这导致数据完整性丧失（JSON内部无法应用CHECK约束）、索引困难、查询性能退化。JSON列只适合存储真的"非结构化"或"结构频繁变化"的数据。</p>
+    <p><strong>3. 方言锁定</strong>：JSON函数（JSON_EXTRACT vs ->> vs JSON_VALUE）、MERGE语法、窗口函数支持的细微差异会在数据库迁移时成为地雷。写跨库SQL时必须保持谨慎。</p>
+  </div>
+  <div class="takeaway">现代SQL给你的是<strong>能力</strong>，不是<strong>许可</strong>——用对了节省80%代码，用错了制造更难排查的性能黑洞。</div>
+</div>
+
+<!-- Module 12 -->
+<div class="module" id="module-ethics">
+  <h2><span class="m-tag">安全与合规</span> JSON查询中的数据隐私挑战</h2>
+  <div class="hook">当你把用户的完整Profile存为一个JSON列时——<strong>数据库无法对JSON内的字段做列级权限控制</strong>。任何有表读权限的人都能看到全部JSON内容。</div>
+  <div class="content">
+    <p>现代SQL特性带来的安全与合规挑战：</p>
+    <p><strong>1. JSON中的敏感字段泄露</strong>：关系表可以GRANT SELECT只给特定列（如不给phone列权限）。但JSON列是<strong>全有或全无</strong>——给了JSON列的SELECT权限，就可以读到JSON中所有的字段，包括手机号、身份证等敏感数据。</p>
+    <p>解决方案：敏感字段不存JSON列，单独建列+列级权限；或创建VIEW只提取JSON中的非敏感字段。</p>
+    <p><strong>2. 递归CTE的数据暴露</strong>：通过组织树CTE，一个基层员工可能反向遍历出整个组织的完整层级结构——这在某些公司属于敏感信息。应在递归条件中加入权限过滤（如仅展示当前用户有权看到的层级）。</p>
+  </div>
+  <div class="takeaway">JSON给了灵活，但夺走了列级安全——用JSON列时，先想清楚哪些字段是"真正应该在一起的"。</div>
+</div>
+
+<!-- Module 13 -->
+<div class="module" id="module-landscape">
+  <h2><span class="m-tag">发展格局</span> 各大数据库的"现代性"排名</h2>
+  <div class="hook">如果说传统SQL是"普通话"，那PostgreSQL就是那个语法最严谨的"播音员"，MySQL是接地气的"方言大师"，SQL Server是企业级的"官方发言人"。</div>
+  <div class="content">
+    <p><strong>第一梯队（SQL标准完整度 > 90%）</strong>：PostgreSQL——公认开源数据库中对SQL标准兼容最完整的。从JSONB到窗口函数GROUPS帧，从MERGE（PG15+）到并行查询，PG的SQL实现可以作为"现代SQL教科书示例"。</p>
+    <p><strong>第二梯队（75-85%）</strong>：Oracle Database + SQL Server。Oracle长期引领SQL标准的实现（最早实现窗口函数和递归CTE）；SQL Server在T-SQL扩展方面独树一帜，但其JSON支持和PostgreSQL的JSONB相比略显薄弱。</p>
+    <p><strong>第三梯队（60-70%）</strong>：MySQL 8.0+。MySQL经历了从5.7到8.0的跨越式升级（终于有了窗口函数和CTE），但GROUPS窗口帧、EXCLUDE子句、MERGE等仍未支持。</p>
+  </div>
+  <div class="chart-wrap"><div id="chart_land_01" style="width:100%;height:320px"></div><div class="ch-cap">图：各数据库对SQL:2016+标准的支持度评估</div></div>
+  <div class="takeaway">PostgreSQL是"标准SQL教科书"——如果你只能在新项目中选一个数据库，从SQL标准兼容度来看，PG是最安全的选择。</div>
+</div>
+
+<!-- Module 14 -->
+<div class="module" id="module-research-map">
+  <h2><span class="m-tag">产学研图谱</span> SQL语言研究的学术前沿</h2>
+  <div class="hook">你可能没想到——SQL语言本身<strong>至今仍是数据库学术界的活跃研究方向</strong>。从"如何在SQL中加入图查询"到"SQL到自然语言的互译"，学术界从未停止对SQL的改造。</div>
+  <div class="content">
+    <p><strong>当前学术热点</strong>：</p>
+    <p>- <strong>SQL中的图查询（SQL/PGQ）</strong>：SQL:2023标准首次引入Property Graph Queries。Oracle和PG社区（Apache AGE项目）正在实现SQL/PGQ——用同一句SQL同时查询关系表和图关系。</p>
+    <p>- <strong>Text-to-SQL</strong>：自然语言转SQL是NLP+DB交叉热点。Spider Benchmark（耶鲁大学）推动了从"帮我查询销售最好的产品"直接生成正确SQL的研究。最新SOTA模型（DIN-SQL, DAIL-SQL）在复杂场景准确率已达80%+。</p>
+    <p>- <strong>Streaming SQL</strong>：Flink SQL、ksqlDB等流处理引擎将SQL应用于无限数据流——SELECT持续运行而非一次返回。</p>
+  </div>
+  <div class="takeaway">SQL不仅是查询语言——学术界正在把它变成"通用数据语言"，覆盖图、流、文档等各种数据范式。</div>
+  <ul class="ref-list"><li>Tao Yu et al., "Spider: A Large-Scale Human-Labeled Dataset for Text-to-SQL", EMNLP, 2018</li><li>ISO/IEC 9075-16, "SQL/PGQ: Property Graph Queries", 2023</li></ul>
+</div>
+
+<!-- Module 15 -->
+<div class="module" id="module-issues">
+  <h2><span class="m-tag">发展问题</span> 现代SQL落地的实际阻力</h2>
+  <div class="hook">现代SQL最大的敌人不是技术——而是"<strong>反正应用层能写代码搞定，为什么要在SQL里写那么复杂？</strong>"——这种思维让团队多写了成千上万行不必要的应用代码。</div>
+  <div class="content">
+    <p>现代SQL在企业落地中面临的核心障碍：</p>
+    <p><strong>1. 开发者认知滞后</strong>：大多数开发者的SQL知识停留在2010年之前（甚至更早）。调查显示，能正确使用窗口函数的开发者不到40%，了解递归CTE的不到25%。这不是能力问题，是信息不对称。</p>
+    <p><strong>2. "SQL不应该太复杂"的教条</strong>：许多团队的Code Review规则规定"SQL超过30行必须拆分到应用层"。这条规则在某些场景是对的（避免单个SQL成为黑盒），但也阻止了本来可以高效完成的数据处理留在数据库层。</p>
+    <p><strong>3. 数据库版本碎片化</strong>：公司里可能同时有MySQL 5.6（无窗口函数）、MySQL 8.0、PostgreSQL 14——写一个在"所有环境都能跑"的SQL，只能按最低版本写。</p>
+  </div>
+  <div class="takeaway">现代SQL普及的最大阻力是认知——不是学不会，是不知道"SQL现在已经能这样写了"。</div>
+</div>
+
+<!-- Module 16 -->
+<div class="module" id="module-prospect">
+  <h2><span class="m-tag">发展前景</span> SQL的未来——超越数据库</h2>
+  <div class="hook">5年后，你可能用同一套SQL语法查询<strong>MySQL表 + MongoDB文档 + Kafka数据流 + S3上的Parquet文件</strong>——SQL正在成为"任何数据"的通用接口。</div>
+  <div class="content">
+    <p>SQL未来的几个关键演进方向：</p>
+    <p><strong>1. 作为统一数据接口</strong>：Trino/Presto、Apache Calcite等项目证明——SQL可以成为查询任何数据源（关系库、NoSQL、数据湖、流处理）的统一入口。Google BigQuery、Snowflake、Databricks的SQL Analytics都在强化"SQL是一切数据的入口"这个范式。</p>
+    <p><strong>2. SQL + AI</strong>：AI辅助SQL生成（如GitHub Copilot for SQL、Amazon Q、Databricks Assistant）将大幅降低复杂SQL的编写门槛。</p>
+    <p><strong>3. WebAssembly in Database (WASM UDF)</strong>：Singlestore、DuckDB支持用WASM编写UDF——JavaScript/Python/Rust的逻辑可以在SQL中以函数调用形式执行。</p>
+  </div>
+  <div class="takeaway">SQL不会消亡——它正在从一个"数据库查询语言"演变为"通用数据接入层"。未来的开发者只需要学一套语法。</div>
+  <ul class="ref-list"><li>Trino Documentation, "Connectors Overview", trino.io</li></ul>
+</div>
+
+<!-- Module 17 -->
+<div class="module" id="module-effort-direction">
+  <h2><span class="m-tag">努力方向</span> 如何系统学习现代SQL？</h2>
+  <div class="hook">学会现代SQL最有效的方法不是看书——是<strong>打开一个PostgreSQL实例</strong>，然后对每个特性运行示例代码，"亲手看到结果改变"比阅读效率高10倍。</div>
+  <div class="content">
+    <p><strong>第一阶段（扩展基础）</strong>：确保你熟悉窗口函数的所有变体（ROW_NUMBER/RANK/LAG/LEAD/SUM OVER）。推荐 <code>modern-sql.com</code> 作为快速查阅。</p>
+    <p><strong>第二阶段（递归与JSON）</strong>：在PostgreSQL/MySQL 8.0环境创建一个员工表（包含manager_id），用WITH RECURSIVE遍历组织树。再用JSONB列实操路径查询。</p>
+    <p><strong>第三阶段（方言精通）</strong>：横向对比同一特性在MySQL/PostgreSQL/SQL Server中的不同写法。建议维护一个"SQL方言速查表"。</p>
+    <p><strong>学习路线</strong>：modern-sql.com浏览器基础 → PostgreSQL官方WITH Queries文档 → 递归CTE实战练习 → JSON函数家族学习 → MERGE/LATERAL操作实践。</p>
+  </div>
+  <div class="takeaway">现代SQL不需要"背"——入职一个PG项目，实际用3个月，自然全会了。</div>
+  <ul class="ref-list"><li>modern-sql.com, Markus Winand</li><li>PostgreSQL Tutorial, postgresqltutorial.com</li></ul>
+</div>
+
+<!-- Module 18 -->
+<div class="module" id="module-misconceptions">
+  <h2><span class="m-tag">常见误区</span> 关于现代SQL的流行误解</h2>
+  <div class="hook">"JSON列就是NoSQL投降了——说明关系模型失败了"——这是<strong>对SQL现代化最根本的误解</strong>。JSON列不是关系模型的退步，而是实用主义的进步。</div>
+  <div class="content">
+    <p><strong>误区1："窗口函数和子查询差不多"</strong> —— 完全不是。子查询/自连接<strong>减少行数</strong>，窗口函数<strong>保留所有行</strong>。这是根本差异。用子查询做"各组排名"需要对每组执行单独查询；用ROW_NUMBER()只需一句。</p>
+    <p><strong>误区2："递归CTE就是SQL版的for循环"</strong> —— 不完全准确。递归CTE是声明式的——你定义"初始是什么 + 如何从已知推导未知"，数据库管理整个迭代过程。这和命令式的for循环有本质区别。</p>
+    <p><strong>误区3："用了现代SQL特性，迁移数据库就困难了"</strong> —— 有一定道理但不完全对。窗口函数在MySQL 8.0/PG/SQL Server间高度兼容（语法几乎一致）；JSON函数差异较大。关键是<strong>知道哪些特性是跨库通用的，哪些是方言</strong>。</p>
+  </div>
+  <div class="takeaway">现代SQL不是"复杂SQL"——是用数据库内置能力做事，而不是把所有逻辑都甩给应用层。</div>
+</div>
+
+<!-- Module 19 -->
+<div class="module" id="module-learning-path">
+  <h2><span class="m-tag">学习路径</span> 现代SQL的推荐学习资源</h2>
+  <div class="hook">一本好书能让你避免踩100个坑——但<strong>关于现代SQL的好书少得惊人</strong>。大部分SQL书还停留在教你JOIN和子查询的阶段。</div>
+  <div class="content">
+    <p><strong>在线资源（首选）</strong>：</p>
+    <p>- <strong>modern-sql.com</strong>：用一张交互式表格对比SQL-86到SQL:2023的所有特性及其在各数据库的支持度。没有比这更全的SQL特性地图。</p>
+    <p>- <strong>PostgreSQL Official Docs: "Tutorial" + "The SQL Language"</strong>：PG的官方文档是学习现代SQL最好的免费教材。尤其是"Window Functions"和"WITH Queries"章节。</p>
+    <p><strong>书籍</strong>：</p>
+    <p>- <strong>《SQL Cookbook》(O'Reilly)</strong>：每个问题给出MySQL/PG/SQL Server/Oracle四种解法的对比。强烈推荐给需要跨库开发的人。</p>
+    <p>- <strong>《PostgreSQL: Up and Running》(O'Reilly)</strong>：快速了解PG的现代特性。</p>
+  </div>
+  <div class="takeaway">modern-sql.com + PostgreSQL官方文档 = 学习现代SQL的最佳资源组合，而且完全免费。</div>
+</div>
+
+<!-- Module 20 -->
+<div class="module" id="module-glossary">
+  <h2><span class="m-tag">关键术语表</span></h2>
+  <div class="data-table"><table>
+    <tr><th>术语</th><th>英文</th><th>定义</th></tr>
+    <tr><td>窗口函数</td><td>Window Function</td><td>OVER()语法，保留行数的分组计算</td></tr>
+    <tr><td>递归CTE</td><td>Recursive CTE</td><td>WITH RECURSIVE，处理层级/树结构</td></tr>
+    <tr><td>窗口帧</td><td>Window Frame</td><td>ROWS/RANGE/GROUPS定义窗口范围</td></tr>
+    <tr><td>JSON路径表达式</td><td>JSON Path</td><td>'$.key'语法，从JSON文档提取值</td></tr>
+    <tr><td>MERGE/UPSERT</td><td>MERGE</td><td>存在则更新不存在则插入，SQL:2003引入</td></tr>
+    <tr><td>LATERAL JOIN</td><td>LATERAL</td><td>子查询可引用前置表的列</td></tr>
+    <tr><td>JSONB</td><td>JSONB</td><td>PostgreSQL的二进制JSON存储，支持索引</td></tr>
+    <tr><td>FILTER子句</td><td>FILTER Clause</td><td>聚合函数内条件过滤，PG特有</td></tr>
+    <tr><td>MATCH_RECOGNIZE</td><td>MATCH_RECOGNIZE</td><td>SQL:2016行模式匹配，事件序列分析</td></tr>
+    <tr><td>SQL/PGQ</td><td>SQL/PGQ</td><td>SQL:2023图查询标准</td></tr>
+  </table></div>
+</div>
+
+<!-- Module 21 -->
+<div class="module" id="module-debate">
+  <h2><span class="m-tag">争议与辩论</span> SQL现代化中的核心分歧</h2>
+  <div class="hook">当PostgreSQL资深用户说"所有业务逻辑都应该在SQL中完成"——隔壁的Go开发者跳起来反驳："SQL应该只管存取，业务逻辑在应用层才可测试、可维护。"这场争论<strong>没有标准答案</strong>。</div>
+  <div class="content">
+    <p><strong>争议1：复杂逻辑放SQL还是应用层？</strong></p>
+    <p>数据库派：数据在哪计算就该在哪——减少网络传输、利用数据库优化器。应用层派：SQL难以测试、调试困难、团队中能维护复杂SQL的人少。平衡点：数据处理类（聚合/窗口/递归遍历）放SQL；业务规则类（定价/权限/状态机）放应用层。</p>
+    <p><strong>争议2：JSON列是否破坏关系模型？</strong></p>
+    <p>理想派：关系模型经过50年验证，JSON列是逃避设计思考。实用派：不是所有数据的结构都值得设计——日志、配置、第三方API返回本身就"不适合关系表"。折中方案：核心业务数据走关系表，外围/元数据走JSON列。</p>
+    <p><strong>争议3：同一个SQL特性的方言差异是否意味着应避免使用？</strong></p>
+    <p>不应。标准SQL（如窗口函数）的方言差异很小；特定方言在迁移时可以用工具转换（如pgloader）。关键是团队层面统一数据库选型。</p>
+  </div>
+  <div class="takeaway">现代SQL的争议本质上是"边界之争"——数据库和应用层的职责边界一直在移动，没有定论。</div>
+  <ul class="ref-list"><li>Haki Benita, "How to Write Complex SQL Without Losing Your Mind", hakibenita.com, 2022</li></ul>
+</div>
+
+</div>
+</div>
+
+<footer class="journey-footer">
+  <a href="#" class="back-to-plan" onclick="event.preventDefault();goBack()">🔗 返回学习路线: SQL及其在工作中应用 系统学习方案 → 进阶优化与新特性</a>
+  <p style="margin-top:12px;font-size:.72rem;color:var(--text-muted)">
+    本资料是 <strong>SQL及其在工作中应用 系统学习方案</strong> 进阶优化与新特性 阶段的深度研读材料
+  </p>
+</footer>
+
+<div class="deep-floating-back">
+  <button onclick="goBack()">← 返回学习方案</button>
+</div>
+
+<div class="dd-toast" id="toastEl"><span id="toastMsg"></span></div>
+
+<script>
+var DEEP_DIVE_KP_ID = 'p4_2';
+var MODULE_IDS = ["module-background","module-concept","module-principle","module-architecture","module-compute-cost","module-open-source","module-benchmark","module-development","module-application","module-case-study","module-risk","module-ethics","module-landscape","module-research-map","module-issues","module-prospect","module-effort-direction","module-misconceptions","module-learning-path","module-glossary","module-debate"];
+var SEARCH_INDEX = [
+{t:"背景与缘起",id:"module-background",c:"SQL现代化三个阶段、JSON支持、窗口分析"},{t:"核心概念",id:"module-concept",c:"现代SQL四大支柱、JSON路径、递归CTE、窗口帧"},{t:"核心原理",id:"module-principle",c:"递归CTE不动点计算、ROWS/RANGE/GROUPS三模式"},{t:"技术架构",id:"module-architecture",c:"MySQL PostgreSQL SQL Server特性对比雷达图"},{t:"算力与成本",id:"module-compute-cost",c:"递归CTE、JSON函数、窗口帧性能成本"},{t:"开源生态",id:"module-open-source",c:"sqlc、Prisma、Drizzle ORM"},{t:"Benchmark",id:"module-benchmark",c:"传统SQL vs 现代SQL代码行数对比"},{t:"发展迭代",id:"module-development",c:"SQL-92到SQL-2023关键里程碑"},{t:"实践应用",id:"module-application",c:"JSON日志、组织树、UPSERT五大场景"},{t:"实践案例",id:"module-case-study",c:"物流JSON分析、组织架构递归"},{t:"潜在风险",id:"module-risk",c:"递归失控、JSON反模式、方言锁定"},{t:"安全与合规",id:"module-ethics",c:"JSON列级权限缺失、递归数据暴露"},{t:"发展格局",id:"module-landscape",c:"三大梯队数据库现代SQL支持度"},{t:"产学研图谱",id:"module-research-map",c:"SQL/PGQ图查询、Text-to-SQL"},{t:"发展问题",id:"module-issues",c:"开发者认知滞后、版本碎片化"},{t:"发展前景",id:"module-prospect",c:"统一数据接口、AI辅助SQL、WASM"},{t:"努力方向",id:"module-effort-direction",c:"三阶段学习路线"},{t:"常见误区",id:"module-misconceptions",c:"窗口函数/递归CTE/迁移误解"},{t:"学习路径",id:"module-learning-path",c:"modern-sql.com PG官方文档"},{t:"关键术语表",id:"module-glossary",c:"窗口帧、JSON路径、LATERAL等"},{t:"争议与辩论",id:"module-debate",c:"复杂逻辑放SQL/应用层、JSON列争议"}
+];
+
+function goBack() {
+  var MAIN_PAGE = 'sql_learning.html';
+  var WIN_NAME = '_ml_llm_main';
+  var CH_KEY = '_ml_llm_nav';
+  localStorage.setItem(CH_KEY, JSON.stringify({kpId: DEEP_DIVE_KP_ID, ts: Date.now()}));
+  var mainWin = window.open(MAIN_PAGE, WIN_NAME);
+  if (mainWin) { mainWin.focus(); }
+}
+
+var TOAST_TIMEOUT;
+function showToast(msg) {
+  var el = document.getElementById('toastEl'), mg = document.getElementById('toastMsg');
+  if (!el || !mg) return; mg.textContent = msg; el.style.display = 'block'; el.classList.add('toast-in');
+  if (TOAST_TIMEOUT) clearTimeout(TOAST_TIMEOUT);
+  TOAST_TIMEOUT = setTimeout(function(){el.style.display = 'none'}, 3000);
+}
+function toggleTheme() {
+  var b = document.body, isD = b.getAttribute('data-theme') === 'dark';
+  b.setAttribute('data-theme', isD ? 'light' : 'dark');
+  try { localStorage.setItem('slm-theme', isD ? 'light' : 'dark'); } catch(e) {}
+  showToast('已切换至' + (isD ? '浅色' : '深色') + '主题');
+}
+function openSearch() { document.getElementById('searchOverlay').classList.add('open'); setTimeout(function(){document.getElementById('searchInput').focus()}, 100); }
+function closeSearch() { document.getElementById('searchOverlay').classList.remove('open'); document.getElementById('searchResults').innerHTML = ''; }
+function doSearch() {
+  var q = document.getElementById('searchInput').value.toLowerCase(), res = document.getElementById('searchResults');
+  if (q.length < 2) { res.innerHTML = ''; return; }
+  var h = ''; SEARCH_INDEX.forEach(function(item) {
+    if (item.t.toLowerCase().indexOf(q) >= 0 || (item.c || '').toLowerCase().indexOf(q) >= 0) {
+      h += '<div onclick="closeSearch();document.getElementById(\'' + item.id + '\').scrollIntoView({behavior:\'smooth\'})"><strong>' + item.t + '</strong><br><small style="color:var(--text-muted)">' + (item.c || '').substring(0, 80) + '</small></div>';
+    }
+  });
+  res.innerHTML = h || '<div style="padding:12px;color:var(--text-muted)">未找到匹配模块</div>';
+}
+document.addEventListener('DOMContentLoaded', function() {
+  document.body.classList.remove('loading'); document.body.classList.add('loaded');
+  var sidebarNav = document.getElementById('sidebarNav'), navHTML = '';
+  MODULE_IDS.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) {
+      var h2 = el.querySelector('h2'), title = h2 ? h2.textContent.replace(/^\S+\s*/, '') : id;
+      var tag = el.querySelector('.m-tag'), tagText = tag ? tag.textContent : '';
+      navHTML += '<li><a href="#' + id + '">' + tagText + ' ' + title + '</a></li>';
+    }
+  });
+  sidebarNav.innerHTML = navHTML;
+  var sideDots = document.getElementById('sideDots'), dotsHTML = '';
+  MODULE_IDS.forEach(function(id, i) { dotsHTML += '<div class="side-dot" title="模块' + (i + 1) + '" data-target="' + id + '"></div>'; });
+  sideDots.innerHTML = dotsHTML;
+  document.querySelectorAll('.side-dot').forEach(function(dot) { dot.addEventListener('click', function() { var t = document.getElementById(this.getAttribute('data-target')); if (t) t.scrollIntoView({behavior:'smooth'}); }); });
+  document.querySelectorAll('.sidebar-nav a').forEach(function(link) { link.addEventListener('click', function(e) { e.preventDefault(); var t = document.querySelector(this.getAttribute('href')); if (t) t.scrollIntoView({behavior:'smooth'}); }); });
+  var observer = new IntersectionObserver(function(entries) { entries.forEach(function(e) { if (e.isIntersecting) e.target.classList.add('visible'); }); }, {threshold: 0.15});
+  document.querySelectorAll('.module').forEach(function(m) { observer.observe(m); });
+  window.addEventListener('scroll', function() {
+    var st = document.documentElement.scrollTop, dh = document.documentElement.scrollHeight - window.innerHeight;
+    document.getElementById('progressBar').style.width = dh > 0 ? Math.min(100, (st / dh) * 100) + '%' : '0%';
+    var cur = -1; document.querySelectorAll('.module').forEach(function(m, i) { if (st >= m.offsetTop - 200) cur = i; });
+    document.querySelectorAll('.side-dot').forEach(function(d, i) { d.classList.toggle('active', i === cur); });
+    document.querySelectorAll('.sidebar-nav a').forEach(function(a, i) { a.classList.toggle('active', i === cur); });
+  });
+  document.querySelectorAll('.derivation-toggle').forEach(function(btn) { btn.addEventListener('click', function() { var c = this.nextElementSibling; if (c) { c.classList.toggle('open'); this.textContent = c.classList.contains('open') ? '▾ 收起推导' : '▸ 展开推导'; } }); });
+  try { var t = localStorage.getItem('slm-theme'); if (t === 'light') document.body.setAttribute('data-theme', 'light'); } catch(e) {}
+  if (typeof renderMathInElement !== 'undefined') { renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); }
+  window.addEventListener('keydown', function(e) { if ((e.ctrlKey || e.metaKey) && e.key === 'k') { e.preventDefault(); openSearch(); } if (e.key === 'Escape') closeSearch(); });
+  initCharts();
+});
+
+function safeChart(domId, option) { var dom = document.getElementById(domId); if (!dom || typeof echarts === 'undefined') return null; try { var c = echarts.init(dom); c.setOption(option); dom._ec = c; return c; } catch(e) { return null; } }
+
+function initCharts() {
+  safeChart('chart_arch_01', {
+    legend: {data: ['MySQL 8.0', 'PostgreSQL 15', 'SQL Server 2022'], textStyle: {color: '#a0a0a0'}, bottom: '4%'},
+    radar: {
+      indicator: [
+        {name: '窗口函数', max: 100}, {name: '递归CTE', max: 100},
+        {name: 'JSON支持', max: 100}, {name: 'MERGE语句', max: 100},
+        {name: 'LATERAL', max: 100}, {name: '数组/范围', max: 100}
+      ],
+      axisName: {color: '#787878'}
+    },
+    series: [{
+      type: 'radar',
+      data: [
+        {value: [80, 85, 70, 0, 60, 30], name: 'MySQL 8.0', lineStyle: {color: '#f59e0b'}, itemStyle: {color: '#f59e0b'}},
+        {value: [95, 95, 95, 85, 90, 90], name: 'PostgreSQL 15', lineStyle: {color: '#5b8db8'}, itemStyle: {color: '#5b8db8'}},
+        {value: [90, 90, 75, 90, 85, 60], name: 'SQL Server 2022', lineStyle: {color: '#5a9e6f'}, itemStyle: {color: '#5a9e6f'}}
+      ]
+    }]
+  });
+
+  safeChart('chart_cost_01', {
+    tooltip: {trigger: 'axis'},
+    grid: {left: '10%', right: '4%', top: '8%', bottom: '14%'},
+    xAxis: {type: 'category', data: ['基本SELECT', '窗口函数\nOVER()', 'JSON\n提取', '递归CTE\n(10层)', 'MERGE\n语句'], axisLabel: {color: '#787878', fontSize: 10}},
+    yAxis: {type: 'value', name: '相对耗时(ms)', axisLabel: {color: '#787878'}},
+    series: [{type: 'bar', data: [12, 45, 78, 340, 28], itemStyle: {color: '#5b8db8'}, barWidth: '50%'}]
+  });
+
+  safeChart('chart_bm_01', {
+    tooltip: {trigger: 'axis'},
+    legend: {data: ['传统SQL', '现代SQL'], textStyle: {color: '#a0a0a0'}, top: '4%'},
+    grid: {left: '10%', right: '4%', top: '14%', bottom: '10%'},
+    xAxis: {type: 'category', data: ['Top N\n排名', '树遍历', 'JSON日志\n分析', 'Pivot\n行列转换', '移动\n平均'], axisLabel: {color: '#787878', fontSize: 10}},
+    yAxis: {type: 'value', name: '代码行数', axisLabel: {color: '#787878'}},
+    series: [
+      {name: '传统SQL', type: 'bar', data: [18, 28, 20, 15, 22], itemStyle: {color: '#c06050'}},
+      {name: '现代SQL', type: 'bar', data: [4, 8, 5, 5, 4], itemStyle: {color: '#5a9e6f'}}
+    ]
+  });
+
+  safeChart('chart_dev_01', {
+    tooltip: {trigger: 'axis'},
+    grid: {left: '8%', right: '4%', top: '10%', bottom: '12%'},
+    xAxis: {type: 'category', data: ['SQL-86', 'SQL-92', 'SQL:1999', 'SQL:2003', 'SQL:2016', 'SQL:2023'], axisLabel: {color: '#787878', fontSize: 10}},
+    yAxis: {type: 'value', name: '关键字数量', axisLabel: {color: '#787878'}},
+    series: [{type: 'bar', data: [15, 35, 85, 120, 190, 270], itemStyle: {color: '#8878a8'}, barWidth: '55%'}]
+  });
+
+  safeChart('chart_land_01', {
+    tooltip: {trigger: 'item'},
+    series: [{
+      type: 'pie', radius: ['40%', '65%'],
+      label: {color: '#a0a0a0', fontSize: 11},
+      data: [
+        {value: 95, name: 'PostgreSQL', itemStyle: {color: '#5b8db8'}},
+        {value: 90, name: 'Oracle', itemStyle: {color: '#c06050'}},
+        {value: 85, name: 'SQL Server', itemStyle: {color: '#5a9e6f'}},
+        {value: 72, name: 'MySQL 8.0', itemStyle: {color: '#c0a060'}},
+        {value: 55, name: 'SQLite', itemStyle: {color: '#8878a8'}}
+      ]
+    }]
+  });
+}
+</script>
+</body>
+</html>

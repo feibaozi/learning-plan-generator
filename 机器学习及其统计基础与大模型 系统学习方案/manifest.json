@@ -1,0 +1,212 @@
+{
+  "version": "1.0.0",
+  "generated_at": "2026-05-19T00:00:00+08:00",
+  "plan_id": "ml-stats-llm-learning",
+  "plan_title": "机器学习及其统计基础与大模型 系统学习方案",
+  "materials": [
+    {
+      "id": "feature-engineering-dimensionality-reduction-deep",
+      "kp_id": "p4_1",
+      "topic_id": "feature-engineering-dimensionality-reduction",
+      "topic_name": "特征工程与降维",
+      "depth": "intermediate",
+      "html_file": "feature-engineering-dimensionality-reduction_deep.html",
+      "generated_at": "2026-05-19T00:00:00+08:00",
+      "status": "ready",
+      "belongs_to_plan": "ml-stats-llm-learning",
+      "belongs_to_phase": "p4",
+      "belongs_to_kp": "p4_1"
+    },
+    {
+      "id": "unsupervised-learning-deep",
+      "kp_id": "p4_2",
+      "topic_id": "unsupervised-learning",
+      "topic_name": "无监督学习",
+      "depth": "intermediate",
+      "html_file": "unsupervised-learning_deep.html",
+      "generated_at": "2026-05-19T00:00:00+08:00",
+      "status": "ready",
+      "belongs_to_plan": "ml-stats-llm-learning",
+      "belongs_to_phase": "p4",
+      "belongs_to_kp": "p4_2"
+    },
+    {
+      "id": "model-compression-deep",
+      "kp_id": "p4_3",
+      "topic_id": "model-compression",
+      "topic_name": "模型压缩与加速",
+      "depth": "intermediate",
+      "html_file": "model-compression_deep.html",
+      "generated_at": "2026-05-19T00:00:00+08:00",
+      "status": "ready",
+      "belongs_to_plan": "ml-stats-llm-learning",
+      "belongs_to_phase": "p4",
+      "belongs_to_kp": "p4_3"
+    },
+    {
+      "id": "mlops-deep",
+      "kp_id": "p4_4",
+      "topic_id": "mlops",
+      "topic_name": "MLOps与模型部署",
+      "depth": "intermediate",
+      "html_file": "mlops_deep.html",
+      "generated_at": "2026-05-19T00:00:00+08:00",
+      "status": "ready",
+      "belongs_to_plan": "ml-stats-llm-learning",
+      "belongs_to_phase": "p4",
+      "belongs_to_kp": "p4_4"
+    },
+    {
+      "id": "transformer-deep",
+      "kp_id": "p5_1",
+      "topic_id": "transformer",
+      "topic_name": "Transformer与注意力机制",
+      "depth": "intermediate",
+      "html_file": "transformer_deep.html",
+      "generated_at": "2026-05-19T00:00:00+08:00",
+      "status": "ready",
+      "belongs_to_plan": "ml-stats-llm-learning",
+      "belongs_to_phase": "p5",
+      "belongs_to_kp": "p5_1"
+    },
+    {
+      "id": "linear-regression-regularization-intermediate",
+      "kp_id": "p2_1",
+      "topic_id": "linear-regression-regularization",
+      "topic_name": "线性回归与正则化",
+      "depth": "intermediate",
+      "html_file": "linear-regression-regularization_intermediate.html",
+      "generated_at": "2026-05-19T00:00:00+08:00",
+      "status": "ready",
+      "belongs_to_plan": "ml-stats-llm-learning",
+      "belongs_to_phase": "p2",
+      "belongs_to_kp": "p2_1"
+    },
+    {
+      "id": "classification-logistic-svm-intermediate",
+      "kp_id": "p2_2",
+      "topic_id": "classification-logistic-svm",
+      "topic_name": "分类模型：逻辑回归与SVM",
+      "depth": "intermediate",
+      "html_file": "classification-logistic-svm_intermediate.html",
+      "generated_at": "2026-05-19T00:00:00+08:00",
+      "status": "ready",
+      "belongs_to_plan": "ml-stats-llm-learning",
+      "belongs_to_phase": "p2",
+      "belongs_to_kp": "p2_2"
+    },
+    {
+      "id": "decision-tree-ensemble-intermediate",
+      "kp_id": "p2_3",
+      "topic_id": "decision-tree-ensemble",
+      "topic_name": "决策树与集成方法",
+      "depth": "intermediate",
+      "html_file": "decision-tree-ensemble_intermediate.html",
+      "generated_at": "2026-05-19T00:00:00+08:00",
+      "status": "ready",
+      "belongs_to_plan": "ml-stats-llm-learning",
+      "belongs_to_phase": "p2",
+      "belongs_to_kp": "p2_3"
+    },
+    {
+      "id": "model-evaluation-cross-validation-intermediate",
+      "kp_id": "p2_4",
+      "topic_id": "model-evaluation-cross-validation",
+      "topic_name": "模型评估与交叉验证",
+      "depth": "intermediate",
+      "html_file": "model-evaluation-cross-validation_intermediate.html",
+      "generated_at": "2026-05-19T00:00:00+08:00",
+      "status": "ready",
+      "belongs_to_plan": "ml-stats-llm-learning",
+      "belongs_to_phase": "p2",
+      "belongs_to_kp": "p2_4"
+    },
+    {
+      "id": "llm-deep",
+      "kp_id": "p5_2",
+      "topic_id": "llm",
+      "topic_name": "大模型训练与对齐",
+      "depth": "intermediate",
+      "html_file": "llm_deep.html",
+      "generated_at": "2026-05-19T00:00:00+08:00",
+      "status": "ready",
+      "belongs_to_plan": "ml-stats-llm-learning",
+      "belongs_to_phase": "p5",
+      "belongs_to_kp": "p5_2"
+    }
+  ],
+  "plans": [
+    {
+      "id": "ml-stats-llm-learning",
+      "title": "机器学习及其统计基础与大模型 系统学习方案",
+      "domain": "ai-tech",
+      "texture": "G5",
+      "depth": "标准学习",
+      "template_id": "ocean-depth",
+      "markdown_file": "机器学习及其统计基础与大模型学习方案.md",
+      "html_file": "ml_learning.html",
+      "generated_at": "2026-05-19T00:00:00+08:00",
+      "topic_profile": {
+        "abstract": 0.55,
+        "systemic": 0.65,
+        "math_density": 0.70,
+        "temporal": 0.50
+      },
+      "phases": [
+        {
+          "id": "p1",
+          "title": "统计与数学基础",
+          "weeks": "第1-3周",
+          "kps": [
+            {"id": "p1_1", "name": "概率论基础与常见分布", "topic_id": "deep-learning", "has_deep_dive": false},
+            {"id": "p1_2", "name": "统计推断：估计与假设检验", "topic_id": null, "has_deep_dive": false},
+            {"id": "p1_3", "name": "线性代数核心", "topic_id": "deep-learning", "has_deep_dive": false},
+            {"id": "p1_4", "name": "优化理论基础", "topic_id": null, "has_deep_dive": false}
+          ]
+        },
+        {
+          "id": "p2",
+          "title": "经典机器学习",
+          "weeks": "第4-6周",
+          "kps": [
+            {"id": "p2_1", "name": "线性回归与正则化", "topic_id": "deep-learning", "has_deep_dive": true},
+            {"id": "p2_2", "name": "分类模型：逻辑回归与SVM", "topic_id": "deep-learning", "has_deep_dive": true},
+            {"id": "p2_3", "name": "决策树与集成方法", "topic_id": null, "has_deep_dive": true},
+            {"id": "p2_4", "name": "模型评估与交叉验证", "topic_id": null, "has_deep_dive": true}
+          ]
+        },
+        {
+          "id": "p3",
+          "title": "深度学习基础",
+          "weeks": "第7-9周",
+          "kps": [
+            {"id": "p3_1", "name": "神经网络与前向传播", "topic_id": "deep-learning", "has_deep_dive": false},
+            {"id": "p3_2", "name": "反向传播与优化算法", "topic_id": "backpropagation", "has_deep_dive": false},
+            {"id": "p3_3", "name": "卷积神经网络(CNN)", "topic_id": "cv", "has_deep_dive": false},
+            {"id": "p3_4", "name": "循环神经网络与序列模型", "topic_id": null, "has_deep_dive": false}
+          ]
+        },
+        {
+          "id": "p4",
+          "title": "ML工程实践",
+          "weeks": "第10-12周",
+          "kps": [
+            {"id": "p4_1", "name": "特征工程与降维", "topic_id": "feature-engineering-dimensionality-reduction", "has_deep_dive": true},
+            {"id": "p4_2", "name": "无监督学习", "topic_id": "unsupervised-learning", "has_deep_dive": true},
+            {"id": "p4_3", "name": "模型压缩与加速", "topic_id": "model-compression", "has_deep_dive": true},
+            {"id": "p4_4", "name": "MLOps与模型部署", "topic_id": "mlops", "has_deep_dive": true}
+          ]
+        },
+        {
+          "id": "p5",
+          "title": "大模型与前沿",
+          "weeks": "第13-14周",
+          "kps": [
+            {"id": "p5_1", "name": "Transformer与注意力机制", "topic_id": "transformer", "has_deep_dive": true},
+            {"id": "p5_2", "name": "大模型训练与对齐", "topic_id": "llm", "has_deep_dive": true}
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,890 @@
+{
+  "_description": "Smart Learning Materials - 模块映射与层级配置 (v2扩展版)",
+  "_version": "2.0.0",
+  "_v2_extensions_doc": "本文件新增 v2_extensions 节, 包含v2.0的所有新配置项引用与废弃声明。v1字段保留以维持向后兼容。",
+
+  "domains": {
+    "finance": {
+      "id": "finance",
+      "name": "金融领域",
+      "description": "量化方法、金融产品、交易策略、风险管理、金融监管、资产定价、衍生品、投资组合等",
+      "icon": "trending-up",
+      "color": "#6366f1"
+    },
+    "ai-tech": {
+      "id": "ai-tech",
+      "name": "AI与新兴科技",
+      "description": "大模型、深度学习、强化学习、NLP、CV、MLOps、AI伦理、AIGC等",
+      "icon": "cpu",
+      "color": "#8b5cf6"
+    }
+  },
+
+  "levels": {
+    "beginner": {
+      "id": "beginner",
+      "name": "入门",
+      "icon": "🟢",
+      "description": "基础概念+通俗比喻+核心应用场景+1个经典案例",
+      "min_words_per_module": 200,
+      "min_formulas": 0,
+      "min_charts": 1,
+      "min_references": 0
+    },
+    "intermediate": {
+      "id": "intermediate",
+      "name": "进阶",
+      "icon": "🟡",
+      "description": "深度原理+公式推导+行业对比+多个真实案例+风险分析",
+      "min_words_per_module": 500,
+      "min_formulas": 1,
+      "min_charts": 1,
+      "min_references": 1
+    },
+    "expert": {
+      "id": "expert",
+      "name": "专家",
+      "icon": "🔴",
+      "description": "学术前沿+争议讨论+文献引用+量化数据+创新方向探讨",
+      "min_words_per_module": 800,
+      "min_formulas": 2,
+      "min_charts": 2,
+      "min_references": 3
+    }
+  },
+
+  "modules": {
+    "background": {
+      "id": "background",
+      "order": 1,
+      "title": "背景与缘起",
+      "tag": "前置知识",
+      "tag_color": "#6366f1",
+      "domain": "common",
+      "levels": ["beginner", "intermediate", "expert"],
+      "description": "该知识点产生的历史背景、要解决的问题",
+      "prompt_guide": "modules/common/01-background.md",
+      "chart_preference": ["timeline"],
+      "level_specific": {
+        "beginner": {
+          "focus": "简述起因和核心问题",
+          "max_words": 400
+        },
+        "intermediate": {
+          "focus": "历史脉络+关键转折点",
+          "max_words": 800
+        },
+        "expert": {
+          "focus": "学术思想史+理论源流",
+          "max_words": 1200
+        }
+      }
+    },
+    "concept": {
+      "id": "concept",
+      "order": 2,
+      "title": "核心概念",
+      "tag": "核心概念",
+      "tag_color": "#6366f1",
+      "domain": "common",
+      "levels": ["beginner", "intermediate", "expert"],
+      "description": "精确定义、边界、类比解释",
+      "prompt_guide": "modules/common/02-concept.md",
+      "chart_preference": ["sankey", "tree"],
+      "level_specific": {
+        "beginner": {
+          "focus": "通俗定义+生活化比喻",
+          "max_words": 500
+        },
+        "intermediate": {
+          "focus": "精确定义+边界条件",
+          "max_words": 800
+        },
+        "expert": {
+          "focus": "多学派定义对比+概念谱系",
+          "max_words": 1200
+        }
+      }
+    },
+    "principle": {
+      "id": "principle",
+      "order": 3,
+      "title": "核心原理",
+      "tag": "核心概念",
+      "tag_color": "#6366f1",
+      "domain": "common",
+      "levels": ["beginner", "intermediate", "expert"],
+      "description": "工作机制、推导过程、直觉理解",
+      "prompt_guide": "modules/common/03-principle.md",
+      "chart_preference": ["flowchart", "sankey", "line"],
+      "level_specific": {
+        "beginner": {
+          "focus": "直觉解释+示意图，不用公式",
+          "max_words": 600
+        },
+        "intermediate": {
+          "focus": "核心公式推导+机制流程图",
+          "max_words": 1000
+        },
+        "expert": {
+          "focus": "完整数学证明+多种推导路径对比",
+          "max_words": 1500
+        }
+      }
+    },
+    "development": {
+      "id": "development",
+      "order": 4,
+      "title": "发展迭代",
+      "tag": "发展演进",
+      "tag_color": "#22d3ee",
+      "domain": "common",
+      "levels": ["beginner", "intermediate", "expert"],
+      "description": "关键里程碑、理论/技术演进",
+      "prompt_guide": "modules/common/04-development.md",
+      "chart_preference": ["timeline", "line"],
+      "level_specific": {
+        "beginner": {
+          "focus": "里程碑时间线",
+          "max_words": 400
+        },
+        "intermediate": {
+          "focus": "技术/理论演进路径",
+          "max_words": 800
+        },
+        "expert": {
+          "focus": "范式转移分析+关键论文链",
+          "max_words": 1200
+        }
+      }
+    },
+    "application": {
+      "id": "application",
+      "order": 5,
+      "title": "实践应用",
+      "tag": "实践应用",
+      "tag_color": "#22d3ee",
+      "domain": "common",
+      "levels": ["beginner", "intermediate", "expert"],
+      "description": "真实场景中的使用方式",
+      "prompt_guide": "modules/common/05-application.md",
+      "chart_preference": ["bar", "radar", "heatmap"],
+      "level_specific": {
+        "beginner": {
+          "focus": "1个典型应用场景",
+          "max_words": 500
+        },
+        "intermediate": {
+          "focus": "多场景+行业对比",
+          "max_words": 900
+        },
+        "expert": {
+          "focus": "前沿探索性应用+交叉领域",
+          "max_words": 1200
+        }
+      }
+    },
+    "case_study": {
+      "id": "case_study",
+      "order": 6,
+      "title": "实践案例",
+      "tag": "实践应用",
+      "tag_color": "#22d3ee",
+      "domain": "common",
+      "levels": ["beginner", "intermediate", "expert"],
+      "description": "具体案例+数据+结果",
+      "prompt_guide": "modules/common/06-case-study.md",
+      "chart_preference": ["bar", "line", "scatter"],
+      "level_specific": {
+        "beginner": {
+          "focus": "1个简化案例",
+          "max_words": 500
+        },
+        "intermediate": {
+          "focus": "3-5个真实案例+数据",
+          "max_words": 1000
+        },
+        "expert": {
+          "focus": "深度Case Study+文献溯源",
+          "max_words": 1500
+        }
+      }
+    },
+    "risk": {
+      "id": "risk",
+      "order": 7,
+      "title": "潜在风险",
+      "tag": "风险与挑战",
+      "tag_color": "#ef4444",
+      "domain": "common",
+      "levels": ["beginner", "intermediate", "expert"],
+      "description": "风险分类、局限、副作用",
+      "prompt_guide": "modules/common/07-risk.md",
+      "chart_preference": ["heatmap", "radar", "scatter"],
+      "level_specific": {
+        "beginner": {
+          "focus": "通俗风险提示",
+          "max_words": 400
+        },
+        "intermediate": {
+          "focus": "风险分类+量化评估",
+          "max_words": 800
+        },
+        "expert": {
+          "focus": "风险建模+博弈分析+极端场景",
+          "max_words": 1200
+        }
+      }
+    },
+    "landscape": {
+      "id": "landscape",
+      "order": 8,
+      "title": "发展格局",
+      "tag": "发展演进",
+      "tag_color": "#22d3ee",
+      "domain": "common",
+      "levels": ["intermediate", "expert"],
+      "description": "行业/学术格局、核心玩家",
+      "prompt_guide": "modules/common/08-landscape.md",
+      "chart_preference": ["treemap", "graph", "bar"],
+      "level_specific": {
+        "intermediate": {
+          "focus": "行业格局概览",
+          "max_words": 800
+        },
+        "expert": {
+          "focus": "地缘/资本/技术全景分析",
+          "max_words": 1200
+        }
+      }
+    },
+    "issues": {
+      "id": "issues",
+      "order": 9,
+      "title": "发展问题",
+      "tag": "风险与挑战",
+      "tag_color": "#ef4444",
+      "domain": "common",
+      "levels": ["intermediate", "expert"],
+      "description": "当前痛点、瓶颈、挑战",
+      "prompt_guide": "modules/common/09-issues.md",
+      "chart_preference": ["bar", "radar"],
+      "level_specific": {
+        "intermediate": {
+          "focus": "当前痛点梳理",
+          "max_words": 700
+        },
+        "expert": {
+          "focus": "深层矛盾+学术争议",
+          "max_words": 1000
+        }
+      }
+    },
+    "prospect": {
+      "id": "prospect",
+      "order": 10,
+      "title": "发展前景",
+      "tag": "发展演进",
+      "tag_color": "#22d3ee",
+      "domain": "common",
+      "levels": ["beginner", "intermediate", "expert"],
+      "description": "未来趋势、多情景预测",
+      "prompt_guide": "modules/common/10-prospect.md",
+      "chart_preference": ["line", "scatter"],
+      "level_specific": {
+        "beginner": {
+          "focus": "趋势简析",
+          "max_words": 400
+        },
+        "intermediate": {
+          "focus": "多情景预测",
+          "max_words": 800
+        },
+        "expert": {
+          "focus": "技术轨道+颠覆可能+不确定性分析",
+          "max_words": 1200
+        }
+      }
+    },
+    "effort_direction": {
+      "id": "effort_direction",
+      "order": 11,
+      "title": "努力方向",
+      "tag": "发展演进",
+      "tag_color": "#22d3ee",
+      "domain": "common",
+      "levels": ["intermediate", "expert"],
+      "description": "研究热点、学习建议",
+      "prompt_guide": "modules/common/11-effort-direction.md",
+      "chart_preference": ["bar", "radar"],
+      "level_specific": {
+        "intermediate": {
+          "focus": "学习建议+技能树",
+          "max_words": 700
+        },
+        "expert": {
+          "focus": "研究前沿+空白点+资助趋势",
+          "max_words": 1000
+        }
+      }
+    },
+    "innovation": {
+      "id": "innovation",
+      "order": 12,
+      "title": "创新方向",
+      "tag": "前沿探索",
+      "tag_color": "#f59e0b",
+      "domain": "common",
+      "levels": ["expert"],
+      "description": "前沿探索、跨界融合、蓝海机会",
+      "prompt_guide": "modules/common/12-innovation.md",
+      "chart_preference": ["scatter", "graph", "radar"],
+      "level_specific": {
+        "expert": {
+          "focus": "跨界融合+蓝海机会+颠覆性创新",
+          "max_words": 1200
+        }
+      }
+    },
+    "misconceptions": {
+      "id": "misconceptions",
+      "order": 13,
+      "title": "常见误区",
+      "tag": "核心概念",
+      "tag_color": "#6366f1",
+      "domain": "common",
+      "levels": ["beginner", "intermediate", "expert"],
+      "description": "该领域最常见的认知误区及纠正",
+      "prompt_guide": "modules/common/13-misconceptions.md",
+      "chart_preference": [],
+      "level_specific": {
+        "beginner": {
+          "focus": "3个核心误区",
+          "max_words": 400
+        },
+        "intermediate": {
+          "focus": "5个进阶误区",
+          "max_words": 600
+        },
+        "expert": {
+          "focus": "学术偏见+方法论误区",
+          "max_words": 800
+        }
+      }
+    },
+    "learning_path": {
+      "id": "learning_path",
+      "order": 14,
+      "title": "学习路径",
+      "tag": "核心概念",
+      "tag_color": "#6366f1",
+      "domain": "common",
+      "levels": ["beginner", "intermediate", "expert"],
+      "description": "推荐书单/课程/论文链/资源",
+      "prompt_guide": "modules/common/14-learning-path.md",
+      "chart_preference": ["tree", "flowchart"],
+      "level_specific": {
+        "beginner": {
+          "focus": "入门书单+免费课程",
+          "max_words": 400
+        },
+        "intermediate": {
+          "focus": "进阶路径+认证体系",
+          "max_words": 600
+        },
+        "expert": {
+          "focus": "必读论文清单+学术圈入圈指南",
+          "max_words": 800
+        }
+      }
+    },
+    "glossary": {
+      "id": "glossary",
+      "order": 15,
+      "title": "关键术语表",
+      "tag": "核心概念",
+      "tag_color": "#6366f1",
+      "domain": "common",
+      "levels": ["beginner", "intermediate", "expert"],
+      "description": "所有相关术语的精简定义",
+      "prompt_guide": "modules/common/15-glossary.md",
+      "chart_preference": [],
+      "level_specific": {
+        "beginner": {
+          "focus": "5-10个核心术语",
+          "max_words": 300
+        },
+        "intermediate": {
+          "focus": "15-20个相关术语",
+          "max_words": 500
+        },
+        "expert": {
+          "focus": "25+个术语+英文对照+缩写",
+          "max_words": 700
+        }
+      }
+    },
+    "debate": {
+      "id": "debate",
+      "order": 16,
+      "title": "争议与辩论",
+      "tag": "风险与挑战",
+      "tag_color": "#ef4444",
+      "domain": "common",
+      "levels": ["intermediate", "expert"],
+      "description": "学术界/业界对该知识的主要分歧",
+      "prompt_guide": "modules/common/16-debate.md",
+      "chart_preference": ["bar", "scatter"],
+      "level_specific": {
+        "intermediate": {
+          "focus": "主要争议点",
+          "max_words": 600
+        },
+        "expert": {
+          "focus": "学术辩论+方法论之争+学派对立",
+          "max_words": 1000
+        }
+      }
+    },
+    "quant_model": {
+      "id": "quant_model",
+      "order": 17,
+      "title": "量化模型与公式",
+      "tag": "核心工具",
+      "tag_color": "#8b5cf6",
+      "domain": "finance",
+      "levels": ["intermediate", "expert"],
+      "description": "核心数学模型、定价公式、风险度量(VaR/CVaR)",
+      "prompt_guide": "modules/finance/quant-model.md",
+      "chart_preference": ["line", "scatter", "heatmap"],
+      "level_specific": {
+        "intermediate": {
+          "focus": "核心公式+参数解释",
+          "max_words": 800
+        },
+        "expert": {
+          "focus": "完整模型推导+数值方法+校准",
+          "max_words": 1500
+        }
+      }
+    },
+    "regulation": {
+      "id": "regulation",
+      "order": 18,
+      "title": "监管框架",
+      "tag": "风险与挑战",
+      "tag_color": "#ef4444",
+      "domain": "finance",
+      "levels": ["intermediate", "expert"],
+      "description": "国内外监管政策演变，具体条款标注",
+      "prompt_guide": "modules/finance/regulation.md",
+      "chart_preference": ["timeline", "flowchart"],
+      "level_specific": {
+        "intermediate": {
+          "focus": "主要监管框架+关键条款",
+          "max_words": 700
+        },
+        "expert": {
+          "focus": "监管博弈+国际比较+政策前瞻",
+          "max_words": 1000
+        }
+      }
+    },
+    "micro_structure": {
+      "id": "micro_structure",
+      "order": 19,
+      "title": "市场微观结构",
+      "tag": "核心工具",
+      "tag_color": "#8b5cf6",
+      "domain": "finance",
+      "levels": ["expert"],
+      "description": "交易机制、流动性、做市商行为",
+      "prompt_guide": "modules/finance/micro-structure.md",
+      "chart_preference": ["scatter", "heatmap"],
+      "level_specific": {
+        "expert": {
+          "focus": "订单流分析+高频交易机制+流动性模型",
+          "max_words": 1200
+        }
+      }
+    },
+    "cross_market": {
+      "id": "cross_market",
+      "order": 20,
+      "title": "跨市场联动",
+      "tag": "实践应用",
+      "tag_color": "#22d3ee",
+      "domain": "finance",
+      "levels": ["intermediate", "expert"],
+      "description": "不同市场(股/债/汇/大宗)中的传导机制",
+      "prompt_guide": "modules/finance/cross-market.md",
+      "chart_preference": ["sankey", "heatmap", "line"],
+      "level_specific": {
+        "intermediate": {
+          "focus": "主要跨市场传导路径",
+          "max_words": 700
+        },
+        "expert": {
+          "focus": "量化溢出效应+危机传导链+套利机制",
+          "max_words": 1200
+        }
+      }
+    },
+    "crisis_review": {
+      "id": "crisis_review",
+      "order": 21,
+      "title": "历史危机复盘",
+      "tag": "实践应用",
+      "tag_color": "#22d3ee",
+      "domain": "finance",
+      "levels": ["intermediate", "expert"],
+      "description": "经典失败案例的深度复盘",
+      "prompt_guide": "modules/finance/crisis-review.md",
+      "chart_preference": ["timeline", "line", "bar"],
+      "level_specific": {
+        "intermediate": {
+          "focus": "经典危机案例复盘",
+          "max_words": 800
+        },
+        "expert": {
+          "focus": "多维度深度复盘+对比+教训提炼",
+          "max_words": 1200
+        }
+      }
+    },
+    "institution_diff": {
+      "id": "institution_diff",
+      "order": 22,
+      "title": "机构实操差异",
+      "tag": "实践应用",
+      "tag_color": "#22d3ee",
+      "domain": "finance",
+      "levels": ["intermediate", "expert"],
+      "description": "买方vs卖方、商行vs投行的不同应用",
+      "prompt_guide": "modules/finance/institution-diff.md",
+      "chart_preference": ["bar", "radar"],
+      "level_specific": {
+        "intermediate": {
+          "focus": "主要机构类型差异对比",
+          "max_words": 600
+        },
+        "expert": {
+          "focus": "深入实操差异+职业路径分析",
+          "max_words": 1000
+        }
+      }
+    },
+    "architecture": {
+      "id": "architecture",
+      "order": 23,
+      "title": "技术架构图",
+      "tag": "核心工具",
+      "tag_color": "#8b5cf6",
+      "domain": "ai-tech",
+      "levels": ["beginner", "intermediate", "expert"],
+      "description": "分层架构、数据流、组件关系",
+      "prompt_guide": "modules/ai-tech/architecture.md",
+      "chart_preference": ["flowchart", "sankey", "treemap"],
+      "level_specific": {
+        "beginner": {
+          "focus": "简化架构图+一句话说明",
+          "max_words": 400
+        },
+        "intermediate": {
+          "focus": "完整分层架构+数据流",
+          "max_words": 800
+        },
+        "expert": {
+          "focus": "源码级解析+变体对比",
+          "max_words": 1200
+        }
+      }
+    },
+    "compute_cost": {
+      "id": "compute_cost",
+      "order": 24,
+      "title": "算力与成本分析",
+      "tag": "核心工具",
+      "tag_color": "#8b5cf6",
+      "domain": "ai-tech",
+      "levels": ["intermediate", "expert"],
+      "description": "训练/推理成本、硬件需求、能耗",
+      "prompt_guide": "modules/ai-tech/compute-cost.md",
+      "chart_preference": ["bar", "line", "radar"],
+      "level_specific": {
+        "intermediate": {
+          "focus": "成本估算+硬件概览",
+          "max_words": 600
+        },
+        "expert": {
+          "focus": "详细成本拆解+优化策略+碳足迹",
+          "max_words": 1000
+        }
+      }
+    },
+    "open_source": {
+      "id": "open_source",
+      "order": 25,
+      "title": "开源生态",
+      "tag": "实践应用",
+      "tag_color": "#22d3ee",
+      "domain": "ai-tech",
+      "levels": ["intermediate", "expert"],
+      "description": "主流实现对比、社区活跃度、License",
+      "prompt_guide": "modules/ai-tech/open-source.md",
+      "chart_preference": ["bar", "scatter", "heatmap"],
+      "level_specific": {
+        "intermediate": {
+          "focus": "主流实现对比表",
+          "max_words": 600
+        },
+        "expert": {
+          "focus": "深度源码分析+社区动力学",
+          "max_words": 1000
+        }
+      }
+    },
+    "benchmark": {
+      "id": "benchmark",
+      "order": 26,
+      "title": "Benchmark数据",
+      "tag": "实践应用",
+      "tag_color": "#22d3ee",
+      "domain": "ai-tech",
+      "levels": ["intermediate", "expert"],
+      "description": "关键榜单成绩、SOTA对比",
+      "prompt_guide": "modules/ai-tech/benchmark.md",
+      "chart_preference": ["bar", "radar", "line"],
+      "level_specific": {
+        "intermediate": {
+          "focus": "主要榜单+关键指标对比",
+          "max_words": 600
+        },
+        "expert": {
+          "focus": "评测方法论+排行榜批判+评测陷阱",
+          "max_words": 1000
+        }
+      }
+    },
+    "ethics": {
+      "id": "ethics",
+      "order": 27,
+      "title": "伦理与安全",
+      "tag": "风险与挑战",
+      "tag_color": "#ef4444",
+      "domain": "ai-tech",
+      "levels": ["beginner", "intermediate", "expert"],
+      "description": "对齐问题、偏见、隐私、滥用风险",
+      "prompt_guide": "modules/ai-tech/ethics.md",
+      "chart_preference": ["heatmap", "radar", "flowchart"],
+      "level_specific": {
+        "beginner": {
+          "focus": "通俗伦理讨论",
+          "max_words": 400
+        },
+        "intermediate": {
+          "focus": "深度分析+框架对比",
+          "max_words": 800
+        },
+        "expert": {
+          "focus": "治理框架+对齐技术+政策前沿",
+          "max_words": 1200
+        }
+      }
+    },
+    "research_map": {
+      "id": "research_map",
+      "order": 28,
+      "title": "产学研图谱",
+      "tag": "前沿探索",
+      "tag_color": "#f59e0b",
+      "domain": "ai-tech",
+      "levels": ["intermediate", "expert"],
+      "description": "核心实验室/公司/学者、投融资热度",
+      "prompt_guide": "modules/ai-tech/research-map.md",
+      "chart_preference": ["graph", "treemap", "sunburst"],
+      "level_specific": {
+        "intermediate": {
+          "focus": "核心玩家分布",
+          "max_words": 600
+        },
+        "expert": {
+          "focus": "人才流动+资本布局+技术路线图",
+          "max_words": 1000
+        }
+      }
+    }
+  },
+
+  "level_filters": {
+    "_deprecated": true,
+    "_deprecated_since": "2.0.0",
+    "_deprecated_replacement": "v2使用 module_weights.json 的 relevance_base + tag_affinity 评分体系替代硬编码过滤列表",
+    "_deprecated_note": "保留此节供v1兼容参考，v2 Phase 2模块选择不再使用此映射",
+    "beginner": {
+      "included_common": [
+        "background", "concept", "principle", "development",
+        "application", "case_study", "risk", "prospect",
+        "misconceptions", "learning_path", "glossary"
+      ],
+      "included_finance": [],
+      "included_ai": ["architecture", "ethics"]
+    },
+    "intermediate": {
+      "included_common": [
+        "background", "concept", "principle", "development",
+        "application", "case_study", "risk", "landscape",
+        "issues", "prospect", "effort_direction",
+        "misconceptions", "learning_path", "glossary", "debate"
+      ],
+      "included_finance": [
+        "quant_model", "regulation", "cross_market",
+        "crisis_review", "institution_diff"
+      ],
+      "included_ai": [
+        "architecture", "compute_cost", "open_source",
+        "benchmark", "ethics", "research_map"
+      ]
+    },
+    "expert": {
+      "included_common": [
+        "background", "concept", "principle", "development",
+        "application", "case_study", "risk", "landscape",
+        "issues", "prospect", "effort_direction", "innovation",
+        "misconceptions", "learning_path", "glossary", "debate"
+      ],
+      "included_finance": [
+        "quant_model", "regulation", "micro_structure",
+        "cross_market", "crisis_review", "institution_diff"
+      ],
+      "included_ai": [
+        "architecture", "compute_cost", "open_source",
+        "benchmark", "ethics", "research_map"
+      ]
+    }
+  },
+
+  "module_ordering": {
+    "finance": [
+      "background", "concept", "principle", "quant_model",
+      "development", "application", "micro_structure",
+      "cross_market", "institution_diff", "case_study",
+      "crisis_review", "risk", "regulation", "landscape",
+      "issues", "prospect", "effort_direction", "innovation",
+      "misconceptions", "debate", "learning_path", "glossary"
+    ],
+    "ai-tech": [
+      "background", "concept", "principle", "architecture",
+      "compute_cost", "open_source", "benchmark", "development",
+      "application", "case_study", "risk", "ethics", "landscape",
+      "research_map", "issues", "prospect", "effort_direction",
+      "innovation", "misconceptions", "debate", "learning_path",
+      "glossary"
+    ]
+  },
+
+  "output_modes": {
+    "mode-a": {
+      "id": "mode-a",
+      "name": "交互式长文阅读",
+      "description": "类似Notion风格的单页滚动式长文，侧边栏导航+进度条+深浅主题",
+      "template_path": "templates/web-mode-a/index.html",
+      "style": "Airbnb/Stripe-style minimal design, max-width 780px"
+    },
+    "pdf": {
+      "id": "pdf",
+      "name": "PDF文档",
+      "description": "高质量PDF输出，LaTeX原生排版+现代设计",
+      "template_path": "templates/pdf/template.tex",
+      "generator": "templates/pdf/pdf-generator.py"
+    },
+    "mode-b": {
+      "id": "mode-b",
+      "name": "沉浸式知识仪表盘",
+      "description": "全屏沉浸式知识图谱仪表盘，D3力导向图+粒子背景+毛玻璃面板",
+      "template_path": "templates/web-mode-b/index.html",
+      "style": "Figma/Linear-style dark immersive, fullscreen",
+      "_deprecated": true,
+      "_deprecated_since": "2.0.0",
+      "_deprecated_reason": "mode-b D3.js/Three.js复杂度高且用户使用率低，v2统一为单HTML输出+可选CDN增强层"
+    }
+  },
+
+  "v2_extensions": {
+    "_description": "v2.0新增配置 — 所有新系统的入口与引用",
+    "_version": "2.0.0",
+
+    "config_files": {
+      "topic_profiles": {
+        "path": "resources/topic_profiles.json",
+        "description": "60个预分类主题的4D画像库 (abstract, systemic, math_density, temporal)",
+        "role": "Phase 1主题匹配首选数据源"
+      },
+      "heuristic_rules": {
+        "path": "resources/heuristic_rules.json",
+        "description": "R1-R8启发式推理规则，当topic_profiles无法匹配时使用",
+        "role": "Phase 1主题匹配fallback逻辑"
+      },
+      "texture_templates": {
+        "path": "resources/texture_templates.json",
+        "description": "G1-G8表达纹理模板，定义每种纹理下各模块的输出结构和内容比例",
+        "role": "Phase 2加载对应纹理Override模块生成参数"
+      },
+      "module_weights": {
+        "path": "resources/module_weights.json",
+        "description": "relevance_base + tag_affinity评分体系 + 深度×广度模块上限",
+        "role": "Phase 2模块选择的评分引擎"
+      }
+    },
+
+    "output_changes": {
+      "mode-a_template": "templates/web-mode-a/index.html",
+      "mode-a_v2_changes": [
+        "CDN依赖(ECharts/KaTeX)改为可选增强层",
+        "基线输出为纯HTML+内联CSS+轻量JS",
+        "可选CDN层：如需要交互图表和公式渲染，注入CDN标签"
+      ],
+      "mode-b_status": "deprecated — 模板文件保留但不再推荐使用",
+      "pdf_status": "unchanged — LaTeX模板和生成器保持不变"
+    },
+
+    "phase_flow_changes": {
+      "Phase1": {
+        "v1": "要求用户选 level + domain + output_mode",
+        "v2": "仅提取 topic_name → 自动匹配 topic_profiles 或 R1-R5推理 → 自动确定 domain/tags/profile/texture"
+      },
+      "Phase2": {
+        "v1": "hardcoded level_filters 硬编码include/exclude列表",
+        "v2": "relevance_score = relevance_base + Σ(tag_affinity) → ≥0.80 mandatory, ≥0.40 optional"
+      },
+      "Phase3": {
+        "v1": "固定 min_words/formulas/charts per level",
+        "v2": "动态参数: word_count = base × content_depth × texture_factor"
+      },
+      "Phase4": {
+        "v1": "mode-a + mode-b + PDF (含CDN)",
+        "v2": "单HTML(无CDN基线) + 可选CDN增强层 + PDF"
+      }
+    },
+
+    "depth_breadth_matrix": {
+      "_replaces": "v1的3级(入门/进阶/专家)",
+      "depth_levels": {
+        "概览": {"value": 0.5, "description": "概览级别 — 精简表达，每模块200-400字"},
+        "理解": {"value": 1.0, "description": "理解级别 — 标准深度，每模块500-800字"},
+        "精通": {"value": 1.6, "description": "精通级别 — 深度展开，每模块800-1500字"}
+      },
+      "breadth_levels": {
+        "核心": {"max_modules": 8, "description": "仅核心必选模块(≥0.80)"},
+        "标准": {"max_modules": 16, "description": "核心+高相关可选模块(≥0.60优先)"},
+        "全景": {"max_modules": 24, "description": "核心+全部可选模块(≥0.40)"}
+      }
+    },
+
+    "module_ordering": {
+      "_description": "v1 module_ordering 继续使用，v2在排序时额外考虑 texture 的 override 优先级",
+      "v1_ordering": "保留 module_ordering 节的原排序不变",
+      "v2_adjustment": "同一纹理下如有 module_overrides，该模块在排序中的位置可能前移(如需提前展示架构图等)"
+    }
+  }
+}

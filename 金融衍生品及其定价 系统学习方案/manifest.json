@@ -1,0 +1,58 @@
+{
+  "version": "1.0.0",
+  "generated_at": "2026-05-14T00:00:00+08:00",
+  "plan_id": "derivatives-learning",
+  "plan_title": "金融衍生品及其定价 系统学习方案",
+  "materials": [
+    {
+      "id": "binomial-tree-deep",
+      "kp_id": "p2_2",
+      "topic_id": "option-pricing",
+      "topic_name": "二叉树模型",
+      "depth": "deep",
+      "html_file": "binomial_tree_deep.html",
+      "generated_at": "2026-05-14T00:00:00+08:00",
+      "status": "ready"
+    },
+    {
+      "id": "black-scholes-deep",
+      "kp_id": "p2_3",
+      "topic_id": "black-scholes",
+      "topic_name": "Black-Scholes-Merton模型",
+      "depth": "deep",
+      "html_file": "black_scholes_deep.html",
+      "generated_at": "2026-05-14T00:00:00+08:00",
+      "status": "ready"
+    },
+    {
+      "id": "option-greeks-deep",
+      "kp_id": "p2_4",
+      "topic_id": "option-pricing",
+      "topic_name": "期权希腊字母(Greeks)",
+      "depth": "deep",
+      "html_file": "option_greeks_deep.html",
+      "generated_at": "2026-05-14T00:00:00+08:00",
+      "status": "ready"
+    },
+    {
+      "id": "monte-carlo-deep",
+      "kp_id": "p3_1",
+      "topic_id": "monte-carlo",
+      "topic_name": "蒙特卡洛模拟定价",
+      "depth": "deep",
+      "html_file": "monte_carlo_deep.html",
+      "generated_at": "2026-05-14T00:00:00+08:00",
+      "status": "ready"
+    },
+    {
+      "id": "hedging-risk-deep",
+      "kp_id": "p4_3",
+      "topic_id": "derivatives",
+      "topic_name": "对冲策略与风险管理",
+      "depth": "deep",
+      "html_file": "hedging_risk_management_deep.html",
+      "generated_at": "2026-05-14T00:00:00+08:00",
+      "status": "ready"
+    }
+  ]
+}

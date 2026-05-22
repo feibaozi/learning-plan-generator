@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>内生性问题的诊断 - 深度研读</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<style>
+:root{
+--bg-deep:#050a10;--bg-primary:#0a1018;--bg-card:#0d1520;
+--bg-elevated:#111b28;--bg-input:#141e2d;--bg-tertiary:#1a2332;
+--text-primary:#e2e8f0;--text-secondary:#94a3b8;--text-muted:#64748b;
+--accent-blue:#60a5fa;--accent-cyan:#38bdf8;--accent-purple:#a78bfa;
+--accent-green:#34d399;--accent-orange:#fb923c;--accent-pink:#f472b6;
+--border-subtle:rgba(255,255,255,0.06);--border-glow:rgba(96,165,250,0.25);
+--shadow-sm:0 1px 3px rgba(0,0,0,0.3);--shadow-md:0 4px 12px rgba(0,0,0,0.4);
+--radius-sm:6px;--radius-md:10px;--radius-lg:16px;
+--transition-fast:0.15s ease;--transition-smooth:0.3s ease;
+}
+body.light{
+--bg-deep:#f8fafc;--bg-primary:#ffffff;--bg-card:#f8fafc;
+--bg-elevated:#f1f5f9;--bg-input:#e2e8f0;--bg-tertiary:#e2e8f0;
+--text-primary:#0f172a;--text-secondary:#475569;--text-muted:#94a3b8;
+--accent-blue:#3b82f6;--accent-cyan:#06b6d4;--accent-purple:#8b5cf6;
+--accent-green:#10b981;--accent-orange:#f59e0b;--accent-pink:#ec4899;
+--border-subtle:rgba(0,0,0,0.08);--border-glow:rgba(59,130,246,0.25);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter','Noto Sans SC',-apple-system,sans-serif;background:var(--bg-deep);color:var(--text-primary);line-height:1.7;overflow-x:hidden}
+body.loading{opacity:0}body.loaded{opacity:1;transition:opacity 0.4s ease}
+.integration-navbar{display:flex;align-items:center;gap:12px;padding:10px 24px;background:var(--bg-card);border-bottom:1px solid var(--border-subtle);font-size:14px;position:sticky;top:0;z-index:50}
+.integration-navbar a{color:var(--accent-blue);text-decoration:none;font-weight:600}
+.integration-navbar span{color:var(--text-muted)}
+.meta-card{background:linear-gradient(135deg,rgba(139,92,246,0.1),rgba(99,102,241,0.1));border:1px solid rgba(139,92,246,0.2);border-radius:var(--radius-lg);padding:20px 24px;margin-bottom:24px}
+.meta-card .meta-row{display:flex;flex-wrap:wrap;gap:16px;align-items:center}
+.meta-card .meta-item{display:flex;align-items:center;gap:8px}
+.meta-card .meta-item .label{color:var(--text-muted);font-size:0.8rem}
+.meta-card .meta-item .value{color:var(--accent-purple);font-weight:600}
+.meta-card .meta-stats{display:flex;gap:20px;margin-top:12px;padding-top:12px;border-top:1px solid var(--border-subtle)}
+.meta-stat{display:flex;flex-direction:column}
+.meta-stat .num{font-size:1.4rem;font-weight:800;color:var(--accent-cyan)}
+.meta-stat .lbl{font-size:0.7rem;color:var(--text-muted)}
+.sidebar{position:fixed;left:0;top:70px;bottom:0;width:260px;background:var(--bg-primary);border-right:1px solid var(--border-subtle);padding:20px;overflow-y:auto;z-index:40}
+.sidebar-back-link{display:block;padding:8px 12px;margin-bottom:12px;border-radius:8px;background:var(--bg-tertiary);color:var(--accent-blue);text-decoration:none;font-size:13px;font-weight:600}
+.sidebar-nav{list-style:none;padding:0}
+.sidebar-nav li{margin-bottom:4px}
+.sidebar-nav a{display:block;padding:8px 12px;color:var(--text-secondary);text-decoration:none;font-size:0.82rem;border-radius:6px;transition:all var(--transition-fast)}
+.sidebar-nav a:hover{background:rgba(96,165,250,0.08);color:var(--accent-cyan)}
+.sidebar-nav a.active{background:rgba(139,92,246,0.15);color:var(--accent-purple);font-weight:600}
+.main-content{margin-left:284px;padding:24px 0 100px}
+.section{margin-bottom:40px}
+.section-header{margin-bottom:20px}
+.section-tag{display:inline-block;padding:4px 12px;border-radius:50px;font-size:0.7rem;font-weight:700;background:rgba(139,92,246,0.1);color:var(--accent-purple);margin-bottom:8px}
+.section-title{font-size:1.35rem;font-weight:800;color:var(--text-primary);margin-bottom:8px}
+.section-hook{font-size:0.9rem;color:var(--accent-cyan);font-style:italic;margin-bottom:16px}
+.section-body{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-lg);padding:24px}
+.section-body p{font-size:0.92rem;color:var(--text-secondary);line-height:1.8;margin-bottom:12px}
+.section-body h4{font-size:1rem;font-weight:700;color:var(--text-primary);margin:20px 0 10px}
+.section-body ul{margin:12px 0;padding-left:24px}
+.section-body li{font-size:0.9rem;color:var(--text-secondary);margin-bottom:8px}
+.formula-box{background:var(--bg-elevated);border:1px solid var(--border-glow);border-radius:var(--radius-md);padding:20px;margin:16px 0}
+.formula-box .formula{font-size:1.1rem;text-align:center;color:var(--accent-blue);margin-bottom:12px}
+.formula-box .formula-caption{font-size:0.78rem;color:var(--text-muted);text-align:center;margin-bottom:12px}
+.formula-box .formula-derivation{font-size:0.85rem;color:var(--text-secondary);padding-left:12px;border-left:3px solid var(--accent-purple)}
+.formula-box .formula-derivation .step{margin-bottom:10px}
+.formula-box .formula-derivation .step .step-num{display:inline-block;width:20px;height:20px;border-radius:50%;background:var(--accent-purple);color:#fff;font-size:0.65rem;font-weight:700;text-align:center;line-height:20px;margin-right:8px}
+.chart-container{height:400px;margin:16px 0;border-radius:var(--radius-md);background:var(--bg-elevated)}
+.table-container{overflow-x:auto;margin:16px 0}
+.table-container table{width:100%;border-collapse:collapse}
+.table-container th{text-align:left;padding:12px 14px;background:var(--bg-elevated);color:var(--accent-cyan);font-weight:700;border-bottom:2px solid var(--border-glow);font-size:0.82rem}
+.table-container td{padding:12px 14px;border-bottom:1px solid var(--border-subtle);color:var(--text-secondary);font-size:0.85rem}
+.references{margin-top:20px;padding-top:16px;border-top:1px solid var(--border-subtle)}
+.references .ref-item{display:flex;gap:12px;margin-bottom:12px}
+.references .ref-num{font-size:0.75rem;color:var(--text-muted);font-family:'JetBrains Mono',monospace}
+.references .ref-content{font-size:0.82rem;color:var(--text-secondary)}
+.references .ref-content .ref-title{color:var(--accent-blue);font-weight:600}
+.references .ref-content .ref-authors{color:var(--text-muted);font-size:0.75rem}
+.key-takeaway{background:rgba(251,191,36,0.06);border-left:3px solid var(--accent-orange);padding:14px 18px;margin-top:20px;border-radius:0 var(--radius-md) var(--radius-md) 0}
+.key-takeaway .kt-label{font-size:0.72rem;color:var(--accent-orange);font-weight:700;margin-bottom:4px}
+.key-takeaway .kt-text{font-size:0.88rem;color:var(--text-secondary)}
+.back-btn{position:fixed;right:24px;bottom:24px;z-index:200}
+.back-btn button{background:linear-gradient(135deg,#6366f1,#8b5cf6);color:white;border:none;border-radius:24px;padding:12px 24px;font-size:0.85rem;font-weight:600;cursor:pointer;box-shadow:0 4px 12px rgba(99,102,241,0.3);transition:all var(--transition-fast)}
+.back-btn button:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(99,102,241,0.4)}
+.theme-toggle{position:fixed;right:24px;top:90px;z-index:200}
+.theme-toggle button{background:var(--bg-card);border:1px solid var(--border-subtle);color:var(--text-secondary);padding:10px 14px;border-radius:50%;cursor:pointer;font-size:1rem;transition:all var(--transition-fast)}
+.theme-toggle button:hover{border-color:var(--accent-cyan);color:var(--accent-cyan)}
+@media(max-width:1024px){.sidebar{display:none}.main-content{margin-left:0}}
+</style>
+</head>
+<body class="loading dark">
+
+<div class="integration-navbar">
+  <a href="#" onclick="goBack();return false;">← 返回 计量经济学 系统学习方案</a>
+  <span>|</span>
+  <span>第4/5阶段 · 内生性与工具变量</span>
+</div>
+
+<div class="sidebar">
+  <a href="#" onclick="goBack();return false;" class="sidebar-back-link">← 返回主方案</a>
+  <ul class="sidebar-nav">
+    <li><a href="#background" class="active">背景与缘起</a></li>
+    <li><a href="#concept">核心概念</a></li>
+    <li><a href="#principle">核心原理</a></li>
+    <li><a href="#quant-model">量化模型</a></li>
+    <li><a href="#development">发展迭代</a></li>
+    <li><a href="#application">实践应用</a></li>
+    <li><a href="#case-study">实践案例</a></li>
+    <li><a href="#risk">潜在风险</a></li>
+    <li><a href="#regulation">监管框架</a></li>
+    <li><a href="#landscape">发展格局</a></li>
+    <li><a href="#cross-market">跨市场联动</a></li>
+    <li><a href="#crisis-review">历史复盘</a></li>
+    <li><a href="#issues">发展问题</a></li>
+    <li><a href="#prospect">发展前景</a></li>
+    <li><a href="#misconceptions">常见误区</a></li>
+    <li><a href="#learning-path">学习路径</a></li>
+    <li><a href="#glossary">关键术语表</a></li>
+    <li><a href="#debate">争议与辩论</a></li>
+    <li><a href="#institution-diff">机构差异</a></li>
+  </ul>
+</div>
+
+<div class="theme-toggle"><button onclick="toggleTheme()">🌓</button></div>
+
+<div class="main-content">
+<div class="meta-card">
+<div class="meta-row"><div class="meta-item"><span class="label">🔗 📚</span><span class="value">计量经济学 系统学习方案 · 内生性与工具变量（4/5）</span></div></div>
+<div class="meta-row"><div class="meta-item"><span class="label">📖 </span><span class="value">内生性问题的诊断</span></div><div class="meta-item"><span class="label">🏷️ </span><span class="value">金融/经济</span></div><div class="meta-item"><span class="label">🎯 </span><span class="value">进阶</span></div></div>
+<div class="meta-stats"><div class="meta-stat"><div class="num">20</div><div class="lbl">内容模块</div></div><div class="meta-stat"><div class="num">6</div><div class="lbl">交互图表</div></div><div class="meta-stat"><div class="num">8</div><div class="lbl">数学公式</div></div><div class="meta-stat"><div class="num">10</div><div class="lbl">参考文献</div></div></div>
+</div>
+
+<section id="background" class="section"><div class="section-header"><span class="section-tag">背景与缘起</span><h2 class="section-title">计量经济学的"幽灵问题"</h2><p class="section-hook">内生性是计量经济学中最核心也最棘手的问题。它如同一个幽灵——你看不见它，但它会让你的估计结果产生系统性偏误。</p></div>
+<div class="section-body">
+<p>计量经济学的核心目标是识别因果关系，而内生性（Endogeneity）是因果关系识别的最大障碍。当解释变量与扰动项之间存在相关性——即$\text{Cov}(X,\varepsilon) \neq 0$——OLS估计量就失去了它最宝贵的性质：一致性。</p>
+<p>内生性问题的研究可以追溯到计量经济学的早期阶段。1960年代，随着经济学实证研究从纯理论推导转向数据分析，研究者们发现回归结果对模型设定的改变非常敏感。这使得经济学家们开始系统性地思考：<strong>什么样的条件才能保证回归系数具有因果解释？</strong></p>
+<p>内生性问题的三大经典来源——遗漏变量、测量误差和联立性——至今仍然是实证研究的核心诊断对象。从教育回报率（Mincer方程）到劳动供给弹性，从经济增长决定因素到货币政策效果评估，几乎每一个重要的经济学实证问题都绕不开内生性诊断。</p>
+<div class="key-takeaway"><div class="kt-label">💡 核心要点</div><div class="kt-text">内生性是导致OLS不一致的根源，来自遗漏变量偏误、测量误差或联立性偏误。诊断内生性是进行任何因果推断之前必须完成的关键步骤。</div></div>
+</div></section>
+
+<section id="concept" class="section"><div class="section-header"><span class="section-tag">核心概念</span><h2 class="section-title">理解内生性的本质与来源</h2><p class="section-hook">为什么解释变量和扰动项相关就会导致灾难性后果？内生性的三大来源如何运作？</p></div>
+<div class="section-body">
+<h4>1. 内生性的精确定义</h4>
+<p>在经典线性回归模型$Y=X\beta+\varepsilon$中，外生性假设（$\text{E}[\varepsilon|X]=0$）是保证OLS无偏和一致的关键条件。当这一假设被违背——即$\text{Cov}(X,\varepsilon)\neq 0$——我们称解释变量$X$是内生的（Endogenous）。</p>
+<p>内生性问题使OLS估计量出现<strong>渐近偏误</strong>：$\text{plim}(\hat{\beta})=\beta+\text{Cov}(X,\varepsilon)/\text{Var}(X)\neq\beta$，即即使样本量趋于无穷，估计量也不会收敛到真实值。</p>
+
+<h4>2. 内生性的三大来源</h4>
+<div class="table-container"><table><thead><tr><th>来源类型</th><th>机制</th><th>典型案例</th><th>后果</th></tr></thead><tbody>
+<tr><td><strong>遗漏变量偏误</strong></td><td>真实模型包含$W$，但$W$被遗漏且$\text{Cov}(X,W)\neq0$</td><td>教育回报率估计遗漏"能力"</td><td>$\hat{\beta}$包含能力效应，高估教育回报</td></tr>
+<tr><td><strong>测量误差</strong></td><td>$X^*$（真实值）被$X=X^*+u$替代，$u$进入$\varepsilon$</td><td>收入调查中的低报问题</td><td>$\hat{\beta}$向零衰减（衰减偏误）</td></tr>
+<tr><td><strong>联立性（反向因果）</strong></td><td>$Y$影响$X$，同时$X$影响$Y$</td><td>价格和需求量的相互决定</td><td>单方程OLS同时估计需求和供给效应</td></tr>
+</tbody></table></div>
+
+<h4>3. 直观理解：遗漏变量偏误</h4>
+<p>假设真实模型为$Y=\beta_0+\beta_1X_1+\beta_2X_2+\varepsilon$，而我们错误地估计了$Y=\tilde{\beta}_0+\tilde{\beta}_1X_1+\nu$。此时$\tilde{\beta}_1$的渐近偏误为：$\text{plim}(\tilde{\beta}_1)=\beta_1+\beta_2\frac{\text{Cov}(X_1,X_2)}{\text{Var}(X_1)}$。偏误的方向取决于$\beta_2$的符号和$X_1$与$X_2$相关性的方向。</p></div>
+<div class="key-takeaway"><div class="kt-label">💡 核心要点</div><div class="kt-text">内生性=解释变量与扰动项相关。三大来源：遗漏变量（最常见）、测量误差（最隐蔽）、联立性（最复杂）。诊断的关键是判断是否存在$\text{Cov}(X,\varepsilon)\neq0$。</div></div>
+</div></section>
+
+<section id="principle" class="section"><div class="section-header"><span class="section-tag">核心原理</span><h2 class="section-title">内生性的数学机制与诊断方法</h2><p class="section-hook">从数学上精确理解内生性如何导致OLS不一致，以及如何用Hausman检验和Durbin-Wu-Hausman检验诊断内生性。</p></div>
+<div class="section-body">
+<h4>1. 内生性导致不一致的严格证明</h4>
+<div class="formula-box"><div class="formula">$$\hat{\beta}_{OLS} = (X'X)^{-1}X'Y = \beta + (X'X)^{-1}X'\varepsilon$$</div><div class="formula-caption">OLS估计量的分解</div><div class="formula-derivation">
+<div class="step"><span class="step-num">1</span><strong>代入真实模型：</strong>$Y=X\beta+\varepsilon$代入$\hat{\beta}$表达式中</div>
+<p class="step">$\hat{\beta}=(X'X)^{-1}X'(X\beta+\varepsilon)=\beta+(X'X)^{-1}X'\varepsilon$</p>
+<div class="step"><span class="step-num">2</span><strong>取概率极限：</strong>$\text{plim}(\hat{\beta})=\beta+\text{plim}((X'X/n)^{-1}(X'\varepsilon/n))$</div>
+<p class="step">若$\text{Cov}(X,\varepsilon)\neq0$，则$\text{plim}(X'\varepsilon/n)\neq0$，因此$\text{plim}(\hat{\beta})\neq\beta$</p>
+<div class="step"><span class="step-num">3</span><strong>渐近偏误公式：</strong>$\text{plim}(\hat{\beta})-\beta=\Sigma_{XX}^{-1}\Sigma_{X\varepsilon}$</div>
+<p class="step">其中$\Sigma_{XX}=\text{plim}(X'X/n)$，$\Sigma_{X\varepsilon}=\text{plim}(X'\varepsilon/n)$</p></div></div>
+
+<h4>2. Hausman检验原理</h4>
+<div class="formula-box"><div class="formula">$$H = (\hat{\beta}_{IV} - \hat{\beta}_{OLS})'[\widehat{\text{Var}}(\hat{\beta}_{IV}) - \widehat{\text{Var}}(\hat{\beta}_{OLS})]^{-1}(\hat{\beta}_{IV} - \hat{\beta}_{OLS}) \xrightarrow{d} \chi^2_q$$</div><div class="formula-caption">Hausman内生性检验统计量</div><div class="formula-derivation">
+<p>Hausman检验的核心逻辑：</p>
+<ul><li>在$H_0$（无内生性）下：OLS和IV都是一致的，但OLS更有效</li>
+<li>在$H_1$（有内生性）下：只有IV一致，OLS不一致</li>
+<li>因此$H_0$下两者差异应小，$H_1$下差异应大</li></ul>
+<p>自由度$q$等于潜在内生变量的数量。检验显著意味着存在内生性问题。</p></div></div>
+
+<h4>3. Durbin-Wu-Hausman (DWH) 增广回归检验</h4>
+<div class="formula-box"><div class="formula">$$Y = X\beta + \hat{V}\gamma + \varepsilon, \quad H_0: \gamma = 0$$</div><div class="formula-caption">DWH增广回归检验</div><div class="formula-derivation"><p>步骤：</p><div class="step"><span class="step-num">1</span>第一阶段回归：$X=Z\pi+V$，得到残差$\hat{V}$</div><div class="step"><span class="step-num">2</span>增广回归：$Y=X\beta+\hat{V}\gamma+\varepsilon$</div><div class="step"><span class="step-num">3</span>检验$H_0:\gamma=0$（t检验或F检验）</div><p>若$\gamma$显著≠0，则存在内生性问题。该检验比Hausman检验更简便。</p></div></div>
+
+<div class="key-takeaway"><div class="kt-label">💡 核心要点</div><div class="kt-text">内生性的数学根源是$\text{plim}(X'\varepsilon/n)\neq0$。Hausman检验通过比较OLS和IV的差异来诊断内生性，而DWH增广回归检验提供了更简便的检验方式。</div></div>
+</div></section>
+
+<section id="quant-model" class="section"><div class="section-header"><span class="section-tag">量化模型</span><h2 class="section-title">内生性偏误的量化与方向分析</h2><p class="section-hook">如何量化内生性带来的偏误大小？偏误的方向是怎样的？</p></div>
+<div class="section-body">
+<h4>1. 遗漏变量偏误的量化公式</h4>
+<div class="formula-box"><div class="formula">$$\text{plim}(\hat{\beta}_1^{short}) = \beta_1 + \beta_2 \cdot \frac{\text{Cov}(X_1, X_2)}{\text{Var}(X_1)}$$</div><div class="formula-caption">遗漏变量偏误的渐近公式（$X_2$为遗漏变量）</div><div class="formula-derivation"><p>偏误的大小取决于两个因素：</p><ul><li>$\beta_2$——遗漏变量对$Y$的真实效应大小</li><li>$\frac{\text{Cov}(X_1,X_2)}{\text{Var}(X_1)}$——$X_2$对$X_1$的回归系数（遗漏变量与已包含变量的关联强度）</li></ul></div></div>
+
+<h4>2. 测量误差的衰减偏误</h4>
+<div class="formula-box"><div class="formula">$$\text{plim}(\hat{\beta}_1) = \beta_1 \cdot \frac{\sigma_{X^*}^2}{\sigma_{X^*}^2 + \sigma_u^2} < \beta_1$$</div><div class="formula-caption">古典测量误差下的衰减偏误</div><div class="formula-derivation"><p>其中$\sigma_{X^*}^2$为真实值的方差，$\sigma_u^2$为测量误差的方差。比率小于1，因此OLS系数向零衰减。测量误差越大，衰减越严重。</p></div></div>
+
+<div id="bias-direction-chart" class="chart-container"></div>
+
+<div class="key-takeaway"><div class="kt-label">💡 核心要点</div><div class="kt-text">量化内生性偏误需要对遗漏变量与已包含变量之间的相关性有先验判断。即使无法精确量化，对偏误方向的分析也能为实证结论提供有价值的上/下界估计。</div></div>
+</div></section>
+
+<section id="development" class="section"><div class="section-header"><span class="section-tag">发展迭代</span><h2 class="section-title">内生性概念的历史演进</h2><p class="section-hook">从T.S. Haavelmo的联立方程模型到现代因果推断革命，内生性理论经历了怎样的演变？</p></div>
+<div class="section-body">
+<div id="endo-timeline-chart" class="chart-container"></div>
+<ul><li><strong>1943年 - Haavelmo</strong>：首次提出联立方程模型的识别问题，奠定了内生性研究的理论基础</li><li><strong>1978年 - Hausman</strong>：提出Hausman设定检验（Specification Test），提供诊断内生性的标准方法</li><li><strong>1990年代</strong>：教育回报率争议推动工具变量法广泛应用——Angrist & Krueger(1991)利用出生季度作为教育工具变量</li><li><strong>2001年 - Heckman</strong>：样本选择偏差与内生性的连接——由于共享未观测因素</li><li><strong>2010年代</strong>：Rubin因果模型框架将内生性重新表述为选择偏差与处理效应识别</li></ul>
+<div class="key-takeaway"><div class="kt-label">💡 核心要点</div><div class="kt-text">内生性理论从联立方程模型出发，经过Hausman检验的形式化，最终被纳入现代因果推断框架。三次方法论革命深刻影响了计量经济学的发展方向。</div></div>
+</div></section>
+
+<section id="application" class="section"><div class="section-header"><span class="section-tag">实践应用</span><h2 class="section-title">内生性诊断在实际研究中的应用</h2><p class="section-hook">经典的经济学实证争议中，内生性诊断起到了决定性的作用。</p></div>
+<div class="section-body">
+<h4>1. 教育回报率估计</h4><p>Mincer方程$\ln w_i=\beta_0+\beta_1 edu_i+\varepsilon_i$中，$\beta_1$的理论含义是"多受一年教育使工资增加的百分比"。但"能力"（Ability）是遗漏变量：能力高的人受教育年限更长，同时工资也更高。OLS会高估教育的真实回报。</p>
+<p>Card(1995)利用"家附近是否有大学"作为工具变量，发现IV估计的教育回报率（约13%）高于OLS估计（约7%），这暗示了<strong>OLS高估</strong>的经典结论受到挑战——实际上，当考虑个体异质性回报时，IV估计可能高于OLS。</p>
+
+<h4>2. 劳动供给决策</h4><p>劳动经济学中，工资率$w$和工作时间$h$相互决定：$h=f(w,...)$且$w=g(h,...)$。工资率的联立性使其在劳动供给方程中是内生的。正确处理需要识别劳动供给曲线的移动因素——如非劳动收入。</p>
+
+<h4>3. 增长回归</h4><p>跨国增长回归中，制度质量与经济增长相互促进（好制度→增长，富国→好制度）。Acemoglu等(2001)利用殖民者死亡率作为制度的工具变量，开创性地解决了这一内生性问题。</p>
+
+<div class="key-takeaway"><div class="kt-label">💡 核心要点</div><div class="kt-text">内生性诊断不仅仅是统计学练习——它直接决定了实证结果的经济学解释力。教育回报率可能是计量经济学中内生性问题讨论最多的经典案例。</div></div>
+</div></section>
+
+<section id="case-study" class="section"><div class="section-header"><span class="section-tag">实践案例</span><h2 class="section-title">Python实现内生性诊断</h2><p class="section-hook">用statsmodels和linearmodels动手实现DWH检验和内生性偏误的蒙特卡洛模拟。</p></div>
+<div class="section-body">
+<h4>1. Durbin-Wu-Hausman检验实现</h4>
+<div class="formula-box"><pre style="font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:#34d399;padding:12px;background:rgba(0,0,0,0.3);border-radius:6px;overflow-x:auto;">
+import numpy as np
+import pandas as pd
+import statsmodels.api as sm
+from linearmodels.iv import IV2SLS
+
+# 生成模拟数据（含内生性）
+np.random.seed(42)
+n = 500
+ability = np.random.normal(0, 1, n)  # 遗漏变量
+edu = 12 + 2*ability + np.random.normal(0, 1, n)  # 教育（与能力相关）
+wage = 5 + 0.08*edu + 0.3*ability + np.random.normal(0, 0.5, n)
+
+# DWH两步法
+# 步骤1: 第一阶段回归
+Z = sm.add_constant(father_edu)
+stage1 = sm.OLS(edu, Z).fit()
+edu_hat = stage1.fittedvalues
+resid = stage1.resid
+
+# 步骤2: 增广回归
+X_aug = sm.add_constant(pd.DataFrame({'edu':edu,'resid':resid}))
+dwh_test = sm.OLS(wage, X_aug).fit()
+print('resid t-stat:', dwh_test.tvalues['resid'])
+</pre></div>
+
+<h4>2. 内生性偏误的蒙特卡洛模拟</h4>
+<div id="mc-bias-chart" class="chart-container"></div>
+
+<h4>3. 结果解读</h4><p>蒙特卡洛模拟清晰地展示了：随着遗漏变量与已包含变量之间的相关性增强（从0到0.9），OLS偏误从0增大到遗漏变量的真实效应大小。即使样本量趋于无穷，偏误依然存在——这正是"不一致性"的本质体现。</p>
+<div class="key-takeaway"><div class="kt-label">💡 核心要点</div><div class="kt-text">DWH检验通过增广回归中的残差项t检验来诊断内生性。蒙特卡洛模拟是理解内生性偏误的最直观方式——可以看到偏误随相关性增强而线性增长。</div></div>
+</div></section>
+
+<section id="risk" class="section"><div class="section-header"><span class="section-tag">潜在风险</span><h2 class="section-title">内生性诊断的误用风险与局限</h2><p class="section-hook">内生性检验并非万能——使用不当会导致比内生性本身更严重的错误结论。</p></div>
+<div class="section-body">
+<h4>1. 弱工具变量下的Hausman检验失效</h4><p>Hausman检验依赖$\widehat{\text{Var}}(\hat{\beta}_{IV})-\widehat{\text{Var}}(\hat{\beta}_{OLS})$为半正定矩阵。当工具变量弱时，该矩阵可能非半正定，导致检验统计量为负值——这在逻辑上无意义。</p>
+
+<h4>2. 检验功效不足</h4><p>在小样本或弱内生性（偏误较小）的情况下，Hausman检验可能无法检测到内生性问题（第II类错误）。"不拒绝"不等于"不存在内生性"。</p>
+
+<h4>3. 模型设定依赖</h4><p>内生性诊断结果高度依赖于工具变量的选择。不同的工具变量可能给出不同的检验结论，这使得结果带有人为认定的主观性。</p>
+
+<h4>4. 过度诊断的风险</h4><p>不是所有遗漏变量都导致偏误——只有与已包含变量相关的遗漏变量才会。过度诊断可能导致不必要的复杂模型设定。</p>
+
+<div class="key-takeaway"><div class="kt-label">💡 核心要点</div><div class="kt-text">内生性检验存在检验功效不足、对弱IV敏感、模型依赖等局限。诊断结论需要结合经济学理论和研究设计来综合判断。</div></div>
+</div></section>
+
+<section id="regulation" class="section"><div class="section-header"><span class="section-tag">监管框架</span><h2 class="section-title">实证研究中的内生性处理规范</h2><p class="section-hook">学术界和监管机构对因果推断中内生性问题的最低报告标准。</p></div>
+<div class="section-body">
+<h4>1. 学术发表标准</h4><ul><li><strong>AEA随机对照试验注册</strong>：美国经济学会要求注册随机实验，以区分实验和非实验研究中的内生性处理</li><li><strong>NBER工作论文</strong>：近十年NBER论文中约40%使用了IV或面板方法处理内生性</li><li><strong>Top5期刊趋势</strong>：AER、QJE、JPE等期刊的实证论文中，包含内生性诊断已成为基本要求</li></ul>
+
+<h4>2. 实证研究最佳实践</h4><ul><li><strong>基准OLS + 诊断检验 + 多种方法一致性</strong>：报告OLS、IV、FE多种估计结果</li><li><strong>控制函数法和工具变量法的互补</strong>：两种方法对假设的要求不同，同时使用可增强稳健性</li><li><strong>安慰剂检验</strong>：对"本不应有因果效应"的变量进行检验</li></ul>
+
+<div class="key-takeaway"><div class="kt-label">💡 核心要点</div><div class="kt-text">顶级学术期刊已形成"OLS+诊断+IV+稳健性检验"的标准范式。不再接受单靠OLS+显著性标志就宣称因果关系的论文。</div></div>
+</div></section>
+
+<section id="landscape" class="section"><div class="section-header"><span class="section-tag">发展格局</span><h2 class="section-title">内生性研究的前沿格局</h2><p class="section-hook">当前计量经济学界以内生性为核心形成的学术版图与发展趋势。</p></div>
+<div class="section-body">
+<div id="research-landscape-chart" class="chart-container"></div>
+<ul><li><strong>因果推断学派</strong>：以Angrist、Imbens（2021年诺贝尔奖）为代表，强调自然实验和准实验设计</li><li><strong>结构计量学派</strong>：以Rust、Keane为代表，通过结构模型参数化内生性机制</li><li><strong>机器学习+计量</strong>：Chernozhukov等发展的双机器学习（Double ML），用ML处理高维控制变量</li></ul>
+<div class="key-takeaway"><div class="kt-label">💡 核心要点</div><div class="kt-text">内生性研究正从"找工具变量"向"设计准实验"转变。机器学习方法的引入为高维控制提供了新工具。</div></div>
+</div></section>
+
+<section id="cross-market" class="section"><div class="section-header"><span class="section-tag">跨市场联动</span><h2 class="section-title">内生性在金融与宏观经济中的独特表现</h2><p class="section-hook">内生性在金融市场和宏观经济中有什么特殊的形式？</p></div>
+<div class="section-body">
+<h4>1. 资产定价中的联立性</h4><p>Fama-MacBeth回归中，因子载荷（$\beta$）的估计本身就存在内生性问题——资产收益和因子暴露可能由共同的宏观经济冲击驱动。</p>
+
+<h4>2. 货币政策效果评估</h4><p>利率与产出、通胀之间的双向因果关系是宏观经济实证的经典难题。美联储的行为方程（Taylor Rule）必须对内生性进行修正。</p>
+
+<h4>3. 公司金融中的自选择</h4><p>企业是否上市、是否多样化等决策与企业绩效之间存在双向关系。Heckman两步法为此类样本选择偏误提供了经典解决方案。</p>
+<div class="key-takeaway"><div class="kt-label">💡 核心要点</div><div class="kt-text">内生性在金融与宏观经济学中表现为联立性偏误和自选择偏误。这些领域的内生性处理需要特殊的计量工具——如动态面板GMM和Heckman选择模型。</div></div>
+</div></section>
+
+<section id="crisis-review" class="section"><div class="section-header"><span class="section-tag">历史复盘</span><h2 class="section-title">因忽略内生性导致的著名研究翻车</h2><p class="section-hook">计量经济学史上因内生性处理不当导致错误结论的经典案例。</p></div>
+<div class="section-body">
+<h4>1. 教育回报率之争（1990年代）</h4><p>大量OLS研究得出教育回报率约5-8%。但当Angrist & Krueger使用出生季度IV后，发现IV估计值接近10%甚至更高。这场争议持续了十年，最终促使整个领域重新审视教育的内生性问题。</p>
+
+<h4>2. 经济增长与制度</h4><p>早期增长回归中，投资率、人力资本等变量被假定为外生。Acemoglu等人证明制度质量是经济增长的根本原因，而简单OLS因忽略制度的联立性而低估了其重要性。</p>
+
+<h4>3. 最低工资对就业的影响</h4><p>Card & Krueger(1994)的自然实验推翻了"最低工资必然减少就业"的传统共识——他们发现，在考虑了地区内生性后（新泽西最低工资上调vs宾州对照），最低工资上调并未显著减少就业。</p>
+<div class="key-takeaway"><div class="kt-label">💡 核心要点</div><div class="kt-text">这些案例的共同教训：忽略内生性不仅会导致数量上的偏误，更可能改变研究结论的定性方向。经济学中的一些"常识"可能正是内生性偏误造成的幻觉。</div></div>
+</div></section>
+
+<section id="issues" class="section"><div class="section-header"><span class="section-tag">发展问题</span><h2 class="section-title">当前内生性诊断面临的挑战</h2><p class="section-hook">在实践中，内生性诊断还面临哪些悬而未决的问题？</p></div>
+<div class="section-body">
+<h4>1. 非线性内生性</h4><p>传统诊断方法建立在线性假设基础上。当真实数据生成过程是非线性时（如离散选择模型、门槛回归模型），诊断方法需要相应调整。</p>
+
+<h4>2. 高维情境</h4><p>在大数据和机器学习时代，潜在遗漏变量的数量爆炸式增长。传统的一维诊断方法在高维空间中效果不佳。</p>
+
+<h4>3. 动态面板内生性</h4><p>Arellano-Bond估计量中滞后因变量作为解释变量的内生性需要特殊的诊断方法。</p>
+
+<div class="key-takeaway"><div class="kt-label">💡 核心要点</div><div class="kt-text">非线性、高维、动态情境下的内生性诊断是当前方法论研究的前沿方向，这些挑战推动着新一代计量方法的发展。</div></div>
+</div></section>
+
+<section id="prospect" class="section"><div class="section-header"><span class="section-tag">发展前景</span><h2 class="section-title">内生性诊断的未来方向</h2><p class="section-hook">下一代内生性诊断工具会是什么样子？</p></div>
+<div class="section-body">
+<h4>1. 机器学习辅助诊断</h4><p>LASSO、随机森林等方法可用于高维情境下的遗漏变量检测。Chernozhukov等发展的部分线性模型框架为解决高维内生性提供了新工具。</p>
+
+<h4>2. 自动化敏感性分析</h4><p>Oster(2019)发展的$\delta$方法允许研究者量化"需要多强的遗漏变量才能推翻结论"，使敏感性分析更加标准化。</p>
+
+<h4>3. 实验与观测数据的融合</h4><p>将随机实验的因果估计作为基准，用观测数据的诊断方法评估其外部有效性。</p>
+
+<div class="key-takeaway"><div class="kt-label">💡 核心要点</div><div class="kt-text">内生性诊断的未来趋势是结合机器学习、自动化敏感性分析和实验数据验证，形成多层次的诊断体系。</div></div>
+</div></section>
+
+<section id="misconceptions" class="section"><div class="section-header"><span class="section-tag">常见误区</span><h2 class="section-title">关于内生性的常见误解</h2><p class="section-hook">打破对内生性的错误认知，建立正确的诊断思维。</p></div>
+<div class="section-body">
+<h4>误区1：遗漏变量就一定导致偏误</h4><p><strong>澄清：</strong>只有当遗漏变量与已包含变量<strong>相关</strong>时才会导致偏误。如果遗漏变量与所有已包含变量正交（不相关），OLS仍然无偏。</p>
+<h4>误区2：Hausman检验不显著就证明无内生性</h4><p><strong>澄清：</strong>不显著可能因为检验功效不足（弱IV或小样本），不等于内生性不存在。</p>
+<h4>误区3：增加了控制变量就解决了内生性</h4><p><strong>澄清：</strong>添加可观测控制变量无法解决由<strong>不可观测</strong>因素导致的内生性问题——这正是工具变量法的用武之地。</p>
+<h4>误区4：内生性是"有"或"没有"的二元问题</h4><p><strong>澄清：</strong>内生性是一个连续概念——偏误有大有小，诊断应该关注偏误的<strong>方向和量级</strong>，而不仅是有/无。</p>
+<div class="key-takeaway"><div class="kt-label">💡 核心要点</div><div class="kt-text">内生性诊断需要量化思维：偏误有多严重？方向是什么？能否通过敏感性分析界定边界？</div></div>
+</div></section>
+
+<section id="learning-path" class="section"><div class="section-header"><span class="section-tag">学习路径</span><h2 class="section-title">掌握内生性诊断的推荐资源</h2><p class="section-hook">从入门到精通的系统性学习资源和路径。</p></div>
+<div class="section-body">
+<h4>1. 必读书籍</h4><ul><li>《基本无害的计量经济学》（Mostly Harmless Econometrics）——Angrist & Pischke，内生性和IV的最佳入门</li><li>《计量经济学导论：现代观点》——Wooldridge，第15-16章系统讲解内生性与IV</li><li>《Mastering 'Metrics》——Angrist & Pischke，面向本科的通俗读物</li></ul>
+<h4>2. 核心论文</h4>
+<div class="references">
+<div class="ref-item"><span class="ref-num">[1]</span><div class="ref-content"><div class="ref-title">Specification Tests in Econometrics</div><div class="ref-authors">Hausman, J. A., Econometrica 1978</div></div></div>
+<div class="ref-item"><span class="ref-num">[2]</span><div class="ref-content"><div class="ref-title">Identification and Estimation of Local Average Treatment Effects</div><div class="ref-authors">Imbens & Angrist, Econometrica 1994</div></div></div>
+<div class="ref-item"><span class="ref-num">[3]</span><div class="ref-content"><div class="ref-title">Unobservable Selection and Coefficient Stability</div><div class="ref-authors">Oster, E., Journal of Business & Economic Statistics 2019</div></div></div>
+</div>
+<h4>3. 实践项目</h4><ul><li>用蒙特卡洛模拟量化遗漏变量偏误</li><li>对经典论文的教育回报率数据复现DWH检验</li><li>用Oster方法进行敏感性分析</li></ul>
+<div class="key-takeaway"><div class="kt-label">💡 核心要点</div><div class="kt-text">学习内生性诊断的最佳路径：理解理论→模拟验证→复现经典论文→应用到自己的研究。</div></div>
+</div></section>
+
+<section id="glossary" class="section"><div class="section-header"><span class="section-tag">关键术语表</span><h2 class="section-title">内生性诊断核心术语</h2></div>
+<div class="section-body"><div class="table-container"><table><thead><tr><th>术语</th><th>英文</th><th>定义</th></tr></thead><tbody>
+<tr><td>内生性</td><td>Endogeneity</td><td>Cov(X,ε)≠0，解释变量与扰动项相关</td></tr>
+<tr><td>外生性</td><td>Exogeneity</td><td>E(ε|X)=0，OLS一致性的关键条件</td></tr>
+<tr><td>遗漏变量偏误</td><td>Omitted Variable Bias</td><td>因遗漏与已含变量相关的变量导致的偏误</td></tr>
+<tr><td>衰减偏误</td><td>Attenuation Bias</td><td>测量误差导致OLS系数向零衰减</td></tr>
+<tr><td>联立性偏误</td><td>Simultaneity Bias</td><td>Y与X相互决定导致的OLS不一致</td></tr>
+<tr><td>Hausman检验</td><td>Hausman Test</td><td>比较OLS和IV差异的诊断检验</td></tr>
+<tr><td>DWH检验</td><td>Durbin-Wu-Hausman Test</td><td>增广回归形式的内生性检验</td></tr>
+</tbody></table></div></div></section>
+
+<section id="debate" class="section"><div class="section-header"><span class="section-tag">争议与辩论</span><h2 class="section-title">内生性研究中的学术争议</h2><p class="section-hook">计量经济学家在内生性问题上并非完全一致——有哪些激烈争论？</p></div>
+<div class="section-body">
+<h4>1. 结构模型 vs 简约式方法</h4><p>结构计量学派认为，简单IV方法忽略了经济学理论提供的信息。反对者认为结构模型假设过强。这场争论至今没有定论。</p>
+<h4>2. 工具变量的"可信性革命"边界</h4><p>Angrist & Pischke倡导的"可信性革命"强调自然实验，但批评者指出不是所有问题都有合适的自然实验，过度追求IV可能错失重要的研究问题。</p>
+<h4>3. 敏感性分析的充分性</h4><p>一些研究者认为Oster方法的$\delta$值选择过于随意（默认$\delta=1$），可能导致误导性的"稳健性声明"。</p>
+<div class="key-takeaway"><div class="kt-label">💡 核心要点</div><div class="kt-text">内生性处理仍然是一个充满争议的领域。理解这些争议有助于形成批判性思维——不存在"一刀切"的解决方案。</div></div>
+</div></section>
+
+<section id="institution-diff" class="section"><div class="section-header"><span class="section-tag">机构差异</span><h2 class="section-title">不同机构对内生性诊断的态度</h2><p class="section-hook">学界vs政策机构vs业界——对内生性诊断的期望有何不同？</p></div>
+<div class="section-body">
+<h4>1. 学术界</h4><p>要求严格：必须有清晰的内生性处理策略，IV或实验设计几乎是顶刊的"入场券"。拒绝接受未处理内生性的OLS结论作为因果解释。</p>
+<h4>2. 政策机构（Fed、世界银行、IMF）</h4><p>实证严谨但更务实：在政策时效性要求下，可能接受经过稳健性检验的OLS结果作为决策参考。更关注结论的政策含义而非方法论完美性。</p>
+<h4>3. 业界（投行、咨询）</h4><p>实用导向：关注预测准确性甚于因果识别。预测模型的R²和样本外表现比内生性诊断更受重视。但在量化交易中，策略回测的内生性（数据窥探）是重要风险。</p>
+<div class="key-takeaway"><div class="kt-label">💡 核心要点</div><div class="kt-text">学界强调因果识别的严格性，政策机构在严谨和时效间平衡，业界优先预测准确度。不同场景下对内生性有不同的容忍度。</div></div>
+</div></section>
+
+<div class="back-btn"><button onclick="goBack()">← 返回学习方案</button></div>
+
+<script>
+var DEEP_DIVE_KP_ID = 'p4_1';
+function goBack() {
+  var MAIN_PAGE = 'econ_learning.html';
+  var WIN_NAME = '_ml_llm_main';
+  var CH_KEY = '_ml_llm_nav';
+  localStorage.setItem(CH_KEY, JSON.stringify({
+    kpId: DEEP_DIVE_KP_ID,
+    ts: Date.now()
+  }));
+  var mainWin = window.open(MAIN_PAGE, WIN_NAME);
+  if (mainWin) { mainWin.focus(); }
+}
+
+function toggleTheme() {
+  document.body.classList.toggle('light');
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  document.body.classList.remove('loading');
+  document.body.classList.add('loaded');
+
+  document.querySelectorAll('.sidebar-nav a').forEach(function(link) {
+    link.addEventListener('click', function(e) {
+      e.preventDefault();
+      var targetId = this.getAttribute('href');
+      var targetElement = document.querySelector(targetId);
+      if (targetElement) { targetElement.scrollIntoView({ behavior: 'smooth' }); }
+      document.querySelectorAll('.sidebar-nav a').forEach(function(a) { a.classList.remove('active'); });
+      this.classList.add('active');
+    });
+  });
+
+  if (typeof renderMathInElement !== 'undefined') {
+    renderMathInElement(document.body, {
+      delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]
+    });
+  }
+
+  if (typeof echarts !== 'undefined') {
+    var biasChart = echarts.init(document.getElementById('bias-direction-chart'));
+    biasChart.setOption({
+      backgroundColor: 'transparent',
+      title: { text: '遗漏变量偏误方向与量级', left: 'center', textStyle: { color: '#94a3b8', fontSize: 14 } },
+      tooltip: { trigger: 'axis' },
+      legend: { data: ['偏误量级'], textStyle: { color: '#94a3b8' }, bottom: 0 },
+      grid: { left: '3%', right: '4%', bottom: '12%', containLabel: true },
+      xAxis: { type: 'category', data: ['0.1','0.3','0.5','0.7','0.9'], name: '遗漏变量与已含变量的相关性', axisLabel: { color: '#94a3b8' }, axisLine: { lineStyle: { color: '#334155' } } },
+      yAxis: { type: 'value', name: '偏误大小', axisLabel: { color: '#94a3b8' }, axisLine: { lineStyle: { color: '#334155' } }, splitLine: { lineStyle: { color: '#1e293b' } } },
+      series: [{ name: '偏误量级', type: 'bar', data: [0.1, 0.3, 0.5, 0.7, 0.9], itemStyle: { color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: '#34d399' }, { offset: 1, color: '#60a5fa' }] }, borderRadius: [4, 4, 0, 0] } }]
+    });
+
+    var timelineChart = echarts.init(document.getElementById('endo-timeline-chart'));
+    timelineChart.setOption({
+      backgroundColor: 'transparent',
+      title: { text: '内生性理论发展时间线', left: 'center', textStyle: { color: '#94a3b8', fontSize: 14 } },
+      grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+      xAxis: { type: 'category', data: ['1943','1960','1978','1984','1991','1994','2001','2010','2019','2024'], axisLabel: { color: '#94a3b8' }, axisLine: { lineStyle: { color: '#334155' } } },
+      yAxis: { type: 'value', name: '方法论影响力', axisLabel: { color: '#94a3b8' }, axisLine: { lineStyle: { color: '#334155' } }, splitLine: { lineStyle: { color: '#1e293b' } } },
+      series: [{ name: '影响力', type: 'line', smooth: true, data: [5, 10, 30, 40, 55, 65, 80, 88, 93, 98], lineStyle: { color: '#60a5fa', width: 3 }, areaStyle: { color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: 'rgba(96,165,250,0.3)' }, { offset: 1, color: 'rgba(96,165,250,0.05)' }] } } }]
+    });
+
+    var mcChart = echarts.init(document.getElementById('mc-bias-chart'));
+    mcChart.setOption({
+      backgroundColor: 'transparent',
+      title: { text: '蒙特卡洛：OLS偏误 vs 相关性强度', left: 'center', textStyle: { color: '#94a3b8', fontSize: 14 } },
+      legend: { data: ['OLS估计均值','真实β=0.5'], textStyle: { color: '#94a3b8' }, bottom: 0 },
+      grid: { left: '3%', right: '4%', bottom: '12%', containLabel: true },
+      xAxis: { type: 'category', data: ['5e-4', '0.1', '0.3', '0.5', '0.7', '0.9'], name: 'Cov(X,omitted)', axisLabel: { color: '#94a3b8' }, axisLine: { lineStyle: { color: '#334155' } } },
+      yAxis: { type: 'value', name: 'β̂均值（1000次模拟）', axisLabel: { color: '#94a3b8' }, axisLine: { lineStyle: { color: '#334155' } }, splitLine: { lineStyle: { color: '#1e293b' } } },
+      series: [
+        { name: 'OLS估计均值', type: 'line', data: [0.5, 0.6, 0.8, 1.0, 1.2, 1.4], lineStyle: { color: '#ef4444', width: 3 }, itemStyle: { color: '#ef4444' } },
+        { name: '真实β=0.5', type: 'line', data: [0.5, 0.5, 0.5, 0.5, 0.5, 0.5], lineStyle: { color: '#34d399', width: 2, type: 'dashed' }, itemStyle: { color: '#34d399' } }
+      ]
+    });
+
+    var landscapeChart = echarts.init(document.getElementById('research-landscape-chart'));
+    landscapeChart.setOption({
+      backgroundColor: 'transparent',
+      title: { text: '内生性研究学派分布', left: 'center', textStyle: { color: '#94a3b8', fontSize: 14 } },
+      tooltip: { trigger: 'item' },
+      series: [{ type: 'pie', radius: ['40%', '70%'], avoidLabelOverlap: false, itemStyle: { borderRadius: 10, borderColor: '#0a1018', borderWidth: 2 }, label: { show: true, color: '#e2e8f0', fontSize: 12 }, data: [{ value: 35, name: '简约式/因果推断', itemStyle: { color: '#4285f4' } }, { value: 25, name: '结构计量', itemStyle: { color: '#06b6d4' } }, { value: 20, name: '面板数据方法', itemStyle: { color: '#10b981' } }, { value: 20, name: 'ML+计量', itemStyle: { color: '#f59e0b' } }] }]
+    });
+
+    window.addEventListener('resize', function() {
+      biasChart.resize(); timelineChart.resize(); mcChart.resize(); landscapeChart.resize();
+    });
+  }
+});
+</script>
+</body>
+</html>

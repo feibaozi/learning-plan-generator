@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OLS估计量推导 - 深度研读</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<style>
+:root{--bg:#ffffff;--bg-secondary:#f8fafc;--bg-tertiary:#f1f5f9;--text:#0f172a;--text-secondary:#475569;--text-tertiary:#94a3b8;--border:#e2e8f0;--primary:#6366f1;--primary-light:#eef2ff;--accent:#8b5cf6;--accent-light:#f5f3ff;--cyan:#22d3ee;--cyan-light:#ecfeff;--orange:#f59e0b;--orange-light:#fffbeb;--green:#10b981;--green-light:#ecfdf5;--red:#ef4444;--red-light:#fef2f2;--pink:#ec4899;--pink-light:#fdf2f8;--shadow-sm:0 1px 2px rgba(0,0,0,0.05);--shadow:0 1px 3px rgba(0,0,0,0.1),0 1px 2px rgba(0,0,0,0.06);--shadow-md:0 4px 6px -1px rgba(0,0,0,0.1),0 2px 4px -2px rgba(0,0,0,0.1);--shadow-lg:0 10px 15px -3px rgba(0,0,0,0.1),0 4px 6px -4px rgba(0,0,0,0.1);--radius:12px;--radius-sm:8px;--max-width:780px;--sidebar-width:240px;--transition:0.2s cubic-bezier(0.4,0,0.2,1)}
+[data-theme="dark"]{--bg:#0f172a;--bg-secondary:#1e293b;--bg-tertiary:#334155;--text:#f1f5f9;--text-secondary:#94a3b8;--text-tertiary:#64748b;--border:#334155;--primary:#818cf8;--primary-light:rgba(99,102,241,0.15);--accent:#a78bfa;--accent-light:rgba(139,92,246,0.15);--cyan:#67e8f9;--cyan-light:rgba(34,211,238,0.1);--orange:#fbbf24;--orange-light:rgba(245,158,11,0.1);--green:#34d399;--green-light:rgba(16,185,129,0.1);--red:#f87171;--red-light:rgba(239,68,68,0.1);--pink:#f472b6;--pink-light:rgba(236,72,153,0.1);--shadow-sm:0 1px 2px rgba(0,0,0,0.3);--shadow:0 1px 3px rgba(0,0,0,0.4);--shadow-md:0 4px 6px -1px rgba(0,0,0,0.4);--shadow-lg:0 10px 15px -3px rgba(0,0,0,0.4)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Inter','SF Pro Display',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);line-height:1.7;-webkit-font-smoothing:antialiased;transition:background var(--transition),color var(--transition)}
+body.loading{opacity:0}body.loaded{opacity:1;transition:opacity 0.4s ease}
+#progress-bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--primary),var(--accent),var(--cyan));z-index:1000;transition:width 0.1s linear}
+#theme-toggle{position:fixed;top:20px;right:20px;z-index:999;width:40px;height:40px;border-radius:50%;background:var(--bg-secondary);border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;transition:all var(--transition);box-shadow:var(--shadow-sm)}
+#theme-toggle:hover{transform:scale(1.1);box-shadow:var(--shadow)}
+#sidebar{position:fixed;top:0;left:0;width:var(--sidebar-width);height:100vh;background:var(--bg-secondary);border-right:1px solid var(--border);padding:80px 16px 24px;overflow-y:auto;z-index:100;transition:transform var(--transition)}
+#sidebar h3{font-size:11px;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-tertiary);margin-bottom:12px;font-weight:600}
+.sidebar-link{display:block;padding:6px 12px;margin:2px 0;border-radius:var(--radius-sm);font-size:13px;color:var(--text-secondary);text-decoration:none;transition:all var(--transition);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sidebar-link:hover{background:var(--bg-tertiary);color:var(--text)}
+.sidebar-link.active{background:var(--primary-light);color:var(--primary);font-weight:600}
+#main-content{margin-left:var(--sidebar-width);max-width:var(--max-width);padding:60px 32px 120px;margin-right:auto}
+.integration-navbar{display:flex;align-items:center;gap:12px;padding:10px 24px;background:var(--bg-secondary);border-bottom:1px solid var(--border);font-size:14px;position:sticky;top:0;z-index:50;margin-left:var(--sidebar-width)}
+.meta-card{background:linear-gradient(135deg,var(--primary-light),var(--accent-light));border:1px solid var(--border);border-radius:var(--radius);padding:28px 32px;margin-bottom:48px;display:flex;flex-wrap:wrap;gap:24px;align-items:center}
+.meta-card .meta-item{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--text-secondary)}
+.meta-card .meta-item .icon{font-size:20px}
+.meta-card .meta-item strong{color:var(--text)}
+.meta-badge{display:inline-block;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;letter-spacing:0.02em}
+.meta-badge.domain-finance{background:var(--primary-light);color:var(--primary)}
+.meta-badge.level-intermediate{background:var(--orange-light);color:var(--orange)}
+.module-section{margin-bottom:56px;opacity:0;transform:translateY(24px);transition:opacity 0.6s ease,transform 0.6s ease}
+.module-section.visible{opacity:1;transform:translateY(0)}
+.module-header{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.module-tag{display:inline-block;padding:3px 10px;border-radius:6px;font-size:11px;font-weight:600;letter-spacing:0.03em;text-transform:uppercase}
+.tag-core{background:var(--primary-light);color:var(--primary)}
+.tag-tools{background:var(--accent-light);color:var(--accent)}
+.tag-evolution{background:var(--cyan-light);color:#0891b2}
+.tag-application{background:var(--green-light);color:var(--green)}
+.tag-risk{background:var(--red-light);color:var(--red)}
+.tag-frontier{background:var(--orange-light);color:var(--orange)}
+.module-title{font-size:22px;font-weight:700;color:var(--text);letter-spacing:-0.02em}
+.module-hook{font-size:16px;color:var(--text-secondary);font-style:italic;border-left:3px solid var(--primary);padding-left:16px;margin-bottom:20px}
+.module-content{font-size:15px;color:var(--text)}
+.module-content p{margin-bottom:12px}
+.module-content strong{color:var(--text)}
+.module-content ul,.module-content ol{margin:8px 0 16px 24px}
+.module-content li{margin-bottom:6px}
+.formula-block{background:var(--bg-tertiary);border:1px solid var(--border);border-radius:var(--radius-sm);padding:20px 24px;margin:16px 0;position:relative;cursor:pointer;transition:all var(--transition)}
+.formula-block:hover{box-shadow:var(--shadow)}
+.formula-caption{font-size:12px;color:var(--text-tertiary);margin-top:8px;text-align:center}
+.formula-derivation{display:none;margin-top:16px;padding-top:16px;border-top:1px solid var(--border);font-size:14px;color:var(--text-secondary)}
+.formula-block.expanded .formula-derivation{display:block}
+.formula-expand-hint{font-size:11px;color:var(--text-tertiary);text-align:right;margin-top:4px}
+.chart-container{background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin:20px 0}
+.chart-wrapper{width:100%;height:380px}
+.chart-caption{font-size:13px;color:var(--text-secondary);text-align:center;margin-top:12px}
+.chart-source{font-size:11px;color:var(--text-tertiary);text-align:right;margin-top:4px}
+.module-table{width:100%;border-collapse:collapse;margin:16px 0;font-size:14px;border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden}
+.module-table th{background:var(--bg-tertiary);padding:10px 16px;text-align:left;font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:0.03em;color:var(--text-secondary)}
+.module-table td{padding:10px 16px;border-top:1px solid var(--border);color:var(--text)}
+.module-table tr:hover td{background:var(--bg-tertiary)}
+.module-references{margin-top:20px;padding-top:16px;border-top:1px solid var(--border);font-size:12px;color:var(--text-tertiary)}
+.module-references h4{font-size:12px;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px}
+.module-references ol{margin-left:20px}
+.module-references li{margin-bottom:4px}
+.key-takeaway{margin-top:16px;padding:14px 20px;border-radius:var(--radius-sm);background:var(--primary-light);border-left:4px solid var(--primary);font-size:14px;font-weight:500;color:var(--text)}
+#page-footer{margin-top:60px;padding:32px 0;border-top:1px solid var(--border);display:flex;gap:12px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:var(--radius-sm);font-size:14px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:var(--bg);color:var(--text);transition:all var(--transition);text-decoration:none}
+.btn:hover{background:var(--bg-tertiary)}
+.btn.primary{background:var(--primary);color:#fff;border-color:var(--primary)}
+.btn.primary:hover{filter:brightness(1.1)}
+.back-btn{position:fixed;right:24px;bottom:24px;z-index:200}
+.back-btn button{background:linear-gradient(135deg,#6366f1,#8b5cf6);color:white;border:none;border-radius:24px;padding:12px 24px;font-size:0.85rem;font-weight:600;cursor:pointer;box-shadow:0 4px 12px rgba(99,102,241,0.3)}
+#bg-canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none}
+@media (max-width:1024px){:root{--sidebar-width:200px}#main-content{padding:48px 24px 80px}}
+@media (max-width:768px){.integration-navbar{margin-left:0}#sidebar{transform:translateX(-100%)}#sidebar.open{transform:translateX(0)}#main-content{margin-left:0;padding:72px 20px 60px}#theme-toggle{top:16px;right:16px}.meta-card{padding:20px 24px;flex-direction:column;gap:12px;align-items:flex-start}.chart-wrapper{height:280px}.module-title{font-size:19px}}
+@media print{#sidebar,#progress-bar,#theme-toggle,#page-footer,.back-btn,.integration-navbar{display:none!important}#main-content{margin-left:0;max-width:100%;padding:0}.module-section{opacity:1;transform:none;break-inside:avoid}body{font-size:12px;line-height:1.5}}
+</style>
+</head>
+<body class="loading dark">
+<canvas id="bg-canvas"></canvas>
+<div id="progress-bar"></div>
+<button id="theme-toggle" title="切换深色/浅色模式" onclick="toggleTheme()">🌓</button>
+
+<div class="integration-navbar">
+  <a href="#" onclick="goBack();return false;" style="color:var(--primary);text-decoration:none;font-weight:600;">← 返回 计量经济学 系统学习方案</a>
+  <span style="color:var(--text-muted);">|</span>
+  <span style="color:var(--text-secondary);">第2/5阶段 · 经典线性回归模型</span>
+</div>
+
+<nav id="sidebar"><h3>📑 内容导航</h3><div id="sidebar-links"></div></nav>
+
+<main id="main-content">
+  <div id="meta-card-container"></div>
+  <div id="modules-container"></div>
+  <footer id="page-footer">
+    <button class="btn primary" onclick="window.print()">📥 导出 PDF</button>
+    <button class="btn" onclick="exportNotes()">📄 导出笔记</button>
+    <button class="btn" onclick="window.print()">🖨 打印</button>
+  </footer>
+</main>
+
+<div class="back-btn"><button onclick="goBack()">← 返回学习方案</button></div>
+
+<script>
+var DEEP_DIVE_KP_ID = 'p2_2';
+var MAIN_PAGE = 'econ_learning.html';
+var WIN_NAME = '_ml_llm_main';
+var CH_KEY = '_ml_llm_nav';
+
+function goBack(){
+  localStorage.setItem(CH_KEY, JSON.stringify({kpId:DEEP_DIVE_KP_ID,ts:Date.now()}));
+  var mainWin = window.open(MAIN_PAGE, WIN_NAME);
+  if(mainWin){mainWin.focus();}
+}
+
+var PAGE_DATA = {
+  topic: "OLS估计量推导",
+  domain: "finance",
+  domain_name: "金融/计量经济学",
+  level: "intermediate",
+  level_name: "进阶（理解×标准）",
+  reading_time: "48",
+  module_count: "22",
+  texture: "G1",
+  texture_name: "公式推导驱动型",
+  depth: "理解",
+  breadth: "标准",
+  plan_name: "计量经济学 系统学习方案",
+  phase_name: "经典线性回归模型",
+  phase_position: "2/5",
+  modules: [
+    {module_id:"background", module_title:"背景与缘起", module_tag:"核心概念",
+      hook:"1805年，一位24岁的法国数学天才和一位德国天文学家几乎同时在两篇独立的论文中提出了同一个方法——这就是最小二乘法诞生的故事。",
+      content:"**最小二乘法（Least Squares）** 的历史是一部科学方法的传奇：\n\n**1805年**，法国数学家Adrien-Marie Legendre在其著作《Nouvelles méthodes pour la détermination des orbites des comètes》（彗星轨道测定的新方法）中首次公开发表了最小二乘法。Legendre将其表述为一种处理超定方程组（方程数多于未知数个数）的通用方法——通过最小化残差平方和来寻找\"最佳\"解。\n\n**但优先权属于Gauss**。Carl Friedrich Gauss在1809年的《天体运动理论》（Theoria Motus）中声称，他早在**1795年**（当时年仅18岁）就已经使用最小二乘法来计算小行星Ceres的轨道。这一声明得到了他1799年的笔记本佐证。Gauss更进一步——他不仅提出了方法，还从概率论的角度提供了**合理性论证**：在独立同分布、正态误差的假设下，最小二乘估计量等价于**最大似然估计量**。\n\n**多重贡献的学术史**：\n- **Laplace** (1810/1812)：提出最小一乘法（LAD, Least Absolute Deviations）作为备选，并证明了OLS的大样本性质\n- **Gauss-Markov定理** (Gauss 1821/Markov 1900)：在更弱的假设下（无需正态性），OLS是BLUE（最佳线性无偏估计量）\n- **Fisher** (1922/1925)：将OLS置于统计估计的框架中，引入\"充分性\"和\"效率\"等概念\n\nOLS的推导之所以重要，不仅因为它是方法本身——更因为它奠定了**所有现代参数估计方法的逻辑模板**：设定损失函数 → 优化 → 导出估计量 → 研究性质。从MLE到GMM到贝叶斯推断，都遵循这一逻辑链。",
+      formulas:[
+        {latex:"$$\\min_{\\beta_0,\\beta_1} \\sum_{i=1}^n (y_i - \\beta_0 - \\beta_1 x_i)^2$$", caption:"简单线性回归中OLS最小化的残差平方和目标函数"},
+        {latex:"$$\\frac{\\partial \\mathrm{SSR}}{\\partial \\beta_0} = -2\\sum (y_i - \\beta_0 - \\beta_1 x_i) = 0$$", caption:"一阶条件——OLS的正规方程始于对截距项求偏导"}
+      ],
+      tables:[
+        {headers:["时间","人物","贡献","历史意义"], rows:[["1805","Legendre","首次公开发表最小二乘法","奠定了\"最小化平方误差\"的方法论"],["1809","Gauss","从概率论角度证明OLS合理性","将OLS与最大似然估计联系起来"],["1810-12","Laplace","提出最小一乘法+大样本性质","开启了\"选择哪种损失函数\"的讨论"],["1821/1900","Gauss/Markov","Gauss-Markov定理","OLS的BLUE性质成为评判标准"],["1922","Fisher","将OLS纳入统计估计体系","\"估计量\"概念首次形式化"]]}
+      ],
+      references:[{title:"The History of Mathematical Statistics from 1750 to 1930", authors:"Hald A.", year:1998},{title:"Theoria Motus Corporum Coelestium", authors:"Gauss C.F.", year:1809}],
+      key_takeaway:"OLS的推导从超定方程组的\"最佳近似解\"问题出发，经历了从数值方法→概率论证→统计推断的三重跃迁。理解这一历史脉络，才能明白为什么 $(X'X)^{-1}X'y$ 这行公式被誉为\"统计学中最优美的线性代数表达式\"。"},
+    {module_id:"concept", module_title:"核心概念", module_tag:"核心概念",
+      hook:"OLS不是一种\"计算方法\"——它是一种\"估计哲学\"：在所有线性估计量中，选择那个使预测误差平方和最小的。这个看似朴素的选择背后，隐藏着从线性代数到概率论的完整论证体系。",
+      content:"**OLS的核心定义**：\n\n**普通最小二乘法（Ordinary Least Squares, OLS）** 是一种用于估计线性回归模型未知参数的方法。其基本思想极其直观：\n\n1. 给定 n 个观测值 $(y_i, X_{1i}, \\dots, X_{ki})$，我们希望找到一组参数 $\\hat{\\beta}_0, \\hat{\\beta}_1, \\dots, \\hat{\\beta}_k$ 使得**拟合值** $\\hat{y}_i = \\hat{\\beta}_0 + \\sum_{j=1}^k \\hat{\\beta}_j X_{ji}$ 尽可能接近真实观察值 $y_i$\n\n2. \"接近\"的量度：用**残差平方和**（Sum of Squared Residuals, SSR）\n$$\\mathrm{SSR}(\\boldsymbol{\\beta}) = \\sum_{i=1}^n (y_i - \\hat{y}_i)^2 = \\sum_{i=1}^n \\hat{\\varepsilon}_i^2$$\n\n3. OLS估计量 $\\hat{\\boldsymbol{\\beta}}$ 就是**使SSR最小化的那个 $\\boldsymbol{\\beta}$**：\n$$\\hat{\\boldsymbol{\\beta}} = \\arg\\min_{\\boldsymbol{\\beta}} \\sum_{i=1}^n (y_i - \\mathbf{x}_i'\\boldsymbol{\\beta})^2$$\n\n**为什么是平方而不是绝对值？**\n- **数学可微性**：平方函数处处可导，使得我们可以用微积分工具（求导+设一阶条件=0）求解闭合解\n- **概率论解释**：在正态误差假设下，OLS等价于MLE（最大似然估计）\n- **BLUE性质**：Gauss-Markov定理证明OLS在线性无偏估计量中方差最小\n- **几何解释**：OLS等价于将 $\\mathbf{y}$ 正交投影到 $\\mathbf{X}$ 的列空间上——平方距离最小化对应欧氏几何中的投影\n\n**OLS估计量的两种推导路径**：\n- **代数/微积分路径**：对SSR求偏导，解正规方程——直观但不升华至统计性质\n- **几何/投影路径**：将OLS解释为线性投影——揭示估计量的结构性质（如 $\\hat{\\mathbf{y}} \\perp \\hat{\\boldsymbol{\\varepsilon}}$）",
+      formulas:[
+        {latex:"$$\\hat{\\boldsymbol{\\beta}} = (\\mathbf{X}'\\mathbf{X})^{-1}\\mathbf{X}'\\mathbf{y}$$", caption:"OLS估计量的闭合解（矩阵形式）——\"计量经济学中最重要的一行公式\""},
+        {latex:"$$\\hat{\\mathbf{y}} = \\mathbf{X}\\hat{\\boldsymbol{\\beta}} = \\mathbf{X}(\\mathbf{X}'\\mathbf{X})^{-1}\\mathbf{X}'\\mathbf{y} = \\mathbf{P}\\mathbf{y}$$", caption:"拟合值是 $\\mathbf{y}$ 在 $\\mathbf{X}$ 列空间上的正交投影"}
+      ],
+      key_takeaway:"OLS的核心只有两行：$\\hat{\\beta} = (X'X)^{-1}X'y$（参数估计）和 $\\hat{y} = Py$（拟合值）。但这看似简单的两行公式背后，是微积分、线性代数和概率论的三重支撑。理解OLS的推导，就是理解这三者如何交汇。"},
+    {module_id:"principle", module_title:"核心原理", module_tag:"核心概念",
+      hook:"当观测数 n=10000、变量数 k=50 时，$(X'X)^{-1}$ 是一个 51×51 矩阵的求逆——计算机在毫秒内完成这一操作。但在这千分之一秒背后，是一条从微积分到线性代数再到几何的完整推理链。",
+      content:"**OLS推导的核心原理**分为三个层次：\n\n**层次一：微积分推导（标量形式）**\n\n对于简单回归 $y_i = \\beta_0 + \\beta_1 x_i + \\varepsilon_i$：\n1. 写出 SSR：$\\mathrm{SSR} = \\sum (y_i - \\beta_0 - \\beta_1 x_i)^2$\n2. 对 $\\beta_0$ 和 $\\beta_1$ 分别求偏导，设为零\n3. 解二元一次方程组，得到：\n$$\\hat{\\beta}_1 = \\frac{\\sum (x_i - \\bar{x})(y_i - \\bar{y})}{\\sum (x_i - \\bar{x})^2}, \\quad \\hat{\\beta}_0 = \\bar{y} - \\hat{\\beta}_1 \\bar{x}$$\n\n这个结果的直觉：$\\hat{\\beta}_1$ = （X与Y的样本协方差）/（X的样本方差）。斜率就是标准化了的数据\"同步变异\"程度。\n\n**层次二：矩阵推导（多元形式）**\n\n对于多元回归 $\\mathbf{y} = \\mathbf{X}\\boldsymbol{\\beta} + \\boldsymbol{\\varepsilon}$：\n1. SSR = $(\\mathbf{y} - \\mathbf{X}\\boldsymbol{\\beta})'(\\mathbf{y} - \\mathbf{X}\\boldsymbol{\\beta})$\n2. 展开：$\\mathbf{y}'\\mathbf{y} - 2\\boldsymbol{\\beta}'\\mathbf{X}'\\mathbf{y} + \\boldsymbol{\\beta}'\\mathbf{X}'\\mathbf{X}\\boldsymbol{\\beta}$\n3. 对 $\\boldsymbol{\\beta}$ 求向量导（使用矩阵微积分规则 $\\frac{\\partial \\mathbf{a}'\\mathbf{b}}{\\partial \\mathbf{b}}=\\mathbf{a}$ 和 $\\frac{\\partial \\mathbf{b}'\\mathbf{A}\\mathbf{b}}{\\partial \\mathbf{b}}=2\\mathbf{A}\\mathbf{b}$（当 $\\mathbf{A}$ 对称时））：\n$$\\frac{\\partial \\mathrm{SSR}}{\\partial \\boldsymbol{\\beta}} = -2\\mathbf{X}'\\mathbf{y} + 2\\mathbf{X}'\\mathbf{X}\\boldsymbol{\\beta} = 0$$\n4. 得到**正规方程**（Normal Equations）：\n$$\\mathbf{X}'\\mathbf{X}\\boldsymbol{\\beta} = \\mathbf{X}'\\mathbf{y}$$\n5. 在 $(\\mathbf{X}'\\mathbf{X})$ 满秩的条件下（MLR.3），左乘逆矩阵：\n$$\\hat{\\boldsymbol{\\beta}} = (\\mathbf{X}'\\mathbf{X})^{-1}\\mathbf{X}'\\mathbf{y}$$\n\n**层次三：几何解释（投影）**\n\n$\\hat{\\boldsymbol{\\beta}}$ 是最小化 $\\|\\mathbf{y} - \\mathbf{X}\\boldsymbol{\\beta}\\|^2$ 的解。在线性代数中，这意味着 $\\mathbf{X}\\hat{\\boldsymbol{\\beta}}$ 是 $\\mathbf{y}$ 在 $\\mathbf{X}$ 列空间（column space）上的**正交投影**。\n\n正交投影的条件：残差 $\\hat{\\boldsymbol{\\varepsilon}} = \\mathbf{y} - \\mathbf{X}\\hat{\\boldsymbol{\\beta}}$ 必须与 $\\mathbf{X}$ 的每一列正交，即：\n$$\\mathbf{X}'\\hat{\\boldsymbol{\\varepsilon}} = \\mathbf{X}'(\\mathbf{y} - \\mathbf{X}\\hat{\\boldsymbol{\\beta}}) = 0$$\n\n这个条件 $\\mathbf{X}'(\\mathbf{y} - \\mathbf{X}\\hat{\\boldsymbol{\\beta}}) = 0$ 正是**正规方程的另一种写法**。因此OLS估计量等价于求解\"使残差与所有解释变量正交的 $\\boldsymbol{\\beta}$\"。这也是为什么 $\\hat{\\boldsymbol{\\varepsilon}}$ 与所有 $\\mathbf{X}_j$ 的样本协方差为零——这条性质是后面所有诊断检验的逻辑起点。",
+      formulas:[
+        {latex:"$$\\hat{\\beta}_1 = \\frac{\\sum_{i=1}^n (x_i - \\bar{x})(y_i - \\bar{y})}{\\sum_{i=1}^n (x_i - \\bar{x})^2}$$", caption:"简单回归中斜率的最小二乘估计量——样本协方差与样本方差之比"},
+        {latex:"$$\\mathbf{X}'\\mathbf{X}\\hat{\\boldsymbol{\\beta}} = \\mathbf{X}'\\mathbf{y}$$", caption:"正规方程——k+1 个未知数、k+1 个方程的线性系统"},
+        {latex:"$$\\mathbf{X}'\\hat{\\boldsymbol{\\varepsilon}} = \\mathbf{0}$$", caption:"残差与所有解释变量正交——OLS的几何本质就是一个正交投影问题"}
+      ],
+      charts:[{
+        type:"echarts", chart_id:"chart_principle_01", echarts_option:{
+          xAxis:{type:"value",name:"X",min:0,max:12}, yAxis:{type:"value",name:"Y",min:0,max:35},
+          series:[
+            {type:"scatter",data:[[1,8],[2,12],[3,11],[4,14],[5,18],[6,16],[7,20],[8,22],[9,25],[10,24],[11,28],[12,30]],symbolSize:10,itemStyle:{color:"#818cf8"}},
+            {type:"line",data:[[0,6],[12,30]],lineStyle:{color:"#34d399",width:2},name:"OLS拟合线"}
+          ]
+        }, caption:"图：OLS拟合的本质——寻找一条直线使所有点到直线的垂直距离（残差）的平方和最小", data_source:"模拟数据"}
+      }],
+      references:[{title:"Matrix Algebra for Applied Economics", authors:"Searle S.R., Willett L.S.", year:2001},{title:"Least Squares and the Method of Moments", authors:"Greene W.H.", year:2018}],
+      key_takeaway:"OLS推导的三层递进——标量微积分→矩阵代数→正交投影几何——从不同角度揭示了同一个核心事实：OLS估计量是使线性模型预测误差最小的参数向量。三层推导各有侧重：微积分重计算、矩阵重结构、几何重直觉。"},
+    {module_id:"quant-model", module_title:"量化模型与公式", module_tag:"核心工具",
+      hook:"从 $\\hat{\\beta} = (X'X)^{-1}X'y$ 到 $Var(\\hat{\\beta}) = \\sigma^2(X'X)^{-1}$：理解第二行公式需要的时间往往是第一行的十倍——但正是这第二行公式，决定了一个回归系数的可信度。",
+      content:"**OLS估计量的完整推导链**：\n\n**第一步：建立目标函数**\n$$\\min_{\\boldsymbol{\\beta}} Q(\\boldsymbol{\\beta}) = \\sum_{i=1}^n (y_i - \\mathbf{x}_i'\\boldsymbol{\\beta})^2 = (\\mathbf{y} - \\mathbf{X}\\boldsymbol{\\beta})'(\\mathbf{y} - \\mathbf{X}\\boldsymbol{\\beta})$$\n\n**第二步：展开平方和**\n$$Q(\\boldsymbol{\\beta}) = \\mathbf{y}'\\mathbf{y} - \\boldsymbol{\\beta}'\\mathbf{X}'\\mathbf{y} - \\mathbf{y}'\\mathbf{X}\\boldsymbol{\\beta} + \\boldsymbol{\\beta}'\\mathbf{X}'\\mathbf{X}\\boldsymbol{\\beta}$$\n由于 $\\boldsymbol{\\beta}'\\mathbf{X}'\\mathbf{y}$ 是标量，等于其转置 $\\mathbf{y}'\\mathbf{X}\\boldsymbol{\\beta}$，所以：\n$$Q(\\boldsymbol{\\beta}) = \\mathbf{y}'\\mathbf{y} - 2\\boldsymbol{\\beta}'\\mathbf{X}'\\mathbf{y} + \\boldsymbol{\\beta}'\\mathbf{X}'\\mathbf{X}\\boldsymbol{\\beta}$$\n\n**第三步：向量求导（一阶条件）**\n使用矩阵微积分规则：\n- $\\frac{\\partial}{\\partial \\boldsymbol{\\beta}}(\\boldsymbol{\\beta}'\\mathbf{a}) = \\mathbf{a}$\n- $\\frac{\\partial}{\\partial \\boldsymbol{\\beta}}(\\boldsymbol{\\beta}'\\mathbf{A}\\boldsymbol{\\beta}) = 2\\mathbf{A}\\boldsymbol{\\beta}$（$\\mathbf{A}$对称时）\n\n$$\\frac{\\partial Q}{\\partial \\boldsymbol{\\beta}} = -2\\mathbf{X}'\\mathbf{y} + 2\\mathbf{X}'\\mathbf{X}\\boldsymbol{\\beta} = 0$$\n\n**第四步：解正规方程**\n$$\\mathbf{X}'\\mathbf{X}\\hat{\\boldsymbol{\\beta}} = \\mathbf{X}'\\mathbf{y}$$\n在MLR.3（$\\mathbf{X}$满列秩）保证下，$(\\mathbf{X}'\\mathbf{X})$ 可逆：\n$$\\hat{\\boldsymbol{\\beta}} = (\\mathbf{X}'\\mathbf{X})^{-1}\\mathbf{X}'\\mathbf{y}$$\n\n**第五步：OLS估计量的统计性质推导**\n\n**无偏性**（MLR.1-MLR.4下）：\n$$\\mathbb{E}[\\hat{\\boldsymbol{\\beta}}|\\mathbf{X}] = \\mathbb{E}[(\\mathbf{X}'\\mathbf{X})^{-1}\\mathbf{X}'(\\mathbf{X}\\boldsymbol{\\beta} + \\boldsymbol{\\varepsilon})|\\mathbf{X}]$$\n$$= (\\mathbf{X}'\\mathbf{X})^{-1}\\mathbf{X}'\\mathbf{X}\\boldsymbol{\\beta} + (\\mathbf{X}'\\mathbf{X})^{-1}\\mathbf{X}'\\mathbb{E}[\\boldsymbol{\\varepsilon}|\\mathbf{X}]$$\n$$= \\boldsymbol{\\beta} + 0 = \\boldsymbol{\\beta}$$\n\n**方差-协方差矩阵**（MLR.1-MLR.5下）：\n$$\\mathrm{Var}(\\hat{\\boldsymbol{\\beta}}|\\mathbf{X}) = \\sigma^2(\\mathbf{X}'\\mathbf{X})^{-1}$$\n\n这个公式是计量推断的核心——$t$检验、$F$检验、置信区间全部建立在它之上。$\\sigma^2$ 的无偏估计量为：\n$$\\hat{\\sigma}^2 = \\frac{\\mathrm{SSR}}{n-k-1} = \\frac{\\hat{\\boldsymbol{\\varepsilon}}'\\hat{\\boldsymbol{\\varepsilon}}}{n-k-1}$$\n\n**投影矩阵与残差生成矩阵**：\n- 投影矩阵 $\\mathbf{P} = \\mathbf{X}(\\mathbf{X}'\\mathbf{X})^{-1}\\mathbf{X}'$：对称幂等（$\\mathbf{P}=\\mathbf{P}'$，$\\mathbf{P}=\\mathbf{P}^2$），秩=$k+1$\n- 残差生成矩阵 $\\mathbf{M} = \\mathbf{I}_n - \\mathbf{P}$：对称幂等，秩=$n-k-1$\n- $\\mathbf{P}\\mathbf{X} = \\mathbf{X}$，$\\mathbf{M}\\mathbf{X} = \\mathbf{0}$\n- $\\hat{\\boldsymbol{\\varepsilon}} = \\mathbf{M}\\mathbf{y} = \\mathbf{M}\\boldsymbol{\\varepsilon}$（残差是真实误差的线性变换）",
+      formulas:[
+        {latex:"$$\\hat{\\sigma}^2 = \\frac{\\hat{\\boldsymbol{\\varepsilon}}'\\hat{\\boldsymbol{\\varepsilon}}}{n-k-1} = \\frac{\\sum_{i=1}^n \\hat{\\varepsilon}_i^2}{n-k-1}$$", caption:"扰动项方差的无偏估计量——分母 $n-k-1$ 是自由度校正"},
+        {latex:"$$\\mathbf{M} = \\mathbf{I}_n - \\mathbf{X}(\\mathbf{X}'\\mathbf{X})^{-1}\\mathbf{X}'$$", caption:"残差生成矩阵：$\\hat{\\boldsymbol{\\varepsilon}} = \\mathbf{My}$，它将 $\\mathbf{y}$ 投影到 $\\mathbf{X}$ 列空间的正交补空间上"}
+      ],
+      key_takeaway:"OLS的量化体系从 $(X'X)^{-1}X'y$ 这一封闭解出发，通过矩阵运算层层推导出估计量的全部统计性质：无偏性、方差结构（$\\sigma^2(X'X)^{-1}$）、以及与投影矩阵的深刻联系。这一整套推导不是学术体操——而是每一个 $t$ 统计量和每一个置信区间的计算基础。"},
+    {module_id:"development", module_title:"发展迭代", module_tag:"发展演进",
+      hook:"从Gauss时代的手工迭代计算，到当代GPU集群上对 $10^6 \\times 10^4$ 设计矩阵的QR分解——OLS计算方法的发展史，就是一部计算科学的浓缩史。",
+      content:"**OLS计算方法的五代演进**：\n\n**第一代：手工求解（1800s-1950s）**\n- Gauss使用Gauss-Seidel迭代法手工求解正规方程\n- Doolittle方法（1878）：将正规方程的对称矩阵分解为三角阵——这是现代LU/Cholesky分解的前身\n- 局限：变量超过10个时计算量呈立方增长，手工几乎不可行\n\n**第二代：直接法时代（1960s-1970s）**\n- **Cholesky分解**成为标准：$\\mathbf{X}'\\mathbf{X} = \\mathbf{L}\\mathbf{L}'$（$\\mathbf{L}$ 为下三角），然后通过两次三角回代求解 $\\hat{\\boldsymbol{\\beta}}$\n- 计算复杂度 $O(nk^2 + k^3/3)$——$n \\gg k$ 时由 $nk^2$ 主导\n- 问题：当 $\\mathbf{X}'\\mathbf{X}$ 接近奇异时（严重共线性），Cholesky分解数值不稳定\n\n**第三代：QR分解时代（1980s-2000s）**\n- 将 $\\mathbf{X}$ 分解为正交矩阵 $\\mathbf{Q}$ 和上三角矩阵 $\\mathbf{R}$\n- $\\mathbf{X} = \\mathbf{Q}\\mathbf{R}$，代入正规方程得 $\\mathbf{R}'\\mathbf{Q}'\\mathbf{Q}\\mathbf{R} = \\mathbf{R}'\\mathbf{R} = \\mathbf{X}'\\mathbf{X}$\n- 直接用 $\\hat{\\boldsymbol{\\beta}} = \\mathbf{R}^{-1}\\mathbf{Q}'\\mathbf{y}$ 求解——避免了形式 $(\\mathbf{X}'\\mathbf{X})$ 的数值不稳定\n- 计算复杂度仍为 $O(nk^2)$，但数值稳定性大幅提升\n- R的 `lm()` 和Python的 `statsmodels.OLS` 默认使用QR分解\n\n**第四代：稀疏与高维扩展（2010s-至今）**\n- **稀疏QR/稀疏Cholesky**：当 $\\mathbf{X}$ 大量元素为0时（如包含大量虚拟变量），利用稀疏矩阵技术将复杂度降至 $O(nnz \\cdot k)$\n- **迭代求解器**（Conjugate Gradient, LSQR）：对于 $n > 10^6$ 的超级数据，不再倾向闭合解，而用迭代方法逼近 $\\hat{\\boldsymbol{\\beta}}$\n- **分块求解**：将数据按列分块，利用Woodbury公式做增量更新\n\n**第五代：GPU加速与流式计算（2020s）**\n- NVIDIA cuSOLVER提供GPU上的QR/SVD底层实现，$10^6$ 观测的回归可在秒级完成\n- `fixest`（R）和 `linearmodels`（Python）针对高维固定效应回归做了专门优化（利用去均值变换避免对所有虚拟变量做矩阵乘法）",
+      tables:[{headers:["方法","代表软件/包","计算复杂度","数值稳定性","适用场景"], rows:[["正规方程直接求解","手工/早期Fortran","O(nk²+k³/3)","差（共线性时严重）","小规模(n<1000,k<10)"],["Cholesky分解","最早的R/SAS","O(nk²+k³/3)","中等","中等规模"],["QR分解","lm()/statsmodels","O(nk²)","好","通用默认选择"],["SVD分解","scipy.linalg","O(nk²)","极好","极端共线性时"],["迭代求解器","LSQR/CG","O(nk×迭代次数)","中","n>10⁶ 的超大数据"],["固定效应去均值","fixest/reghdfe","O(nk)","好","含大量固定效应的面板数据"]]}],
+      references:[{title:"Matrix Computations", authors:"Golub G.H., Van Loan C.F.", year:2013},{title:"Numerical Methods for Least Squares Problems", authors:"Bjorck A.", year:1996}],
+      key_takeaway:"OLS在理论上只是一个公式 $\\hat{\\beta} = (X'X)^{-1}X'y$，但在计算实践中，**永远不要直接求逆**——数值分析师会告诉你，$(X'X)^{-1}X'y$ 应该被理解为\"通过QR分解求解正规方程\"，而非字面意思上的矩阵求逆。理解\"应该用什么算法"""而非\"公式写了什么\"，是数据变大规模后OLS实践的第一课。"},
+    {module_id:"application", module_title:"实践应用", module_tag:"实践应用",
+      hook:"在Stata中输入 `reg wage edu exp` 并按下回车，0.1秒后屏幕上出现回归表——但这0.1秒内，计算机完成了从数据加载到QR分解到标准误计算的全自动流水线。理解每一步，才能读懂每一列数字背后的含义。",
+      content:"**OLS从理论到实践的完整流水线**：\n\n**Step 1：数据矩阵构建**\n- 截距项：在 $\\mathbf{X}$ 的第一列塞入全1向量 $\\mathbf{1}_n$\n- 连续变量：直接放入 $\\mathbf{X}$ 的后列\n- 虚拟变量（Dummy）：将分类变量（如\"行业\"14个类别）转换为13个0/1列（基准类省略以避免完全共线性）\n- 交互项：$X_1 \\times X_2$ ——在矩阵中新增一列\n\n**Step 2：矩阵运算**\n以 $n=1000$，$k=10$ 的回归为例：\n- $\\mathbf{X}$ 大小：$1000 \\times 11$（含截距）\n- $\\mathbf{X}'\\mathbf{X}$：$11 \\times 11$ 对称矩阵 → 小矩阵可快速求逆\n- QR分解 $\\mathbf{X}_{1000\\times11} = \\mathbf{Q}_{1000\\times11} \\cdot \\mathbf{R}_{11\\times11}$\n- 求解：$\\mathbf{R}\\hat{\\boldsymbol{\\beta}} = \\mathbf{Q}'\\mathbf{y}$（上三角回代，$O(k^2)$）\n\n**Step 3：残差与标准误**\n- $\\hat{\\mathbf{y}} = \\mathbf{X}\\hat{\\boldsymbol{\\beta}}$\n- $\\hat{\\boldsymbol{\\varepsilon}} = \\mathbf{y} - \\hat{\\mathbf{y}}$\n- $\\hat{\\sigma}^2 = \\hat{\\boldsymbol{\\varepsilon}}'\\hat{\\boldsymbol{\\varepsilon}} / (n-k-1)$\n- $\\widehat{\\mathrm{Var}}(\\hat{\\boldsymbol{\\beta}}) = \\hat{\\sigma}^2(\\mathbf{X}'\\mathbf{X})^{-1}$\n- $\\mathrm{SE}(\\hat{\\beta}_j) = \\sqrt{\\widehat{\\mathrm{Var}}(\\hat{\\beta}_j)}$\n- $t_j = \\hat{\\beta}_j / \\mathrm{SE}(\\hat{\\beta}_j)$ → p值由 $t_{n-k-1}$ 分布计算\n\n**Step 4：稳健标准误**\n当怀疑异方差存在时，使用**White异方差稳健标准误**替代默认标准误：\n$$\\widehat{\\mathrm{Var}}_{\\mathrm{HC}}(\\hat{\\boldsymbol{\\beta}}) = (\\mathbf{X}'\\mathbf{X})^{-1}\\left(\\sum_{i=1}^n \\hat{\\varepsilon}_i^2 \\mathbf{x}_i\\mathbf{x}_i'\\right)(\\mathbf{X}'\\mathbf{X})^{-1}$$\n\n这被称为\"三明治\"估计量：$\\mathbf{A}^{-1}\\mathbf{B}\\mathbf{A}^{-1}$，其中 $\\mathbf{A}=\\mathbf{X}'\\mathbf{X}$，$\\mathbf{B}=\\sum \\hat{\\varepsilon}_i^2 \\mathbf{x}_i\\mathbf{x}_i'$。HC0/HC1/HC2/HC3 是小样本校正的不同版本——HC3被推荐为默认。",
+      tables:[{headers:["软件","OLS命令","基本语法","稳健标准误选项","回归表输出"], rows:[["R","`lm()`","`lm(y ~ x1 + x2, data)`","`sandwich::vcovHC()`","`modelsummary` / `stargazer`"],["Python","`statsmodels.OLS`","`sm.OLS(y, X).fit()`","`cov_type='HC3'`","`summary()` / `summary_col()`"],["Stata","`reg`","`reg y x1 x2`","`robust` / `vce(cluster id)`","`esttab` / `outreg2`"]]}],
+      key_takeaway:"从 `reg y x1 x2` 到回归表输出的自动化流水线，其核心步骤是：构建设计矩阵 → QR分解求解 $\\hat{\\beta}$ → 计算残差 → 估计 $\\sigma^2$ → 提取标准误 → 计算 t 统计量和 p 值。每一个回归软件包的开发者都走过这六步——理解它们，回归输出表就不再是黑箱。"},
+    {module_id:"case-study", module_title:"实践案例", module_tag:"实践应用",
+      hook:"我们用Python从零实现一个OLS估计器——不需要调用任何回归库，30行代码就让你看见 $(X'X)^{-1}X'y$ 从公式变成真实的系数。然后我们用1000次蒙特卡洛模拟验证：$\hat{\beta}$ 真的无偏吗？",
+      content:"**案例1：从零实现OLS估计器**\n\n以经典的Mincer工资方程为例（n=1000, 模拟数据）：\n$$\\ln(\\text{wage}) = \\beta_0 + \\beta_1 \\cdot \\text{edu} + \\beta_2 \\cdot \\text{exp} + \\beta_3 \\cdot \\text{exp}^2 + \\varepsilon$$\n\n真实参数设为：$\\beta_0=1.5$，$\\beta_1=0.08$（教育回报率8%），$\\beta_2=0.04$（经验回报），$\\beta_3=-0.0006$（经验的边际递减）。\n\n**\"白手起家\"OLS步骤**（R/Python伪代码思路）：\n1. 构建 $\\mathbf{X} = [\\mathbf{1},\\ \\text{edu},\\ \\text{exp},\\ \\text{exp}^2]$\n2. 计算 $\\mathbf{X}'\\mathbf{X}$ 并求逆 → $(\\mathbf{X}'\\mathbf{X})^{-1}$\n3. 计算 $\\hat{\\boldsymbol{\\beta}}_{\\text{manual}} = (\\mathbf{X}'\\mathbf{X})^{-1}\\mathbf{X}'\\mathbf{y}$\n4. 用 `lm()` 或 `sm.OLS()` 验证结果一致\n\n**案例2：蒙特卡洛模拟验证OLS的无偏性**\n\n模拟设计：\n- 固定 $\\mathbf{X}$ 矩阵，设定真参数 $\\boldsymbol{\\beta}=(1.5, 0.08, 0.04, -0.0006)'$\n- 重复1000次实验：\n  1. 从 $N(0, \\sigma^2=0.5^2)$ 生成扰动项 $\\boldsymbol{\\varepsilon}$\n  2. 计算 $\\mathbf{y} = \\mathbf{X}\\boldsymbol{\\beta} + \\boldsymbol{\\varepsilon}$\n  3. 用OLS估计 $\\hat{\\boldsymbol{\\beta}}^{(m)}$\n  4. 记录 $\\hat{\\beta}_1^{(m)}$（教育回报率的第m次估计）\n\n**结果解读**：\n- $\\hat{\\beta}_1^{(m)}$ 的均值应非常接近真实值 $0.08$ — 验证无偏性\n- $\\hat{\\beta}_1^{(m)}$ 的标准差应接近理论标准误 $\\mathrm{SE}(\\hat{\\beta}_1)$ — 验证方差公式\n- $\\hat{\\beta}_1^{(m)}$ 的分布应近似正态 — 验证CLT在 $n=1000$ 时的合理性\n- 若加入异方差（让扰动项方差随 $X$ 变化），验证默认标准误是否低估（通常低估10%~30%），以及稳健标准误是否覆盖",
+      charts:[{
+        type:"echarts", chart_id:"chart_case_01", echarts_option:{
+          title:{text:"蒙特卡洛模拟：OLS估计量的抽样分布",subtext:"1000次模拟, n=1000, 真实β₁=0.08",left:"center"},
+          xAxis:{type:"value",name:"β₁ 估计值"}, yAxis:{type:"value",name:"频数"},
+          series:[{type:"histogram",datasetIndex:0}],
+          dataset:[{source:[[0.065],[0.067],[0.069],[0.071],[0.073],[0.075],[0.077],[0.078],[0.079],[0.08],[0.08],[0.081],[0.082],[0.082],[0.083],[0.084],[0.085],[0.085],[0.086],[0.087],[0.088],[0.089],[0.09],[0.091],[0.093],[0.095]]}]
+        }, caption:"图：蒙特卡洛模拟的β₁估计值分布——中心在0.08附近（无偏性），分布宽度反映抽样变异", data_source:"模拟数据"}
+      }],
+      references:[{title:"Monte Carlo Simulation and Resampling Methods for Social Science", authors:"Carsey T.M., Harden J.J.", year:2013}],
+      key_takeaway:"从零实现OLS和蒙特卡洛验证是理解OLS估计量的最佳双路径：前者让你看见 $(X'X)^{-1}X'y$ 如何从数学符号变为数值结果，后者让你看见\"无偏\"不是魔法——它是无数次重复实验中，估计量分布的中心恰好落在真实值上的统计事实。"},
+    {module_id:"cross-market", module_title:"跨领域联动", module_tag:"实践应用",
+      hook:"OLS估计量的推导逻辑——最小化误差平方和——不仅统治了计量经济学，它还渗透到了信号处理（Wiener滤波）、机器学习（线性回归=无隐藏层的神经网络）、甚至GPS定位（最小二乘法求解超定方程）中。",
+      content:"**OLS推导逻辑的跨学科迁移**：\n\n**机器学习**：线性回归是神经网络的最简形式——一个无激活函数的单一神经元，其权重更新同样基于梯度下降来最小化MSE。区别在于：OLS给出了封闭解 $\\hat{\\beta} = (X'X)^{-1}X'y$，而深度学习使用迭代优化。理解这一对应关系：$\\hat{\\beta} = \\arg\\min \\mathrm{MSE}$ 是\"做什么\"，OLS/梯度下降是\"怎么做\"的不同路径。\n\n**信号处理**：Wiener滤波器的推导与OLS同源——都是最小化均方误差。在信号处理中存在\"观测信号 = 真实信号 + 噪声\"的模型，Wiener滤波在频域中求解一个等价于 $(X'X)^{-1}X'y$ 的最优线性滤波器。\n\n**GPS定位**：当GPS接收器同时接收到4+颗卫星的信号时，构成了一个超定方程组（未知数是X/Y/Z坐标+钟差，方程数是卫星数）。最小二乘法正是求解这个\"找到使各卫星测距误差平方和最小的那个三维位置\"的标准方法。\n\n**金融工程**：在债券收益率曲线拟合中，Nelson-Siegel模型 $y(\\tau) = \\beta_0 + \\beta_1 \\cdot \\frac{1-e^{-\\lambda\\tau}}{\\lambda\\tau} + \\beta_2 \\cdot e^{-\\lambda\\tau}$ 的参数估计本质上是一个非线性最小二乘问题——Levenberg-Marquardt算法的每一步迭代都是一个\"局部的OLS\"。\n\n**物理学**：在粒子物理实验中，从大量碰撞事件中拟合粒子轨迹的参数（位置、动量、方向）使用广义最小二乘法（GLS）——OLS的自然扩展，通过加权来处理不同精度的测量。\n\n**统一的推导逻辑**：所有上述应用的共同骨架都是——(1) 设定一个\"预测值=参数×基函数\"的线性模型，(2) 最小化平方误差，(3) 解一个等价于正规方程的线性系统。OLS之所以成为\"通用语言\"，不是因为经济学特殊，而是因为这个推导骨架极其通用。",
+      key_takeaway:"OLS的推导不是计量经济学的专利——从机器学习到GPS定位，从信号处理到粒子物理，\"最小化平方误差→解正规方程\"这套逻辑已经成为了跨学科的数据拟合通用语言。学会它，你就不只是在学计量——你在学习现代科学最基础的建模范式之一。"},
+    {module_id:"institution-diff", module_title:"学派与范式差异", module_tag:"风险与挑战",
+      hook:"在计量经济学界，有两个关于OLS估计量解读的阵营：一派说\"$\\hat{\\beta}$ 只是描述性的——它概括了数据中的最佳线性关系\"，另一派说\"$\\hat{\\beta}$ 是因果效应的一致估计——前提是你正确设定了模型\"。这个看似微妙的区别，定义了两种完全不同的研究范式。",
+      content:"**OLS的两种范式解读**：\n\n**描述范式（Descriptive/Projection）**\n- 代表人物：Goldberger、早期的Freedman\n- 核心观点：OLS估计量 $\\hat{\\beta}$ 仅仅是数据中最佳线性预测关系的概括——它不附带任何因果承诺\n- 数学基础：OLS是 $\\mathbf{y}$ 在 $\\mathbf{X}$ 列空间上的正交投影——投影是纯几何操作，与\"为什么Y和X相关\"无关\n- 推理链条：\"$\\hat{\\beta}_1 = 0.3$ 意味着在样本中，X1每增加1单位，Y的线性预测值增加0.3单位\"——仅此而已\n- 局限性：这种保守解读虽然安全，但几乎不产生政策含义——\"我们只知道过去数据中的关联，不知道如果改变X，Y会怎样\"\n\n**因果范式（Causal/Structural）**\n- 代表人物：Angrist、Imbens、Rubin\n- 核心观点：在MLR.4（外生性）成立的前提下，$\\hat{\\beta}$ 一致地估计了 $\\frac{\\partial \\mathbb{E}[Y|X]}{\\partial X}$——即\"保持其他条件不变时X对Y的边际因果效应\"\n- 但额外要求：外生性 $\\mathbb{E}[\\varepsilon|X]=0$ 是**不可检验的假设**——它纯粹来自研究者的理论论证\n- 推理链条：\"我论证了X的外生性 → OLS给出了X对Y因果效应的一致估计 → 政策含义：增加教育→提高工资\"\n\n**贝叶斯范式**\n- OLS估计量 $\\hat{\\beta}$ = 在平坦先验下的贝叶斯后验众数\n- 贝叶斯视角不区分\"描述\"和\"因果\"——所有推断都是条件概率的更新，参数的确定性来自先验选择和数据\n\n**对研究实践的启示**：在写论文时，你的回归表前面必须说明你采取的是哪种解读。如果是因果范式，必须展示外生性的论证；如果是描述范式，必须明确\"这些系数不代表因果\"——混淆两种解读是应用计量中最常见的\"哲学失误\"。",
+      references:[{title:"Causal Inference in Statistics, Social, and Biomedical Sciences", authors:"Imbens G.W., Rubin D.B.", year:2015},{title:"Mostly Harmless Econometrics", authors:"Angrist J.D., Pischke J.S.", year:2009}],
+      key_takeaway:"OLS的推导是数学（无争议），但OLS的解读是哲学（有争议）。描述派说系数仅反映相关性，因果派说系数可以反映因果——区别不在于公式本身，而在于你是否相信外生性（MLR.4）成立。多数实证矛盾的本质不是OLS算错了，而是研究者把描述当成因果来解读了。"},
+    {module_id:"regulation", module_title:"实证标准与规范", module_tag:"实践应用",
+      hook:"一篇规范的实证论文中，OLS估计的回归表至少应报告三列：系数、稳健标准误（而非默认标准误）、和样本量。缺少任何一项，审稿人的第一反应都将是\"需要补充\"。",
+      content:"**OLS估计在实证研究中的报告规范**已形成高度标准化的格式：\n\n**回归表的\"最低可报告标准\"**：\n| 列 | 内容 | 重要性 |\n|------|------|------|\n| 第1列 | 变量名称 | 必需品 |\n| 第2列 | 基准模型系数 | 必需品 |\n| 第3列 | 扩展模型系数 | 必需品 |\n| 括号内 | 标准误（标注类型：默认/稳健/聚类） | 必需品 |\n| 表注 | 显著性水平标注（* p<0.1, ** p<0.05, *** p<0.01） | 必需品 |\n| 附加行 | 观测数(N)、R²/调整R²、F统计量 | 必需品 |\n\n**报告标准的三层递进**：\n\n**基准层**：系数 + 默认标准误 + 显著性星号 + R² — 仅适用于探索性分析\n**标准层**：基准 + 稳健标准误(Huber-White) + 控制变量的完整列表 — 应用计量普遍接受的最低标准\n**前沿层**：标准 + 多重稳健标准误对比(HC1/HC2/HC3) + 聚类标准误(标明聚类层级) + wild bootstrap p值 + 敏感性分析\n\n**特别规范**：\n- 交互项回归：必须报告边际效应图（不能仅报告系数表，因为 $\\beta_3$ 本身不足以描述交互效应的全貌）\n- 对数模型：必须明确说明系数的解释是\"百分比变化\"还是\"弹性\"\n- 高维固定效应：必须报告每个固定效应维度包含的类别数\n- 聚类标准误：必须说明\"标准误在XX层级聚类\"（如县级、企业级），且聚类数少于50时需要标注并说明使用了何种小样本校正",
+      tables:[{headers:["报告层级","标准误类型","R²汇报","附加信息","适用场景"], rows:[["基准","默认(同方差假定)","R² + 调整R²","F统计量","探索性分析/教学"],["标准","稳健(HC1/HC3)","R² + 调整R²","观测数+控制变量列表","应用微观计量"],["前沿","多重对比+聚类+wild bootstrap","R² + 调整R² + RMSE","敏感性分析+交互项边际效应图","顶刊发表/政策评估"]]}],
+      key_takeaway:"OLS回归表的规范报告不是形式主义——每一列的遗漏都可能掩盖关键的方法论缺陷。默认标准误在异方差下不可靠，聚类标准误层级错误会导致伪显著——这些\"规范动作\"本质上是对OLS推导中每一个假设的逐项回应。"},
+    {module_id:"crisis-review", module_title:"经典推导误用复盘", module_tag:"风险与挑战",
+      hook:"2003年，一篇发表在顶级医学期刊上的论文宣称\"激素替代疗法(HRT)能降低冠心病风险34%\"——这个基于OLS回归的结论让数百万女性服用了HRT。直到随机对照试验(RCT)揭示：因果关系完全相反，HRT实际上**增加**冠心病风险。OLS败给了未观测混杂。",
+      content:"**案例1：激素替代疗法的OLS误用（2003）**\n\n背景：观察性研究用OLS回归发现 $\\hat{\\beta}_{\\text{HRT}} = -0.34$（HRT与冠心病风险负相关）。\n\n**为什么OLS给错了答案？**\n- **遗漏变量**：接受HRT的女性通常教育水平更高、更健康（\"healthy user bias\"）——而这些未被观测的变量（社会经济地位、健康意识）同时影响HRT使用和冠心病风险\n- **OLS推导的前提被违反了**：$\\mathbb{E}[\\varepsilon|\\text{HRT}] \\neq 0$，因为遗漏变量同时进入了 $\\varepsilon$（影响健康）和HRT决策中\n- 后续RCT（Women's Health Initiative, 2002）发现HRT实际上**增加**冠心病风险——OLS的符号完全反了\n\n**案例2：PPP（购买力平价）回归的\"无意义高R²\"**\n\n在跨国增长回归中，常见的设定是：\n$$\\ln\\text{GDP} = \\beta_0 + \\beta_1 \\cdot \\ln\\text{Population} + \\beta_2 \\cdot \\ln\\text{Area} + \\dots + \\varepsilon$$\n\nOLS给出了荒谬的高 $R^2$（0.95+），但原因不是模型正确，而是**人口和面积本身就是GDP的缩放因子**（大国家的GDP几乎必然更大）。这种\"规模变量做回归\"的OLS推导虽然数学上无懈可击，但实质上什么都没解释。\n\n**教训**：\n1. OLS推导的正确性（数学上）不等于因果推断的有效性（统计上）\n2. 高 $R^2$ 从来不是模型好的充分条件——有时恰恰是危险的信号\n3. 外生性假设不能仅靠统计检验——需要\"说服力论证\"（identification argument）",
+      references:[{title:"Risks and Benefits of Estrogen Plus Progestin in Healthy Postmenopausal Women", authors:"Writing Group for the Women's Health Initiative", year:2002, doi:"10.1001/jama.288.3.321"}],
+      key_takeaway:"OLS估计量的推导在数学上严谨美丽，但它的应用结论只有在假设（尤其是外生性）成立的条件下才可信。HRT案例是所有计量学习者的\"警钟石\"：再完美的推导也无法在违反核心假设时拯救错误的结论。"},
+    {module_id:"risk", module_title:"潜在风险", module_tag:"风险与挑战",
+      hook:"OLS估计量的无偏性建立在 $\\mathbb{E}[\\boldsymbol{\\varepsilon}|\\mathbf{X}] = 0$ 这一核心假设上——但讽刺的是，这个假设是**不可直接检验**的。这就是为什么每一个OLS回归结果都需要一份\"计量怀疑清单\"。",
+      content:"**OLS推导与应用中的七大风险源**：\n\n**风险1：内生性 — 推导的前提崩塌**\n$\\hat{\\boldsymbol{\\beta}} = \\boldsymbol{\\beta} + (\\mathbf{X}'\\mathbf{X})^{-1}\\mathbf{X}'\\boldsymbol{\\varepsilon}$ 的期望中，若 $\\mathbb{E}[\\boldsymbol{\\varepsilon}|\\mathbf{X}] \\neq 0$，第二项不为零 → OLS有偏且不一致。内生性三大来源：\n- **遗漏变量**：真正影响Y的变量未被包含\n- **测量误差**：X或Y的测量含噪音（经典测量误差下OLS向零衰减）\n- **联立性**：Y也影响X（供需模型中价格和数量的互动）\n\n**风险2：多重共线性 — $(X'X)^{-1}$近似奇异**\n当 $\\mathbf{X}$ 的列接近线性相关时：\n- $(\\mathbf{X}'\\mathbf{X})^{-1}$ 的元素急剧膨胀\n- $\\mathrm{Var}(\\hat{\\beta}_j) = \\sigma^2/(SST_j \\cdot (1-R_j^2))$ 中的分母 $(1-R_j^2) \\to 0$\n- 结果：系数符号正确但t值不显著 → 研究者可能错误地删除关键变量\n\n**风险3：异方差 — 标准误的失效**\n当 $\\mathrm{Var}(\\varepsilon_i|\\mathbf{X}_i)$ 不是常数时：\n- $\\hat{\\beta}$ 仍然无偏且一致（这是一个重要性质！）\n- 但是默认标准误 $\\mathrm{SE}_{\\text{default}}(\\hat{\\beta}_j)$ 不再有效\n- 低估常见于正异方差：大X时方差大，默认SE低估 → 伪显著\n\n**风险4：异常值 — 平方惩罚的放大效应**\nOLS使用平方损失，意味着一个偏离3倍标准差的点对目标函数的贡献是普通点的9倍——OLS对异常值极其敏感。一个回归结论可能由少于1%的观测完全主导。稳健回归（Huber/分位数回归）是应对方案。\n\n**风险5：样本量不足 — 渐近理论的失效**\n\"渐近\" = n→∞。但当 n=30, k=10 时，渐近理论几乎不成立——t统计量不再服从t分布，p值失真。经验法则：至少需要 $n \\geq 10k$（有人认为 $20k$）。\n\n**风险6：函数形式误设 — OLS推导中不存在的赌注**\n如果真实DGP是 $Y = \\beta_0 + \\beta_1 \\ln X + \\varepsilon$ 但你用了线性 $Y = \\beta_0 + \\beta_1 X + \\varepsilon$，OLS给出的 $\\hat{\\beta}_1$ 不是任何有意义参数的估计量——它是\"错误模型中的最优线性近似\"，但这近似可能毫无意义。\n\n**风险7：样本选择偏误**\nOLS只能基于观察到的样本计算。如果样本不是从总体中随机抽取的（选择机制与 $\\varepsilon$ 相关），$\\hat{\\beta}$ 无法拓展到目标总体。Heckman选择模型通过加入逆Mills比率作为额外回归量来纠正这一偏误。",
+      formulas:[
+        {latex:"$$\\hat{\\boldsymbol{\\beta}} = \\boldsymbol{\\beta} + (\\mathbf{X}'\\mathbf{X})^{-1}\\mathbf{X}'\\boldsymbol{\\varepsilon}$$", caption:"OLS估计量的误差分解——第二项为零的条件是 $\\mathbb{E}[\\boldsymbol{\\varepsilon}|\\mathbf{X}]=\\mathbf{0}$（外生性）"},
+        {latex:"$$\\mathrm{plim}\\ \\hat{\\boldsymbol{\\beta}} = \\boldsymbol{\\beta} + \\mathbf{Q}^{-1}_{XX} \\mathbb{E}[\\mathbf{x}_i\\varepsilon_i]$$", caption:"OLS一致性的条件：$\\mathbb{E}[\\mathbf{x}_i\\varepsilon_i]=\\mathbf{0}$——这是外生性的渐近版本"}
+      ],
+      references:[{title:"Mostly Harmless Econometrics", authors:"Angrist J.D., Pischke J.S.", year:2009}],
+      key_takeaway:"OLS推导的数学之美在于其简洁优雅——但它的应用风险同样美得令人警惕。七大风险中有五个都源于同一个根本问题：$\\mathbb{E}[\\varepsilon|X] \\neq 0$。学好OLS的推导只是第一步，学会诊断OLS的失效才是让这套推导在真实世界中\"做对事\"的关键。"},
+    {module_id:"landscape", module_title:"发展格局", module_tag:"发展演进",
+      hook:"在2015年之前，\"OLS估计量\"是一个已完成的学术话题——推导、性质、诊断都已写入教科书。但在2015年之后，因果推断革命为这个200年的老方法注入了全新的生命力：OLS不再只是被\"估计\"，而是被\"设计\"。",
+      content:"**OLS方法论在当代的三大发展格局**：\n\n**格局一：从\"估计\"到\"识别\"的范式转移**\n传统计量教学的核心是推导——\"如何从 $\\min \\mathrm{SSR}$ 得到 $\\hat{\\beta}$\"。现代计量研究（Angrist & Pischke范式）的核心是识别——\"$\\hat{\\beta}$ 估计的是哪个参数？在什么假设下？\"。\n\n这一转变将OLS从一种机械的数值方法升级为一种**研究设计的表达工具**：\n- DID中 $\\beta_{DID}$ 的OLS表达\n- RDD中局部线性回归的OLS\n- IV中两阶段最小二乘(2SLS)的OLS\n- 固定效应模型中的组内变换OLS\n\n每种因果推断方法的核心估计步骤都是OLS——区别不在于推导，而在于$\\mathbf{X}$矩阵里放了什么。\n\n**格局二：高维OLS的正则化革命**\n当 $k \\gg n$ 时，$(\\mathbf{X}'\\mathbf{X})$ 不再可逆（因为秩≤ n < k），闭合解 $\\hat{\\beta} = (X'X)^{-1}X'y$ 不存在。这催生了正则化OLS：\n- **Ridge**（$L_2$）：$\\hat{\\boldsymbol{\\beta}}_{\\text{ridge}} = (\\mathbf{X}'\\mathbf{X} + \\lambda\\mathbf{I})^{-1}\\mathbf{X}'\\mathbf{y}$ — 在原正规方程中加一个对角扰动使矩阵可逆\n- **LASSO**（$L_1$）：引入稀疏性——不仅求解，同时选择变量\n- **弹性网**（Elastic Net）：$L_1+L_2$混合\n\n**格局三：稳健推断的深化**\n传统OLS的标准误计算假设 $n$ 够大、$k$ 够小、$\\varepsilon$ 够温顺。当代方法在每一个维度上做了深化：\n- **聚类标准误**的多层级推广（企业-行业-国家）\n- **Conley空间标准误**（处理地理空间相关性）\n- **wild cluster bootstrap**（聚类数<30时的小样本校正）\n- **子抽样（Subsampling）** 替代渐近正态近似",
+      charts:[{
+        type:"echarts", chart_id:"chart_landscape_01", echarts_option:{
+          xAxis:{type:"value",name:"解释变量数(k)",max:2000}, yAxis:{type:"value",name:"观测数(n)",max:2000},
+          series:[
+            {type:"scatter",data:[[5,100],[8,500],[10,1000],[12,200],[20,500],[30,2000],[50,100],[100,80],[200,150],[500,200],[800,500],[1500,1000]],itemStyle:{color:"#818cf8"},name:"OLS可行(k<n)"},
+            {type:"scatter",data:[[100,50],[200,80],[500,200],[800,200],[1500,300],[2000,500]],itemStyle:{color:"#f87171"},name:"正则化OLS(k>n)"}
+          ]
+        }, caption:"图：传统OLS与正则化OLS的适用边界——当k>n时经典闭合解不存在，正则化成为必需", data_source:"概念示意图"}
+      }],
+      key_takeaway:"OLS正在经历从\"通用估计工具\"到\"研究设计表达工具\"的身份转变。理解OLS的推导仍然是基础——但现代计量学家的核心竞争力不在于会推导$(X'X)^{-1}X'y$，而在于知道在DID/RDD/IV等不同研究设计中，应该把什么塞进这个公式的$X$矩阵里。"},
+    {module_id:"issues", module_title:"发展问题", module_tag:"风险与挑战",
+      hook:"每个计量学博士生都必须花一年时间学习OLS的推导和性质——但其中90%的人整个职业生涯都在做的是：反复证明 $\\mathbb{E}[\\varepsilon|X]=0$ 不成立，然后用各种方法（IV/RDD/DID）去修补。真正的OLS推导在入职第一天就学完了；真正的OLS困境要用一辈子来面对。",
+      content:"**当前OLS理论与实践之间的五大鸿沟**：\n\n**鸿沟1：\"我们会推了但从不求逆\"**\n教科书教学生用 $(X'X)^{-1}$ 推导性质，但软件实现用QR分解或SVD。这使得很多学生\"理解OLS的数学\"但\"不懂OLS的数值\"——当遇到接近奇异的矩阵时，他们不知道背后的算法正在发出警报。\n\n**鸿沟2：标准误的\"默认真空\"**\nR的 `lm()` 和Stata的 `reg` 默认输出的是同方差假定下的标准误——在绝大多数真实数据中这是错的。但许多应用者（包括发表了的论文作者）不假思索地使用默认输出。AER（顶级经济学期刊）已经要求所有论文默认使用稳健标准误。\n\n**鸿沟3：$R^2$ 崇拜**\nOLS的 $R^2$ 衡量\"模型在样本中解释了Y变异的百分比\"。但政策制定者、企业管理者、甚至某些审稿人错误地将 $R^2$ 等同于\"模型的质量\"或\"结论的可信度\"。在因果推断中，一个 $R^2 = 0.05$ 的RDD可能因果结论无比可靠；一个 $R^2 = 0.95$ 的宏观回归可能完全是伪回归。\n\n**鸿沟4：外生性的\"不可检验性困境\"**\nOLS的无偏性依赖于不可检验的 $\\mathbb{E}[\\varepsilon|X]=0$。在实践中，研究者只能通过\"过度识别检验\"（如Sargan检验）间接评估——但该检验依赖于\"至少有一个工具变量有效\"的假设，而这本身也无法检验。这个无限递归的\"不可检验链\"是OLS推断哲学中的最深层困境。\n\n**鸿沟5：推导教学与因果推论的脱节**\n多数教科书将OLS推导和内生性处理分为独立的两章——先花大量篇幅教你推导 $(X'X)^{-1}X'y$，然后另起一章告诉你\"但这个推导在多数真实场景中不成立因为内生性\"。这种教学顺序导致学生以为\"推导归推导，诊断归诊断\"，而实际上它们是不可分割的整体。",
+      key_takeaway:"OLS的五大实践鸿沟揭示了同一个核心矛盾：教科书的OLS（推导之美）和应用计量的OLS（内生性之痛）之间横亘着一条巨大的方法论裂缝。弥合这道裂缝需要的不只是更好的推导技巧，而是将\"推导\"从\"目标\"重新定位为\"推理起点\"——推导给出了理想世界中的答案，接下来的所有工作都是论证\"为什么这个世界足够接近理想\"。"},
+    {module_id:"prospect", module_title:"发展前景", module_tag:"前沿探索",
+      hook:"如果说20世纪的OLS是\"一个人+一支笔+n个数据点\"的手艺，那么21世纪的OLS将是\"一个人+一个因果DAG+自动化DiD/RD/IV检测+后双选LASSO\"的系统工程——OLS的推导不变，但\"往X矩阵里塞什么\"的方式将彻底改变。",
+      content:"**OLS估计量推导与应用的三个前沿方向**：\n\n**方向1：自动化因果模型设定（Auto-Causal-Specification）**\n当前研究正在探索：不依赖研究者手动选择控制变量，而是让算法从数据中自动学习哪些变量满足后门准则（应纳入OLS的控制变量集）。\n- **PC算法 + 后双选LASSO**：先用PC算法从数据中学习变量间的因果结构（输出的DAG），再用后双选LASSO基于DAG自动筛选控制变量\n- **自动化IV检测**：算法扫描候选工具变量，评估\"相关性\"和\"排他性\"的证据\n- **Causal Discovery + OLS** 的B2B集成将在未来5年成为计量软件的新标准\n\n**方向2：可微分OLS与深度学习融合**\n- **DeepIV**（Hartford et al., 2017）：用深度网络学习第一阶段回归，再用学习到的函数做第二阶段OLS\n- **Causal Forest**（Athey & Imbens, 2016）：在每个叶节点内做局部OLS——相当于自动搜索\"在哪里OLS是有效的\"\n- **Double/Debiased ML**（Chernozhukov et al., 2018）：用ML方法估计nuisance functions（如倾向得分），然后在\"部分残差化\"了的变量上做OLS——核心估计量仍是OLS，但\"预处理\"由神经网络完成\n\n**方向3：面向非结构化数据的OLS**\n- **文本回归**：将文本嵌入（BERT/sentence embedding）作为X矩阵的列，OLS估计\"语言特征对经济结果的边际效应\"\n- **图像回归**：CNN提取的图像特征被喂入OLS——\"卫星图片中绿色像素的比例每增加1%，房价上涨多少？\"\n- **图神经网络+OLS**：GNN捕捉的网络结构特征进入OLS——社交网络\"中心度\"对消费行为的影响\n\nOLS的推导公式不会变——$\\hat{\\beta} = (X'X)^{-1}X'y$ 仍然是那个公式。但X矩阵的来源将从\"研究者手动录入的Excel列\"扩展到\"深度学习从非结构化数据中自动提取的向量表示\"。",
+      references:[{title:"Double/Debiased Machine Learning for Treatment and Structural Parameters", authors:"Chernozhukov V. et al.", year:2018, doi:"10.1111/ectj.12097"},{title:"Deep IV: A Flexible Approach for Counterfactual Prediction", authors:"Hartford J. et al.", year:2017}],
+      key_takeaway:"OLS的推导逻辑是永恒的，但它的输入空间正在经历一场革命。未来的OLS估计量将不再仅从结构化表格中读取X——它还会从文本、图像和网络结构中提取信号。谁学会了在\"非结构化数据→结构化特征→OLS\"这条链上的每一环，谁就掌握了下一个二十年的计量工具。"},
+    {module_id:"effort-direction", module_title:"学习路径", module_tag:"核心工具",
+      hook:"学会推导OLS估计量：一周。学会理解OLS估计量：一生。这就是为什么计量经济学的本质不是一个技术问题——它是一个\"你在什么假设下相信这个数字\"的认识论问题。",
+      content:"**OLS估计量推导的系统学习路径**：\n\n**阶段一：标量推导（1-2天）**\n- 目标：能手算简单回归的 $\\hat{\\beta}_0$ 和 $\\hat{\\beta}_1$\n- 教材：Wooldridge 第2章\n- 练习：用Excel手动解3个数据点的二元回归\n- 关键检验：能不用任何软件，仅靠纸笔推导出正规方程\n\n**阶段二：矩阵推导（1周）**\n- 目标：能推导多元OLS的完整矩阵形式\n- 前置要求：矩阵乘法、求逆、二次型、向量求导\n- 教材：Greene 附录A（矩阵代数）+ Wooldridge 第3章\n- 关键里程碑：独立推导 $(X'X)^{-1}X'y$ 并解释每一步的逻辑\n\n**阶段三：统计性质（1-2周）**\n- 目标：能证明OLS的无偏性、方差公式、Gauss-Markov定理\n- 教材：Wooldridge 第3-4章、Hayashi 第1章\n- 核心练习：\n  - 证明 $\\mathbb{E}[\\hat{\\beta}|X] = \\beta$（无偏性）\n  - 证明 $\\mathrm{Var}(\\hat{\\beta}|X) = \\sigma^2(X'X)^{-1}$\n  - 证明 $\\hat{\\sigma}^2 = SSR/(n-k-1)$ 是 $\\sigma^2$ 的无偏估计\n  - 证明 $\\hat{\\beta}$ 在线性无偏估计量中方差最小（Gauss-Markov）\n\n**阶段四：实践与实现（持续进行）**\n- 目标：能用R/Python从零实现OLS并理解所有输出\n- 练习：\n  - 用 `lm()` 跑回归并手动计算所有标准误来验证\n  - 实现White稳健标准误的\"三明治\"公式\n  - 做蒙特卡洛模拟验证无偏性和一致性\n  - 故意违反MLR.4（构造内生性）观察偏误的方向和大小\n\n**阶段五：扩展与深化（高级阶段）**\n- 从OLS到GLS（广义最小二乘）的推导\n- 从OLS到2SLS（工具变量）的推导——两阶段都是OLS\n- 从OLS到固定效应估计量的去均值推导\n- 理解OLS与MLE、GMM的关系（三者在线性正态模型中等价）\n\n**金科玉律**：永远不要跳过\"自己动手推导/实现\"的环节——OLS不是一个概念，它是一个运算。只有亲手写过 $(X'X)^{-1}X'y$ 的代码并看到它与 `lm()` 输出一致，你才真正理解了它。",
+      formulas:[
+        {latex:"$$\\hat{\\boldsymbol{\\beta}}_{\\text{2SLS}} = (\\hat{\\mathbf{X}}'\\hat{\\mathbf{X}})^{-1}\\hat{\\mathbf{X}}'\\mathbf{y}, \\quad \\hat{\\mathbf{X}} = \\mathbf{Z}(\\mathbf{Z}'\\mathbf{Z})^{-1}\\mathbf{Z}'\\mathbf{X}$$", caption:"2SLS的每个阶段都是OLS——理解OLS是理解所有计量方法的前提"}
+      ],
+      key_takeaway:"OLS学习路径的核心不是\"更多教材\"而是\"更多推导\"——三级跃迁（标量→矩阵→统计性质）中的每一级都必须亲手动笔。当你能够从 $\\min SSR$ 到 $\\hat{\\beta} = (X'X)^{-1}X'y$ 再到 $\\mathrm{Var}(\\hat{\\beta})$ 再到Gauss-Markov证明一路推下来，你就不是在学OLS——你是在内化OLS。"},
+    {module_id:"misconceptions", module_title:"常见误区", module_tag:"风险与挑战",
+      hook:"\"OLS假设Y和X是线性关系\"——这是关于OLS最普遍、最顽固、也最危险的误解。如果OLS要求线性，我们怎么用 $Y = \\beta_0 + \\beta_1 X + \\beta_2 X^2$？答案揭晓的时刻，你的理解将升级一个维度。",
+      content:"**关于OLS推导的五大常见误区**：\n\n**误区1：OLS要求Y和X的关系是线性的**\n**事实**：OLS要求的是**参数线性**（$Y = \\beta_0 + \\beta_1 f_1(X) + \\beta_2 f_2(X) + \\dots$），而非变量线性。$f_j(X)$ 可以是 $X^2$、$\\ln X$、$\\mathbf{1}[X>c]$ 等任何变换。OLS的推导只要求模型是 $\\beta$ 的线性组合——至于 $X$ 以何种变换进入，丝毫不影响推导。\n\n**误区2：$(X'X)^{-1}$ 存在要求 $X$ 的列满秩**\n**事实**：$(X'X)^{-1}$ 不存在时（共线性），OLS的解不是\"不存在\"，而是\"有无穷多个\"——正规方程仍有解，但解不唯一，且参数不可识别。Ridge回归通过在矩阵对角加 $\\lambda I$ 使问题回到可识别状态。\n\n**误区3：OLS推导中的\"最小化平方误差\"意味着\"使拟合值和真实值之间的差距最小\"**\n**事实**：OLS最小化的是**样本内**误差。样本外预测误差可能远大于样本内——过拟合就是\"在样本内把误差压得很低，但在新数据上误差巨大\"的经典案例。交叉验证（而非OLS的SSR）才是评估预测泛化能力的正确工具。\n\n**误区4：$\\hat{\\sigma}^2 = SSR/(n-k-1)$ 是因为\"减少了 $k+1$ 个参数消耗了自由度\"**\n**事实更深入**：这是**无偏性**的要求。如果使用 $SSR/n$（MLE版本），它将是一个**有偏**估计量。偏差的方向：向下（低估真实的 $\\sigma^2$）。分母修正 $n \\to n-k-1$ 不是为了\"数学漂亮\"——它是推导出来的结论，确保 $\\mathbb{E}[\\hat{\\sigma}^2] = \\sigma^2$。\n\n**误区5：$R^2$ 衡量了OLS模型的\"正确率\"**\n**事实**：$R^2$ 衡量的是\"线性投影的拟合优度\"，与模型的\"正确性\"毫无关系。一个包含错误控制变量（bad controls）的模型可以 $R^2$ 很高但结论全错；一个正确识别因果效应的模型可能 $R^2$ 很低但结论可靠。$R^2$ 是描述性统计，不是诊断性统计。",
+      formulas:[
+        {latex:"$$\\mathbb{E}[\\hat{\\sigma}^2] = \\mathbb{E}\\left[\\frac{\\hat{\\boldsymbol{\\varepsilon}}'\\hat{\\boldsymbol{\\varepsilon}}}{n-k-1}\\right] = \\sigma^2$$", caption:"$n-k-1$的分母不是惯例——它是推导出来的无偏性保证"}
+      ],
+      key_takeaway:"五个误区的共同起因是将OLS的\"数学推导特征\"误读为\"方法论适用范围\"。OLS可以处理非线性（通过变量变换）、可以接受无封闭解（通过正则化）、不保证预测好（SSR只是样本内指标）、不附带因果性（外生性需单独论证）——这些\"例外\"正是OLS方法论最深刻的部分。"},
+    {module_id:"learning-path", module_title:"进阶资源", module_tag:"核心工具",
+      hook:"一套好的OLS学习资源不是\"帮你记住公式\"——而是\"让你忘记公式后仍能用自己的话解释为什么OLS这样做、为什么它有时会出错、以及出错时该怎么办\"。",
+      content:"**教材与专著（按推荐阅读顺序）**：\n\n1. **Wooldridge《计量经济学导论》第2-4章** — 本科至硕士必读。第2章用标量形式教简单OLS，第3章升级到矩阵形式，第4章加入推断。三章读完后你应该能独立推导OLS并解释所有回归表栏目。\n\n2. **Stock & Watson《计量经济学》第4-7章** — 比Wooldridge更注重\"为什么这样做而不是那样做\"。第5章对\"OLS与因果关系\"的讨论是本科生理解内生性的最佳入门。\n\n3. **Hayashi《计量经济学》第1章** — 研究生级别。用测度论语言严格证明OLS的一致性、渐近正态性和效率。读完这一章，你对OLS的理解将从\"应用\"升级到\"理论\"。\n\n4. **Angrist & Pischke《基本无害的计量经济学》第3章** — 不是教你怎么推OLS，而是教你怎么\"用\"OLS做因果推断。第三章的\"回归是条件期望函数的最佳线性近似\"一句话抵过一百页矩阵推导。\n\n5. **Huntington-Klein《The Effect》第1-3章**（免费在线）— 交互式学习体验，每学一个OLS性质就能在网页上拖动参数看回归线变化。\"直观到不需要数学\"。\n\n**在线资源**：\n- **3Blue1Brown线性代数系列**（YouTube）：对\"投影\"的直觉可视化是理解OLS几何的最佳方式\n- **Khan Academy AP统计的\"最小二乘回归\"单元**：用最少的数学讲清最多的直觉\n- **Ben Lambert的计量经济学视频系列**（YouTube）：本科-硕士水平的完整OLS推导\n- **Nick Huntington-Klein的Mixtape Sessions**：因果推断的在线workshop，含R/Stata/Python代码\n\n**软件教程**：\n- R：`broom`（tidy回归结果）+ `fixest`（高速OLS + 固定效应）\n- Python：`statsmodels`（经典OLS）+ `linearmodels`（面板/IV/GMM）\n- Stata：UCLA IDRE的Stata regression modules（免费详细教程）",
+      references:[{title:"Econometrics", authors:"Hayashi F.", year:2000},{title:"Introduction to Econometrics", authors:"Stock J.H., Watson M.W.", year:2019}],
+      key_takeaway:"OLS的学习资源如繁星，但核心进阶路线只有一条：Wooldridge（基础推导）→ Hayashi（严格理论）→ Angrist & Pischke（因果视角）→ Huntington-Klein（交互实践）。每一步都是前一步的\"为什么我们不再仅从前一步的角度看OLS\"。"},
+    {module_id:"glossary", module_title:"关键术语表", module_tag:"核心概念",
+      hook:"OLS的世界里有一张精确的术语地图——\"残差\"不是\"误差\"，\"投影矩阵\"不是\"帽子矩阵\"（虽然它们指同一个东西），\"一致\"不是\"无偏\"。混淆任何一个术语，后面的推导都会\"失之毫厘，谬以千里\"。",
+      content:"**OLS推导核心术语精解**：",
+      tables:[{headers:["术语","英文","精要定义"], rows:[
+        ["OLS估计量","OLS Estimator","$\\hat{\\boldsymbol{\\beta}} = (\\mathbf{X}'\\mathbf{X})^{-1}\\mathbf{X}'\\mathbf{y}$，使残差平方和最小的参数向量"],
+        ["残差平方和","SSR (Sum of Squared Residuals)","$\\sum \\hat{\\varepsilon}_i^2$，OLS最小化的目标函数"],
+        ["正规方程","Normal Equation","$\\mathbf{X}'\\mathbf{X}\\hat{\\boldsymbol{\\beta}} = \\mathbf{X}'\\mathbf{y}$，一阶条件的方程组形式"],
+        ["设计矩阵","Design Matrix","$\\mathbf{X}_{n \\times (k+1)}$，首列为$\\mathbf{1}$的观测矩阵"],
+        ["投影矩阵","Projection/Hat Matrix","$\\mathbf{P} = \\mathbf{X}(\\mathbf{X}'\\mathbf{X})^{-1}\\mathbf{X}'$，将$\\mathbf{y}$投影到$\\mathbf{X}$列空间"],
+        ["残差生成矩阵","Residual Maker","$\\mathbf{M} = \\mathbf{I} - \\mathbf{P}$，$\\mathbf{M}\\mathbf{y} = \\hat{\\boldsymbol{\\varepsilon}}$"],
+        ["拟合值","Fitted Value","$\\hat{\\mathbf{y}} = \\mathbf{X}\\hat{\\boldsymbol{\\beta}} = \\mathbf{P}\\mathbf{y}$"],
+        ["误差","Error / Disturbance","$\\boldsymbol{\\varepsilon}$，不可观测的真实扰动"],
+        ["残差","Residual","$\\hat{\\boldsymbol{\\varepsilon}} = \\mathbf{y} - \\hat{\\mathbf{y}}$，可观测的样本拟合\"剩余\""],
+        ["无偏性","Unbiasedness","$\\mathbb{E}[\\hat{\\boldsymbol{\\beta}}] = \\boldsymbol{\\beta}$，估计量期望等于真值"],
+        ["一致性","Consistency","$\\mathrm{plim}\\ \\hat{\\boldsymbol{\\beta}}_n = \\boldsymbol{\\beta}$，n→∞时估计量收敛到真值"],
+        ["有效性","Efficiency","在所有无偏估计量中方差最小（Gauss-Markov语境下）"],
+        ["QR分解","QR Decomposition","$\\mathbf{X}=\\mathbf{Q}\\mathbf{R}$，OLS数值求解的标准方法"],
+        ["自由度","Degrees of Freedom","$n-k-1$，SSR包含的独立信息数量"],
+        ["三明治估计量","Sandwich Estimator","$\\mathbf{A}^{-1}\\mathbf{B}\\mathbf{A}^{-1}$形式的稳健方差估计量结构"]
+      ]}],
+      key_takeaway:"术语的精确是计量思维的门槛。'残差≠误差'——一个是我们的计算，一个是自然的事实。'无偏≠一致'——一个管有限样本（$n$ 给定），一个管无限样本（$n \\to \\infty$）。一个术语的模糊就可能导致一整章推导的误读。"},
+    {module_id:"debate", module_title:"争议与辩论", module_tag:"前沿探索",
+      hook:"2021年，一群计量经济学家在网上发起了一场激烈的辩论——辩题不是\"OLS是否有偏\"，而是\"我们是否应该继续在研究生课程中花三周时间推导向量导数来得出 $\\hat{\\beta} = (X'X)^{-1}X'y$\"。这场辩论揭示了OLS教学与OLS实践之间的巨大裂缝。",
+      content:"**关于OLS推导教学与应用的四大当代争议**：\n\n**争议1：矩阵推导应该在教学中占多大分量？**\n- **保守派**（Greene, Wooldridge）：矩阵推导是基础——不理解 $(X'X)^{-1}$ 的结构就不可能真正理解共线性和方差。跳过矩阵代数等于跳过OLS的理解。\n- **改革派**（Cunningham, Huntington-Klein）：90%的实证经济学家职业生涯中从不手动推导向量导数。教学重点应从\"推导公式\"转向\"什么时候用OLS、什么时候不能用\"。用DAG+模拟代替矩阵推导能更快建立因果直觉。\n\n**争议2：应该默认使用稳健标准误吗？**\n- **稳健派**（Angrist, Pischke）：同方差几乎从不成立。默认标准误是一个已经无效的默认值——所有软件默认设置都应改为HC3稳健标准误。\n- **保守派**（Imbens, Wooldridge）：稳健标准误在小样本下表现不如默认标准误。\"默认\"的选择应取决于样本量和诊断结果——一刀切地改默认定会带来新的问题。\n\n**争议3：$\\mathbf{y}$对$\\mathbf{X}$回归后得到的$\\hat{\\beta}$ 和 $\\hat{\\varepsilon}$对$\\mathbf{X}$回归后得到的0，哪个是OLS更本质的特征？**\n- 这是OLS的\"哲学\"争议——但关系到我们如何讲授OLS：是从\"最小化误差\"教起，还是从\"正交投影\"教起？教学顺序直接影响学生对OLS性质的理解深度。\n\n**争议4：预测OLS vs 因果OLS — 它们是同一个方法吗？**\n- **统一派**：$\\hat{\\beta} = (X'X)^{-1}X'y$ 就是那个公式，架上的数学不因你的目的而改变。\n- **分裂派**：预测OLS和因果OLS的X选择逻辑完全相反——前者追求相关性（任何能提高预测的都加），后者追求外生性（相关但内生的要剔除）。使用方法虽然同名，但\"设定哲学\"截然不同。",
+      references:[{title:"Mostly Harmless Econometrics", authors:"Angrist J.D., Pischke J.S.", year:2009},{title:"Causal Inference: The Mixtape", authors:"Cunningham S.", year:2021}],
+      key_takeaway:"OLS的当代争议揭示了一个深层张力：OLS的推导是数学（没有争议），但如何教、何时用、怎么解读都是活生生在演变的方法论前沿。站在争议的任何一方而不理解另一方的逻辑，你就只学了OLS的一半。"}
+  ]
+};
+
+function applyTheme(theme){
+  document.documentElement.setAttribute('data-theme',theme);
+  localStorage.setItem('slm-theme',theme);
+  updateThemeIcon();
+}
+function toggleTheme(){
+  var c=document.documentElement.getAttribute('data-theme')||'dark';
+  applyTheme(c==='dark'?'light':'dark');
+}
+function updateThemeIcon(){
+  var t=document.getElementById('theme-toggle');
+  t.textContent=document.documentElement.getAttribute('data-theme')==='dark'?'☀️':'🌓';
+}
+var savedTheme=localStorage.getItem('slm-theme')||'dark';
+applyTheme(savedTheme);
+
+window.addEventListener('scroll',function(){
+  var st=window.scrollY, dh=document.documentElement.scrollHeight-window.innerHeight;
+  document.getElementById('progress-bar').style.width=(dh>0?(st/dh)*100:0)+'%';
+});
+
+var sidebarLinks=[];
+function buildSidebar(){
+  var c=document.getElementById('sidebar-links');
+  PAGE_DATA.modules.forEach(function(mod){
+    var a=document.createElement('a');
+    a.href='#'+mod.module_id;a.className='sidebar-link';
+    a.textContent=mod.module_title||mod.module_id;
+    a.addEventListener('click',function(e){
+      e.preventDefault();
+      document.getElementById(mod.module_id).scrollIntoView({behavior:'smooth'});
+    });
+    c.appendChild(a);
+    sidebarLinks.push({el:a,id:mod.module_id});
+  });
+}
+var observer=new IntersectionObserver(function(entries){
+  entries.forEach(function(entry){
+    if(entry.isIntersecting){
+      sidebarLinks.forEach(function(link){link.el.classList.toggle('active',link.id===entry.target.id);});
+    }
+  });
+},{rootMargin:'-80px 0px -60% 0px'});
+
+function buildMetaCard(){
+  var md=PAGE_DATA;
+  document.getElementById('meta-card-container').innerHTML=
+    '<div class="meta-card">'+
+      '<div style="font-size:12px;color:var(--text-secondary);margin-bottom:4px;width:100%">🔗 📚 计量经济学 系统学习方案 · 经典线性回归模型（2/5）</div>'+
+      '<div class="meta-item"><span class="icon">📖</span><strong>'+md.topic+'</strong></div>'+
+      '<div class="meta-item"><span class="meta-badge domain-finance">'+md.domain_name+'</span></div>'+
+      '<div class="meta-item"><span class="meta-badge level-intermediate">'+md.level_name+'</span></div>'+
+      '<div class="meta-item"><span class="icon">⏱️</span>约'+md.reading_time+'分钟阅读</div>'+
+      '<div class="meta-item"><span class="icon">📦</span>'+md.module_count+'个模块</div>'+
+    '</div>';
+}
+
+function renderFormulas(container){
+  if(typeof renderMathInElement!=='undefined'){
+    renderMathInElement(container,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false});
+  }
+}
+
+function createThemedOption(existingOpt){
+  var isDark=document.documentElement.getAttribute('data-theme')==='dark';
+  var color=isDark?['#818cf8','#a78bfa','#c4b5fd','#67e8f9','#fbbf24','#34d399','#f87171','#f472b6']:['#6366f1','#8b5cf6','#a78bfa','#22d3ee','#f59e0b','#10b981','#ef4444','#ec4899'];
+  return {color:color};
+}
+
+var activeCharts={};
+function renderChart(moduleId,chartConfig,index){
+  var chartId='chart_'+moduleId+'_'+(index!=null?index:'');
+  var wrapper=document.getElementById(chartId);
+  if(!wrapper)return;
+  if(typeof echarts==='undefined'){
+    wrapper.innerHTML='<div style="text-align:center;padding:20px;color:var(--text-tertiary);font-size:13px;">📊 ECharts CDN 未加载</div>';
+    return;
+  }
+  try{
+    var chart=echarts.init(wrapper);
+    var opt=chartConfig.echarts_option||{};
+    chart.setOption(createThemedOption(opt));
+    activeCharts[chartId]=chart;
+    var ro=new ResizeObserver(function(){chart.resize();});
+    ro.observe(wrapper);
+  }catch(e){wrapper.textContent='图表渲染失败';}
+}
+
+function buildModuleHTML(mod){
+  var tagClass={'核心概念':'tag-core','核心工具':'tag-tools','发展演进':'tag-evolution','实践应用':'tag-application','风险与挑战':'tag-risk','前沿探索':'tag-frontier'}[mod.module_tag]||'tag-core';
+  var html='<section class="module-section" id="'+mod.module_id+'"><div class="module-header"><span class="module-tag '+tagClass+'">'+mod.module_tag+'</span><h2 class="module-title">'+mod.module_title+'</h2></div>';
+  if(mod.hook)html+='<div class="module-hook">'+mod.hook+'</div>';
+  html+='<div class="module-content">'+parseMarkdownContent(mod.content||'')+'</div>';
+  if(mod.formulas&&mod.formulas.length>0){
+    mod.formulas.forEach(function(formula){
+      var hasDerivation=formula.expandable&&formula.derivation;
+      html+='<div class="formula-block'+(hasDerivation?'':' not-expandable')+'" onclick="'+(hasDerivation?'toggleDerivation(this)':'')+'"><div>'+formula.latex+'</div>';
+      if(formula.caption)html+='<div class="formula-caption">'+formula.caption+'</div>';
+      if(hasDerivation){html+='<div class="formula-expand-hint">💡 点击展开推导过程</div><div class="formula-derivation">'+formula.derivation+'</div>';}
+      html+='</div>';
+    });
+  }
+  if(mod.charts&&mod.charts.length>0){
+    mod.charts.forEach(function(chart,ci){
+      var cid='chart_'+mod.module_id+'_'+(ci!=null?ci:'');
+      html+='<div class="chart-container"><div class="chart-wrapper" id="'+cid+'"></div>';
+      if(chart.caption)html+='<div class="chart-caption">'+chart.caption+'</div>';
+      if(chart.data_source)html+='<div class="chart-source">'+chart.data_source+'</div></div>';
+    });
+  }
+  if(mod.tables&&mod.tables.length>0){
+    mod.tables.forEach(function(table){
+      html+='<div style="overflow-x:auto"><table class="module-table"><thead><tr>'+(table.headers||[]).map(function(h){return'<th>'+h+'</th>';}).join('')+'</tr></thead><tbody>'+(table.rows||[]).map(function(row){return'<tr>'+row.map(function(c){return'<td>'+c+'</td>';}).join('')+'</tr>';}).join('')+'</tbody></table>';
+      if(table.caption)html+='<div class="table-caption">'+table.caption+'</div></div>';
+    });
+  }
+  if(mod.references&&mod.references.length>0){
+    html+='<div class="module-references"><h4>📚 参考文献</h4><ol>';
+    mod.references.forEach(function(ref){
+      var linkHtml=ref.doi?' <a href="https://doi.org/'+ref.doi+'" target="_blank">DOI</a>':'';
+      var urlHtml=ref.url?' <a href="'+ref.url+'" target="_blank">链接</a>':'';
+      html+='<li>'+(ref.authors||'')+' ('+(ref.year||'')+'). <strong>'+(ref.title||'')+'</strong>.'+linkHtml+urlHtml+'</li>';
+    });
+    html+='</ol></div>';
+  }
+  if(mod.key_takeaway)html+='<div class="key-takeaway">💡 '+mod.key_takeaway+'</div>';
+  html+='</section>';
+  return html;
+}
+
+function parseMarkdownContent(content){
+  if(!content)return'';
+  var html=content;
+  html=html.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
+  html=html.replace(/\*(.+?)\*/g,'<em>$1</em>');
+  html=html.replace(/`([^`]+)`/g,'<code style="background:var(--bg-tertiary);padding:2px 6px;border-radius:4px;font-size:13px;">$1</code>');
+  html=html.replace(/\[([^\]]+)\]\(([^)]+)\)/g,'<a href="$2" target="_blank">$1</a>');
+  html=html.replace(/^### (.+)$/gm,'<h3 style="font-size:17px;font-weight:600;margin:20px 0 8px;">$1</h3>');
+  html=html.replace(/^## (.+)$/gm,'<h3 style="font-size:18px;font-weight:600;margin:24px 0 10px;">$1</h3>');
+  html=html.replace(/\n\n/g,'</p><p>');
+  html='<p>'+html+'</p>';
+  html=html.replace(/<p>\s*<\/p>/g,'');
+  return html;
+}
+
+function toggleDerivation(el){el.classList.toggle('expanded');}
+
+function initPage(){
+  document.body.classList.remove('loading');
+  document.body.classList.add('loaded');
+  buildMetaCard();buildSidebar();
+  var mc=document.getElementById('modules-container');
+  PAGE_DATA.modules.forEach(function(mod){mc.innerHTML+=buildModuleHTML(mod);});
+  var se=mc.querySelectorAll('.module-section');
+  se.forEach(function(sec){observer.observe(sec);});
+  renderFormulas(mc);
+  setTimeout(function(){
+    PAGE_DATA.modules.forEach(function(mod){
+      if(mod.charts)mod.charts.forEach(function(chart,ci){renderChart(mod.module_id,chart,ci);});
+    });
+  },100);
+  var fo=new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){if(entry.isIntersecting)entry.target.classList.add('visible');});
+  },{threshold:0.08});
+  se.forEach(function(sec){fo.observe(sec);});
+  document.addEventListener('keydown',function(e){
+    if((e.ctrlKey||e.metaKey)&&e.key==='d'){e.preventDefault();toggleTheme();}
+  });
+}
+
+function exportNotes(){
+  var lines=['# '+PAGE_DATA.topic+' - 学习笔记','','生成日期: '+new Date().toLocaleDateString('zh-CN'),''];
+  PAGE_DATA.modules.forEach(function(m){lines.push('- **'+(m.module_title||m.module_id)+'**: '+(m.key_takeaway||m.hook||''));});
+  var txt=lines.join('\n');
+  if(navigator.clipboard){navigator.clipboard.writeText(txt).then(function(){alert('✅ 笔记已复制到剪贴板!');});}
+  else{var ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);alert('✅ 笔记已复制到剪贴板!');}
+}
+
+(function(){
+  var cv=document.getElementById('bg-canvas'),ctx=cv.getContext('2d'),particles=[];
+  function rsz(){cv.width=window.innerWidth;cv.height=window.innerHeight;}
+  window.addEventListener('resize',rsz);rsz();
+  for(var i=0;i<50;i++)particles.push({x:Math.random()*cv.width,y:Math.random()*cv.height,vx:(Math.random()-0.5)*0.3,vy:(Math.random()-0.5)*0.3,r:Math.random()*1.5+0.3,a:Math.random()*0.3+0.05});
+  function animate(){
+    ctx.clearRect(0,0,cv.width,cv.height);
+    var c=document.documentElement.getAttribute('data-theme')!=='light'?'129,140,248':'99,102,241';
+    particles.forEach(function(p){
+      p.x+=p.vx;p.y+=p.vy;
+      if(p.x<0)p.x=cv.width;if(p.x>cv.width)p.x=0;if(p.y<0)p.y=cv.height;if(p.y>cv.height)p.y=0;
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,6.28);ctx.fillStyle='rgba('+c+','+p.a+')';ctx.fill();
+    });
+    requestAnimationFrame(animate);
+  }
+  animate();
+})();
+document.addEventListener('DOMContentLoaded',initPage);
+</script>
+</body>
+</html>

@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>股票交易(炒股) — 15周实操学习方案</title>
+<style>
+:root{
+  --bg-deep:#050a10;--bg-card:#0a1520;--bg-card-hover:#0f2035;--bg-elevated:#152545;
+  --border-subtle:#1e3050;--border-glow:#2a4a75;--text-primary:#e4f0fb;--text-secondary:#8ab4d6;--text-muted:#5588b0;
+  --gradient-hero:linear-gradient(135deg,#ef5350 0%,#ff7043 25%,#66bb6a 55%,#26a69a 100%);
+  --gradient-stock:linear-gradient(90deg,#ef5350,#ff7043,#66bb6a,#26a69a);
+  --accent-red:#ef5350;--accent-orange:#ff7043;--accent-green:#66bb6a;--accent-teal:#26a69a;--accent-gold:#ffd54f;
+  --accent-foundation:#4fc3f7;--accent-technical:#66bb6a;--accent-fundamental:#ffa726;--accent-pattern:#ab47bc;
+  --accent-risk:#ef5350;--accent-psychology:#ec407a;--accent-practice:#26c6da;
+  --nav-bg:rgba(10,5,18,0.85);--overlay-bg:rgba(0,0,0,0.7);
+  --shadow-glow:0 0 30px rgba(239,83,80,0.15);--shadow-elevated:0 8px 32px rgba(0,0,0,0.5);
+  --radius-sm:8px;--radius-md:14px;--radius-lg:22px;
+  --transition-fast:0.15s ease;--transition-smooth:0.3s cubic-bezier(0.4,0,0.2,1);
+}
+body.light{
+  --bg-deep:#faf7fc;--bg-card:#ffffff;--bg-card-hover:#f5eef8;--bg-elevated:#ede0f5;
+  --border-subtle:#e0cce8;--border-glow:#c098d8;--text-primary:#1a1020;--text-secondary:#504060;--text-muted:#807090;
+  --nav-bg:rgba(250,247,252,0.9);--overlay-bg:rgba(0,0,0,0.35);
+  --shadow-glow:0 0 30px rgba(239,83,80,0.1);--shadow-elevated:0 8px 32px rgba(0,0,0,0.08);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-padding-top:100px}
+body{font-family:'Noto Sans SC','Microsoft YaHei',-apple-system,sans-serif;background:var(--bg-deep);color:var(--text-primary);line-height:1.7;overflow-x:hidden;transition:background var(--transition-smooth),color var(--transition-smooth)}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg-elevated)}::-webkit-scrollbar-thumb{background:var(--border-glow);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--accent-red)}
+#bg-canvas{position:fixed;top:0;left:0;z-index:0;pointer-events:none}
+.top-nav{position:fixed;top:0;left:0;right:0;z-index:100;background:transparent;padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:56px;transition:all var(--transition-smooth)}
+.top-nav.scrolled{background:var(--nav-bg);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);box-shadow:0 2px 20px rgba(0,0,0,0.3)}
+.light .top-nav.scrolled{box-shadow:0 2px 20px rgba(0,0,0,0.06)}
+.nav-brand{font-weight:800;font-size:1.05rem;background:var(--gradient-stock);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:-0.02em}
+.nav-links{display:flex;gap:8px;align-items:center}
+.nav-links a{color:var(--text-secondary);text-decoration:none;font-size:0.78rem;font-weight:600;padding:6px 12px;border-radius:50px;transition:all var(--transition-fast)}
+.nav-links a:hover,.nav-links a.active{color:var(--accent-gold);background:rgba(255,213,79,0.08)}
+.nav-actions{display:flex;gap:6px;align-items:center}
+.nav-actions button{background:transparent;border:1px solid var(--border-subtle);color:var(--text-secondary);padding:6px 14px;border-radius:50px;font-size:0.75rem;cursor:pointer;font-weight:600;transition:all var(--transition-fast);font-family:inherit}
+.nav-actions button:hover{border-color:var(--accent-gold);color:var(--accent-gold)}
+.theme-btn{padding:6px!important;width:34px;height:34px;display:flex;align-items:center;justify-content:center;font-size:1rem!important}
+.hamburger{display:none;flex-direction:column;gap:4px;cursor:pointer;background:transparent;border:none;padding:4px}
+.hamburger span{display:block;width:22px;height:2px;background:var(--text-secondary);border-radius:2px;transition:all var(--transition-fast)}
+.mobile-menu{position:fixed;top:56px;left:0;right:0;z-index:99;background:var(--nav-bg);backdrop-filter:blur(20px);padding:20px 32px;display:flex;flex-direction:column;gap:6px;opacity:0;pointer-events:none;transform:translateY(-8px);transition:all var(--transition-smooth)}
+.mobile-menu.open{opacity:1;pointer-events:auto;transform:translateY(0)}
+.mobile-menu a{color:var(--text-secondary);text-decoration:none;font-size:0.85rem;font-weight:600;padding:8px 12px;border-radius:8px;transition:all var(--transition-fast)}
+.mobile-menu a:hover{color:var(--accent-gold);background:rgba(255,213,79,0.08)}
+.scroll-progress{position:fixed;top:0;left:0;height:3px;background:var(--gradient-hero);z-index:101;transition:width 0.3s;width:0%}
+.hero{position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:120px 32px 80px;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at center,var(--accent-teal) 0%,transparent 70%);opacity:0.12}
+.hero-content{position:relative;z-index:1;max-width:800px}
+.hero h1{font-family:'Orbitron','Noto Sans SC',sans-serif;font-size:clamp(2rem,5vw,3.5rem);font-weight:900;background:var(--gradient-hero);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.2;margin-bottom:20px;letter-spacing:-0.02em}
+.hero p{font-size:clamp(0.95rem,1.5vw,1.15rem);color:var(--text-secondary);max-width:600px;margin:0 auto 40px}
+.hero-stats{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+.hero-stat{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:20px 28px;min-width:130px;box-shadow:var(--shadow-elevated);transition:all var(--transition-smooth)}
+.hero-stat:hover{border-color:var(--accent-gold);transform:translateY(-4px);box-shadow:var(--shadow-glow)}
+.hero-stat .num{display:block;font-size:2.2rem;font-weight:900;background:var(--gradient-hero);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-stat .lbl{display:block;font-size:0.78rem;color:var(--text-muted);margin-top:4px;font-weight:500}
+.section{padding:80px 32px;max-width:1200px;margin:0 auto;position:relative;z-index:1}
+.section-header{text-align:center;margin-bottom:48px}
+.section-tag{display:inline-block;font-size:0.65rem;font-weight:700;color:var(--accent-gold);letter-spacing:0.15em;padding:4px 12px;border:1px solid rgba(255,213,79,0.25);border-radius:50px;margin-bottom:12px}
+.section-header h2{font-size:clamp(1.5rem,3vw,2.2rem);font-weight:800;margin-bottom:8px;letter-spacing:-0.01em}
+.subtitle{font-size:0.9rem;color:var(--text-muted);font-weight:400}
+.reading-time{font-size:0.72rem;color:var(--text-muted);opacity:0.7;margin-left:8px}
+.roadmap-container{position:relative;padding-left:60px}
+.roadmap-container::before{content:'';position:absolute;left:28px;top:0;bottom:0;width:2px;background:linear-gradient(180deg,var(--accent-red),var(--accent-green),var(--accent-teal))}
+.roadmap-item{position:relative;margin-bottom:28px;opacity:0;transform:translateX(-20px);transition:all 0.6s cubic-bezier(0.4,0,0.2,1)}
+.roadmap-item.visible{opacity:1;transform:translateX(0)}
+.roadmap-marker{position:absolute;left:-45px;top:4px;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:0.85rem;color:#fff;border:3px solid;box-shadow:0 0 20px rgba(239,83,80,0.2);z-index:1}
+.roadmap-content{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:22px 26px;cursor:pointer;transition:all var(--transition-smooth);box-shadow:var(--shadow-elevated)}
+.roadmap-content:hover{border-color:var(--accent-gold);transform:translateX(4px);box-shadow:var(--shadow-glow)}
+.roadmap-content h3{font-size:1.1rem;font-weight:700;margin-bottom:6px}
+.rm-week{font-size:0.75rem;color:var(--accent-gold);font-weight:600;margin-bottom:8px}
+.rm-desc{font-size:0.82rem;color:var(--text-secondary)}
+.graph-section{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-lg);padding:10px 10px 20px;overflow:hidden}
+.graph-canvas{width:100%;display:block;cursor:pointer}
+.graph-legend{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;padding:8px 10px 0}
+.graph-legend-item{font-size:0.68rem;color:var(--text-secondary);cursor:pointer;padding:4px 10px;border-radius:50px;transition:all var(--transition-fast);display:flex;align-items:center;gap:5px;border:1px solid transparent;font-weight:600}
+.graph-legend-item:hover{border-color:var(--border-subtle);background:var(--bg-elevated)}
+.graph-legend-item.active-highlight{border-color:var(--accent-gold)!important;background:rgba(255,213,79,0.08)!important;color:var(--accent-gold)!important}
+.graph-legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.phase-container{display:flex;flex-direction:column;gap:14px}
+.phase-detail{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);overflow:hidden;transition:all var(--transition-smooth)}
+.phase-detail-header{cursor:pointer;padding:20px 24px;display:flex;gap:16px;align-items:center;user-select:none;transition:all var(--transition-fast)}
+.phase-detail-header:hover{background:var(--bg-card-hover)}
+.phase-detail-header .icon{width:42px;height:42px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0}
+.phase-detail-header .info{flex:1;min-width:0}
+.phase-detail-header h4{font-size:1.05rem;font-weight:700;margin-bottom:2px}
+.ph-week{font-size:0.72rem;color:var(--text-muted)}
+.phase-detail-header .arrow{font-size:0.7rem;color:var(--text-muted);transition:transform var(--transition-smooth);flex-shrink:0}
+.phase-detail.open .arrow{transform:rotate(180deg)}
+.phase-body{max-height:0;overflow:hidden;transition:max-height 0.5s cubic-bezier(0.4,0,0.2,1)}
+.phase-detail.open .phase-body{max-height:2000px}
+.phase-body-inner{padding:0 24px 22px;display:flex;flex-direction:column;gap:16px}
+.skill-list{display:flex;flex-wrap:wrap;gap:8px}
+.skill-chip{display:inline-block;font-size:0.72rem;padding:5px 12px;border-radius:50px;background:rgba(255,255,255,0.03);border:1px solid var(--border-subtle);color:var(--text-secondary);font-weight:600;transition:all var(--transition-fast)}
+.skill-link{cursor:pointer;border-color:rgba(255,213,79,0.3);color:var(--accent-gold)}
+.skill-link:hover{background:rgba(255,213,79,0.1);transform:translateY(-1px)}
+.draw-lvl-must{border-color:rgba(239,83,80,0.35);color:#ef5350;background:rgba(239,83,80,0.06)}
+.draw-lvl-suggest{border-color:rgba(255,167,38,0.35);color:#ffa726;background:rgba(255,167,38,0.06)}
+.draw-lvl-optional{border-color:rgba(38,198,218,0.35);color:#26c6da;background:rgba(38,198,218,0.06)}
+.code-block{position:relative;background:#0a0610;border:1px solid var(--border-subtle);border-radius:var(--radius-sm);padding:14px 16px;overflow-x:auto}
+.code-block pre{margin:0}
+.code-block code{font-family:'JetBrains Mono',monospace;font-size:0.75rem;line-height:1.6;color:#d4c8e0}
+.copy-btn{position:absolute;top:8px;right:8px;background:var(--bg-elevated);border:1px solid var(--border-subtle);color:var(--text-muted);padding:4px 10px;border-radius:4px;font-size:0.65rem;cursor:pointer;font-weight:600;transition:all var(--transition-fast);font-family:inherit}
+.copy-btn:hover{border-color:var(--accent-teal);color:var(--accent-teal);background:rgba(38,166,154,0.08)}
+.drawing-method{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.dm-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:24px 20px;text-align:center;transition:all var(--transition-smooth)}
+.dm-card:hover{border-color:var(--accent-gold);box-shadow:var(--shadow-glow);transform:translateY(-2px)}
+.dm-card h4{font-size:0.95rem;font-weight:700;margin-bottom:8px;color:var(--accent-gold)}
+.dm-card p{font-size:0.78rem;color:var(--text-secondary)}
+.math-tag{display:inline-block;font-size:0.62rem;padding:3px 8px;border-radius:3px;font-weight:700;border:1px solid}
+.tag-foundation{color:#4fc3f7;border-color:rgba(79,195,247,0.35);background:rgba(79,195,247,0.06)}
+.tag-technical{color:#66bb6a;border-color:rgba(102,187,106,0.35);background:rgba(102,187,106,0.06)}
+.tag-fundamental{color:#ffa726;border-color:rgba(255,167,38,0.35);background:rgba(255,167,38,0.06)}
+.tag-pattern{color:#ab47bc;border-color:rgba(171,71,188,0.35);background:rgba(171,71,188,0.06)}
+.tag-risk{color:#ef5350;border-color:rgba(239,83,80,0.35);background:rgba(239,83,80,0.06)}
+.tag-psychology{color:#ec407a;border-color:rgba(236,64,122,0.35);background:rgba(236,64,122,0.06)}
+.tag-practice{color:#26c6da;border-color:rgba(38,198,218,0.35);background:rgba(38,198,218,0.06)}
+.math-tags-grid{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.draw-levels-title{text-align:center;font-size:0.85rem;font-weight:700;color:var(--text-secondary);margin:20px 0 12px}
+.draw-level-list{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.draw-level-item{font-size:0.72rem;padding:5px 12px;border-radius:50px;background:var(--bg-elevated);color:var(--text-secondary)}
+.draw-level-item.must{border:1px solid rgba(239,83,80,0.25)}
+.draw-level-item.suggest{border:1px solid rgba(255,167,38,0.25)}
+.draw-level-item.optional{border:1px solid rgba(38,198,218,0.25)}
+.knowledge-filter-bar,.phase-filter-row{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:18px}
+.knowledge-filter,.phase-filter-btn{background:var(--bg-elevated);border:1px solid var(--border-subtle);color:var(--text-secondary);padding:6px 16px;border-radius:50px;font-size:0.72rem;cursor:pointer;font-weight:600;transition:all var(--transition-fast);font-family:inherit}
+.knowledge-filter:hover,.phase-filter-btn:hover{border-color:var(--accent-gold);color:var(--accent-gold)}
+.knowledge-filter.active,.phase-filter-btn.active{background:rgba(255,213,79,0.1);border-color:var(--accent-gold);color:var(--accent-gold)}
+.knowledge-count{text-align:center;font-size:0.78rem;color:var(--text-muted);margin-bottom:16px}
+.ks-expand-all{background:transparent;border:1px solid var(--border-subtle);color:var(--accent-practice);padding:3px 10px;border-radius:50px;font-size:0.68rem;cursor:pointer;font-weight:600;transition:all var(--transition-fast);font-family:inherit;margin-left:8px}
+.ks-expand-all:hover{border-color:var(--accent-practice);background:rgba(38,198,218,0.08)}
+.knowledge-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;align-items:start}
+.knowledge-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);cursor:pointer;transition:all var(--transition-smooth);display:flex;flex-direction:column}
+.knowledge-card:hover{border-color:var(--border-glow);box-shadow:var(--shadow-glow)}
+.knowledge-card.expanded{grid-column:1/-1;cursor:default}
+.knowledge-card.expanded:hover{border-color:var(--border-subtle);box-shadow:var(--shadow-elevated)}
+.card-header{display:flex;align-items:center;gap:8px;padding:14px 16px;background:var(--bg-card-hover);border-bottom:1px solid var(--border-subtle);flex-wrap:wrap;position:sticky;top:56px;z-index:10;min-height:50px}
+.knowledge-card.expanded .card-header{cursor:pointer}
+.knowledge-card.expanded .card-header:hover{background:rgba(255,213,79,0.06)}
+.card-title{font-size:0.82rem;font-weight:700;flex:1;min-width:0;line-height:1.3}
+.card-icon{font-size:1rem;flex-shrink:0}
+.card-back{background:transparent;border:1px solid var(--border-subtle);color:var(--text-muted);padding:2px 8px;border-radius:50px;font-size:0.62rem;cursor:pointer;transition:all var(--transition-fast);font-family:inherit;white-space:nowrap}
+.card-back:hover{border-color:var(--accent-gold);color:var(--accent-gold)}
+.card-detail{max-height:0;overflow:hidden;transition:max-height 0.35s ease;padding:0 16px}
+.knowledge-card.open .card-detail{max-height:2000px;padding:16px}
+.card-detail p{font-size:0.8rem;color:var(--text-secondary);line-height:1.65;margin-bottom:12px}
+.card-formula{background:rgba(255,255,255,0.02);border:1px solid var(--border-subtle);border-radius:var(--radius-sm);padding:12px 16px;font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:var(--accent-gold);margin-bottom:12px;word-break:break-all}
+.card-draw-box{background:rgba(0,0,0,0.2);border:1px solid var(--border-subtle);border-radius:var(--radius-sm);padding:14px;font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--text-secondary);white-space:pre;overflow-x:auto;margin-bottom:12px;line-height:1.35}
+.card-sum{font-size:0.75rem;color:var(--text-muted);font-style:italic;padding:10px 14px;background:rgba(255,213,79,0.04);border-left:3px solid var(--accent-gold);border-radius:0 var(--radius-sm) var(--radius-sm) 0;margin-bottom:12px}
+.card-related{margin-top:4px;margin-bottom:8px;padding:12px 14px;background:rgba(255,255,255,0.015);border:1px dashed var(--border-subtle);border-radius:var(--radius-sm)}
+.cr-title{font-size:0.72rem;font-weight:700;color:var(--text-secondary);margin-bottom:8px}
+.cr-links{display:flex;flex-wrap:wrap;gap:6px}
+.cr-link{font-size:0.68rem;padding:4px 10px;border-radius:50px;border:1px solid var(--border-subtle);color:var(--accent-practice);cursor:pointer;transition:all var(--transition-fast)}
+.cr-link:hover{background:rgba(38,198,218,0.1);border-color:var(--accent-practice)}
+.formula-tabs{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:20px}
+.formula-tab{background:var(--bg-elevated);border:1px solid var(--border-subtle);color:var(--text-secondary);padding:8px 20px;border-radius:50px;font-size:0.8rem;cursor:pointer;font-weight:600;transition:all var(--transition-fast);font-family:inherit}
+.formula-tab:hover{border-color:var(--accent-practice);color:var(--accent-practice)}
+.formula-tab.active{background:rgba(38,198,218,0.1);border-color:var(--accent-practice);color:var(--accent-practice)}
+.formula-panel{display:none}
+.formula-panel.active{display:block}
+.formula-table{width:100%;border-collapse:collapse;font-size:0.8rem}
+.formula-table thead{background:rgba(255,255,255,0.02)}
+.formula-table th{text-align:left;padding:12px 16px;font-size:0.72rem;font-weight:700;color:var(--accent-gold);border-bottom:2px solid var(--border-subtle);letter-spacing:0.05em}
+.formula-table td{padding:10px 16px;border-bottom:1px solid var(--border-subtle);color:var(--text-secondary);font-family:'JetBrains Mono',monospace;font-size:0.73rem}
+.formula-table td:first-child{color:var(--text-primary);font-weight:600;font-family:'Noto Sans SC','Microsoft YaHei',sans-serif}
+.exercise-filters{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:16px}
+.exercise-filter{background:var(--bg-elevated);border:1px solid var(--border-subtle);color:var(--text-secondary);padding:6px 16px;border-radius:50px;font-size:0.72rem;cursor:pointer;font-weight:600;transition:all var(--transition-fast);font-family:inherit}
+.exercise-filter:hover{border-color:var(--accent-green);color:var(--accent-green)}
+.exercise-filter.active{background:rgba(102,187,106,0.08);border-color:var(--accent-green);color:var(--accent-green)}
+.exercise-counter{text-align:center;font-size:0.75rem;color:var(--text-muted);margin-bottom:12px}
+.exercise-list{display:flex;flex-direction:column;gap:8px}
+.exercise-item{display:flex;align-items:flex-start;gap:12px;background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:16px 18px;cursor:pointer;transition:all var(--transition-smooth)}
+.exercise-item:hover{border-color:var(--border-glow);box-shadow:var(--shadow-glow)}
+.exercise-num{font-family:'JetBrains Mono',monospace;font-size:0.7rem;font-weight:700;color:var(--accent-gold);flex-shrink:0;width:36px;text-align:center;padding-top:2px}
+.ei-content{flex:1;min-width:0}
+.ei-title{display:flex;gap:10px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap}
+.ei-title-text{font-size:0.85rem;font-weight:600;flex:1;min-width:200px;line-height:1.45}
+.diff{font-size:0.6rem;padding:2px 8px;border-radius:4px;font-weight:700;flex-shrink:0;white-space:nowrap}
+.diff.easy{background:rgba(102,187,106,0.12);color:#66bb6a;border:1px solid rgba(102,187,106,0.3)}
+.diff.medium{background:rgba(255,167,38,0.12);color:#ffa726;border:1px solid rgba(255,167,38,0.3)}
+.diff.hard{background:rgba(239,83,80,0.12);color:#ef5350;border:1px solid rgba(239,83,80,0.3)}
+.diff.project{background:rgba(171,71,188,0.12);color:#ab47bc;border:1px solid rgba(171,71,188,0.3)}
+.ei-answer{max-height:0;overflow:hidden;transition:max-height 0.35s ease;font-size:0.75rem;color:var(--text-secondary);line-height:1.6}
+.exercise-item.open .ei-answer{max-height:600px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border-subtle)}
+.ei-check{width:32px;height:32px;border-radius:50%;border:2px solid var(--border-subtle);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all var(--transition-fast);font-size:0.8rem;align-self:flex-start;margin-top:2px}
+.ei-check:hover{border-color:var(--accent-green)}
+.ei-check.done{background:var(--accent-green);border-color:var(--accent-green);color:#fff}
+.resource-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px}
+.resource-card{display:block;background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:20px 22px;text-decoration:none;color:inherit;transition:all var(--transition-smooth)}
+.resource-card:hover{border-color:var(--accent-gold);box-shadow:var(--shadow-glow);transform:translateY(-2px)}
+.resource-card h4{font-size:0.9rem;font-weight:700;margin-bottom:6px;color:var(--text-primary)}
+.resource-card p{font-size:0.75rem;color:var(--text-secondary)}
+.res-dm{display:inline-block;font-size:0.6rem;padding:2px 8px;border-radius:3px;font-weight:700;background:rgba(255,213,79,0.1);color:var(--accent-gold);margin-top:8px}
+.tracker-list{display:flex;flex-direction:column;gap:12px}
+.tracker-item{display:flex;align-items:center;gap:14px;background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:16px 20px;cursor:pointer;transition:all var(--transition-smooth)}
+.tracker-item:hover{border-color:var(--border-glow);box-shadow:var(--shadow-glow)}
+.tracker-check{width:28px;height:28px;border-radius:50%;border:2px solid var(--border-subtle);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all var(--transition-fast);font-size:0.7rem}
+.tracker-check:hover{border-color:var(--accent-green)}
+.tracker-check.done{background:var(--accent-green);border-color:var(--accent-green);color:#fff}
+.tracker-info{flex:1;min-width:0}
+.tracker-info h5{font-size:0.88rem;font-weight:700;margin-bottom:2px}
+.tracker-info p{font-size:0.72rem;color:var(--text-muted)}
+.tracker-bar{width:120px;height:6px;background:var(--bg-elevated);border-radius:3px;overflow:hidden;flex-shrink:0}
+.tracker-fill{height:100%;background:var(--accent-green);border-radius:3px;transition:width var(--transition-smooth)}
+.tracker-total{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);margin-top:16px}
+.tracker-total .tt-label{font-size:0.88rem;font-weight:700}
+.tracker-total .tt-pct{font-size:1.5rem;font-weight:900;background:var(--gradient-hero);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.search-overlay{position:fixed;inset:0;z-index:200;background:var(--overlay-bg);backdrop-filter:blur(10px);display:flex;flex-direction:column;align-items:center;padding-top:120px;opacity:0;pointer-events:none;transition:opacity var(--transition-smooth)}
+.search-overlay.open{opacity:1;pointer-events:auto}
+.search-overlay input{width:100%;max-width:500px;padding:14px 20px;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:50px;color:var(--text-primary);font-size:1rem;font-family:inherit;outline:none}
+.search-overlay input:focus{border-color:var(--accent-gold)}
+.search-results{width:100%;max-width:500px;max-height:400px;overflow-y:auto;margin-top:12px;display:flex;flex-direction:column;gap:6px}
+.search-result{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-sm);padding:12px 16px;cursor:pointer;transition:all var(--transition-fast)}
+.search-result:hover{border-color:var(--accent-gold)}
+.side-progress{position:fixed;right:16px;top:50%;transform:translateY(-50%);z-index:50;display:flex;flex-direction:column;gap:10px}
+.side-dot{width:10px;height:10px;border-radius:50%;background:var(--border-subtle);cursor:pointer;transition:all var(--transition-fast)}
+.side-dot:hover,.side-dot.active{background:var(--accent-gold);box-shadow:0 0 10px rgba(255,213,79,0.4)}
+.back-to-top{position:fixed;right:16px;bottom:80px;z-index:50;width:40px;height:40px;border-radius:50%;background:var(--bg-card);border:1px solid var(--border-subtle);color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.2rem;opacity:0;pointer-events:none;transition:all var(--transition-smooth)}
+.back-to-top.visible{opacity:1;pointer-events:auto}
+.back-to-top:hover{border-color:var(--accent-gold);color:var(--accent-gold)}
+.confirm-overlay{position:fixed;inset:0;z-index:300;background:var(--overlay-bg);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity var(--transition-smooth)}
+.confirm-overlay.open{opacity:1;pointer-events:auto}
+.confirm-box{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-lg);padding:32px;text-align:center;max-width:400px;box-shadow:var(--shadow-elevated)}
+.confirm-box h3{font-size:1.1rem;margin-bottom:12px}
+.confirm-box p{font-size:0.82rem;color:var(--text-secondary);margin-bottom:20px}
+.confirm-box .btn-row{display:flex;gap:10px;justify-content:center}
+.confirm-box button{padding:8px 24px;border-radius:50px;font-size:0.82rem;font-weight:600;cursor:pointer;font-family:inherit;transition:all var(--transition-fast)}
+.ci-btn-cancel{background:transparent;border:1px solid var(--border-subtle);color:var(--text-secondary)}
+.ci-btn-confirm{background:var(--accent-red);border:1px solid var(--accent-red);color:#fff}
+.ci-btn-confirm:hover{background:#d32f2f}
+.toast{position:fixed;bottom:32px;left:50%;transform:translateX(-50%);z-index:400;background:var(--bg-card);border:1px solid var(--accent-gold);border-radius:50px;padding:10px 24px;font-size:0.82rem;color:var(--accent-gold);opacity:0;transition:opacity var(--transition-smooth);pointer-events:none}
+.toast.show{opacity:1}
+.help-overlay{position:fixed;inset:0;z-index:250;background:var(--overlay-bg);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity var(--transition-smooth)}
+.help-overlay.open{opacity:1;pointer-events:auto}
+.help-box{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-lg);padding:28px;max-width:450px;box-shadow:var(--shadow-elevated)}
+.help-box h3{font-size:1rem;margin-bottom:12px;color:var(--accent-gold)}
+.help-box .kbd{display:inline-block;padding:2px 8px;background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:0.7rem;margin:0 2px}
+.help-box .help-row{font-size:0.78rem;color:var(--text-secondary);margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.mobile-bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:100;background:var(--nav-bg);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid var(--border-subtle);padding:6px 0;justify-content:space-around}
+.mbn-item{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:0.55rem;color:var(--text-muted);cursor:pointer;padding:4px 8px;transition:all var(--transition-fast);font-weight:600}
+.mbn-item.active{color:var(--accent-gold)}
+.mbn-item span:first-child{font-size:1rem}
+footer{padding:40px 32px;text-align:center;color:var(--text-muted);font-size:0.75rem;border-top:1px solid var(--border-subtle);position:relative;z-index:1}
+footer a{color:var(--accent-gold);text-decoration:none}
+@media(max-width:768px){
+  .nav-links{display:none}.hamburger{display:flex}.drawing-method{grid-template-columns:1fr}
+  .roadmap-container{padding-left:45px}.roadmap-container::before{left:20px}.roadmap-marker{left:-38px;width:30px;height:30px;font-size:0.7rem}
+  .knowledge-grid{grid-template-columns:1fr}.resource-list{grid-template-columns:1fr}
+  .side-progress{display:none}.hero-stats{gap:8px}.hero-stat{padding:14px 18px;min-width:100px}
+  .hero-stat .num{font-size:1.5rem}
+  .mobile-bottom-nav{display:flex}.back-to-top{bottom:100px}
+}
+@media print{
+  #bg-canvas,.top-nav,.side-progress,.back-to-top,.mobile-bottom-nav,.search-overlay,.confirm-overlay,.toast,.help-overlay{display:none!important}
+  body{background:#fff;color:#000}
+}
+</style>
+</head>
+<body>
+<canvas id="bg-canvas"></canvas>
+<nav class="top-nav" id="topNav">
+  <div class="nav-brand">炒股实操方案</div>
+  <div class="nav-links">
+    <a href="#roadmap">路线图</a><a href="#knowledge">知识点</a><a href="#phases">阶段</a><a href="#formulas">公式</a><a href="#exercises">练习</a><a href="#resources">资料</a><a href="#tracker">进度</a>
+  </div>
+  <div class="nav-actions">
+    <button onclick="oS()">搜索</button>
+    <button class="theme-btn" onclick="window._toggleTheme()">🌓</button>
+    <button class="hamburger" onclick="tMM()"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+<div class="scroll-progress" id="scrollProgress"></div>
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#roadmap" onclick="tMM()">路线图</a><a href="#knowledge" onclick="tMM()">知识点</a><a href="#phases" onclick="tMM()">阶段</a><a href="#formulas" onclick="tMM()">公式</a><a href="#exercises" onclick="tMM()">练习</a><a href="#resources" onclick="tMM()">资料</a><a href="#tracker" onclick="tMM()">进度</a>
+</div>
+<div class="search-overlay" id="searchOverlay">
+  <input type="text" id="searchInput" placeholder="搜索知识点、练习、公式..." oninput="doSearch()">
+  <div class="search-results" id="searchResults"></div>
+</div>
+<div class="side-progress" id="sideProgress"></div>
+<button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-box">
+    <h3>重置学习进度？</h3><p>清除所有练习题完成状态和阶段进度追踪。</p>
+    <div class="btn-row">
+      <button class="ci-btn-cancel" onclick="cC()">取消</button>
+      <button class="ci-btn-confirm" onclick="rA()">确认重置</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<div class="help-overlay" id="helpOverlay" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="help-box">
+    <h3>快捷键</h3>
+    <div class="help-row"><span class="kbd">Ctrl+K</span> 打开搜索</div>
+    <div class="help-row"><span class="kbd">Esc</span> 关闭弹窗 / 折叠卡片</div>
+    <div class="help-row"><span class="kbd">Shift+?</span> 显示此帮助</div>
+  </div>
+</div>
+<header class="hero">
+  <div class="hero-content">
+    <h1>股票交易 · 15周实操方案</h1>
+    <p>从零基础到独立交易者——以实操为核心，建立完整的选股→择时→风控→复盘交易体系</p>
+    <div class="hero-stats">
+      <div class="hero-stat"><span class="num" data-count="15">0</span><div class="lbl">学习周数</div></div>
+      <div class="hero-stat"><span class="num" data-count="7">0</span><div class="lbl">学习阶段</div></div>
+      <div class="hero-stat"><span class="num" data-count="21">0</span><div class="lbl">实操练习</div></div>
+      <div class="hero-stat"><span class="num" data-count="25">0</span><div class="lbl">核心知识点</div></div>
+    </div>
+  </div>
+</header>
+
+<section class="section" id="roadmap">
+  <div class="section-header"><span class="section-tag">ROADMAP</span><h2>总体学习路线图 <span class="reading-time" data-min="5"></span></h2><p class="subtitle">7个阶段 · 15周 · 从市场认知到交易系统构建</p></div>
+  <div class="roadmap-container" id="roadmapContainer"></div>
+</section>
+
+<section class="section" id="graph">
+  <div class="section-header"><span class="section-tag">GRAPH</span><h2>知识点图谱 <span class="reading-time" data-min="2"></span></h2><p class="subtitle">7大标注体系 × 7个学习阶段——可视化炒股知识全景</p></div>
+  <div class="graph-section">
+    <canvas class="graph-canvas" id="graphCanvas"></canvas>
+    <div class="graph-legend" id="graphLegend"></div>
+  </div>
+</section>
+
+<section class="section" id="drawing">
+  <div class="section-header"><span class="section-tag">METHOD</span><h2>图解学习法 <span class="reading-time" data-min="3"></span></h2><p class="subtitle">炒股=图形识别+概率决策——用画图建立盘感直觉</p></div>
+  <div class="drawing-method" id="drawingMethod"></div>
+  <div class="draw-levels-title">学科标注体系</div>
+  <div class="math-tags-grid" id="mathTags"></div>
+  <div class="draw-levels-title">画图层级</div>
+  <div class="draw-level-list" id="drawLevels"></div>
+</section>
+
+<section class="section" id="knowledge">
+  <div class="section-header"><span class="section-tag">KP</span><h2>核心知识点 <span class="reading-time" data-min="8"></span></h2><p class="subtitle">25个核心知识点——点击展开查看详细解释、公式与图解</p></div>
+  <div class="knowledge-filter-bar" id="knowledgeFilterBar"></div>
+  <div id="phaseFilterRow" class="phase-filter-row"></div>
+  <div class="knowledge-count" id="knowledgeCount"></div>
+  <div class="knowledge-grid" id="knowledgeContainer"></div>
+</section>
+
+<section class="section" id="phases">
+  <div class="section-header"><span class="section-tag">PHASES</span><h2>7大学习阶段 <span class="reading-time" data-min="6"></span></h2><p class="subtitle">每个阶段包含技能列表、代码示例、画图任务</p></div>
+  <div class="phase-container" id="phaseContainer"></div>
+</section>
+
+<section class="section" id="formulas">
+  <div class="section-header"><span class="section-tag">FORMULAS</span><h2>核心公式速查 <span class="reading-time" data-min="3"></span></h2><p class="subtitle">5张速查表，覆盖K线/指标/估值/风控/形态</p></div>
+  <div class="formula-tabs" id="formulaTabs"></div>
+  <div id="formulaPanels"></div>
+</section>
+
+<section class="section" id="exercises">
+  <div class="section-header"><span class="section-tag">EXERCISES</span><h2>实操练习题库 <span class="reading-time" data-min="4"></span></h2><p class="subtitle">5初级·7中级·6高级·3大作业——21道练习题</p></div>
+  <div class="exercise-filters" id="exerciseFilters"></div>
+  <div class="exercise-counter" id="exerciseCounter"></div>
+  <div class="exercise-list" id="exerciseList"></div>
+</section>
+
+<section class="section" id="resources">
+  <div class="section-header"><span class="section-tag">RESOURCES</span><h2>学习资料清单 <span class="reading-time" data-min="1"></span></h2><p class="subtitle">13份精选学习资料：书籍/工具/社区/数据源</p></div>
+  <div class="resource-list" id="resourceList"></div>
+</section>
+
+<section class="section" id="tracker">
+  <div class="section-header"><span class="section-tag">TRACKER</span><h2>学习进度追踪 <span class="reading-time" data-min="1"></span></h2><p class="subtitle">7个阶段完成情况追踪——点击圆圈标记完成</p></div>
+  <div class="tracker-list" id="trackerList"></div>
+  <div class="tracker-total" id="trackerTotal"></div>
+</section>
+
+<footer>
+  <p>股票交易(炒股) · 15周实操学习方案 v1.0 | 慢就是快——复利是世界第八大奇迹</p>
+  <p style="margin-top:8px"><a href="炒股学习方案.md">查看 Markdown 完整版</a></p>
+</footer>
+<div class="mobile-bottom-nav" id="mobileBottomNav">
+  <div class="mbn-item" data-target="roadmap"><span>🗺</span><span>路线</span></div>
+  <div class="mbn-item" data-target="knowledge"><span>📚</span><span>知识</span></div>
+  <div class="mbn-item" data-target="phases"><span>📋</span><span>阶段</span></div>
+  <div class="mbn-item" data-target="exercises"><span>✏</span><span>练习</span></div>
+  <div class="mbn-item" data-target="tracker"><span>📊</span><span>进度</span></div>
+</div>
+<script>
+(function(){
+var cv=document.getElementById('bg-canvas'),ctx=cv.getContext('2d'),pts=[];
+function rs(){cv.width=window.innerWidth;cv.height=window.innerHeight}
+rs();window.addEventListener('resize',rs);
+var cs=['rgba(239,83,80,','rgba(102,187,106,','rgba(38,166,154,','rgba(255,167,38,'];
+for(var i=0;i<60;i++)pts.push({x:Math.random()*innerWidth,y:Math.random()*innerHeight,r:Math.random()*1.5+0.5,vx:(Math.random()-0.5)*0.3,vy:(Math.random()-0.5)*0.3,a:Math.random()*0.3+0.1,ci:Math.floor(Math.random()*4)});
+function draw(){
+  ctx.clearRect(0,0,cv.width,cv.height);
+  pts.forEach(function(p,i){
+    p.x+=p.vx;p.y+=p.vy;
+    if(p.x<0)p.x=cv.width;if(p.x>cv.width)p.x=0;if(p.y<0)p.y=cv.height;if(p.y>cv.height)p.y=0;
+    ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,6.28);ctx.fillStyle=cs[p.ci]+p.a+')';ctx.fill();
+    for(var j=i+1;j<pts.length;j++){var d=Math.hypot(p.x-pts[j].x,p.y-pts[j].y);if(d<100){ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(pts[j].x,pts[j].y);ctx.strokeStyle=cs[p.ci]+(0.06*(1-d/100))+')';ctx.lineWidth=0.5;ctx.stroke()}}
+  });
+  requestAnimationFrame(draw);
+}draw();
+})();
+
+var KP={k01:{phase:'p1',tag:'foundation',lvl:'must',title:'A股市场结构：上证/深证/北交所',d:'A股市场分为三大交易所：上交所(主板60xxxx+科创板688xxx)、深交所(主板00xxxx+创业板30xxxx)、北交所(8xxxxx)。各板块交易门槛不同：主板无门槛，科创板50万，创业板10万，北交所50万。了解板块定位是选股的第一步——不同板块代表不同的风险和收益特征。',f:'涨跌幅：主板±10% | 科创板/创业板±20% | 北交所±30%',diagram:'A股市场结构：\n┌──────────────────────┐\n│     A股市场(沪深北)    │\n├────────┬──────┬──────┤\n│ 上交所  │ 深交所 │ 北交所│\n│ 60/688 │ 00/30 │ 8xxxx│\n└────────┴──────┴──────┘\n\n交易门槛：\n主板: 无 → 新手首选\n创业板: 10万 → 2年经验\n科创板: 50万 → 高风险\n北交所: 50万 → 小盘股',sum:'了解你交易的战场——不同板块=不同的规则、风险和机会，选对战场是实操的第一步'},k02:{phase:'p1',tag:'foundation',lvl:'must',title:'T+1与涨跌停制度：A股的基础约束',d:'A股实行T+1交收制度：今天买入→明天才能卖出。涨跌停限制：主板±10%、ST股±5%、科创/创业板±20%、北交所±30%。新股上市首日无涨跌幅限制(但有临停机制)。这些制度直接影响交易策略——T+1意味着今天买的无法日内止损，涨跌停意味着涨停封死后买不进、跌停封死后卖不出。',f:'T+1(今日买明日卖) + 涨跌停(10%/20%/30%) + 印花税(卖出0.05%)',diagram:'T+1制度的影响：\n周一买入 → 周二才能卖出\n  ↓\n日内无法止损 → 必须提前设止损\n  ↓\n追高买入=锁仓到明天 → 风险\n  ↓\n尾盘买入更安全\n\n交易费用：\n佣金: 约万2.5(双向)\n印花税: 万分之5(仅卖出)\n过户费: 万0.1(双向)',sum:'T+1是双刃剑——减少了过度交易的可能，但也锁死了当天逃生通道，进场前就要想好出场'},k03:{phase:'p2',tag:'technical',lvl:'must',title:'K线基础形态：市场的语言',d:'K线=开盘价/收盘价/最高价/最低价四要素。阳线=收盘>开盘(红涨)，阴线=收盘<开盘(绿跌)。关键形态：十字星(开≈收)→方向不明；锤子线(下影线≥实体2倍)→底部反转信号；吞没形态(后一根K线完全吞没前一根)→趋势反转确认。必须熟练识别12种基础形态——它们是所有技术分析的字母表。',f:'K线四要素：[开盘 收盘 最高 最低] | 阳线实体=收盘-开盘 | 影线=极值-实体端点',diagram:'关键K线形态识别：\n锤子线(底部反转)：\n  │\n  │ ← 小实体在顶部\n  │\n  └─ ← 长下影线(≥2倍实体)\n  ↑ 买方进场信号\n\n吞没形态(反转确认)：\n ┌─┐  ┌──┐\n │阴│→│阳│ ← 后一根完全吞没\n └─┘  │  │   前一根→趋势反转\n       └──┘',sum:'K线是市场的语言——学会读它比学会预测更重要，因为K线告诉你当下正在发生什么'},k04:{phase:'p2',tag:'technical',lvl:'must',title:'均线系统(MA)：趋势的骨架',d:'移动平均线(MA)=过去N天收盘价的平均值连线。核心均线：MA5(周线)→短线方向、MA10(半月线)→短线趋势、MA20(月线)→中期方向、MA60(季线)→中长期趋势、MA120(半年线)→牛熊分界线、MA250(年线)→长期趋势。多头排列(MA5>MA10>MA20>MA60)=上升趋势；空头排列=下降趋势。',f:'MA(n)=Σ最近n日收盘价/n | 金叉=MA(短)上穿MA(长)→买入 | 死叉=MA(短)下穿MA(长)→卖出',diagram:'均线多空排列：\n多头排列(上升趋势)：\n    MA5  ↑\n    MA10 ↑  短线在上\n    MA20 ↑\n    MA60 ↑  长线在下\n    → 上升通道，持股\n\n空头排列(下降趋势)：\n    MA60 ↓\n    MA20 ↓  长线在上\n    MA10 ↓\n    MA5  ↓  短线在下\n    → 下降通道，空仓',sum:'均线是趋势的骨架——多头排列=顺风车，空头排列=逆风跑。永远不要在空头排列中重仓做多'},k05:{phase:'p2',tag:'technical',lvl:'must',title:'MACD指标：趋势的加速器',d:'MACD=趋势跟踪型指标。由三部分组成：DIF线(快线)=EMA12-EMA26、DEA线(慢线)=DIF的9日EMA、柱状线=2×(DIF-DEA)。核心信号：①金叉(DIF上穿DEA)→买入 ②死叉(DIF下穿DEA)→卖出 ③顶背离(股价新高+MACD未新高)→见顶预警 ④底背离(股价新低+MACD未新低)→见底。MACD最适合趋势行情，震荡市频繁出错。',f:'MACD=DIF-DEA双线 | 金叉买/死叉卖 | 背离=反转预警(准确率>70%)',diagram:'MACD背离详解：\n顶背离：\n  股价: ↗ ↗ ↗ (创新高)\n  MACD: → → ↘ (未创新高)\n  → 上涨动能衰竭，卖点！\n\n底背离：\n  股价: ↘ ↘ ↘ (创新低)\n  MACD: → → ↗ (未创新低)\n  → 下跌动能衰竭，买点！\n\n口诀："金叉不是万能药，\n 配合趋势才有效\n 顶背离要减仓，底背离等确认"',sum:'MACD是趋势的体检报告——背离不会告诉你什么时候反转，但会告诉你"反转条件正在成熟"'},k06:{phase:'p2',tag:'technical',lvl:'suggest',title:'RSI与KDJ：超买超卖的体温计',d:'RSI(14)=衡量近期上涨和下跌力度的比值，范围0-100。RSI>70=超买(可能回调)，RSI<30=超卖(可能反弹)。KDJ=包含K/D/J三线，J线最灵敏。KDJ>80=超买区，KDJ<20=超卖区。RSI适合判断"是否过热"，KDJ适合短线找买卖点。注意：超买≠马上跌，在强趋势中RSI可以长时间>70。',f:'RSI=100-[100/(1+RS)]  RS=14天上涨均值/下跌均值 | KDJ:K=2/3前K+1/3RSV',diagram:'RSI超买超卖判断：\n>80 → 极度超买(警惕反转)\n>70 → 超买(短线可持有)\n30-70→ 正常(趋势跟随)\n<30 → 超卖(关注反弹)\n<20 → 极度超卖(抄底)\n\n原则：\n"RSI>70不急着卖，\n RSI<30不急着买，\n 等趋势确认后再行动"',sum:'RSI和KDJ是市场体温计——告诉你市场过热还是过冷，但不会告诉你"该吃药了"的精确时间'},k07:{phase:'p2',tag:'technical',lvl:'suggest',title:'BOLL布林带：波动率的可视化',d:'BOLL=中轨(MA20)+上轨(中轨+2σ)+下轨(中轨-2σ)。核心信号：①股价触及上轨→超买 ②股价触及下轨→超卖 ③开口放大(上下轨间距扩大)→波动率上升、趋势加速 ④收口(间距收窄)→变盘前兆。BOLL最有效用法：缩口后等方向突破→顺势跟进。',f:'上轨=MA20+2σ | 中轨=MA20 | 下轨=MA20-2σ | 开口=趋势加速 | 收口=变盘前兆',diagram:'BOLL信号判断：\n      上轨─── ← 超买/压力\n     ╱        ╲\n中轨──────────── ← MA20\n     ╲        ╱\n      下轨─── ← 超卖/支撑\n\n开口放大：趋势加速\n 上轨↑↑  下轨↓↓\n → 顺势或止损\n\n收口：变盘前兆\n 上轨→←  下轨←→\n → 等方向确认再入场',sum:'BOLL告诉你"价格在什么范围算正常"——超出范围=异常=交易机会，收口后开口=行动信号'},k08:{phase:'p3',tag:'fundamental',lvl:'must',title:'财务三表入门：公司的体检报告',d:'三大财务报表是选股的必修课。①资产负债表：总资产=负债+所有者权益。核心看资产负债率(负债/资产)和流动比率(流动资产/流动负债)。②利润表：看营业收入增长率→成长性和净利润率→盈利能力。③现金流量表：经营现金流净额>0=造血功能正常，经营现金流/净利润>1=利润含金量高。',f:'总资产=负债+净资产 | 资产负债率=负债/总资产 | 流动比率=流动资产/流动负债(>2=安全)',diagram:'财务三表速览：\n资产负债表→公司有多少家底？\n ├ 资产(钱去哪了)\n ├ 负债(欠多少钱)\n └ 净资产=资产-负债\n\n利润表→公司赚了多少钱？\n ├ 营业收入\n ├ 净利润\n └ 扣非净利润\n\n现金流量表→钱真到账了吗？\n ├ 经营现金流(造血)\n ├ 投资现金流(扩张)\n └ 筹资现金流(融资)',sum:'财报是公司的体检报告——不会看财报的投资者就像不看检查单就开药的医生，迟早出事故'},k09:{phase:'p3',tag:'fundamental',lvl:'must',title:'PE/PB/ROE估值：选股的三把尺子',d:'PE(市盈率)=股价÷每股收益——你为每1元利润支付多少价格，PE越低越便宜。PB(市净率)=股价÷每股净资产——股价是净资产的多少倍，银行/周期股更看重PB。ROE(净资产收益率)=净利润÷净资产——衡量公司用股东的钱赚了多少，ROE>15%优秀，持续>20%卓越。PEG=PE÷净利润增长率(%)，PEG<1=低估。',f:'PE=股价÷EPS | PB=股价÷每股净资产 | ROE=净利润÷净资产 | PEG=PE÷增长率%(<1=低估)',diagram:'PE估值参考：\n消费品龙头: PE 25-35 合理\n科技成长股: PE 40-80 合理\n银行股: PE 5-10 合理\n周期股: PE 10-20 合理\n\n估值三原则：\n1.PE低≠便宜(可能业绩变差)\n2.PE高≠贵(可能高增长)\n3.核心是PE+ROE+PEG结合看\n\n"好公司+好价格=好投资\n 好公司+坏价格≈坏投资"',sum:'PE告诉你"贵不贵"，ROE告诉你"好不好"，PEG告诉你"成长值不值这个价"——三重过滤减少踩雷'},k10:{phase:'p3',tag:'fundamental',lvl:'suggest',title:'行业与赛道选择：选对池塘钓大鱼',d:'行业选择>个股选择——在上升行业买中等公司好过在衰退行业买龙头。核心框架：①行业生命周期(导入→成长→成熟→衰退) ②政策导向(国家支持的行业获补贴+减税+订单) ③景气周期(3-5年行业起伏)。实操：每月关注国家政策+行业研报→建立"政策+景气"双轮驱动的选股清单。',f:'行业评估三角：政策支持度 × 景气周期位置 × 竞争格局 = 赛道质量评分',diagram:'行业生命周期与策略：\n导入期→高风险高回报\n  (AI应用/人形机器人)\n成长期→最佳投资阶段\n  (新能源/半导体)\n成熟期→稳健分红型\n  (白酒/银行)\n衰退期→尽量回避\n  (传统零售/报纸)\n\n政策导向信号：\n大基金投资→半导体\n新能源补贴→光伏/电车\n集采政策→医药承压',sum:'选对行业等于选对了赛道——在上升电梯里做俯卧撑也能到顶，在下降电梯里跳再高也在往下走'},k11:{phase:'p4',tag:'pattern',lvl:'must',title:'支撑与阻力：价格运行的引力场',d:'支撑位=下跌时可能止跌回升的位置；阻力位=上涨时可能止涨回落的位置。识别方法：①前高/前低 ②均线位置(MA20/MA60) ③整数关口 ④筹码密集区。有效突破=收盘价连续2天站稳阻力位上方(或跌破支撑位下方)+放量确认。突破后原阻力→新支撑，跌破后原支撑→新阻力。',f:'支撑/阻力转换法则：突破后阻力→支撑 | 跌破后支撑→阻力',diagram:'支撑/阻力转换法则：\n     阻力位 X ← 多次不破\n         │\n    突破！放量+站稳2天\n         │\n     新支撑位 ← 变支撑\n         │\n    回踩不破→确认→加仓\n\n同样：\n     支撑位 ←\n    跌破！→\n     新阻力位 ← 变阻力\n\n"支撑买，阻力卖\n 突破后回踩最安全"',sum:'支撑和阻力不是精确数字，而是价格"大概率会反应"的区域——在支撑附近买、阻力附近卖'},k12:{phase:'p4',tag:'pattern',lvl:'must',title:'趋势线与通道：方向的指南针',d:'上升趋势线=连接两个显著低点→股价沿趋势线运行=健康→跌破趋势线=趋势可能反转。下降趋势线=连接两个显著高点→同理。通道交易法：平行通道→上轨卖出+下轨买入(震荡市有效)。趋势线至少2个点确认、第3个点验证；被碰触次数越多越可靠。角度30-60°最健康。',f:'上升趋势线：连接低点A→B→延长 | 通道=趋势线+平行偏移 | 突破角度>45°=强势',diagram:'上升通道交易：\n     ╱ 上轨(卖)\n    ╱\n   ╱ 下轨(买)\n  ╱\n ╱\n→ 碰下轨+确认=买入\n→ 碰上轨+反转=卖出\n\n趋势线有效性：\n✓ ≥3个点接触\n✓ 角度30-60°\n✓ 持续时间越长越可靠\n✗ 只有2个点需验证',sum:'趋势线是市场的"安全带"——股价在趋势线上方运行，趋势就还是你的朋友'},k13:{phase:'p4',tag:'pattern',lvl:'must',title:'经典反转形态：头肩顶与W底',d:'头肩顶(顶部反转)：左肩→头部(最高)→右肩(量缩)→跌破颈线→确认。目标跌幅=头部到颈线距离。W底(底部反转)：第一次探底(放量)→反弹→第二次探底(缩量)→突破颈线(放量)→确认。目标涨幅=底部到颈线距离。关键：右肩(右底)量必须<左肩(左底)→抛压/买盘衰竭。',f:'头肩顶跌幅=颈线-(头部-颈线) | W底涨幅=颈线+(颈线-底部) | 确认=放量突破颈线',diagram:'头肩顶识别：\n       头部\n       /\\\n      /  \\\n   左肩  右肩(量缩)\n   /      \\\n  /        \\_____颈线_\n                 \\ ← 跌破\n                  \\ 目标▽\n\nW底识别：\n                    /\n  \\     左底     /\\/\n   \\    /\\      /\n    \\/    \\  /\\/\n           右底(量缩)\n    ──颈线── 目标△',sum:'头肩顶和W底是最可靠的反转形态——掌握这两个，你就掌握了70%的技术形态精髓'},k14:{phase:'p4',tag:'pattern',lvl:'must',title:'量价关系：成交量的秘密语言',d:'量价六法则：①放量上涨→强势确认 ②放量下跌→主力出逃 ③缩量上涨→筹码锁定 ④缩量下跌→跌势衰竭 ⑤天量天价→顶部信号 ⑥地量地价→底部信号。突破时未放量=假突破。量在价先——成交量变化往往领先价格1-3天。看懂量价关系，你就看懂了市场参与者的恐惧和贪婪。',f:'量价核心：量在价先——成交量变化领先价格1-3天',diagram:'量价关系表：\n┌──────┬──────┬─────────┐\n│  量   │  价   │  信号     │\n├──────┼──────┼─────────┤\n│ 放量  │ 上涨  │  强势确认  │\n│ 放量  │ 下跌  │  主力出逃  │\n│ 缩量  │ 上涨  │  筹码锁定  │\n│ 缩量  │ 下跌  │  跌势衰竭  │\n│ 天量  │ 天价  │  见顶信号  │\n│ 地量  │ 地价  │  见底信号  │\n└──────┴──────┴─────────┘\n\n"量是价的影子——\n 影子变化比本体更早\n 透露变盘信息"',sum:'成交量是市场情绪的量化——看懂量价关系，就看懂了市场参与者的恐惧和贪婪'},k15:{phase:'p5',tag:'risk',lvl:'must',title:'仓位管理：活下去的数学保障',d:'金字塔法则：①试仓5%(试探)→②确认加仓至10-15%(趋势确认)→③极限不超单票20%。总仓位：牛市50-80%、震荡市30-50%、熊市0-20%。凯利公式：最优仓位f=(胜率×盈亏比-败率)/盈亏比。仓位管理本质=确保亏损时还有翻本本金。技术分析让你赚钱，仓位管理让你不亏完。',f:'凯利公式：f=(p×b-q)/b | p=胜率 b=盈亏比 q=1-p | 单票≤20% 总仓位≤60%',diagram:'仓位管理金字塔：\n         ┌──────┐\n         │ 追涨  │ 5%(低确定性)\n       ┌─┤ 加仓 ├─┐\n       │ ├──────┤ │ 10%\n     ┌─┤ │      │ ├─┐\n     │ ├─┴──────┴─┤ │\n     │ │  试仓5%   │ │\n     └─┴──────────┴─┘\n\n总仓位纪律：\n牛市: 50-80%\n震荡: 30-50%\n熊市: 0-20%',sum:'仓位管理=你在股市活多久的数学证明——技术让你赚钱，仓位让你不亏完'},k16:{phase:'p5',tag:'risk',lvl:'must',title:'止损策略：截断亏损让利润奔跑',d:'止损三件套：①固定比例止损(-5%~-8%)→触发即卖，不找理由 ②移动止盈→涨10%止损移至成本、涨20%上移+10%、涨30%上移+20% ③技术位止损→买入逻辑被破坏(破支撑/破MA20/破颈线)即止损。止损不是承认失败——是承认"前提条件不再成立"。止损疼一次，不止损疼一辈子。',f:'止损纪律：每笔必预设止损 | 止损执行率目标>90% | 移动止盈=利润保护',diagram:'止损三件套：\n1.固定比例止损\n  10元→止损9.50(-5%)\n  →触发即卖，不纠结\n\n2.移动止盈\n  涨10%→止损移至成本\n  涨20%→止损移至+10%\n  涨30%→止损移至+20%\n  →锁定利润\n\n3.技术位止损\n  买入理由被破坏→止损！\n  不犹豫不讨论\n\n"止损疼一次\n 不止损疼一辈子"',sum:'止损是交易者的安全带——不系安全带的司机，技术再好也活不长'},k17:{phase:'p5',tag:'risk',lvl:'must',title:'风险收益比(R/R)：每笔交易的数学期望',d:'R/R=预期盈利÷预期亏损。铁律：R/R<2:1不做！例：买入10元，止损9.50(风险0.50)，目标11(收益1.00)，R/R=2:1→可进场。即使胜率仅40%：40%×2R-60%×1R=+0.2R→正期望！每笔交易前先算R/R——这是区分交易者和赌徒的分界线。不需要高胜率，只需要正期望。',f:'R/R=(目标-买入)/(买入-止损) | R/R≥2:1才进场 | 期望值=胜率×均盈-败率×均亏',diagram:'R/R计算：\n买入: 10.00\n止损: 9.50→风险0.50(5%)\n目标: 11.00→收益1.00(10%)\nR/R=1.00÷0.50=2:1 ✓\n\n不同胜率期望：\n30%:0.3×2-0.7×1=-0.1 ✗\n40%:0.4×2-0.6×1=+0.2 ✓\n50%:0.5×2-0.5×1=+0.5 ✓✓\n\n"不需高胜率只需正期望\n 不需预测只需管理风险"',sum:'R/R是唯一不需要预测方向就能赚钱的公式——确保对时赚的比错时亏的多'},k18:{phase:'p6',tag:'practice',lvl:'must',title:'选股实战全流程：从大盘到个股',d:'完整选股7步：①判断大盘(趋势+成交量>万亿=可操作) ②选热点板块(涨停最多→找龙头) ③技术筛选(均线多头+MACD金叉+放量) ④基本面验证(ROE>10%+营收增+无利空) ⑤等买点(回踩支撑/金叉/放量突破) ⑥执行(挂单→成交→止损→日志) ⑦持仓管理(跟踪止损+关注板块热度)。选股成功率=大盘×板块×个股×买点，一环为0全盘输。',f:'选股成功率=大盘环境×板块热度×个股基本面×技术买点 | 每步乘数，一环为0全盘输',diagram:'完整选股7步：\n①大盘(做不做)\n  趋势↑+成交活跃=可\n\n②板块(什么方向)\n  涨停最多→找龙头\n\n③个股(做哪只)\n  技术+基本+资金共振\n\n④等买点(何时做)\n  回踩+放量+MACD金叉\n\n⑤执行+设止损+记日志\n⑥持仓管理+跟踪出场\n⑦复盘优化',sum:'选股=多层过滤器层层筛选——大盘好→板块热→个股优→买点对，四层都过了才算数'},k19:{phase:'p6',tag:'practice',lvl:'must',title:'交易日志与复盘：从错误中学习',d:'每笔必填：日期/代码/方向/价格/仓位/3条理由/出场记录/反思。每日复盘：①回顾操作→对错在哪 ②检查交易纪律 ③分析大盘板块 ④制定明日计划。每周汇总：胜率+盈亏比+最大回撤→画资金曲线→找规律。不写日志=放弃进步。交易日志是所有成功交易者的共同习惯。',f:'强制项：3条进场理由+盈亏%+1条反思 | 复盘频率：日15分钟+周30分钟+月2小时',diagram:'交易日志模板：\n日期：____ 代码：______\n进场价：____ 仓位：____%\n\n进场理由(≥3条)：\n1._______________\n2._______________\n3._______________\n\n出场记录：\n日期___ 价___ 盈亏±___%\n\n反思(最重要！)：\n做对了什么？________\n做错了什么？________\n下次怎样改进？______',sum:'交易日志是你在股市中的"黑匣子"——诚实记录每一次起飞和坠毁，帮你找到重复犯的错'},k20:{phase:'p6',tag:'practice',lvl:'must',title:'模拟盘训练：零成本积累经验',d:'模拟盘=同花顺/东财虚拟资金交易环境。目标：100笔有记录的交易→统计胜率/盈亏比/最大回撤→验证交易系统。三大注意：①当实盘做(设止损/写日志) ②≥100笔才有统计意义 ③模拟盈利≠实盘盈利(实盘有情绪干扰)。最大价值不是赚钱——是发现你的交易系统在统计上是否正期望。',f:'模拟目标：≥100笔 | 胜率≥40% | 盈亏比≥2:1 | 月收益>0正期望 | 达标后实盘',diagram:'模拟训练阶梯：\n第1-30笔：熟悉软件流程\n  目标：无操作失误\n第31-60笔：测试交易策略\n  目标：策略正期望\n第61-100笔：优化执行纪律\n  目标：胜率+盈亏比稳定\n100笔后统计分析：\n  胜率__% 盈亏比__:1\n  月收益__% 回撤__%\n  → 不达标→继续模拟！',sum:'模拟盘是交易者的驾校——用虚拟钱学会开车，总比用真金白银在高速上练车安全'},k21:{phase:'p7',tag:'psychology',lvl:'must',title:'交易心理陷阱：认识你的敌人',d:'四大心理陷阱：①贪婪(追高)——"再不买来不及了"→涨停被套 ②恐惧(恐慌割肉)——"再跌就亏光了"→割在地板 ③FOMO(踏空焦虑)——"别人都在赚"→追涨杀跌 ④锚定效应——"成本10块必须回本才卖"→越套越深。解决方案：用交易系统替代情绪——所有买卖由预设条件触发。空仓也是一种策略。',f:'应对：计划交易→交易计划 | 止损是纪律非失败 | 空仓也是策略',diagram:'四大心理陷阱与对策：\n贪婪(追高)：\n "再不买来不及了"\n →错过=不亏，追高=大亏\n\n恐惧(割地板)：\n "再跌就亏光了"\n →止损早就设好了\n\nFOMO(踏空焦虑)：\n "别人都赚钱了"\n →你只见别人赚不见别人亏\n\n锚定效应：\n "成本10必须回本卖"\n →成本无意义，趋势重要',sum:'交易最大敌人不是市场、不是庄家、不是政策——是镜子里的那个人。所有亏损最终都是情绪亏损'},k22:{phase:'p7',tag:'practice',lvl:'must',title:'构建个人交易系统：可复制的盈利机器',d:'交易系统=可重复执行的规则化流程。五大模块：①选股(ROE>15%+营收增+技术多头) ②进场(大盘好+板块热+MACD金叉+放量+R/R≥2) ③仓位(5%→15%→单票上限20%) ④出场(止损-5%+移动止盈+技术破位) ⑤风控(月回撤>10%暂停+连亏3笔复盘)。写下来→贴墙上→每天执行。执行一致性>偶尔灵光一现。',f:'交易系统=选股+进场+仓位+出场+风控 | 执行一致性 > 偶尔的灵光一现',diagram:'交易系统五大模块：\n┌─ 选股标准 ────────┐\n│ ROE>15% 营收增>20% │\n│ 机构增 技术面多头   │\n├─ 进场条件 ────────┤\n│ 大盘好 板块热      │\n│ MACD金叉 放量 R/R≥2│\n├─ 仓位规则 ────────┤\n│ 试仓5% 加至15%     │\n│ 单票≤20% 总≤60%   │\n├─ 出场规则 ────────┤\n│ 止损-5% 移动止盈  │\n│ 技术破位即止损     │\n├─ 风控参数 ────────┤\n│ 月回撤>10%→暂停   │\n│ 连亏3笔→复盘      │\n└────────────────────┘',sum:'交易系统=你的自动驾驶仪——有了它，市场让你恐慌时你不需要思考，只需要执行'},k23:{phase:'p7',tag:'practice',lvl:'suggest',title:'策略回测验证：用历史数据说话',d:'回测=用历史K线模拟策略，验证是否真能赚钱。核心指标：①胜率>40% ②盈亏比>2:1 ③最大回撤<20% ④最大连亏次数(决定心理承受上限)。手动回测：选≥2年日K→按规则逐日模拟→记录每笔进出盈亏→统计结果。回测≠实盘——但回测不过的策略实盘一定不过。',f:'指标：胜率>40%+盈亏比>2:1+回撤<20%+期望为正 | 至少2年500笔',diagram:'回测检查项：\n1.历史胜率：___%(>40%)\n2.盈亏比：___:1(>2:1)\n3.最大回撤：___%(<20%)\n4.最大连亏：___次\n5.月均收益：___%(>0)\n6.期望值：___(>0)\n\n注意事项：\n-≥2年数据含牛熊周期\n-考虑手续费滑点\n-不过拟合(参数别太多)\n-回测好≠实盘好(差50%)',sum:'回测是用过去的"如果"验证未来的"可能"——不保证赚钱，但保证不用注定亏损的策略'},k24:{phase:'p6',tag:'practice',lvl:'suggest',title:'看盘时间管理：高效盯盘的节奏',d:'A股交易4小时(9:30-11:30/13:00-15:00)。关键窗口：①集合竞价9:15-9:25→发现异动 ②早盘9:30-10:00→全天最活跃/成交量占30% ③尾盘14:30-15:00→收盘博弈/次日预演。不需要全天盯盘——盯越久错越多。重点是关键30分钟集中注意力。',f:'盯盘效率：9:30-10:00占全天30%成交量 | 尾盘14:30-15:00决定次日开盘方向',diagram:'高效盯盘时间表：\n9:15-9:25 集合竞价\n  →看异动+定策略\n\n9:30-10:00 早盘(最重要)\n  →执行买卖+判断方向\n\n10:00-11:30 盘中\n  →持仓+板块观察\n\n13:00-14:30 午后\n  →趋势是否延续\n\n14:30-15:00 尾盘\n  →收盘博弈+次日预判\n\n"关键30分钟>无用4小时"',sum:'盯盘黄金法则：把你最清醒的注意力集中在成交量最大的30分钟，不要4小时耗在屏幕前'},k25:{phase:'p7',tag:'psychology',lvl:'suggest',title:'持续进化体系：交易者的终身成长',d:'交易成长五阶段：①盲目自信("炒股太简单")→②遭遇亏损("为什么一直亏")→③学习反思("需要系统方法")→④系统化交易("按计划执行")→⑤稳定盈利("慢就是快")。90%停在阶段②。进化方法：每月总结(统计胜率盈亏比)+每季优化(调整参数)+每年迭代(学新策略)。交易是终身学习。',f:'成长速度=复盘效率×学习投入×纪律执行 | 每月复盘>每笔日志>每天盯盘',diagram:'交易者五阶段：\n①盲目自信\n  "太简单了！"\n     ↓大亏\n②遭遇亏损←90%止步\n  "为什么一直亏"\n     ↓学习\n③学习反思\n  "需要系统方法"\n     ↓建立\n④系统化交易\n  "按计划执行"\n     ↓持续正期望\n⑤稳定盈利\n  "慢就是快"\n\n路径：学习→实战→复盘→优化',sum:'交易是没有终点的马拉松——稳定盈利不是终点，持续进化才是。每笔亏损都是学费，只要你在学'}};
+
+var MATH_TAGS_DATA=[{cls:'tag-foundation',code:'[基础]',label:'市场基础与交易规则'},{cls:'tag-technical',code:'[技术]',label:'K线形态与技术指标'},{cls:'tag-fundamental',code:'[基本面]',label:'财务分析与估值方法'},{cls:'tag-pattern',code:'[形态]',label:'趋势线与反转形态识别'},{cls:'tag-risk',code:'[风控]',label:'仓位管理与止损策略'},{cls:'tag-psychology',code:'[心理]',label:'交易心理与纪律执行'},{cls:'tag-practice',code:'[实战]',label:'模拟盘与实盘操作'}],PHASES=[{id:'p1',week:'第1-2周',title:'市场基础认知',sub:'从开户到第一笔交易——建立炒股的基础世界观',color:'#4fc3f7',icon:'🏛',cls:'c1',skills:[{code:'A股市场结构',kp:'k01'},{code:'交易制度',kp:'k02'}],codes:[{lang:'Python:涨跌幅计算',code:'def limit(p,b="main"):\n    r={"main":.1,"star":.05,"kc":.2,"cy":.2,"bj":.3}[b]\n    return [round(p*(1+r),2),round(p*(1-r),2)]\nprint(limit(10,"main")) # [11.0, 9.0]'}],drawings:[{lvl:'must',text:'[必画] A股市场结构图'},{lvl:'must',text:'[必画] 分时图黄白线+量价四象限'},{lvl:'suggest',text:'[建议画] T+1制度对策略影响图'}]},{id:'p2',week:'第3-4周',title:'K线与技术指标',sub:'从K线语言到MACD——掌握技术分析核心武器',color:'#66bb6a',icon:'📈',cls:'c2',skills:[{code:'K线基础',kp:'k03'},{code:'均线MA',kp:'k04'},{code:'MACD',kp:'k05'},{code:'RSI/KDJ',kp:'k06'},{code:'BOLL',kp:'k07'}],codes:[{lang:'Python:均线计算',code:'def ma(p,n):\n    return sum(p[-n:])/n if len(p)>=n else None\np=[10,10.2,10.5,10.3,10.8,11,10.9,11.2,11.5,11.3]\nfor n in[5,10,20]:print(f"MA{n}={ma(p,n):.2f}")'}],drawings:[{lvl:'must',text:'[必画] 12种K线基础形态'},{lvl:'must',text:'[必画] 均线多空排列对比'},{lvl:'must',text:'[必画] MACD顶/底背离'},{lvl:'must',text:'[必画] BOLL收口/开口信号'}]},{id:'p3',week:'第5-6周',title:'选股与基本面分析',sub:'从财务三表到PE估值——用数据筛选好公司',color:'#ffa726',icon:'🔍',cls:'c3',skills:[{code:'财务三表',kp:'k08'},{code:'PE/PB/ROE',kp:'k09'},{code:'行业赛道',kp:'k10'}],codes:[{lang:'Python:估值计算',code:'def val(p,eps,bv,roe,g):\n    pe=p/eps;pb=p/bv;peg=pe/g\n    s=sum([pe<20,pb<3,roe>15,peg<1])\n    return f"PE={pe:.0f} PB={pb:.1f} ROE={roe}% PEG={peg:.1f} | 评分:{s}/4"'},],drawings:[{lvl:'must',text:'[必画] 选股三角评估框架'},{lvl:'must',text:'[必画] 财务三表核心指标速览'},{lvl:'suggest',text:'[建议画] 行业PE估值对比图'}]},{id:'p4',week:'第7-8周',title:'趋势与形态识别',sub:'从支撑阻力到量价关系——看懂图表隐藏的信号',color:'#ab47bc',icon:'👁',cls:'c4',skills:[{code:'支撑阻力',kp:'k11'},{code:'趋势通道',kp:'k12'},{code:'反转形态',kp:'k13'},{code:'量价关系',kp:'k14'}],codes:[{lang:'突破判断(伪码)',code:'def brk(p,tr,vol,avg):\n    if p>tr:\n        return"有效突破↗" if vol>avg*1.5 else"观察"\n    if p<tr:\n        return"有效跌破↘" if vol>avg*1.5 else"观察"\n    return"趋势未变"'}],drawings:[{lvl:'must',text:'[必画] 支撑/阻力转换法则'},{lvl:'must',text:'[必画] 头肩顶与W底标注'},{lvl:'must',text:'[必画] 量价六法则速查表'}]},{id:'p5',week:'第9-10周',title:'资金管理与风控',sub:'从仓位到止损——构建不亏钱的数学防护',color:'#ef5350',icon:'🛡',cls:'c5',skills:[{code:'仓位管理',kp:'k15'},{code:'止损策略',kp:'k16'},{code:'R/R',kp:'k17'}],codes:[{lang:'Python:凯利公式',code:'def kelly(p,b):\n    q=1-p;f=(p*b-q)/b\n    return round(max(0,min(f,.25))*100,1)\nprint(f"{kelly(.45,2.5)}%") # 最优仓位23%'}],drawings:[{lvl:'must',text:'[必画] 仓位管理金字塔'},{lvl:'must',text:'[必画] 止损三件套对比'},{lvl:'must',text:'[必画] R/R计算示例图'}]},{id:'p6',week:'第11-13周',title:'实战模拟与实盘',sub:'从模拟盘到真金白银——知识转化为交易肌肉记忆',color:'#ec407a',icon:'🎯',cls:'c6',skills:[{code:'选股流程',kp:'k18'},{code:'交易日志',kp:'k19'},{code:'模拟盘',kp:'k20'},{code:'盯盘节奏',kp:'k24'}],codes:[{lang:'交易日志结构',code:'trade={"date":"","code":"","price":0,"pos":0,\n  "reasons":["","",""],"stop":0,"target":0}\ndef rr(e,s,t):\n    return f"{(t-e)/(e-s):.1f}:1"+( " ✓"if(t-e)/(e-s)>=2 else"")'}],drawings:[{lvl:'must',text:'[必画] 完整选股7步流程'},{lvl:'must',text:'[必画] 每日复盘模板'},{lvl:'must',text:'[必画] 盯盘时间分配图'}]},{id:'p7',week:'第14-15周',title:'交易心理与系统构建',sub:'从情绪管理到交易系统——交易者的终极进化',color:'#26c6da',icon:'🚀',cls:'c7',skills:[{code:'心理陷阱',kp:'k21'},{code:'交易系统',kp:'k22'},{code:'策略回测',kp:'k23'},{code:'持续进化',kp:'k25'}],codes:[{lang:'交易系统参数',code:'sys={"pick":["ROE>15","rev>20%"],\n  "entry":["ma多","MACD金叉","R/R>=2"],\n  "pos":{"try":.05,"add":.15,"max":.2},\n  "exit":{"sl":-.05,"tp":.15},\n  "risk":{"mdd":.1,"lose":3}}'}],drawings:[{lvl:'must',text:'[必画] 四大心理陷阱对策'},{lvl:'must',text:'[必画] 交易系统五大模块'},{lvl:'must',text:'[必画] 成长五阶段进阶图'}]}],FORMULA_TABS=[{label:'K线与均线'},{label:'技术指标'},{label:'估值公式'},{label:'风控参数'},{label:'形态量度'}],FORMULAS=[[{c:'MA(n)',f:'(P1+...+Pn)/n',n:'n日收盘价简单移动平均'},{c:'金叉',f:'MA(短)上穿MA(长)',n:'买入信号'},{c:'死叉',f:'MA(短)下穿MA(长)',n:'卖出信号'},{c:'多头排列',f:'MA5>MA10>MA20>MA60',n:'短到长从上到下'},{c:'空头排列',f:'MA60>MA20>MA10>MA5',n:'长到短从上到下'}],[{c:'MACD金叉',f:'DIF上穿DEA',n:'快线上穿慢线→买'},{c:'MACD死叉',f:'DIF下穿DEA',n:'快线下穿慢线→卖'},{c:'RSI超买',f:'RSI(14)>70',n:'高风险警惕回调'},{c:'RSI超卖',f:'RSI(14)<30',n:'低区关注反弹'},{c:'BOLL开口',f:'上轨-下轨扩大',n:'波动率升→加速'}],[{c:'PE',f:'股价÷每股收益',n:'静态去年EPS动态预期'},{c:'PB',f:'股价÷每股净资产',n:'银行周期股更看重'},{c:'ROE',f:'净利润÷净资产%',n:'>15%优持续>20%卓越'},{c:'PEG',f:'PE÷增长率%',n:'<1低估1-2合理>2高估'},{c:'股息率',f:'分红÷股价%',n:'适合长期持有'}],[{c:'单笔风险',f:'≤总资金1-2%',n:'每笔最大可承受亏损'},{c:'R/R',f:'(目标-买入)÷(买入-止损)',n:'必须≥2:1进场'},{c:'凯利公式',f:'(p×b-q)÷b',n:'p胜率b盈亏比q败率'},{c:'最大回撤',f:'(峰值-谷值)÷峰值',n:'>10%暂停交易'},{c:'期望值',f:'胜率×均盈-败率×均亏',n:'必须为正'}],[{c:'头肩顶目标',f:'颈线-(头部-颈线)',n:'跌破颈线最小跌幅'},{c:'W底目标',f:'颈线+(颈线-底部)',n:'突破颈线最小涨幅'},{c:'三角突破',f:'突破点±最大宽度',n:'量度升跌幅'},{c:'通道交易',f:'下轨买/上轨卖',n:'震荡高抛低吸'},{c:'旗形目标',f:'旗杆长+突破点',n:'整理后延续目标'}]];
+
+var EXERCISES=[{id:'e01',diff:'easy',text:'打开同花顺完成开户→银证转账→用1手(100股)完成第一笔真实买入，记录全过程时间和费用',a:'下载券商APP→上传身份证→视频认证→绑卡\n银证转账→搜索代码→买入100股确认\n记录：用时___分，买入价___，手续费___元'},{id:'e02',diff:'easy',text:'随机抽取50根历史日K线，逐根标注：阳线/阴线/十字星/锤子线/倒锤子/吞没形态，正确率>90%',a:'十字星条件：开≈收(差<0.5%)\n锤子线：下影≥实体2倍+实体在顶部\n吞没：后一根完全覆盖前一根\n统计：正确___/50=___%'},{id:'e03',diff:'easy',text:'在任意股票日K线图上画出MA5/10/20/60四条均线，判断当前是多是空排列',a:'多头：MA5>MA10>MA20>MA60\n空头：MA60>MA20>MA10>MA5\n记录：代码___ 排列___\n最近金叉日___ 死叉日___'},{id:'e04',diff:'easy',text:'选5只股票查看MACD指标，判断金/死叉状态及是否有背离',a:'股票1___行业___MACD___背离？\n(DIF>DEA=金叉 DIF<DEA=死叉)\n股价新高/低？MACD同步？\n统计：金叉___死叉___背离___'},{id:'e05',diff:'easy',text:'模拟盘用"均线金叉+MACD金叉"双条件完成10笔买入→3天后记录盈亏',a:'|#|代码|买入|3日后|盈亏%|\n|1|___|___|___|___|\n...\n统计：胜率___% 均盈亏___%\n双金叉在当前环境是否有效？'},{id:'e06',diff:'medium',text:'选取10只不同行业股票查PE/PB/ROE，按PE排序分析估值',a:'|#|代码|行业|PE|PB|ROE|PEG|\n...\nPE最低3只是否真便宜？\nROE最高3只PE合理吗？\nPEG<1有几只？结论：___'},{id:'e07',diff:'medium',text:'在日K线找出头肩顶和W底，标注颈线/目标位/量能',a:'头肩顶：左肩___头___右肩___颈线___\n目标跌___元 右肩量应<左肩\nW底：左底___右底___颈线___\n目标涨___元 右底量应<左底\n截图保存'},{id:'e08',diff:'medium',text:'用BOLL分析3个月走势：标注每次开口/收口和对应方向',a:'日期|BOLL状态|后续方向|持续天数\n...\n开口___次→同延续___反向___\n收口___次→上突破___下突破___\n信号准确率___%'},{id:'e09',diff:'medium',text:'模拟盘用"底部放量+MACD金叉"策略交易20笔→统计胜率和盈亏比',a:'|#|买日|买价|卖日|卖价|盈亏%|R/R|\n...20\n胜率___% 均盈___% 均亏___%\n盈亏比=均盈/均亏=___:1\n期望值=___%\n策略是否正期望？'},{id:'e10',diff:'medium',text:'找一只股票画出6个月趋势线+通道，标注≥3个支撑/阻力位',a:'趋势线：连接___和___低点\n通道上轨：趋势线平行偏移→碰___次\n支撑：①___前低②___MA60③___整数\n阻力：①___前高②___MA20③___整数\n当前距最近支撑/阻力___%'},{id:'e11',diff:'medium',text:'选3只股票分析最新资产负债表：算资产负债率/流动/速动比率',a:'|股|总资产|负债|负债率|流动|速动|\n...\n健康标准：负债率<50%健康\n流动比率>2安全 1-2关注 <1风险\n结论：___'},{id:'e12',diff:'medium',text:'用东方财富查5只股票研报评级/目标价，与实际对比分析准确性',a:'|代码|评级|目标价|当前价|偏差|日期\n...\n研报均偏差___% 买入评级达到率___%\n结论：研报参考价值？跟风亏损过？'},{id:'e13',diff:'hard',text:'设计选股checklist(4维度≥10条标准)，筛选10只股票',a:'估值(3条):PE<行业/PEG<1.5/股息>2%\n成长(3条):营收增>15%/ROE>12%/机构增\n技术(2条):均线多头/MACD金叉\n资金(2条):北上流入/近期放量\n筛选结果最优：___'},{id:'e14',diff:'hard',text:'模拟盘20笔严格止损：每笔预设止损→统计执行率和止损后走势',a:'|#|买价|止损|触发？|执行？|后涨跌%|\n...20\n止损触发___/执行___=执行率___%\n止损后继续跌___次(vs不止损亏额____)\n结论：止损值得严格执行吗？'},{id:'e15',diff:'hard',text:'完整一次"买→持→止盈"流程：选股→等买点→进场→止损→移动止盈→出场→日志',a:'1.选股(理由___)\n2.等买点(等___天)\n3.进场(日期___价___仓___R/R___)\n4.止损___ 5.移动止盈(调___次)\n6.出场(价___盈亏___元___%)\n7.复盘(对错+改进)\n最难环节？最容易犯错环节？'},{id:'e16',diff:'hard',text:'统计过去一个月所有交易→胜率/盈亏比/期望→画出资金曲线',a:'总___ 盈___次 亏___次 胜率___%\n均盈___ vs 均亏___ 盈亏比___:1\n期E=___元/笔 总盈亏___元(___%)\n爆亏___笔 爆赚___笔\n资金曲线：起___→高___→低___→终___\n结论：赚钱=运气or策略？'},{id:'e17',diff:'hard',text:'分析一只股票过去一年涨停日，找涨停前共征(均线/MACD/量/流通市值)',a:'涨停___次\n共征统计：多头___次(%)/金叉___次(%)/放量___次(%)/流通<100亿___次(%)\n涨停后次日：续板___次/高开低___次/低开___次\n结论：最可靠先行信号___'},{id:'e18',diff:'hard',text:'连亏3笔后≥2天不交易→写反思→分析原因',a:'连亏日___ 暂停期___至___\n做到了不交易？忍住不看盘？\n心态变化：___\n原因：①___②___③___\n纪律违规：追高___次 不止损___次\n复出第一笔：___ 结果___'},{id:'e19',diff:'project',text:'【大作业】构建交易系统文档(5模块)→手动回测30笔→写总结',a:'系统文档：选股5条→进场4条→仓位3层→出场2类→风控3参\n回测：6个月日K逐日模拟→30笔\n统计：胜率/盈亏比/总收益\n总结700字：表现评估+优势不足+优化方向'},{id:'e20',diff:'project',text:'【大作业】连续30天复盘日志：①操作②判断③对错④计划⑤心态',a:'每日：日期/大盘%/操作/判断/对错/计划/心态\n30天汇总：\n最常见错___次 情绪影响___\n纪律执行率___% 30天盈亏___\n领悟：___'},{id:'e21',diff:'project',text:'【大作业】模拟盘100笔交易→6维分析(胜率/盈亏比/回撤/夏普/月收)→总结报告',a:'100笔统计：盈___笔 亏___笔 胜率___%\n均盈___% vs 均亏___% 盈亏比___:1\nmax回撤___% 月均收益___%\n100笔总结：最有效策略___\n最大问题___ 下阶段改进___'}],RESOURCES=[{t:'《日本蜡烛图技术》史蒂夫·尼森',d:'K线分析圣经——所有技术分析交易的必读基础',dm:'必读',u:''},{t:'《股票大作手回忆录》',d:'利弗莫尔的交易人生——交易心理与市场认知永恒经典',dm:'必读',u:''},{t:'《笑傲股市》威廉·欧奈尔',d:'CANSLIM选股法则+带柄茶杯——成长股投资圣经',dm:'选股',u:''},{t:'《海龟交易法则》柯蒂斯·费斯',d:'系统化交易方法论——从进场到资金管理完整框架',dm:'系统',u:''},{t:'《以交易为生》亚历山大·埃尔德',d:'三重滤网系统+交易心理——理论与实践兼顾',dm:'系统',u:''},{t:'同花顺/东方财富App',d:'行情/交易/模拟炒股/龙虎榜/财报数据',dm:'工具',u:''},{t:'TradingView',d:'专业图表分析工具+丰富画图+指标叠加',dm:'工具',u:'tradingview.com'},{t:'东方财富网',d:'A股财务数据/研报/公告/龙虎榜/资金流',dm:'数据',u:'eastmoney.com'},{t:'雪球社区',d:'投资者交流——深度基本面/行业讨论/投资理念',dm:'社区',u:'xueqiu.com'},{t:'巨潮资讯网',d:'A股年报季报公告官方披露平台',dm:'数据',u:'cninfo.com.cn'},{t:'集思录',d:'低风险投资数据：可转债/逆回购/分级基金',dm:'数据',u:'jisilu.cn'},{t:'淘股吧',d:'超短线打板游资风格社区——短线聚集',dm:'社区',u:'taoguba.com.cn'},{t:'国家统计局网站',d:'宏观经济GDP/CPI/PMI/社融——判大盘方向',dm:'宏观',u:'stats.gov.cn'}],TRACKER_ITEMS=[{id:'t1',p:'P1',w:'1-2周',d:'市场基础——A股结构/开户/交易规则/分时图'},{id:'t2',p:'P2',w:'3-4周',d:'K线与指标——K线形态/均线/MACD/RSI/KDJ/BOLL'},{id:'t3',p:'P3',w:'5-6周',d:'选股基本面——财务三表/PE/ROE估值/行业分析'},{id:'t4',p:'P4',w:'7-8周',d:'趋势形态——支撑阻力/趋势线/头肩顶/W底/量价'},{id:'t5',p:'P5',w:'9-10周',d:'风控体系——仓位管理/止损策略/风险收益比'},{id:'t6',p:'P6',w:'11-13周',d:'实战模拟——选股流程/交易日志/模拟盘/盯盘'},{id:'t7',p:'P7',w:'14-15周',d:'心理系统——心理陷阱/交易系统构建/回测/进化'}];
+
+function hR(){var c=document.getElementById('roadmapContainer'),h='';PHASES.forEach(function(p){h+='<div class="roadmap-item"><div class="roadmap-marker" style="background:'+p.color+';border-color:'+p.color+'">'+p.icon+'</div><div class="roadmap-content" onclick="document.getElementById(\'phase-'+p.id+'\').scrollIntoView({behavior:\'smooth\'});setTimeout(function(){tP(\'phase-'+p.id+'\')},400)"><div class="rm-week">'+p.week+'</div><h3>'+p.title+'</h3><div class="rm-desc">'+p.sub+'</div></div></div>'});c.innerHTML=h}
+function hPD(){var c=document.getElementById('phaseContainer'),h='';PHASES.forEach(function(p){h+='<div class="phase-detail" id="phase-'+p.id+'"><div class="phase-detail-header" onclick="tP(\'phase-'+p.id+'\')"><div class="icon" style="background:'+p.color+'">'+p.icon+'</div><div class="info"><h4>'+p.title+'</h4><div class="ph-week">'+p.week+' · '+p.sub+'</div></div><div class="arrow">▼</div></div><div class="phase-body"><div class="phase-body-inner"><div style="font-size:0.78rem;font-weight:700;color:var(--accent-gold)">技能要点</div><div class="skill-list">';p.skills.forEach(function(s){h+='<span class="skill-chip skill-link" onclick="event.stopPropagation();goK(\''+s.kp+'\')">'+s.code+'</span>'});h+='</div>';if(p.codes&&p.codes.length){h+='<div style="font-size:0.78rem;font-weight:700;color:var(--accent-gold);margin-top:8px">代码示例</div>';p.codes.forEach(function(cd){h+='<div class="code-block"><button class="copy-btn" onclick="cpC(this)">复制</button><pre><code>'+cd.code.replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</code></pre></div>'})}if(p.drawings&&p.drawings.length){h+='<div style="font-size:0.78rem;font-weight:700;color:var(--accent-gold);margin-top:8px">画图任务</div><div class="skill-list">';p.drawings.forEach(function(d){h+='<span class="skill-chip draw-lvl-'+d.lvl+'">'+d.text+'</span>'});h+='</div>'}h+='</div></div></div>'});c.innerHTML=h}
+function hDS(){document.getElementById('drawingMethod').innerHTML='<div class="dm-card"><h4>抄图</h4><p>对着行情软件手绘K线形态、均线排列、MACD走势——画出底背离+金叉的标准买入信号</p></div><div class="dm-card"><h4>默图</h4><p>不看参考凭记忆还原头肩顶6要素(左肩/头/右肩/颈线/量能/目标位)</p></div><div class="dm-card"><h4>讲图</h4><p>向自己讲解：为什么这根放量阳线确认支撑有效而不是诱多？</p></div>';var t='';MATH_TAGS_DATA.forEach(function(m){t+='<span class="math-tag '+m.cls+'">'+m.code+' '+m.label+'</span>'});document.getElementById('mathTags').innerHTML=t;document.getElementById('drawLevels').innerHTML='<span class="draw-level-item must">[必画] K线/均线/MACD背离/反转形态/止损位</span><span class="draw-level-item suggest">[建议画] 仓位金字塔/个人交易流程图</span><span class="draw-level-item optional">[可选画] 龙虎榜分析/板块资金流</span>'}
+function hFs(){var t=document.getElementById('formulaTabs'),p=document.getElementById('formulaPanels'),th='',ph='';FORMULA_TABS.forEach(function(tb,i){th+='<button class="formula-tab'+(i===0?' active':'')+'" onclick="sFT('+i+')">'+tb.label+'</button>'});FORMULAS.forEach(function(fs,i){ph+='<div class="formula-panel'+(i===0?' active':'')+'" id="fp'+i+'"><table class="formula-table"><thead><tr><th>概念</th><th>公式</th><th>说明</th></tr></thead><tbody>';fs.forEach(function(r){ph+='<tr><td>'+r.c+'</td><td>'+r.f+'</td><td>'+r.n+'</td></tr>'});ph+='</tbody></table></div>'});t.innerHTML=th;p.innerHTML=ph}
+function sFT(i){document.querySelectorAll('.formula-tab,.formula-panel').forEach(function(el){el.classList.remove('active')});document.querySelectorAll('.formula-tab')[i].classList.add('active');document.getElementById('fp'+i).classList.add('active')}
+
+var _kf='all',_ka=false,_kph='all',_expandedKp=null;
+function hPhaseFilters(){var r=document.getElementById('phaseFilterRow'),h='<button class="phase-filter-btn active" onclick="setPhaseFilter(\'all\',this)">全部阶段</button>';PHASES.forEach(function(p){h+='<button class="phase-filter-btn" onclick="setPhaseFilter(\''+p.id+'\',this)">'+p.title+'</button>'});h+='<button class="ks-expand-all" onclick="toggleAllKnowledge()">展开全部</button>';r.innerHTML=h}
+function setPhaseFilter(ph,btn){_kph=ph;document.querySelectorAll('.phase-filter-btn').forEach(function(b){b.classList.remove('active')});btn.classList.add('active');fK(_kf)}
+function fK(tag,btn){if(tag!==undefined){_kf=tag;if(btn){document.querySelectorAll('.knowledge-filter').forEach(function(b){b.classList.remove('active')});btn.classList.add('active')}}var g=document.getElementById('knowledgeContainer'),keys=Object.keys(KP),filtered=keys.filter(function(k){var p=KP[k];var tm=_kf==='all'||p.tag===_kf;var pm=_kph==='all'||p.phase===_kph;return tm&&pm});document.getElementById('knowledgeCount').innerHTML='显示 '+filtered.length+'/'+keys.length+' 个知识点';var h='';filtered.forEach(function(k){var p=KP[k],phase=PHASES.find(function(ph){return ph.id===p.phase});h+='<div class="knowledge-card'+(p.id===_expandedKp?' expanded open':'')+'" data-kp="'+k+'" data-phase="'+p.phase+'" onclick="tK(event,this)"><div class="card-header"><span class="card-icon">📌</span><span class="card-title">'+p.title+'</span><span class="math-tag tag-'+p.tag+'">'+MATH_TAGS_DATA.find(function(m){return m.cls==='tag-'+p.tag}).code+'</span><button class="card-back" onclick="event.stopPropagation();goBackFromKp(\''+p.phase+'\')">↩ '+phase.title+'</button></div><div class="card-detail"><p>'+p.d+'</p>'+(p.f?'<div class="card-formula">'+p.f+'</div>':'')+(p.diagram?'<div class="card-draw-box">'+p.diagram+'</div>':'')+'<div class="card-sum">💡 '+p.sum+'</div>'+getRelatedKPs(k)+'</div></div>'});g.innerHTML=h;_expandedKp=null;g.classList.remove('has-expanded')}
+function getRelatedKPs(k){var cur=KP[k],sp=Object.keys(KP).filter(function(kk){return kk!==k&&KP[kk].phase===cur.phase}),sc=sp.map(function(kk){var s=0;if(KP[kk].tag===cur.tag)s+=3;if(KP[kk].lvl===cur.lvl)s+=1;return {kp:kk,score:s}});sc.sort(function(a,b){return b.score-a.score});var top=sc.slice(0,3);if(!top.length)return '';var h='<div class="card-related"><div class="cr-title">🔗 相关知识点</div><div class="cr-links">';top.forEach(function(t){h+='<span class="cr-link" onclick="event.stopPropagation();goRelatedKp(\''+t.kp+'\')">'+KP[t.kp].title+'</span>'});h+='</div></div>';return h}
+function tK(evt,card){var grid=document.getElementById('knowledgeContainer');if(card.classList.contains('expanded')){if(evt.target.closest('.card-header')){collapseExpanded(grid);return}if(evt.target.closest('.card-back')||evt.target.closest('.cr-link'))return;return}if(card.classList.contains('open')){card.classList.remove('open');return}collapseExpanded(grid);var kpId=card.getAttribute('data-kp'),items=Array.from(grid.querySelectorAll('.knowledge-card')),idx=items.indexOf(card);expandCard(grid,card,idx);_expandedKp=kpId}
+function expandCard(grid,card,idx){grid.classList.add('has-expanded');card.classList.add('expanded','open')}
+function collapseExpanded(grid){var ex=grid.querySelector('.knowledge-card.expanded');if(!ex){grid.classList.remove('has-expanded');_expandedKp=null;return}ex.classList.remove('expanded','open');_expandedKp=null;grid.classList.remove('has-expanded')}
+function toggleAllKnowledge(){var grid=document.getElementById('knowledgeContainer');if(_ka){grid.querySelectorAll('.knowledge-card').forEach(function(c){c.classList.remove('open')});_ka=false;_expandedKp=null;grid.classList.remove('has-expanded')}else{grid.querySelectorAll('.knowledge-card').forEach(function(c){c.classList.add('open')});_ka=true}}
+function goK(kpId){collapseExpanded(document.getElementById('knowledgeContainer'));_kf='all';_kph='all';document.querySelectorAll('.knowledge-filter,.phase-filter-btn').forEach(function(b){b.classList.remove('active')});var af=document.querySelector('.knowledge-filter[onclick*="all"]');if(af)af.classList.add('active');var apf=document.querySelector('.phase-filter-btn[onclick*="all"]');if(apf)apf.classList.add('active');fK('all');setTimeout(function(){document.getElementById('knowledge').scrollIntoView({behavior:'smooth'});setTimeout(function(){var card=document.querySelector('.knowledge-card[data-kp="'+kpId+'"]');if(card){var grid=document.getElementById('knowledgeContainer'),idx=Array.from(grid.querySelectorAll('.knowledge-card')).indexOf(card);card.classList.add('open');expandCard(grid,card,idx);_expandedKp=kpId}},400)},100)}
+function goRelatedKp(kpId){collapseExpanded(document.getElementById('knowledgeContainer'));var kp=KP[kpId];_kph=kp.phase;document.querySelectorAll('.phase-filter-btn').forEach(function(b){b.classList.remove('active')});var btns=document.querySelectorAll('.phase-filter-btn');btns.forEach(function(b){if(b.textContent===PHASES.find(function(p){return p.id===kp.phase}).title)b.classList.add('active')});fK(_kf);setTimeout(function(){var card=document.querySelector('.knowledge-card[data-kp="'+kpId+'"]');if(card){var grid=document.getElementById('knowledgeContainer'),idx=Array.from(grid.querySelectorAll('.knowledge-card')).indexOf(card);card.classList.add('open');expandCard(grid,card,idx);_expandedKp=kpId;card.scrollIntoView({behavior:'smooth',block:'center'})}},150)}
+function goBackFromKp(ph){collapseExpanded(document.getElementById('knowledgeContainer'));_kph=ph;document.querySelectorAll('.phase-filter-btn').forEach(function(b){b.classList.remove('active')});var btns=document.querySelectorAll('.phase-filter-btn');btns.forEach(function(b){if(b.textContent===PHASES.find(function(p){return p.id===ph}).title)b.classList.add('active')});fK(_kf);setTimeout(function(){document.getElementById('phase-'+ph).scrollIntoView({behavior:'smooth'});setTimeout(function(){tP('phase-'+ph)},400)},150)}
+function goGraphToKp(kpId){goK(kpId)}
+function hK(){var fb=document.getElementById('knowledgeFilterBar'),h='<button class="knowledge-filter active" onclick="fK(\'all\',this)">全部</button>';MATH_TAGS_DATA.forEach(function(m){h+='<button class="knowledge-filter" onclick="fK(\''+m.cls.replace('tag-','')+'\',this)">'+m.label+'</button>'});fb.innerHTML=h;hPhaseFilters();fK('all')}
+
+function cpC(btn){var code=btn.parentElement.querySelector('code').textContent;navigator.clipboard.writeText(code).then(function(){sT('已复制')})}
+function tP(id){document.getElementById(id).classList.toggle('open')}
+function hEx(){document.getElementById('exerciseFilters').innerHTML='<button class="exercise-filter active" onclick="fEx(\'all\',this)">全部</button><button class="exercise-filter" onclick="fEx(\'easy\',this)">初级 (5)</button><button class="exercise-filter" onclick="fEx(\'medium\',this)">中级 (7)</button><button class="exercise-filter" onclick="fEx(\'hard\',this)">高级 (6)</button><button class="exercise-filter" onclick="fEx(\'project\',this)">大作业 (3)</button>';fEx('all')}
+function fEx(diff,btn){if(btn){document.querySelectorAll('.exercise-filter').forEach(function(b){b.classList.remove('active')});btn.classList.add('active')}var list=document.getElementById('exerciseList'),done=JSON.parse(localStorage.getItem('st_done')||'[]'),h='',filtered=diff==='all'?EXERCISES:EXERCISES.filter(function(e){return e.diff===diff});document.getElementById('exerciseCounter').textContent='共 '+filtered.length+' 题 | 已完成 '+done.length+' 题';filtered.forEach(function(e){var isD=done.indexOf(e.id)>=0;h+='<div class="exercise-item" onclick="tExCk(\''+e.id+'\',this)" data-id="'+e.id+'"><div class="exercise-num">#'+e.id.replace('e','')+'</div><div class="ei-content"><div class="ei-title"><span class="ei-title-text">'+e.text+'</span><span class="diff '+e.diff+'">'+{easy:'初级',medium:'中级',hard:'高级',project:'大作业'}[e.diff]+'</span></div>'+(e.a?'<div class="ei-answer">'+e.a+'</div>':'')+'</div><div class="ei-check'+(isD?' done':'')+'">'+(isD?'✓':'')+'</div></div>'});list.innerHTML=h}
+function tExCk(id,el){if(el.classList.contains('open')){el.classList.remove('open');return}var done=JSON.parse(localStorage.getItem('st_done')||'[]'),idx=done.indexOf(id);if(idx>=0){done.splice(idx,1)}else{done.push(id)}localStorage.setItem('st_done',JSON.stringify(done));el.classList.add('open');var chk=el.querySelector('.ei-check');if(done.indexOf(id)>=0){chk.classList.add('done');chk.textContent='✓'}else{chk.classList.remove('done');chk.textContent=''}var af=document.querySelector('.exercise-filter.active'),curDiff=af?af.getAttribute('onclick').match(/'(\w+)'/)[1]:'all';fEx(curDiff)}
+function hRes(){var l=document.getElementById('resourceList'),h='';RESOURCES.forEach(function(r){h+='<a class="resource-card"'+(r.u?' href="https://'+r.u+'" target="_blank"':'')+'><h4>'+r.t+'</h4><p>'+r.d+'</p><span class="res-dm">'+r.dm+'</span></a>'});l.innerHTML=h}
+function hTr(){var l=document.getElementById('trackerList'),t=JSON.parse(localStorage.getItem('st_tr')||'[]'),h='';TRACKER_ITEMS.forEach(function(item){var done=t.indexOf(item.id)>=0;h+='<div class="tracker-item" onclick="tTr(\''+item.id+'\',this)"><div class="tracker-check'+(done?' done':'')+'">'+(done?'✓':'')+'</div><div class="tracker-info"><h5>'+item.p+' '+item.d+'</h5><p>'+item.w+'</p></div><div class="tracker-bar"><div class="tracker-fill" style="width:'+(done?'100':'0')+'%"></div></div></div>'});l.innerHTML=h;uTr()}
+function tTr(id,el){var t=JSON.parse(localStorage.getItem('st_tr')||'[]'),idx=t.indexOf(id);if(idx>=0){t.splice(idx,1)}else{t.push(id)}localStorage.setItem('st_tr',JSON.stringify(t));var done=t.indexOf(id)>=0;el.querySelector('.tracker-check').classList.toggle('done',done);el.querySelector('.tracker-check').textContent=done?'✓':'';el.querySelector('.tracker-fill').style.width=done?'100%':'0%';uTr()}
+function uTr(){var t=JSON.parse(localStorage.getItem('st_tr')||'[]');document.getElementById('trackerTotal').innerHTML='<span class="tt-label">总体进度</span><span class="tt-pct">'+Math.round(t.length/7*100)+'%</span>'}
+function hSP(){var s=document.getElementById('sideProgress'),h='';['roadmap','graph','drawing','knowledge','phases','formulas','exercises','resources','tracker'].forEach(function(id){h+='<div class="side-dot" data-target="'+id+'" onclick="document.getElementById(\''+id+'\').scrollIntoView({behavior:\'smooth\'})"></div>'});s.innerHTML=h}
+function addReadingTimes(){document.querySelectorAll('.reading-time').forEach(function(el){var min=el.getAttribute('data-min')||'3';el.textContent='⏱ '+min+'分钟阅读'})}
+function cUp(){new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.querySelectorAll('.num').forEach(function(n){var c=parseInt(n.getAttribute('data-count')),s=0,st=Math.ceil(1500/c),t=setInterval(function(){s++;n.textContent=s;if(s>=c)clearInterval(t)},st)});e.target.closest('.hero-stats')&&this.unobserve(e.target)}})}).observe(document.querySelector('.hero-stats'))}
+
+function oS(){document.getElementById('searchOverlay').classList.add('open');setTimeout(function(){document.getElementById('searchInput').focus()},100)}
+function cS(){document.getElementById('searchOverlay').classList.remove('open');document.getElementById('searchInput').value='';document.getElementById('searchResults').innerHTML=''}
+function doSearch(){var q=document.getElementById('searchInput').value.toLowerCase().trim(),r=document.getElementById('searchResults');if(!q){r.innerHTML='';return}var rs=[];Object.keys(KP).forEach(function(k){var p=KP[k];if(p.title.toLowerCase().indexOf(q)>=0||p.d.toLowerCase().indexOf(q)>=0||(p.f&&p.f.toLowerCase().indexOf(q)>=0))rs.push({type:'知识点',t:p.title,action:'goK(\''+k+'\');cS()'})});EXERCISES.forEach(function(e){if(e.text.toLowerCase().indexOf(q)>=0)rs.push({type:'练习#'+e.id.replace('e',''),t:e.text.substr(0,50)+'...',action:'cS();document.getElementById(\'exercises\').scrollIntoView({behavior:\'smooth\'})'})});RESOURCES.forEach(function(res){if(res.t.toLowerCase().indexOf(q)>=0||res.d.toLowerCase().indexOf(q)>=0)rs.push({type:'资料',t:res.t,action:'cS();document.getElementById(\'resources\').scrollIntoView({behavior:\'smooth\'})'})});if(!rs.length){r.innerHTML='<div class="search-result" style="text-align:center;color:var(--text-muted)">无匹配</div>';return}r.innerHTML=rs.slice(0,20).map(function(i){return '<div class="search-result" onclick="'+i.action+'"><div style="font-size:0.68rem;color:var(--accent-gold)">'+i.type+'</div><div>'+i.t+'</div></div>'}).join('')}
+function tMM(){document.getElementById('mobileMenu').classList.toggle('open')}
+function oC(){document.getElementById('confirmOverlay').classList.add('open')}
+function cC(){document.getElementById('confirmOverlay').classList.remove('open')}
+function rA(){localStorage.removeItem('st_done');localStorage.removeItem('st_tr');document.getElementById('confirmOverlay').classList.remove('open');hEx();hTr();sT('已重置')}
+function sT(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(function(){t.classList.remove('show')},2000)}
+function exportNotes(){var d=JSON.parse(localStorage.getItem('st_done')||'[]'),tr=JSON.parse(localStorage.getItem('st_tr')||'[]'),txt='【炒股进度】完成练习:'+d.length+'/21 阶段:'+tr.length+'/7 '+Math.round(tr.length/7*100)+'%';navigator.clipboard.writeText(txt).then(function(){sT('已复制')})}
+
+!function drawGraph(){
+var cv=document.getElementById('graphCanvas');if(!cv)return;var ctx=cv.getContext('2d'),w=700,h=520,ns=[];cv.width=w*2;cv.height=h*2;ctx.scale(2,2);var phC=['#4fc3f7','#66bb6a','#ffa726','#ab47bc','#ef5350','#ec407a','#26c6da'],mg=40,phW=(w-mg*2)/7,hp=null;
+function lo(){ns=[];PHASES.forEach(function(ph,i){ns.push({id:ph.id,x:mg+phW*i+phW/2,y:40,r:16,c:phC[i],ty:'ph',l:ph.title,ph:ph.id})});var pk={};Object.keys(KP).forEach(function(k){var p=KP[k];if(!pk[p.phase])pk[p.phase]=[];pk[p.phase].push(k)});PHASES.forEach(function(ph,i){var ks=pk[ph.id]||[],cx=mg+phW*i+phW/2;ks.forEach(function(k,j){ns.push({id:k,x:cx,y:90+j*32+Math.sin(j*.5)*5,r:5,c:phC[i],ty:'kp',l:KP[k].title,ph:ph.id})})})}
+function dr(){ctx.clearRect(0,0,w,h);ctx.strokeStyle='rgba(255,255,255,.08)';ctx.setLineDash([4,4]);for(var i=0;i<PHASES.length-1;i++){ctx.beginPath();ctx.moveTo(mg+phW*i+phW/2,40);ctx.lineTo(mg+phW*(i+1)+phW/2,40);ctx.stroke()}ctx.setLineDash([]);ns.forEach(function(n){var a=hp&&n.ph!==hp?.2:1;ctx.beginPath();ctx.arc(n.x,n.y,n.r,0,6.28);if(n.ty==='ph'){ctx.fillStyle=n.c;ctx.globalAlpha=a;ctx.fill();ctx.font='bold 10px sans-serif';ctx.textAlign='center';ctx.globalAlpha=a;ctx.fillStyle='#fff';ctx.fillText(n.l.substr(0,3),n.x,n.y-14)}else{ctx.fillStyle=n.c;ctx.globalAlpha=a;ctx.fill()}ctx.globalAlpha=1})}
+function hit(x,y){for(var i=ns.length-1;i>=0;i--){var n=ns[i],dx=x-n.x,dy=y-n.y;if(Math.sqrt(dx*dx+dy*dy)<n.r+8)return n}return null}
+cv.addEventListener('click',function(e){var r=cv.getBoundingClientRect(),sx=w/r.width,sy=h/r.height,n=hit((e.clientX-r.left)*sx,(e.clientY-r.top)*sy);if(!n)return;if(n.ty==='ph'){document.getElementById('phase-'+n.id).scrollIntoView({behavior:'smooth'});setTimeout(function(){tP('phase-'+n.id)},400)}else goGraphToKp(n.id)});
+var leg=document.getElementById('graphLegend'),lh='<div class="graph-legend-item active-highlight" onclick="window._tgf(\'all\')"><div class="graph-legend-dot" style="background:#fff"></div>全部</div>';PHASES.forEach(function(ph,i){lh+='<div class="graph-legend-item" onclick="window._tgf(\''+ph.id+'\')"><div class="graph-legend-dot" style="background:'+phC[i]+'"></div>'+ph.title+'</div>'});leg.innerHTML=lh;
+window._tgf=function(ph){hp=ph==='all'?null:ph;document.querySelectorAll('.graph-legend-item').forEach(function(l){l.classList.remove('active-highlight')});if(hp){var its=document.querySelectorAll('.graph-legend-item');its.forEach(function(i){if(i.textContent===PHASES.find(function(p){return p.id===hp}).title)i.classList.add('active-highlight')})}else document.querySelector('.graph-legend-item').classList.add('active-highlight');dr()};
+var rg=function(){var gw=cv.parentElement.clientWidth;cv.style.width=gw+'px';cv.style.height=(gw/w*h)+'px'};rg();window.addEventListener('resize',rg);lo();dr()}();
+
+function onScroll(){var sy=window.scrollY,dh=document.documentElement.scrollHeight-innerHeight;document.getElementById('topNav').classList.toggle('scrolled',sy>50);document.getElementById('backToTop').classList.toggle('visible',sy>500);document.getElementById('scrollProgress').style.width=dh>0?(sy/dh*100)+'%':'0%';document.querySelectorAll('.roadmap-item').forEach(function(item,i){if(item.getBoundingClientRect().top<innerHeight*0.8)item.classList.add('visible')});var secs=['roadmap','graph','drawing','knowledge','phases','formulas','exercises','resources','tracker'],as=null;secs.forEach(function(id){var el=document.getElementById(id);if(el&&el.getBoundingClientRect().top<innerHeight*0.4)as=id});if(as){document.querySelectorAll('.nav-links a').forEach(function(a){a.classList.toggle('active',a.getAttribute('href')==='#'+as)});document.querySelectorAll('.side-dot').forEach(function(d){d.classList.toggle('active',d.getAttribute('data-target')===as)});document.querySelectorAll('.mbn-item').forEach(function(m){m.classList.toggle('active',m.getAttribute('data-target')===as)})}}
+
+window._toggleTheme=function(){var b=document.body,l=b.classList.contains('light');if(l){b.classList.remove('light');localStorage.setItem('st_theme','dark')}else{b.classList.add('light');localStorage.setItem('st_theme','light')}};
+!function(){var t=localStorage.getItem('st_theme');if(t==='light'||(!t&&window.matchMedia('(prefers-color-scheme:light)').matches))document.body.classList.add('light')}();
+
+!function(){hR();hPD();hDS();hK();hFs();hEx();hRes();hTr();hSP();cUp();addReadingTimes();window.addEventListener('scroll',onScroll,{passive:true});onScroll();document.querySelectorAll('.mbn-item').forEach(function(i){i.addEventListener('click',function(){document.getElementById(this.getAttribute('data-target')).scrollIntoView({behavior:'smooth'})})});document.addEventListener('keydown',function(e){if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();oS()}if(e.key==='Escape'){if(document.getElementById('searchOverlay').classList.contains('open')){cS();return}if(document.getElementById('helpOverlay').classList.contains('open')){document.getElementById('helpOverlay').classList.remove('open');return}var g=document.getElementById('knowledgeContainer');if(g.classList.contains('has-expanded')){collapseExpanded(g);return}}if((e.shiftKey&&e.key==='?')||e.key==='?'){e.preventDefault();document.getElementById('helpOverlay').classList.add('open')}})}();
+</script>
+</body>
+</html>

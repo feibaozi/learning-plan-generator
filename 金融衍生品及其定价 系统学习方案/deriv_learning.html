@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>金融衍生品及其定价 — 系统学习方案</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<style>
+:root{
+--bg-deep:#050a10;--bg-main:#0a1018;--bg-card:#0d1520;--bg-elevated:#111a28;
+--text-primary:#e0e8f0;--text-secondary:#a0b8d8;--text-muted:#6080a8;
+--border-subtle:rgba(96,128,168,.15);--border-glow:rgba(79,195,247,.25);
+--accent-blue:#4fc3f7;--accent-green:#66bb6a;--accent-orange:#ffa726;
+--accent-purple:#ab47bc;--accent-red:#ef5350;--accent-cyan:#26c6da;
+--shadow-sm:0 2px 8px rgba(0,0,0,.3);--shadow-md:0 4px 24px rgba(0,0,0,.4);
+--shadow-elevated:0 8px 40px rgba(0,0,0,.5);--radius-sm:6px;--radius-md:12px;--radius-lg:20px;
+--transition-fast:.15s ease;--transition-smooth:.3s cubic-bezier(.4,0,.2,1);
+--font-mono:'JetBrains Mono','Fira Code',monospace;--font-sans:'Inter',-apple-system,sans-serif;
+}
+body.light{
+--bg-deep:#f8fafc;--bg-main:#ffffff;--bg-card:#ffffff;--bg-elevated:#f1f5f9;
+--text-primary:#0f172a;--text-secondary:#475569;--text-muted:#94a3b8;
+--border-subtle:rgba(148,163,184,.2);--border-glow:rgba(79,195,247,.3);
+--shadow-sm:0 1px 3px rgba(0,0,0,.08);--shadow-md:0 4px 16px rgba(0,0,0,.1);
+--shadow-elevated:0 8px 32px rgba(0,0,0,.15);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font-sans);background:var(--bg-deep);color:var(--text-primary);line-height:1.7;overflow-x:hidden}
+a{color:var(--accent-blue);text-decoration:none}
+h2{font-size:1.6rem;margin:48px 0 24px;padding-bottom:12px;border-bottom:1px solid var(--border-subtle)}
+h3{font-size:1.2rem;margin:32px 0 16px;color:var(--accent-blue)}
+.container{max-width:1200px;margin:0 auto;padding:0 24px}
+/* Hero */
+.hero{position:relative;padding:80px 24px 60px;text-align:center;overflow:hidden;
+background:linear-gradient(135deg,rgba(79,195,247,.08) 0%,rgba(171,71,188,.08) 50%,rgba(79,195,247,.04) 100%)}
+.hero::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;
+background:radial-gradient(ellipse at 30% 50%,rgba(79,195,247,.06) 0%,transparent 60%),
+radial-gradient(ellipse at 70% 50%,rgba(171,71,188,.06) 0%,transparent 60%);
+pointer-events:none}
+.hero h1{font-size:2.4rem;font-weight:800;margin-bottom:12px;
+background:linear-gradient(135deg,#4fc3f7,#ab47bc);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero .sub{font-size:1.05rem;color:var(--text-secondary);max-width:700px;margin:0 auto 32px}
+.hero-stats{display:flex;justify-content:center;gap:48px;flex-wrap:wrap;margin-top:8px}
+.hero-stat{text-align:center}
+.hero-stat .num{font-size:2.8rem;font-weight:800;color:var(--accent-blue)}
+.hero-stat .lbl{font-size:.8rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px}
+.hero-tags{display:flex;justify-content:center;gap:10px;margin-top:20px;flex-wrap:wrap}
+.hero-tag{font-size:.75rem;padding:4px 14px;border-radius:50px;border:1px solid var(--border-glow);
+color:var(--accent-blue);background:rgba(79,195,247,.05)}
+/* Theme toggle */
+.theme-toggle{position:fixed;top:20px;right:20px;z-index:100;width:40px;height:40px;border-radius:50%;
+background:var(--bg-card);border:1px solid var(--border-subtle);cursor:pointer;font-size:1.1rem;
+display:flex;align-items:center;justify-content:center;transition:all var(--transition-smooth)}
+.theme-toggle:hover{border-color:var(--border-glow);box-shadow:var(--shadow-md)}
+/* Nav */
+.nav-bar{position:sticky;top:0;z-index:50;background:var(--bg-main);border-bottom:1px solid var(--border-subtle);
+-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+.nav-inner{display:flex;gap:6px;overflow-x:auto;padding:12px 24px;max-width:1200px;margin:0 auto}
+.nav-inner a{font-size:.78rem;padding:6px 16px;border-radius:50px;white-space:nowrap;transition:all var(--transition-fast);
+color:var(--text-secondary);border:1px solid transparent}
+.nav-inner a:hover,.nav-inner a.active{color:var(--accent-blue);border-color:var(--border-glow);background:rgba(79,195,247,.05)}
+/* Section */
+.section{padding:0 24px;max-width:1200px;margin:0 auto}
+/* Phase cards */
+.phases-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px;margin:24px 0}
+.phase-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);
+padding:24px;cursor:pointer;transition:all var(--transition-smooth);position:relative;overflow:hidden}
+.phase-card::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%;border-radius:2px 0 0 2px}
+.phase-card.c1::before{background:var(--accent-blue)}
+.phase-card.c2::before{background:var(--accent-green)}
+.phase-card.c3::before{background:var(--accent-orange)}
+.phase-card.c4::before{background:var(--accent-purple)}
+.phase-card.c5::before{background:var(--accent-red)}
+.phase-card:hover{border-color:var(--border-glow);box-shadow:var(--shadow-md);transform:translateY(-2px)}
+.phase-card.open{border-color:var(--border-glow);box-shadow:var(--shadow-md)}
+.phase-card .pc-header{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.phase-card .pc-icon{font-size:1.5rem}
+.phase-card .pc-title{font-size:1.1rem;font-weight:700}
+.phase-card .pc-week{font-size:.75rem;color:var(--text-muted);margin-top:4px}
+.phase-card .pc-preview{font-size:.85rem;color:var(--text-secondary);margin-top:8px;line-height:1.5}
+.phase-body{max-height:0;overflow:hidden;transition:max-height .4s ease,padding .4s ease}
+.phase-card.open .phase-body{max-height:2000px;padding-top:16px}
+.phase-body-inner{font-size:.85rem;color:var(--text-secondary);line-height:1.6}
+.phase-skills{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.skill-chip{font-size:.75rem;padding:4px 12px;border-radius:50px;
+background:rgba(79,195,247,.08);border:1px solid rgba(79,195,247,.2);color:var(--accent-blue);
+cursor:pointer;transition:all var(--transition-fast)}
+.skill-chip:hover{background:rgba(79,195,247,.15);border-color:var(--border-glow)}
+.phase-desc{margin-bottom:12px}
+/* Drawing section */
+.drawing-block{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:24px;margin:24px 0}
+.drawing-block h3{color:var(--accent-purple)}
+.drawing-list{list-style:none;padding:0}
+.drawing-list li{padding:8px 0;border-bottom:1px solid var(--border-subtle);font-size:.9rem}
+.drawing-list li:last-child{border-bottom:none}
+/* Knowledge cards */
+.knowledge-section{margin:32px 0}
+.knowledge-filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+.knowledge-filter{font-size:.78rem;padding:6px 16px;border-radius:50px;cursor:pointer;
+border:1px solid var(--border-subtle);color:var(--text-secondary);background:transparent;transition:all var(--transition-fast)}
+.knowledge-filter:hover,.knowledge-filter.active{border-color:var(--border-glow);color:var(--accent-blue);background:rgba(79,195,247,.05)}
+.ks-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.ks-expand-all{font-size:.8rem;padding:6px 16px;border-radius:50px;cursor:pointer;
+border:1px solid var(--border-subtle);color:var(--text-secondary);background:transparent;transition:all var(--transition-fast)}
+.ks-expand-all:hover{border-color:var(--border-glow);color:var(--accent-blue)}
+.knowledge-count{font-size:.85rem;color:var(--text-muted)}
+.knowledge-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px}
+.knowledge-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);
+overflow:hidden;transition:all var(--transition-smooth);position:relative}
+.knowledge-card:hover{border-color:var(--border-glow)}
+.knowledge-card.expanded{grid-column:1/-1;border-color:var(--border-glow)}
+.card-header{display:flex;align-items:center;gap:8px;padding:16px 20px;cursor:pointer;transition:background var(--transition-fast);
+flex-wrap:wrap}
+.card-header:hover{background:rgba(79,195,247,.03)}
+.card-icon{font-size:1.2rem;flex-shrink:0}
+.card-title{font-weight:700;font-size:.92rem;flex:1;min-width:150px}
+.math-tag{font-size:.65rem;padding:2px 10px;border-radius:50px;color:#fff;cursor:pointer;transition:all var(--transition-fast)}
+.tag-p1{background:var(--accent-blue)}
+.tag-p2{background:var(--accent-green)}
+.tag-p3{background:var(--accent-orange)}
+.tag-p4{background:var(--accent-purple)}
+.tag-p5{background:var(--accent-red)}
+.card-back{font-size:.7rem;color:var(--text-muted);padding:2px 10px;border-radius:50px;
+border:1px solid var(--border-subtle);cursor:pointer;transition:all var(--transition-fast);display:none}
+.knowledge-card.open .card-back{display:inline-block}
+.card-detail{max-height:0;overflow:hidden;transition:max-height .4s ease}
+.knowledge-card.open .card-detail{max-height:400px}
+.knowledge-card.expanded .card-detail{max-height:3000px}
+.card-detail p{padding:0 20px 12px;font-size:.85rem;color:var(--text-secondary);line-height:1.6}
+.card-diagram{padding:0 20px 10px;overflow-x:auto}
+.card-diagram svg{max-width:100%;height:auto}
+.card-formula{padding:8px 20px;margin:0 20px 10px;font-size:.85rem;font-family:var(--font-mono);
+background:rgba(79,195,247,.04);border-radius:var(--radius-sm);border:1px solid rgba(79,195,247,.1);color:var(--accent-blue);
+overflow-x:auto}
+.card-sum{padding:8px 20px;margin:0 20px 12px;font-size:.82rem;background:rgba(171,71,188,.04);
+border-radius:var(--radius-sm);border-left:3px solid var(--accent-purple);color:var(--text-secondary)}
+.card-related{padding:6px 20px 10px}
+.cr-title{font-size:.75rem;color:var(--text-muted);margin-bottom:6px}
+.cr-links{display:flex;gap:6px;flex-wrap:wrap}
+.cr-link{font-size:.72rem;padding:3px 10px;border-radius:50px;
+background:rgba(79,195,247,.06);border:1px solid rgba(79,195,247,.15);color:var(--accent-blue);
+cursor:pointer;transition:all var(--transition-fast)}
+.cr-link:hover{border-color:var(--border-glow)}
+/* Deep dive */
+.deep-dive-bar{padding:0 20px 16px;text-align:right;display:flex;align-items:center;justify-content:flex-end;gap:8px}
+.deep-dive-btn{background:linear-gradient(135deg,rgba(139,92,246,.15),rgba(99,102,241,.1));
+border:1px solid rgba(139,92,246,.3);color:var(--accent-purple);padding:6px 16px;
+border-radius:50px;cursor:pointer;font-size:.78rem;font-weight:600;font-family:inherit;
+transition:all var(--transition-smooth)}
+.deep-dive-btn:hover{border-color:rgba(139,92,246,.6);box-shadow:0 0 16px rgba(139,92,246,.15);transform:translateY(-1px)}
+.dd-ready .deep-dive-btn{background:rgba(16,185,129,.1);border-color:rgba(16,185,129,.3);color:var(--accent-green)}
+.deep-dive-open-btn{background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.3);color:var(--accent-green);
+padding:6px 12px;border-radius:50px;cursor:pointer;font-size:.78rem;font-weight:700;font-family:inherit;transition:all var(--transition-smooth)}
+.deep-dive-open-btn:hover{border-color:rgba(16,185,129,.6);box-shadow:0 0 12px rgba(16,185,129,.15)}
+.dd-hint{font-size:.65rem;color:var(--text-muted);opacity:.7}
+.dd-toast{animation:ddToastIn .3s ease}
+@keyframes ddToastIn{from{opacity:0;transform:translate(-50%,20px)}to{opacity:1;transform:translate(-50%,0)}}
+.dd-status{font-size:.6rem;padding:2px 8px;border-radius:50px;margin-left:6px;font-weight:600}
+.dd-ready{background:rgba(16,185,129,.1);color:var(--accent-green)}
+.dd-generating{background:rgba(251,191,36,.1);color:var(--accent-orange);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.phase-dd-batch{padding-top:16px;border-top:1px solid var(--border-subtle);display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.batch-deep-dive-btn{background:var(--bg-elevated);border:1px dashed var(--border-glow);color:var(--text-secondary);
+padding:8px 20px;border-radius:50px;cursor:pointer;font-size:.82rem;font-weight:600;font-family:inherit;
+transition:all var(--transition-smooth)}
+.batch-deep-dive-btn:hover{border-style:solid;border-color:rgba(139,92,246,.5);color:var(--accent-purple)}
+/* Formula tabs */
+.formula-section{margin:32px 0}
+.formula-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.formula-tab{font-size:.78rem;padding:6px 18px;border-radius:50px;cursor:pointer;
+border:1px solid var(--border-subtle);color:var(--text-secondary);background:transparent;transition:all var(--transition-fast)}
+.formula-tab:hover,.formula-tab.active{border-color:var(--border-glow);color:var(--accent-blue);background:rgba(79,195,247,.05)}
+.formula-panel{display:none}
+.formula-panel.active{display:block}
+.formula-table{width:100%;border-collapse:collapse;font-size:.85rem;margin:12px 0}
+.formula-table th{text-align:left;padding:10px 14px;background:rgba(79,195,247,.06);border-bottom:2px solid var(--border-glow);
+color:var(--accent-blue);font-weight:700}
+.formula-table td{padding:10px 14px;border-bottom:1px solid var(--border-subtle);color:var(--text-secondary)}
+.formula-table td:nth-child(2){font-family:var(--font-mono);font-size:.8rem;color:var(--accent-blue)}
+/* Exercises */
+.exercise-section{margin:32px 0}
+.exercise-filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.exercise-filter{font-size:.78rem;padding:5px 14px;border-radius:50px;cursor:pointer;
+border:1px solid var(--border-subtle);color:var(--text-secondary);background:transparent;transition:all var(--transition-fast)}
+.exercise-filter:hover,.exercise-filter.active{border-color:var(--border-glow);color:var(--accent-blue);background:rgba(79,195,247,.05)}
+.exercise-counter{font-size:.82rem;color:var(--text-muted);margin-bottom:16px}
+.exercise-list{display:flex;flex-direction:column;gap:8px}
+.exercise-item{display:flex;align-items:center;padding:12px 16px;background:var(--bg-card);border:1px solid var(--border-subtle);
+border-radius:var(--radius-sm);transition:all var(--transition-fast);gap:12px}
+.exercise-item:hover{border-color:var(--border-glow)}
+.exercise-num{font-size:.75rem;font-weight:700;color:var(--text-muted);min-width:28px}
+.ei-content{flex:1}
+.ei-title{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.ei-title-text{font-size:.85rem;font-weight:600}
+.diff{font-size:.65rem;padding:2px 8px;border-radius:50px;font-weight:600}
+.diff.easy{background:rgba(102,187,106,.1);color:var(--accent-green)}
+.diff.medium{background:rgba(255,167,38,.1);color:var(--accent-orange)}
+.diff.hard{background:rgba(239,83,80,.1);color:var(--accent-red)}
+.diff.project{background:rgba(171,71,188,.1);color:var(--accent-purple)}
+.ei-check{width:28px;height:28px;border-radius:50%;border:2px solid var(--border-subtle);cursor:pointer;
+display:flex;align-items:center;justify-content:center;font-size:.75rem;transition:all var(--transition-fast);flex-shrink:0}
+.ei-check:hover{border-color:var(--accent-green)}
+.ei-check.done{background:var(--accent-green);border-color:var(--accent-green);color:#fff}
+/* Tracker */
+.tracker-section{margin:32px 0}
+.tracker-item{display:flex;align-items:center;gap:12px;padding:10px 16px;margin-bottom:8px;
+background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-sm)}
+.tr-check{width:24px;height:24px;border-radius:50%;border:2px solid var(--border-subtle);cursor:pointer;
+display:flex;align-items:center;justify-content:center;font-size:.7rem;transition:all var(--transition-fast);flex-shrink:0}
+.tr-check:hover{border-color:var(--border-glow)}
+.tr-check.done{background:var(--accent-blue);border-color:var(--accent-blue);color:var(--bg-deep)}
+.tr-label{font-size:.85rem;color:var(--text-secondary)}
+/* Resources */
+.resource-section{margin:32px 0}
+.resource-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.resource-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-sm);padding:16px}
+.resource-card .r-type{font-size:.65rem;padding:2px 10px;border-radius:50px;
+border:1px solid var(--border-glow);color:var(--accent-blue);display:inline-block;margin-bottom:6px}
+.resource-card .r-title{font-size:.9rem;font-weight:700;margin-bottom:4px}
+.resource-card .r-desc{font-size:.78rem;color:var(--text-muted)}
+/* Graph canvas */
+.graph-section{margin:32px 0;text-align:center}
+.graph-section canvas{max-width:100%}
+/* Search */
+.search-wrap{margin-bottom:20px;position:relative}
+.search-input{width:100%;padding:10px 18px;background:var(--bg-card);border:1px solid var(--border-subtle);
+border-radius:50px;color:var(--text-primary);font-size:.85rem;font-family:inherit;outline:none;transition:all var(--transition-fast)}
+.search-input:focus{border-color:var(--border-glow);box-shadow:0 0 12px rgba(79,195,247,.1)}
+.search-input::placeholder{color:var(--text-muted)}
+/* Toast */
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);z-index:1000;
+background:var(--bg-card);border:1px solid var(--border-glow);border-radius:var(--radius-md);
+padding:12px 24px;box-shadow:var(--shadow-elevated);font-size:.82rem;display:none;animation:toastIn .3s ease}
+@keyframes toastIn{from{opacity:0;transform:translate(-50%,20px)}to{opacity:1;transform:translate(-50%,0)}}
+/* Side dots */
+.side-dots{position:fixed;right:16px;top:50%;transform:translateY(-50%);z-index:40;display:flex;flex-direction:column;gap:10px}
+.side-dot{width:10px;height:10px;border-radius:50%;border:2px solid var(--border-glow);cursor:pointer;transition:all var(--transition-fast)}
+.side-dot:hover,.side-dot.active{background:var(--accent-blue);border-color:var(--accent-blue)}
+/* particles canvas */
+#particles{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:-1;opacity:.5}
+/* Responsive */
+@media(max-width:768px){
+.hero h1{font-size:1.6rem}
+.hero-stats{gap:24px}
+.hero-stat .num{font-size:2rem}
+.phases-grid{grid-template-columns:1fr}
+.knowledge-grid{grid-template-columns:1fr}
+.side-dots{display:none}
+.nav-inner{padding:8px 12px}
+}
+</style>
+</head>
+<body>
+<button class="theme-toggle" onclick="tT()" title="切换主题">🌓</button>
+<div class="side-dots" id="sideDots"></div>
+<canvas id="particles"></canvas>
+<div id="ddToast" class="toast"><span id="ddToastMsg"></span></div>
+
+<!-- Hero -->
+<section class="hero" id="top">
+<h1>金融衍生品及其定价</h1>
+<p class="sub">基于<strong>公式推导型（G1）</strong>纹理的系统学习方案 — 从远期期货到期权BSM、蒙特卡洛、CDS定价，逐层推导，建立完整的衍生品定价知识体系</p>
+<div class="hero-stats">
+<div class="hero-stat"><span class="num" data-count="14">0</span><div class="lbl">学习周数</div></div>
+<div class="hero-stat"><span class="num" data-count="5">0</span><div class="lbl">学习阶段</div></div>
+<div class="hero-stat"><span class="num" data-count="13">0</span><div class="lbl">实操练习</div></div>
+<div class="hero-stat"><span class="num" data-count="18">0</span><div class="lbl">知识要点</div></div>
+</div>
+<div class="hero-tags">
+<span class="hero-tag">#G1公式推导型</span><span class="hero-tag">#标准学习</span><span class="hero-tag">#衍生品定价</span><span class="hero-tag">#量化金融</span>
+</div>
+</section>
+
+<!-- Nav -->
+<nav class="nav-bar" id="navBar">
+<div class="nav-inner">
+<a href="#top">概览</a><a href="#drawing">学习法</a><a href="#phases">阶段</a><a href="#knowledge">知识点</a>
+<a href="#graph">知识图谱</a><a href="#formulas">公式</a><a href="#exercises">练习</a><a href="#resources">资料</a><a href="#tracker">进度</a>
+</div>
+</nav>
+
+<div class="container">
+
+<!-- Drawing Section -->
+<section class="drawing-block" id="drawing">
+<h3>📐 图解学习法 — 推导方法论</h3>
+<p style="color:var(--text-secondary);font-size:.85rem;margin-bottom:16px">作为G1公式推导型方案，掌握推导方法比记忆最终公式更重要。以下为各阶段核心推导链条的可视化映射。</p>
+<ul class="drawing-list">
+<li><strong>Level 1 (P1)</strong>: 画出四大衍生品的收益曲线图——远期线性、期货逐日盯市、期权非线性Kink、互换现金流交换</li>
+<li><strong>Level 2 (P2)</strong>: 画出Put-Call Parity的复制组合结构；二叉树的节点-边-回推标注；BSM PDE与热方程的对偶变换</li>
+<li><strong>Level 3 (P3)</strong>: 画出蒙特卡洛路径模拟的收敛过程；有限差分网格与三种格式的稳定域；奇异期权的障碍面与触发条件</li>
+<li><strong>Level 4 (P4)</strong>: 画出波动率微笑/偏斜的多市场对比；Delta-Gamma对冲的再平衡时间线；结构化产品的组件拆解图</li>
+<li><strong>Level 5 (P5)</strong>: 画出CDS保费的生存概率积分示意；信用事件的触发-赔付现金流；NN近似定价的误差收敛曲线</li>
+</ul>
+</section>
+
+<!-- Phases -->
+<h2 id="phases">学习阶段</h2>
+<div class="phases-grid" id="phaseGrid"></div>
+
+<!-- Knowledge -->
+<section class="knowledge-section" id="knowledge">
+<div class="search-wrap"><input type="text" class="search-input" id="searchInput" placeholder="🔍 搜索知识点..." oninput="sKC()"></div>
+<div class="ks-header">
+<div class="knowledge-count" id="knowledgeCount"><strong>18</strong> 个知识点（共18）</div>
+<button class="ks-expand-all" onclick="eAK()">📖 展开全部</button>
+</div>
+<div class="knowledge-filters" id="knowledgeFilters"></div>
+<div class="knowledge-grid" id="knowledgeContainer"></div>
+</section>
+
+<!-- Graph -->
+<section class="graph-section" id="graph">
+<h2>知识图谱</h2>
+<canvas id="graphCanvas" width="1100" height="400"></canvas>
+</section>
+
+<!-- Formulas -->
+<section class="formula-section" id="formulas">
+<h2>核心公式与概念速查表</h2>
+<div class="formula-tabs" id="formulaTabs"></div>
+<div id="formulaPanels"></div>
+</section>
+
+<!-- Exercises -->
+<section class="exercise-section" id="exercises">
+<h2>实操练习题库</h2>
+<div class="exercise-filters" id="exerciseFilters"></div>
+<div class="exercise-counter" id="exerciseCounter"></div>
+<div class="exercise-list" id="exerciseList"></div>
+</section>
+
+<!-- Resources -->
+<section class="resource-section" id="resources">
+<h2>学习资料清单</h2>
+<div class="resource-grid" id="resourceGrid"></div>
+</section>
+
+<!-- Tracker -->
+<section class="tracker-section" id="tracker">
+<h2>学习进度检查清单</h2>
+<div id="trackerList"></div>
+</section>
+
+</div>
+
+<script>
+var LS_PREFIX='deriv_';
+var cK='all';
+
+// C1: Particles canvas
+(function(){
+var c=document.getElementById('particles'),ctx=c.getContext('2d'),w,h,ps=[];
+function rs(){w=c.width=window.innerWidth;h=c.height=window.innerHeight}
+rs();window.addEventListener('resize',rs);
+for(var i=0;i<60;i++)ps.push({x:Math.random()*w,y:Math.random()*h,r:Math.random()*1.5+.5,
+vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,a:Math.random()*.3+.1});
+var cols=['#4fc3f7','#66bb6a','#ab47bc','#26c6da'];
+function an(){
+ctx.clearRect(0,0,w,h);
+ps.forEach(function(p,i){
+p.x+=p.vx;p.y+=p.vy;
+if(p.x<0)p.x=w;if(p.x>w)p.x=0;if(p.y<0)p.y=h;if(p.y>h)p.y=0;
+ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+ctx.fillStyle=cols[i%4];ctx.globalAlpha=p.a;ctx.fill();
+});
+ps.forEach(function(p){ps.forEach(function(q){
+var d=Math.hypot(p.x-q.x,p.y-q.y);
+if(d<120){ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(q.x,q.y);
+ctx.strokeStyle='rgba(79,195,247,'+(.04*(1-d/120))+')';ctx.lineWidth=.5;ctx.stroke()}
+})});
+ctx.globalAlpha=1;requestAnimationFrame(an)
+}an()})();
+
+// C2: KPS data (18 entries)
+var KPS=[
+{id:'p1_1',n:'金融衍生品概述',p:'p1',tag:'deriv',
+d:'衍生品是价值依赖于标的资产的金融合约。四大基础类型：远期、期货、期权、互换。核心理解维度：线性vs非线性收益、交易所vs OTC。',
+f:'f=(F_0-K)e^{-rT}',s:'衍生品是"未来的约定"——定价就是回答"这个约定值多少钱"。',
+diagram:'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 150"><rect width="420" height="150" fill="none"/><text x="12" y="20" fill="#4fc3f7" font-size="11" font-weight="bold">四大衍生品类型</text><rect x="12" y="30" width="88" height="40" rx="4" fill="rgba(79,195,247,.1)" stroke="#4fc3f7" stroke-width="1"/><text x="56" y="55" fill="#4fc3f7" font-size="10" text-anchor="middle">远期 Forward</text><rect x="112" y="30" width="88" height="40" rx="4" fill="rgba(102,187,106,.1)" stroke="#66bb6a" stroke-width="1"/><text x="156" y="55" fill="#66bb6a" font-size="10" text-anchor="middle">期货 Futures</text><rect x="212" y="30" width="88" height="40" rx="4" fill="rgba(255,167,38,.1)" stroke="#ffa726" stroke-width="1"/><text x="256" y="55" fill="#ffa726" font-size="10" text-anchor="middle">期权 Options</text><rect x="312" y="30" width="88" height="40" rx="4" fill="rgba(171,71,188,.1)" stroke="#ab47bc" stroke-width="1"/><text x="356" y="55" fill="#ab47bc" font-size="10" text-anchor="middle">互换 Swaps</text><text x="12" y="110" fill="#a0b8d8" font-size="9">交易所(ETD)↔标准化|OTC↔定制化  |  线性收益(远期/期货)↔非线性收益(期权)</text><text x="210" y="140" fill="#6080a8" font-size="9" text-anchor="middle">核心：衍生品合约 = 未来交易的"约定"</text></svg>',
+rel:['p1_2','p1_3','p1_4'],
+deep_dive:{query:'金融衍生品 远期 期货 期权 互换 概述',topic_id:'derivatives',prompt:'请为"金融衍生品概述"生成 理解×标准 的学习资料',status:'none'}},
+{id:'p1_2',n:'远期与期货合约',p:'p1',tag:'deriv',
+d:'定价核心是持有成本模型。无收益资产：F₀=S₀e^{rT}；有连续收益率q：F₀=S₀e^{(r-q)T}。期货-远期价差取决于利率与标的价格的相关性。',
+f:'F_0=S_0e^{(r-q)T}',s:'远期价格=持有现货到交割日的总成本。如果不是这个价，就有套利。',
+diagram:'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 150"><rect width="420" height="150" fill="none"/><text x="12" y="20" fill="#4fc3f7" font-size="11" font-weight="bold">持有成本模型 (Cost of Carry)</text><rect x="12" y="32" width="100" height="24" rx="3" fill="rgba(79,195,247,.1)" stroke="#4fc3f7" stroke-width="1"/><text x="62" y="48" fill="#4fc3f7" font-size="9" text-anchor="middle">买入现货 S₀</text><text x="130" y="48" fill="#a0b8d8" font-size="9">+ 资金成本 rT</text><line x1="118" y1="44" x2="128" y2="44" stroke="#4fc3f7" stroke-width="1" marker-end="url(#a1)"/><text x="230" y="48" fill="#a0b8d8" font-size="9">+ 存储成本 uT</text><text x="330" y="48" fill="#a0b8d8" font-size="9">- 便利收益 qT</text><rect x="150" y="68" width="120" height="30" rx="4" fill="rgba(102,187,106,.1)" stroke="#66bb6a" stroke-width="1.5"/><text x="210" y="88" fill="#66bb6a" font-size="11" text-anchor="middle">= 远期价格 F₀</text><text x="12" y="125" fill="#6080a8" font-size="9">套利：若 F₀ &gt; S₀e^{(r-q)T} → 买入现货+卖出远期锁定利润  |  若 F₀ &lt; S₀e^{(r-q)T} → 卖出远期+买入现货</text><defs><marker id="a1" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0L6,3L0,6Z" fill="#4fc3f7"/></marker></defs></svg>',
+rel:['p1_1','p1_5'],
+deep_dive:{query:'远期期货合约定价 持有成本模型',topic_id:'derivatives',prompt:'请为"远期与期货合约"生成 理解×标准 的学习资料',status:'none'}},
+{id:'p1_3',n:'期权基础概念',p:'p1',tag:'deriv',
+d:'期权是赋予持有人以特定价格买卖标的资产的权利（非义务）。Call：max(S_T-K,0)；Put：max(K-S_T,0)。期权价格=内在价值+时间价值。',
+f:'C_T=max(S_T-K,0); P_T=max(K-S_T,0)',s:'期权="保险"——付权利金买保护，就像买保险。买方损失有限、收益无限；卖方反之。',
+diagram:'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 150"><rect width="420" height="150" fill="none"/><text x="12" y="20" fill="#4fc3f7" font-size="11" font-weight="bold">Call/Put 到期收益图 (Payoff Diagram)</text><line x1="60" y1="130" x2="60" y2="30" stroke="#6080a8" stroke-width="1"/><line x1="60" y1="90" x2="380" y2="90" stroke="#6080a8" stroke-width="1"/><text x="55" y="26" fill="#a0b8d8" font-size="8">收益</text><text x="375" y="86" fill="#a0b8d8" font-size="8">S_T</text><line x1="160" y1="90" x2="160" y2="85" stroke="#ffa726" stroke-width="1"/><text x="160" y="103" fill="#ffa726" font-size="8">K</text><polyline points="160,90 170,80 380,10" fill="none" stroke="#66bb6a" stroke-width="2"/><text x="300" y="24" fill="#66bb6a" font-size="9">Call多头 max(S-K,0)</text><polyline points="60,30 160,90 380,90" fill="none" stroke="#ef5350" stroke-width="2" stroke-dasharray="4,2"/><text x="60" y="24" fill="#ef5350" font-size="9">Put多头 max(K-S,0)</text><circle cx="160" cy="90" r="3" fill="#ffa726"/><text x="210" y="140" fill="#6080a8" font-size="9" text-anchor="middle">欧式：仅到期日行权 | 美式：到期前任一时点可提前行权</text></svg>',
+rel:['p1_1','p2_1','p2_3'],
+deep_dive:{query:'期权 看涨 看跌 内在价值 时间价值 基础概念',topic_id:'option-pricing',prompt:'请为"期权基础概念"生成 理解×标准 的学习资料',status:'none'}},
+{id:'p1_4',n:'互换(Swap)基础',p:'p1',tag:'deriv',
+d:'互换是双方约定交换现金流的合约。IRS：一方付固定收浮动；互换可视为一系列远期的组合。定价基于固定/浮动两端的PV相等。',
+f:'PV_{fixed}= \\sum C \\cdot e^{-r_i t_i}',s:'互换的本质是"比较优势"——各自在优势市场借款后交换利息支付，双方受益。',
+diagram:'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 150"><rect width="420" height="150" fill="none"/><text x="12" y="20" fill="#ab47bc" font-size="11" font-weight="bold">利率互换(IRS) 现金流交换</text><rect x="12" y="32" width="130" height="40" rx="6" fill="rgba(79,195,247,.08)" stroke="#4fc3f7" stroke-width="1"/><text x="77" y="49" fill="#e0e8f0" font-size="9" text-anchor="middle">A: 支付固定利率</text><text x="77" y="63" fill="#a0b8d8" font-size="8" text-anchor="middle">收取浮动利率</text><rect x="278" y="32" width="130" height="40" rx="6" fill="rgba(171,71,188,.08)" stroke="#ab47bc" stroke-width="1"/><text x="343" y="49" fill="#e0e8f0" font-size="9" text-anchor="middle">B: 支付浮动利率</text><text x="343" y="63" fill="#a0b8d8" font-size="8" text-anchor="middle">收取固定利率</text><line x1="142" y1="52" x2="278" y2="52" stroke="#ffa726" stroke-width="1.5" marker-end="url(#a2)" marker-start="url(#a2r)"/><text x="210" y="46" fill="#ffa726" font-size="8" text-anchor="middle">固定利息 →</text><line x1="278" y1="60" x2="142" y2="60" stroke="#26c6da" stroke-width="1.5" marker-end="url(#a3)"/><text x="210" y="72" fill="#26c6da" font-size="8" text-anchor="middle">← 浮动利息</text><text x="210" y="122" fill="#a0b8d8" font-size="9" text-anchor="middle">名义本金(N)不发生交换 | 互换定价=固定端PV=浮动端PV</text><text x="210" y="138" fill="#6080a8" font-size="8" text-anchor="middle">(浮动端在重置日价值=N)</text><defs><marker id="a2" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0L6,3L0,6Z" fill="#ffa726"/></marker><marker id="a2r" markerWidth="6" markerHeight="6" refX="1" refY="3" orient="auto"><path d="M6,0L0,3L6,6Z" fill="#ffa726"/></marker><marker id="a3" markerWidth="6" markerHeight="6" refX="1" refY="3" orient="auto"><path d="M6,0L0,3L6,6Z" fill="#26c6da"/></marker></defs></svg>',
+rel:['p1_1','p1_2'],
+deep_dive:{query:'利率互换 货币互换 定价 IRS',topic_id:'derivatives',prompt:'请为"互换(Swap)基础"生成 理解×标准 的学习资料',status:'none'}},
+{id:'p1_5',n:'衍生品市场结构',p:'p1',tag:'deriv',
+d:'ETD：标准化合约、CCP清算、保证金制度；OTC：定制化、双边信用风险、ISDA主协议。保证金分初始保证金和变动保证金。',
+diagram:'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 150"><rect width="420" height="150" fill="none"/><text x="12" y="20" fill="#4fc3f7" font-size="11" font-weight="bold">交易所(ETD) vs 场外(OTC) 对比</text><rect x="12" y="30" width="190" height="55" rx="4" fill="rgba(79,195,247,.06)" stroke="#4fc3f7" stroke-width="1"/><text x="107" y="47" fill="#4fc3f7" font-size="9" text-anchor="middle" font-weight="bold">交易所(ETD)</text><text x="20" y="62" fill="#a0b8d8" font-size="8">标准化 · CCP清算 · 逐日盯市</text><text x="20" y="76" fill="#a0b8d8" font-size="8">CME, Eurex, 上期所, 中金所</text><rect x="218" y="30" width="190" height="55" rx="4" fill="rgba(171,71,188,.06)" stroke="#ab47bc" stroke-width="1"/><text x="313" y="47" fill="#ab47bc" font-size="9" text-anchor="middle" font-weight="bold">场外市场(OTC)</text><text x="226" y="62" fill="#a0b8d8" font-size="8">定制化 · 双边清算 · 对手方风险</text><text x="226" y="76" fill="#a0b8d8" font-size="8">银行间IRS, CDS, 结构化产品</text><text x="210" y="112" fill="#a0b8d8" font-size="9" text-anchor="middle">保证金：初始保证金(IM) + 变动保证金(VM) | ISDA主协议=OTC交易的法律根基</text><text x="210" y="135" fill="#6080a8" font-size="8" text-anchor="middle">Dodd-Frank / EMIR → OTC衍生品强制中央清算趋势</text></svg>',
+rel:['p1_2','p1_4'],
+deep_dive:{query:'衍生品市场结构 ETD OTC CCP 保证金',topic_id:'market-microstructure',prompt:'请为"衍生品市场结构"生成 理解×标准 的学习资料',status:'none'}},
+{id:'p2_1',n:'无套利定价原理',p:'p2',tag:'deriv',
+d:'一价定律：相同收益→相同价格。Put-Call Parity:C+Ke^{-rT}=P+S₀。风险中性定价：V₀=e^{-rT}E^Q[V_T]——假想世界中价格=真实世界价格。',
+f:'C+Ke^{-rT}=P+S_0',s:'风险中性世界虽"假想"但因对冲消除风险偏好，算出的价格在真实世界也正确。',
+diagram:'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 150"><rect width="420" height="150" fill="none"/><text x="12" y="20" fill="#66bb6a" font-size="11" font-weight="bold">Put-Call Parity 复制组合</text><rect x="12" y="32" width="85" height="30" rx="3" fill="rgba(79,195,247,.1)" stroke="#4fc3f7" stroke-width="1"/><text x="54" y="52" fill="#e0e8f0" font-size="8" text-anchor="middle">Call + Ke^{-rT}</text><text x="110" y="52" fill="#a0b8d8" font-size="18">≡</text><rect x="140" y="32" width="80" height="30" rx="3" fill="rgba(102,187,106,.1)" stroke="#66bb6a" stroke-width="1"/><text x="180" y="52" fill="#e0e8f0" font-size="8" text-anchor="middle">Put + S₀</text><text x="260" y="52" fill="#a0b8d8" font-size="9">= 保护性看跌</text><text x="12" y="90" fill="#a0b8d8" font-size="9">若不成立套利：</text><text x="12" y="108" fill="#ef5350" font-size="8">→ 若 C+Ke^{-rT} &gt; P+S₀：卖出Call+借入K→买入Put+S₀(利润)</text><text x="12" y="124" fill="#6080a8" font-size="9">风险中性：E^Q[S_T]=S₀e^{rT} → V₀=e^{-rT}E^Q[V_T]</text></svg>',
+rel:['p1_3','p2_2','p2_3'],
+deep_dive:{query:'无套利定价 风险中性定价 Put-Call Parity',topic_id:'arbitrage',prompt:'请为"无套利定价原理"生成 理解×标准 的学习资料',status:'none'}},
+{id:'p2_2',n:'二叉树模型',p:'p2',tag:'deriv',
+d:'CRR二叉树：每步S以p概率涨u=e^{σ√Δt}倍，以1-p跌d=e^{-σ√Δt}。从到期日倒推(BWI)，比较行权vs持有。n→∞收敛至BSM。',
+f:'u=e^{σ√{Δt}}; d=1/u; p=(e^{rΔt}-d)/(u-d)',s:'二叉树把"未来所有可能路径"画成树，从叶子往回推，取行权/持有之大者。',
+diagram:'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 150"><rect width="420" height="150" fill="none"/><text x="12" y="18" fill="#66bb6a" font-size="11" font-weight="bold">三步二叉树 &amp; 回推(BWI)</text><circle cx="60" cy="75" r="12" fill="rgba(79,195,247,.2)" stroke="#4fc3f7" stroke-width="1"/><text x="60" y="79" fill="#4fc3f7" font-size="9" text-anchor="middle">S₀</text><line x1="72" y1="68" x2="118" y2="42" stroke="#6080a8" stroke-width=".8"/><text x="95" y="48" fill="#ffa726" font-size="7">p</text><line x1="72" y1="82" x2="118" y2="108" stroke="#6080a8" stroke-width=".8"/><text x="95" y="115" fill="#6080a8" font-size="7">1-p</text><circle cx="135" cy="35" r="10" fill="rgba(102,187,106,.15)" stroke="#66bb6a" stroke-width="1"/><text x="135" y="39" fill="#66bb6a" font-size="8" text-anchor="middle">S₀u</text><circle cx="135" cy="115" r="10" fill="rgba(239,83,80,.15)" stroke="#ef5350" stroke-width="1"/><text x="135" y="119" fill="#ef5350" font-size="8" text-anchor="middle">S₀d</text><circle cx="210" cy="20" r="9" fill="rgba(102,187,106,.1)" stroke="#66bb6a" stroke-width=".8"/><text x="210" y="24" fill="#66bb6a" font-size="7" text-anchor="middle">S₀u²</text><circle cx="210" cy="60" r="9" fill="rgba(255,167,38,.1)" stroke="#ffa726" stroke-width=".8"/><text x="210" y="64" fill="#ffa726" font-size="7" text-anchor="middle">S₀ud</text><circle cx="210" cy="100" r="9" fill="rgba(239,83,80,.1)" stroke="#ef5350" stroke-width=".8"/><text x="210" y="104" fill="#ef5350" font-size="7" text-anchor="middle">S₀d²</text><text x="260" y="20" fill="#6080a8" font-size="8">→ 到期T</text><text x="260" y="35" fill="#a0b8d8" font-size="8">Payoff=max(S-K,0)</text><text x="260" y="60" fill="#a0b8d8" font-size="8">→ 回推(BWI):</text><text x="260" y="75" fill="#6080a8" font-size="8">V=e^{-rΔt}[pV_up+(1-p)V_dn]</text><text x="260" y="95" fill="#a0b8d8" font-size="8">n→∞ → 收敛至BSM</text></svg>',
+rel:['p2_1','p2_3'],
+deep_dive:{query:'二叉树模型 CRR 期权定价 Backward Induction',topic_id:'option-pricing',prompt:'请为"二叉树模型"生成 理解×标准 的学习资料',status:'none'}},
+{id:'p2_3',n:'Black-Scholes-Merton模型',p:'p2',tag:'deriv',
+d:'BSM是期权定价里程碑。假设标的服从几何布朗运动dS=μSdt+σSdW，通过Δ对冲推导PDE，得出欧式期权解析解。价格仅依赖S,K,r,σ,T5个变量。',
+f:'C=S_0N(d_1)-Ke^{-rT}N(d_2)',s:'N(d₂)≈风险中性行权概率，S₀N(d₁)e^{rT}≈行权期望股价。σ是唯一不可观测的参数。',
+diagram:'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 150"><rect width="420" height="150" fill="none"/><text x="12" y="20" fill="#66bb6a" font-size="11" font-weight="bold">BSM模型 — 核心推导链路</text><text x="12" y="45" fill="#4fc3f7" font-size="9">① dS=μSdt+σSdW (GBM假设)</text><text x="12" y="62" fill="#4fc3f7" font-size="9">② 构建Π=V-ΔS → dΠ=(...)dt ⇒ Δ=∂V/∂S 消dW</text><text x="12" y="79" fill="#4fc3f7" font-size="9">③ BSM PDE: ∂V/∂t+½σ²S²∂²V/∂S²+rS∂V/∂S-rV=0 (μ消失!)</text><text x="12" y="96" fill="#66bb6a" font-size="9">④ 解PDE → C=S₀N(d₁)-Ke^{-rT}N(d₂)</text><text x="12" y="113" fill="#6080a8" font-size="8"> d₁=[ln(S₀/K)+(r+σ²/2)T]/(σ√T) ; d₂=d₁-σ√T</text><text x="230" y="132" fill="#ab47bc" font-size="9" text-anchor="middle">核心洞见：BSM PDE与μ无关←对冲消去所有风险溢价</text></svg>',
+rel:['p2_1','p2_2','p2_4'],
+deep_dive:{query:'Black-Scholes-Merton模型 BSM公式推导',topic_id:'black-scholes',prompt:'请为"Black-Scholes-Merton模型"生成 理解×标准 的学习资料',status:'none'}},
+{id:'p2_4',n:'期权希腊字母(Greeks)',p:'p2',tag:'deriv',
+d:'Delta=∂C/∂S=N(d₁)，Gamma=∂²C/∂S²，Theta=∂C/∂t(时间衰减)，Vega=∂C/∂σ(波动率)，Rho=∂C/∂r。五大希腊字母构成风险管理核心。',
+f:'Δ_C=N(d_1); Γ=N\'(d_1)/(S_0σ√T); ν=S_0N\'(d_1)√T',s:'Delta→涨跌幅度; Gamma→需要多频繁调仓; Theta→时间敌人; Vega→恐慌溢价。',
+diagram:'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 150"><rect width="420" height="150" fill="none"/><text x="12" y="20" fill="#66bb6a" font-size="11" font-weight="bold">希腊字母敏感度概览</text><rect x="12" y="28" width="75" height="28" rx="3" fill="rgba(79,195,247,.08)" stroke="#4fc3f7" stroke-width="1"/><text x="49" y="47" fill="#4fc3f7" font-size="9" text-anchor="middle">Δ=N(d₁)</text><rect x="95" y="28" width="75" height="28" rx="3" fill="rgba(102,187,106,.08)" stroke="#66bb6a" stroke-width="1"/><text x="132" y="47" fill="#66bb6a" font-size="9" text-anchor="middle">Γ>0</text><rect x="178" y="28" width="75" height="28" rx="3" fill="rgba(255,167,38,.08)" stroke="#ffa726" stroke-width="1"/><text x="215" y="47" fill="#ffa726" font-size="9" text-anchor="middle">Θ<0(Call)</text><rect x="261" y="28" width="70" height="28" rx="3" fill="rgba(171,71,188,.08)" stroke="#ab47bc" stroke-width="1"/><text x="296" y="47" fill="#ab47bc" font-size="9" text-anchor="middle">ν>0</text><rect x="339" y="28" width="65" height="28" rx="3" fill="rgba(239,83,80,.08)" stroke="#ef5350" stroke-width="1"/><text x="371" y="47" fill="#ef5350" font-size="9" text-anchor="middle">ρ?</text><text x="12" y="82" fill="#a0b8d8" font-size="9">Δ:标的涨$1→Call涨≈N(d₁)¢ | Γ:Δ随标的价变化速度 | Θ:每天时间价值衰减</text><text x="12" y="102" fill="#a0b8d8" font-size="9">ν:σ+1%→期权价变动/100 | ρ:r+1%→call:>0(正); put:<0(负)</text><text x="210" y="130" fill="#6080a8" font-size="8" text-anchor="middle">BSM假设σ常数→现实σ变化→Vega风险暴露 | ATM附近Γ最大→频繁调整</text></svg>',
+rel:['p2_3','p4_3'],
+deep_dive:{query:'期权希腊字母 Delta Gamma Theta Vega Rho',topic_id:'option-pricing',prompt:'请为"期权希腊字母(Greeks)"生成 理解×标准 的学习资料',status:'none'}},
+{id:'p3_1',n:'蒙特卡洛模拟定价',p:'p3',tag:'deriv',
+d:'MC是最通用的定价数值方法：模拟大量价格路径→计算Payoff→平均→折现。适用于路径依赖型和高维衍生品。收敛速度O(1/√N)。',
+f:'V̂=e^{-rT}·(1/N)·∑ Payoff_i',s:'"暴力穷举未来"——模拟100万条路径，每条算收益，平均折现。路径越多越准。',
+diagram:'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 150"><rect width="420" height="150" fill="none"/><text x="12" y="20" fill="#ffa726" font-size="11" font-weight="bold">蒙特卡洛模拟 — N条价格路径</text><path d="M40,80 Q80,50 120,75 Q160,90 200,65 Q240,45 280,70 Q320,85 360,60 Q400,50 420,65" fill="none" stroke="#4fc3f7" stroke-width="1" opacity=".6"/><path d="M40,80 Q80,100 120,85 Q160,65 200,75 Q240,95 280,80 Q320,60 360,70 Q400,90 420,75" fill="none" stroke="#66bb6a" stroke-width="1" opacity=".6"/><path d="M40,80 Q80,60 120,70 Q160,80 200,55 Q240,70 280,90 Q320,75 360,55 Q400,70 420,85" fill="none" stroke="#ab47bc" stroke-width="1" opacity=".6"/><path d="M40,90 Q80,120 120,105 Q160,85 200,100 Q240,115 280,90 Q320,70 360,85 Q400,105 420,95" fill="none" stroke="#ffa726" stroke-width="1" opacity=".6"/><line x1="420" y1="120" x2="420" y2="60" stroke="#ef5350" stroke-width="1" stroke-dasharray="3,3"/><text x="395" y="55" fill="#ef5350" font-size="8">Payoff</text><text x="395" y="130" fill="#ef5350" font-size="8">S_T分布</text><text x="12" y="138" fill="#6080a8" font-size="9">1/N ΣPayoff → 折现 | SE=s/√N 对偶变量:V̂₂=(V̂+V̂⁻)/2</text></svg>',
+rel:['p3_2','p2_3'],
+deep_dive:{query:'蒙特卡洛模拟 期权定价 方差缩减',topic_id:'monte-carlo',prompt:'请为"蒙特卡洛模拟定价"生成 理解×标准 的学习资料',status:'none'}},
+{id:'p3_2',n:'有限差分法',p:'p3',tag:'deriv',
+d:'FDM直接数值求解BSM PDE。显式简单但不稳定；隐式无条件稳定需解方程组；Crank-Nicolson(θ=0.5)二阶收敛，兼稳定与精度。',
+f:'V_i^n=a_iV_{i-1}^{n+1}+b_iV_i^{n+1}+c_iV_{i+1}^{n+1}',s:'FDM="切网格做天气预报"——把连续时空离散化成格子，在每个格点逼近PDE。',
+diagram:'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 150"><rect width="420" height="150" fill="none"/><text x="12" y="20" fill="#ffa726" font-size="11" font-weight="bold">有限差分网格 (FDM Grid)</text><g stroke="#6080a8" stroke-width=".3" opacity=".4">'+
+[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20].map(function(i){return '<line x1="'+(30+i*18)+'" y1="40" x2="'+(30+i*18)+'" y2="120"/>'}).join('')+
+[0,1,2,3,4,5,6,7].map(function(j){return '<line x1="30" y1="'+(40+j*10)+'" x2="'+(30+20*18)+'" y2="'+(40+j*10)+'" />'}).join('')+
+'</g><text x="28" y="125" fill="#a0b8d8" font-size="8">t=T</text><text x="370" y="125" fill="#a0b8d8" font-size="8">t=0</text><text x="375" y="35" fill="#a0b8d8" font-size="8">S→∞</text><text x="375" y="115" fill="#a0b8d8" font-size="8">S=0</text><rect x="180" y="48" width="30" height="10" fill="rgba(79,195,247,.15)" stroke="#4fc3f7" stroke-width="1"/><rect x="190" y="58" width="30" height="10" fill="rgba(102,187,106,.15)" stroke="#66bb6a" stroke-width="1"/><rect x="180" y="68" width="30" height="10" fill="rgba(171,71,188,.15)" stroke="#ab47bc" stroke-width="1"/><text x="225" y="58" fill="#a0b8d8" font-size="8">显式 (简单/不稳定)</text><text x="225" y="68" fill="#a0b8d8" font-size="8">隐式 (无条件稳定)</text><text x="225" y="78" fill="#a0b8d8" font-size="8">CN (θ=0.5二阶收敛)</text></svg>',
+rel:['p3_1','p2_3'],
+deep_dive:{query:'有限差分法 期权定价 Crank-Nicolson',topic_id:'option-pricing',prompt:'请为"有限差分法"生成 理解×标准 的学习资料',status:'none'}},
+{id:'p3_3',n:'利率衍生品定价',p:'p3',tag:'deriv',
+d:'利率衍生品标的为整条收益率曲线。需建模利率动态：Vasicek dr=a(b-r)dt+σdW；CIR dr=a(b-r)dt+σ√rdW。Black公式为Cap/Swaption定价。',
+f:'dr=a(b-r)dt+σdW (Vasicek)',s:'不同于股票只有单一价格，利率有一整条期限曲线。需要同时模拟整条曲线的变化。',
+diagram:'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 150"><rect width="420" height="150" fill="none"/><text x="12" y="20" fill="#ffa726" font-size="11" font-weight="bold">利率期限结构 &amp; Cap/Floor 定价</text><polyline points="40,110 80,100 120,95 160,88 200,82 240,77 280,73 320,70 360,68" fill="none" stroke="#4fc3f7" stroke-width="2"/><text x="365" y="65" fill="#4fc3f7" font-size="9">收益率曲线</text><text x="50" y="55" fill="#66bb6a" font-size="9">Cap: max(L-K,0)</text><line x1="50" y1="60" x2="50" y2="105" stroke="#66bb6a" stroke-width="1" stroke-dasharray="3,3"/><text x="30" y="50" fill="#66bb6a" font-size="8">(利率上限)</text><rect x="12" y="28" width="130" height="20" rx="3" fill="rgba(171,71,188,.06)" stroke="#ab47bc" stroke-width=".8"/><text x="77" y="42" fill="#ab47bc" font-size="8" text-anchor="middle">均衡模型:Vasicek/CIR</text><rect x="150" y="28" width="130" height="20" rx="3" fill="rgba(79,195,247,.06)" stroke="#4fc3f7" stroke-width=".8"/><text x="215" y="42" fill="#4fc3f7" font-size="8" text-anchor="middle">无套利模型:Hull-White</text><text x="12" y="138" fill="#6080a8" font-size="8">Cap=ΣCaplets(Black公式) | Swaption:互换远期测度下估值</text></svg>',
+rel:['p1_4','p5_1'],
+deep_dive:{query:'利率衍生品定价 Vasicek CIR Hull-White',topic_id:'interest-rate-models',prompt:'请为"利率衍生品定价"生成 理解×标准 的学习资料',status:'none'}},
+{id:'p3_4',n:'奇异期权定价',p:'p3',tag:'deriv',
+d:'障碍期权触碰特定水平敲入/出；亚式期权Payoff依赖平均价；回望期权以最优价结算。多数无解析解，需数值方法。K-I+K-O=普通期权。',
+diagram:'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 150"><rect width="420" height="150" fill="none"/><text x="12" y="20" fill="#ffa726" font-size="11" font-weight="bold">奇异期权分类 &amp; 障碍期权示意</text><path d="M40,80 Q100,40 160,90 Q220,130 280,70 Q340,20 380,50" fill="none" stroke="#4fc3f7" stroke-width="2"/><line x1="40" y1="55" x2="380" y2="55" stroke="#ef5350" stroke-width="1" stroke-dasharray="4,3"/><text x="385" y="54" fill="#ef5350" font-size="8">障碍H</text><circle cx="160" cy="70" r="4" fill="#ef5350"/><text x="170" y="68" fill="#ef5350" font-size="8">触碰!→敲出失效</text><text x="12" y="125" fill="#a0b8d8" font-size="9">障碍|Barrier(敲入/敲出,上/下) | 亚式|Asian(平均价) | 回望|Lookback(最优价) | 二元|Digital(全或无)</text><text x="210" y="145" fill="#6080a8" font-size="8" text-anchor="middle">Knock-In + Knock-Out = 普通期权 (平价关系)</text></svg>',
+rel:['p3_1','p2_3'],
+deep_dive:{query:'奇异期权 障碍期权 亚式期权 回望期权 定价',topic_id:'option-pricing',prompt:'请为"奇异期权定价"生成 理解×标准 的学习资料',status:'none'}},
+{id:'p4_1',n:'波动率建模与微笑',p:'p4',tag:'deriv',
+d:'BSM假设σ常数，市场却呈"波动率微笑/偏斜"。权益指数：负偏(低K→高IV→恐慌溢价)。GARCH(1,1):σ²_t=ω+αε²_{t-1}+βσ²_{t-1}。',
+f:'GARCH(1,1): σ_t^2=ω+αε_{t-1}^2+βσ_{t-1}^2',s:'BSM说σ是常数，但市场在暴跌恐慌时推高低K期权IV——波动率微笑是风险偏好的温度计。',
+diagram:'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 150"><rect width="420" height="150" fill="none"/><text x="12" y="20" fill="#ab47bc" font-size="11" font-weight="bold">波动率微笑/偏斜 → 权益指数 vs 外汇</text><text x="12" y="45" fill="#4fc3f7" font-size="9">权益指数(负偏)：</text><path d="M60,50 Q100,38 150,45 Q200,55 300,65" fill="none" stroke="#ef5350" stroke-width="1.5"/><text x="310" y="62" fill="#ef5350" font-size="8">←低K高IV(恐慌)</text><text x="12" y="80" fill="#26c6da" font-size="9">外汇(微笑)：</text><path d="M60,80 Q120,55 150,60 Q180,55 250,70 Q300,60 340,75" fill="none" stroke="#26c6da" stroke-width="1.5"/><text x="12" y="105" fill="#66bb6a" font-size="9">无偏(BSM理想)：GARCH σ²_t=ω+αε²_{t-1}+βσ²_{t-1}</text><line x1="60" y1="100" x2="340" y2="100" stroke="#66bb6a" stroke-width="1" stroke-dasharray="3,3"/><text x="340" y="98" fill="#66bb6a" font-size="7">BSM理想世界</text><text x="210" y="138" fill="#6080a8" font-size="8" text-anchor="middle">Skew=IV(90%K)-IV(100%K) | GARCH: α+β→波动持续性 α→冲击反应度</text></svg>',
+rel:['p2_3','p2_4','p4_3'],
+deep_dive:{query:'波动率建模 波动率微笑 GARCH 隐含波动率',topic_id:'volatility-modeling',prompt:'请为"波动率建模与微笑"生成 理解×标准 的学习资料',status:'none'}},
+{id:'p4_2',n:'结构化产品设计',p:'p4',tag:'deriv',
+d:'结构化产品=固收+衍生品打包。保本票据=零息债+Call；雪球=卖出障碍Put价差。定价="拆解→分别定价→加总"。V=Σ(组件公允价值)-发行费。',
+f:'V_{保本}=Ke^{-rT}+α·C(S_0,K\',T,σ)',s:'结构化产品="理财套餐"——债券+期权打包。定价=拆开看每个配料值多少钱，加起来。',
+diagram:'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 150"><rect width="420" height="150" fill="none"/><text x="12" y="20" fill="#ab47bc" font-size="11" font-weight="bold">结构化产品 = 固收 + 衍生品 拆解</text><rect x="12" y="32" width="120" height="30" rx="4" fill="rgba(102,187,106,.08)" stroke="#66bb6a" stroke-width="1"/><text x="72" y="52" fill="#66bb6a" font-size="9" text-anchor="middle">零息债券 Ke^{-rT}</text><text x="142" y="52" fill="#a0b8d8" font-size="12">+</text><rect x="160" y="32" width="120" height="30" rx="4" fill="rgba(79,195,247,.08)" stroke="#4fc3f7" stroke-width="1"/><text x="220" y="52" fill="#4fc3f7" font-size="9" text-anchor="middle">看涨期权 α·C</text><text x="290" y="52" fill="#a0b8d8" font-size="12">=</text><rect x="305" y="32" width="100" height="30" rx="4" fill="rgba(171,71,188,.12)" stroke="#ab47bc" stroke-width="1.5"/><text x="355" y="52" fill="#ab47bc" font-size="9" text-anchor="middle">保本票据</text><text x="12" y="88" fill="#a0b8d8" font-size="9">雪球(Autocall):卖出带障碍的Put价差 → 月/季敲入观察 | 收益凭证:固收+挂钩标的浮动收益</text><text x="210" y="115" fill="#6080a8" font-size="8" text-anchor="middle">结构化产品价值=Σ(各组件公允价值)-发行费用-利润</text><text x="210" y="135" fill="#ef5350" font-size="8" text-anchor="middle">⚠ 关注：敲入机制("鲨鱼鳍"/"双向鲨鱼鳍")的尾部风险</text></svg>',
+rel:['p1_3','p4_1','p4_3'],
+deep_dive:{query:'结构化产品 保本票据 雪球产品 定价设计',topic_id:'derivatives',prompt:'请为"结构化产品设计"生成 理解×标准 的学习资料',status:'none'}},
+{id:'p4_3',n:'对冲策略与风险管理',p:'p4',tag:'deriv',
+d:'Delta对冲：持有-Δ份标的消Delta。Delta-Gamma中性需两个期权。ΔP&L≈Δ·ΔS+½Γ·(ΔS)²+Θ·Δt+ν·Δσ。对冲非"预测方向"而是"消除暴露"。',
+f:'ΔP&amp;L≈Δ·ΔS+½Γ·(ΔS)^2+Θ·Δt+ν·Δσ',s:'对冲不是预测方向而是消除方向性暴露——卖Call后买股票消Δ，涨后再多买消Γ。动态平衡是核心。',
+diagram:'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 150"><rect width="420" height="150" fill="none"/><text x="12" y="20" fill="#ab47bc" font-size="11" font-weight="bold">Delta对冲动态调仓 &amp; P&amp;L分解</text><text x="12" y="45" fill="#a0b8d8" font-size="9">t=0:卖Call(Δ=0.5)→买0.5×股→组合Δ=0 ✓</text><text x="12" y="62" fill="#6080a8" font-size="9">t=1:S↑→Δ=0.6→需加买0.1×股(Gamma驱动)</text><text x="12" y="79" fill="#6080a8" font-size="9">t=2:S↓→Δ=0.4→需卖出0.2×股</text><text x="12" y="100" fill="#a0b8d8" font-size="9">总P&amp;L: Δ项(一阶)≈0 + Γ项&gt;0(长Gamma→Swing获利)</text><text x="12" y="118" fill="#ef5350" font-size="9">Theta Drag:-Θ·Δt(时间每一天都在消耗)</text><text x="210" y="138" fill="#6080a8" font-size="8" text-anchor="middle">Delta-Gamma中性：需2期权+标的 → [n₂,-1;n_S,Δ₁,Δ₂;Γ₁,Γ₂]解方程组</text></svg>',
+rel:['p2_4','p4_1'],
+deep_dive:{query:'Delta对冲 Gamma对冲 风险管理 动态对冲',topic_id:'derivatives',prompt:'请为"对冲策略与风险管理"生成 理解×标准 的学习资料',status:'none'}},
+{id:'p5_1',n:'信用衍生品与CDS',p:'p5',tag:'deriv',
+d:'CDS买方付Spread，卖方违约时赔(1-R)×N。定价基于生存概率+回收率。公平Spread S=Protection Leg/Premium Leg。CDX/iTraxx为信用市场核心指标。',
+f:'S_{CDS}={Protection\\;Leg \\over Premium\\;Leg}',s:'CDS=债券的保险——每年付保费，若违约卖方赔损失。CDS Spread反映市场定价的违约概率。',
+diagram:'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 150"><rect width="420" height="150" fill="none"/><text x="12" y="20" fill="#ef5350" font-size="11" font-weight="bold">信用违约互换(CDS) — 现金流结构</text><rect x="12" y="32" width="150" height="40" rx="5" fill="rgba(79,195,247,.08)" stroke="#4fc3f7" stroke-width="1"/><text x="87" y="49" fill="#e0e8f0" font-size="9" text-anchor="middle">保护买方</text><text x="87" y="63" fill="#a0b8d8" font-size="8" text-anchor="middle">(持有债券/担心违约)</text><rect x="258" y="32" width="150" height="40" rx="5" fill="rgba(171,71,188,.08)" stroke="#ab47bc" stroke-width="1"/><text x="333" y="49" fill="#e0e8f0" font-size="9" text-anchor="middle">保护卖方</text><text x="333" y="63" fill="#a0b8d8" font-size="8" text-anchor="middle">(银行/保险公司)</text><line x1="162" y1="48" x2="258" y2="48" stroke="#ffa726" stroke-width="1" marker-end="url(#a1)"/><text x="210" y="44" fill="#ffa726" font-size="7" text-anchor="middle">每期付CDS Spread</text><line x1="258" y1="62" x2="162" y2="62" stroke="#ef5350" stroke-width="1" marker-end="url(#a3)"/><text x="210" y="72" fill="#ef5350" font-size="7" text-anchor="middle">若违约→赔付(1-R)×N</text><text x="12" y="108" fill="#a0b8d8" font-size="9">S_{fair}=ProtectionLeg/PremiumLeg → Bootstrap违约概率</text><text x="12" y="128" fill="#6080a8" font-size="8">CDX/iTraxx=信用指数 | 生存概率P(τ&gt;t):bootstrapped from CDS term</text></svg>',
+rel:['p3_3'],
+deep_dive:{query:'信用衍生品 CDS定价 违约概率 信用利差',topic_id:'credit-risk',prompt:'请为"信用衍生品与CDS"生成 理解×标准 的学习资料',status:'none'}},
+{id:'p5_2',n:'ML在衍生品定价中的应用',p:'p5',tag:'deriv',
+d:'ML加速定价：NN学习"参数→价格"映射→推理毫秒级。深度BSDE：NN逼近反向SDE解。自动微分算Greeks比有限差分快且精确。',
+f:'V(S,K,T,σ,r)≈NN_θ(S,K,T,σ,r)',s:'传统MC定价复杂衍生品可能几分钟→ML记住参数-价格映射后→毫秒推理。NN可拟合波动率曲面。',
+diagram:'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 150"><rect width="420" height="150" fill="none"/><text x="12" y="20" fill="#ef5350" font-size="11" font-weight="bold">ML加速衍生品定价 — NN近似</text><rect x="12" y="32" width="150" height="24" rx="3" fill="rgba(79,195,247,.08)" stroke="#4fc3f7" stroke-width="1"/><text x="87" y="48" fill="#a0b8d8" font-size="8" text-anchor="middle">Input: S,K,T,σ,r</text><text x="170" y="48" fill="#4fc3f7" font-size="14">→</text><rect x="185" y="28" width="80" height="30" rx="6" fill="rgba(171,71,188,.12)" stroke="#ab47bc" stroke-width="1.5"/><text x="225" y="48" fill="#ab47bc" font-size="9" text-anchor="middle">NN_θ</text><text x="275" y="48" fill="#4fc3f7" font-size="14">→</text><rect x="290" y="32" width="100" height="24" rx="3" fill="rgba(102,187,106,.08)" stroke="#66bb6a" stroke-width="1"/><text x="340" y="48" fill="#66bb6a" font-size="8" text-anchor="middle">Output: V, Δ,Γ,ν</text><text x="12" y="85" fill="#a0b8d8" font-size="9">训练:min E[(NN(X)-V_BSM(X))²] | 自动微分∂V/∂S→Δ(比有限差分快且准)</text><text x="12" y="105" fill="#6080a8" font-size="9">深度BSDE: 用NN逼近反向随机微分方程的解 | 生成模型:合成情景→压力测试</text><text x="210" y="130" fill="#6080a8" font-size="8" text-anchor="middle">ML定价优势:推理ms级 vs MC分钟级 | NN曲面拟合替代参数化波动率模型</text></svg>',
+rel:['p3_1','p2_3'],
+deep_dive:{query:'机器学习 衍生品定价 神经网络加速 深度BSDE',topic_id:'monte-carlo',prompt:'请为"ML在衍生品定价中的应用"生成 理解×标准 的学习资料',status:'none'}}
+];
+
+// C4: PHASES (5 phases)
+var PHASES=[
+{id:'p1',week:'第1-4周',title:'衍生品市场全景与合约基础',sub:'基础奠基 · 建立全景认知',
+color:'#4fc3f7',icon:'🌐',cls:'c1',
+skills:['金融衍生品概述','远期与期货合约','期权基础概念','互换(Swap)基础','衍生品市场结构'],
+phase_kps:['p1_1','p1_2','p1_3','p1_4','p1_5'],
+desc:'建立四大衍生品(远期/期货/期权/互换)的全景认知。掌握持有成本模型计算远期价格，理解期权Payoff的非线性特征，了解ETD vs OTC市场结构差异。',
+deep_dive_batch:'请依次为以下知识点生成学习资料（理解×标准，G1纹理）：\n1. 金融衍生品概述\n2. 远期与期货合约\n3. 期权基础概念\n4. 互换(Swap)基础\n5. 衍生品市场结构'},
+{id:'p2',week:'第5-7周',title:'期权定价经典模型',sub:'核心工具 · 推导二叉树到BSM',
+color:'#66bb6a',icon:'📈',cls:'c2',
+skills:['无套利定价原理','二叉树模型','Black-Scholes-Merton','期权希腊字母(Greeks)'],
+phase_kps:['p2_1','p2_2','p2_3','p2_4'],
+desc:'从无套利原理出发，掌握Put-Call Parity和风险中性定价框架。推导CRR二叉树模型，理解BSM PDE的推导链条与欧式期权解析解，计算并解释五大希腊字母。',
+deep_dive_batch:'请依次为以下知识点生成学习资料（理解×标准，G1纹理）：\n1. 无套利定价原理\n2. 二叉树模型\n3. Black-Scholes-Merton模型\n4. 期权希腊字母(Greeks)'},
+{id:'p3',week:'第8-10周',title:'数值方法与高级定价',sub:'核心工具 · 蒙特卡洛与有限差分',
+color:'#ffa726',icon:'💻',cls:'c3',
+skills:['蒙特卡洛模拟定价','有限差分法','利率衍生品定价','奇异期权定价'],
+phase_kps:['p3_1','p3_2','p3_3','p3_4'],
+desc:'掌握蒙特卡洛模拟和有限差分法两大数值定价手段。拓展能力到利率衍生品(Vasicek/CIR)和奇异期权(障碍/亚式/回望)，理解解析解不可用时的方法选型。',
+deep_dive_batch:'请依次为以下知识点生成学习资料（理解×标准，G1纹理）：\n1. 蒙特卡洛模拟定价\n2. 有限差分法\n3. 利率衍生品定价\n4. 奇异期权定价'},
+{id:'p4',week:'第11-12周',title:'波动率、对冲与产品设计',sub:'整合应用 · 从理论到实践',
+color:'#ab47bc',icon:'🔗',cls:'c4',
+skills:['波动率建模与微笑','结构化产品设计','对冲策略与风险管理'],
+phase_kps:['p4_1','p4_2','p4_3'],
+desc:'整合定价知识到实际应用。理解波动率微笑/偏斜的市场含义和GARCH建模，掌握Delta/Gamma对冲实操逻辑，了解结构化产品的设计思路。',
+deep_dive_batch:'请依次为以下知识点生成学习资料（理解×标准，G1纹理）：\n1. 波动率建模与微笑\n2. 结构化产品设计\n3. 对冲策略与风险管理'},
+{id:'p5',week:'第13-14周',title:'信用衍生品与现代定价技术',sub:'进阶前沿 · CDS与ML定价',
+color:'#ef5350',icon:'🚀',cls:'c5',
+skills:['信用衍生品与CDS','ML在衍生品定价中的应用'],
+phase_kps:['p5_1','p5_2'],
+desc:'深入信用衍生品领域，掌握CDS定价的基本框架。了解ML在加速定价(神经网络近似)和增强模型方面的最新应用与前沿方向。',
+deep_dive_batch:'请依次为以下知识点生成学习资料（理解×标准，G1纹理）：\n1. 信用衍生品与CDS\n2. ML在衍生品定价中的应用'}
+];
+
+// C5: Formula tabs (5 tables x 5 concepts)
+var FORMULA_TABS=[
+{id:'ft1',label:'表一:无套利定价基础',color:'#4fc3f7'},
+{id:'ft2',label:'表二:二叉树模型',color:'#66bb6a'},
+{id:'ft3',label:'表三:Black-Scholes-Merton',color:'#ffa726'},
+{id:'ft4',label:'表四:希腊字母',color:'#ab47bc'},
+{id:'ft5',label:'表五:数值方法与高级模型',color:'#ef5350'}
+];
+var FORMULAS={
+ft1:[{c:'远期价格(无收益)',f:'F_0=S_0e^{rT}',d:'持有成本模型基础'},
+{c:'远期价格(有收益率q)',f:'F_0=S_0e^{(r-q)T}',d:'股息/便利收益修正'},
+{c:'Put-Call Parity',f:'C+Ke^{-rT}=P+S_0',d:'欧式期权无套利恒等式'},
+{c:'风险中性定价',f:'V_0=e^{-rT}E^Q[V_T]',d:'衍生品定价统一框架'},
+{c:'一价定律',f:'相同收益→相同价格',d:'无套利定价理论根基'}],
+ft2:[{c:'上涨因子u',f:'u=e^{σ√{Δt}}',d:'CRR参数化标准'},
+{c:'下跌因子d',f:'d=1/u=e^{-σ√{Δt}}',d:'CRR对称参数化'},
+{c:'风险中性概率',f:'p=(e^{rΔt}-d)/(u-d)',d:'确保股价预期增长=e^{rΔt}'},
+{c:'倒推公式BWI',f:'V_{i,j}=e^{-rΔt}[pV_u+(1-p)V_d]',d:'美式需比较立即行权值'},
+{c:'n步收敛速度',f:'O(1/n)',d:'n→∞→BSM,步数加倍误差约减半'}],
+ft3:[{c:'标的资产动态',f:'dS=μSdt+σSdW',d:'几何布朗运动(GBM)'},
+{c:'BSM PDE',f:'∂V/∂t+½σ²S²∂²V/∂S²+rS∂V/∂S-rV=0',d:'与μ无关·仅依赖σ'},
+{c:'欧式Call解析解',f:'C=S_0N(d_1)-Ke^{-rT}N(d_2)',d:'无股息标准公式'},
+{c:'d₁,d₂定义',f:'d₁=[ln(S₀/K)+(r+σ²/2)T]/(σ√T)',d:'关键中间变量'},
+{c:'模型核心假设',f:'GBM·无摩擦·连续·常数r,σ',d:'需逐条检验适用性'}],
+ft4:[{c:'Delta(Δ)',f:'Δ_C=N(d_1)',d:'标的变化$1·期权价格变化'},
+{c:'Gamma(Γ)',f:'Γ=N\'(d_1)/(S_0σ√T)',d:'Δ变化速度,ATM最大'},
+{c:'Theta(Θ)',f:'Θ_C=-S₀N\'σ/(2√T)-rKe^{-rT}N(d₂)',d:'每日时间价值衰减(<0)'},
+{c:'Vega(ν)',f:'ν=S_0N\'(d_1)√T',d:'σ+1%→期权价变动/100'},
+{c:'Rho(ρ)',f:'ρ_C=KTe^{-rT}N(d_2)',d:'利率+1%→Call>0,Put<0'}],
+ft5:[{c:'蒙特卡洛路径',f:'S_{t+Δt}=S_t·exp((r-σ²/2)Δt+σ√{Δt}·Z)',d:'路径依赖型/高维'},
+{c:'有限差分格式',f:'显式/隐式/Crank-Nicolson',d:'低维/需提前行权'},
+{c:'Vasicek模型',f:'dr=a(b-r)dt+σdW',d:'利率衍生品/可能负'},
+{c:'CIR模型',f:'dr=a(b-r)dt+σ√r dW',d:'利率衍生品/保证.≥0'},
+{c:'GARCH(1,1)',f:'σ_t^2=ω+αε_{t-1}^2+βσ_{t-1}^2',d:'波动率预测与建模'}]
+};
+
+// C6: EXERCISES (13)
+var EXERCISES=[
+{n:1,t:'计算3个月黄金期货理论价格(现货$1950,r=5%,存储成本1%)',d:'easy'},
+{n:2,t:'验证C/P/S/K/r/T数据是否满足Put-Call Parity,设计套利策略',d:'easy'},
+{n:3,t:'用Python构建3步二叉树为欧式Call定价,验证收敛性',d:'easy'},
+{n:4,t:'计算ATM期权Δ和Γ,解释标的变化2%时期权价格的近似变化',d:'medium'},
+{n:5,t:'给定BSM价格和参数,用Newton-Raphson法反求隐含波动率',d:'medium'},
+{n:6,t:'对比欧式Call Θ和Γ的符号关系,解释"Gamma-Theta权衡"',d:'medium'},
+{n:7,t:'用MC(≥100k路径)为亚式Call定价,计算95%置信区间',d:'medium'},
+{n:8,t:'实现对偶变量法,对比普通MC与对偶MC的标准误差',d:'medium'},
+{n:9,t:'推导Delta-Gamma对冲组合权重,说明为何单期权无法同时中性Δ和Γ',d:'hard'},
+{n:10,t:'用Crank-Nicolson FDM为美式Put定价,与二叉树结果交叉验证',d:'hard'},
+{n:11,t:'用Black公式为利率Cap定价,分析波动率期限结构影响',d:'hard'},
+{n:12,t:'从CDS Spread曲线Bootstrap风险中性违约概率,计算1bp CDS价值',d:'hard'},
+{n:13,t:'实现衍生品定价框架:支持BSM解析解/二叉树/MC三种方法',d:'project'}
+];
+
+// C7: RESOURCES (15)
+var RESOURCES=[
+{t:'Options, Futures, and Other Derivatives',type:'教材',d:'John Hull — 衍生品领域"圣经"'},
+{t:'Stochastic Calculus for Finance II',type:'教材',d:'Steven Shreve — 随机微积分严格处理'},
+{t:'Paul Wilmott on Quantitative Finance',type:'参考书',d:'百科全书式量化金融参考'},
+{t:'The Concepts and Practice of Mathematical Finance',type:'教材',d:'Mark Joshi — Hull与Shreve间的桥梁'},
+{t:'My Life as a Quant',type:'非虚构',d:'Emanuel Derman — 极佳行业入门'},
+{t:'Dynamic Hedging',type:'实践',d:'N.Taleb — 期权做市与对冲实战圣经'},
+{t:'The Volatility Surface',type:'教材',d:'J.Gatheral — 波动率建模权威'},
+{t:'Interest Rate Models: Theory and Practice',type:'教材',d:'D.Brigo & F.Mercurio — 利率建模权威'},
+{t:'Monte Carlo Methods in Financial Engineering',type:'教材',d:'P.Glasserman — MC金融工程系统处理'},
+{t:'CQF 量化金融认证',type:'课程',d:'业界认可量化金融认证项目'},
+{t:'Financial Engineering and Risk Management',type:'课程',d:'Coursera — Columbia大学'},
+{t:'MIT 18.S096 Topics in Math Finance',type:'公开课',d:'MIT开放课程·数学金融'},
+{t:'QuantLib (quantlib.org)',type:'开源库',d:'C++/Python量化金融库·学习实现'},
+{t:'A Black-Scholes User\'s Guide',type:'论文',d:'E.G.Haug — BSM公式完整集合'},
+{t:'Bloomberg / Wind / Choice',type:'数据终端',d:'实时获取衍生品市场数据'}
+];
+
+// C8: TRACKER_ITEMS (5)
+var TRACKER_ITEMS=[
+{id:'t1',n:'阶段1',l:'第1-4周: 衍生品全景·合约基础'},
+{id:'t2',n:'阶段2',l:'第5-7周: 期权定价·二叉树→BSM→Greeks'},
+{id:'t3',n:'阶段3',l:'第8-10周: 数值方法·MC/FDM·利率/奇异期权'},
+{id:'t4',n:'阶段4',l:'第11-12周: 波动率建模·对冲·结构化产品'},
+{id:'t5',n:'阶段5',l:'第13-14周: CDS定价·ML定价前沿'}
+];
+
+// ===== Rendering Functions =====
+var renderFormula=function(fk){
+if(typeof katex==='undefined')return;
+if(fk.querySelector('.katex'))return;
+var txt=fk.textContent.replace('💰 ','');
+if(!txt)return;
+try{katex.render(txt,fk,{throwOnError:false})}catch(e){fk.textContent='⚠ '+txt}
+};
+function collapseCard(el){el.classList.remove('expanded');el.classList.remove('open');var g=el.parentElement;if(g){var anyExpanded=g.querySelector('.knowledge-card.expanded');if(!anyExpanded)g.classList.remove('has-expanded')}}
+
+// C9: Knowledge filter render
+function kf(pid){cK=pid;
+var cnt=document.getElementById('knowledgeCount'),fil=pid==='all'?KPS:KPS.filter(function(k){return k.p===pid});
+var h='';fil.forEach(function(kp){
+var relH='';if(kp.rel){relH='<div class="card-related"><div class="cr-title">🔗 关联知识</div><div class="cr-links">'+
+kp.rel.map(function(r){var rk=KPS.find(function(x){return x.id===r});return '<span class="cr-link" onclick="event.stopPropagation();kfP(\''+r+'\')">'+(rk?rk.n:r)+'</span>'}).join('')+'</div></div>'}
+var fH='';if(kp.f)fH='<div class="card-formula">💰 '+kp.f+'</div>';
+var dgH='';if(kp.diagram)dgH='<div class="card-diagram">'+kp.diagram+'</div>';
+var ddSection='';if(kp.deep_dive&&kp.deep_dive.topic_id){
+var ddStatus=kp.deep_dive.status||'none',ddArrow='',ddBtnTxt='📖 深度研读',ddHint='点击复制提示词→粘贴对话生成';
+if(ddStatus==='ready'&&kp.deep_dive.html_file){ddArrow='<button class="deep-dive-open-btn" onclick="event.stopPropagation();ddOpen(\''+kp.id+'\')" title="打开深度研读资料">↗</button>';ddBtnTxt='✅ 查看深度研读';ddHint='点击↗打开资料·或复制提示词重新生成'}
+ddSection='<div class="deep-dive-bar dd-'+ddStatus+'">'+ddArrow+'<button class="deep-dive-btn" onclick="event.stopPropagation();ddTrigger(\''+kp.id+'\')">'+ddBtnTxt+'</button><span class="dd-hint">'+ddHint+'</span></div>'}
+h+='<div class="knowledge-card" id="kc-'+kp.id+'" data-p="'+kp.p+'"><div class="card-header" onclick="tKCT(\''+kp.id+'\')"><span class="card-icon">📐</span><span class="card-title">'+kp.n+'</span>'+
+'<span class="math-tag tag-'+kp.p+'" onclick="event.stopPropagation();gP(\''+kp.p+'\')" title="跳转到阶段详情">P'+(PHASES.findIndex(function(x){return x.id===kp.p})+1)+'</span>'+
+'<span class="card-back" onclick="event.stopPropagation();tKC_bk(\''+kp.id+'\')">← 收起</span></div><div class="card-detail"><p>'+kp.d+'</p>'+dgH+fH+
+'<div class="card-sum">💡 '+kp.s+'</div>'+relH+ddSection+'</div></div>'
+});
+document.getElementById('knowledgeContainer').innerHTML=h;
+cnt.innerHTML='<strong>'+fil.length+'</strong> 个知识点（共'+KPS.length+'）';
+var b=document.querySelectorAll('.knowledge-filter');b.forEach(function(el){el.classList.remove('active')});
+var act=document.querySelector('.knowledge-filter[data-kp="'+pid+'"]');if(act)act.classList.add('active')
+}
+function kfP(id){tKC_go(id)}
+
+// C10: Interactions
+var DEEP_DIVE_WINDOWS={};
+function tKCT(id){
+var el=document.getElementById('kc-'+id);if(!el)return;
+if(el.classList.contains('expanded')){collapseCard(el);return}
+if(el.classList.contains('open')&&!el.classList.contains('expanded')){el.classList.remove('open');return}
+var kp=KPS.find(function(x){return x.id===id});if(!kp)return;
+var g=el.parentElement;
+el.classList.add('expanded');el.classList.add('open');g.classList.add('has-expanded');
+setTimeout(function(){var det=el.querySelector('.card-detail');if(det){var fk=det.querySelector('.card-formula');if(fk)renderFormula(fk)}},150);
+var pd=document.getElementById('phase-'+kp.p);if(pd)pd.classList.add('open');
+el.scrollIntoView({behavior:'smooth',block:'nearest'})
+}
+function tKC_go(id){
+cK='all';var b=document.querySelectorAll('.knowledge-filter');b.forEach(function(e){e.classList.remove('active')});
+var a=document.querySelector('.knowledge-filter[data-kp="all"]');if(a)a.classList.add('active');kf('all');
+setTimeout(function(){var el=document.getElementById('kc-'+id);if(!el)return;
+var g=el.parentElement;
+el.classList.add('expanded');el.classList.add('open');g.classList.add('has-expanded');
+setTimeout(function(){var det=el.querySelector('.card-detail');if(det){var fk=det.querySelector('.card-formula');if(fk)renderFormula(fk)}},150);
+var kp=KPS.find(function(x){return x.id===id});if(kp){var pd=document.getElementById('phase-'+kp.p);if(pd)pd.classList.add('open')}
+el.scrollIntoView({behavior:'smooth',block:'center'})},100)
+}
+function tKC_bk(id){var el=document.getElementById('kc-'+id);if(el)collapseCard(el)}
+function eAK(){var all=document.querySelectorAll('.knowledge-card'),btn=document.querySelector('.ks-expand-all'),isExp=btn&&btn.textContent.indexOf('收起')>=0;
+if(isExp){all.forEach(function(c){collapseCard(c)});if(btn)btn.textContent='📖 展开全部'}
+else{all.forEach(function(c){c.classList.add('open');c.classList.add('expanded');c.parentElement.classList.add('has-expanded');var fk=c.querySelector('.card-formula');if(fk)renderFormula(fk)});
+if(btn)btn.textContent='📕 全部收起'}}
+function gP(id){var s=document.getElementById('phase-'+id);if(s){s.scrollIntoView({behavior:'smooth'});setTimeout(function(){s.classList.add('open')},400)}}
+var sFT=function(id,btn){document.querySelectorAll('.formula-tab').forEach(function(e){e.classList.remove('active')});btn.classList.add('active');document.querySelectorAll('.formula-panel').forEach(function(e){e.classList.remove('active')});document.getElementById('fp-'+id).classList.add('active')};
+function ddOpen(kpId){var kp=KPS.find(function(k){return k.id===kpId});if(!kp||!kp.deep_dive||!kp.deep_dive.html_file)return;var winName='dd_'+kpId;if(DEEP_DIVE_WINDOWS[kpId]&&!DEEP_DIVE_WINDOWS[kpId].closed){DEEP_DIVE_WINDOWS[kpId].focus();return}var w=window.open(kp.deep_dive.html_file,winName);if(w){DEEP_DIVE_WINDOWS[kpId]=w;setInterval(function(){if(w.closed)DEEP_DIVE_WINDOWS[kpId]=null},1000)}}
+function ddTrigger(kpId){var kp=KPS.find(function(k){return k.id===kpId});if(!kp||!kp.deep_dive)return;var prompt=kp.deep_dive.prompt;navigator.clipboard.writeText(prompt).then(function(){var t=document.getElementById('ddToast'),m=document.getElementById('ddToastMsg');m.textContent='✅ 提示词已复制！粘贴到 Copilot/Trae 对话中即可生成深度资料';t.style.display='block';setTimeout(function(){t.style.display='none'},3000);if(kp.deep_dive.status==='ready'){setTimeout(function(){m.textContent+=' | 📄 已有深度资料→点击↗打开';t.style.display='block'},500);setTimeout(function(){t.style.display='none'},3500)}}).catch(function(){var t=document.getElementById('ddToast'),m=document.getElementById('ddToastMsg');m.textContent='⚠ 复制失败，请手动复制提示词';t.style.display='block';setTimeout(function(){t.style.display='none'},3000)})}
+function ddBatch(phaseId){var ph=PHASES.find(function(x){return x.id===phaseId});if(!ph)return;var kps=KPS.filter(function(k){return k.p===phaseId&&k.deep_dive&&k.deep_dive.topic_id});if(kps.length===0)return;var prompt='请依次为以下知识点生成学习资料（理解×标准，G1纹理）：\n';kps.forEach(function(k,i){prompt+=(i+1)+'. '+k.n+'\n'});navigator.clipboard.writeText(prompt).then(function(){kps.forEach(function(k){k.deep_dive.status='generating'});kf(cK);var t=document.getElementById('ddToast'),m=document.getElementById('ddToastMsg');m.textContent='✅ 已复制 '+kps.length+'/'+PHASES.find(function(x){return x.id===phaseId}).skills.length+' 个知识点的提示词';t.style.display='block';setTimeout(function(){t.style.display='none'},3000)}).catch(function(){var t=document.getElementById('ddToast'),m=document.getElementById('ddToastMsg');m.textContent='⚠ 复制失败，请手动复制';t.style.display='block';setTimeout(function(){t.style.display='none'},3000)})}
+function sKC(){var q=document.getElementById('searchInput').value.toLowerCase();if(!q){kf(cK);return}
+var fil=KPS.filter(function(k){return k.n.toLowerCase().indexOf(q)>=0||k.d.toLowerCase().indexOf(q)>=0||(k.s&&k.s.toLowerCase().indexOf(q)>=0)});
+var cnt=document.getElementById('knowledgeCount'),h='';
+fil.forEach(function(kp){
+var fH='';if(kp.f)fH='<div class="card-formula">💰 '+kp.f+'</div>';
+h+='<div class="knowledge-card" id="kc-'+kp.id+'" data-p="'+kp.p+'"><div class="card-header" onclick="tKCT(\''+kp.id+'\')"><span class="card-icon">📐</span><span class="card-title">'+kp.n+'</span>'+
+'<span class="math-tag tag-'+kp.p+'" onclick="event.stopPropagation();gP(\''+kp.p+'\')">P'+(PHASES.findIndex(function(x){return x.id===kp.p})+1)+'</span>'+
+'<span class="card-back" onclick="event.stopPropagation();tKC_bk(\''+kp.id+'\')">← 收起</span></div><div class="card-detail"><p>'+kp.d+'</p>'+fH+'<div class="card-sum">💡 '+kp.s+'</div></div></div>'
+});
+document.getElementById('knowledgeContainer').innerHTML=h;
+cnt.innerHTML='<strong>'+fil.length+'</strong> 个匹配(共'+KPS.length+')';
+var b=document.querySelectorAll('.knowledge-filter');b.forEach(function(e){e.classList.remove('active')})
+}
+
+// Phase rendering (AHDS)
+function AHDS(ph){
+var skillsHTML='';if(ph.skills&&ph.skills.length>0){skillsHTML='<div class="phase-skills">'+
+ph.skills.map(function(s,idx){var kpId=(ph.phase_kps&&ph.phase_kps[idx])?ph.phase_kps[idx]:'';return '<span class="skill-chip skill-link" onclick="event.stopPropagation();kfP(\''+kpId+'\')" title="跳转到知识点详情">'+s+'</span>'}).join('')+'</div>'}
+var ddBatchHTML='';if(ph.deep_dive_batch){ddBatchHTML='<div class="phase-dd-batch"><button class="batch-deep-dive-btn" onclick="event.stopPropagation();ddBatch(\''+ph.id+'\')">📦 生成本阶段全部深度资料</button><span class="dd-hint">一键复制本阶段所有知识点的生成提示词</span></div>'}
+var detailEl=document.getElementById('phase-'+ph.id);if(!detailEl)return;var bodyInner=detailEl.querySelector('.phase-body-inner');if(!bodyInner)return;
+bodyInner.innerHTML=skillsHTML+'<div class="phase-desc">'+(ph.desc||'')+'</div>'+ddBatchHTML
+}
+
+// Formula panels rendering
+function hFs(){
+var tabs=document.getElementById('formulaTabs'),panels=document.getElementById('formulaPanels');
+tabs.innerHTML='';panels.innerHTML='';
+FORMULA_TABS.forEach(function(t,i){
+tabs.innerHTML+='<span class="formula-tab'+(i===0?' active':'')+'" onclick="sFT(\''+t.id+'\',this)">'+t.label+'</span>';
+var tbl='<table class="formula-table"><thead><tr><th>概念</th><th>公式</th><th>说明</th></tr></thead><tbody>';
+(FORMULAS[t.id]||[]).forEach(function(r){tbl+='<tr><td>'+r.c+'</td><td>'+r.f+'</td><td>'+r.d+'</td></tr>'});
+tbl+='</tbody></table>';
+panels.innerHTML+='<div class="formula-panel'+(i===0?' active':'')+'" id="fp-'+t.id+'">'+tbl+'</div>'
+});
+FORMULA_TABS.forEach(function(t,i){if(i===0){var p=document.getElementById('fp-'+t.id);if(p)p.classList.add('active')}})
+}
+
+// Exercise rendering
+function hES(){
+var fH='<span class="exercise-filter active" onclick="fE(\'all\')">全部 ('+EXERCISES.length+')</span>';
+fH+='<span class="exercise-filter" onclick="fE(\'easy\')">🟢 基础 ('+EXERCISES.filter(function(e){return e.d==='easy'}).length+')</span>';
+fH+='<span class="exercise-filter" onclick="fE(\'medium\')">🟡 进阶 ('+EXERCISES.filter(function(e){return e.d==='medium'}).length+')</span>';
+fH+='<span class="exercise-filter" onclick="fE(\'hard\')">🔴 挑战 ('+EXERCISES.filter(function(e){return e.d==='hard'}).length+')</span>';
+fH+='<span class="exercise-filter" onclick="fE(\'project\')">📦 项目 ('+EXERCISES.filter(function(e){return e.d==='project'}).length+')</span>';
+document.getElementById('exerciseFilters').innerHTML=fH;fE('all')
+}
+function fE(diff){
+var d=LS_PREFIX+'done',dr=JSON.parse(localStorage.getItem(d)||'[]');
+var fil=diff==='all'?EXERCISES:EXERCISES.filter(function(e){return e.d===diff});
+document.getElementById('exerciseCounter').innerHTML='显示 <strong>'+fil.length+'</strong> 道 · 已完成 <strong>'+dr.length+'</strong>/'+EXERCISES.length;
+var h='';fil.forEach(function(e){var isD=dr.indexOf(parseInt(e.n))>=0,dCls='diff '+e.d,dLbl={'easy':'基础','medium':'进阶','hard':'挑战','project':'项目'};
+h+='<div class="exercise-item"><span class="exercise-num">#'+e.n+'</span><div class="ei-content"><div class="ei-title"><span class="ei-title-text">'+e.t+'</span><span class="'+dCls+'">'+dLbl[e.d]+'</span></div></div><div class="ei-check'+(isD?' done':'')+'" onclick="tE('+e.n+',this)">'+(isD?'✓':'')+'</div></div>'});
+document.getElementById('exerciseList').innerHTML=h;
+document.querySelectorAll('.exercise-filter').forEach(function(el){el.classList.remove('active')});
+var a=document.querySelector('.exercise-filter[onclick="fE(\''+diff+'\')"]');if(a)a.classList.add('active')
+}
+function tE(n,el){
+var d=LS_PREFIX+'done',dr=JSON.parse(localStorage.getItem(d)||'[]'),idx=dr.indexOf(n);
+if(idx>=0){dr.splice(idx,1);el.classList.remove('done');el.textContent=''}
+else{dr.push(n);el.classList.add('done');el.textContent='✓'}
+localStorage.setItem(d,JSON.stringify(dr));uEC();sT('练习#'+n+(idx>=0?'已取消':'已完成'))
+}
+function uEC(){
+var d=LS_PREFIX+'done',dr=JSON.parse(localStorage.getItem(d)||'[]');
+document.getElementById('exerciseCounter').innerHTML='已完成 <strong>'+dr.length+'</strong>/'+EXERCISES.length
+}
+function sT(msg){var toast=document.getElementById('ddToast');document.getElementById('ddToastMsg').textContent=msg;toast.style.display='block';setTimeout(function(){toast.style.display='none'},2000)}
+
+// Tracker rendering
+function hTR(){
+var d=LS_PREFIX+'tr',dr=JSON.parse(localStorage.getItem(d)||'{}'),h='';
+TRACKER_ITEMS.forEach(function(ti){var isD=!!dr[ti.id];
+h+='<div class="tracker-item"><div class="tr-check'+(isD?' done':'')+'" onclick="tTR(\''+ti.id+'\',this)">'+(isD?'✓':'')+'</div><div class="tr-label">'+ti.l+'</div></div>'});
+document.getElementById('trackerList').innerHTML=h
+}
+function tTR(id,el){
+var d=LS_PREFIX+'tr',dr=JSON.parse(localStorage.getItem(d)||'{}');
+if(dr[id]){delete dr[id];el.classList.remove('done');el.textContent=''}else{dr[id]=true;el.classList.add('done');el.textContent='✓'}
+localStorage.setItem(d,JSON.stringify(dr));sT(TRACKER_ITEMS.find(function(ti){return ti.id===id}).n+(dr[id]?'已完成':'已取消'))
+}
+
+// Resource rendering
+function hRS(){
+var h='';RESOURCES.forEach(function(r,i){h+='<div class="resource-card"><span class="r-type">'+r.type+'</span><div class="r-title">#'+(i+1)+' '+r.t+'</div><div class="r-desc">'+r.d+'</div></div>'});
+document.getElementById('resourceGrid').innerHTML=h
+}
+
+// Phase cards rendering
+function hPS(){
+var h='';PHASES.forEach(function(ph){
+h+='<div class="phase-card '+ph.cls+'" id="phase-'+ph.id+'" onclick="event.stopPropagation();this.classList.toggle(\'open\')"><div class="pc-header"><span class="pc-icon">'+ph.icon+'</span><div><div class="pc-title">P'+ph.id.replace('p','')+': '+ph.title+'</div><div class="pc-week">'+ph.week+' · '+ph.sub+'</div></div></div><div class="pc-preview">'+ph.skills.join(' · ')+'</div><div class="phase-body"><div class="phase-body-inner"></div></div></div>'
+});
+document.getElementById('phaseGrid').innerHTML=h
+}
+
+// Knowledge filters
+function hKF(){
+var h='<span class="knowledge-filter active" data-kp="all" onclick="kf(\'all\')">全部 ('+KPS.length+')</span>';
+PHASES.forEach(function(ph,i){var cnt=KPS.filter(function(k){return k.p===ph.id}).length;h+='<span class="knowledge-filter" data-kp="'+ph.id+'" onclick="kf(\''+ph.id+'\')">P'+(i+1)+' ('+cnt+')</span>'});
+document.getElementById('knowledgeFilters').innerHTML=h
+}
+
+// Side dots
+function hSD(){
+var h='';PHASES.forEach(function(ph,i){h+='<div class="side-dot" title="P'+(i+1)+'" onclick="gP(\''+ph.id+'\')"></div>'});
+document.getElementById('sideDots').innerHTML=h
+}
+
+// Theme toggle
+function tT(){document.body.classList.toggle('light');localStorage.setItem(LS_PREFIX+'theme',document.body.classList.contains('light')?'light':'dark')}
+
+// Hero counter animation
+function hCA(){
+document.querySelectorAll('.hero-stat .num').forEach(function(el){var t=parseInt(el.getAttribute('data-count')),c=0,s=t>20?Math.ceil(t/40):1,iv=setInterval(function(){c+=s;if(c>=t){el.textContent=t;clearInterval(iv)}else el.textContent=c},40)})
+}
+
+// Knowledge graph canvas
+function hKG(){
+var c=document.getElementById('graphCanvas'),ctx=c.getContext('2d'),w=c.width,h=c.height;
+ctx.clearRect(0,0,w,h);
+var cols=['#4fc3f7','#66bb6a','#ffa726','#ab47bc','#ef5350'];
+var pW=200,pG=20,xBase=30;
+PHASES.forEach(function(ph,i){
+var x=xBase+i*(pW+pG);
+ctx.fillStyle='rgba(79,195,247,.04)';ctx.fillRect(x,20,pW,h-50);
+ctx.fillStyle=cols[i];ctx.font='bold 11px sans-serif';ctx.fillText('P'+(i+1)+': '+ph.title.substring(0,8)+'...',x+8,45);
+ctx.strokeStyle=cols[i];ctx.lineWidth=1;ctx.strokeRect(x,20,pW,h-50);
+var kpsInPh=KPS.filter(function(k){return k.p===ph.id});
+kpsInPh.forEach(function(kp,j){var y=65+j*28,rad=4;
+ctx.beginPath();ctx.fillStyle='rgba(79,195,247,.15)';ctx.strokeStyle=cols[i];ctx.lineWidth=.8;
+ctx.arc(x+pW/2,y+5,6,0,Math.PI*2);ctx.fill();ctx.stroke();
+ctx.fillStyle='#a0b8d8';ctx.font='7px sans-serif';ctx.fillText(kp.n.substring(0,10)+(kp.n.length>10?'..':''),x+14,y+8)}
+)
+});
+// Draw connections
+KPS.forEach(function(kp){if(kp.rel){kp.rel.forEach(function(rid){var rk=KPS.find(function(x){return x.id===rid});if(!rk)return;
+var si=PHASES.findIndex(function(x){return x.id===kp.p}),ti=PHASES.findIndex(function(x){return x.id===rk.p});
+var sk=KPS.filter(function(k){return k.p===kp.p}).indexOf(kp),tk=KPS.filter(function(k){return k.p===rk.p}).indexOf(rk);
+var x1=xBase+si*(pW+pG)+pW/2,y1=65+sk*28,x2=xBase+ti*(pW+pG)+pW/2,y2=65+tk*28;
+ctx.beginPath();ctx.strokeStyle='rgba(79,195,247,.15)';ctx.lineWidth=.6;ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke()
+})}})
+}
+
+// Init
+function init(){
+hPS();PHASES.forEach(function(ph){AHDS(ph)});
+hKF();kf('all');hFs();hES();hRS();hTR();hSD();hKG();hCA();
+loadTheme();
+// Scroll handler — single registration
+window.addEventListener('scroll',function(){
+var acts=document.querySelectorAll('.nav-bar a');acts.forEach(function(a){a.classList.remove('active')});
+var sc=window.scrollY+100;
+['drawing','phases','knowledge','graph','formulas','exercises','resources','tracker'].forEach(function(id,i){
+var el=document.getElementById(id);if(el&&sc>=el.offsetTop){var navA=document.querySelectorAll('.nav-bar a');navA.forEach(function(a){a.classList.remove('active')});if(navA[i+1])navA[i+1].classList.add('active')}});
+var sds=document.querySelectorAll('.side-dot');sds.forEach(function(d){d.classList.remove('active')});
+PHASES.forEach(function(ph){var el=document.getElementById('phase-'+ph.id);if(el&&sc>=el.offsetTop){var dots=document.querySelectorAll('.side-dot');if(dots[PHASES.findIndex(function(x){return x.id===ph.id})])dots[PHASES.findIndex(function(x){return x.id===ph.id})].classList.add('active')}})
+});
+// Hash routing
+(function(){var hash=location.hash;if(hash&&hash.indexOf('#kc-')===0){var kpId=hash.replace('#kc-','');setTimeout(function(){tKC_go(kpId)},300)}})()
+}
+
+function loadTheme(){
+var t=localStorage.getItem(LS_PREFIX+'theme');if(t==='light')document.body.classList.add('light');else document.body.classList.remove('light')
+}
+
+window.addEventListener('DOMContentLoaded',init);
+</script>
+
+</body>
+</html>

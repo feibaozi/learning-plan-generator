@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>机器学习 - 学习资料</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+<style>
+:root {
+  --bg: #ffffff; --bg-secondary: #f8fafc; --bg-tertiary: #f1f5f9;
+  --text: #0f172a; --text-secondary: #475569; --text-tertiary: #94a3b8;
+  --border: #e2e8f0; --primary: #6366f1; --primary-light: #eef2ff;
+  --accent: #8b5cf6; --accent-light: #f5f3ff;
+  --cyan: #22d3ee; --cyan-light: #ecfeff;
+  --orange: #f59e0b; --orange-light: #fffbeb;
+  --green: #10b981; --green-light: #ecfdf5;
+  --red: #ef4444; --red-light: #fef2f2;
+  --pink: #ec4899; --pink-light: #fdf2f8;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1);
+  --radius: 12px; --radius-sm: 8px; --max-width: 780px;
+  --sidebar-width: 240px; --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+[data-theme="dark"] {
+  --bg: #0f172a; --bg-secondary: #1e293b; --bg-tertiary: #334155;
+  --text: #f1f5f9; --text-secondary: #94a3b8; --text-tertiary: #64748b;
+  --border: #334155; --primary: #818cf8; --primary-light: rgba(99,102,241,0.15);
+  --accent: #a78bfa; --accent-light: rgba(139,92,246,0.15);
+  --cyan: #67e8f9; --cyan-light: rgba(34,211,238,0.1);
+  --orange: #fbbf24; --orange-light: rgba(245,158,11,0.1);
+  --green: #34d399; --green-light: rgba(16,185,129,0.1);
+  --red: #f87171; --red-light: rgba(239,68,68,0.1);
+  --pink: #f472b6; --pink-light: rgba(236,72,153,0.1);
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+  --shadow: 0 1px 3px rgba(0,0,0,0.4);
+  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.4);
+  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.4);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { font-family: 'Inter','SF Pro Display',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; background:var(--bg); color:var(--text); line-height:1.7; -webkit-font-smoothing:antialiased; transition:background var(--transition),color var(--transition); }
+#progress-bar { position:fixed; top:0; left:0; height:3px; background:linear-gradient(90deg,var(--primary),var(--accent),var(--cyan)); z-index:1000; transition:width 0.1s linear; }
+#theme-toggle { position:fixed; top:20px; right:20px; z-index:999; width:40px; height:40px; border-radius:50%; background:var(--bg-secondary); border:1px solid var(--border); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:18px; transition:all var(--transition); box-shadow:var(--shadow-sm); }
+#theme-toggle:hover { transform:scale(1.1); box-shadow:var(--shadow); }
+#cdn-indicator { position:fixed; top:20px; right:72px; z-index:999; padding:4px 10px; border-radius:6px; font-size:11px; font-weight:600; background:var(--orange-light); color:var(--orange); }
+#sidebar { position:fixed; top:0; left:0; width:var(--sidebar-width); height:100vh; background:var(--bg-secondary); border-right:1px solid var(--border); padding:80px 16px 24px; overflow-y:auto; z-index:100; transition:transform var(--transition); }
+#sidebar h3 { font-size:11px; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-tertiary); margin-bottom:12px; font-weight:600; }
+.sidebar-link { display:block; padding:6px 12px; margin:2px 0; border-radius:var(--radius-sm); font-size:13px; color:var(--text-secondary); text-decoration:none; transition:all var(--transition); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.sidebar-link:hover { background:var(--bg-tertiary); color:var(--text); }
+.sidebar-link.active { background:var(--primary-light); color:var(--primary); font-weight:600; }
+#main-content { margin-left:var(--sidebar-width); max-width:var(--max-width); padding:60px 32px 120px; margin-right:auto; }
+.meta-card { background:linear-gradient(135deg,var(--primary-light),var(--accent-light)); border:1px solid var(--border); border-radius:var(--radius); padding:28px 32px; margin-bottom:48px; display:flex; flex-wrap:wrap; gap:24px; align-items:center; }
+.meta-item { display:flex; align-items:center; gap:8px; font-size:14px; color:var(--text-secondary); }
+.meta-item .icon { font-size:20px; }
+.meta-item strong { color:var(--text); }
+.meta-badge { display:inline-block; padding:4px 12px; border-radius:20px; font-size:12px; font-weight:600; letter-spacing:0.02em; }
+.meta-badge.domain-ai { background:var(--accent-light); color:var(--accent); }
+.meta-badge.level { background:var(--orange-light); color:var(--orange); }
+.meta-badge.texture-badge { background:var(--cyan-light); color:#0891b2; font-family:'SF Mono','JetBrains Mono',monospace; }
+.meta-badge.depth-breadth { background:var(--pink-light); color:var(--pink); }
+.module-section { margin-bottom:56px; opacity:0; transform:translateY(24px); transition:opacity 0.6s ease,transform 0.6s ease; }
+.module-section.visible { opacity:1; transform:translateY(0); }
+.module-header { display:flex; align-items:center; gap:12px; margin-bottom:16px; }
+.module-tag { display:inline-block; padding:3px 10px; border-radius:6px; font-size:11px; font-weight:600; letter-spacing:0.03em; text-transform:uppercase; }
+.tag-core { background:var(--primary-light); color:var(--primary); }
+.tag-tools { background:var(--accent-light); color:var(--accent); }
+.tag-evolution { background:var(--cyan-light); color:#0891b2; }
+.tag-application { background:var(--green-light); color:var(--green); }
+.tag-risk { background:var(--red-light); color:var(--red); }
+.tag-frontier { background:var(--orange-light); color:var(--orange); }
+.module-title { font-size:22px; font-weight:700; color:var(--text); letter-spacing:-0.02em; }
+.module-hook { font-size:16px; color:var(--text-secondary); font-style:italic; border-left:3px solid var(--primary); padding-left:16px; margin-bottom:20px; }
+.module-content { font-size:15px; color:var(--text); }
+.module-content p { margin-bottom:12px; }
+.module-content strong { color:var(--text); }
+.module-content ui,.module-content ol { margin:8px 0 16px 24px; }
+.module-content li { margin-bottom:6px; }
+.formula-block { background:var(--bg-tertiary); border:1px solid var(--border); border-radius:var(--radius-sm); padding:20px 24px; margin:16px 0; position:relative; cursor:pointer; transition:all var(--transition); }
+.formula-block:hover { box-shadow:var(--shadow); }
+.formula-caption { font-size:12px; color:var(--text-tertiary); margin-top:8px; text-align:center; }
+.formula-derivation { display:none; margin-top:16px; padding-top:16px; border-top:1px solid var(--border); font-size:14px; color:var(--text-secondary); }
+.formula-block.expanded .formula-derivation { display:block; }
+.formula-expand-hint { font-size:11px; color:var(--text-tertiary); text-align:right; margin-top:4px; }
+.chart-container { background:var(--bg-secondary); border:1px solid var(--border); border-radius:var(--radius); padding:24px; margin:20px 0; }
+.chart-wrapper { width:100%; height:380px; }
+.chart-caption { font-size:13px; color:var(--text-secondary); text-align:center; margin-top:12px; }
+.chart-source { font-size:11px; color:var(--text-tertiary); text-align:right; margin-top:4px; }
+.module-table { width:100%; border-collapse:collapse; margin:16px 0; font-size:14px; border:1px solid var(--border); border-radius:var(--radius-sm); overflow:hidden; }
+.module-table th { background:var(--bg-tertiary); padding:10px 16px; text-align:left; font-weight:600; font-size:12px; text-transform:uppercase; letter-spacing:0.03em; color:var(--text-secondary); }
+.module-table td { padding:10px 16px; border-top:1px solid var(--border); color:var(--text); }
+.module-table tr:hover td { background:var(--bg-tertiary); }
+.table-caption { font-size:12px; color:var(--text-tertiary); text-align:center; margin-top:8px; }
+.module-references { margin-top:20px; padding-top:16px; border-top:1px solid var(--border); font-size:12px; color:var(--text-tertiary); }
+.module-references h4 { font-size:12px; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:8px; }
+.module-references ol { margin-left:20px; }
+.module-references li { margin-bottom:4px; }
+.key-takeaway { margin-top:16px; padding:14px 20px; border-radius:var(--radius-sm); background:var(--primary-light); border-left:4px solid var(--primary); font-size:14px; font-weight:500; color:var(--text); }
+#page-footer { margin-top:60px; padding:32px 0; border-top:1px solid var(--border); display:flex; gap:12px; flex-wrap:wrap; }
+.btn { display:inline-flex; align-items:center; gap:8px; padding:10px 20px; border-radius:var(--radius-sm); font-size:14px; font-weight:500; cursor:pointer; border:1px solid var(--border); background:var(--bg); color:var(--text); transition:all var(--transition); text-decoration:none; }
+.btn:hover { background:var(--bg-tertiary); }
+.btn.primary { background:var(--primary); color:#fff; border-color:var(--primary); }
+.btn.primary:hover { filter:brightness(1.1); }
+.search-overlay { position:fixed; top:0;left:0;right:0;bottom:0; z-index:500; background:rgba(0,0,0,0.6); display:flex; justify-content:center; padding-top:18vh; opacity:0; pointer-events:none; transition:opacity 0.25s; }
+.search-overlay.open { opacity:1; pointer-events:auto; }
+.search-dialog { width:560px; max-width:92vw; border-radius:16px; background:var(--bg-secondary); border:1px solid var(--border); box-shadow:0 25px 60px rgba(0,0,0,0.5); overflow:hidden; }
+.search-dialog input { width:100%; padding:16px 20px; border:none; background:transparent; color:var(--text); font-size:16px; outline:none; border-bottom:1px solid var(--border); }
+.search-dialog input::placeholder { color:var(--text-tertiary); }
+.search-results { max-height:360px; overflow-y:auto; }
+.search-results .sr-item { padding:12px 20px; cursor:pointer; transition:background 0.15s; border-bottom:1px solid rgba(255,255,255,0.03); }
+.search-results .sr-item:hover { background:var(--bg-tertiary); }
+.search-results .sr-item .sr-title { font-size:14px; font-weight:600; color:var(--text); }
+.search-results .sr-item .sr-title mark { background:rgba(52,211,153,0.25); color:#34d399; border-radius:2px; padding:0 2px; font-weight:700; }
+.search-results .sr-item .sr-snippet { font-size:12px; color:var(--text-tertiary); margin-top:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.search-empty { text-align:center; padding:28px; color:var(--text-tertiary); font-size:13px; }
+#sidebar-toggle { display:none; position:fixed; top:16px; left:16px; z-index:999; width:40px; height:40px; border-radius:50%; background:var(--bg-secondary); border:1px solid var(--border); cursor:pointer; font-size:18px; align-items:center; justify-content:center; box-shadow:var(--shadow-sm); }
+.mobile-bottom-nav { display:none; position:fixed; bottom:0; left:0; right:0; z-index:300; background:var(--bg-secondary); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border-top:1px solid var(--border); padding:6px 8px; padding-bottom:max(6px,env(safe-area-inset-bottom)); }
+.mobile-bottom-nav .mbn-inner { display:flex; justify-content:space-around; align-items:center; }
+.mobile-bottom-nav .mbn-item { display:flex; flex-direction:column; align-items:center; gap:1px; color:var(--text-tertiary); cursor:pointer; font-size:10px; font-weight:500; background:transparent; border:none; padding:4px; font-family:inherit; }
+.mobile-bottom-nav .mbn-item:hover,.mobile-bottom-nav .mbn-item.mbn-active { color:var(--green); }
+.mobile-bottom-nav .mbn-item .mbn-icon { font-size:17px; }
+@media (max-width:1024px) { :root { --sidebar-width:200px; } #main-content { padding:48px 24px 80px; } }
+@media (max-width:768px) {
+  #sidebar-toggle { display:flex; } #sidebar { transform:translateX(-100%); } #sidebar.open { transform:translateX(0); }
+  #main-content { margin-left:0; padding:72px 20px 60px; } #theme-toggle { top:16px; right:16px; }
+  #cdn-indicator { top:16px; right:64px; } .meta-card { padding:20px 24px; flex-direction:column; gap:12px; align-items:flex-start; }
+  .chart-wrapper { height:280px; } .module-title { font-size:19px; }
+  .mobile-bottom-nav { display:block; } #page-footer { padding-bottom:64px; }
+}
+@media print { #sidebar,#progress-bar,#theme-toggle,#page-footer,#cdn-indicator { display:none!important; } #main-content { margin-left:0; max-width:100%; padding:0; } .module-section { opacity:1; transform:none; break-inside:avoid; } body { font-size:12px; line-height:1.5; } .mobile-bottom-nav,.search-overlay { display:none!important; } }
+#bg-canvas { position:fixed; top:0; left:0; width:100%; height:100%; z-index:0; pointer-events:none; }
+</style>
+</head>
+<body>
+<canvas id="bg-canvas"></canvas>
+<div id="progress-bar"></div>
+<div id="cdn-indicator">⚡ CDN增强版</div>
+<button id="theme-toggle" title="切换深色/浅色模式" onclick="toggleTheme()">🌓</button>
+<button id="sidebar-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+
+<nav id="sidebar">
+  <h3>📑 内容导航</h3>
+  <div id="sidebar-links"></div>
+</nav>
+
+<main id="main-content">
+  <div id="meta-card-container">
+    <div class="meta-card">
+      <div class="meta-item"><span class="icon">📖</span><strong>机器学习</strong></div>
+      <div class="meta-item"><span class="meta-badge domain-ai">AI与科技</span></div>
+      <div class="meta-item"><span class="meta-badge level">理解</span></div>
+      <div class="meta-item"><span class="meta-badge texture-badge">G5 全面平衡型</span></div>
+      <div class="meta-item"><span class="meta-badge depth-breadth">理解×标准</span></div>
+      <div class="meta-item"><span class="icon">⏱️</span>约42分钟阅读</div>
+      <div class="meta-item"><span class="icon">📦</span>16个模块</div>
+      <div class="meta-item"><span class="icon">📊</span>12张图表</div>
+      <div class="meta-item"><span class="icon">📐</span>15条公式</div>
+    </div>
+  </div>
+
+  <div id="modules-container">
+
+    <section class="module-section" id="background">
+      <div class="module-header"><span class="module-tag tag-core">前置知识</span><h2 class="module-title">背景与缘起</h2></div>
+      <div class="module-hook">在计算机诞生之初，人们就梦想着让机器"学习"。但直到数据爆炸和算力飞跃的今天，这个梦想才真正照进现实。</div>
+      <div class="module-content">
+        <p>机器学习（Machine Learning, ML）的起源可以追溯到20世纪50年代。1950年，Alan Turing发表了划时代论文《Computing Machinery and Intelligence》，提出了"机器能思考吗？"这一根本问题，并设计了著名的<strong>图灵测试</strong>。这标志着人工智能和机器学习的哲学起点。</p>
+        <p>1952年，Arthur Samuel在IBM开发了第一个<strong>跳棋学习程序</strong>，这个程序能够通过自我对弈不断改进。Samuel本人首次使用了"Machine Learning"这一术语。1957年，Frank Rosenblatt发明了<strong>感知机（Perceptron）</strong>——第一个可学习的人工神经网络，引起了巨大的学术和社会轰动。</p>
+        <p>真正让机器学习从"奇技淫巧"走向科学的是<strong>统计学习理论</strong>的发展。20世纪60-90年代，Vapnik和Chervonenkis建立了VC维理论，为学习算法的泛化能力提供了数学基础。1986年，Rumelhart、Hinton和Williams提出的<strong>反向传播算法（Backpropagation）</strong>解决了多层网络的训练问题，开启了神经网络的新纪元。</p>
+        <p>21世纪以来，三个因素推动了机器学习的爆发：<strong>大数据</strong>（互联网积累了海量标注数据）、<strong>GPU算力</strong>（NVIDIA CUDA使并行计算普及）、<strong>开源生态</strong>（TensorFlow/PyTorch降低了技术门槛）。2012年AlexNet在ImageNet上的突破性表现，标志着深度学习时代的正式到来。</p>
+      </div>
+      <div class="chart-container"><div class="chart-wrapper" id="chart_background_0"></div><div class="chart-caption">图：机器学习关键里程碑时间线</div></div>
+      <div class="key-takeaway">💡 机器学习经历了从哲学思辨→实验探索→理论奠基→工程爆发四个阶段，每个阶段都以前一阶段的理论积累为前提。</div>
+    </section>
+
+    <section class="module-section" id="concept">
+      <div class="module-header"><span class="module-tag tag-core">核心概念</span><h2 class="module-title">核心概念</h2></div>
+      <div class="module-hook">如果传统编程是"给机器规则"，那机器学习就是"给机器例子，让它自己找规则"——这是一种根本性的范式转变。</div>
+      <div class="module-content">
+        <p>机器学习的精确定义来自Tom Mitchell（1997）：<strong>"如果一个计算机程序在任务T上的性能（由P衡量）随着经验E的增加而提升，则称该程序从经验E中学习。"</strong></p>
+        <p>这个定义包含了三个核心要素：<strong>任务（Task）</strong>——要解决什么问题（如分类、回归）；<strong>经验（Experience）</strong>——数据，模型从中学习；<strong>性能度量（Performance）</strong>——如何衡量做得好不好（如准确率、均方误差）。</p>
+        <p>机器学习的核心范式可以分为三大类：</p>
+        <p><strong>监督学习（Supervised Learning）</strong>：训练数据包含输入和对应的正确答案（标签）。模型学习从输入到输出的映射关系。典型任务：分类（识别猫/狗）、回归（预测房价）。经典算法：线性回归、决策树、支持向量机、神经网络。</p>
+        <p><strong>无监督学习（Unsupervised Learning）</strong>：训练数据只有输入，没有标签。模型需要自行发现数据中的结构性模式。典型任务：聚类（用户分群）、降维（特征压缩）、密度估计。经典算法：K-Means、PCA、自编码器。</p>
+        <p><strong>强化学习（Reinforcement Learning）</strong>：模型（智能体）在环境中通过试错来学习。它不被告知该做什么，而是通过奖励信号来发现哪种行为能获得最大累积回报。典型应用：游戏AI（AlphaGo）、机器人控制、推荐系统优化。</p>
+      </div>
+      <div class="module-table" style="margin:16px 0"><table class="module-table"><thead><tr><th>范式</th><th>数据要求</th><th>核心问题</th><th>典型算法</th><th>典型应用</th></tr></thead><tbody><tr><td>监督学习</td><td>有标签(X,Y)</td><td>学习映射 f:X→Y</td><td>线性回归、决策树、SVM、神经网络</td><td>图像分类、房价预测</td></tr><tr><td>无监督学习</td><td>无标签(X)</td><td>发现数据结构</td><td>K-Means、PCA、DBSCAN</td><td>用户聚类、异常检测</td></tr><tr><td>半监督学习</td><td>少量有标签+大量无标签</td><td>利用无标签数据</td><td>自训练、一致性正则化</td><td>医疗影像标注</td></tr><tr><td>强化学习</td><td>环境交互(状态,奖励)</td><td>学习最优策略 π</td><td>Q-Learning、PPO、DQN</td><td>游戏AI、机器人控制</td></tr></tbody></table></div>
+      <div class="key-takeaway">💡 机器学习的本质不是记忆，而是<strong>泛化（Generalization）</strong>——从有限样本中学习到适用于未见数据的规律。</div>
+    </section>
+
+    <section class="module-section" id="principle">
+      <div class="module-header"><span class="module-tag tag-core">核心概念</span><h2 class="module-title">核心原理</h2></div>
+      <div class="module-hook">所有机器学习算法，无论多么复杂，本质上都在做同一件事：<strong>最小化某个损失函数</strong>。理解这一点，就等于拿到了通往ML世界的万能钥匙。</div>
+      <div class="module-content">
+        <p>机器学习的工作机制可以概括为<strong>三个核心组件的协同运作</strong>：</p>
+        <p><strong>1. 模型（Model）</strong>：定义了从输入到输出的映射形式。例如，线性模型假设输出是输入的加权和：</p>
+      </div>
+      <div class="formula-block" onclick="toggleDerivation(this)"><div>$$\hat{y} = w_1 x_1 + w_2 x_2 + \cdots + w_n x_n + b = \mathbf{w}^T\mathbf{x} + b$$</div><div class="formula-caption">线性模型的数学表达</div><div class="formula-expand-hint">💡 点击展开推导过程</div><div class="formula-derivation"><p>其中 $\mathbf{w}$ 是权重向量，决定了每个特征对输出的贡献程度；$b$ 是偏置项，允许模型在没有任何输入时也能输出一个非零值。更复杂的模型（如神经网络）通过堆叠多层非线性变换来增强表达能力：$\hat{y} = f_L(\cdots f_2(f_1(\mathbf{x};\theta_1);\theta_2)\cdots;\theta_L)$，其中每个 $f_i$ 是一个可微的变换函数。</p></div></div>
+      <div class="module-content">
+        <p><strong>2. 损失函数（Loss Function）</strong>：衡量模型预测与真实答案之间的差距。对于回归问题常用均方误差：</p>
+      </div>
+      <div class="formula-block" onclick="toggleDerivation(this)"><div>$$L(\mathbf{w}) = \frac{1}{N}\sum_{i=1}^{N}(\hat{y}_i - y_i)^2$$</div><div class="formula-caption">均方误差损失函数</div><div class="formula-expand-hint">💡 点击展开推导过程</div><div class="formula-derivation"><p>对于分类问题，更常用交叉熵损失（Cross-Entropy Loss）：$L = -\frac{1}{N}\sum_{i=1}^{N}\sum_{c=1}^{C}y_{ic}\log(\hat{y}_{ic})$，其中 $y_{ic}$ 是样本i属于类别c的真实概率（0或1），$\hat{y}_{ic}$ 是预测概率。交叉熵损失对错误预测的惩罚远大于均方误差，这在分类任务中很关键。</p></div></div>
+      <div class="module-content">
+        <p><strong>3. 优化算法（Optimizer）</strong>：调整模型参数使损失函数最小化。最核心的方法是<strong>梯度下降（Gradient Descent）</strong>：</p>
+      </div>
+      <div class="formula-block"><div>$$\mathbf{w}_{t+1} = \mathbf{w}_t - \eta \nabla_{\mathbf{w}} L(\mathbf{w}_t)$$</div><div class="formula-caption">梯度下降更新公式，η为学习率</div></div>
+      <div class="module-content">
+        <p>理解这三个组件的关系极为重要：选择不同的<strong>模型</strong>决定了假设空间的大小，选择不同的<strong>损失函数</strong>决定了优化的目标，选择不同的<strong>优化算法</strong>决定了找到最优解的速度和质量。</p>
+        <p>此外，机器学习的核心挑战是<strong>偏差-方差权衡（Bias-Variance Tradeoff）</strong>：过于简单的模型（高偏差）会欠拟合，无法捕捉数据规律；过于复杂的模型（高方差）会过拟合，将噪声也当作规律记忆。最佳模型位于二者之间的平衡点。</p>
+      </div>
+      <div class="chart-container"><div class="chart-wrapper" id="chart_principle_0"></div><div class="chart-caption">图：偏差-方差权衡示意图 — 模型复杂度与误差的关系</div></div>
+      <div class="key-takeaway">💡 机器学习 = 模型（假设空间）+ 损失函数（优化目标）+ 优化算法（求解方法）。三者缺一不可，共同决定了学习的效果。</div>
+    </section>
+
+    <section class="module-section" id="architecture">
+      <div class="module-header"><span class="module-tag tag-tools">核心工具</span><h2 class="module-title">技术架构与算法全景</h2></div>
+      <div class="module-hook">如果把机器学习比作一个工具箱，那么里面的工具大致可以分为五大类——每类都有自己独特的"解题思路"。</div>
+      <div class="module-content">
+        <p>机器学习的算法体系庞大，但可以从<strong>模型假设</strong>和<strong>学习策略</strong>两个维度进行系统分类：</p>
+        <p><strong>线性模型族</strong>：最基础也最广泛使用的模型类别。包括线性回归、逻辑回归、线性判别分析（LDA）。它们假设输入输出之间存在线性关系。虽然简单，但在很多实际问题中表现优异——特别是数据量不大时，简单模型往往比复杂模型更鲁棒。正则化技术（L1/Lasso、L2/Ridge、ElasticNet）进一步增强了它们的泛化能力。</p>
+        <p><strong>树模型族</strong>：通过递归分裂特征空间来构建决策边界。决策树（CART）是最基本的形式；随机森林（Random Forest）通过Bootstrap采样+随机特征选择构建多棵树的集成，大幅降低方差；梯度提升树（GBDT/XGBoost/LightGBM/CatBoost）通过序列化的残差拟合，在表格数据上至今无出其右。</p>
+        <p><strong>核方法族</strong>：核心思想是通过核函数（Kernel）将原始数据隐式映射到高维空间，使得在低维非线性可分的数据在高维变得线性可分。支持向量机（SVM）是最著名的例子。高斯核（RBF Kernel）是最常用的核函数。</p>
+        <p><strong>神经网络族</strong>：通过堆叠多层非线性变换来学习层次化的特征表示。从简单的多层感知机（MLP）到卷积网络（CNN）、循环网络（RNN/LSTM）、Transformer，再到如今的大语言模型（LLM），其核心都是<strong>可微模块的堆叠+反向传播</strong>。</p>
+        <p><strong>概率图模型族</strong>：用图结构表示变量之间的条件依赖关系。包括贝叶斯网络、隐马尔可夫模型（HMM）、条件随机场（CRF）。这类模型提供了可解释的概率推理框架。</p>
+      </div>
+      <div class="chart-container"><div class="chart-wrapper" id="chart_architecture_0"></div><div class="chart-caption">图：机器学习算法全景分类</div></div>
+      <div class="key-takeaway">💡 没有"最好"的算法，只有"最合适"的算法。选择算法时要综合考虑数据的规模、维度、噪声水平以及可解释性需求。</div>
+    </section>
+
+    <section class="module-section" id="development">
+      <div class="module-header"><span class="module-tag tag-evolution">发展演进</span><h2 class="module-title">发展迭代</h2></div>
+      <div class="module-hook">从感知机的昙花一现到ChatGPT的横空出世，机器学习经历了两轮"寒冬"与三轮"春天"——这是一部关于坚持与突破的史诗。</div>
+      <div class="module-content">
+        <p><strong>第一春（1950s-1960s）——符号主义时代</strong>：以逻辑推理和符号操作为核心。1956年达特茅斯会议标志着AI诞生。感知机的成功引发了第一波热潮。但1969年Minsky和Papert在《Perceptrons》一书中严格证明了单层感知机的局限性（无法解决XOR问题），直接导致了第一次"AI寒冬"。</p>
+        <p><strong>第二春（1980s-1990s）——知识工程与连接主义</strong>：专家系统在特定领域取得商业成功。同时，1986年<strong>反向传播算法</strong>的重新发现解决了多层网络的训练问题。但知识工程的维护成本过高，以及当时的数据和算力不足以支撑大规模神经网络的训练，导致了第二次冬天。</p>
+        <p><strong>第三春（2006-至今）——深度学习革命</strong>：2006年Hinton提出深度信念网络的逐层预训练方法，标志着深度学习的复兴。2012年AlexNet在ImageNet夺冠，错误率从26%骤降至16%，震惊学界。此后，GAN（2014）、ResNet（2015）、Transformer（2017）、BERT/GPT（2018）、GPT-3（2020）、ChatGPT（2022）、GPT-4（2023）等一系列突破接踵而至。</p>
+        <p>当前阶段的核心特征是：<strong>规模定律（Scaling Law）</strong>被发现——更大的模型、更多的数据、更多的算力持续带来更好的性能。这让机器学习从"特征工程"时代进入了"规模工程"时代。</p>
+      </div>
+      <div class="chart-container"><div class="chart-wrapper" id="chart_development_0"></div><div class="chart-caption">图：机器学习三次浪潮与关键转折点</div></div>
+      <div class="key-takeaway">💡 机器学习的每一次复兴，都源于某个关键技术瓶颈被突破（反向传播→深层训练、GPU→大规模并行、Transformer→序列建模）。</div>
+    </section>
+
+    <section class="module-section" id="application">
+      <div class="module-header"><span class="module-tag tag-application">实践应用</span><h2 class="module-title">实践应用</h2></div>
+      <div class="module-hook">机器学习不是实验室里的玩具——从你手机上的面部解锁到医院的癌症筛查，它正在悄无声息地重构这个世界的每一个角落。</div>
+      <div class="module-content">
+        <p><strong>计算机视觉（CV）</strong>：ML最成熟的应用领域之一。图像分类（ResNet/EfficientNet）、目标检测（YOLO系列）、图像分割（U-Net/Mask R-CNN）、人脸识别（FaceNet）等技术已被广泛部署。在医疗领域，AI辅助诊断系统对皮肤癌、糖尿病视网膜病变的检测准确率已超过有经验的医生。</p>
+        <p><strong>自然语言处理（NLP）</strong>：从早期的词向量（Word2Vec/GloVe）到如今的大语言模型（GPT/Claude/Gemini），NLP经历了革命性的变化。应用包括：机器翻译（Google Translate）、情感分析（社交媒体监测）、文本摘要、对话系统、代码生成（GitHub Copilot）。</p>
+        <p><strong>推荐系统</strong>：几乎所有互联网平台的核心技术。协同过滤→矩阵分解→深度推荐模型（Wide&Deep/DLRM）的演进，使得推荐从"你可能会喜欢"变成了精准的个性化服务。YouTube、TikTok、淘宝的推荐算法是这些平台最核心的竞争力。</p>
+        <p><strong>金融科技</strong>：风控模型（信用评分/欺诈检测）、量化交易（因子挖掘/回测优化）、智能投顾（自动化资产配置），ML在金融领域应用深入且广泛。</p>
+        <p><strong>自动驾驶</strong>：从感知（摄像头/激光雷达数据→目标识别）到规划（路径规划/行为决策）到控制，ML贯穿自动驾驶全栈。Tesla的纯视觉方案和Waymo的多传感器融合代表了两种不同的技术路线。</p>
+      </div>
+      <div class="chart-container"><div class="chart-wrapper" id="chart_application_0"></div><div class="chart-caption">图：机器学习在各行业的技术成熟度与应用深度</div></div>
+      <div class="key-takeaway">💡 判断一个业务场景是否适合引入机器学习：有明确的目标、有足够的数据、错误可容忍、且传统规则方法难以覆盖。</div>
+    </section>
+
+    <section class="module-section" id="case_study">
+      <div class="module-header"><span class="module-tag tag-application">实践应用</span><h2 class="module-title">实践案例</h2></div>
+      <div class="module-hook">Netflix每年因推荐系统而节省的客户流失成本超过10亿美元。机器学习的商业价值，就藏在这样的数字背后。</div>
+      <div class="module-content">
+        <p><strong>案例一：Netflix推荐系统</strong>——Netflix的推荐引擎是其最核心的竞争力。系统采用多层模型组合：候选生成层（协同过滤+内容过滤）快速从数万部影片中筛选出数百个候选；排序层（深度学习模型+上下文特征：时间、设备、观看历史）精细排序；策略层（多样性、新鲜度约束）最终决定推荐列表。据Netflix估计，个性化推荐每年为其节省<strong>超过10亿美元</strong>的用户流失成本。</p>
+        <p><strong>案例二：特斯拉AutoPilot</strong>——特斯拉采用纯视觉方案，8个摄像头实时采集图像，通过端到端的深度神经网络直接输出驾驶决策。核心模型架构从HydraNet（多任务共享骨干网络）演进到Occupancy Network（3D占用网格预测）。2023年推出的FSD V12采用了端到端的神经网络架构，用海量人类驾驶视频训练，替代了超过30万行的传统C++控制代码。</p>
+        <p><strong>案例三：蚂蚁集团风控系统</strong>——每天处理数十亿笔交易，需要在毫秒级别内判断交易是否存在欺诈风险。系统采用多层风控架构：规则引擎（处理已知模式）+ 机器学习模型（XGBoost/图神经网络检测异常模式）+ 深度学习（时序模型捕捉行为变化）。图神经网络（GNN）被用来建模用户之间的转账关系，通过分析关系网络的结构异常来发现洗钱团伙。</p>
+      </div>
+      <div class="chart-container"><div class="chart-wrapper" id="chart_case_study_0"></div><div class="chart-caption">图：三案例的技术架构与业务指标对比</div></div>
+      <div class="key-takeaway">💡 成功的ML应用案例都有一个共同点：不是"为了用AI而用AI"，而是从真实的业务痛点出发，找到ML最适合发挥作用的环节。</div>
+    </section>
+
+    <section class="module-section" id="risk">
+      <div class="module-header"><span class="module-tag tag-risk">风险与挑战</span><h2 class="module-title">潜在风险</h2></div>
+      <div class="module-hook">一个在训练数据上准确率99%的模型，可能在真实世界完全不可用。机器学习的风险，往往藏在你没注意到的地方。</div>
+      <div class="module-content">
+        <p><strong>1. 过拟合（Overfitting）</strong>：模型在训练集上表现极好，但泛化到新数据时性能骤降。这是ML最常见的陷阱。解决方法：正则化（L1/L2）、Dropout（神经网络随机丢弃神经元）、早停（Early Stopping）、交叉验证、增加训练数据。</p>
+        <p><strong>2. 数据偏差（Data Bias）</strong>：如果训练数据不能代表真实分布，模型的预测就会有系统性偏差。例如，用白人为主的照片训练的人脸识别模型，对少数族裔的识别准确率会显著下降。Amazon曾发现其招聘筛选模型系统性歧视女性简历——因为训练数据来自过去十年以男性为主的招聘记录。</p>
+        <p><strong>3. 分布偏移（Distribution Shift）</strong>：训练数据和部署环境的数据分布不一致。比如在晴天训练的自动驾驶模型遇到暴雨天。解决方法：领域自适应（Domain Adaptation）、持续学习（Continual Learning）、稳健性训练。</p>
+        <p><strong>4. 可解释性缺失（Black Box Problem）</strong>：深度神经网络通常如同黑箱，难以解释其决策逻辑。这在医疗、金融、司法等高风险领域是不可接受的。LIME和SHAP等可解释性工具能在一定程度上缓解这个问题。</p>
+        <p><strong>5. 对抗攻击（Adversarial Attack）</strong>：通过对输入添加人眼不可察觉的微小扰动，可以使模型产生完全错误的预测。例如，在停车标志上贴几个小贴纸，就可以让自动驾驶系统将其识别为限速标志。</p>
+      </div>
+      <div class="chart-container"><div class="chart-wrapper" id="chart_risk_0"></div><div class="chart-caption">图：ML五大风险的发生频率与影响严重度评估</div></div>
+      <div class="key-takeaway">💡 部署ML系统前必须问自己：如果模型犯错，最坏的后果是什么？如果答案是不可接受的，就需要额外的安全层。</div>
+    </section>
+
+    <section class="module-section" id="landscape">
+      <div class="module-header"><span class="module-tag tag-evolution">发展演进</span><h2 class="module-title">发展格局</h2></div>
+      <div class="module-hook">如果把全球ML产业看作一张地图，那么你会发现几家巨头占据了核心地带，而无数创业公司正在边缘地带疯狂生长。</div>
+      <div class="module-content">
+        <p>全球机器学习产业呈现<strong>"金字塔+群岛"</strong>的双层格局：</p>
+        <p><strong>金字塔顶层——基础模型提供商</strong>：OpenAI（GPT系列，与微软深度绑定）、Google DeepMind（Gemini系列）、Anthropic（Claude系列）、Meta（LLaMA开源系列）。这些公司掌控着最前沿的大模型能力，是整个生态系统的"基础设施层"。训练一个GPT-4级别的模型需要数亿美元，这形成了极高的进入壁垒。</p>
+        <p><strong>金字塔中层——云平台与工具链</strong>：AWS SageMaker、Google Vertex AI、Azure ML提供从数据标注到模型部署的完整MLOps平台；Hugging Face成为模型分享和分发的"GitHub for ML"；Weights & Biases、MLflow提供实验追踪和模型管理。</p>
+        <p><strong>群岛层——垂直应用创业公司</strong>：在医疗（如PathAI的病理诊断）、法律（如Harvey的AI律师助手）、金融（如Plaid的交易反欺诈）、教育（如Duolingo的AI语言学习）等垂直领域，大量创业公司正在用ML重塑传统工作流。</p>
+        <p>在中国市场，<strong>百度（文心一言）、阿里巴巴（通义千问）、腾讯（混元）、字节跳动（豆包）</strong>等大厂全部入局大模型赛道，同时智谱AI（ChatGLM）、月之暗面（Kimi）、深度求索（DeepSeek）等创业公司也在快速崛起。</p>
+      </div>
+      <div class="chart-container"><div class="chart-wrapper" id="chart_landscape_0"></div><div class="chart-caption">图：全球ML产业格局 — 从基础设施到垂直应用</div></div>
+      <div class="key-takeaway">💡 ML产业的竞争已经从"谁会做模型"变成了"谁能把模型变成可盈利的产品"。落地能力和商业模式比模型能力更重要。</div>
+    </section>
+
+    <section class="module-section" id="prospect">
+      <div class="module-header"><span class="module-tag tag-evolution">发展演进</span><h2 class="module-title">发展前景</h2></div>
+      <div class="module-hook">如果从2026年回望，我们会发现机器学习正处于一个比互联网诞生更具颠覆性的转折点上。</div>
+      <div class="module-content">
+        <p><strong>趋势一：从"大模型"到"世界模型"</strong>——目前的LLM主要基于文本数据训练，对物理世界的理解极其有限。下一个前沿是<strong>多模态世界模型</strong>——整合文本、图像、视频、音频、3D空间信息，让模型真正理解物理定律和因果关系。OpenAI的Sora（文生视频）和Google的Gemini（原生多模态）正是朝这个方向的探索。</p>
+        <p><strong>趋势二：Agent（智能体）的崛起</strong>——2024-2025年被认为是"AI Agent元年"。从被动回答问题到<strong>主动执行任务</strong>——Agent能自主规划、使用工具、与外部环境交互。AutoGPT、MetaGPT、Devin等产品展示了Agent在编程、研究、运营等领域的潜力。Gartner预测到2028年，至少15%的日常工作决策将由AI Agent自主完成。</p>
+        <p><strong>趋势三：端侧AI的爆发</strong>——大模型正在从云端走向设备端。Apple Intelligence、高通骁龙AI引擎、Gemini Nano等推动了<strong>本地推理</strong>的普及。这不仅解决了隐私和延迟问题，也开辟了全新的应用场景。</p>
+        <p><strong>趋势四：ML驱动的科学发现</strong>——AlphaFold 3预测了几乎所有生命分子的结构和相互作用；GNoME发现了220万种新晶体材料；ML驱动的药物发现将新药研发周期从10年缩短到2-3年。ML正在成为继实验和理论之后的<strong>"第三科学范式"</strong>。</p>
+      </div>
+      <div class="chart-container"><div class="chart-wrapper" id="chart_prospect_0"></div><div class="chart-caption">图：2025-2030年ML四大趋势的技术成熟度曲线</div></div>
+      <div class="key-takeaway">💡 未来五年ML的核心命题不再是"能不能做"，而是"做得对不对"（安全/对齐）和"值不值得做"（ROI/落地）。</div>
+    </section>
+
+    <section class="module-section" id="compute_cost">
+      <div class="module-header"><span class="module-tag tag-tools">核心工具</span><h2 class="module-title">算力与成本分析</h2></div>
+      <div class="module-hook">训练GPT-4的电费账单大约为6300万美元。理解算力成本，才能真正理解现代机器学习的边界。</div>
+      <div class="module-content">
+        <p>现代深度学习（特别是大模型训练）对算力的需求呈指数级增长。据Epoch AI统计，2010年以来，最大规模训练运行的算力需求每<strong>6个月翻一番</strong>，远超摩尔定律的18-24个月。</p>
+        <p><strong>训练成本拆解</strong>：以GPT-4级别模型为例（~1.8万亿参数，~13万亿token训练数据）——GPU集群约25,000块A100（80GB），训练时长约90-100天，仅电费就约6300万美元（按$0.1/kWh计算），加上硬件折旧和人力，总训练成本估计在<strong>1-2亿美元</strong>。</p>
+        <p><strong>推理成本</strong>：模型部署后的每次调用都需消耗算力。GPT-4单次推理成本约$0.03-0.06/1K token。对于日活百万的应用，仅推理成本每月就可达数十万美元。这就是为什么模型压缩（量化/蒸馏/剪枝）和推理优化（TensorRT/vLLM）是工程化的核心课题。</p>
+        <p><strong>硬件生态</strong>：NVIDIA目前占据训练市场90%以上份额（A100/H100/B200），但竞争正在加剧——Google TPU v5、AMD MI300X、华为昇腾、以及Cerebras等创业公司的晶圆级芯片都在挑战NVIDIA的地位。</p>
+      </div>
+      <div class="chart-container"><div class="chart-wrapper" id="chart_compute_cost_0"></div><div class="chart-caption">图：训练算力需求增长趋势与主要GPU性能对比</div></div>
+      <div class="key-takeaway">💡 算力是ML的"石油"——控制了算力就控制了AI发展的速度和方向。这也是为什么芯片出口管制成为中美科技竞争的核心议题。</div>
+    </section>
+
+    <section class="module-section" id="benchmark">
+      <div class="module-header"><span class="module-tag tag-application">实践应用</span><h2 class="module-title">Benchmark数据</h2></div>
+      <div class="module-hook">如果一个模型在MMLU上得了90分，它真的比人类更聪明吗？Benchmark是衡量进步的尺子——但尺子本身也有刻度不准的时候。</div>
+      <div class="module-content">
+        <p><strong>经典Benchmark简表</strong>：</p>
+        <p><strong>图像领域</strong>：ImageNet（图像分类，1000类）——从2012年AlexNet的16.4%错误率到2022年CoCa的9.1%，十年间错误率减半；COCO（目标检测+分割）；ADE20K（语义分割）。</p>
+        <p><strong>语言领域</strong>：GLUE/SuperGLUE（自然语言理解综合基准）；SQuAD（阅读理解）；MMLU（57个学科的多任务知识评测）——GPT-4在2023年得分86.4%，接近人类专家的89.8%。</p>
+        <p><strong>代码领域</strong>：HumanEval（代码生成正确率）——GPT-4达67%，Claude 3.5 Sonnet达92%，DeepSeek-Coder-V2达90.2%。SWE-bench（真实GitHub issue修复）——Devin AI agent修复率13.86%。</p>
+        <p><strong>Benchmark的局限性</strong>：永远要警惕<strong>数据污染（Data Contamination）</strong>——训练数据可能已经包含了benchmark的测试集，导致虚高的分数。此外，<strong>Goodhart定律</strong>在ML中同样适用："当一个度量变成目标时，它就不再是一个好的度量。"过度优化的benchmark成绩不等于真实世界表现。</p>
+      </div>
+      <div class="module-table" style="margin:16px 0"><table class="module-table"><thead><tr><th>Benchmark</th><th>领域</th><th>类型</th><th>人类水平</th><th>最佳模型(SOTA)</th></tr></thead><tbody><tr><td>ImageNet Top-1</td><td>图像分类</td><td>准确率%</td><td>~94.9%</td><td>CoCa: 91.0% (2022)</td></tr><tr><td>MMLU</td><td>多学科知识</td><td>准确率%</td><td>89.8%</td><td>Claude 3.5: 88.7% (2024)</td></tr><tr><td>HumanEval</td><td>代码生成</td><td>pass@1%</td><td>N/A</td><td>Claude 3.5 S: 92.0% (2024)</td></tr><tr><td>SQuAD 2.0</td><td>阅读理解</td><td>F1%</td><td>89.5%</td><td>GPT-4: 95.3% (2023)</td></tr><tr><td>MATH</td><td>数学推理</td><td>准确率%</td><td>N/A</td><td>GPT-4o: 76.6% (2024)</td></tr></tbody></table></div>
+      <div class="key-takeaway">💡 Benchmark是必要但非充分的评估工具。真正判断一个模型好不好，唯一可靠的方法是让它解决你实际的问题。</div>
+    </section>
+
+    <section class="module-section" id="open_source">
+      <div class="module-header"><span class="module-tag tag-application">实践应用</span><h2 class="module-title">开源生态</h2></div>
+      <div class="module-hook">没有开源，就没有现代机器学习。PyTorch和TensorFlow是ML世界的"水电煤"——它们让全世界的开发者都能站在巨人的肩膀上。</div>
+      <div class="module-content">
+        <p>开源是机器学习发展的核心驱动力。以下是生态系统中的关键基础设施：</p>
+        <p><strong>框架层</strong>：<strong>PyTorch</strong>（Meta）凭借动态计算图和Pythonic API已成为研究和工业界的事实标准，HuggingFace上90%+的模型用PyTorch实现；<strong>TensorFlow</strong>（Google）在移动端部署和TPU生态上有独特优势；<strong>JAX</strong>（Google）以函数式编程和高性能计算在学术研究中越来越流行。</p>
+        <p><strong>模型库</strong>：<strong>Hugging Face</strong>提供了超过50万个预训练模型和10万个数据集，是ML的"GitHub"。Transformers库让调用BERT/GPT/T5等模型只需几行代码；<strong>Timm</strong>（PyTorch Image Models）提供了800+预训练的CV模型。</p>
+        <p><strong>开源大模型</strong>：Meta的<strong>LLaMA系列</strong>（LLaMA 2/3）是开源社区最重要的基础模型；Mistral AI的模型以高性能和宽松许可著称；国内的<strong>ChatGLM、Qwen（通义千问）、DeepSeek</strong>在中文能力上表现优异。开源模型正在以惊人的速度缩小与闭源模型的差距——LLaMA 3 70B在多个基准上已接近GPT-4水平。</p>
+        <p><strong>工具链</strong>：LangChain/LlamaIndex（LLM应用框架）、Ollama（本地模型运行）、vLLM（高性能推理）、Gradio/Streamlit（快速demo搭建）构成了日益完善的ML工程化工具链。</p>
+      </div>
+      <div class="chart-container"><div class="chart-wrapper" id="chart_open_source_0"></div><div class="chart-caption">图：主要开源大模型的性能与开放程度对比</div></div>
+      <div class="key-takeaway">💡 开源的真正价值不在于"免费"，而在于透明性（可审查）、可控性（可定制）和社区加速（集体智慧）。</div>
+    </section>
+
+    <section class="module-section" id="misconceptions">
+      <div class="module-header"><span class="module-tag tag-core">核心概念</span><h2 class="module-title">常见误区</h2></div>
+      <div class="module-hook">"更多的数据=更好的模型"？"深度学习可以解决任何问题"？——这些流行观念看似合理，实则都是陷阱。</div>
+      <div class="module-content">
+        <p><strong>误区一："数据越多，模型越好"</strong>——<strong>错误</strong>。数据的质量和代表性远比数量重要。"垃圾进、垃圾出"在ML中尤甚。大量带有标签噪声或不具代表性的数据，不仅不会提升模型，反而会引入系统性的偏差。在工业界，<strong>数据清洗和标注</strong>通常占据ML项目80%以上的时间。</p>
+        <p><strong>误区二："深度学习可以解决一切"</strong>——<strong>错误</strong>。对于结构化表格数据（如金融风控、用户行为预测），XGBoost/LightGBM在精度和速度上通常优于神经网络。选择模型的正确逻辑是：先试简单的（线性/树模型），不够用了再升级。</p>
+        <p><strong>误区三："准确率越高模型越好"</strong>——<strong>错误</strong>。在类别极度不均衡的场景（如欺诈检测，欺诈交易仅占0.01%），即使模型把所有交易都预测为"正常"，准确率也高达99.99%——但完全没用。此时需要用精确率、召回率、F1-score或AUC来评估。</p>
+        <p><strong>误区四："训练好了就可以一直用"</strong>——<strong>错误</strong>。真实世界是动态变化的（用户行为改变、市场环境变化、新的攻击模式出现）。模型需要持续监控和<strong>定期重训</strong>。这就是MLOps存在的根本原因。</p>
+        <p><strong>误区五："AutoML可以取代数据科学家"</strong>——<strong>错误</strong>。AutoML能自动化的主要是模型选择和超参数调优，但<strong>问题定义、特征工程、业务理解、伦理权衡</strong>这些核心环节仍然需要人类的判断力。</p>
+      </div>
+      <div class="key-takeaway">💡 机器学习的"最后一公里"不是技术问题，而是将技术正确应用到正确问题上的判断力——这恰恰是机器无法替代的。</div>
+    </section>
+
+    <section class="module-section" id="learning_path">
+      <div class="module-header"><span class="module-tag tag-core">核心概念</span><h2 class="module-title">学习路径</h2></div>
+      <div class="module-hook">想入门机器学习，却被网上浩如烟海的资源淹没？这里有一条经过验证的、从零到能独立做项目的路径。</div>
+      <div class="module-content">
+        <p><strong>第一阶段：数学基础（2-4周）</strong></p>
+        <p>不需要成为数学专家，但需要掌握核心概念：<strong>线性代数</strong>（矩阵运算、特征值、SVD）→ 推荐MIT 18.06 Gilbert Strang的线性代数课；<strong>概率论与统计</strong>（贝叶斯公式、期望、方差、最大似然估计）；<strong>微积分</strong>（链式法则、偏导数——理解反向传播的基础）。推荐课程：3Blue1Brown的《线性代数的本质》（可视化理解）和《神经网络》系列。</p>
+        <p><strong>第二阶段：经典ML算法（4-6周）</strong></p>
+        <p>从简单到复杂逐步学习：线性回归→逻辑回归→决策树→随机森林→SVM→K-Means→PCA。每个算法都手写实现一遍（用NumPy，不用框架），才能真正理解其内部机制。推荐教材：周志华《机器学习》（西瓜书）、李航《统计学习方法》。推荐课程：Andrew Ng的《Machine Learning》课程（Coursera）。</p>
+        <p><strong>第三阶段：深度学习（6-8周）</strong></p>
+        <p>学习MLP→CNN→RNN→LSTM→Transformer的演进路径。用PyTorch从零实现这些架构。推荐课程：Stanford CS231n（计算机视觉）、CS224n（自然语言处理）。推荐教材：Goodfellow《深度学习》（花书）、Dive into Deep Learning（动手学深度学习，有中英文版）。</p>
+        <p><strong>第四阶段：实战与专业化（持续）</strong></p>
+        <p>参加Kaggle比赛（从Titanic入门到高级比赛）、参与开源项目（Hugging Face上的模型贡献）、找真实场景做端到端项目（数据处理→模型训练→部署上线）。建立自己的ML作品集。</p>
+      </div>
+      <div class="module-table" style="margin:16px 0"><table class="module-table"><thead><tr><th>阶段</th><th>时长</th><th>核心技能</th><th>推荐资源</th></tr></thead><tbody><tr><td>数学基础</td><td>2-4周</td><td>线代/概率/微积分</td><td>3Blue1Brown + MIT 18.06</td></tr><tr><td>经典ML</td><td>4-6周</td><td>回归/树/SVM/聚类</td><td>西瓜书 + Andrew Ng课程</td></tr><tr><td>深度学习</td><td>6-8周</td><td>PyTorch/CNN/Transformer</td><td>CS231n + 动手学深度学习</td></tr><tr><td>实战</td><td>持续</td><td>端到端项目+Kaggle</td><td>Kaggle + GitHub开源项目</td></tr></tbody></table></div>
+      <div class="key-takeaway">💡 学习ML最有效的策略是<strong>"螺旋式学习"</strong>——先快速概览全貌，再逐层深入细节，每轮都带着上一轮的问题回来。</div>
+    </section>
+
+    <section class="module-section" id="glossary">
+      <div class="module-header"><span class="module-tag tag-core">核心概念</span><h2 class="module-title">关键术语表</h2></div>
+      <div class="module-hook">机器学习有自己的"黑话"——掌握这些术语，是进入这个领域的第一张通行证。</div>
+      <div class="module-content">
+        <div class="module-table" style="margin:16px 0"><table class="module-table"><thead><tr><th>术语</th><th>英文</th><th>简介</th></tr></thead><tbody><tr><td>特征</td><td>Feature</td><td>用于描述每个样本的输入变量，如房价预测中的面积、楼层数</td></tr><tr><td>标签</td><td>Label</td><td>监督学习中我们希望预测的目标变量，如房价本身</td></tr><tr><td>训练集/验证集/测试集</td><td>Train/Val/Test Set</td><td>训练→调参→最终评估的三层数据划分（通常70/15/15或80/10/10）</td></tr><tr><td>过拟合</td><td>Overfitting</td><td>模型在训练数据上表现好但在新数据上表现差——"死记硬背而非理解"</td></tr><tr><td>正则化</td><td>Regularization</td><td>为防止过拟合而对模型复杂度施加惩罚的技术（L1/L2/Dropout）</td></tr><tr><td>梯度下降</td><td>Gradient Descent</td><td>通过沿损失函数梯度的反方向迭代更新参数来最小化损失的优化算法</td></tr><tr><td>学习率</td><td>Learning Rate</td><td>控制参数更新步长的超参数——太大不收敛，太小训练太慢</td></tr><tr><td>反向传播</td><td>Backpropagation</td><td>利用链式法则高效计算神经网络中每个参数梯度的算法</td></tr><tr><td>激活函数</td><td>Activation Function</td><td>为神经网络引入非线性的函数（ReLU/Sigmoid/Tanh/GELU）</td></tr><tr><td>嵌入</td><td>Embedding</td><td>将离散对象（词/用户/物品）映射到连续的低维向量空间</td></tr><tr><td>Transformer</td><td>Transformer</td><td>基于自注意力机制的神经网络架构，是现代LLM的基础</td></tr><tr><td>参数量</td><td>Parameters</td><td>模型可学习的权重总数，是衡量模型规模的常用指标</td></tr><tr><td>微调</td><td>Fine-tuning</td><td>在预训练模型的基础上用特定领域数据继续训练以适配下游任务</td></tr><tr><td>提示工程</td><td>Prompt Engineering</td><td>设计输入提示以引导大语言模型产生期望输出的技术</td></tr><tr><td>幻象</td><td>Hallucination</td><td>LLM生成看似合理但实际不实的内容——这是事实性场景中的最大挑战</td></tr><tr><td>MLOps</td><td>MLOps</td><td>机器学习的DevOps——涵盖数据管道、模型训练、部署、监控的全生命周期管理</td></tr><tr><td>向量数据库</td><td>Vector Database</td><td>为高维向量相似性搜索优化的一类数据库（Pinecone/Milvus/Weaviate）</td></tr><tr><td>RAG</td><td>Retrieval-Augmented Generation</td><td>检索增强生成——先从知识库检索相关信息，再让LLM基于检索结果生成答案</td></tr></tbody></table></div>
+      </div>
+      <div class="key-takeaway">💡 这18个术语涵盖了ML从基础到前沿的核心概念。建议打印出来贴在桌前，遇到不认识的术语随时查阅。</div>
+    </section>
+
+  </div>
+
+  <footer id="page-footer">
+    <button class="btn primary" onclick="window.print()">📥 导出 PDF</button>
+    <button class="btn" onclick="exportNotes()">📄 导出笔记</button>
+    <button class="btn" onclick="window.print()">🖨 打印</button>
+  </footer>
+</main>
+
+<div class="search-overlay" id="searchOverlay">
+  <div class="search-dialog">
+    <input type="text" id="searchInput" placeholder="搜索模块、公式、概念..." autofocus>
+    <div class="search-results" id="searchResults"></div>
+  </div>
+</div>
+
+<div class="mobile-bottom-nav" id="mobileBottomNav">
+  <div class="mbn-inner" id="mbnInner"></div>
+</div>
+
+<script>
+const PAGE_DATA = {
+  topic:"机器学习", domain:"ai-tech", domain_name:"AI与科技",
+  level:"intermediate", level_name:"理解", reading_time:"42",
+  module_count:"16", texture:"G5", texture_name:"全面平衡型",
+  depth:"理解", breadth:"标准",
+  modules:[
+    {module_id:"background",module_title:"背景与缘起",module_tag:"前置知识",hook:"",key_takeaway:"",charts:[{type:"echarts",chart_id:"chart_background_0",echarts_option:{tooltip:{trigger:"axis"},xAxis:{type:"category",data:["1950","1957","1969","1986","1995","2006","2012","2014","2017","2020","2022","2024"]},yAxis:{type:"value",name:"影响力指数"},series:[{type:"line",data:[20,30,15,45,35,50,70,65,85,90,95,98],smooth:true,areaStyle:{opacity:0.15},itemStyle:{color:"#6366f1"}}]},caption:"机器学习关键里程碑时间线（1950-2024）",data_source:"综合多个学术来源"}]},
+    {module_id:"concept",module_title:"核心概念",module_tag:"核心概念"},
+    {module_id:"principle",module_title:"核心原理",module_tag:"核心概念",charts:[{type:"echarts",chart_id:"chart_principle_0",echarts_option:{tooltip:{trigger:"axis"},xAxis:{type:"category",data:["过低","低","适中","高","过高"],axisLabel:{formatter:function(v){return v}}},yAxis:{type:"value",name:"误差"},series:[{name:"偏差²",type:"bar",data:[0.8,0.4,0.15,0.05,0.01],itemStyle:{color:"#6366f1"}},{name:"方差",type:"bar",data:[0.01,0.05,0.15,0.4,0.8],itemStyle:{color:"#f59e0b"}},{name:"总误差",type:"line",data:[0.81,0.45,0.30,0.45,0.81],lineStyle:{color:"#ef4444",width:3},symbol:"circle",symbolSize:8}]},caption:"偏差-方差权衡：随模型复杂度增加，偏差递减但方差递增",data_source:"综合"}]},
+    {module_id:"architecture",module_title:"技术架构与算法全景",module_tag:"核心工具",charts:[{type:"echarts",chart_id:"chart_architecture_0",echarts_option:{tooltip:{trigger:"item"},series:[{type:"sunburst",data:[{name:"监督学习",itemStyle:{color:"#6366f1"},children:[{name:"线性模型",value:10},{name:"树模型",value:12},{name:"SVM",value:6},{name:"神经网络",value:15}]},{name:"无监督学习",itemStyle:{color:"#22d3ee"},children:[{name:"聚类",value:8},{name:"降维",value:6},{name:"密度估计",value:4}]},{name:"强化学习",itemStyle:{color:"#f59e0b"},children:[{name:"值函数",value:5},{name:"策略梯度",value:5},{name:"模型-based",value:4}]},{name:"半监督",itemStyle:{color:"#10b981"},value:6}],radius:[0,"90%"],label:{show:true}}]},caption:"机器学习算法全景分类（旭日图）"}]},
+    {module_id:"development",module_title:"发展迭代",module_tag:"发展演进",charts:[{type:"echarts",chart_id:"chart_development_0",echarts_option:{tooltip:{trigger:"axis"},xAxis:{type:"category",data:["1956","1969","1986","1997","2006","2012","2017","2020","2023"]},yAxis:{type:"value",name:"热度/投资(亿美元)"},series:[{name:"学术论文数",type:"bar",data:[50,30,80,120,200,500,2000,5000,12000],itemStyle:{color:"#8b5cf6"}},{name:"产业投资",type:"line",yAxisIndex:1,data:[0,0,1,3,5,10,50,200,800],lineStyle:{color:"#f59e0b",width:3}}]},caption:"ML三次浪潮: 论文数量与产业投资的变化",data_source:"Epoch AI, CB Insights数据综合"}]},
+    {module_id:"application",module_title:"实践应用",module_tag:"实践应用",charts:[{type:"echarts",chart_id:"chart_application_0",echarts_option:{radar:{indicator:[{name:"技术成熟度",max:10},{name:"商业价值",max:10},{name:"数据可用性",max:10},{name:"部署难度",max:10},{name:"社会影响",max:10}]},series:[{type:"radar",name:"CV",data:[{value:[9,8,8,6,7],name:"计算机视觉"}]},{type:"radar",name:"NLP",data:[{value:[8,9,8,5,9],name:"自然语言处理"}]},{type:"radar",name:"推荐",data:[{value:[9,9,9,7,6],name:"推荐系统"}]},{type:"radar",name:"金融",data:[{value:[7,8,6,7,6],name:"金融科技"}]},{type:"radar",name:"自动驾驶",data:[{value:[5,9,4,9,9],name:"自动驾驶"}]}]},caption:"各行业ML应用的多维度评估雷达图",data_source:"综合行业报告"}]},
+    {module_id:"case_study",module_title:"实践案例",module_tag:"实践应用",charts:[{type:"echarts",chart_id:"chart_case_study_0",echarts_option:{tooltip:{trigger:"axis"},xAxis:{type:"category",data:["技术复杂度","数据规模","商业ROI","工程成熟度","可复制性"]},yAxis:{type:"value",max:10},series:[{name:"Netflix推荐",type:"bar",data:[8,9,9,9,7],itemStyle:{color:"#6366f1"}},{name:"特斯拉AutoPilot",type:"bar",data:[10,9,6,7,4],itemStyle:{color:"#22d3ee"}},{name:"蚂蚁风控",type:"bar",data:[9,9,9,9,6],itemStyle:{color:"#10b981"}}]},caption:"三大案例的多维度对比",data_source:"综合公开资料"}]},
+    {module_id:"risk",module_title:"潜在风险",module_tag:"风险与挑战",charts:[{type:"echarts",chart_id:"chart_risk_0",echarts_option:{tooltip:{trigger:"item"},xAxis:{type:"category",data:["过拟合","数据偏差","分布偏移","不可解释","对抗攻击"]},yAxis:{type:"value",name:"严重度(1-10)"},series:[{name:"发生频率",type:"bar",data:[8,6,5,7,3],itemStyle:{color:"#f59e0b"}},{name:"影响严重度",type:"bar",data:[6,9,8,7,10],itemStyle:{color:"#ef4444"}}]},caption:"ML五大风险的发生频率与影响度对比",data_source:"综合"}]},
+    {module_id:"landscape",module_title:"发展格局",module_tag:"发展演进",charts:[{type:"echarts",chart_id:"chart_landscape_0",echarts_option:{tooltip:{trigger:"item"},series:[{type:"treemap",data:[{name:"基础模型",value:40,itemStyle:{color:"#6366f1"},children:[{name:"OpenAI",value:15},{name:"Google",value:12},{name:"Anthropic",value:6},{name:"Meta",value:7}]},{name:"云平台",value:30,itemStyle:{color:"#22d3ee"},children:[{name:"AWS",value:10},{name:"Azure",value:9},{name:"GCP",value:7},{name:"其他",value:4}]},{name:"垂直应用",value:30,itemStyle:{color:"#10b981"},children:[{name:"医疗",value:8},{name:"金融",value:7},{name:"法律",value:5},{name:"教育",value:5},{name:"其他",value:5}]}]}],label:{show:true}},caption:"全球ML产业格局：基础模型→云平台→垂直应用（树图）",data_source:"综合行业报告, 2024"}]},
+    {module_id:"prospect",module_title:"发展前景",module_tag:"发展演进",charts:[{type:"echarts",chart_id:"chart_prospect_0",echarts_option:{tooltip:{trigger:"axis"},xAxis:{type:"category",data:["2025","2026","2027","2028","2029","2030"]},yAxis:{type:"value",name:"成熟度/采用率"},series:[{name:"世界模型",type:"line",data:[10,25,45,60,75,85],smooth:true,itemStyle:{color:"#6366f1"}},{name:"AI Agent",type:"line",data:[30,55,70,82,90,95],smooth:true,itemStyle:{color:"#22d3ee"}},{name:"端侧AI",type:"line",data:[40,65,80,90,95,98],smooth:true,itemStyle:{color:"#10b981"}},{name:"科学发现",type:"line",data:[20,35,50,65,78,88],smooth:true,itemStyle:{color:"#f59e0b"}}]},caption:"2025-2030年四大ML趋势的技术成熟度预测",data_source:"Gartner Hype Cycle + 综合预测, 2024"}]},
+    {module_id:"compute_cost",module_title:"算力与成本分析",module_tag:"核心工具",charts:[{type:"echarts",chart_id:"chart_compute_cost_0",echarts_option:{tooltip:{trigger:"axis"},xAxis:{type:"category",data:["2012\nAlexNet","2014\nVGG","2015\nResNet","2018\nBERT","2020\nGPT-3","2022\nPaLM","2023\nGPT-4","2024\nGemini"]},yAxis:{type:"log",name:"训练算力(PFLOPS-days)",min:0},series:[{name:"训练算力",type:"bar",data:[0.001,0.01,0.1,5,1000,5000,50000,80000],itemStyle:{color:new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:"#818cf8"},{offset:1,color:"#6366f1"}])}}]},caption:"关键模型训练算力需求的指数增长（对数尺度）",data_source:"Epoch AI, 2024"}]},
+    {module_id:"benchmark",module_title:"Benchmark数据",module_tag:"实践应用"},
+    {module_id:"open_source",module_title:"开源生态",module_tag:"实践应用",charts:[{type:"echarts",chart_id:"chart_open_source_0",echarts_option:{tooltip:{trigger:"axis"},xAxis:{type:"category",data:["LLaMA 3\n70B","Mixtral\n8x22B","Qwen 2\n72B","DeepSeek\nV2","Command\nR+","GPT-4\n(闭源)"]},yAxis:{type:"value",name:"MMLU分数",max:100},series:[{name:"MMLU得分",type:"bar",data:[82,78,84,80,76,86],itemStyle:{color:function(p){return p.dataIndex<5?"#10b981":"#ef4444"}}},{name:"开源程度(1-10)",type:"line",yAxisIndex:1,data:[9,9,8,7,6,1],lineStyle:{color:"#f59e0b"},symbol:"circle",symbolSize:8}]},caption:"开源与闭源大模型性能+开放度对比",data_source:"各模型官方报告, 2024"}]},
+    {module_id:"misconceptions",module_title:"常见误区",module_tag:"核心概念"},
+    {module_id:"learning_path",module_title:"学习路径",module_tag:"核心概念"},
+    {module_id:"glossary",module_title:"关键术语表",module_tag:"核心概念"}
+  ]
+};
+
+function toggleTheme(){var c=document.documentElement.getAttribute("data-theme")||"light";applyTheme(c==="dark"?"light":"dark");}
+function applyTheme(t){document.documentElement.setAttribute("data-theme",t);localStorage.setItem("slm-theme",t);var btn=document.getElementById("theme-toggle");if(btn)btn.textContent=t==="dark"?"☀️":"🌓";if(typeof activeCharts==="object"&&activeCharts!==null){Object.values(activeCharts).forEach(function(ch){try{var o=ch.getOption();ch.setOption(createThemedOption(o),{notMerge:false});}catch(e){}});}}
+var activeCharts={},sidebarLinks=[];
+var savedTheme=localStorage.getItem("slm-theme")||"light";applyTheme(savedTheme);
+window.addEventListener("scroll",function(){var st=window.scrollY,dh=document.documentElement.scrollHeight-window.innerHeight,prog=dh>0?(st/dh)*100:0;document.getElementById("progress-bar").style.width=prog+"%";});
+function buildSidebar(){var c=document.getElementById("sidebar-links");sidebarLinks=[];PAGE_DATA.modules.forEach(function(m){var a=document.createElement("a");a.href="#"+m.module_id;a.className="sidebar-link";a.textContent=m.module_title||m.module_id;a.addEventListener("click",function(e){e.preventDefault();document.getElementById(m.module_id).scrollIntoView({behavior:"smooth"});if(window.innerWidth<=768)document.getElementById("sidebar").classList.remove("open");});c.appendChild(a);sidebarLinks.push({el:a,id:m.module_id});});}
+var observer=new IntersectionObserver(function(entries){entries.forEach(function(entry){if(entry.isIntersecting){sidebarLinks.forEach(function(link){link.el.classList.toggle("active",link.id===entry.target.id);});}});},{rootMargin:"-80px 0px -60% 0px"});
+function buildMetaCard(){} // meta-card is already static in HTML
+
+function renderFormulas(container){if(typeof renderMathInElement!=="undefined"){renderMathInElement(container,{delimiters:[{left:"$$",right:"$$",display:true},{left:"$",right:"$",display:false}],throwOnError:false});}}
+function createThemedOption(existingOpt){var isDark=document.documentElement.getAttribute("data-theme")==="dark";var color=isDark?["#818cf8","#a78bfa","#c4b5fd","#67e8f9","#fbbf24","#34d399","#f87171","#f472b6"]:["#6366f1","#8b5cf6","#a78bfa","#22d3ee","#f59e0b","#10b981","#ef4444","#ec4899"];return{color:color,...existingOpt};}
+function renderChart(moduleId,chartConfig,index){var chartId="chart_"+moduleId+"_"+index;var wrapper=document.getElementById(chartId);if(!wrapper)return;if(typeof echarts==="undefined"){wrapper.innerHTML='<div style="text-align:center;padding:20px;color:var(--text-tertiary);font-size:13px;">📊 图表(静态模式)<br><small>加载CDN后可交互</small></div>';return;}try{var chart=echarts.init(wrapper);var opt=chartConfig.echarts_option||{};if(typeof opt==="string"){try{chart.setOption(createThemedOption(JSON.parse(opt)));}catch(e){wrapper.textContent="图表配置解析失败";return;}}else{chart.setOption(createThemedOption(opt));}activeCharts[chartId]=chart;var ro=new ResizeObserver(function(){chart.resize();});ro.observe(wrapper);}catch(e){wrapper.textContent="图表渲染失败: "+e.message;}}
+function getTagClass(tag){var map={"核心概念":"tag-core","前置知识":"tag-core","核心工具":"tag-tools","发展演进":"tag-evolution","实践应用":"tag-application","风险与挑战":"tag-risk","前沿探索":"tag-frontier"};return map[tag]||"tag-core";}
+function toggleDerivation(el){el.classList.toggle("expanded");}
+function parseMarkdownContent(c){if(!c)return"";var h=c;h=h.replace(/\*\*(.+?)\*\*/g,"<strong>$1</strong>");h=h.replace(/\*(.+?)\*/g,"<em>$1</em>");h=h.replace(/`([^`]+)`/g,'<code style="background:var(--bg-tertiary);padding:2px 6px;border-radius:4px;font-size:13px;">$1</code>');h=h.replace(/\n\n/g,"</p><p>");h="<p>"+h+"</p>";h=h.replace(/<p>\s*<\/p>/g,"");return h;}
+
+function initPage(){buildSidebar();buildMobileNav();
+  var mc=document.getElementById("modules-container");
+  PAGE_DATA.modules.forEach(function(mod){
+    if(mod.module_id==="background"||mod.module_id==="concept"||mod.module_id==="principle"||mod.module_id==="architecture"||mod.module_id==="development"||mod.module_id==="application"||mod.module_id==="case_study"||mod.module_id==="risk"||mod.module_id==="landscape"||mod.module_id==="prospect"||mod.module_id==="compute_cost"||mod.module_id==="benchmark"||mod.module_id==="open_source"||mod.module_id==="misconceptions"||mod.module_id==="learning_path"||mod.module_id==="glossary")return;
+    var html='<section class="module-section" id="'+mod.module_id+'"><div class="module-header"><span class="module-tag '+getTagClass(mod.module_tag||"")+'">'+(mod.module_tag||"")+'</span><h2 class="module-title">'+(mod.module_title||mod.module_id)+'</h2></div>';
+    if(mod.hook)html+='<div class="module-hook">'+mod.hook+'</div>';
+    html+='<div class="module-content">'+parseMarkdownContent(mod.content||"")+'</div>';
+    if(mod.formulas&&mod.formulas.length>0){mod.formulas.forEach(function(f){var hd=f.expandable&&f.derivation;html+='<div class="formula-block'+(hd?"":' not-expandable')+'" onclick="'+(hd?'toggleDerivation(this)':'')+'"><div>'+f.latex+'</div>';if(f.caption)html+='<div class="formula-caption">'+f.caption+'</div>';if(hd)html+='<div class="formula-expand-hint">💡 点击展开推导过程</div><div class="formula-derivation">'+f.derivation+'</div>';html+='</div>';});}
+    if(mod.charts&&mod.charts.length>0){mod.charts.forEach(function(ch,ci){var cid="chart_"+mod.module_id+"_"+ci;html+='<div class="chart-container"><div class="chart-wrapper" id="'+cid+'"></div>';if(ch.caption)html+='<div class="chart-caption">'+ch.caption+'</div>';if(ch.data_source)html+='<div class="chart-source">'+ch.data_source+'</div>';html+='</div>';});}
+    if(mod.tables&&mod.tables.length>0){mod.tables.forEach(function(t){html+='<div style="overflow-x:auto"><table class="module-table"><thead><tr>'+(t.headers||[]).map(function(h){return'<th>'+h+'</th>';}).join("")+'</tr></thead><tbody>'+(t.rows||[]).map(function(r){return'<tr>'+r.map(function(c){return'<td>'+c+'</td>';}).join("")+'</tr>';}).join("")+'</tbody></table>';if(t.caption)html+='<div class="table-caption">'+t.caption+'</div>';html+='</div>';});}
+    if(mod.references&&mod.references.length>0){html+='<div class="module-references"><h4>📚 参考文献</h4><ol>';mod.references.forEach(function(r){var l=r.doi?' <a href="https://doi.org/'+r.doi+'" target="_blank">DOI</a>':"";var u=r.url?' <a href="'+r.url+'" target="_blank">链接</a>':"";html+='<li>'+(r.authors||"")+" ("+(r.year||"")+"). <strong>"+(r.title||"")+"</strong>."+l+u+'</li>';});html+='</ol></div>';}
+    if(mod.key_takeaway)html+='<div class="key-takeaway">💡 '+mod.key_takeaway+'</div>';
+    html+='</section>';mc.innerHTML+=html;
+  });
+  var sections=mc.querySelectorAll(".module-section");sections.forEach(function(s){observer.observe(s);});
+  renderFormulas(mc);
+  setTimeout(function(){PAGE_DATA.modules.forEach(function(mod){if(mod.charts){mod.charts.forEach(function(ch,ci){renderChart(mod.module_id,ch,ci);});}});},100);
+  var fadeObs=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting)e.target.classList.add("visible");});},{threshold:0.08});sections.forEach(function(s){fadeObs.observe(s);});
+  document.addEventListener("keydown",function(e){if((e.ctrlKey||e.metaKey)&&e.key==="k"){e.preventDefault();openSearch();}if((e.ctrlKey||e.metaKey)&&e.key==="d"){e.preventDefault();toggleTheme();}if(e.key==="Escape"){if(document.getElementById("searchOverlay").classList.contains("open")){closeSearch();return;}}});
+}
+
+function openSearch(){var ov=document.getElementById("searchOverlay");ov.classList.add("open");var inp=document.getElementById("searchInput");inp.value="";inp.focus();document.getElementById("searchResults").innerHTML="";}
+function closeSearch(){document.getElementById("searchOverlay").classList.remove("open");}
+document.addEventListener("DOMContentLoaded",function(){
+  document.getElementById("searchOverlay").addEventListener("click",function(e){if(e.target===this)closeSearch();});
+  document.getElementById("searchInput").addEventListener("input",function(){var q=this.value.toLowerCase();var r=document.getElementById("searchResults");if(!q||q.length<2){r.innerHTML="";return;}
+  function hl(t){if(!t)return"";var i=t.toLowerCase().indexOf(q);if(i===-1)return t;return t.substring(0,i)+"<mark>"+t.substring(i,i+q.length)+"</mark>"+t.substring(i+q.length);}
+  var results=[];var sections=document.querySelectorAll(".module-section");sections.forEach(function(s){var titleEl=s.querySelector(".module-title");var contentEl=s.querySelector(".module-content");var title=titleEl?titleEl.textContent:"";var txt=contentEl?contentEl.textContent:"";if(title.toLowerCase().indexOf(q)!==-1||txt.toLowerCase().indexOf(q)!==-1){results.push({id:s.id,title:hl(title),snippet:txt.substring(0,80)});}});
+  r.innerHTML=results.slice(0,12).map(function(x){return'<div class="sr-item" onclick="document.getElementById(\''+x.id+'\').scrollIntoView({behavior:\'smooth\'});closeSearch();"><div class="sr-title">'+x.title+'</div><div class="sr-snippet">'+x.snippet+'</div></div>';}).join("")||'<div class="search-empty">无匹配结果</div>';});
+});
+
+function exportNotes(){var lines=["# 机器学习 - 学习笔记","","生成日期: "+new Date().toLocaleDateString("zh-CN"),""];PAGE_DATA.modules.forEach(function(m){var el=document.getElementById(m.module_id);var kt=el?el.querySelector(".key-takeaway"):null;lines.push("- **"+(m.module_title||m.module_id)+"**: "+(kt?kt.textContent.replace("💡 ",""):""));});var txt=lines.join("\n");if(navigator.clipboard){navigator.clipboard.writeText(txt).then(function(){alert("✅ 学习笔记已复制到剪贴板!");});}else{var ta=document.createElement("textarea");ta.value=txt;document.body.appendChild(ta);ta.select();document.execCommand("copy");document.body.removeChild(ta);alert("✅ 学习笔记已复制到剪贴板!");}}
+
+function buildMobileNav(){var items=[];PAGE_DATA.modules.forEach(function(m,i){if(i%Math.max(1,Math.ceil(PAGE_DATA.modules.length/5))===0)items.push({id:m.module_id,label:(m.module_title||m.module_id).substring(0,4)});});if(items.length>5)items=items.slice(0,5);var inner=document.getElementById("mbnInner");inner.innerHTML=items.map(function(x){return'<button class="mbn-item" onclick="document.getElementById(\''+x.id+'\').scrollIntoView({behavior:\'smooth\'})"><span class="mbn-icon">📑</span>'+x.label+'</button>';}).join("");inner.innerHTML+='<button class="mbn-item" onclick="window.scrollTo({top:0,behavior:\'smooth\'})"><span class="mbn-icon">⬆</span>顶部</button>';}
+
+(function(){var cv=document.getElementById("bg-canvas");var ctx=cv.getContext("2d");var particles=[];function rsz(){cv.width=window.innerWidth;cv.height=window.innerHeight;}window.addEventListener("resize",rsz);rsz();var count=Math.min(60,Math.floor((cv.width*cv.height)/20000));for(var i=0;i<count;i++){particles.push({x:Math.random()*cv.width,y:Math.random()*cv.height,vx:(Math.random()-0.5)*0.3,vy:(Math.random()-0.5)*0.3,r:Math.random()*1.5+0.3,a:Math.random()*0.3+0.05});}function animate(){ctx.clearRect(0,0,cv.width,cv.height);var isDark=document.documentElement.getAttribute("data-theme")!=="light";var c=isDark?"129,140,248":"99,102,241";particles.forEach(function(p){p.x+=p.vx;p.y+=p.vy;if(p.x<0)p.x=cv.width;if(p.x>cv.width)p.x=0;if(p.y<0)p.y=cv.height;if(p.y>cv.height)p.y=0;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,6.28);ctx.fillStyle="rgba("+c+","+p.a+")";ctx.fill();});for(var j=0;j<particles.length;j++){for(var k=j+1;k<particles.length;k++){var dx=particles[j].x-particles[k].x;var dy=particles[j].y-particles[k].y;var d=Math.sqrt(dx*dx+dy*dy);if(d<110){ctx.beginPath();ctx.moveTo(particles[j].x,particles[j].y);ctx.lineTo(particles[k].x,particles[k].y);ctx.strokeStyle="rgba("+c+","+(0.06*(1-d/110))+")";ctx.lineWidth=0.5;ctx.stroke();}}}requestAnimationFrame(animate);}animate();})();
+
+document.addEventListener("DOMContentLoaded",initPage);
+
+window.addEventListener("scroll",function(){var sections=document.querySelectorAll(".module-section");var activeIdx=-1;sections.forEach(function(s,i){var top=s.getBoundingClientRect().top;if(top<150&&top>-s.offsetHeight+150)activeIdx=i;});var btns=document.querySelectorAll(".mbn-item");btns.forEach(function(b,i){b.classList.toggle("mbn-active",i===activeIdx);});});
+</script>
+</body>
+</html>

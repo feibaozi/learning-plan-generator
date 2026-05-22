@@ -1,0 +1,123 @@
+{
+  "_description": "Smart Learning Materials - 示例输出数据（Black-Scholes期权定价模型-进阶）",
+  "_note": "此文件展示AI在生成完内容后所产出的完整JSON结构",
+
+  "topic": "Black-Scholes期权定价模型",
+  "domain": "finance",
+  "domain_name": "金融",
+  "level": "intermediate",
+  "level_name": "进阶",
+  "reading_time": 22,
+  "module_count": 22,
+  "output_modes": ["mode-a", "pdf"],
+
+  "modules": [
+    {
+      "module_id": "background",
+      "module_title": "背景与缘起",
+      "module_tag": "前置知识",
+      "content_type": "mixed",
+      "hook": "1973年，一篇论文改变了华尔街的命运——两位经济学家和一个数学家，用一道偏微分方程，撬动了全球衍生品市场的万亿版图。",
+      "content": "在Black-Scholes模型诞生之前，期权交易更像是一门**艺术**而非科学。交易员凭经验和直觉定价，市场缺乏统一的定价框架。\n\n1973年，Fischer Black和Myron Scholes在《Journal of Political Economy》发表了开创性论文《The Pricing of Options and Corporate Liabilities》，首次提出了欧式期权的解析定价公式。Robert Merton随后对模型进行了关键性的数学扩展。\n\n这一突破的时机堪称完美——同年4月，芝加哥期权交易所(CBOE)刚刚成立，期权标准化交易急需一个可靠的定价工具。BS模型的出现，让期权从'赌大小的游戏'变成了'可以精确计算的金融工程'。1997年，Scholes和Merton因此获得诺贝尔经济学奖（Black于1995年去世，未能共享此荣誉）。",
+      "formulas": [],
+      "charts": [
+        {
+          "type": "echarts",
+          "chart_id": "chart_bg_01",
+          "echarts_option": {
+            "title": { "text": "期权定价理论演进" },
+            "xAxis": { "type": "category", "data": ["1900", "1965", "1973", "1987", "1993", "1997"] },
+            "yAxis": { "type": "value", "show": false },
+            "series": [{
+              "type": "line", "step": "middle",
+              "data": [1, 2, 4, 6, 8, 10],
+              "label": { "show": true, "formatter": "{b}\n→" },
+              "lineStyle": { "color": "#6366f1" }
+            }]
+          },
+          "caption": "图：期权定价理论关键节点演进",
+          "data_source": "来源：学术文献整理",
+          "responsive": true
+        }
+      ],
+      "tables": [],
+      "references": [
+        { "title": "The Pricing of Options and Corporate Liabilities", "authors": "Black, F., Scholes, M.", "year": 1973, "doi": "10.1086/260062", "url": "", "type": "paper" },
+        { "title": "Theory of Rational Option Pricing", "authors": "Merton, R.C.", "year": 1973, "doi": "10.2307/3003143", "url": "", "type": "paper" }
+      ],
+      "key_takeaway": "BS模型是金融工程的'牛顿定律'，它将期权定价从经验直觉转变为精确科学。"
+    },
+    {
+      "module_id": "concept",
+      "module_title": "核心概念",
+      "module_tag": "核心概念",
+      "content_type": "mixed",
+      "hook": "期权定价的核心问题是：在未来不确定的情况下，今天的'选择权'值多少钱？",
+      "content": "Black-Scholes模型（Black-Scholes Model），全称Black-Scholes-Merton模型，是一个用于计算**欧式期权**理论价格的数学模型。\n\n**核心定义**：在无套利假设下，通过构建一个由标的资产和期权组成的无风险组合，推导出期权价格必须满足的偏微分方程，进而得到解析解。\n\n**模型的关键假设**：\n- 标的资产价格服从几何布朗运动（对数正态分布）\n- 无风险利率和波动率在期权有效期内恒定\n- 市场无摩擦（无交易成本、无税收）\n- 可以连续交易，允许卖空\n- 期权到期前不支付股息（原始模型）\n\n**不是什么**：\n- 不是美式期权的精确定价工具（美式期权可提前行权）\n- 不是预测股价方向的工具\n- 不是在真实市场中无偏差成立的模型",
+      "key_takeaway": "BS模型是欧式期权的标准定价框架，其威力在于将复杂的不确定性转化为可计算的数学公式。"
+    },
+    {
+      "module_id": "principle",
+      "module_title": "核心原理",
+      "module_tag": "核心概念",
+      "content_type": "mixed",
+      "hook": "如果我能用一个股票和一笔贷款，完美复制一个期权的收益，那这个期权的价格就该等于复制成本——这便是无套利定价的精髓。",
+      "content": "BS模型的核心思想是无套利定价与动态对冲。基本思路：\n\n1. 构建一个投资组合：持有△份标的资产，卖空1份期权\n2. 在极短时间内，该组合的价值变化与股价变化无关（Delta中性）\n3. 因此该组合是无风险的，其收益必须等于无风险利率\n4. 由此导出BS偏微分方程，求解得到期权定价公式",
+
+      "formulas": [
+        {
+          "latex": "$$\\frac{\\partial V}{\\partial t} + \\frac{1}{2}\\sigma^2 S^2 \\frac{\\partial^2 V}{\\partial S^2} + rS\\frac{\\partial V}{\\partial S} - rV = 0$$",
+          "caption": "Black-Scholes偏微分方程",
+          "expandable": true,
+          "derivation": "设股票价格dS = μSdt + σSdW。构建组合Π = V - ΔS。由Ito引理展开dV，令Δ = ∂V/∂S消去dW项，得到无风险组合dΠ = rΠdt，整理即得BS-PDE。"
+        },
+        {
+          "latex": "$$C = S_0 N(d_1) - Ke^{-rT} N(d_2)$$",
+          "caption": "欧式看涨期权定价公式",
+          "expandable": true,
+          "derivation": "其中 d₁ = [ln(S₀/K) + (r+σ²/2)T] / (σ√T)，d₂ = d₁ - σ√T，N(·)为标准正态累积分布函数。"
+        }
+      ],
+
+      "charts": [
+        {
+          "type": "echarts",
+          "chart_id": "chart_principle_01",
+          "echarts_option": {
+            "title": { "text": "Delta对冲原理示意" },
+            "tooltip": { "trigger": "axis" },
+            "xAxis": { "type": "category", "data": ["t=0", "dt", "2dt", "3dt", "...", "T"] },
+            "yAxis": { "type": "value", "name": "组合价值" },
+            "series": [
+              { "name": "股票持仓", "type": "line", "data": [50, 52, 49, 51, 55, 60], "smooth": true },
+              { "name": "期权空头", "type": "line", "data": [-20, -21, -19, -20, -25, -30], "smooth": true },
+              { "name": "组合净值", "type": "line", "data": [30, 31, 30, 31, 30, 30], "smooth": true, "lineStyle": { "width": 3 } }
+            ]
+          },
+          "caption": "图：动态Delta对冲过程中各持仓价值变化（示意图）",
+          "data_source": "示意数据",
+          "responsive": true
+        }
+      ],
+
+      "tables": [
+        {
+          "headers": ["符号", "含义", "典型取值"],
+          "rows": [
+            ["S₀", "标的资产当前价格", "100"],
+            ["K", "期权行权价", "100"],
+            ["r", "无风险利率（年化）", "0.05 (5%)"],
+            ["σ", "波动率（年化）", "0.20 (20%)"],
+            ["T", "到期时间（年）", "0.5 (6个月)"]
+          ],
+          "caption": "表：BS模型关键参数说明"
+        }
+      ],
+
+      "references": [
+        { "title": "Options, Futures, and Other Derivatives (10th ed)", "authors": "Hull, J.", "year": 2018, "doi": "", "url": "", "type": "book" }
+      ],
+      "key_takeaway": "BS模型通过动态对冲将期权的风险暴露归零，从而用无风险利率和波动率两个核心参数锁定期权价格。"
+    }
+  ]
+}

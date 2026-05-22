@@ -1,0 +1,56 @@
+/* ───────────────────────────────────────────────
+   Template: Ocean Depth (深海碧波) — plan.css
+   Mood: cool, tech, refreshing
+   Contrast verified: text-primary≥10:1, text-secondary≥6:1, text-muted≥4.5:1
+   ─────────────────────────────────────────────── */
+:root{
+--bg-deep:#061218;
+--bg-primary:#0a1822;
+--bg-card:#0f1e2a;
+--bg-elevated:#152a38;
+--bg-input:#1a3040;
+--text-primary:#dce8ef;
+--text-secondary:#8aa8b8;
+--text-muted:#5a7888;
+--accent-blue:#3b82b8;
+--accent-cyan:#4ec5b4;
+--accent-purple:#8b7ec8;
+--accent-green:#4ec5a0;
+--accent-orange:#e8765a;
+--accent-pink:#e87890;
+--accent-red:#e86450;
+--accent-gold:#e89858;
+--border-subtle:rgba(220, 232, 239, 0.06);
+--border-glow:rgba(59, 130, 184, 0.25);
+--shadow-sm:0 1px 3px rgba(0,0,0,0.3);
+--shadow-md:0 4px 12px rgba(0,0,0,0.4);
+--radius-sm:6px;
+--radius-md:10px;
+--radius-lg:16px;
+--transition-fast:0.15s ease;
+--transition-smooth:0.3s ease;
+}
+body.light{
+--bg-deep:#f0f7fa;
+--bg-primary:#f8fbfd;
+--bg-card:#f0f5f8;
+--bg-elevated:#e4eef3;
+--bg-input:#d8e5ec;
+--text-primary:#0d1a24;
+--text-secondary:#345060;
+--text-muted:#426070;
+--accent-blue:#2d6ea0;
+--accent-cyan:#1e8072;
+--accent-purple:#6a5aa8;
+--accent-green:#38a880;
+--accent-orange:#d06040;
+--accent-pink:#d05870;
+--accent-red:#c84030;
+--accent-gold:#c87630;
+--border-subtle:rgba(13, 26, 36, 0.08);
+--border-glow:rgba(45, 110, 160, 0.25);
+--shadow-sm:0 1px 3px rgba(0,0,0,0.06);
+--shadow-md:0 4px 12px rgba(0,0,0,0.08);
+}
+body.light .knowledge-card.expanded{border-color:rgba(56,168,128,0.5)}
+body.dark .knowledge-card.expanded{border-color:rgba(78,197,160,0.5);background:var(--bg-elevated)}

@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>线性回归与正则化 - 深度研读</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<style>
+:root{--bg:#ffffff;--bg-secondary:#f8fafc;--bg-tertiary:#f1f5f9;--text:#0f172a;--text-secondary:#475569;--text-tertiary:#94a3b8;--border:#e2e8f0;--primary:#6366f1;--primary-light:#eef2ff;--accent:#8b5cf6;--accent-light:#f5f3ff;--cyan:#22d3ee;--cyan-light:#ecfeff;--orange:#f59e0b;--orange-light:#fffbeb;--green:#10b981;--green-light:#ecfdf5;--red:#ef4444;--red-light:#fef2f2;--pink:#ec4899;--pink-light:#fdf2f8;--shadow-sm:0 1px 2px rgba(0,0,0,0.05);--shadow:0 1px 3px rgba(0,0,0,0.1);--shadow-md:0 4px 6px -1px rgba(0,0,0,0.1);--shadow-lg:0 10px 15px -3px rgba(0,0,0,0.1);--radius:12px;--radius-sm:8px;--max-width:780px;--sidebar-width:240px;--transition:0.2s cubic-bezier(0.4,0,0.2,1)}
+[data-theme="dark"]{--bg:#0f172a;--bg-secondary:#1e293b;--bg-tertiary:#334155;--text:#f1f5f9;--text-secondary:#94a3b8;--text-tertiary:#64748b;--border:#334155;--primary:#818cf8;--primary-light:rgba(99,102,241,0.15);--accent:#a78bfa;--accent-light:rgba(139,92,246,0.15);--cyan:#67e8f9;--cyan-light:rgba(34,211,238,0.1);--orange:#fbbf24;--orange-light:rgba(245,158,11,0.1);--green:#34d399;--green-light:rgba(16,185,129,0.1);--red:#f87171;--red-light:rgba(239,68,68,0.1);--pink:#f472b6;--pink-light:rgba(236,72,153,0.1);--shadow-sm:0 1px 2px rgba(0,0,0,0.3);--shadow:0 1px 3px rgba(0,0,0,0.4);--shadow-md:0 4px 6px -1px rgba(0,0,0,0.4);--shadow-lg:0 10px 15px -3px rgba(0,0,0,0.4)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Inter','SF Pro Display',-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;-webkit-font-smoothing:antialiased;transition:background var(--transition),color var(--transition)}
+body.loading{opacity:0}body.loaded{opacity:1;transition:opacity 0.4s ease}
+#progress-bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--primary),var(--accent),var(--cyan));z-index:1000;transition:width 0.1s linear}
+#theme-toggle{position:fixed;top:20px;right:20px;z-index:999;width:40px;height:40px;border-radius:50%;background:var(--bg-secondary);border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;transition:all var(--transition);box-shadow:var(--shadow-sm)}
+#theme-toggle:hover{transform:scale(1.1);box-shadow:var(--shadow)}
+#sidebar{position:fixed;top:0;left:0;width:var(--sidebar-width);height:100vh;background:var(--bg-secondary);border-right:1px solid var(--border);padding:80px 16px 24px;overflow-y:auto;z-index:100;transition:transform var(--transition)}
+#sidebar h3{font-size:11px;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-tertiary);margin-bottom:12px;font-weight:600}
+.sidebar-link{display:block;padding:6px 12px;margin:2px 0;border-radius:var(--radius-sm);font-size:13px;color:var(--text-secondary);text-decoration:none;transition:all var(--transition);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sidebar-link:hover{background:var(--bg-tertiary);color:var(--text)}
+.sidebar-link.active{background:var(--primary-light);color:var(--primary);font-weight:600}
+#main-content{margin-left:var(--sidebar-width);max-width:var(--max-width);padding:60px 32px 120px;margin-right:auto}
+.meta-card{background:linear-gradient(135deg,var(--primary-light),var(--accent-light));border:1px solid var(--border);border-radius:var(--radius);padding:28px 32px;margin-bottom:48px;display:flex;flex-wrap:wrap;gap:24px;align-items:center}
+.meta-card .meta-item{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--text-secondary)}
+.meta-badge{display:inline-block;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;letter-spacing:0.02em}
+.meta-badge.domain-ai{background:var(--accent-light);color:var(--accent)}
+.meta-badge.level-intermediate{background:var(--orange-light);color:var(--orange)}
+.module-section{margin-bottom:56px;opacity:0;transform:translateY(24px);transition:opacity 0.6s ease,transform 0.6s ease}
+.module-section.visible{opacity:1;transform:translateY(0)}
+.module-header{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.module-tag{display:inline-block;padding:3px 10px;border-radius:6px;font-size:11px;font-weight:600;letter-spacing:0.03em;text-transform:uppercase}
+.tag-core{background:var(--primary-light);color:var(--primary)}
+.tag-tools{background:var(--accent-light);color:var(--accent)}
+.tag-evolution{background:var(--cyan-light);color:#0891b2}
+.tag-application{background:var(--green-light);color:var(--green)}
+.tag-risk{background:var(--red-light);color:var(--red)}
+.tag-frontier{background:var(--orange-light);color:var(--orange)}
+.module-title{font-size:22px;font-weight:700;color:var(--text);letter-spacing:-0.02em}
+.module-hook{font-size:16px;color:var(--text-secondary);font-style:italic;border-left:3px solid var(--primary);padding-left:16px;margin-bottom:20px}
+.module-content{font-size:15px;color:var(--text)}
+.module-content p{margin-bottom:12px}
+.module-content strong{color:var(--text)}
+.module-content ul,.module-content ol{margin:8px 0 16px 24px}
+.module-content li{margin-bottom:6px}
+.formula-block{background:var(--bg-tertiary);border:1px solid var(--border);border-radius:var(--radius-sm);padding:20px 24px;margin:16px 0;position:relative;cursor:pointer;transition:all var(--transition)}
+.formula-block:hover{box-shadow:var(--shadow)}
+.formula-caption{font-size:12px;color:var(--text-tertiary);margin-top:8px;text-align:center}
+.formula-derivation{display:none;margin-top:16px;padding-top:16px;border-top:1px solid var(--border);font-size:14px;color:var(--text-secondary)}
+.formula-block.expanded .formula-derivation{display:block}
+.formula-expand-hint{font-size:11px;color:var(--text-tertiary);text-align:right;margin-top:4px}
+.chart-container{background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin:20px 0}
+.chart-wrapper{width:100%;height:380px}
+.chart-caption{font-size:13px;color:var(--text-secondary);text-align:center;margin-top:12px}
+.module-table{width:100%;border-collapse:collapse;margin:16px 0;font-size:14px;border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden}
+.module-table th{background:var(--bg-tertiary);padding:10px 16px;text-align:left;font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:0.03em;color:var(--text-secondary)}
+.module-table td{padding:10px 16px;border-top:1px solid var(--border);color:var(--text)}
+.module-table tr:hover td{background:var(--bg-tertiary)}
+.module-references{margin-top:20px;padding-top:16px;border-top:1px solid var(--border);font-size:12px;color:var(--text-tertiary)}
+.module-references h4{font-size:12px;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px}
+.module-references ol{margin-left:20px}
+.module-references li{margin-bottom:4px}
+.key-takeaway{margin-top:16px;padding:14px 20px;border-radius:var(--radius-sm);background:var(--primary-light);border-left:4px solid var(--primary);font-size:14px;font-weight:500;color:var(--text)}
+#page-footer{margin-top:60px;padding:32px 0;border-top:1px solid var(--border);display:flex;gap:12px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:var(--radius-sm);font-size:14px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:var(--bg);color:var(--text);transition:all var(--transition);text-decoration:none}
+.btn:hover{background:var(--bg-tertiary)}
+.btn.primary{background:var(--primary);color:#fff;border-color:var(--primary)}
+.btn.primary:hover{filter:brightness(1.1)}
+@media(max-width:1024px){:root{--sidebar-width:200px}#main-content{padding:48px 24px 80px}}
+@media(max-width:768px){#sidebar{transform:translateX(-100%)}#sidebar.open{transform:translateX(0)}#main-content{margin-left:0;padding:72px 20px 60px}#theme-toggle{top:16px;right:16px}.meta-card{padding:20px 24px;flex-direction:column;gap:12px;align-items:flex-start}.chart-wrapper{height:280px}.module-title{font-size:19px}}
+@media print{#sidebar,#progress-bar,#theme-toggle,#page-footer{display:none!important}#main-content{margin-left:0;max-width:100%;padding:0}.module-section{opacity:1;transform:none;break-inside:avoid}body{font-size:12px}}
+#bg-canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none}
+</style>
+</head>
+<body class="loading">
+<canvas id="bg-canvas"></canvas>
+
+<div class="integration-navbar" style="display:flex;align-items:center;gap:12px;padding:10px 24px;background:var(--bg-card,var(--bg-secondary));border-bottom:1px solid var(--border);font-size:14px;position:sticky;top:0;z-index:50;">
+  <a href="#" onclick="goBack();return false;" style="color:var(--primary);text-decoration:none;font-weight:600;">← 返回 机器学习及其统计基础与大模型 系统学习方案</a>
+  <span style="color:var(--text-tertiary);">|</span>
+  <span style="color:var(--text-secondary);">第2/5阶段 · 经典机器学习</span>
+</div>
+
+<div id="progress-bar"></div>
+<button id="theme-toggle" title="切换深色/浅色模式" onclick="toggleTheme()">🌓</button>
+
+<nav id="sidebar">
+  <a href="#" onclick="goBack();return false;" class="sidebar-back-link" style="display:block;padding:8px 12px;margin-bottom:12px;border-radius:8px;background:var(--bg-tertiary);color:var(--primary);text-decoration:none;font-size:13px;font-weight:600;">← 返回主方案</a>
+  <h3>📑 内容导航</h3>
+  <div id="sidebar-links"></div>
+</nav>
+
+<main id="main-content">
+  <div id="meta-card-container"></div>
+  <div id="modules-container"></div>
+  <footer id="page-footer">
+    <button class="btn primary" onclick="window.print()">📥 导出 PDF</button>
+    <button class="btn" onclick="exportNotes()">📄 导出笔记</button>
+  </footer>
+</main>
+
+<div class="back-btn" style="position:fixed;right:24px;bottom:24px;z-index:200;">
+  <button onclick="goBack()" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:white;border:none;border-radius:24px;padding:12px 24px;font-size:0.85rem;font-weight:600;cursor:pointer;box-shadow:0 4px 12px rgba(99,102,241,0.3);">← 返回学习方案</button>
+</div>
+
+<script>
+var DEEP_DIVE_KP_ID = 'p2_1';
+function goBack(){
+  var MAIN_PAGE = 'ml_learning.html';
+  var WIN_NAME = '_ml_llm_main';
+  var CH_KEY = '_ml_llm_nav';
+  localStorage.setItem(CH_KEY, JSON.stringify({kpId: DEEP_DIVE_KP_ID, ts: Date.now()}));
+  var mainWin = window.open(MAIN_PAGE, WIN_NAME);
+  if(mainWin){mainWin.focus();}
+}
+
+const PAGE_DATA = {
+  topic: "线性回归与正则化",
+  domain: "ai-tech", domain_name: "AI与科技",
+  level: "intermediate", level_name: "进阶",
+  reading_time: "32", module_count: "17",
+  texture: "G5", texture_name: "全面平衡型", depth: "理解", breadth: "标准",
+  modules: [
+    {
+      module_id: "background", module_title: "背景与缘起", module_tag: "发展演进",
+      hook: "1805年，法国数学家Legendre在计算彗星轨道时随手发明了最小二乘法——200多年后，这个方法依然是机器学习最基础的'Hello World'。",
+      content: "线性回归（Linear Regression）的数学根源可以追溯到18世纪末。**Legendre**（1805）在《Nouvelles methodes pour la determination des orbites des cometes》中首次发表了最小二乘法；**Gauss**则声称自1795年已开始使用，并在1809年从概率角度证明：当误差服从高斯分布时，最小二乘估计等价于极大似然估计（MLE）——这直接奠定了线性回归的统计基础。\n\n20世纪，**R.A. Fisher**系统化了回归分析的理论框架，引入了显著性检验和方差分析（ANOVA）。1970年，**Hoerl & Kennard**提出Ridge回归（岭回归），首次用L2惩罚项解决了多重共线性问题。1996年，**Tibshirani**提出Lasso（Least Absolute Shrinkage and Selection Operator），用L1惩罚同时实现系数收缩和自动特征选择。\n\n如今，线性回归已不仅是预测工具——它是理解所有ML模型偏差-方差权衡、正则化思想和优化理论的**最佳入口**。如果把机器学习比作一座大厦，线性回归就是地基。",
+      key_takeaway: "从Legendre的计算天文学工具到Tibshirani的Lasso，线性回归见证了统计学从手工计算到ML时代的完整进化。理解线性回归=理解ML的底层逻辑。"
+    },
+    {
+      module_id: "concept", module_title: "核心概念", module_tag: "核心概念",
+      hook: "如果把机器学习的所有模型排成一排，线性回归一定站在最左边——它如此简单，却包含了一个ML模型应该有的全部组件。",
+      content: "线性回归的核心思想可以用一句话概括：**用自变量的线性组合来预测因变量**。\n\n**模型形式**：$y = \\beta_0 + \\beta_1 x_1 + \\beta_2 x_2 + \\cdots + \\beta_p x_p + \\epsilon$，其中$\\epsilon \\sim \\mathcal{N}(0, \\sigma^2)$是随机误差。\n\n**核心组件**：\n- **设计矩阵X**：n×p的矩阵，每行一个样本，每列一个特征。注意行列区分——n是样本数，p是特征数。\n- **系数向量β**：p维向量，每个$\\beta_j$表示在控制其他变量不变时，$x_j$每变化一个单位对y的预期影响。这是回归模型'可解释性'的来源。\n- **损失函数**：通常使用均方误差（MSE）$\\mathcal{L}(\\beta) = \\frac{1}{n}\\sum_{i=1}^n (y_i - \\hat{y}_i)^2$。\n- **正则化项**：在损失函数中添加$\\lambda \\|\\beta\\|_1$（Lasso）或$\\lambda \\|\\beta\\|_2^2$（Ridge）来约束系数大小。\n\n**三条等价视角（理解线性回归的关键）**：\n1. **代数视角**：求解线性方程组 $X^TX\\beta = X^Ty$\n2. **几何视角**：将y投影到X的列空间，$\hat{y} = X(X^TX)^{-1}X^Ty$，投影矩阵H是'帽子矩阵'\n3. **概率视角**：假设$y|X \\sim \\mathcal{N}(X\\beta, \\sigma^2 I)$，MLE与最小二乘等价",
+      formulas: [
+        {latex: "$$\\hat{\\beta}_{\\text{OLS}} = (X^{\\top}X)^{-1}X^{\\top}y$$", caption: "OLS的闭式解（Closed-form Solution）", expandable: true, derivation: "对MSE损失求导：$\\frac{\\partial}{\\partial\\beta}\\|y-X\\beta\\|^2 = -2X^\\top(y-X\\beta) = 0$，解出 $X^\\top X\\beta = X^\\top y$。当$X^\\top X$可逆时，$\\hat{\\beta}=(X^\\top X)^{-1}X^\\top y$。"}
+      ],
+      key_takeaway: "线性回归的代数解、几何投影和概率MLE是同一件事的三张面孔——理解这种多视角统一是进阶ML学习的核心能力。"
+    },
+    {
+      module_id: "principle", module_title: "核心原理：从OLS到正则化的数学之旅", module_tag: "核心概念",
+      hook: "为什么加了惩罚项就能防止过拟合？为什么L1产生稀疏解而L2不行？——这背后的数学，比你想象的更优雅。",
+      content: "**最小二乘（OLS）的几何本质**\nOLS求解的$\\hat{\\beta}$是使得残差向量$\\mathbf{r} = \\mathbf{y} - \\mathbf{X}\\hat{\\beta}$与设计矩阵列空间正交的向量。即：$\\mathbf{X}^\\top(\\mathbf{y} - \\mathbf{X}\\hat{\\beta}) = 0$。从几何上看，$\\hat{\\mathbf{y}} = \\mathbf{X}\\hat{\\beta} = \\mathbf{H}\\mathbf{y}$是y在X列空间上的正交投影，其中$\\mathbf{H} = \\mathbf{X}(\\mathbf{X}^\\top\\mathbf{X})^{-1}\\mathbf{X}^\\top$是hat matrix。\n\n**正则化的贝叶斯解释（理解L1/L2差异的关键）**\n- **Ridge (L2)**：$\\min_\\beta \\|\\mathbf{y} - \\mathbf{X}\\beta\\|_2^2 + \\lambda\\|\\beta\\|_2^2$ = 假设$\\beta$先验为$\\mathcal{N}(0, \\tau^2)$时的MAP估计，其中$\\lambda = \\sigma^2/\\tau^2$\n- **Lasso (L1)**：$\\min_\\beta \\|\\mathbf{y} - \\mathbf{X}\\beta\\|_2^2 + \\lambda\\|\\beta\\|_1$ = 假设$\\beta$先验为Laplace(0, b)时的MAP估计，其中$\\lambda = \\sigma^2/b$\n\n**L1为何产生稀疏性？**\n在二维情况下，L1约束区域是菱形($|\\beta_1|+|\\beta_2| \\le t$)，L2是圆形($\\beta_1^2+\\beta_2^2 \\le t$)。OLS解是等高线椭圆的中心。当椭圆的等高线首次触及约束区域时：圆形(L2)的切点通常不在坐标轴上→系数都不为零；菱形(L1)的切点大概率在角点（坐标轴上）→某些系数恰好为零。\n\n**弹性网络（Elastic Net）**：$\\min_\\beta \\|\\mathbf{y} - \\mathbf{X}\\beta\\|_2^2 + \\lambda_1\\|\\beta\\|_1 + \\lambda_2\\|\\beta\\|_2^2$，结合L1的稀疏性和L2的稳定性，解决了Lasso在特征数>样本数时最多选n个特征的局限。",
+      formulas: [
+        {latex: "$$\\hat{\\beta}_{\\text{Ridge}} = (X^{\\top}X + \\lambda I)^{-1}X^{\\top}y$$", caption: "Ridge回归的闭式解——加了λI保证可逆性", expandable: true, derivation: "对Ridge目标函数求导：$\\frac{\\partial}{\\partial\\beta}(\\|y-X\\beta\\|^2+\\lambda\\|\\beta\\|^2)=-2X^\\top(y-X\\beta)+2\\lambda\\beta=0$，整理得$(X^\\top X+\\lambda I)\\beta=X^\\top y$。即使$X^\\top X$不可逆（如p>n），加$\\lambda I$后必然可逆。"},
+        {latex: "$$\\hat{\\beta}_{\\text{Lasso}} = \\arg\\min_\\beta \\left\\{\\frac{1}{2}\\|y-X\\beta\\|_2^2 + \\lambda\\|\\beta\\|_1\\right\\}$$", caption: "Lasso没有闭式解，通常用坐标下降法（Coordinate Descent）求解"}
+      ],
+      charts: [
+        {echarts_option: {title:{text:'L1 vs L2正则化约束区域对比',left:'center',textStyle:{fontSize:14}},tooltip:{trigger:'item'},legend:{bottom:0,data:['L2(Ridge)约束','L1(Lasso)约束','OLS解路径']},grid:{left:'10%',right:'10%',top:'15%',bottom:'15%'},xAxis:{type:'value',min:-2,max:2},yAxis:{type:'value',min:-2,max:2},series:[
+          {name:'L2(Ridge)约束',type:'line',smooth:false,data:(function(){var d=[];for(var i=0;i<=100;i++){var t=i*2*Math.PI/100;d.push([1.5*Math.cos(t),1.5*Math.sin(t)]);}d.push(d[0]);return d;})()},
+          {name:'L1(Lasso)约束',type:'line',smooth:false,data:[[0,1.5],[1.5,0],[0,-1.5],[-1.5,0],[0,1.5]]},
+          {name:'OLS解路径',type:'scatter',data:[[0.8,0.6]],symbolSize:12}
+        ]}, caption: "图：L1菱形约束的角点更容易产生稀疏解"}
+      ],
+      tables: [
+        {headers: ["维度", "OLS", "Ridge(L2)", "Lasso(L1)", "Elastic Net"], rows: [
+          ["解的形式", "闭式解", "闭式解", "数值解(无闭式)", "数值解"],
+          ["系数特征", "无偏但不稳定", "收缩但非零", "稀疏(部分为零)", "稀疏+稳定"],
+          ["Bayes先验", "无信息(均匀)", "高斯先验", "拉普拉斯先验", "高斯+拉普拉斯混合"],
+          ["特征选择", "不支持", "不支持", "自动选择", "自动选择"],
+          ["适用场景", "n>>p,无共线性", "存在多重共线性", "需要稀疏模型", "p>n且需要稀疏"]
+        ], caption: "四种线性回归方法核心对比"}
+      ],
+      key_takeaway: "L1的菱形约束边界天然产生角点解→稀疏性；L2的圆形约束边界产生平滑解→稳定性。这不是魔法，是几何。"
+    },
+    {
+      module_id: "architecture", module_title: "几何与概率的双重视角", module_tag: "核心概念",
+      hook: "同一个线性回归，从代数看是解方程组，从几何看是投影，从概率看是参数的后验——三种语言，同一件事。",
+      content: "**几何视角：投影与正交分解**\n设计矩阵X的列空间是一个p维子空间。OLS的预测值$\\hat{y}$是y在该子空间上的正交投影。这意味着：\n- 残差$e = y - \\hat{y}$与X的列空间正交\n- $\\|y\\|^2 = \\|\\hat{y}\\|^2 + \\|e\\|^2$（勾股定理）→ $R^2 = \\frac{\\|\\hat{y}\\|^2}{\\|y\\|^2}$\n- Hat matrix H是幂等的（$H^2 = H$）且对称的\n\n**概率视角：三种分布的联系**\n$$\\beta | y, X, \\sigma^2 \\sim \\mathcal{N}((X^TX+\\lambda I)^{-1}X^Ty, \\sigma^2(X^TX+\\lambda I)^{-1})$$\n这是Ridge回归参数的后验分布。当$\\lambda \\to 0$时就是OLS的抽样分布。理解这一点，就理解了为什么正则化能降低方差：先验信息使得后验分布更'集中'。\n\n**SVD视角：Ridge如何'压制'小奇异值**\n对X做SVD：$X = U\\Sigma V^T$，则：\n- OLS的hat matrix：$H = U U^T$（所有方向平等投影）\n- Ridge的hat matrix：$H_\\lambda = U \\cdot \\text{diag}\\left(\\frac{\\sigma_i^2}{\\sigma_i^2+\\lambda}\\right) \\cdot U^T$\n小奇异值方向被$\\lambda$压制→方差降低，这是Ridge对抗过拟合的根本机制。",
+      formulas: [
+        {latex: "$$\\hat{\\beta}_{\\text{Ridge}}^{\\text{SVD}} = V \\cdot \\text{diag}\\left(\\frac{\\sigma_i}{\\sigma_i^2+\\lambda}\\right) \\cdot U^\\top y$$", caption: "Ridge的SVD形式——清晰展示λ如何收缩各方向"}
+      ],
+      key_takeaway: "几何投影、概率后验、SVD收缩——三种视角都指向同一个结论：正则化=用偏差换方差，在可解释性不发生质变的前提下大幅提升泛化能力。"
+    },
+    {
+      module_id: "development", module_title: "发展迭代", module_tag: "发展演进",
+      hook: "从手工计算最小二乘到用GPU跑百万特征的Lasso——线性回归的200年进化史，就是统计学和计算机科学交叉融合的缩影。",
+      content: "**1805-1900：奠基时代**\nLegendre(1805)发表最小二乘→Gauss(1809)给出概率解释→Galton(1886)提出'回归'一词（研究父子身高时发现'回归到均值'现象）→Yule(1897)将回归推广至多变量。\n\n**1900-1970：统计理论黄金期**\nFisher(1922)系统化回归推断→Gauss-Markov定理：OLS在无偏估计中方差最小→Hastings(1970)首次在水文学中应用Ridge→Hoerl & Kennard(1970)发表Ridge回归奠基论文。\n\n**1970-2000：正则化革命**\nTibshirani(1996)提出Lasso→Efron(2004)发表LARS（Least Angle Regression）算法，给出Lasso的高效求解路径→Zou & Hastie(2005)提出Elastic Net→Candes & Tao(2007)提出Dantzig Selector。\n\n**2000-至今：高维与大数据时代**\nFriedman(2010)的glmnet包使Lasso/Ridge在p>>n场景下实用化→分布式计算框架（Spark MLlib）使线性回归能在TB级数据上运行→稀疏学习成为压缩感知和基因组学的基础工具。",
+      key_takeaway: "线性回归从笔算进化为分布式计算，但其核心思想从未改变：用最简单的线性关系捕获数据中的信号。"
+    },
+    {
+      module_id: "application", module_title: "实践应用", module_tag: "实践应用",
+      hook: "线性回归不是'太简单没用'——正相反，它可能是你工具箱里使用频率最高的模型。",
+      content: "**1. 基准模型（Baseline）**\n在开始任何复杂建模前，先跑一个线性回归。如果XGBoost的R²只比线性回归高0.02，你可能在过拟合。线性回归是判断'复杂度是否值得'的黄金标尺。\n\n**2. 因果推断的基础**\n经济学和医学中的大多数因果推断方法（DID、IV、RDD）都建立在OLS之上。`$\\beta_j$`是'控制其他变量后，`$x_j$`对y的因果效应'的最佳线性无偏估计（在满足特定假设条件下）。\n\n**3. 可解释性要求高的场景**\n金融风控（监管要求解释每个特征的影响方向和幅度）、医疗诊断（需要给出系数置信区间）——这些场景下黑盒模型无法使用，线性回归+正则化是标准选择。\n\n**4. 特征重要性分析**\n标准化特征后，系数的大小直接反映特征对目标的相对影响。配合p值可以筛选统计显著的特征。\n\n**5. 时间序列趋势分解**\n$y_t = \\beta_0 + \\beta_1 t + \\epsilon$——最简单的趋势线就是线性回归。在此基础上加入季节虚拟变量，就是经典的时序分解模型。",
+      key_takeaway: "当你不需要非线性时，线性回归是最优选择；当你需要非线性时，线性回归是最佳基准。永远不要跳过第一步。"
+    },
+    {
+      module_id: "case-study", module_title: "实战案例：波士顿房价预测的完整管线", module_tag: "实践应用",
+      hook: "从数据清洗到正则化调参，用波士顿房价数据集走一遍完整的线性回归流程——你会在亲手操作中发现，'简单'模型在实践中有多讲究。",
+      content: "**问题**：根据房屋特征（房间数、犯罪率、师生比等13个特征）预测房价中位数。\n\n**Step 1: 探索性分析**\n- 特征标准化：所有特征均值为0，方差为1。$x' = \\frac{x - \\mu}{\\sigma}$——正则化必须标准化！否则系数收缩不公平。\n- 检查多重共线性：VIF（方差膨胀因子）>10的特征需要处理。RM（房间数）和LSTAT（低端人口比例）的相关系数高达-0.74。\n\n**Step 2: 模型训练**\n- 划分80/20训练/测试集\n- OLS基准：R²_train=0.74, R²_test=0.68 → 有轻微过拟合迹象\n- Ridge(α=1.0)：R²_train=0.72, R²_test=0.70 → 泛化能力提升\n- Lasso(α=0.1)：R²_train=0.71, R²_test=0.71，且自动将'INDUS'（非零售商业用地比例）系数收缩为0→自动特征选择！\n\n**Step 3: 超参数调优**\n用5折交叉验证搜索最佳α（正则化强度）。Ridge最佳α≈0.5，Lasso最佳α≈0.05。\n\n**Step 4: 模型解释**\n标准化系数排序：LSTAT(-3.7) > RM(+2.5) > PTRATIO(-1.2) → 低端人口比例每增加1个标准差，房价下降3.7单位（经标准化）。\n\n**关键教训**：正则化前务必标准化。Lasso在特征相关时会随机选一个而舍弃另一个（模型不稳定）→这种情况应改用Elastic Net。",
+      formulas: [
+        {latex: "$$\\hat{y} = 22.5 + 2.5 \\cdot \\text{RM} - 3.7 \\cdot \\text{LSTAT} - 1.2 \\cdot \\text{PTRATIO} + \\cdots$$", caption: "Lasso筛选后的精简模型（标准化系数）"}
+      ],
+      key_takeaway: "特征标准化+正则化调参+交叉验证——这三步是将'课本上的线性回归'变成'工程上可用的线性回归'的必经之路。"
+    },
+    {
+      module_id: "risk", module_title: "潜在陷阱与局限", module_tag: "风险与挑战",
+      hook: "线性回归的假设比你想象的多——而且这些假设在真实数据中几乎总是被违反的。知道哪里会出问题，比知道怎么跑代码更重要。",
+      content: "**陷阱1：忽略多重共线性**\n当两个特征高度相关时（如'房屋面积'和'卧室数量'），$X^TX$接近奇异→系数估计的方差极大→系数的符号、大小和显著性在样本间剧烈波动。VIF>10是警报。\n\n**陷阱2：外推谬误**\n用$0-100$kg的体重数据训练的模型，预测$200$kg时的结果是纯外推——线性假设在训练域外可能完全失效。永远不要用线性回归做超出训练范围的预测。\n\n**陷阱3：遗漏变量偏差（Omitted Variable Bias）**\n若真实模型$y = \\beta_1x_1 + \\beta_2x_2 + \\epsilon$中遗漏了与$x_1$相关的$x_2$，则$\\hat{\\beta}_1$将有偏：$\\mathbb{E}[\\hat{\\beta}_1] = \\beta_1 + \\beta_2 \\cdot \\text{Cov}(x_1,x_2)/\\text{Var}(x_1)$。\n\n**陷阱4：异方差性**\n误差方差$\\text{Var}(\\epsilon_i)$不恒定（如预测低收入时方差小、高收入时方差大）→标准误估计失真→置信区间和p值不可靠。\n\n**陷阱5：正则化强度的选择**\n$\\lambda$太小→等于没加正则；$\\lambda$太大→欠拟合，所有系数趋近于零。交叉验证是选$\\lambda$的标准方法，但要在CV fold间看稳定性和标准差。",
+      key_takeaway: "线性回归的5个经典假设（线性、独立、同方差、外生性、正态性）每违反一个，结论就多一分不可靠。诊断比建模更难，也更关键。"
+    },
+    {
+      module_id: "ethics", module_title: "公平性与伦理考量", module_tag: "风险与挑战",
+      hook: "线性回归的'可解释性'是一把双刃剑——它能揭示偏见，也能将偏见包装成'客观的科学结论'。",
+      content: "**1. 系数不等于因果**\n当回归方程显示'性别系数为-5000（工资）'时，很多人会解读为'性别歧视'。但这个系数可能吸收了'职位'、'行业'、'工作年限'等遗漏变量的效应。在没有随机实验或因果推断工具的情况下，线性回归系数只是相关性的量化，不是因果关系的证据。\n\n**2. 代理变量与歧视**\n即使从模型中移除'种族'变量，如果保留了'邮政编码'（与种族高度相关），模型仍然可以间接进行种族歧视——这被称为'算法歧视的代理变量问题'。在信贷、招聘、司法量刑等场景，需要格外警惕。\n\n**3. 正则化的公平性影响**\nL1正则化会自动选择特征，如果训练数据存在历史偏见（如某些群体样本不足），Lasso可能系统性地删除与该群体相关的特征，导致模型在该群体上表现更差——这是正则化公平性研究的新兴方向。\n\n**4. 模型透明度的双面性**\n线性回归的系数可解释性意味着偏见容易被发现和审计——这一点优于黑盒模型。欧洲的'被解释权'法规（GDPR）和美国信贷的'不利行动通知'都偏好在关键决策中使用可解释模型。",
+      key_takeaway: "可解释性是线性回归的盔甲也是软肋：它能让你看到模型在做什么，却无法阻止你用它做不公平的事。伦理审查应成为建模流程的标配。"
+    },
+    {
+      module_id: "landscape", module_title: "发展格局", module_tag: "发展演进",
+      hook: "在XGBoost和GPT大行其道的时代，线性回归还重要吗？答案是：它比以往任何时候都更重要——只不过换了个战场。",
+      content: "**学术界**：\n线性回归的研究前沿已转向三个方向：\n- **高维统计**：p>>n场景下的推断理论，如debiased Lasso（去偏Lasso）可以给出每个系数的有效p值和置信区间\n- **联邦学习中的线性回归**：如何在保护数据隐私的前提下，跨多个数据源联合估计线性模型系数\n- **差分隐私保障**：在发布回归系数时加入噪声以保护个体隐私\n\n**工业界**：\n- 线性回归是A/B测试分析的默认工具（CUPED方法的核心就是线性回归调整）\n- 广告归因模型（Media Mix Modeling）的主流仍是带约束的线性回归\n- 量化金融中，Fama-French三因子/五因子模型本质就是带特定因子的线性回归\n\n**与大模型的融合**：\n- LLM推理的最后阶段常用线性分类头（linear probe）\n- 可解释AI（XAI）中，LIME用局部线性回归近似任何黑盒模型的决策边界\n- RLHF中reward model的训练损失本质上仍是回归",
+      key_takeaway: "线性回归没有'过时'——它只是从舞台中央移到了幕后，成为更多复杂系统的基石组件。"
+    },
+    {
+      module_id: "research-map", module_title: "研究前沿与核心团队", module_tag: "前沿探索",
+      hook: "如果你以为线性回归的研究已经'做完了'，看看这几位学者近5年的论文——你会发现自己严重低估了'简单模型'的复杂性。",
+      content: "**核心研究团队**：\n- **Trevor Hastie & Rob Tibshirani (Stanford)**：统计学习领域的两位泰斗，《ESL》作者。近年在研究post-selection inference——'先用Lasso选特征，再用OLS在选出的特征上做推断'的统计理论问题。\n- **Emmanuel Candes (Stanford)**：压缩感知和debiased inference的引领者。提出knockoff filter用于控制高维特征选择中的假发现率(FDR)。\n- **Jianqing Fan (Princeton)**：高维统计推断的先驱。提出refitted cross-validation用于高维回归中的方差估计。\n- **Martin Wainwright (UC Berkeley)**：高维统计理论的集大成者，著作《High-Dimensional Statistics》是该领域圣经。\n\n**当前热点方向**：\n- Distribution-free inference：不依赖分布假设的回归推断\n- Conformal prediction for regression：提供有限样本的预测区间保证\n- Causal regularization：将因果知识编码为正则化约束",
+      key_takeaway: "线性回归的学术前沿远未饱和——当你觉得'都会了'的时候，去看看Hastie和Candes的最新preprint。"
+    },
+    {
+      module_id: "issues", module_title: "当前挑战与瓶颈", module_tag: "风险与挑战",
+      hook: "线性模型的线性性既是它最大的优势，也是它最大的限制——但真正的挑战往往不在模型本身，而在数据。",
+      content: "**挑战1：高维场景下的推断困境**\n当p接近或超过n时，经典的大样本理论（如$\\hat{\\beta} \\to \\mathcal{N}(\\beta, \\sigma^2(X^TX)^{-1})$）失效。debiased Lasso等方法试图解决这一问题，但前提假设（如sparsity）在实践中常被违反。\n\n**挑战2：分布偏移**\n训练数据和测试数据的联合分布$P(X,Y)$不同时，线性回归系数的最优性丧失。这在时间序列预测（经济危机）、跨地域泛化（不同国家）中尤为突出。\n\n**挑战3：交互效应的指数爆炸**\n现实世界充满交互效应（'学历×工作经验'对工资的影响不是简单相加）。手工加入交互项会导致特征数$O(p^2)$增长。尽管有hierarchical interaction models等方法，但在大规模实践中仍不成熟。\n\n**挑战4：正则化参数的理论指导缺失**\nCV选λ在实践中通用，但当数据量小时CV的方差巨大。理论最优的λ（如Stein\'s unbiased risk estimate）在实际中常因模型误设而不准确。",
+      key_takeaway: "高维推断、分布迁移、交互效应、λ选择的困境——这些挑战的解决之道往往不在'更好的线性模型'，而在'更好地理解数据生成过程'。"
+    },
+    {
+      module_id: "prospect", module_title: "发展前景", module_tag: "前沿探索",
+      hook: "线性回归的未来不在'更复杂的线性模型'，而在'用线性回归解锁更复杂模型的秘密'。",
+      content: "**1. 可解释AI的线性桥梁**\nLIME和SHAP的核心思想都是用局部线性回归近似复杂模型的决策边界。未来在金融、医疗等受监管行业，线性模型将作为'翻译器'连接黑盒模型和人类决策者。\n\n**2. 自动化特征工程+线性模型**\nDeep Feature Synthesis等技术自动生成大量特征，然后用Lasso筛选——结合了深度学习的表征能力和线性回归的可解释性。\n\n**3. 在线学习中的线性回归**\nStreaming data场景下，需要增量更新回归系数。Recursive Least Squares (RLS) 允许以$O(p^2)$的代价更新$\\hat{\\beta}$，无需存储历史数据。\n\n**4. 与因果推断的深度融合**\nDouble Machine Learning (Chernozhukov et al., 2018) 用ML模型估计nuisance参数，用线性回归估计感兴趣的因果效应——结合了ML的灵活性和线性回归的推断能力。",
+      key_takeaway: "线性回归的未来定位是'法官'而非'律师'——它不做最复杂的预测，但负责给出最可信的解读和推断。"
+    },
+    {
+      module_id: "effort-direction", module_title: "学习建议与练习路径", module_tag: "前沿探索",
+      hook: "给你一个2周的实操路线图，从推导闭式解到调通一个生产级正则化回归管线。",
+      content: "**Week 1: 吃透理论**\n- Day 1-2：从零推导OLS闭式解，理解$X^TX$的几何含义。用2D数据可视化投影过程。\n- Day 3-4：实现Ridge和Lasso的参数求解（坐标下降法），理解soft-thresholding算子：$S(z,\\lambda)=\\text{sign}(z)(|z|-\\lambda)_+$\n- Day 5：在波士顿房价/糖尿病数据集上对比OLS/Ridge/Lasso/ElasticNet\n\n**Week 2: 实战工程**\n- Day 1-2：学习特征工程 pipeline（缺失值填充、标准化、多项式特征、交互特征）\n- Day 3：实现5折交叉验证网格搜索最佳λ，用learning curve诊断偏差-方差\n- Day 4-5：阅读经典论文\n  - Tibshirani (1996) \"Regression Shrinkage and Selection via the Lasso\"\n  - Zou & Hastie (2005) \"Regularization and Variable Selection via the Elastic Net\"\n\n**深入挑战**：\n- 实现LARS算法（Efron, 2004）\n- 用glmnet在p=10000, n=100的场景下跑Lasso，观察解的路径\n- 阅读\"High-Dimensional Statistics\" (Wainwright, 2019) 第7章",
+      key_takeaway: "线性回归学会只需要1天，学透需要1年。2周打基础，2年磨一剑——值得。"
+    },
+    {
+      module_id: "misconceptions", module_title: "常见误区", module_tag: "风险与挑战",
+      hook: "这些关于线性回归的误解，从数据科学家到教授，几乎人人都犯过。",
+      content: "**误区1：'R²越高模型越好'**\nR²=0.99可能意味着严重的过拟合或目标泄露（如用'总价'预测'单价×面积'）。R²衡量的是拟合优度，不是预测能力。调整R²稍微好些，但最可靠的仍是交叉验证的MSE/MAE。\n\n**误区2：'标准化后系数可以比较重要性'**\n即使标准化了，系数大小仍受特征间相关性的影响。如果x₁和x₂高度相关，它们的系数可能都偏小（方差被分摊）。真正衡量重要性的工具是permutation importance。\n\n**误区3：'Lasso总是选对特征'**\n在一组高度相关的特征中，Lasso倾向于随机选一个——今天选x₁，明天换一批数据可能选x₂。这不是'特征选择'而是'特征抽奖'。Elastic Net或group Lasso可以缓解。\n\n**误区4：'残差必须严格服从正态分布'**\nOLS的BLUE性质（最佳线性无偏估计）不需要正态假设。正态性只是为了小样本下p值和置信区间的有效性。大样本下，中心极限定理保证推断的近似正确性。\n\n**误区5：'线性回归只能处理线性关系'**\n通过特征变换（$x^2$、$\\log(x)$、$\\sin(x)$、交互项$x_1x_2$），线性回归可以拟合非线性关系——'线性'指的是参数线性，不是特征线性。",
+      key_takeaway: "线性回归上手容易精通难——看似简单的5个误区，每一个都是无数论文和血的教训换来的。"
+    },
+    {
+      module_id: "learning-path", module_title: "推荐学习资源", module_tag: "实践应用",
+      hook: "从入门到专家——线性回归领域的经典必读清单。",
+      content: "**入门级**：\n- 📖 《统计学习方法》(李航) 第3章 — 中文世界最好的回归入门\n- 📖 《An Introduction to Statistical Learning》(ISLR) — James/Witten/Hastie/Tibshirani著，免费PDF，第3和6章\n- 📺 StatQuest YouTube频道 — Josh Starmer用动画把正则化讲得明明白白\n\n**进阶级**：\n- 📖 《The Elements of Statistical Learning》(ESL) — Hastie/Tibshirani/Friedman著，第3章（正则化的理论和算法）\n- 📄 'Regression Shrinkage and Selection via the Lasso' (Tibshirani, 1996) — 开山论文\n- 📄 'Regularization Paths for GLMs via Coordinate Descent' (Friedman, Hastie, Tibshirani, 2010) — glmnet的理论基础\n\n**专家级**：\n- 📖 《High-Dimensional Statistics》(Wainwright, 2019) — 高维回归的严格数学理论\n- 📖 《Computer Age Statistical Inference》(Efron & Hastie, 2016) — 从频率学派到贝叶斯再到FDR的完整旅程\n- 📄 'Post-Selection Inference for Lasso' (Lee et al., 2016) — 解决'Lasso选完特征后怎么做推断'的问题",
+      references: [
+        {title: "Regression Shrinkage and Selection via the Lasso", authors: "Tibshirani, R.", year: 1996, url: "https://doi.org/10.1111/j.2517-6161.1996.tb02080.x"},
+        {title: "Regularization and Variable Selection via the Elastic Net", authors: "Zou, H. & Hastie, T.", year: 2005, url: "https://doi.org/10.1111/j.1467-9868.2005.00503.x"},
+        {title: "The Elements of Statistical Learning", authors: "Hastie, T., Tibshirani, R. & Friedman, J.", year: 2009}
+      ],
+      key_takeaway: "ISLR建立直觉，ESL深入理论，Wainwright飙数学——三层递进，缺一不可。"
+    },
+    {
+      module_id: "debate", module_title: "争议与讨论", module_tag: "前沿探索",
+      hook: "L1还是L2？频率派还是贝叶斯？全模型还是逐步回归？——这些争论已经持续了几十年，答案可能不是'哪个对'，而是'什么时候用哪个'。",
+      content: "**争议1：L1 vs L2 vs Elastic Net**\n- L1派（Tibshirani阵营）：当真实模型是稀疏的时候，L1在预测误差和模型可解释性上都接近最优。\n- L2派（Hoerl阵营）：当特征间高度相关时，L2更稳定，且闭式解+可导性支持更丰富的理论分析。\n- Elastic Net派（Zou & Hastie）：为什么要选？两个都用！当p>>n时，Elastic Net可以选n个以上特征（Lasso只能选n个），且保留了分组效应（grouping effect）——高度相关的特征会被一起选出或一起剔出。\n\n**争议2：逐步回归（Stepwise）该不该用**\n- 反对派（ESL全书立场）：p值在选择后进行推断是无效的（多重检验问题），且逐步回归的搜索空间巨大但最优性保证几乎为零。\n- 实用派：当p不太大且需要极度简洁的模型（如3个特征以下）时，逐步回归+领域知识验证仍有价值。\n\n**争议3：贝叶斯 vs 频率学派正则化**\n- 频率派：正则化 = 对目标函数添加惩罚项。λ通过交叉验证选择。\n- 贝叶斯派：正则化 = 先验分布。λ自然来自先验精度的估计。全贝叶斯方法还能给出参数的不确定性区间（credible intervals）而非单点估计。",
+      key_takeaway: "不存在'全局最优'的正则化方法——在特定数据和特定目标下的最优方法才是工程上有用的答案。"
+    },
+    {
+      module_id: "glossary", module_title: "关键术语速查", module_tag: "核心概念",
+      content: "**OLS (Ordinary Least Squares)**：最小二乘法，无正则化的线性回归。\n**MSE (Mean Squared Error)**：均方误差，$\\frac{1}{n}\\sum(y_i-\\hat{y}_i)^2$。\n**Ridge回归**：L2正则化线性回归，惩罚项为$\\lambda\\sum\\beta_j^2$。\n**Lasso**：L1正则化线性回归，惩罚项为$\\lambda\\sum|\\beta_j|$。\n**Elastic Net**：L1+L2混合正则化。\n**Hat Matrix (H)**：$H=X(X^TX)^{-1}X^T$，将y投影到X列空间的投影矩阵。\n**VIF (Variance Inflation Factor)**：方差膨胀因子，$\\text{VIF}_j = \\frac{1}{1-R_j^2}$，衡量多重共线性。\n**R²**：决定系数，$1-\\frac{\\sum(y_i-\\hat{y}_i)^2}{\\sum(y_i-\\bar{y})^2}$。\n**Soft-Thresholding**：$S(z,\\lambda)=\\text{sign}(z)\\max(|z|-\\lambda, 0)$，坐标下降法求解Lasso的核心算子。\n**标准化（Standardization）**：$x'=\\frac{x-\\mu}{\\sigma}$，正则化的先决条件。\n**偏差-方差权衡（Bias-Variance Tradeoff）**：正则化通过增加偏差来减少方差，最小化总期望误差。",
+      key_takeaway: "这些术语构成了线性回归的'词表'——掌握它们，你才能流畅阅读论文和文档。"
+    }
+  ]
+};
+
+function applyTheme(theme){
+  document.documentElement.setAttribute('data-theme', theme);
+  localStorage.setItem('slm-theme', theme);
+  updateThemeIcon();
+  Object.values(activeCharts).forEach(function(chart){
+    var opt = chart.getOption();
+    chart.setOption(createThemedOption(opt), {notMerge: false});
+  });
+}
+function toggleTheme(){
+  var current = document.documentElement.getAttribute('data-theme') || 'light';
+  applyTheme(current === 'dark' ? 'light' : 'dark');
+}
+function updateThemeIcon(){
+  var t = document.getElementById('theme-toggle');
+  t.textContent = document.documentElement.getAttribute('data-theme') === 'dark' ? '☀️' : '🌓';
+}
+var activeCharts = {};
+var sidebarLinks = [];
+var savedTheme = localStorage.getItem('slm-theme') || 'dark';
+applyTheme(savedTheme);
+
+window.addEventListener('scroll', function(){
+  var scrollTop = window.scrollY;
+  var docHeight = document.documentElement.scrollHeight - window.innerHeight;
+  var progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+  document.getElementById('progress-bar').style.width = progress + '%';
+});
+function buildSidebar(){
+  var container = document.getElementById('sidebar-links');
+  sidebarLinks = [];
+  PAGE_DATA.modules.forEach(function(mod){
+    var a = document.createElement('a');
+    a.href = '#' + mod.module_id;
+    a.className = 'sidebar-link';
+    a.textContent = mod.module_title || mod.module_id;
+    a.addEventListener('click', function(e){
+      e.preventDefault();
+      document.getElementById(mod.module_id).scrollIntoView({behavior: 'smooth'});
+    });
+    container.appendChild(a);
+    sidebarLinks.push({el: a, id: mod.module_id});
+  });
+}
+
+var observer = new IntersectionObserver(function(entries){
+  entries.forEach(function(entry){
+    if(entry.isIntersecting){
+      sidebarLinks.forEach(function(link){link.el.classList.toggle('active', link.id === entry.target.id);});
+    }
+  });
+}, {rootMargin: '-80px 0px -60% 0px'});
+
+function buildMetaCard(){
+  var md = PAGE_DATA;
+  document.getElementById('meta-card-container').innerHTML =
+    '<div class="meta-card">'+
+    '<div style="width:100%"><span class="meta-badge domain-ai" style="margin-right:8px">🔗 📚 机器学习及其统计基础与大模型 系统学习方案 · 经典机器学习（2/5）</span></div>'+
+    '<div class="meta-item"><span class="icon">📖</span><strong>'+md.topic+'</strong></div>'+
+    '<div class="meta-item"><span class="meta-badge domain-ai">'+md.domain_name+'</span></div>'+
+    '<div class="meta-item"><span class="meta-badge level-intermediate">'+md.level_name+'</span></div>'+
+    '<div class="meta-item"><span class="icon">⏱️</span>约'+md.reading_time+'分钟阅读</div>'+
+    '<div class="meta-item"><span class="icon">📦</span>'+md.module_count+'个模块</div></div>';
+}
+
+function renderFormulas(container){
+  if(typeof renderMathInElement !== 'undefined'){
+    renderMathInElement(container, {delimiters: [{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}], throwOnError: false});
+  }
+}
+function createThemedOption(existingOpt){
+  var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  var color = isDark ? ['#818cf8','#a78bfa','#c4b5fd','#67e8f9','#fbbf24','#34d399','#f87171','#f472b6'] : ['#6366f1','#8b5cf6','#a78bfa','#22d3ee','#f59e0b','#10b981','#ef4444','#ec4899'];
+  return {color: color};
+}
+function renderChart(moduleId, chartConfig, index){
+  var chartId = 'chart_' + moduleId + '_' + index;
+  var wrapper = document.getElementById(chartId);
+  if(!wrapper) return;
+  if(typeof echarts === 'undefined'){wrapper.innerHTML='<div style="text-align:center;padding:20px;color:var(--text-tertiary);font-size:13px;">📊 图表(静态模式)<br><small>加载CDN后可交互</small></div>';return;}
+  try{
+    var chart = echarts.init(wrapper);
+    chart.setOption(createThemedOption(chartConfig.echarts_option||{}));
+    activeCharts[chartId] = chart;
+    new ResizeObserver(function(){chart.resize();}).observe(wrapper);
+  }catch(e){wrapper.textContent = '图表渲染失败: ' + e.message;}
+}
+
+function buildModuleHTML(mod){
+  var tagClass = (function(t){
+    var m = {'核心概念':'tag-core','前置知识':'tag-core','核心工具':'tag-tools','发展演进':'tag-evolution','实践应用':'tag-application','风险与挑战':'tag-risk','前沿探索':'tag-frontier'};
+    return m[t] || 'tag-core';
+  })(mod.module_tag||'');
+  var html = '<section class="module-section" id="'+mod.module_id+'"><div class="module-header"><span class="module-tag '+tagClass+'">'+(mod.module_tag||'')+'</span><h2 class="module-title">'+(mod.module_title||mod.module_id)+'</h2></div>';
+  if(mod.hook) html += '<div class="module-hook">'+mod.hook+'</div>';
+  if(mod.content){
+    var c = mod.content;
+    c = c.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
+    c = c.replace(/`([^`]+)`/g,'<code style="background:var(--bg-tertiary);padding:2px 6px;border-radius:4px;font-size:13px;">$1</code>');
+    c = c.replace(/\n\n/g,'</p><p>');
+    c = '<p>' + c + '</p>';
+    html += '<div class="module-content">'+c+'</div>';
+  }
+  if(mod.formulas) mod.formulas.forEach(function(f){
+    html += '<div class="formula-block" onclick="if(this.querySelector(\'.formula-derivation\'))this.classList.toggle(\'expanded\')"><div>'+f.latex+'</div>'+
+      (f.caption?'<div class="formula-caption">'+f.caption+'</div>':'')+
+      (f.expandable&&f.derivation?'<div class="formula-expand-hint">💡 点击展开推导过程</div><div class="formula-derivation">'+f.derivation+'</div>':'')+'</div>';
+  });
+  if(mod.charts) mod.charts.forEach(function(c,i){html += '<div class="chart-container"><div class="chart-wrapper" id="chart_'+mod.module_id+'_'+i+'"></div>'+(c.caption?'<div class="chart-caption">'+c.caption+'</div>':'')+'</div>';});
+  if(mod.tables) mod.tables.forEach(function(t){
+    html += '<table class="module-table"><thead><tr>'+t.headers.map(function(h){return '<th>'+h+'</th>';}).join('')+'</tr></thead><tbody>'+
+      t.rows.map(function(r){return '<tr>'+r.map(function(c){return '<td>'+c+'</td>';}).join('')+'</tr>';}).join('')+'</tbody></table>'+
+      (t.caption?'<div class="table-caption" style="font-size:12px;color:var(--text-tertiary);text-align:center;margin-top:8px">'+t.caption+'</div>':'');
+  });
+  if(mod.references) html += '<div class="module-references"><h4>📚 参考文献</h4><ol>'+mod.references.map(function(r){
+    return '<li>'+(r.authors||'')+' ('+(r.year||'')+'). <strong>'+(r.title||'')+'</strong>.'+(r.url?' <a href="'+r.url+'" target="_blank" style="color:var(--primary)">链接</a>':'')+'</li>';
+  }).join('')+'</ol></div>';
+  if(mod.key_takeaway) html += '<div class="key-takeaway">💡 '+mod.key_takeaway+'</div>';
+  html += '</section>';
+  return html;
+}
+
+function initPage(){
+  document.body.classList.remove('loading');
+  document.body.classList.add('loaded');
+  buildMetaCard();
+  buildSidebar();
+  var mc = document.getElementById('modules-container');
+  PAGE_DATA.modules.forEach(function(mod){mc.innerHTML += buildModuleHTML(mod);});
+  var sections = mc.querySelectorAll('.module-section');
+  sections.forEach(function(sec){observer.observe(sec);});
+  renderFormulas(mc);
+  setTimeout(function(){
+    PAGE_DATA.modules.forEach(function(mod){
+      if(mod.charts) mod.charts.forEach(function(c,i){renderChart(mod.module_id,c,i);});
+    });
+  },100);
+  var fObs = new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting)e.target.classList.add('visible');});},{threshold:0.08});
+  sections.forEach(function(sec){fObs.observe(sec);});
+}
+document.addEventListener('DOMContentLoaded', initPage);
+
+function exportNotes(){
+  var lines = ['# '+PAGE_DATA.topic+' - 学习笔记','','生成日期: '+new Date().toLocaleDateString('zh-CN'),''];
+  PAGE_DATA.modules.forEach(function(m){lines.push('- **'+(m.module_title||m.module_id)+'**: '+(m.key_takeaway||m.hook||''));});
+  if(navigator.clipboard){navigator.clipboard.writeText(lines.join('\n')).then(function(){alert('✅ 学习笔记已复制到剪贴板!');});}
+  else{alert('复制失败，请手动选择复制');}
+}
+
+(function(){
+  var cv = document.getElementById('bg-canvas');
+  var ctx = cv.getContext('2d');
+  var particles=[];
+  function rsz(){cv.width=window.innerWidth;cv.height=window.innerHeight;}
+  window.addEventListener('resize',rsz);rsz();
+  var count = Math.min(60,Math.floor((cv.width*cv.height)/20000));
+  for(var i=0;i<count;i++) particles.push({x:Math.random()*cv.width,y:Math.random()*cv.height,vx:(Math.random()-0.5)*0.3,vy:(Math.random()-0.5)*0.3,r:Math.random()*1.5+0.3,a:Math.random()*0.3+0.05});
+  function animate(){
+    ctx.clearRect(0,0,cv.width,cv.height);
+    var isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+    var c = isDark?'129,140,248':'99,102,241';
+    particles.forEach(function(p){
+      p.x+=p.vx;p.y+=p.vy;
+      if(p.x<0)p.x=cv.width;if(p.x>cv.width)p.x=0;
+      if(p.y<0)p.y=cv.height;if(p.y>cv.height)p.y=0;
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,6.28);
+      ctx.fillStyle='rgba('+c+','+p.a+')';ctx.fill();
+    });
+    for(var j=0;j<particles.length;j++) for(var k=j+1;k<particles.length;k++){
+      var dx=particles[j].x-particles[k].x,dy=particles[j].y-particles[k].y,d=Math.sqrt(dx*dx+dy*dy);
+      if(d<110){ctx.beginPath();ctx.moveTo(particles[j].x,particles[j].y);ctx.lineTo(particles[k].x,particles[k].y);ctx.strokeStyle='rgba('+c+','+(0.06*(1-d/110))+')';ctx.lineWidth=0.5;ctx.stroke();}
+    }
+    requestAnimationFrame(animate);
+  }
+  animate();
+})();
+</script>
+</body>
+</html>
