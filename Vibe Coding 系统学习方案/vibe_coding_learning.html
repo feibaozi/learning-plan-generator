@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Vibe Coding (AI自然语言编程) 系统学习方案</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+:root{
+--bg-deep:#0d0d0d;
+--bg-primary:#141414;
+--bg-card:#1a1a1a;
+--bg-elevated:#222222;
+--bg-input:#1c1c1c;
+--text-primary:#ededed;
+--text-secondary:#a0a0a0;
+--text-muted:#787878;
+--accent-blue:#5b8db8;
+--accent-cyan:#6ea8c0;
+--accent-purple:#8878a8;
+--accent-green:#5a9e6f;
+--accent-orange:#c0a060;
+--accent-pink:#b87888;
+--accent-red:#c06050;
+--accent-gold:#c0a060;
+--border-subtle:rgba(255,255,255,0.05);
+--border-glow:rgba(91,141,184,0.2);
+--shadow-sm:0 1px 3px rgba(0,0,0,0.3);
+--shadow-md:0 4px 12px rgba(0,0,0,0.4);
+--radius-sm:6px;
+--radius-md:10px;
+--radius-lg:16px;
+--transition-fast:0.15s ease;
+--transition-smooth:0.3s ease;
+}
+body.light{
+--bg-deep:#fafafa;
+--bg-primary:#ffffff;
+--bg-card:#f5f5f5;
+--bg-elevated:#eeeeee;
+--bg-input:#e5e5e5;
+--text-primary:#121212;
+--text-secondary:#4a4a4a;
+--text-muted:#5e5e5e;
+--accent-blue:#3a6088;
+--accent-cyan:#3a7888;
+--accent-purple:#5a4878;
+--accent-green:#3d8055;
+--accent-orange:#886830;
+--accent-pink:#884858;
+--accent-red:#983830;
+--accent-gold:#886830;
+--border-subtle:rgba(18,18,18,0.08);
+--border-glow:rgba(58,96,136,0.2);
+--shadow-sm:0 1px 3px rgba(0,0,0,0.06);
+--shadow-md:0 4px 12px rgba(0,0,0,0.08);
+}
+body.light .knowledge-card.expanded{border-color:rgba(61,128,85,0.5)}
+body.dark .knowledge-card.expanded{border-color:rgba(90,158,111,0.5);background:var(--bg-elevated)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter','Noto Sans SC',-apple-system,sans-serif;background:var(--bg-deep);color:var(--text-primary);line-height:1.6;overflow-x:hidden}
+body.loading{opacity:0}body.loaded{opacity:1;transition:opacity 0.4s ease}
+.container{max-width:1200px;margin:0 auto;padding:0 24px}
+
+.hero{text-align:center;padding:80px 0 60px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;
+  background:radial-gradient(ellipse at 50% 0%,#5b8db8 0%,transparent 50%),radial-gradient(ellipse at 80% 50%,#6ea8c0 0%,transparent 40%);
+  opacity:0.15;z-index:0}
+.hero>*{position:relative;z-index:1}
+.hero h1{font-size:2.6rem;font-weight:900;letter-spacing:-0.02em;margin-bottom:16px;background:linear-gradient(135deg,#5b8db8,#6ea8c0);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{font-size:1.05rem;color:var(--text-secondary);max-width:700px;margin:0 auto 32px}
+.hero-stats{display:flex;gap:24px;justify-content:center;flex-wrap:wrap}
+.hero-stat{background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:16px 28px;text-align:center;min-width:100px}
+.hero-stat .num{font-size:2rem;font-weight:800;color:var(--accent-blue)}
+.hero-stat .lbl{font-size:0.75rem;color:var(--text-muted);margin-top:4px}
+
+.topbar{position:sticky;top:0;z-index:100;background:rgba(5,10,16,0.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border-subtle);padding:10px 0}
+.topbar .container{display:flex;gap:12px;align-items:center;overflow-x:auto}
+.topbar a{color:var(--text-secondary);text-decoration:none;font-size:0.78rem;font-weight:600;padding:6px 14px;border-radius:50px;transition:all var(--transition-fast);white-space:nowrap}
+.topbar a:hover{color:var(--accent-cyan);background:rgba(56,189,248,0.08)}
+.topbar .theme-toggle,.topbar .search-toggle{background:var(--bg-elevated);border:1px solid var(--border-subtle);color:var(--text-secondary);font-size:0.78rem;padding:6px 14px;border-radius:50px;cursor:pointer;font-family:inherit;font-weight:600;transition:all var(--transition-fast)}
+.topbar .theme-toggle:hover,.topbar .search-toggle:hover{color:var(--accent-cyan);border-color:var(--border-glow)}
+
+.search-overlay{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px)}
+.search-overlay.show{display:flex;align-items:flex-start;justify-content:center;padding-top:120px}
+.search-box{background:var(--bg-card);border:1px solid var(--border-glow);border-radius:var(--radius-md);padding:20px;width:90%;max-width:600px;box-shadow:0 16px 48px rgba(0,0,0,0.5)}
+.search-box input{width:100%;background:var(--bg-input);border:1px solid var(--border-subtle);border-radius:var(--radius-sm);padding:12px 16px;color:var(--text-primary);font-size:0.95rem;font-family:inherit;outline:none}
+.search-box input:focus{border-color:var(--accent-cyan)}
+.search-results{margin-top:12px;max-height:300px;overflow-y:auto}
+.search-result{padding:10px 14px;border-radius:var(--radius-sm);cursor:pointer;font-size:0.82rem;transition:background var(--transition-fast)}
+.search-result:hover{background:rgba(56,189,248,0.08)}
+.search-result .sr-title{font-weight:700;color:var(--accent-cyan)}
+.search-result .sr-detail{color:var(--text-muted);font-size:0.72rem;margin-top:2px}
+
+.section{padding:60px 0}
+.section-title{font-size:1.5rem;font-weight:800;margin-bottom:28px;display:flex;align-items:center;gap:10px}
+
+.phase-list{display:flex;flex-direction:column;gap:16px}
+.phase-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-lg);overflow:hidden;transition:all var(--transition-smooth)}
+.phase-card:hover{border-color:var(--border-glow)}
+.phase-card.open{border-color:var(--border-glow)}
+.phase-header{padding:20px 24px;cursor:pointer;display:flex;align-items:center;gap:14px;transition:background var(--transition-fast);user-select:none}
+.phase-header:hover{background:rgba(96,165,250,0.03)}
+.phase-icon{width:42px;height:42px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0}
+.phase-info{flex:1}.phase-info h3{font-size:1.05rem;font-weight:700}.phase-info .phase-week{font-size:0.72rem;color:var(--text-muted);margin-top:2px}.phase-sub{font-size:0.72rem;padding:3px 10px;border-radius:50px;font-weight:600}
+.phase-arrow{font-size:1.1rem;color:var(--text-muted);transition:transform var(--transition-smooth)}.phase-card.open .phase-arrow{transform:rotate(90deg)}
+.phase-body{display:none;padding:0 24px 20px;border-top:1px solid var(--border-subtle)}
+.phase-card.open .phase-body{display:block}
+.phase-body-inner{padding-top:16px}
+.phase-skills{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.skill-chip{padding:3px 12px;background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:50px;font-size:0.72rem;color:var(--text-secondary)}
+.phase-desc{font-size:0.82rem;color:var(--text-muted);margin-bottom:12px;line-height:1.7}
+.phase-codes{margin-top:8px}.phase-codes pre{background:rgba(0,0,0,0.3);border-radius:var(--radius-sm);padding:12px 16px;overflow-x:auto;font-size:0.72rem;font-family:'JetBrains Mono',monospace;color:var(--accent-cyan)}
+.footer{text-align:center;padding:40px 0;color:var(--text-muted);font-size:0.72rem;border-top:1px solid var(--border-subtle)}
+
+.knowledge-toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px}
+.knowledge-filters{display:flex;gap:6px;flex-wrap:wrap}
+.knowledge-filter{background:var(--bg-elevated);border:1px solid var(--border-subtle);color:var(--text-secondary);padding:4px 14px;border-radius:50px;cursor:pointer;font-size:0.72rem;font-weight:600;font-family:inherit;transition:all var(--transition-fast)}
+.knowledge-filter:hover{color:var(--accent-cyan);border-color:var(--border-glow)}
+.knowledge-filter.active{background:rgba(56,189,248,0.12);color:var(--accent-cyan);border-color:var(--accent-cyan)}
+.knowledge-count{font-size:0.68rem;color:var(--text-muted)}
+.knowledge-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px}
+@media(max-width:768px){.knowledge-grid{grid-template-columns:1fr}}
+
+.knowledge-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);overflow:hidden;cursor:default;transition:all var(--transition-smooth);position:relative}
+.knowledge-card:hover{border-color:var(--border-glow);box-shadow:var(--shadow-sm)}
+.knowledge-card.open{border-color:var(--border-glow)}
+.knowledge-card.expanded{grid-column:1/-1;border-color:var(--accent-green);box-shadow:var(--shadow-md)}
+.card-header{padding:14px 18px;cursor:pointer;display:flex;align-items:center;gap:10px;flex-wrap:wrap;transition:background var(--transition-fast);user-select:none}
+.card-header:hover{background:rgba(124,92,231,0.03)}
+.card-icon{font-size:1.1rem;flex-shrink:0}.card-title{font-weight:700;font-size:0.85rem;flex:1}
+.math-tag{padding:2px 10px;border-radius:50px;font-size:0.6rem;font-weight:700;cursor:pointer;transition:all var(--transition-fast);color:#fff}
+.math-tag:hover{opacity:0.8}
+
+.card-back{display:none;font-size:0.65rem;color:var(--text-muted);cursor:pointer;padding:2px 8px;border-radius:50px;background:var(--bg-elevated)}
+.knowledge-card.expanded .card-back,.knowledge-card.open .card-back{display:inline}
+.card-detail{display:none;padding:0 18px 16px;font-size:0.82rem;color:var(--text-secondary);line-height:1.7}
+.knowledge-card.open .card-detail,.knowledge-card.expanded .card-detail{display:block}
+.card-detail p{margin-bottom:8px}
+.card-formula{background:var(--bg-elevated);border:1px solid var(--border-glow);border-radius:var(--radius-sm);padding:14px 18px;margin-bottom:12px;font-size:0.95rem;text-align:center;color:var(--accent-blue);overflow-x:auto}
+.card-sum{background:rgba(251,191,36,0.06);border-left:3px solid var(--accent-orange);padding:10px 14px;margin-bottom:10px;border-radius:0 var(--radius-sm) var(--radius-sm) 0;font-size:0.78rem;color:var(--accent-orange)}
+.card-related{margin-top:4px;margin-bottom:8px;padding:12px 14px;background:rgba(255,255,255,0.015);border:1px dashed var(--border-subtle);border-radius:var(--radius-sm)}
+.cr-title{font-size:0.72rem;font-weight:700;color:var(--text-secondary);margin-bottom:8px}
+.cr-links{display:flex;flex-wrap:wrap;gap:6px}
+.cr-link{font-size:0.68rem;padding:4px 10px;border-radius:50px;border:1px solid var(--border-subtle);color:var(--accent-cyan);cursor:pointer;transition:all var(--transition-fast)}
+.cr-link:hover{background:rgba(38,198,218,0.1);border-color:var(--accent-cyan)}
+.skill-link{cursor:pointer;border-color:rgba(79,195,247,0.3);color:var(--accent-blue)}
+.skill-link:hover{background:rgba(79,195,247,0.1);transform:translateY(-1px)}
+.ks-expand-all{background:transparent;border:1px solid var(--border-subtle);color:var(--accent-cyan);padding:3px 10px;border-radius:50px;font-size:0.68rem;cursor:pointer;font-weight:600;transition:all var(--transition-fast);font-family:inherit;margin-left:8px}
+.ks-expand-all:hover{border-color:var(--accent-cyan);background:rgba(38,198,218,0.08)}
+@media(max-width:768px){.knowledge-card.expanded{grid-column:auto}}
+.deep-dive-bar{padding:0 0 8px;text-align:right;display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+.deep-dive-btn{background:linear-gradient(135deg,rgba(139,92,246,0.15),rgba(99,102,241,0.1));border:1px solid rgba(139,92,246,0.3);color:var(--accent-purple);padding:6px 16px;border-radius:50px;cursor:pointer;font-size:0.78rem;font-weight:600;font-family:inherit;transition:all var(--transition-smooth)}
+.deep-dive-btn:hover{border-color:rgba(139,92,246,0.6);box-shadow:0 0 16px rgba(139,92,246,0.15);transform:translateY(-1px)}
+.dd-ready .deep-dive-btn{background:rgba(16,185,129,0.1);border-color:rgba(16,185,129,0.3);color:var(--accent-green)}
+.dd-hint{font-size:0.65rem;color:var(--text-muted);opacity:0.7}
+.deep-dive-open-btn{background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);color:var(--accent-green);border-radius:50px;width:26px;height:26px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;font-size:0.75rem;font-weight:700;font-family:inherit;transition:all var(--transition-fast)}
+.deep-dive-open-btn:hover{background:rgba(16,185,129,0.25)}
+.dd-toast{animation:ddToastIn 0.3s ease}
+@keyframes ddToastIn{from{opacity:0;transform:translate(-50%,20px)}to{opacity:1;transform:translate(-50%,0)}}
+.phase-dd-batch{padding-top:16px;border-top:1px solid var(--border-subtle);display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.batch-deep-dive-btn{background:var(--bg-elevated);border:1px dashed var(--border-glow);color:var(--text-secondary);padding:8px 20px;border-radius:50px;cursor:pointer;font-size:0.82rem;font-weight:600;font-family:inherit;transition:all var(--transition-smooth)}
+.batch-deep-dive-btn:hover{border-style:solid;border-color:rgba(139,92,246,0.5);color:var(--accent-purple)}
+
+.method-steps{display:grid;gap:16px;max-width:800px}
+.method-step{display:flex;gap:16px;align-items:flex-start}
+.method-step-num{width:36px;height:36px;border-radius:50%;background:var(--accent-purple);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:0.9rem;flex-shrink:0}
+.method-step-text h4{font-size:0.9rem;color:var(--text-primary);margin-bottom:4px}
+.method-step-text p{font-size:0.78rem;color:var(--text-secondary);line-height:1.6}
+
+.formula-tabs{display:flex;gap:6px;margin-bottom:20px;flex-wrap:wrap}
+.formula-tab{background:var(--bg-elevated);border:1px solid var(--border-subtle);color:var(--text-secondary);padding:6px 16px;border-radius:50px;cursor:pointer;font-size:0.72rem;font-weight:600;font-family:inherit;transition:all var(--transition-fast)}
+.formula-tab:hover{color:var(--accent-cyan);border-color:var(--border-glow)}
+.formula-tab.active{background:rgba(56,189,248,0.12);color:var(--accent-cyan);border-color:var(--accent-cyan)}
+.formula-panel{display:none}
+.formula-panel.active{display:block}
+.formula-table{width:100%;border-collapse:collapse;font-size:0.78rem}
+.formula-table th{text-align:left;padding:10px 14px;background:var(--bg-elevated);color:var(--accent-cyan);font-weight:700;border-bottom:2px solid var(--border-glow)}
+.formula-table td{padding:9px 14px;border-bottom:1px solid var(--border-subtle);color:var(--text-secondary);font-family:'JetBrains Mono',monospace}
+
+.exercise-filters{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.exercise-filter{padding:4px 14px;border-radius:50px;font-size:0.68rem;cursor:pointer;font-weight:600;border:1px solid var(--border-subtle);color:var(--text-secondary);background:var(--bg-elevated);font-family:inherit;transition:all var(--transition-fast)}
+.exercise-filter:hover{color:var(--accent-cyan);border-color:var(--border-glow)}
+.exercise-filter.active{background:rgba(56,189,248,0.12);color:var(--accent-cyan);border-color:var(--accent-cyan)}
+.exercise-count{font-size:0.68rem;color:var(--text-muted);margin-bottom:12px}
+.exercise-list{display:flex;flex-direction:column;gap:8px}
+.exercise-item{display:flex;gap:12px;align-items:center;background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:12px 16px;transition:all var(--transition-fast)}
+.exercise-item:hover{border-color:var(--border-glow)}
+.exercise-num{font-size:0.7rem;color:var(--text-muted);font-family:'JetBrains Mono',monospace;min-width:28px}
+.ei-content{flex:1}.ei-title{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.ei-title-text{font-size:0.84rem;font-weight:600}
+.diff{padding:2px 8px;border-radius:50px;font-size:0.6rem;font-weight:700}
+.diff.easy{background:rgba(16,185,129,0.1);color:var(--accent-green)}
+.diff.medium{background:rgba(251,191,36,0.1);color:var(--accent-orange)}
+.diff.hard{background:rgba(239,68,68,0.1);color:#ef4444}
+.diff.project{background:rgba(139,92,246,0.1);color:var(--accent-purple)}
+.ei-check{width:28px;height:28px;border-radius:50%;border:2px solid var(--border-subtle);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:0.75rem;transition:all var(--transition-fast);flex-shrink:0}
+.ei-check:hover{border-color:var(--accent-green)}
+.ei-check.done{background:var(--accent-green);border-color:var(--accent-green);color:#fff}
+
+.resource-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.resource-item{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:16px 18px;transition:all var(--transition-fast)}
+.resource-item:hover{border-color:var(--border-glow)}
+.resource-item .ri-type{font-size:0.6rem;font-weight:700;padding:2px 8px;border-radius:50px;display:inline-block;margin-bottom:8px}
+.ri-type.book{background:rgba(96,165,250,0.1);color:var(--accent-blue)}
+.ri-type.paper{background:rgba(251,191,36,0.1);color:var(--accent-orange)}
+.ri-type.site{background:rgba(16,185,129,0.1);color:var(--accent-green)}
+.ri-type.tool{background:rgba(139,92,246,0.1);color:var(--accent-purple)}
+.resource-item h4{font-size:0.85rem;font-weight:700;margin-bottom:4px}.resource-item p{font-size:0.72rem;color:var(--text-muted);line-height:1.5}
+.resource-item a{font-size:0.68rem;color:var(--accent-cyan);text-decoration:none;font-weight:600}
+.resource-item a:hover{text-decoration:underline}
+
+.tracker-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+.tracker-item{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:14px 16px;cursor:pointer;transition:all var(--transition-fast);display:flex;align-items:center;gap:10px;user-select:none}
+.tracker-item:hover{border-color:var(--border-glow)}
+.tracker-check{width:24px;height:24px;border-radius:50%;border:2px solid var(--border-subtle);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all var(--transition-fast)}
+.tracker-item.done .tracker-check{background:var(--accent-green);border-color:var(--accent-green)}
+.tracker-check::after{content:'✓';color:transparent;font-size:0.7rem;font-weight:700}
+.tracker-item.done .tracker-check::after{color:#fff}
+.tracker-item.done .tracker-label{text-decoration:line-through;opacity:0.5}
+.tracker-label{font-size:0.78rem;font-weight:600}
+
+.progress-bar-container{width:100%;height:6px;background:var(--bg-elevated);border-radius:3px;margin:20px 0;overflow:hidden}
+.progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--accent-blue),var(--accent-green));border-radius:3px;transition:width 0.4s ease}
+
+.deep-floating-back{position:fixed;right:20px;bottom:20px;z-index:10000}
+.deep-floating-back button{padding:12px 20px;background:linear-gradient(135deg,var(--accent-color,#4a90d9),var(--accent-dark,#2d6cb0));color:white;border:none;border-radius:24px;font-size:0.85rem;font-weight:600;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.15);transition:transform 0.2s,box-shadow 0.2s}
+.deep-floating-back button:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,0.2)}
+@media(max-width:768px){.deep-floating-back{right:15px;bottom:15px}.deep-floating-back button{padding:10px 16px;font-size:0.8rem}}
+
+/* Drawing Section */
+.drawing-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.drawing-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:18px;transition:all var(--transition-fast)}
+.drawing-card:hover{border-color:var(--border-glow)}
+.drawing-card h4{font-size:0.85rem;font-weight:700;margin-bottom:8px;color:var(--accent-purple)}
+.drawing-card p{font-size:0.75rem;color:var(--text-muted);line-height:1.6}
+</style>
+</head>
+<body class="loading light">
+
+<div class="topbar">
+  <div class="container">
+    <a href="#phases">📋 阶段</a><a href="#knowledge">💡 知识点</a>
+    <a href="#method">🎯 方法论</a>
+    <a href="#formulas">📋 公式</a>
+    <a href="#exercises">✏️ 练习</a><a href="#resources">📚 资料</a><a href="#tracker">✅ 进度</a>
+    <button class="theme-toggle" onclick="toggleTheme()" title="切换主题">🌓</button>
+    <button class="search-toggle" onclick="searchOpen()" title="搜索 (Ctrl+K)">🔍</button>
+  </div>
+</div>
+
+<div class="search-overlay" id="searchOverlay" onclick="event.target===this&&searchClose()">
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="搜索知识点..." oninput="searchKPs()" onkeydown="if(event.key==='Escape')searchClose()">
+    <div class="search-results" id="searchResults"></div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="hero">
+    <h1>Vibe Coding (AI自然语言编程) 系统学习方案</h1>
+    <p>基于 G8 教程实操型纹理 · 标准深度 · 4阶段14周 · 先动手再回补——用AI工具实打实地做项目</p>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="num">14</div><div class="lbl">学习周数</div></div>
+      <div class="hero-stat"><div class="num">4</div><div class="lbl">学习阶段</div></div>
+      <div class="hero-stat"><div class="num">12</div><div class="lbl">知识要点</div></div>
+      <div class="hero-stat"><div class="num">10</div><div class="lbl">练习题目</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+<section class="section" id="phases">
+  <div class="section-title">📋 学习阶段</div>
+  <div class="phase-list" id="phaseList"></div>
+</section>
+
+<section class="section" id="knowledge">
+  <div class="section-title">💡 知识要点</div>
+  <div class="knowledge-toolbar">
+    <div class="knowledge-filters" id="knowledgeFilters"></div>
+    <div><span class="knowledge-count" id="knowledgeCount"></span><button class="ks-expand-all" onclick="eAK()">📖 展开全部</button></div>
+  </div>
+  <div class="knowledge-grid" id="knowledgeContainer"></div>
+</section>
+
+<section class="section" id="method">
+  <div class="section-title">🎯 项目驱动学习法</div>
+  <div class="method-steps" id="methodSteps"></div>
+</section>
+
+<section class="section" id="formulas">
+  <div class="section-title">📋 公式速查</div>
+  <div class="formula-tabs" id="formulaTabs"></div>
+  <div id="formulaPanels"></div>
+</section>
+
+<section class="section" id="exercises">
+  <div class="section-title">✏️ 练习题库</div>
+  <div class="exercise-filters" id="exerciseFilters"></div>
+  <div class="exercise-count" id="exerciseCount"></div>
+  <div class="exercise-list" id="exerciseList"></div>
+</section>
+
+<section class="section" id="resources">
+  <div class="section-title">📚 资料清单</div>
+  <div class="resource-grid" id="resourceGrid"></div>
+</section>
+
+<section class="section" id="tracker">
+  <div class="section-title">✅ 进度追踪</div>
+  <div class="progress-bar-container"><div class="progress-bar-fill" id="progressBar" style="width:0%"></div></div>
+  <div class="tracker-grid" id="trackerGrid"></div>
+</section>
+</div>
+
+<footer class="footer">Vibe Coding 系统学习方案 | G8 教程实操型 | 石墨工作室 | 2026-05-25</footer>
+
+<div id="ddToast" style="display:none;position:fixed;bottom:30px;left:50%;transform:translateX(-50%);z-index:10000;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:8px;padding:14px 24px;box-shadow:0 4px 16px rgba(0,0,0,0.15);font-size:0.85rem;"><span id="ddToastMsg"></span></div>
+
+<script>
+var STORAGE_KEY = 'vibe_coding';
+var PLAN = {"id":"vibe-coding-learning","title":"Vibe Coding (AI自然语言编程) 系统学习方案","html_file":"vibe_coding_learning.html","template_id":"graphite-studio"};
+var LS_PREFIX = STORAGE_KEY;
+
+var PHASES = [
+  {"id":"p1","week":"第1-4周","title":"AI编程工具掌握","sub":"核心工具","color":"#4fc3f7","icon":"🛠️","cls":"c1",
+    "skills":["AI编程环境搭建与工具选型","高效提示词编写","AI辅助代码理解与导航"],
+    "phase_kps":["p1_1","p1_2","p1_3"],
+    "codes":["# 主流AI编程工具对比\n# Cursor: Tab补全 + Cmd+K行编辑 + Composer多文件生成\n# Windsurf: Flow模式(多步自动化) + Cascade上下文感知\n# Claude Code: 终端CLI + Git感知 + 直接读写文件\n# GitHub Copilot: 跨IDE + 行级补全 + Copilot Chat"],
+    "drawings":["AI编程工具全景图","提示词效率演进"],
+    "deep_dive_batch":"📦 批量生成深度资料 - AI编程工具掌握\n\n请为以下Vibe Coding知识点生成 理解×标准 的深度研读资料：\n- AI编程环境搭建与工具选型\n- 高效提示词编写（代码生成场景）\n- AI辅助代码理解与导航"
+  },
+  {"id":"p2","week":"第5-9周","title":"整合项目实战","sub":"整合应用","color":"#66bb6a","icon":"🏗️","cls":"c2",
+    "skills":["AI辅助全栈开发","AI辅助调试与错误修复","AI驱动的测试与文档生成","多模型协作工作流"],
+    "phase_kps":["p2_1","p2_2","p2_3","p2_4"],
+    "codes":["# 多模型协作示例\n# 方案: Claude → 编写核心业务代码\n#       GPT-4 → 生成创意UI组件设计\n#       DeepSeek → 轻量级代码检查与审查\n# 使用 OpenRouter 统一API访问多个模型"],
+    "drawings":["AI辅助全栈开发流程","AI调试工作流"],
+    "deep_dive_batch":"📦 批量生成深度资料 - 整合项目实战\n\n请为以下Vibe Coding知识点生成 理解×标准 的深度研读资料：\n- 从零到一的AI辅助全栈开发\n- AI辅助调试与错误修复\n- AI驱动的自动化测试与文档生成\n- 多模型协作与组合工作流"
+  },
+  {"id":"p3","week":"第10-12周","title":"基础原理回补","sub":"基础奠基","color":"#ab47bc","icon":"📚","cls":"c3",
+    "skills":["LLM代码生成机制","AI编程安全与质量保障","版本控制与AI协作最佳实践"],
+    "phase_kps":["p3_1","p3_2","p3_3"],
+    "codes":[],
+    "drawings":["LLM代码生成简化流程","AI生成代码质量保障金字塔"],
+    "deep_dive_batch":"📦 批量生成深度资料 - 基础原理回补\n\n请为以下Vibe Coding知识点生成 理解×标准 的深度研读资料：\n- LLM工作原理与代码生成机制\n- AI编程的安全与代码质量保障\n- 版本控制与AI协作最佳实践"
+  },
+  {"id":"p4","week":"第13-14周","title":"进阶前沿探索","sub":"进阶前沿","color":"#ef5350","icon":"🚀","cls":"c4",
+    "skills":["AI Agent自动化编程","自定义AI编程工具链"],
+    "phase_kps":["p4_1","p4_2"],
+    "codes":["# MCP Server 最小示例\n# from mcp.server import Server\n# import subprocess\n#\n# server = Server('my-ai-tools')\n#\n# @server.tool()\n# def run_tests(path: str) -> str:\n#     result = subprocess.run(['pytest', path], capture_output=True, text=True)\n#     return result.stdout"],
+    "drawings":["AI Agent编程架构","工作流自动化Pipeline"],
+    "deep_dive_batch":"📦 批量生成深度资料 - 进阶前沿探索\n\n请为以下Vibe Coding知识点生成 理解×标准 的深度研读资料：\n- AI Agent自动化编程与MCP协议\n- 自定义AI编程工具链与工作流自动化"
+  }
+];
+
+var KPS = [
+  {"id":"p1_1","n":"AI编程环境搭建与工具选型","p":"p1","tag":"core-toolkit",
+    "d":"对比 Cursor、Windsurf、GitHub Copilot、Claude Code 等主流 AI 编程工具的核心差异。IDE集成型（Cursor基于VS Code深度集成AI，Windsurf提供Flow模式多步骤自动化）与终端CLI型（Claude Code在终端中提供Git感知的全文件操作）。根据项目类型和个人工作流偏好选择2-3个工具组合使用。",
+    "s":"选对工具是第一生产力——根据项目类型和个人偏好选2-3个工具组合使用",
+    "rel":["p1_2","p1_3"],
+    "deep_dive":{"query":"AI编程工具 对比 Cursor Windsurf GitHub Copilot Claude Code","topic_id":null,"prompt":"","status":"ready","html_file":"ai-dev-env-setup_intermediate.html"}},
+  {"id":"p1_2","n":"高效提示词编写（代码生成场景）","p":"p1","tag":"core-toolkit",
+    "d":"掌握代码生成的核心提示词模式：任务分解（将复杂需求拆为小步骤）、上下文注入（通过@file引用代码库上下文）、约束指定（明确框架版本、编码风格、性能要求）、迭代优化（基于AI输出持续精炼prompt）。从'写一个函数'到'@context参考现有架构，添加符合代码规范的功能'。",
+    "s":"好的prompt = 清晰任务 + 丰富上下文 + 明确约束——写好一次节省10次调试",
+    "rel":["p1_1","p1_3","p2_1"],
+    "deep_dive":{"query":"代码生成 提示词工程 prompt engineering code generation","topic_id":null,"prompt":"","status":"ready","html_file":"prompt-engineering-code_intermediate.html"}},
+  {"id":"p1_3","n":"AI辅助代码理解与导航","p":"p1","tag":"core-toolkit",
+    "d":"使用AI工具快速理解陌生代码库——选中代码块让AI解释逻辑、追踪数据流和调用链、生成代码摘要和架构图。学会用AI在大型项目中定位入口点、理解模块依赖关系，大幅降低阅读陌生代码的时间成本。",
+    "s":"AI是你阅读代码的加速透镜——用解释、追踪、摘要三步快速理解任何代码库",
+    "rel":["p1_1","p2_2"],
+    "deep_dive":{"query":"AI辅助代码理解 代码导航 代码解释","topic_id":null,"prompt":"","status":"ready","html_file":"ai-code-navigation_intermediate.html"}},
+  {"id":"p2_1","n":"从零到一的AI辅助全栈开发","p":"p2","tag":"integration",
+    "d":"使用AI工具完整构建一个全栈应用的全流程：AI辅助需求分析→生成PRD文档→设计API接口(OpenAPI)→生成前后端脚手架→逐模块开发→整合联调。重点在于如何用AI管理复杂度——将大任务拆分为AI能高质量完成的子任务，逐步组装。",
+    "s":"AI做全栈=拆解大任务+逐个高质量生成+人工整合验证",
+    "rel":["p1_2","p2_2","p2_3"],
+    "deep_dive":{"query":"AI辅助全栈开发 Cursor AI coding fullstack","topic_id":"ai-fullstack-dev","prompt":"","status":"ready","html_file":"ai-fullstack-dev_intermediate.html"}},
+  {"id":"p2_2","n":"AI辅助调试与错误修复","p":"p2","tag":"integration",
+    "d":"利用AI工具进行高效Debug的完整工作流：将错误堆栈和上下文日志粘贴给AI→AI定位根因并给出多个修复方案→人工选择最佳方案→apply并验证。掌握让AI理解运行时错误、逻辑Bug和环境配置问题的技巧。",
+    "s":"Debug黄金流程=错误堆栈+上下文日志→AI定位根因+多方案→人工选择+验证",
+    "rel":["p1_3","p2_1"],
+    "deep_dive":{"query":"AI辅助调试 错误修复 AI debugging code fix","topic_id":"ai-debugging","prompt":"","status":"ready","html_file":"ai-debugging_intermediate.html"}},
+  {"id":"p2_3","n":"AI驱动的自动化测试与文档生成","p":"p2","tag":"integration",
+    "d":"使用AI自动生成单元测试（pytest/Jest框架）、集成测试和端到端测试用例。AI根据代码逻辑自动推断测试场景、边界条件和异常路径。同时用AI生成API文档、README和维护文档——以代码为输入、以结构化输出为目标。",
+    "s":"AI让测试和文档从'手动苦力'变为'一键生成+人工校准'",
+    "rel":["p2_1","p2_4"],
+    "deep_dive":{"query":"AI生成单元测试 自动化文档 AI test generation","topic_id":"ai-testing-docs","prompt":"","status":"ready","html_file":"ai-testing-docs_intermediate.html"}},
+  {"id":"p2_4","n":"多模型协作与组合工作流","p":"p2","tag":"integration",
+    "d":"根据不同任务特点选择最合适的模型构建协作pipeline：复杂编码逻辑→Claude（精准+长上下文）；创意UI设计→GPT-4（发散思维）；轻量代码审查→DeepSeek（低成本）；文档润色→Gemini。通过OpenRouter统一API实现多模型切换，构建解析→生成→审查→测试的自动化链条。",
+    "s":"没有万能模型——编码用Claude，创意用GPT，审查用DeepSeek，各取所长",
+    "rel":["p2_3","p4_2"],
+    "deep_dive":{"query":"多模型协作 AI workflow pipeline 编程","topic_id":"multi-model-workflow","prompt":"","status":"ready","html_file":"multi-model-workflow_intermediate.html"}},
+  {"id":"p3_1","n":"LLM工作原理与代码生成机制","p":"p3","tag":"foundation",
+    "d":"理解Transformer架构如何生成代码：Prompt→Tokenizer切分Token→自回归逐Token预测→概率采样控制创造性(Temperature)→解码输出。理解上下文窗口(Context Window)限制及其对长代码文件的影响——如何通过选择关键代码段注入来最大化窗口利用率。",
+    "s":"LLM生成代码=自回归Token预测——理解这个原理才能写出高效的prompt",
+    "rel":["p1_1","p3_2"],
+    "deep_dive":{"query":"LLM工作原理 Transformer Token 代码生成机制","topic_id":null,"prompt":"","status":"ready","html_file":"llm-code-generation_deep.html"}},
+  {"id":"p3_2","n":"AI编程的安全与代码质量保障","p":"p3","tag":"foundation",
+    "d":"AI生成代码的安全风险管理：注入攻击（SQL/命令/模板注入）、秘钥泄露（API Key硬编码）、依赖漏洞（引入已知CVE的旧版本）。建立AI代码审查策略和CI/CD质量门禁——静态分析(Lint+SAST)、AI自审查（让AI检查自己的代码）、自动化测试、人工最终审查的四层保障体系。",
+    "s":"AI生成的代码必须过四道关：约束prompt→AI自审→自动化测试→人工审查",
+    "rel":["p3_1","p3_3"],
+    "deep_dive":{"query":"AI代码安全 代码质量 AI generated code security best practices","topic_id":null,"prompt":"","status":"ready","html_file":"ai-code-security_deep.html"}},
+  {"id":"p3_3","n":"版本控制与AI协作最佳实践","p":"p3","tag":"foundation",
+    "d":"AI辅助开发中的Git工作流规范：AI生成代码的commit粒度控制（每功能/每修复单独commit）、AI生成内容的代码审查要点（逻辑正确性+风格一致性+安全问题）、.gitignore管理AI工具配置文件、团队协作中AI代码的归属标注（co-authored-by注释）。建立prompt版本管理——将高效prompt纳入项目repo。",
+    "s":"AI协作Git铁律=小粒commit+AI标注+prompt版本化+人工review每行diff",
+    "rel":["p3_2","p4_2"],
+    "deep_dive":{"query":"Git AI协作 版本控制 best practices AI coding","topic_id":null,"prompt":"","status":"ready","html_file":"version-control-ai_deep.html"}},
+  {"id":"p4_1","n":"AI Agent自动化编程与MCP协议","p":"p4","tag":"advance-frontier",
+    "d":"理解AI Agent的自主编程能力——Agent能够规划多步骤任务、调用外部工具(读写文件/Git操作/终端命令)、自我纠错和迭代。深入MCP(Model Context Protocol)协议：它是AI与外部工具通信的标准协议，让AI可以安全地调用文件系统、数据库、API和命令行。搭建自己的MCP Server——将常用工具封装为Agent可调用的接口。",
+    "s":"Agent=LLM大脑+MCP手脚——让AI不仅能说代码还能真正执行和验证",
+    "rel":["p4_2","p3_1"],
+    "deep_dive":{"query":"AI Agent编程 MCP协议 Model Context Protocol Claude Code","topic_id":null,"prompt":"","status":"ready","html_file":"ai-agent-mcp-protocol_deep.html"}},
+  {"id":"p4_2","n":"自定义AI编程工具链与工作流自动化","p":"p4","tag":"advance-frontier",
+    "d":"构建个人化的AI编程pipeline——包括自定义代码审查规则集(Cursor Rules)、CI/CD与AI集成(GitHub Actions+AI review)、prompt模板库管理。建立可持续进化的AI编程体系：定期评估新工具、优化prompt库、自动化重复流程。最终目标是让AI工具链成为你的'超级编程外骨骼'而非束缚。",
+    "s":"最好的AI工具链是为你量身定做的——从模仿到定制，从工具到体系",
+    "rel":["p4_1","p2_4","p3_3"],
+    "deep_dive":{"query":"自定义AI编程工具链 Cursor Rules CI/CD AI代码审查","topic_id":null,"prompt":"","status":"ready","html_file":"custom-ai-toolchain-workflow_deep.html"}}
+];
+
+var FORMULA_TABS = [{"n":"AI编程核心概念"}];
+var FORMULAS = [{"r":[
+  ["提示词效率公式","效果 = 任务清晰度 × 上下文丰富度 × 约束明确度"],
+  ["Token消耗估算","代码token ≈ 字符数 × 0.25~0.33(英文), × 0.5~0.7(中文)"],
+  ["AI编程时间节省率","节省率 = (传统时间 - AI辅助时间) / 传统时间 × 100%"],
+  ["Agent决策周期","决策循环 = 感知 → 规划 → 执行 → 验证 → 感知"]
+]}];
+
+var EXERCISES = [
+  {"n":1,"t":"搭建你的第一个AI编程环境——安装Cursor或Windsurf，完成AI辅助Hello World","d":"easy"},
+  {"n":2,"t":"编写基础代码生成提示词——写出3个不同详细程度的prompt并对比输出质量","d":"easy"},
+  {"n":3,"t":"使用AI分析陌生代码库——在GitHub找小型开源项目，30分钟内理解架构","d":"easy"},
+  {"n":4,"t":"AI辅助开发CRUD Todo应用——完整前后端+数据库，记录全部prompt历史","d":"medium"},
+  {"n":5,"t":"使用AI定位并修复Bug——在已有项目中完成'定位→分析→修复→验证'全流程","d":"medium"},
+  {"n":6,"t":"AI生成单元测试——为已有模块编写测试，确保覆盖率达到80%+","d":"medium"},
+  {"n":7,"t":"对比两个AI工具效率——用Cursor和Copilot完成相同任务，记录时间与质量","d":"medium"},
+  {"n":8,"t":"AI辅助重构遗留代码——提取函数、改进命名、添加类型注解","d":"hard"},
+  {"n":9,"t":"设计多模型协作工作流——Claude编码+GPT创意+DeepSeek审查的端到端pipeline","d":"hard"},
+  {"n":10,"t":"从零构建部署个人网站——需求→UI→前后端→DB→部署，全程AI辅助","d":"project"}
+];
+
+var RESOURCES = [
+  {"t":"book","n":"《AI-Assisted Programming》Tom Taulli","d":"AI辅助编程的系统性入门读物，涵盖工具选型与实践指南"},
+  {"t":"site","n":"Cursor 官方文档","d":"最流行的AI编程IDE的完整使用指南和最佳实践"},
+  {"t":"site","n":"GitHub Copilot 官方文档","d":"GitHub官方AI编程助手的文档与Prompt建议"},
+  {"t":"book","n":"《Prompt Engineering for LLMs》John Berryman","d":"深入理解提示词工程，尤其侧重代码生成场景"},
+  {"t":"tool","n":"Windsurf IDE","d":"独立AI编程IDE，Flow模式支持多步骤自动化开发"},
+  {"t":"tool","n":"Claude Code CLI","d":"Anthropic推出的终端AI编程工具，Git感知+全文件操作"},
+  {"t":"site","n":"continue.dev 开源AI编程助手","d":"开源可定制的IDE AI助手，支持接入多种模型"},
+  {"t":"site","n":"Anthropic 提示词工程指南","d":"Claude提示词最佳实践官方指南，含代码生成示例"},
+  {"t":"site","n":"cursor.directory 提示词社区","d":"Cursor用户共享的.cursorrules规则集和最佳实践"},
+  {"t":"book","n":"《Building LLM Applications》Valentina Alto","d":"构建LLM应用（含编程辅助）的综合性实战指南"},
+  {"t":"tool","n":"Aider AI编程工具","d":"终端AI结对编程工具，Git原生集成和自动commit"},
+  {"t":"site","n":"OpenRouter 多模型API","d":"统一API访问多个大模型，方便构建多模型协作pipeline"},
+  {"t":"tool","n":"MCP协议官方文档","d":"Model Context Protocol，让AI安全调用外部工具的标准协议"}
+];
+
+var TRACKER_ITEMS = [
+  {"id":"phase1","n":"P1: 完成2+AI工具配置，建提示词库，完成3+编程任务"},
+  {"id":"phase2","n":"P2: 完成全栈项目，修复5+Bug，生成测试套件，2+模型协作"},
+  {"id":"phase3","n":"P3: 理解Transformer原理，建立安全审查清单，掌握Git AI协作"},
+  {"id":"phase4","n":"P4: 搭建MCP Server，实践Agent编程，建立个人AI工具链文档"}
+];
+
+// ============================================================
+// INIT: Phase list render
+// ============================================================
+function init(){
+  loadTheme();
+  var pl=document.getElementById('phaseList');
+  for(var i=0;i<PHASES.length;i++){var ph=PHASES[i];
+    var c=document.createElement('div');c.className='phase-card';c.id='phase-'+ph.id;
+    c.innerHTML='<div class="phase-header" onclick="event.stopPropagation();this.parentElement.classList.toggle(\'open\')">'+
+      '<div class="phase-icon" style="background:'+ph.color+'22;color:'+ph.color+'">'+ph.icon+'</div>'+
+      '<div class="phase-info"><h3>'+ph.title+'</h3><div class="phase-week">'+ph.week+'</div></div>'+
+      '<span class="phase-sub" style="background:'+ph.color+'22;color:'+ph.color+'">'+ph.sub+'</span>'+
+      '<span class="phase-arrow">▶</span>'+
+      '</div><div class="phase-body"><div class="phase-body-inner"></div></div>';
+    pl.appendChild(c);
+    AHDS(ph);
+  }
+  var fd=document.getElementById('knowledgeFilters');
+  fd.innerHTML='<button class="knowledge-filter active" data-kp="all" onclick="kf(\'all\')">全部</button>';
+  for(var i=0;i<PHASES.length;i++){fd.innerHTML+='<button class="knowledge-filter" data-kp="'+PHASES[i].id+'" onclick="kf(\''+PHASES[i].id+'\')">阶段'+(i+1)+'</button>';}
+  kf('all');
+  hFs();
+  hES();
+  hRS();
+  hTR();
+  hMTS();
+  document.body.classList.remove('loading');document.body.classList.add('loaded');
+  syncKPsFromManifest();
+  setTimeout(renderAllFormulas,100);
+}
+
+function AHDS(ph){
+  var el=document.getElementById('phase-'+ph.id);if(!el)return;
+  var inner=el.querySelector('.phase-body-inner');if(!inner)return;
+  var sh='';
+  if(ph.skills&&ph.skills.length>0){
+    sh='<div class="phase-skills">'+
+      ph.skills.map(function(s,idx){var kpId=(ph.phase_kps&&ph.phase_kps[idx])?ph.phase_kps[idx]:'';
+        return '<span class="skill-chip skill-link" onclick="event.stopPropagation();kfP(\''+kpId+'\')">'+s+'</span>';}).join('')+
+      '</div>';
+  }
+  var ch='';
+  if(ph.codes&&ph.codes.length>0){ch='<div class="phase-codes">'+
+    ph.codes.map(function(c){return '<pre><code>'+c+'</code></pre>';}).join('')+'</div>';}
+  var bh='';
+  if(ph.deep_dive_batch){
+    bh='<div class="phase-dd-batch">'+
+      '<button class="batch-deep-dive-btn" onclick="event.stopPropagation();ddBatch(\''+ph.id+'\')">📦 生成本阶段全部深度资料</button>'+
+      '<span class="dd-hint">一键复制本阶段所有知识点的生成提示词</span></div>';
+  }
+  inner.innerHTML=sh+'<div class="phase-desc">深入了解核心概念与技巧。</div>'+ch+bh;
+}
+
+function hMTS(){
+  var grid=document.getElementById('methodSteps');
+  if(!grid)return;
+  var steps=[
+    {title:'选定真实项目',desc:'找一个你真正想做的项目——个人网站、工具脚本、数据分析仪表盘。重要的是项目的"真实性"，不是你随便找的练习题目。'},
+    {title:'AI辅助开发',desc:'不要等"学会prompt"再开始——直接打开AI工具，用自然语言描述你的需求。让AI生成第一版代码，即使它不够完美。'},
+    {title:'遇到问题时深入',desc:'当AI生成的代码报错或不符合预期时，停下来理解问题。把错误信息反馈给AI获取修复方案，在这个过程中你会自然学到最多的知识。'},
+    {title:'回补原理知识',desc:'在实战中积累困惑后，回到第3阶段去理解LLM工作原理。这时候的学习效率最高——你已经有了足够的具体问题和经验背景。'},
+    {title:'迭代优化+建立体系',desc:'用新学到的原理知识改进你的prompt和代码质量。建立个人prompt库和工具链规范，让每次AI协作都比上一次更高效。'}
+  ];
+  var h='';
+  for(var i=0;i<steps.length;i++){
+    h+='<div class="method-step"><div class="method-step-num">'+(i+1)+'</div><div class="method-step-text"><h4>'+steps[i].title+'</h4><p>'+steps[i].desc+'</p></div></div>';
+  }
+  grid.innerHTML=h;
+}
+
+function kf(pid){
+  var cnt=document.getElementById('knowledgeCount');
+  var fil=pid==='all'?KPS:KPS.filter(function(k){return k.p===pid;});
+  var h='';
+  fil.forEach(function(kp){
+    var fh=kp.f?'<div class="card-formula">💰 '+kp.f+'</div>':'';
+    var sh=kp.s?'<div class="card-sum">💡 '+kp.s+'</div>':'';
+    var rh='';
+    if(kp.rel&&kp.rel.length){rh='<div class="card-related"><div class="cr-title">🔗 关联知识</div><div class="cr-links">';
+      kp.rel.forEach(function(r){var rk=KPS.find(function(x){return x.id===r;});
+        rh+='<span class="cr-link" onclick="event.stopPropagation();kfP(\''+r+'\')">'+(rk?rk.n:r)+'</span>';});
+      rh+='</div></div>';}
+    var ddSection='';
+    if(kp.deep_dive){
+      var ddStatus=kp.deep_dive.status||'none';
+      var ddArrow='';var ddBtnTxt='📖 深度研读';var ddHint='点击复制提示词';
+      if(ddStatus==='ready'&&kp.deep_dive.html_file){
+        ddArrow='<button class="deep-dive-open-btn" onclick="event.stopPropagation();ddOpen(\''+kp.id+'\')" title="打开深度研读资料">↗</button>';
+        ddBtnTxt='✅ 查看深度研读';
+        ddHint='点击 ↗ 打开资料';
+      }
+      ddSection='<div class="deep-dive-bar dd-'+ddStatus+'">'+ddArrow+
+        '<button class="deep-dive-btn" onclick="event.stopPropagation();ddTrigger(\''+kp.id+'\')">'+ddBtnTxt+'</button>'+
+        '<span class="dd-hint">'+ddHint+'</span></div>';
+    }
+    h+='<div class="knowledge-card" id="kc-'+kp.id+'" data-p="'+kp.p+'">'+
+      '<div class="card-header" onclick="tKCT(\''+kp.id+'\')">'+
+      '<span class="card-icon">📘</span>'+
+      '<span class="card-title">'+kp.n+'</span>'+
+      '<span class="math-tag" style="background:'+((PHASES.find(function(x){return x.id===kp.p;})||{color:'#6366f1'}).color)+'" onclick="event.stopPropagation();gP(\''+kp.p+'\')">'+
+      (PHASES.findIndex(function(x){return x.id===kp.p;})>=0?'P'+(PHASES.findIndex(function(x){return x.id===kp.p;})+1):'')+
+      '</span>'+
+      '<span class="card-back" onclick="event.stopPropagation();tKC_bk(\''+kp.id+'\')">收起 ✕</span>'+
+      '</div><div class="card-detail"><p>'+kp.d+'</p>'+fh+sh+rh+ddSection+'</div></div>';
+  });
+  document.getElementById('knowledgeContainer').innerHTML=h;
+  document.getElementById('knowledgeCount').textContent='显示 '+fil.length+'/'+KPS.length;
+  var btns=document.querySelectorAll('.knowledge-filter');
+  for(var i=0;i<btns.length;i++)btns[i].classList.remove('active');
+  var act=document.querySelector('.knowledge-filter[data-kp="'+pid+'"]');
+  if(act)act.classList.add('active');
+}
+
+function kfP(id){tKC_go(id);}
+
+function tKCT(id){
+  var el=document.getElementById('kc-'+id);
+  if(!el)return;
+  if(el.classList.contains('expanded')){collapseCard(el);return;}
+  if(el.classList.contains('open')&&!el.classList.contains('expanded')){el.classList.remove('open');return;}
+  var kp=KPS.find(function(x){return x.id===id;});
+  if(!kp)return;
+  var g=el.parentElement;
+  el.classList.add('expanded');
+  el.classList.add('open');
+  g.classList.add('has-expanded');
+  setTimeout(function(){
+    var det=el.querySelector('.card-detail');
+    if(det){var fk=det.querySelector('.card-formula');if(fk)renderFormula(fk);}
+  },150);
+  var pd=document.getElementById('phase-'+kp.p);
+  if(pd)pd.classList.add('open');
+  el.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function tKC_go(id){
+  var b=document.querySelectorAll('.knowledge-filter');
+  for(var i=0;i<b.length;i++)b[i].classList.remove('active');
+  var a=document.querySelector('.knowledge-filter[data-kp="all"]');
+  if(a)a.classList.add('active');
+  kf('all');
+  setTimeout(function(){
+    var el=document.getElementById('kc-'+id);
+    if(!el)return;
+    var g=el.parentElement;
+    el.classList.add('expanded');
+    el.classList.add('open');
+    g.classList.add('has-expanded');
+    setTimeout(function(){
+      var det=el.querySelector('.card-detail');
+      if(det){var fk=det.querySelector('.card-formula');if(fk)renderFormula(fk);}
+    },150);
+    var kp=KPS.find(function(x){return x.id===id;});
+    if(kp){var pd=document.getElementById('phase-'+kp.p);if(pd)pd.classList.add('open');}
+    el.scrollIntoView({behavior:'smooth',block:'center'});
+  },100);
+}
+
+function tKC_bk(id){var el=document.getElementById('kc-'+id);if(el)collapseCard(el);}
+function collapseCard(el){el.classList.remove('expanded');el.classList.remove('open');var g=el.parentElement;if(g){var anyExpanded=g.querySelector('.knowledge-card.expanded');if(!anyExpanded)g.classList.remove('has-expanded');}}
+
+function eAK(){
+  var all=document.querySelectorAll('.knowledge-card');
+  var btn=document.querySelector('.ks-expand-all');
+  var isExp=btn&&btn.textContent.indexOf('收起')>=0;
+  if(isExp){
+    for(var i=0;i<all.length;i++)collapseCard(all[i]);
+    if(btn)btn.textContent='📖 展开全部';
+  }else{
+    for(var i=0;i<all.length;i++){
+      all[i].classList.add('open');all[i].classList.add('expanded');
+      all[i].parentElement.classList.add('has-expanded');
+      var fk=all[i].querySelector('.card-formula');if(fk)renderFormula(fk);
+    }
+    if(btn)btn.textContent='📕 全部收起';
+  }
+}
+
+function gP(id){
+  var s=document.getElementById('phase-'+id);
+  if(s){s.scrollIntoView({behavior:'smooth'});setTimeout(function(){s.classList.add('open');},400);}
+}
+
+function htFs(tabsEl,panelsEl){
+  var th='';
+  for(var i=0;i<FORMULA_TABS.length;i++){
+    th+='<span class="formula-tab'+(i===0?' active':'')+'" onclick="sFT(\'ft'+(i+1)+'\',this)">'+FORMULA_TABS[i].n+'</span>';
+  }
+  tabsEl.innerHTML=th;
+  var ph='';
+  for(var i=0;i<FORMULAS.length;i++){
+    var f=FORMULAS[i];var fr='';
+    for(var j=0;j<f.r.length;j++){fr+='<tr><td>'+f.r[j][0]+'</td><td class="ft-formula">'+f.r[j][1]+'</td></tr>';}
+    ph+='<div class="formula-panel'+(i===0?' active':'')+'" id="fp-ft'+(i+1)+'">'+
+      '<table class="formula-table"><thead><tr><th>名称</th><th>概念/公式</th></tr></thead><tbody>'+fr+'</tbody></table></div>';
+  }
+  panelsEl.innerHTML=ph;
+}
+
+function hFs(){
+  var tabsEl=document.getElementById('formulaTabs');if(!tabsEl)return;
+  var panelsEl=document.getElementById('formulaPanels');if(!panelsEl)return;
+  htFs(tabsEl,panelsEl);
+}
+
+function sFT(id,btn){
+  var tabs=document.querySelectorAll('.formula-tab');
+  for(var i=0;i<tabs.length;i++)tabs[i].classList.remove('active');
+  btn.classList.add('active');
+  var panels=document.querySelectorAll('.formula-panel');
+  for(var i=0;i<panels.length;i++)panels[i].classList.remove('active');
+  document.getElementById('fp-'+id).classList.add('active');
+}
+
+function renderAllFormulas(){
+  if(typeof katex==='undefined')return;
+  var all=document.querySelectorAll('.card-formula,.ft-formula');
+  for(var i=0;i<all.length;i++){
+    if(all[i].querySelector('.katex'))continue;
+    var txt=all[i].textContent.replace('💰 ','');
+    if(!txt)continue;
+    try{katex.render(txt,all[i],{throwOnError:false});}
+    catch(e){all[i].textContent='⚠ '+txt;}
+  }
+}
+
+function renderFormula(fk){
+  if(typeof katex==='undefined')return;
+  if(fk.querySelector('.katex'))return;
+  var txt=fk.textContent.replace('💰 ','');
+  if(!txt)return;
+  try{katex.render(txt,fk,{throwOnError:false});}
+  catch(e){fk.textContent='⚠ '+txt;}
+}
+
+var DEEP_DIVE_WINDOWS={};
+function ddOpen(kpId){
+  var kp=KPS.find(function(k){return k.id===kpId;});
+  if(!kp||!kp.deep_dive||!kp.deep_dive.html_file)return;
+  var winName='dd_'+kpId;
+  if(DEEP_DIVE_WINDOWS[kpId]&&!DEEP_DIVE_WINDOWS[kpId].closed){DEEP_DIVE_WINDOWS[kpId].focus();return;}
+  var w=window.open(kp.deep_dive.html_file,winName);
+  if(w){DEEP_DIVE_WINDOWS[kpId]=w;setInterval(function(){if(w.closed)DEEP_DIVE_WINDOWS[kpId]=null;},1000);}
+}
+
+function encodeForContext(value){
+  if(typeof value!=='string')value=String(value||'');
+  return value.replace(/"/g,'\\"').replace(/;/g,'\\;').replace(/\[/g,'\\[').replace(/\]/g,'\\]');
+}
+
+function buildKPDeepDivePrompt(kp,ph,plan){
+  var prereqList=(kp.prerequisites||[]).join(',');
+  var nextKpList=(kp.next_kps||[]).join(',');
+  var phIndex=PHASES.findIndex(function(x){return x.id===ph.id;})+1;
+  var contextMarker='[context_plan: '+
+    'plan_id="'+encodeForContext(plan.id)+'"; '+
+    'plan_name="'+encodeForContext(plan.title)+'"; '+
+    'plan_file="'+encodeForContext(plan.html_file)+'"; '+
+    'template_id="'+encodeForContext(plan.template_id||'indigo-night')+'"; '+
+    'phase_id="'+encodeForContext(ph.id)+'"; '+
+    'phase_name="'+encodeForContext(ph.title)+'"; '+
+    'phase_position="'+phIndex+'/'+PHASES.length+'"; '+
+    'kp_id="'+encodeForContext(kp.id)+'"; '+
+    'kp_name="'+encodeForContext(kp.n||kp.name)+'"; '+
+    'prerequisites="'+encodeForContext(prereqList)+'"; '+
+    'next_kps="'+encodeForContext(nextKpList)+'"'+
+  ']\n\n';
+  return contextMarker+'请为以下知识点生成 理解×标准 的深度研读资料：\n知识点：'+(kp.n||kp.name)+'\n（已在上方提供完整上下文信息）';
+}
+
+var DD_TOAST_TIMEOUT;
+function ddTrigger(kpId){
+  var kp=KPS.find(function(k){return k.id===kpId;});
+  if(!kp)return;
+  var ph=PHASES.find(function(p){return p.id===kp.p;});
+  if(!ph)ph={id:kp.p,title:'未知阶段'};
+  var promptText=typeof PLAN!=='undefined'?buildKPDeepDivePrompt(kp,ph,PLAN):
+    '请为"'+(kp.n||kp.name)+'"生成 理解×标准 的深度研读资料';
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(promptText).then(function(){showDDToast('✅ 提示词已复制！粘贴到对话中生成深度资料',kp);})
+    .catch(function(){fallbackCopy(promptText);showDDToast('✅ 提示词已复制！',kp);});
+  }else{fallbackCopy(promptText);showDDToast('✅ 提示词已复制！',kp);}
+}
+
+function fallbackCopy(text){
+  var ta=document.createElement('textarea');ta.value=text;
+  document.body.style.position='relative';document.body.appendChild(ta);ta.select();
+  try{document.execCommand('copy');}catch(e){}
+  document.body.removeChild(ta);
+}
+
+function showDDToast(msg,kp){
+  var toastEl=document.getElementById('ddToast');
+  var toastMsgEl=document.getElementById('ddToastMsg');
+  if(!toastEl||!toastMsgEl)return;
+  toastMsgEl.innerHTML=msg;
+  if(kp&&kp.deep_dive&&kp.deep_dive.status==='ready'&&kp.deep_dive.html_file){
+    toastMsgEl.innerHTML+='<br>📄 已有深度资料: <a href="#" onclick="event.preventDefault();ddOpen(\''+kp.id+'\')" style="color:var(--accent-blue);text-decoration:underline;">点击打开</a>';
+  }
+  toastEl.style.display='block';
+  if(DD_TOAST_TIMEOUT)clearTimeout(DD_TOAST_TIMEOUT);
+  DD_TOAST_TIMEOUT=setTimeout(function(){toastEl.style.display='none';},4000);
+}
+
+function ddBatch(phaseId){
+  var phaseKps=KPS.filter(function(k){return k.p===phaseId&&k.deep_dive;});
+  if(phaseKps.length===0)return;
+  var ph=PHASES.find(function(p){return p.id===phaseId;});
+  if(!ph)ph={id:phaseId,title:'未知阶段'};
+  var batchText='📦 批量生成深度资料 - '+(ph.title||phaseId)+'\n\n';
+  phaseKps.forEach(function(kp){
+    if(typeof PLAN!=='undefined'){batchText+=buildKPDeepDivePrompt(kp,ph,PLAN)+'\n\n---\n\n';}
+    else{batchText+='请为"'+(kp.n||kp.name)+'"生成 理解×标准 的深度研读资料\n\n---\n\n';}
+  });
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(batchText).then(function(){showDDToast('✅ '+phaseKps.length+' 个提示词已复制到剪贴板！');})
+    .catch(function(){fallbackCopy(batchText);showDDToast('✅ '+phaseKps.length+' 个提示词已复制！');});
+  }else{fallbackCopy(batchText);showDDToast('✅ '+phaseKps.length+' 个提示词已复制！');}
+}
+
+function hES(){
+  var fH='<span class="exercise-filter active" onclick="fE(\'all\')">全部 ('+EXERCISES.length+')</span>';
+  fH+='<span class="exercise-filter" onclick="fE(\'easy\')">🟢 基础 ('+EXERCISES.filter(function(e){return e.d==='easy';}).length+')</span>';
+  fH+='<span class="exercise-filter" onclick="fE(\'medium\')">🟡 进阶 ('+EXERCISES.filter(function(e){return e.d==='medium';}).length+')</span>';
+  fH+='<span class="exercise-filter" onclick="fE(\'hard\')">🔴 挑战 ('+EXERCISES.filter(function(e){return e.d==='hard';}).length+')</span>';
+  fH+='<span class="exercise-filter" onclick="fE(\'project\')">📦 项目 ('+EXERCISES.filter(function(e){return e.d==='project';}).length+')</span>';
+  document.getElementById('exerciseFilters').innerHTML=fH;
+  fE('all');
+}
+
+function fE(diff){
+  var d=LS_PREFIX+'_done',dr=JSON.parse(safeGetLS(d,'[]'));
+  var fil=diff==='all'?EXERCISES:EXERCISES.filter(function(e){return e.d===diff;});
+  var h='';
+  fil.forEach(function(e){
+    var isD=dr.indexOf(parseInt(e.n))>=0;
+    var dCls='diff '+e.d;var dLbl={easy:'基础',medium:'进阶',hard:'挑战',project:'项目'};
+    h+='<div class="exercise-item"><span class="exercise-num">#'+e.n+'</span>'+
+      '<div class="ei-content"><div class="ei-title">'+
+      '<span class="ei-title-text">'+e.t+'</span>'+
+      '<span class="'+dCls+'">'+dLbl[e.d]+'</span></div></div>'+
+      '<div class="ei-check'+(isD?' done':'')+'" onclick="tE('+e.n+',this)">'+(isD?'✓':'')+'</div></div>';
+  });
+  document.getElementById('exerciseList').innerHTML=h;
+  uEC();
+  var btns=document.querySelectorAll('.exercise-filter');
+  for(var i=0;i<btns.length;i++)btns[i].classList.remove('active');
+  var a=document.querySelector('.exercise-filter[onclick="fE(\''+diff+'\')"]');
+  if(a)a.classList.add('active');
+}
+
+function tE(n,el){
+  var d=LS_PREFIX+'_done',dr=JSON.parse(safeGetLS(d,'[]'));
+  var idx=dr.indexOf(n);
+  if(idx>=0){dr.splice(idx,1);el.classList.remove('done');el.textContent='';}
+  else{dr.push(n);el.classList.add('done');el.textContent='✓';}
+  safeSetLS(d,JSON.stringify(dr));
+  uEC();
+}
+
+function uEC(){
+  var d=LS_PREFIX+'_done',dr=JSON.parse(safeGetLS(d,'[]'));
+  document.getElementById('exerciseCount').innerHTML='已完成 <strong>'+dr.length+'</strong>/'+EXERCISES.length;
+}
+
+function hRS(){
+  var h='';
+  for(var i=0;i<RESOURCES.length;i++){var r=RESOURCES[i];
+    h+='<div class="resource-item"><span class="ri-type '+r.t+'">'+({book:'📖 书',paper:'📄 论文',site:'🌐 站',tool:'🛠️ 工具'}[r.t]||r.t)+'</span><h4>'+r.n+'</h4><p>'+r.d+'</p></div>';
+  }
+  document.getElementById('resourceGrid').innerHTML=h;
+}
+
+function hTR(){
+  var h='';var d=LS_PREFIX+'_tracker';var dr=JSON.parse(safeGetLS(d,'[]'));
+  for(var i=0;i<TRACKER_ITEMS.length;i++){var t=TRACKER_ITEMS[i];var done=dr.indexOf(t.id)>=0;
+    h+='<div class="tracker-item'+(done?' done':'')+'" onclick="tTR(\''+t.id+'\',this)">'+
+      '<div class="tracker-check"></div><span class="tracker-label">'+t.n+'</span></div>';
+  }
+  document.getElementById('trackerGrid').innerHTML=h;
+  uPB();
+}
+
+function tTR(id,el){
+  var d=LS_PREFIX+'_tracker';var dr=JSON.parse(safeGetLS(d,'[]'));
+  var idx=dr.indexOf(id);
+  if(idx>=0){dr.splice(idx,1);el.classList.remove('done');}
+  else{dr.push(id);el.classList.add('done');}
+  safeSetLS(d,JSON.stringify(dr));
+  uPB();
+}
+
+function uPB(){
+  var d=LS_PREFIX+'_tracker';var dr=JSON.parse(safeGetLS(d,'[]'));
+  var pct=TRACKER_ITEMS.length>0?Math.round(dr.length/TRACKER_ITEMS.length*100):0;
+  document.getElementById('progressBar').style.width=pct+'%';
+}
+
+function searchOpen(){document.getElementById('searchOverlay').classList.add('show');document.getElementById('searchInput').focus();}
+function searchClose(){document.getElementById('searchOverlay').classList.remove('show');}
+function searchKPs(){
+  var q=document.getElementById('searchInput').value.toLowerCase();
+  var res=KPS.filter(function(k){return k.n.toLowerCase().indexOf(q)>=0||(k.d||'').toLowerCase().indexOf(q)>=0;});
+  var h='';
+  for(var i=0;i<Math.min(res.length,10);i++){
+    h+='<div class="search-result" onclick="searchClose();tKC_go(\''+res[i].id+'\')">'+
+      '<div class="sr-title">'+res[i].n+'</div><div class="sr-detail">'+(res[i].d||'').substring(0,60)+'</div></div>';
+  }
+  document.getElementById('searchResults').innerHTML=h||'<div style="color:var(--text-muted);padding:10px">无结果</div>';
+}
+
+function safeGetLS(key,fallback){
+  try{var v=localStorage.getItem(key);return v!==null?v:fallback;}catch(e){return fallback;}
+}
+function safeSetLS(key,val){
+  try{localStorage.setItem(key,val);}catch(e){}
+}
+
+function loadTheme(){var t=safeGetLS(STORAGE_KEY+'_theme','light');
+  if(t==='light'){document.body.classList.add('light');document.body.classList.remove('dark');}
+  else{document.body.classList.add('dark');document.body.classList.remove('light');}}
+function toggleTheme(){var t=safeGetLS(STORAGE_KEY+'_theme','light');t=t==='dark'?'light':'dark';
+  safeSetLS(STORAGE_KEY+'_theme',t);loadTheme();}
+
+function syncKPsFromManifest(){
+  try{
+    fetch('manifest.json').then(function(r){
+      if(!r.ok)return;
+      return r.json();
+    }).then(function(manifest){
+      if(!manifest||!manifest.materials||!manifest.plans)return;
+      var currentPlan=null;
+      for(var i=0;i<manifest.plans.length;i++){
+        if(manifest.plans[i].html_file==='vibe_coding_learning.html'){
+          currentPlan=manifest.plans[i];break;
+        }
+      }
+      if(!currentPlan)return;
+      for(var i=0;i<manifest.materials.length;i++){
+        var mat=manifest.materials[i];
+        if(mat.belongs_to_plan!==currentPlan.id)continue;
+        if(!mat.html_file)continue;
+        var kpIndex=-1;
+        for(var j=0;j<KPS.length;j++){
+          if(KPS[j].id===mat.belongs_to_kp){kpIndex=j;break;}
+        }
+        if(kpIndex<0)continue;
+        var dd=KPS[kpIndex].deep_dive;
+        if(!dd){KPS[kpIndex].deep_dive={status:'ready',html_file:mat.html_file};}
+        else{dd.status='ready';dd.html_file=dd.html_file||mat.html_file;}
+        var kcEl=document.getElementById('kc-'+mat.belongs_to_kp);
+        if(!kcEl)continue;
+        var ddBtn=kcEl.querySelector('.deep-dive-btn');
+        if(ddBtn)ddBtn.textContent='✅ 查看深度研读';
+        var ddHint=kcEl.querySelector('.dd-hint');
+        if(ddHint)ddHint.textContent='点击 ↗ 打开资料';
+        var ddOpenBtn=kcEl.querySelector('.deep-dive-open-btn');
+        if(!ddOpenBtn){
+          var ddBar=kcEl.querySelector('.deep-dive-bar');
+          if(ddBar){
+            var btn=document.createElement('button');
+            btn.className='deep-dive-open-btn';
+            btn.title='打开深度研读资料';
+            btn.textContent='↗';
+            btn.onclick=function(kpId){return function(e){e.stopPropagation();ddOpen(kpId);};}(mat.belongs_to_kp);
+            ddBar.insertBefore(btn,ddBar.firstChild);
+          }
+        }
+      }
+    }).catch(function(){});
+  }catch(e){}
+}
+
+init();
+
+document.addEventListener('keydown',function(e){if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();searchOpen();}});
+
+(function(){var hash=location.hash;if(hash&&hash.indexOf('#kc-')===0){
+  var kid=hash.replace('#kc-','');setTimeout(function(){tKC_go(kid);},300);}})();
+
+(function() {
+  var CH_KEY = '_ml_llm_nav';
+
+  function processNav() {
+    var raw = localStorage.getItem(CH_KEY);
+    if (!raw) return;
+    try {
+      var data = JSON.parse(raw);
+      if (Date.now() - data.ts > 10000) {
+        localStorage.removeItem(CH_KEY);
+        return;
+      }
+      if (data.kpId) {
+        localStorage.removeItem(CH_KEY);
+        if (typeof kf === 'function') kf('all');
+        setTimeout(function() {
+          if (typeof tKC_go === 'function') tKC_go(data.kpId);
+        }, 200);
+      }
+    } catch(e) {
+      localStorage.removeItem(CH_KEY);
+    }
+  }
+
+  window.addEventListener('storage', function(e) {
+    if (e.key === CH_KEY) processNav();
+  });
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+      setTimeout(processNav, 300);
+    });
+  } else {
+    setTimeout(processNav, 300);
+  }
+})();
+</script>
+</body>
+</html>

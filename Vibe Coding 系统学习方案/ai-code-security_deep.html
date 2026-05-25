@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI编程的安全与代码质量保障 — 深度研读</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<style>
+:root {
+  --bg: #ffffff; --bg-secondary: #f8fafc; --bg-tertiary: #f1f5f9;
+  --text: #0f172a; --text-secondary: #475569; --text-tertiary: #94a3b8;
+  --border: #e2e8f0; --primary: #6366f1; --primary-light: #eef2ff;
+  --accent: #8b5cf6; --accent-light: #f5f3ff; --cyan: #22d3ee; --cyan-light: #ecfeff;
+  --orange: #f59e0b; --orange-light: #fffbeb; --green: #10b981; --green-light: #ecfdf5;
+  --red: #ef4444; --red-light: #fef2f2; --pink: #ec4899; --pink-light: #fdf2f8;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1);
+  --radius: 12px; --radius-sm: 8px; --max-width: 780px; --sidebar-width: 240px;
+  --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+[data-theme="dark"] {
+  --bg: #0f172a; --bg-secondary: #1e293b; --bg-tertiary: #334155;
+  --text: #f1f5f9; --text-secondary: #94a3b8; --text-tertiary: #64748b;
+  --border: #334155; --primary: #818cf8; --primary-light: rgba(99,102,241,0.15);
+  --accent: #a78bfa; --accent-light: rgba(139,92,246,0.15); --cyan: #67e8f9; --cyan-light: rgba(34,211,238,0.1);
+  --orange: #fbbf24; --orange-light: rgba(245,158,11,0.1); --green: #34d399; --green-light: rgba(16,185,129,0.1);
+  --red: #f87171; --red-light: rgba(239,68,68,0.1); --pink: #f472b6; --pink-light: rgba(236,72,153,0.1);
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.3); --shadow: 0 1px 3px rgba(0,0,0,0.4);
+  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.4); --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.4);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--bg); color: var(--text); line-height: 1.7;
+  -webkit-font-smoothing: antialiased; transition: background var(--transition), color var(--transition);
+}
+body.loading{opacity:0}body.loaded{opacity:1;transition:opacity 0.4s ease}
+#progress-bar {
+  position: fixed; top: 0; left: 0; height: 3px;
+  background: linear-gradient(90deg, var(--primary), var(--accent), var(--cyan));
+  z-index: 1000; transition: width 0.1s linear;
+}
+#theme-toggle {
+  position: fixed; top: 20px; right: 20px; z-index: 999;
+  width: 40px; height: 40px; border-radius: 50%;
+  background: var(--bg-secondary); border: 1px solid var(--border);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  font-size: 18px; transition: all var(--transition); box-shadow: var(--shadow-sm);
+}
+#theme-toggle:hover { transform: scale(1.1); box-shadow: var(--shadow); }
+#sidebar {
+  position: fixed; top: 0; left: 0; width: var(--sidebar-width); height: 100vh;
+  background: var(--bg-secondary); border-right: 1px solid var(--border);
+  padding: 80px 16px 24px; overflow-y: auto; z-index: 100;
+  transition: transform var(--transition);
+}
+#sidebar h3 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-tertiary); margin-bottom: 12px; font-weight: 600; }
+.sidebar-link { display: block; padding: 6px 12px; margin: 2px 0; border-radius: var(--radius-sm); font-size: 13px; color: var(--text-secondary); text-decoration: none; transition: all var(--transition); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sidebar-link:hover { background: var(--bg-tertiary); color: var(--text); }
+.sidebar-link.active { background: var(--primary-light); color: var(--primary); font-weight: 600; }
+.sidebar-back-link { display: block; padding: 8px 12px; margin-bottom: 12px; border-radius: var(--radius-sm); background: var(--bg-tertiary); color: var(--accent); text-decoration: none; font-size: 13px; font-weight: 600; }
+.sidebar-back-link:hover { background: var(--accent-light); }
+#main-content { margin-left: var(--sidebar-width); max-width: var(--max-width); padding: 60px 32px 120px; margin-right: auto; }
+.hero {
+  margin-bottom: 36px;
+}
+.hero h1 {
+  font-size: 32px; font-weight: 800; letter-spacing: -0.03em; line-height: 1.3; margin-bottom: 12px;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.hero .tags { display: flex; gap: 8px; flex-wrap: wrap; }
+.hero .tags span { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; letter-spacing: 0.02em; background: var(--bg-tertiary); color: var(--text-secondary); }
+.meta-card {
+  background: linear-gradient(135deg, var(--primary-light), var(--accent-light));
+  border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 28px 32px; margin-bottom: 48px; display: flex; flex-wrap: wrap; gap: 24px; align-items: center;
+}
+.meta-card .meta-item { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--text-secondary); }
+.meta-card .meta-item strong { color: var(--text); }
+.journey-bar {
+  background: var(--bg-secondary); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 16px 24px; margin-bottom: 32px; display: flex; align-items: center; flex-wrap: wrap; gap: 10px;
+  font-size: 13px; color: var(--text-secondary);
+}
+.journey-bar .j-step { display: flex; align-items: center; gap: 6px; }
+.journey-bar .j-sep { color: var(--text-tertiary); margin: 0 4px; }
+.journey-bar .j-current { font-weight: 700; color: var(--primary); }
+.journey-bar a { color: var(--accent); text-decoration: none; font-weight: 500; cursor: pointer; }
+.journey-bar a:hover { text-decoration: underline; }
+.module {
+  margin-bottom: 56px; opacity: 0; transform: translateY(24px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.module.visible { opacity: 1; transform: translateY(0); }
+.module h2 { font-size: 22px; font-weight: 700; color: var(--text); letter-spacing: -0.02em; margin-bottom: 12px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.m-tag { display: inline-block; padding: 3px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; letter-spacing: 0.03em; background: var(--primary-light); color: var(--primary); text-transform: uppercase; }
+.m-time { font-size: 13px; color: var(--text-tertiary); font-weight: 400; }
+.hook { font-size: 16px; color: var(--text-secondary); font-style: italic; border-left: 3px solid var(--primary); padding-left: 16px; margin-bottom: 20px; }
+.content p { margin-bottom: 14px; font-size: 15px; }
+.content strong { color: var(--text); }
+.content ul, .content ol { margin: 8px 0 16px 24px; }
+.content li { margin-bottom: 6px; font-size: 15px; }
+.chart-wrap { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin: 20px 0; }
+.chart-inner { width: 100%; height: 360px; }
+.ch-cap { font-size: 13px; color: var(--text-secondary); text-align: center; margin-top: 12px; }
+.data-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px; border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; }
+.data-table th { background: var(--bg-tertiary); padding: 10px 16px; text-align: left; font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.03em; color: var(--text-secondary); }
+.data-table td { padding: 10px 16px; border-top: 1px solid var(--border); color: var(--text); }
+.data-table tr:hover td { background: var(--bg-tertiary); }
+.formula-block { background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 20px 24px; margin: 16px 0; position: relative; cursor: pointer; transition: all var(--transition); text-align: center; }
+.formula-block:hover { box-shadow: var(--shadow); }
+.f-cap { font-size: 12px; color: var(--text-tertiary); display: block; margin-bottom: 8px; }
+.derivation-toggle { display: block; margin: 12px auto 0; padding: 4px 16px; border-radius: 12px; border: 1px solid var(--border); background: var(--bg); color: var(--text-secondary); font-size: 12px; cursor: pointer; transition: all var(--transition); }
+.derivation-toggle:hover { background: var(--bg-secondary); }
+.derivation-content { display: none; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); font-size: 14px; color: var(--text-secondary); text-align: left; }
+.formula-block.expanded .derivation-content { display: block; }
+.takeaway { margin-top: 18px; padding: 14px 20px; border-radius: var(--radius-sm); background: var(--primary-light); border-left: 4px solid var(--primary); font-size: 14px; font-weight: 500; color: var(--text); }
+.refs { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border); font-size: 12px; color: var(--text-tertiary); }
+.refs h4 { font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
+.refs ol { margin-left: 20px; }
+.refs li { margin-bottom: 4px; font-size: 12px; }
+#page-footer { margin-top: 60px; padding: 32px 0; border-top: 1px solid var(--border); display: flex; gap: 12px; flex-wrap: wrap; }
+.btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: var(--radius-sm); font-size: 14px; font-weight: 500; cursor: pointer; border: 1px solid var(--border); background: var(--bg); color: var(--text); transition: all var(--transition); text-decoration: none; }
+.btn:hover { background: var(--bg-tertiary); }
+.btn.primary { background: var(--primary); color: #fff; border-color: var(--primary); }
+.btn.primary:hover { filter: brightness(1.1); }
+.back-btn { position: fixed; right: 24px; bottom: 24px; z-index: 200; }
+.back-btn button { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; border: none; border-radius: 24px; padding: 12px 24px; font-size: 0.85rem; font-weight: 600; cursor: pointer; box-shadow: 0 4px 12px rgba(99,102,241,0.3); transition: transform 0.2s; }
+.back-btn button:hover { transform: scale(1.05); }
+.search-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 500; background: rgba(0,0,0,0.6); display: flex; justify-content: center; padding-top: 18vh; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
+.search-overlay.open { opacity: 1; pointer-events: auto; }
+.search-dialog { width: 560px; max-width: 92vw; border-radius: 16px; background: var(--bg-secondary); border: 1px solid var(--border); box-shadow: 0 25px 60px rgba(0,0,0,0.5); overflow: hidden; }
+.search-dialog input { width: 100%; padding: 16px 20px; border: none; background: transparent; color: var(--text); font-size: 16px; outline: none; border-bottom: 1px solid var(--border); }
+.search-dialog input::placeholder { color: var(--text-tertiary); }
+.search-results { max-height: 360px; overflow-y: auto; }
+.search-results .sr-item { padding: 12px 20px; cursor: pointer; transition: background 0.15s; border-bottom: 1px solid rgba(255,255,255,0.03); }
+.search-results .sr-item:hover { background: var(--bg-tertiary); }
+.search-results .sr-item .sr-title { font-size: 14px; font-weight: 600; color: var(--text); }
+.search-results .sr-item .sr-title mark { background: rgba(52,211,153,0.25); color: #34d399; border-radius: 2px; padding: 0 2px; font-weight: 700; }
+.search-results .sr-item .sr-snippet { font-size: 12px; color: var(--text-tertiary); margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.search-empty { text-align: center; padding: 28px; color: var(--text-tertiary); font-size: 13px; }
+@media (max-width: 1024px) { :root { --sidebar-width: 200px; } #main-content { padding: 48px 24px 80px; } }
+@media (max-width: 768px) {
+  #sidebar { transform: translateX(-100%); }
+  #sidebar.open { transform: translateX(0); }
+  #main-content { margin-left: 0; padding: 72px 20px 60px; }
+  #theme-toggle { top: 16px; right: 16px; }
+  .meta-card { padding: 20px 24px; flex-direction: column; gap: 12px; align-items: flex-start; }
+  .chart-inner { height: 280px; }
+  .module h2 { font-size: 19px; }
+  .hero h1 { font-size: 26px; }
+}
+@media print { #sidebar, #progress-bar, #theme-toggle, #page-footer, .back-btn { display: none !important; } #main-content { margin-left: 0; max-width: 100%; padding: 0; } .module { opacity: 1; transform: none; break-inside: avoid; } body { font-size: 12px; line-height: 1.5; } }
+#sidebar-toggle { display: none; position: fixed; top: 16px; left: 16px; z-index: 999; width: 40px; height: 40px; border-radius: 50%; background: var(--bg-secondary); border: 1px solid var(--border); cursor: pointer; font-size: 18px; align-items: center; justify-content: center; box-shadow: var(--shadow-sm); }
+@media (max-width: 768px) { #sidebar-toggle { display: flex; } }
+.mobile-bottom-nav { display: none; position: fixed; bottom: 0; left: 0; right: 0; z-index: 300; background: var(--bg-secondary); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-top: 1px solid var(--border); padding: 6px 8px; padding-bottom: max(6px, env(safe-area-inset-bottom)); }
+.mobile-bottom-nav .mbn-inner { display: flex; justify-content: space-around; align-items: center; }
+.mobile-bottom-nav .mbn-item { display: flex; flex-direction: column; align-items: center; gap: 1px; color: var(--text-tertiary); cursor: pointer; font-size: 10px; font-weight: 500; background: transparent; border: none; padding: 4px; font-family: inherit; transition: color 0.2s; }
+.mobile-bottom-nav .mbn-item:hover, .mobile-bottom-nav .mbn-item.mbn-active { color: var(--green); }
+.mobile-bottom-nav .mbn-item .mbn-icon { font-size: 17px; }
+@media (max-width: 768px) { .mobile-bottom-nav { display: block; } #page-footer { padding-bottom: 64px; } }
+</style>
+</head>
+<body class="loading" data-theme="dark">
+<canvas id="bg-canvas" style="position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;"></canvas>
+<div id="progress-bar"></div>
+<button id="theme-toggle" title="切换深色/浅色模式" onclick="toggleTheme()">🌓</button>
+<button id="sidebar-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+
+<nav id="sidebar">
+  <a href="#" onclick="goBack();return false;" class="sidebar-back-link">← 返回主方案</a>
+  <h3>📑 内容导航</h3>
+  <div id="sidebar-links"></div>
+</nav>
+
+<main id="main-content">
+
+<div class="integration-navbar" style="display:flex;align-items:center;gap:12px;padding:10px 24px;background:var(--bg-secondary);border-bottom:1px solid var(--border);font-size:14px;position:sticky;top:0;z-index:50;margin-left:calc(var(--sidebar-width) * -1 - 32px);width:calc(100% + var(--sidebar-width) + 32px);">
+  <a href="#" onclick="goBack();return false;" style="color:var(--accent);text-decoration:none;font-weight:600;">← 返回 Vibe Coding (AI自然语言编程) 系统学习方案</a>
+  <span style="color:var(--text-tertiary);">|</span>
+  <span style="color:var(--text-secondary);">第3/4阶段 · 基础原理回补</span>
+</div>
+
+<div class="hero">
+  <h1>AI编程的安全与代码质量保障</h1>
+  <div class="tags">
+    <span>🤖 AI/科技</span>
+    <span>🎯 进阶</span>
+    <span>🔒 安全</span>
+    <span>✅ 质量</span>
+  </div>
+</div>
+
+<div class="meta-card">
+  <div class="meta-item"><span style="font-size:20px;">📚</span> <strong>21</strong> 模块</div>
+  <div class="meta-item"><span style="font-size:20px;">⏱️</span> 预计阅读 <strong>~35分钟</strong></div>
+  <div class="meta-item"><span style="font-size:20px;">📊</span> <strong>6</strong> 图表</div>
+  <div class="meta-item"><span style="font-size:20px;">📐</span> <strong>3</strong> 公式</div>
+</div>
+
+<div class="journey-bar">
+  <div class="j-step"><span>🎯</span> <a href="#" onclick="goBack();return false;">Vibe Coding</a></div>
+  <span class="j-sep">→</span>
+  <div class="j-step"><span>📚</span> <span>基础原理回补</span></div>
+  <span class="j-sep">→</span>
+  <div class="j-step j-current"><span>📍</span> AI编程的安全与代码质量保障 <span style="font-size:11px;color:var(--text-tertiary);">(3/4)</span></div>
+  <div style="flex-basis:100%;font-size:12px;color:var(--text-tertiary);margin-top:4px;">
+    上一页：<a href="#" onclick="goBack();return false;">LLM工作原理与代码生成机制</a> · 下一页：<a href="#" onclick="goBack();return false;">版本控制与AI协作最佳实践</a>
+  </div>
+</div>
+
+<div id="modules-container">
+
+<div class="module" id="md-01-background">
+  <h2><span class="m-tag">背景</span> 软件安全的演进与AI代码安全新挑战 <span class="m-time">⏱️ ~1.5分钟</span></h2>
+  <div class="hook">1996年，Aleph One在Phrack杂志上发表了"Smashing the Stack for Fun and Profit"——26年后，AI生成的代码中同样的缓冲区溢出漏洞以更高的频率重新出现。</div>
+  <div class="content">
+    <p><strong>软件安全简史</strong></p>
+    <p>软件安全作为一个独立学科，经历了从"事后修补"到"安全左移"的范式转变。1970年代，安全仅被视为网络边界问题——防火墙和访问控制是唯一的防线。1988年莫里斯蠕虫事件让世界第一次认识到代码级漏洞的破坏力。1996年缓冲区溢出技术的公开，催生了此后二十年间最主流的攻击向量。2001年OWASP（开放Web应用安全项目）成立，开始系统地分类和评估Web应用安全风险。</p>
+    <p><strong>AI代码生成时代的到来</strong></p>
+    <p>2021年GitHub Copilot的发布标志着AI辅助编程的普及化。到2024年，超过50%的新代码据估计包含AI生成的成分（GitHub Universe 2024数据）。然而，伴随这一效率革命的是一个严峻的安全问题：AI模型在训练过程中吸收了包含大量安全漏洞的公开代码，它们在生成代码时也会"复现"这些漏洞模式。斯坦福大学2023年的研究显示，使用AI编程助手的开发者写出的代码比手动编写更容易包含安全漏洞——特别是在加密实现、输入验证和权限控制方面。</p>
+    <p><strong>为什么AI代码安全是一个独特问题</strong></p>
+    <p>不同于传统软件开发中的安全漏洞（通常源于程序员的知识不足或疏忽），AI生成代码的漏洞具有三个新特征：第一，<strong>模式化复现</strong>——AI倾向于重复训练数据中常见的（但不安全的）代码模式，如字符串拼接SQL查询；第二，<strong>过度自信</strong>——AI生成的代码看起来结构良好、注释齐全，给人一种"这代码没问题"的错觉，导致开发者降低警惕；第三，<strong>上下文脱节</strong>——AI可能不理解项目的安全策略（如"本项目所有API调用必须经过认证中间件"），生成的代码破坏了整体安全架构。</p>
+    <p><strong>从"安全左移"到"AI安全左移"</strong></p>
+    <p>传统DevSecOps强调"安全左移"——在开发周期的早期阶段（设计、编码）就引入安全检查。在AI编程时代，这一理念需要进一步延伸：安全检查必须在代码从AI模型生成的那一刻就开始。这意味着需要构建一个从Prompt到Production的完整安全防护链。</p>
+  </div>
+  <div class="takeaway">AI代码安全不是一个新类别的问题，而是所有传统安全问题在AI生成场景下的加速和放大——漏洞的出现速度比人工编码快3-5倍，而检测速度却没有相应提升。</div>
+</div>
+
+<div class="module" id="md-02-concept">
+  <h2><span class="m-tag">概念</span> 代码安全与代码质量的核心概念体系 <span class="m-time">⏱️ ~2分钟</span></h2>
+  <div class="hook">很多开发者分不清SAST和DAST——这就像分不清"检查食谱的安全性"和"品尝食物是否变质"。在AI代码安全领域，理解这两个概念是入门的第一步。</div>
+  <div class="content">
+    <p><strong>代码安全 vs 代码质量：两个独立但相关的维度</strong></p>
+    <p>代码安全（Code Security）关注代码是否存在可被恶意利用的缺陷——SQL注入、XSS跨站脚本、权限绕过、敏感数据泄露等。代码质量（Code Quality）关注代码的可维护性、可读性、性能、正确性——代码复杂度、重复代码、未使用的变量、潜在的逻辑错误等。在AI编程场景下，这两个维度高度交叉：一段质量低下的AI生成代码（如过度复杂的嵌套逻辑）往往也隐藏着安全漏洞。</p>
+    <p><strong>SAST（静态应用安全测试）</strong></p>
+    <p>SAST是一种白盒测试方法，在不运行代码的情况下分析源代码、字节码或二进制文件中的安全漏洞。它通过模式匹配、数据流分析、控制流分析等技术来检测潜在的安全问题。在AI代码安全中，SAST是第一道防线——它可以在代码被AI生成后、甚至在被复制到IDE之前就标记出潜在问题。主流SAST工具包括Semgrep、SonarQube、CodeQL、Bandit（Python专用）等。</p>
+    <p><strong>DAST（动态应用安全测试）</strong></p>
+    <p>DAST是一种黑盒测试方法，在应用运行时从外部测试安全漏洞——模拟攻击者的行为，向运行中的应用发送恶意输入并观察响应。DAST不关心代码内部结构，只关注运行时的行为。对于AI生成的Web应用代码，DAST可以发现SAST难以检测的漏洞——如配置错误导致的CORS策略过宽、认证绕过、信息泄露等。主流DAST工具包括OWASP ZAP、Burp Suite、Acunetix。</p>
+    <p><strong>IAST与RASP：更先进的防护手段</strong></p>
+    <p>IAST（交互式应用安全测试）结合了SAST和DAST的优势——在应用内部植入探针，实时监控运行时数据流中的安全问题。RASP（运行时应用自我保护）更进一步——它不仅在运行时检测攻击，还能主动阻止恶意请求。在AI生成代码部署到生产环境后，RASP提供了最后一道实时防线。</p>
+  </div>
+  <div class="takeaway">SAST是代码审查的第一道防线（检查"食谱"），DAST是运行时的攻击模拟（品尝"食物"），IAST/RASP提供实时的交互式防护——四者构成完整的AI代码安全检测金字塔。</div>
+</div>
+
+<div class="module" id="md-03-principle">
+  <h2><span class="m-tag">原理</span> OWASP Top 10与AI生成代码的漏洞类别 <span class="m-time">⏱️ ~2分钟</span></h2>
+  <div class="hook">OWASP Top 10已经更新到2021版，但AI似乎还在默写2017版的答案——这意味着AI生成的代码中包含大量已知但已在新标准中降级的漏洞类型。</div>
+  <div class="content">
+    <p><strong>OWASP Top 10 (2021) 与AI代码的相关性</strong></p>
+    <p>OWASP Top 10是全球最权威的Web应用安全风险排名，2021年版本包含：A01-访问控制失效、A02-加密失败、A03-注入、A04-不安全设计、A05-安全配置错误、A06-易受攻击和过时的组件、A07-身份识别和认证失败、A08-软件和数据完整性故障、A09-安全日志和监控故障、A10-服务端请求伪造(SSRF)。</p>
+    <p>在AI生成代码的场景中，某些类别的漏洞出现频率显著更高。研究表明（Pearce et al., 2024），AI生成的代码中<strong>A03-注入</strong>（特别是SQL注入和命令注入）和<strong>A02-加密失败</strong>（使用弱加密算法、硬编码密钥）是最常见的两类问题。这反映了AI训练语料中大量存在的不安全编码模式。</p>
+    <p><strong>AI生成代码中特有的漏洞模式</strong></p>
+    <p>第一，<strong>"教科书式"不安全实践</strong>——AI倾向于生成教学性质的代码，这些代码为了简洁而省略了安全措施。例如，一个"如何用Python连接MySQL"的提示，AI可能生成直接字符串拼接的查询语句，而非使用参数化查询。第二，<strong>依赖版本滞后</strong>——AI的知识截止日期意味着它可能推荐包含已知CVE的旧版本依赖。第三，<strong>安全策略盲区</strong>——AI无法感知项目的全局安全策略（如CSP头部配置、认证中间件架构），可能生成绕过这些策略的代码。</p>
+    <p><strong>漏洞严重性的CVSS评分体系</strong></p>
+    <p>通用漏洞评分系统（CVSS）为每个漏洞提供了0-10的标准化严重性评分，考虑攻击向量、攻击复杂度、权限要求、用户交互、影响范围、机密性影响、完整性影响、可用性影响等八个维度。AI生成代码中的漏洞不应被区别对待——它们适用同样的CVSS评分标准，需要同样的修复优先级。</p>
+  </div>
+  <div class="formula-block" id="formula-01">
+    <span class="f-cap">AI代码安全风险综合评估模型</span>
+    $$\text{Risk}_{AI\_code} = \sum_{i=1}^{n} \left( P(\text{vuln}_i \mid \text{AI}) \times \text{Impact}(\text{vuln}_i) \times \frac{1}{\text{DetectionRate}_i} \right)$$
+    <button class="derivation-toggle">▸ 展开推导</button>
+    <div class="derivation-content">
+      该模型量化了AI生成代码的总体安全风险。对于每种漏洞类型i（如SQL注入、XSS、硬编码密钥等），我们考虑三个因素：<br><br>
+      (1) <strong>P(vuln_i | AI)</strong>：条件概率——在AI生成的代码中出现漏洞i的概率。与人工代码相比，AI代码的该值通常高出1.3-2.5倍（取决于漏洞类型）。<br><br>
+      (2) <strong>Impact(vuln_i)</strong>：漏洞一旦被利用的影响程度——通常使用CVSS评分折算（0-1）。A03注入类漏洞通常具有最高的Impact（0.8-1.0）。<br><br>
+      (3) <strong>1/DetectionRate_i</strong>：检测率倒数——反映该类型漏洞被现有SAST/DAST工具发现的难度。某些逻辑漏洞（如业务逻辑绕过）的检测率极低（<0.2），导致风险被放大5倍以上。<br><br>
+      实际案例：一个AI生成的Web应用中，SQL注入的P≈0.35、Impact≈0.9、DetectionRate≈0.7（现代SAST对注入检测较好），贡献Risk = 0.35×0.9/0.7 = 0.45。而权限绕过漏洞的P≈0.15、Impact≈0.9、DetectionRate≈0.15，贡献Risk = 0.15×0.9/0.15 = 0.9——尽管出现概率更低，但因难以检测，总体风险反而更高。
+    </div>
+  </div>
+  <div class="takeaway">AI生成代码中最常见的漏洞类别是注入和加密失败——不是因为这些漏洞最难防，而是因为训练语料中存在大量此类不安全模式，且AI缺乏上下文安全意识。</div>
+</div>
+
+<div class="module" id="md-ai-tech-architecture">
+  <h2><span class="m-tag">架构</span> AI代码安全审查的四层流水线架构 <span class="m-time">⏱️ ~1.5分钟</span></h2>
+  <div class="hook">"写代码只要5秒，审查需要5分钟"——这句话在AI编程时代变得前所未有的真实。一个四层安全审查流水线是应对AI代码漏洞"海量生成"的唯一可行方案。</div>
+  <div class="content">
+    <p><strong>层次一：Prompt安全层（生成前）</strong></p>
+    <p>安全防护的第一道防线在代码生成之前就已经启动。通过精心设计的<strong>安全导向Prompt模板</strong>，可以在源头减少漏洞的产生。例如，在Prompt中明确要求"使用参数化查询而非字符串拼接"、"所有用户输入必须经过HTML实体编码"、"使用环境变量存储敏感配置而非硬编码"。研究表明，一个简单的安全导向Prompt后缀（约50 tokens）可以将AI生成代码中的常见漏洞减少30-40%（Pearce et al., 2023）。</p>
+    <p><strong>层次二：自动化SAST扫描层（生成后即时）</strong></p>
+    <p>代码被AI生成后，立即触发自动化的SAST扫描——不依赖开发者手动触发。这一层使用Semgrep、CodeQL、Bandit等工具的API集成，在AI代码被粘贴到IDE或文件系统之前就完成扫描。关键设计原则是<strong>零延迟</strong>——扫描必须在开发者注意力仍集中在代码上时完成，而非延迟到CI/CD阶段。</p>
+    <p><strong>层次三：AI自审查层（生成后+LLM复核）</strong></p>
+    <p>这是一个创新的安全层：使用另一个（或同一个经过安全指令微调的）LLM对生成的代码进行安全审查。AI自审查的优势在于其能够理解代码的语义意图——而传统SAST只能基于模式匹配。例如，AI审查者可以理解"这段代码目的是构建SQL查询，但它使用了字符串拼接，建议改为参数化查询"。实验表明，LLM-as-Judge的安全审查可以额外发现15-25%的传统SAST无法检测的逻辑漏洞。</p>
+    <p><strong>层次四：人工审查层（CI/CD前最终防线）</strong></p>
+    <p>前三层自动化过滤后，所有变更仍需通过人类开发者的安全审查——特别是在涉及认证/授权、加密、支付、PII处理的代码上。人工审查不应是逐行阅读全部代码（这在AI大规模生成代码的场景下不可行），而是聚焦于前三层标记出的"高风险区域"。</p>
+  </div>
+  <div class="chart-wrap"><div class="chart-inner chart-init" id="chart-arch-01" data-option='{"title":{"text":"AI代码安全四层审查流水线","left":"center","textStyle":{"fontSize":14,"color":"#94a3b8"}},"tooltip":{"trigger":"axis"},"xAxis":{"type":"category","data":["Prompt\n安全层","SAST\n自动扫描","AI\n自审查","人工\n审查"]},"yAxis":{"type":"value","name":"漏洞拦截率(%)","max":100},"series":[{"type":"bar","data":[35,65,80,95],"itemStyle":{"color":{"type":"linear","x":0,"y":0,"x2":0,"y2":1,"colorStops":[{"offset":0,"color":"#5b8db8"},{"offset":1,"color":"#2a4a6b"}]}},"label":{"show":true,"position":"top","formatter":"{c}%","color":"#94a3b8"}},{"type":"line","data":[35,58,70,82],"name":"累计覆盖率","lineStyle":{"color":"#c0a060","width":3},"symbolSize":10,"itemStyle":{"color":"#c0a060"},"label":{"show":true,"position":"top","formatter":"{c}%","color":"#c0a060"}}],"grid":{"left":50,"right":30,"top":50,"bottom":30}}'></div><div class="ch-cap">图：四层审查流水线中各层的漏洞拦截率与累计覆盖率——注意每层新增的拦截贡献递减</div></div>
+  <div class="takeaway">四层审查流水线遵循"纵深防御"原则——Prompt安全减少源头漏洞(AI代码质量)30%→SAST自动标记+55%→AI自审查额外发现Bugs→人工聚焦高风险区域，逐层收窄但不可替代。</div>
+</div>
+
+<div class="module" id="md-ai-tech-compute-cost">
+  <h2><span class="m-tag">成本</span> 安全扫描的计算开销与CI/CD集成成本 <span class="m-time">⏱️ ~1.5分钟</span></h2>
+  <div class="hook">"安全扫描让CI/CD慢了15分钟"——这是团队放弃安全扫描最常见的理由。但在AI代码以10倍速度产出漏洞的时代，这15分钟的代价是值得的。</div>
+  <div class="content">
+    <p><strong>各类安全扫描工具的计算开销分析</strong></p>
+    <p>不同安全工具的计算开销差异巨大，理解这些差异是制定合理的CI/CD集成策略的前提：轻量级工具如Bandit（Python专用SAST）扫描一个中型项目（约5万行代码）仅需1-2秒；Semgrep扫描同等规模项目需要10-30秒；CodeQL由于需要进行完整的数据流分析，扫描时间可能达到2-5分钟；SonarQube的全量扫描（包括安全+质量规则）可能需要5-15分钟。DAST工具的开销更大——一次完整的OWASP ZAP主动扫描可能需要30分钟到2小时。</p>
+    <p><strong>分级扫描策略：按触发条件分配</strong></p>
+    <p>为了平衡安全性和开发效率，推荐实施分级扫描策略：<strong>L1-即时扫描</strong>（<5秒）：在AI代码生成后立即运行，仅使用轻量级规则（Bandit基础规则集、Semgrep高置信度规则），检测明确的注入、硬编码密钥等问题。<strong>L2-PR扫描</strong>（<3分钟）：在Pull Request创建时触发，运行完整的SAST规则集，包括数据流分析。<strong>L3-定时全量扫描</strong>（每天/每周）：对整个代码库进行CodeQL或SonarQube全量扫描，包括安全+质量+依赖漏洞检查。<strong>L4-发布前扫描</strong>：在发布到生产前执行完整的DAST扫描。</p>
+    <p><strong>AI代码场景下的成本模型</strong></p>
+    <p>AI编程使代码产出速度提高了3-10倍，但安全检查的计算开销不会线性下降——这意味着安全检查在整体开发时间中的占比会从传统的5-10%上升到15-30%。这是一个需要管理层理解的现实成本。</p>
+  </div>
+  <div class="formula-block" id="formula-02">
+    <span class="f-cap">CI/CD安全扫描时间成本模型</span>
+    $$T_{\text{total}} = T_{\text{commit}} \times n_{\text{commits}} + T_{\text{SAST}} \times f_{\text{SAST}} + T_{\text{DAST}} \times f_{\text{DAST}}$$
+    <button class="derivation-toggle">▸ 展开推导</button>
+    <div class="derivation-content">
+      该模型计算每个开发迭代中安全扫描的总体时间开销。T_commit是单次SAST扫描时间（取决于工具和代码库大小），n_commits是迭代中的提交次数。在AI编程场景下，n_commits显著增加（因为AI可以快速生成多个功能模块），导致T_total线性增长。优化策略：<br><br>
+      (1) 使用增量扫描——只扫描变更的代码行，而非整个代码库。Semgrep和CodeQL都支持diff-aware扫描。<br>
+      (2) 并行化——SAST扫描可以与单元测试同时运行，而非串行等待。<br>
+      (3) 缓存——利用SAST工具的缓存机制，避免重复扫描未变更的代码。<br>
+      典型数据：一个20次commit的迭代，传统T_total≈20×10s=200s；采用增量扫描后T_total≈20×2s=40s——节省80%的扫描时间。
+    </div>
+  </div>
+  <div class="takeaway">分级扫描策略是平衡安全与效率的关键——不是所有扫描都需要在每次commit时运行，按风险等级分配计算资源才能让安全检查可持续。</div>
+</div>
+
+<div class="module" id="md-ai-tech-open-source">
+  <h2><span class="m-tag">开源</span> 主流SAST工具对比：Bandit、Semgrep、SonarQube、CodeQL <span class="m-time">⏱️ ~2分钟</span></h2>
+  <div class="hook">选SAST工具就像选编程语言——没有"最好"的，只有"最适合你场景"的。在AI代码安全审查的场景下，速度、准确性和语言覆盖度是三个核心权衡维度。</div>
+  <div class="content">
+    <p><strong>Bandit——Python项目的轻量级首选</strong></p>
+    <p>Bandit是Python安全审计的专门工具，由Python安全社区维护。其核心优势在于<strong>速度极快</strong>（每秒可扫描数千行Python代码）和<strong>零配置</strong>（开箱即用）。Bandit内置了针对Python常见安全问题（如使用assert进行输入验证、使用pickle反序列化不可信数据、硬编码密码等）的检测规则。在AI生成Python代码的场景中，Bandit是最适合第一层即时扫描的工具。但它仅限于Python——无法覆盖Python以外的语言。</p>
+    <p><strong>Semgrep——多语言的模式匹配引擎</strong></p>
+    <p>Semgrep是一个强大的多语言静态分析引擎，支持30+种编程语言。其最大特色是<strong>自定义规则编写极其简单</strong>——规则本身就是代码模式，非安全专家也能在几分钟内编写一个Semgrep规则。例如，检测Python中潜在的SQL注入只需要5行规则定义。Semgrep的社区规则库超过2000条，覆盖了OWASP Top 10的大部分场景。在AI代码安全审查中，Semgrep是灵活性和覆盖度最好的选择。</p>
+    <p><strong>CodeQL——语义级的深度分析</strong></p>
+    <p>CodeQL将代码视为数据库，安全漏洞检测被视为对该数据库的查询。这种独特的架构使其能够进行深入的<strong>数据流和污点分析</strong>——追踪用户输入从入口点到敏感操作的完整路径。CodeQL已被GitHub集成到平台的Code Scanning功能中。对于AI生成代码中需要跨函数、跨文件追踪的复杂漏洞，CodeQL是唯一有效的工具——但它的学习曲线较陡，且扫描速度较慢。</p>
+    <p><strong>SonarQube——企业级的全方位平台</strong></p>
+    <p>SonarQube将<strong>安全扫描和代码质量管理</strong>整合在统一平台中，提供了可视化的质量门控（Quality Gates）和长期趋势追踪。对于企业级AI编程实践，SonarQube的"质量门"机制可以设置为：如果AI提交的代码引入了新的Blocker级别问题，CI/CD自动拒绝合并——这是一种强制的自动化质量保障。</p>
+  </div>
+  <div class="chart-wrap"><div class="chart-inner chart-init" id="chart-oss-01" data-option='{"title":{"text":"SAST工具能力雷达对比","left":"center","textStyle":{"fontSize":14,"color":"#94a3b8"}},"radar":{"indicator":[{"name":"检测速度","max":10},{"name":"语言覆盖","max":10},{"name":"检测深度","max":10},{"name":"易用性","max":10},{"name":"自定义规则","max":10},{"name":"AI代码适配","max":10}],"shape":"polygon"},"series":[{"type":"radar","data":[{"value":[9,2,5,9,4,7],"name":"Bandit"},{"value":[8,9,6,8,9,8],"name":"Semgrep"},{"value":[4,8,10,5,8,7],"name":"CodeQL"},{"value":[5,8,8,7,7,8],"name":"SonarQube"}]}]}'></div><div class="ch-cap">图：四大SAST工具在六个维度上的能力雷达图——没有一款工具在所有维度领先</div></div>
+  <div class="data-table"><table><thead><tr><th>工具</th><th>支持语言</th><th>扫描速度</th><th>规则数量</th><th>开源</th><th>AI代码适配度</th></tr></thead><tbody><tr><td>Bandit</td><td>Python</td><td>极快（1-2s）</td><td>~70内置</td><td>✅</td><td>⭐⭐⭐</td></tr><tr><td>Semgrep</td><td>30+</td><td>快（10-30s）</td><td>2000+社区</td><td>✅ (核心)</td><td>⭐⭐⭐⭐⭐</td></tr><tr><td>CodeQL</td><td>9</td><td>慢（2-5min）</td><td>~300查询</td><td>✅</td><td>⭐⭐⭐⭐</td></tr><tr><td>SonarQube</td><td>30+</td><td>中（5-15min）</td><td>5000+规则</td><td>✅ (社区版)</td><td>⭐⭐⭐⭐</td></tr></tbody></table></div>
+  <div class="takeaway">AI代码安全审查的最佳策略是分层使用：Bandit/Semgrep用于即时快速扫描→CodeQL用于关键模块深度分析→SonarQube用于企业级质量门控。</div>
+</div>
+
+<div class="module" id="md-ai-tech-benchmark">
+  <h2><span class="m-tag">基准</span> AI生成代码安全性的基准测试与实验数据 <span class="m-time">⏱️ ~2分钟</span></h2>
+  <div class="hook">斯坦福的研究者让同一批开发者分别用Copilot和不使用Copilot完成相同任务——结果令人不安：使用AI辅助的开发者写出不安全代码的概率高出40%。</div>
+  <div class="content">
+    <p><strong>关键学术研究的发现</strong></p>
+    <p>2023年斯坦福大学的Perry等人进行了被广泛引用的研究："Do Users Write More Insecure Code with AI Assistants?"（使用AI辅助是否会写出更不安全的代码？）。实验设计：47名参与者被要求完成5个涉及安全敏感操作的编程任务（如实现加密、SQL查询、文件上传），其中一半使用Codex AI辅助。结果：使用AI辅助的组在安全性上显著差于对照组——他们更倾向于相信AI生成的代码是安全的，且AI生成的代码在加密相关的任务中尤其容易出错（如使用ECB模式而非CBC、使用硬编码IV、使用弱密钥长度）。</p>
+    <p><strong>Snyk 2024 AI代码安全报告</strong></p>
+    <p>Snyk在2024年对AI代码生成工具进行了系统性安全评估，测试了GitHub Copilot、Amazon CodeWhisperer、ChatGPT等工具生成的代码。关键发现：<strong>平均约32%的AI生成代码包含至少一个安全漏洞</strong>。其中，硬编码密钥（出现在约18%的样本中）是最常见的问题，其次是SQL注入（~12%）、路径遍历（~8%）和XSS（~6%）。值得注意的是，不同的AI模型在安全表现上差异很大——经过安全微调的模型（如CodeWhisperer的内置安全扫描功能）显著优于通用模型。</p>
+    <p><strong>CodexGLUE与SecurityEval基准</strong></p>
+    <p>CodexGLUE是微软提出的代码智能综合评测基准，其中包含了安全性评测子任务。SecurityEval是另一个专门评估代码模型安全性的基准，包含130个安全敏感的编程场景。在这些基准上，GPT-4的安全通过率约为72%，而经过专项微调的CodeLlama-34B可以达到约78%——说明安全微调确实有效，但仍有超过20%的不安全生成。</p>
+  </div>
+  <div class="chart-wrap"><div class="chart-inner chart-init" id="chart-bench-01" data-option='{"title":{"text":"AI生成代码中安全漏洞分布","left":"center","textStyle":{"fontSize":14,"color":"#94a3b8"}},"tooltip":{"trigger":"item","formatter":"{b}: {c}%"},"series":[{"type":"pie","radius":["40%","70%"],"center":["50%","55%"],"data":[{"value":18,"name":"硬编码密钥","itemStyle":{"color":"#c06050"}},{"value":12,"name":"SQL注入","itemStyle":{"color":"#c0a060"}},{"value":8,"name":"路径遍历","itemStyle":{"color":"#8878a8"}},{"value":6,"name":"XSS","itemStyle":{"color":"#6ea8c0"}},{"value":5,"name":"不安全加密","itemStyle":{"color":"#5b8db8"}},{"value":3,"name":"命令注入","itemStyle":{"color":"#5a9e6f"}},{"value":48,"name":"无明显漏洞","itemStyle":{"color":"#334155"}}],"label":{"show":true,"formatter":"{b}\n{d}%","color":"#94a3b8"}}]}'></div><div class="ch-cap">图：基于Snyk 2024报告的AI生成代码中安全漏洞类型分布——硬编码密钥是最普遍的问题</div></div>
+  <div class="takeaway">实验数据一致表明：未经审查的AI生成代码中约30-40%包含安全漏洞。最有效的对策不是不使用AI，而是在AI代码生成后立即进行自动化安全审查。</div>
+</div>
+
+<div class="module" id="md-04-standards">
+  <h2><span class="m-tag">标准</span> 安全编码标准与合规框架 <span class="m-time">⏱️ ~1.5分钟</span></h2>
+  <div class="hook">ISO 27001 告诉你"应该管理信息安全"，OWASP ASVS 告诉你"具体检查哪些点"，CWE Top 25 告诉你"哪些是最危险的弱点"——三个标准共同构成了AI代码安全的"度量衡"体系。</div>
+  <div class="content">
+    <p><strong>OWASP ASVS（应用安全验证标准）</strong></p>
+    <p>ASVS（Application Security Verification Standard）是OWASP提供的应用安全验证标准框架，定义了安全开发和安全测试的具体检查项。ASVS分为三个验证级别：L1-基础级别（适用于所有应用，包含基本的渗透测试韧性），L2-标准级别（适用于处理敏感数据的应用，要求完整的防御体系），L3-高级别（适用于关键基础设施，要求形式化验证和纵深防御）。在AI代码安全审查中，ASVS可以作为"安全检查清单"——将AI生成的代码对照ASVS检查项逐一验证，确保不遗漏关键安全控制。</p>
+    <p><strong>CWE Top 25——最危险的软件弱点</strong></p>
+    <p>与OWASP Top 10关注Web应用风险不同，CWE（Common Weakness Enumeration）Top 25关注的是通用的软件弱点——无论这些弱点出现在Web应用、桌面软件还是嵌入式系统中。2023年版CWE Top 25中居于前列的包括：越界写入（CWE-787）、跨站脚本（CWE-79）、SQL注入（CWE-89）、释放后使用（CWE-416）、越界读取（CWE-125）等。AI生成的代码在CWE覆盖面上有一个反直觉的现象——AI倾向于产生"经典"的CWE漏洞（如SQL注入），但较少产生"现代"的CWE漏洞（如SSRF、反序列化），因为训练数据中经典漏洞的示例更多。</p>
+    <p><strong>ISO 27001与SOC 2中的代码安全要求</strong></p>
+    <p>ISO 27001 Annex A.14.2明确要求"在开发过程中建立和实施安全开发规则"。在AI代码场景下，这被解释为：(1)组织必须定义AI代码的可接受使用范围；(2)必须对AI生成的代码实施与人工编写代码同等的安全审查标准；(3)必须保留AI代码来源的审计追踪。SOC 2的CC7.1准则要求组织"使用检测和监控程序来识别安全事件"——AI代码安全扫描工具的输出可以直接作为这一控制措施的合规证据。</p>
+  </div>
+  <div class="takeaway">代码安全领域有三个层次的"标准基础设施"：CWE定义弱点类型（"是什么"）、ASVS定义检查方法（"怎么查"）、ISO/SOC定义管理要求（"如何治理"）——AI代码安全需要三者协同。</div>
+</div>
+
+<div class="module" id="md-05-application">
+  <h2><span class="m-tag">应用</span> 将AI代码安全审查嵌入CI/CD流水线 <span class="m-time">⏱️ ~2分钟</span></h2>
+  <div class="hook">一个残酷的事实：90%的团队知道应该在CI/CD中集成安全扫描，但只有不到30%真正做到了。在AI代码时代，这60%的差距就是漏洞进入生产环境的"敞开后门"。</div>
+  <div class="content">
+    <p><strong>CI/CD安全集成的三层架构</strong></p>
+    <p>有效的AI代码安全CI/CD集成需要三个层次：<strong>预处理层</strong>（Pre-commit Hook）：在代码被提交到仓库之前，通过Git pre-commit hook触发轻量级安全扫描。如果检测到Critical级别的问题，阻止提交。<strong>PR检查层</strong>（PR Check）：在Pull Request创建后，CI流水线自动运行完整的SAST扫描。扫描结果作为PR的状态检查（Status Check）显示在GitHub/GitLab的PR界面上——如果引入了新的安全漏洞，PR被阻止合并。<strong>合并后层</strong>（Post-merge）：代码合并到主干后，触发更深度的扫描（CodeQL数据流分析、依赖CVE检查）和定期DAST扫描。</p>
+    <p><strong>GitHub Actions集成示例</strong></p>
+    <p>在GitHub Actions中集成Semgrep安全扫描只需要一个简单的workflow文件。配置关键点：(1)使用semgrep/semgrep-action官方Action；(2)设置fail-on级别为error（只有高置信度问题才阻止CI）；(3)配置SARIF输出格式，与GitHub Code Scanning仪表板集成；(4)对于AI生成的代码PR，使用semgrep的diff-aware模式只扫描变更行。</p>
+    <p><strong>安全门控策略（Quality Gates）</strong></p>
+    <p>安全门控是CI/CD流水线中的自动决策点——定义什么条件下自动阻止代码合并。对于AI生成代码，推荐的门控策略：(1)不允许引入新的Critical/Blocker级别安全漏洞（CVSS 7.0+）；(2)不允许引入已知CVE的依赖（通过npm audit/pip-audit/OWASP Dependency Check检测）；(3)安全敏感的代码路径（auth/、payment/、admin/）中不允许任何级别的安全漏洞。</p>
+  </div>
+  <div class="takeaway">安全扫描必须成为CI/CD流水线的"一等公民"——与编译、单元测试平级，而非可选的附加步骤。安全门控是"自动拒绝不安全代码"的机制保障。</div>
+</div>
+
+<div class="module" id="md-06-case-study">
+  <h2><span class="m-tag">案例</span> AI生成的SQL注入漏洞——从检测到修复的完整实战 <span class="m-time">⏱️ ~2.5分钟</span></h2>
+  <div class="hook">"帮我写一个用户登录接口"——这个看似无害的Prompt，如果不对生成的代码进行安全审查，很可能产生一个将整个数据库暴露给攻击者的登录页面。</div>
+  <div class="content">
+    <p><strong>案例背景</strong></p>
+    <p>某初创公司的开发者使用AI编程助手生成一个Node.js + Express的登录API端点。Prompt是："创建一个用户登录接口，接收用户名和密码，从MySQL数据库中查询用户，验证密码并返回JWT token"。AI生成了约60行代码——看起来结构清晰、有注释、处理了错误情况——于是开发者直接将其复制到项目中使用。</p>
+    <p><strong>漏洞分析</strong></p>
+    <p>AI生成的代码中包含了一个经典的SQL注入漏洞——直接将用户输入拼接到SQL查询字符串中。代码中的问题是在处理用户名查询时，没有使用参数化查询或ORM的防护机制。攻击者可以输入' OR '1'='1' -- 作为用户名，绕过整个认证逻辑。更严重的是，攻击者可以通过UNION注入读取数据库中的任意表数据。</p>
+    <p><strong>检测过程</strong></p>
+    <p>幸运的是，该团队在CI/CD中集成了Semgrep扫描。在PR创建时，Semgrep自动检测到了这个漏洞，并标记为ERROR级别。检测规则正是Semgrep的python-sql-string-concatenation规则。扫描输出明确指出：第23行使用了字符串拼接构建SQL查询，建议改用参数化查询——这是AI代码中非常典型的不安全模式。</p>
+    <p><strong>修复过程</strong></p>
+    <p>修复分为三步：第一，将字符串拼接改为使用参数化查询（用?占位符+参数数组）；第二，添加输入验证——用户名只允许字母数字和下划线，最大长度32字符；第三，添加查询超时限制——防止攻击者通过慢查询进行DoS攻击。修复后的代码不仅安全，而且更清晰。</p>
+    <p><strong>经验教训</strong></p>
+    <p>这个案例揭示了AI代码安全的三个关键教训：(1)AI生成的代码外观质量（结构、注释、错误处理）与实际安全性完全无关——看起来"专业"的代码同样可能包含严重漏洞；(2)自动化SAST扫描是最后的安全网——没有Semgrep，这个漏洞几乎肯定会进入生产；(3)修复AI代码漏洞的最佳方式不是"拒绝AI"，而是"在AI生成后立即检查"——同样的开发者在了解漏洞模式后，可以调整Prompt要求AI使用参数化查询。</p>
+  </div>
+  <div class="takeaway">一个简单的登录接口Prompt→AI生成了包含SQL注入的60行代码→Semgrep在PR阶段自动检测→15分钟修复→部署前解除了一个可能泄露整个数据库的高危漏洞。这是AI代码安全审查流水线的典型工作流。</div>
+</div>
+
+<div class="module" id="md-07-risk">
+  <h2><span class="m-tag">风险</span> AI生成代码的四大核心安全风险 <span class="m-time">⏱️ ~2分钟</span></h2>
+  <div class="hook">如果AI生成的代码是一座冰山，那么语法错误只是水面以上的1/10——水面以下隐藏的是注入漏洞、硬编码密钥、过时依赖和逻辑缺陷这四座"暗礁"。</div>
+  <div class="content">
+    <p><strong>风险一：注入攻击（Injection）</strong></p>
+    <p>注入是AI生成代码中最普遍且影响最严重的安全风险。包括SQL注入、命令注入、LDAP注入、XPath注入等。根本原因在于AI训练语料中充满了"为了示例简洁而拼接字符串"的教学代码——当AI将这些模式视为"正常做法"来复制时，就产生了注入漏洞。攻击影响：从数据泄露（读取整个数据库）到远程代码执行（通过命令注入）。</p>
+    <p><strong>风险二：硬编码密钥与敏感信息泄露</strong></p>
+    <p>根据Snyk 2024年的报告，这是AI生成代码中出现频率最高的安全问题。AI倾向于在代码中直接写入API密钥、数据库密码、JWT密钥、加密私钥等敏感信息——部分是因为训练数据中的示例代码就是如此，部分是因为AI不理解"密钥不能提交到代码仓库"的安全常识。这一风险在GitHub公开仓库中尤其危险——硬编码的密钥可能被自动化爬虫在几分钟内发现并利用。</p>
+    <p><strong>风险三：依赖组件漏洞（Vulnerable Dependencies）</strong></p>
+    <p>AI的知识截止日期意味着它推荐的依赖库版本可能已经存在已知的CVE漏洞。例如，AI在2025年可能推荐使用一个在2024年就被发现存在严重反序列化漏洞的npm包版本。更糟的是，AI可能引入不必要的"依赖膨胀"——为了一个简单的功能引入一个包含数百个传递依赖的大包，大大增加了攻击面。</p>
+    <p><strong>风险四：逻辑缺陷与业务安全绕过</strong></p>
+    <p>这是最难检测的风险类别。AI生成的代码可能包含微妙的逻辑缺陷——如权限检查顺序错误、竞态条件、不完整的验证链——这些缺陷不会触发任何SAST规则，但在特定条件下可能导致严重的安全绕过。例如，一个AI生成的支付处理函数可能在验证支付金额之前就更新了订单状态，导致零元购漏洞。</p>
+  </div>
+  <div class="chart-wrap"><div class="chart-inner chart-init" id="chart-risk-01" data-option='{"title":{"text":"AI代码四大风险的影响-概率矩阵","left":"center","textStyle":{"fontSize":14,"color":"#94a3b8"}},"xAxis":{"type":"value","name":"发生概率","max":0.5,"axisLabel":{"color":"#94a3b8"}},"yAxis":{"type":"value","name":"影响程度(CVSS折算)","max":1,"axisLabel":{"color":"#94a3b8"}},"series":[{"type":"scatter","symbolSize":30,"data":[[0.18,0.9,"硬编码密钥"]],"itemStyle":{"color":"#c06050"},"label":{"show":true,"position":"top","color":"#94a3b8","fontSize":12}},{"type":"scatter","symbolSize":25,"data":[[0.12,0.95,"SQL注入"]],"itemStyle":{"color":"#c0a060"},"label":{"show":true,"position":"top","color":"#94a3b8","fontSize":12}},{"type":"scatter","symbolSize":22,"data":[[0.15,0.6,"依赖漏洞"]],"itemStyle":{"color":"#8878a8"},"label":{"show":true,"position":"left","color":"#94a3b8","fontSize":12}},{"type":"scatter","symbolSize":18,"data":[[0.08,0.85,"逻辑缺陷"]],"itemStyle":{"color":"#6ea8c0"},"label":{"show":true,"position":"right","color":"#94a3b8","fontSize":12}}],"grid":{"left":60,"right":30,"top":50,"bottom":40}}'></div><div class="ch-cap">图：四大安全风险的发生概率与影响程度散点图——右上角（高概率+高影响）是最优先关注的区域</div></div>
+  <div class="takeaway">硬编码密钥因高频出现而风险最高，SQL注入因影响最大而危险性最强，逻辑缺陷因最难以自动化检测而最隐蔽——三者需要不同的缓解策略。</div>
+</div>
+
+<div class="module" id="md-ai-tech-ethics">
+  <h2><span class="m-tag">伦理</span> AI代码的责任归属、版权与合规 <span class="m-time">⏱️ ~2分钟</span></h2>
+  <div class="hook">"这段代码是AI写的，不是我的责任"——这句话在法律上不成立，在道德上有问题，在工程实践上是危险的。就像你不能把车祸责任推给导航软件一样。</div>
+  <div class="content">
+    <p><strong>AI生成代码的责任归属</strong></p>
+    <p>目前全球法律体系的共识是：<strong>使用AI工具的人类开发者对AI生成的代码承担最终责任</strong>。无论代码是由谁（或什么）编写的，提交代码到生产环境的开发者需要为其安全性和正确性负责。这意味着：(1)你不能以"这是AI写的"为借口逃避安全责任；(2)安全审查流程不能因为代码源自AI而放松标准；(3)在合规审计中，AI生成代码与传统代码接受同等审查。这在GDPR、HIPAA、PCI-DSS等合规框架下尤为重要——如果AI生成的代码导致数据泄露，组织面临的罚款不会因为"用了AI"而减少。</p>
+    <p><strong>源代码版权与许可证合规</strong></p>
+    <p>AI模型训练数据中包含大量开源代码——这些代码受各种许可证保护（MIT、GPL、Apache等）。如果AI生成的代码实质上复制了GPL许可的代码，使用该AI生成代码的项目可能受到GPL的"传染条款"约束。这是非营利组织Software Freedom Conservancy在2024年对GitHub Copilot提起诉讼的核心论点。实际建议：(1)使用代码溯源工具（如SCA软件成分分析）检查AI生成代码与已知开源代码的相似度；(2)在企业项目中建立AI代码使用政策——明确哪些场景可以使用AI、生成的代码需要经过怎样的审查。</p>
+    <p><strong>合规框架下的AI代码治理</strong></p>
+    <p>在受监管行业（金融、医疗、政府），AI生成代码的治理需要满足额外的合规要求：审计追踪（记录哪段代码由AI生成、哪个开发者审查并批准）、可解释性（能够解释为什么接受AI生成的特定实现方案）、偏差管理（确保AI不会系统性地产生有偏见的或不安全的代码模式）。ISO 27001和SOC 2等标准正在更新以纳入AI代码治理要求。</p>
+  </div>
+  <div class="takeaway">AI生成代码不改变责任归属——提交代码的开发者对安全性负最终责任。合规框架下的AI代码治理正在成为企业级AI编程的准入门槛。</div>
+</div>
+
+<div class="module" id="md-08-landscape">
+  <h2><span class="m-tag">格局</span> 代码安全工具市场格局与行业趋势 <span class="m-time">⏱️ ~1.5分钟</span></h2>
+  <div class="hook">2024-2025年，代码安全工具市场正在经历一场由AI驱动的范式变革——从"发现漏洞的工具"进化为"发现+解释+修复+预防"的一体化平台。</div>
+  <div class="content">
+    <p><strong>市场格局概览</strong></p>
+    <p>全球应用安全测试（AST）市场在2025年估值约80亿美元，年增长率超过20%。市场的主要参与者可以分为四个阵营：(1)<strong>传统巨头</strong>：Synopsys（Coverity）、Micro Focus（Fortify）、Checkmarx——这些老牌厂商拥有最全面的规则库和企业级功能，但创新速度较慢；(2)<strong>新一代平台</strong>：Snyk、Semgrep、SonarQube——以开发者体验为核心，强调CI/CD集成和快速反馈，是AI代码安全场景中最常用的一批工具；(3)<strong>AI原生安全工具</strong>：如GitHub Copilot Autofix、Snyk DeepCode AI——利用LLM能力不仅检测漏洞，还自动生成修复建议；(4)<strong>开源社区</strong>：Bandit、Brakeman（Ruby）、ESLint安全插件——免费、灵活但缺乏统一的管理平台。</p>
+    <p><strong>AI驱动的安全工具趋势</strong></p>
+    <p>2025年最重要的行业趋势是<strong>AI安全工具的"自动驾驶升级"</strong>——从L1（辅助检测：标记潜在问题）→L2（部分自动修复：对高置信度问题生成修复PR）→L3（有条件自主：在安全边界内自动应用修复）→L4（全面自主：自动检测+修复+验证+回归测试）。目前大多数工具处于L1-L2阶段，GitHub Copilot Autofix和Snyk Code已开始向L3迈进。预计到2026年，AI驱动的自动修复覆盖率将达到所有可检测漏洞的60%以上。</p>
+  </div>
+  <div class="data-table"><table><thead><tr><th>工具</th><th>类型</th><th>AI能力</th><th>自动修复</th><th>定价模式</th></tr></thead><tbody><tr><td>GitHub Code Scanning</td><td>SAST</td><td>✅ Copilot Autofix</td><td>✅ PR自动修复</td><td>GitHub Advanced Security</td></tr><tr><td>Snyk Code</td><td>SAST</td><td>✅ DeepCode AI</td><td>✅ 一键修复</td><td>免费(基础)/付费</td></tr><tr><td>Semgrep</td><td>SAST</td><td>✅ Semgrep Assistant</td><td>❌ (规划中)</td><td>免费(社区)/付费</td></tr><tr><td>SonarQube</td><td>SAST+质量</td><td>✅ AI CodeFix</td><td>✅ 建议修复</td><td>免费(社区)/付费</td></tr><tr><td>Checkmarx One</td><td>SAST+DAST</td><td>✅ AI Security Champion</td><td>✅ 部分自动</td><td>企业许可</td></tr></tbody></table></div>
+  <div class="takeaway">代码安全工具正在从"检测引擎"向"自动修复平台"升级——AI能力是这一转变的核心驱动力。预计2026年AI驱动的自动修复将成为行业标配。</div>
+</div>
+
+<div class="module" id="md-ai-tech-research-map">
+  <h2><span class="m-tag">研究</span> AI代码安全领域的核心研究者与机构 <span class="m-time">⏱️ ~1.5分钟</span></h2>
+  <div class="hook">AI代码安全是一个交叉学科——它需要同时理解AI模型的行为机制和传统软件安全的攻击面。这使得该领域的研究者往往是"双栖"人才。</div>
+  <div class="content">
+    <p><strong>北美学术力量</strong></p>
+    <p><strong>Stanford University（SAIL+SRI Lab）</strong>：Neil Perry和Megha Srivastava等人领导了"AI对代码安全影响"系列研究，包括2023年那篇被广泛引用的"Copilot增加不安全代码"论文。他们目前的研究方向是设计"AI安全感知"的代码审查流程。<strong>NYU Tandon School of Engineering</strong>：Brendan Dolan-Gavitt团队专注于AI生成代码的自动化漏洞检测，开发了针对LLM代码输出的专项安全测试框架。<strong>UC Berkeley（BAIR）</strong>：Dawn Song团队从AI安全对齐（alignment）的角度研究如何使代码生成模型在训练阶段就内化安全规则。</p>
+    <p><strong>欧洲与亚太研究力量</strong></p>
+    <p><strong>ETH Zurich（SRI Lab）</strong>：Martin Vechev等人开发了针对代码模型的对抗性测试框架，能够系统地发现AI代码模型的安全盲区。<strong>CSIRO's Data61（澳大利亚）</strong>：Hammond Pearce等人进行了大量关于AI代码生成工具安全性的实验评估，建立了GitHub Copilot在不同语言和任务类型中的安全表现基准。<strong>清华大学</strong>：在代码安全漏洞检测和AI辅助修复方面有深入研究。</p>
+    <p><strong>产业研究力量</strong></p>
+    <p><strong>Snyk Security Research</strong>：发布年度AI代码安全报告，系统性评估各AI代码生成工具的安全表现。<strong>GitHub Security Lab</strong>：通过CodeQL社区贡献和GitHub Advisory Database维护全球最大的开源漏洞数据库之一。他们率先将CodeQL规则应用于AI生成代码的检测。<strong>OWASP AI Exchange</strong>：OWASP专门针对AI安全的子项目，正在编撰AI代码安全最佳实践指南。</p>
+  </div>
+  <div class="takeaway">AI代码安全研究的三条主线：(1)量化AI代码的不安全程度（Stanford/Snyk）；(2)使AI模型内化安全规则（Berkeley/ETH）；(3)构建AI代码专用检测工具（GitHub/OWASP）。</div>
+</div>
+
+<div class="module" id="md-09-issues">
+  <h2><span class="m-tag">问题</span> 误报、漏报与SAST工具的上下文盲区 <span class="m-time">⏱️ ~2.5分钟</span></h2>
+  <div class="hook">"安全工具报告了237个漏洞，其中230个是误报"——当你被虚假警报淹没时，真正的漏洞反而更容易被忽略。这就是安全工具中最经典的"狼来了"困境。</div>
+  <div class="content">
+    <p><strong>误报（False Positives）——安全工具的"信用危机"</strong></p>
+    <p>误报是SAST工具最令人头痛的问题。它发生的原因是：静态分析工具只能基于代码的语法和结构进行判断，无法理解代码的<strong>运行时上下文和业务语义</strong>。例如，Semgrep可能将任何字符串拼接+execute的组合标记为命令注入——但如果拼接的字符串是一个固定的白名单值，这实际上是安全的。在AI生成的代码中，误报问题可能更严重，因为AI有时会生成"看起来可疑但实际安全"的代码模式（如复杂的动态导入逻辑）。</p>
+    <p><strong>漏报（False Negatives）——最危险的问题</strong></p>
+    <p>如果说误报消耗的是开发者的耐心，漏报消耗的是用户的安全。SAST工具漏报的主要原因包括：(1)<strong>规则覆盖不全</strong>——工具只能检测其规则库中已定义的漏洞模式，对新型漏洞或非标准实现无能为力；(2)<strong>跨文件分析困难</strong>——大多数SAST工具在单文件或单函数级别分析，难以追踪跨越多层调用链的复杂数据流；(3)<strong>动态行为的不可见性</strong>——通过反射、动态导入、eval等运行时行为构造的漏洞完全超出SAST的检测能力。</p>
+    <p><strong>AI代码场景下的工具局限性加剧</strong></p>
+    <p>AI生成代码给SAST工具带来了三个特有的挑战：(1)<strong>代码模式的非典型性</strong>——AI生成的代码可能采用人类很少使用的编码模式（如奇特的函数式编程构造），这些模式可能不在SAST规则覆盖范围内；(2)<strong>高代码量导致审查疲劳</strong>——当AI在几分钟内生成数百行代码时，即使SAST正确检测到问题，开发者也因数量过多而产生"alert fatigue"——关闭所有警告而不仔细审查；(3)<strong>"安全的幻觉"</strong>——AI能在生成漏洞代码的同时生成"看起来安全"的包装——如生成SQL注入代码的同时在注释中写"// 注意：此处使用参数化查询"，注释与实际代码不符。</p>
+  </div>
+  <div class="chart-wrap"><div class="chart-inner chart-init" id="chart-issues-01" data-option='{"title":{"text":"SAST工具在AI代码上的检测效果","left":"center","textStyle":{"fontSize":14,"color":"#94a3b8"}},"tooltip":{"trigger":"axis"},"xAxis":{"type":"category","data":["SQL注入","XSS","硬编码密钥","路径遍历","不安全加密","命令注入","逻辑缺陷"]},"yAxis":{"type":"value","name":"百分比(%)","max":100},"series":[{"type":"bar","data":[85,72,95,78,60,90,15],"name":"检测率","itemStyle":{"color":"#5b8db8"},"label":{"show":true,"position":"top","formatter":"{c}%","color":"#94a3b8"}},{"type":"bar","data":[15,28,5,22,40,10,85],"name":"漏报率","stack":"b","itemStyle":{"color":"#c06050"},"label":{"show":true,"position":"inside","formatter":"{c}%","color":"#fff"}},{"type":"line","data":[30,20,10,18,35,15,5],"name":"误报率","lineStyle":{"color":"#c0a060","width":3},"symbolSize":8,"itemStyle":{"color":"#c0a060"}}],"grid":{"left":50,"right":30,"top":50,"bottom":30}}'></div><div class="ch-cap">图：主流SAST工具对不同漏洞类型的检测率、漏报率和误报率——逻辑缺陷的漏报率高达85%</div></div>
+  <div class="takeaway">SAST工具的"不可能三角"：高检测率、低误报率、低漏报率三者难以同时达到。在AI代码场景下，逻辑缺陷和跨文件漏洞是SAST最大的检测盲区。</div>
+</div>
+
+<div class="module" id="md-10-prospect">
+  <h2><span class="m-tag">展望</span> AI驱动的安全工具与自动化修复的未来 <span class="m-time">⏱️ ~2分钟</span></h2>
+  <div class="hook">未来的安全工具不会只告诉你"这里有个漏洞"，而是直接说"这里有个漏洞，我已经帮你修好了，PR在这里，测试全部通过"——这是AI安全从L1到L4的进化图景。</div>
+  <div class="content">
+    <p><strong>LLM-as-Security-Analyzer</strong></p>
+    <p>基于LLM的安全分析正在成为一个独立的研究方向。与传统SAST的"模式匹配"不同，LLM安全分析的优势在于<strong>语义理解</strong>——它能够理解代码的意图，从而区分"故意拼接但值安全"和"不慎拼接且值不可控"两种看似相同实则安全等级迥异的代码。GitHub Copilot Autofix是这一方向的先驱产品——它利用LLM分析SAST检测到的问题，生成上下文化的修复建议。在内部测试中，LLM辅助的修复建议接受率达到78%。</p>
+    <p><strong>AI安全Agents</strong></p>
+    <p>逻辑上的下一步是将安全分析能力集成到AI编程Agent中。未来的编程Agent可能包含一个内置的"安全审查子Agent"——类似于代码审查中的security reviewer角色。这个安全Agent会在每次代码生成后自动执行安全检查，并在发现问题时自动发起修复。这种架构消除了"让开发者记住运行安全扫描"的人因依赖。</p>
+    <p><strong>安全导向的代码模型</strong></p>
+    <p>另一个长期趋势是对代码生成模型进行安全微调。类似于RLHF（从人类反馈中强化学习）用于提高对话安全性，<strong>S-RLHF（Security-RLHF）</strong>可以利用标注的安全/不安全代码对来训练模型自动生成更安全的代码。Amazon CodeWhisperer在这方面领先——它内置的安全扫描功能可以在代码生成阶段就标记并拒绝不安全的代码建议。OpenAI和Anthropic也在研究中探索将安全约束直接嵌入代码模型的生成过程。</p>
+  </div>
+  <div class="formula-block" id="formula-03">
+    <span class="f-cap">安全自动化成熟度模型</span>
+    $$M_{\text{security}} = \frac{\text{Vulns}_{\text{auto-fixed}}}{\text{Vulns}_{\text{total}}} \times \frac{1}{1 + \text{MeanTimeToFix}_{\text{manual}}}$$
+    <button class="derivation-toggle">▸ 展开推导</button>
+    <div class="derivation-content">
+      该模型衡量一个组织的安全自动化成熟度。分子是自动修复的漏洞数量占全部漏洞的比例——反映自动化的广度。分母中的MeanTimeToFix_manual是人工修复漏洞的平均时间（以天计）——反映对人工依赖的程度。<br><br>
+      当前行业基准：M_security ≈ 0.15/（1+7）= 0.019（约2%成熟度）——只有15%的漏洞能被自动发现，人工修复平均需要7天。<br>
+      AI驱动后的目标（2026-2027）：M_security ≈ 0.60/（1+1）= 0.30（30%成熟度）——60%的漏洞自动发现+修复，人工干预时间降至1天以内。<br>
+      完全成熟：M_security ≈ 0.95/（1+0.1）= 0.86——95%漏洞自动闭环，人工仅处理极端复杂案例（0.1天）。
+    </div>
+  </div>
+  <div class="takeaway">AI安全工具的三级进化：检测→检测+修复建议→检测+自动修复+验证。目前处于第1-2级过渡期，预计2026-2027年将进入第3级。</div>
+</div>
+
+<div class="module" id="md-11-effort-direction">
+  <h2><span class="m-tag">实践</span> 安全Prompt模板构建与安全导向微调 <span class="m-time">⏱️ ~2分钟</span></h2>
+  <div class="hook">"Prompt是新的代码审查者"——一个精心设计的安全Prompt可以在代码生成之前就消除30-40%的常见漏洞，这是安全防护金字塔中最具性价比的一层。</div>
+  <div class="content">
+    <p><strong>安全Prompt模板的设计原则</strong></p>
+    <p>有效的安全Prompt模板应该遵循以下设计原则：(1)<strong>明确禁止不安全模式</strong>——直接列出不允许的编码实践，而非泛泛地要求"写安全的代码"。例如："禁止使用字符串拼接构建SQL查询，必须使用参数化查询"。(2)<strong>要求安全最佳实践</strong>——对安全敏感操作给出正面指导。例如："所有用户输入在显示之前必须进行HTML实体编码"、"所有密码必须使用bcrypt或argon2进行哈希"。(3)<strong>指定安全API</strong>——明确指定使用哪个安全库或API实现特定功能。例如："使用Python的secrets模块而非random模块生成安全令牌"。(4)<strong>上下文适配</strong>——安全Prompt应根据项目语言和框架进行定制。</p>
+    <p><strong>安全Prompt模板示例</strong></p>
+    <p>一个覆盖了关键安全要求的通用Prompt后缀模板长度约80-150 tokens，可以在不显著影响代码生成质量的前提下降低漏洞率。模板核心内容：注入防护（参数化查询/ORM）、输入验证（白名单优先）、输出编码（上下文相关编码）、认证授权（最小权限原则）、加密（使用标准库/禁止自创算法）、敏感数据处理（环境变量/密钥管理服务）。</p>
+    <p><strong>安全微调（Security Fine-tuning）</strong></p>
+    <p>安全微调是通过在标注了安全/不安全代码的数据集上训练来改进代码模型的安全行为。与Prompt工程不同，微调从模型参数层面改变生成行为。关键挑战：(1)<strong>数据构建</strong>——需要大量高质量的安全/不安全代码对，安全代码要展示正确的修复方式；(2)<strong>避免安全退化</strong>——在提高安全性的同时可能降低代码生成的通用质量；(3)<strong>评估标准化</strong>——需要一个标准化的安全评估基准来衡量微调效果。目前的尝试（如WizardCoder的安全微调版本）显示安全微调可以将不安全生成率降低30-50%，仍有改进空间。</p>
+  </div>
+  <div class="takeaway">安全Prompt模板是成本最低、见效最快的AI代码安全改进手段——通过在Prompt层面明确安全约束，可预防30-40%的常见漏洞。安全微调是更深层但成本更高的终极方案。</div>
+</div>
+
+<div class="module" id="md-13-misconceptions">
+  <h2><span class="m-tag">误解</span> 关于AI代码安全的五个常见误区 <span class="m-time">⏱️ ~2分钟</span></h2>
+  <div class="hook">"AI生成的代码绝对不安全"和"跑一遍linter就万事大吉"——这两个极端观点同样危险，因为它们都让人放弃了真正的安全思考。</div>
+  <div class="content">
+    <p><strong>误区一："AI生成的代码总是不安全的"</strong></p>
+    <p><strong>事实</strong>：AI代码的安全性取决于多种因素——模型版本、任务类型、编程语言、Prompt质量。经过安全微调的模型在特定任务上的安全表现可以接近甚至超过普通开发者。关键在于认识到AI代码安全不是一个"是/否"的二元问题，而是一个程度和概率的问题。正确的态度不是"拒绝AI"，而是"审查AI"。</p>
+    <p><strong>误区二："跑一遍SAST/Linter就够了"</strong></p>
+    <p><strong>事实</strong>：SAST工具只能检测其规则库中已定义的<strong>静态代码模式</strong>。它们无法检测：(1)业务逻辑错误（如权限检查顺序问题）；(2)跨服务的安全问题（如微服务间的认证令牌传递漏洞）；(3)配置和环境相关的问题（如生产环境中的CORS过宽配置）。Linter（如ESLint）比SAST更"浅"——主要关注代码风格和低级错误，安全覆盖非常有限。</p>
+    <p><strong>误区三："人工代码审查已经足够"</strong></p>
+    <p><strong>事实</strong>：当AI以5-10倍的速度生成代码时，人工代码审查的带宽不会相应增加。人类审查者在面对大量AI生成的代码时容易出现"审查疲劳"——尤其当代码结构看起来"正常"时，审查者容易忽视隐藏的安全问题。自动化审查是唯一可扩展的方案。</p>
+    <p><strong>误区四："AI可以自己审查自己的代码"</strong></p>
+    <p><strong>事实</strong>：当前研究表明，AI在审查自己生成的代码时存在<strong>确认偏误</strong>（confirmation bias）——它倾向于认为自己的代码是正确的，即使其中包含逻辑错误。使用另一个AI模型进行交叉审查可以部分缓解这一问题，但仍无法替代人类判断。</p>
+    <p><strong>误区五："安全是安全团队的职责"</strong></p>
+    <p><strong>事实</strong>：在AI编程时代，安全必须成为每个开发者的技能——因为AI在你每次生成代码时都可能引入漏洞。安全不能是"事后检查"，而必须是"实时思维"。</p>
+  </div>
+  <div class="takeaway">五个误区的共通之处：它们都试图简化AI代码安全的复杂性。真相是——AI代码安全需要用"分层防御"的思维来应对，没有单一方案（SAST、人工审查、AI自审）能独自解决问题。</div>
+</div>
+
+<div class="module" id="md-14-learning-path">
+  <h2><span class="m-tag">路径</span> OWASP资源、安全课程与工具学习路线 <span class="m-time">⏱️ ~2分钟</span></h2>
+  <div class="hook">学习代码安全最讽刺的地方在于：你需要先理解如何"攻破"代码，才能有效地"防护"代码。以下学习路线从攻防两端构建完整的知识体系。</div>
+  <div class="content">
+    <p><strong>第一阶段：安全基础（2-4周）</strong></p>
+    <p>从OWASP Top 10开始——理解每一个风险类别的原理、攻击方式和防护手段。推荐资源：OWASP官方文档（owasp.org）、OWASP Top 10互动教程、PortSwigger Web Security Academy（免费的在线Web安全实验室，包含200+交互式实验）。关键目标：能够识别常见的Web安全漏洞，理解背后的攻击原理。</p>
+    <p><strong>第二阶段：工具实践（2-4周）</strong></p>
+    <p>学习使用主流安全工具：Semgrep入门教程（官方文档+社区规则库探索）、Bandit配置与自定义规则编写、OWASP ZAP的基础操作（被动扫描+主动扫描+自动化）。关键目标：能够在本地项目和CI/CD中配置并运行至少一种SAST工具，理解扫描结果的含义。</p>
+    <p><strong>第三阶段：AI代码安全专项（2-4周）</strong></p>
+    <p>理解AI代码安全特有的挑战和解决方案：阅读学术论文（Stanford 2023 Copilot安全研究、Snyk AI代码安全报告）、实践安全Prompt工程、学习构建AI代码审查流水线。关键目标：能够针对AI生成的代码设计并实施完整的安全审查流程。</p>
+    <p><strong>第四阶段：纵深防御（持续学习）</strong></p>
+    <p>进阶安全话题：威胁建模（使用STRIDE方法对AI生成的代码进行威胁分析）、安全架构设计原则（零信任、最小权限）、DevSecOps自动化（将安全扫描全自动化集成到整个SDLC中）。</p>
+    <p><strong>推荐认证</strong></p>
+    <p>CSSLP（Certified Secure Software Lifecycle Professional）面向软件开发安全全生命周期专业人士的国际认证。OSWE（Offensive Security Web Expert）注重实战能力的Web应用安全认证。</p>
+  </div>
+  <div class="chart-wrap"><div class="chart-inner chart-init" id="chart-learn-01" data-option='{"title":{"text":"AI代码安全学习路线图","left":"center","textStyle":{"fontSize":14,"color":"#94a3b8"}},"tooltip":{"trigger":"axis"},"xAxis":{"type":"category","data":["安全基础\n(2-4周)","工具实践\n(2-4周)","AI专项\n(2-4周)","纵深防御\n(持续)"]},"yAxis":{"type":"value","name":"能力累积(%)","max":100},"series":[{"type":"bar","data":[25,50,80,100],"itemStyle":{"color":{"type":"linear","x":0,"y":0,"x2":0,"y2":1,"colorStops":[{"offset":0,"color":"#5a9e6f"},{"offset":1,"color":"#2a5e3f"}]}},"label":{"show":true,"position":"top","formatter":"{c}%","color":"#94a3b8"},"barWidth":"50%"}],"grid":{"left":50,"right":30,"top":50,"bottom":35}}'></div><div class="ch-cap">图：四阶段学习路线的累积能力增长——AI专项阶段是关键的能力跃升点</div></div>
+  <div class="takeaway">学习路线遵从"攻防一体"理念：先理解漏洞原理（OWASP）→掌握检测工具（Semgrep/Bandit/ZAP）→理解AI代码特有挑战→建立纵深防御思维。全程约8-16周达到实战水平。</div>
+</div>
+
+<div class="module" id="md-15-glossary">
+  <h2><span class="m-tag">术语</span> AI代码安全关键术语表 <span class="m-time">⏱️ ~1.5分钟</span></h2>
+  <div class="hook">在AI代码安全领域，精确的术语是精确思考的前提——把"CVE"和"CVSS"混用就像把"感冒"和"体温计"混为一谈。</div>
+  <div class="content">
+    <p>以下是AI代码安全领域最核心的术语及其准确定义：</p>
+    <p><strong>SAST（Static Application Security Testing）</strong>——静态应用安全测试。在代码不运行的情况下，通过分析源代码、字节码或二进制来发现安全漏洞的白盒测试方法。核心价值在于"左移"——在最早期（编码阶段）发现问题。在AI编程场景下，SAST是生成后审查的第一道关口。</p>
+    <p><strong>DAST（Dynamic Application Security Testing）</strong>——动态应用安全测试。在应用运行时，从外部模拟攻击行为来发现安全漏洞的黑盒测试方法。DAST不依赖源代码访问，关注的是运行时行为而非代码模式。核心价值在于发现配置错误、运行时漏洞等SAST无法检测的问题。</p>
+    <p><strong>CVE（Common Vulnerabilities and Exposures）</strong>——通用漏洞与暴露。为已知安全漏洞提供的唯一标识符体系，格式为CVE-YYYY-NNNNN。每个已公开发布的安全漏洞都有一个CVE编号。在AI代码安全的依赖管理场景中，检测依赖库中是否存在已知CVE是关键步骤。</p>
+    <p><strong>CVSS（Common Vulnerability Scoring System）</strong>——通用漏洞评分系统。对安全漏洞严重性进行0-10标准化评分的框架。评分考虑攻击向量、复杂度、权限要求、影响等多个维度。0.1-3.9为低危，4.0-6.9为中危，7.0-8.9为高危，9.0-10.0为严重。AI代码中发现的漏洞适用于同样的CVSS评分标准。</p>
+    <p><strong>Injection（注入）</strong>——将不可信数据作为命令或查询的一部分发送到解释器的攻击方式。包括SQL注入、命令注入、LDAP注入、XPath注入等。是OWASP Top 10中的常驻风险，也是AI代码中最常见的漏洞类别之一。</p>
+    <p><strong>XSS（Cross-Site Scripting）</strong>——跨站脚本攻击。将恶意脚本注入到被其他用户查看的网页中的攻击方式。分为存储型、反射型和DOM型三类。</p>
+    <p><strong>SCA（Software Composition Analysis）</strong>——软件成分分析。识别和管理开源组件及依赖中的安全风险和许可证合规问题的技术。在AI代码安全中，SCA关注AI引入的第三方依赖是否存在已知漏洞。</p>
+    <p><strong>Security Regression</strong>——安全回归。原本安全的系统在代码变更后重新引入安全漏洞的现象。AI代码安全中的特殊挑战：AI生成的"修复代码"可能引入新的不同类型的安全问题。</p>
+  </div>
+  <div class="takeaway">CVSS衡量漏洞有多严重，CVE给漏洞一个唯一标识，SAST在写代码时发现漏洞，DAST在运行时验证漏洞——这四个概念是AI代码安全的基础语言体系。</div>
+</div>
+
+<div class="module" id="md-16-debate">
+  <h2><span class="m-tag">辩论</span> AI是安全工具还是安全威胁？ <span class="m-time">⏱️ ~2分钟</span></h2>
+  <div class="hook">同样的LLM，用来审查代码就是安全工具，用来生成代码就是安全风险——AI在代码安全领域扮演着"既是解药也是毒药"的二元角色。</div>
+  <div class="content">
+    <p><strong>正方：AI是最强大的安全工具</strong></p>
+    <p>支持AI作为安全工具的核心论点：(1)<strong>AI驱动的漏洞检测</strong>——LLM能够理解代码语义，发现传统SAST工具无法检测的逻辑级漏洞。Snyk DeepCode AI和GitHub Copilot Autofix已经展示了LLM在代码安全分析中的独特价值。(2)<strong>自动修复的规模化</strong>——AI可以同时为数百个已知漏洞生成修复方案，这是人类安全工程师无法实现的规模。(3)<strong>安全知识民主化</strong>——AI安全工具让非安全专家的普通开发者也能获得实时的安全建议，降低了安全实践的门槛。(4)<strong>预防性安全</strong>——当安全约束被集成到代码生成模型中，AI可以在源头避免不安全代码的产生，这是"预防优于治疗"的安全哲学。</p>
+    <p><strong>反方：AI是最大的安全威胁放大器</strong></p>
+    <p>支持AI作为安全威胁的核心论点：(1)<strong>漏洞生成规模化</strong>——AI以人类3-10倍的速度产出代码，同时也以3-10倍的速度产出漏洞。安全审查的速度无法跟上代码生成的速度。(2)<strong>安全的假象</strong>——AI代码的高度结构化给人以"专业安全"的错觉，降低了开发者的警惕性。(3)<strong>新型漏洞模式</strong>——AI可能生成人类从未（或极少）编写的独特代码模式，这些模式超出了现有SAST规则的覆盖范围。(4)<strong>依赖攻击面扩大</strong>——AI倾向于引用大量第三方库来简化实现，这些库构成了扩大的攻击面。</p>
+    <p><strong>合题：取决于如何使用</strong></p>
+    <p>AI到底是安全工具还是安全威胁，取决于三个关键因素：(1)<strong>使用方式</strong>——如果AI生成的代码直接进入生产环境而未经审查，它是安全威胁；如果AI被用于审查和修复代码，它是安全工具。(2)<strong>安全流程</strong>——有完善的CI/CD安全流水线的团队中，AI是效率倍增器；在没有任何安全审查流程的团队中，AI是灾难放大器。(3)<strong>AI模型的选择</strong>——经过安全微调的AI模型可以显著减少不安全代码的生成，未经优化的通用模型则相反。最终，<strong>AI不做选择——是开发者在使用方式上做出选择</strong>。</p>
+  </div>
+  <div class="data-table"><table><thead><tr><th>维度</th><th>AI作为安全工具</th><th>AI作为安全威胁</th></tr></thead><tbody><tr><td>漏洞发现</td><td>LLM可以检测逻辑级漏洞</td><td>AI以10倍速度生成新漏洞</td></tr><tr><td>修复效率</td><td>批量自动修复100+漏洞</td><td>"修复代码"可能引入新漏洞</td></tr><tr><td>安全知识</td><td>AI降低安全实践门槛</td><td>"安全的假象"降低警惕性</td></tr><tr><td>攻击面</td><td>AI可分析完整攻击链</td><td>AI引入不必要的依赖膨胀</td></tr><tr><td>代码模式</td><td>AI识别异常模式能力强</td><td>AI可能生成非典型危险模式</td></tr></tbody></table></div>
+  <div class="takeaway">AI在代码安全中的角色是"放大器"而非"定性器"——它放大的是团队已有的安全实践水平（好或坏），而非独立引入安全性。有审查流程的团队→AI提升安全效率；无审查的团队→AI加剧安全风险。</div>
+</div>
+
+</div>
+
+<footer id="page-footer">
+  <button class="btn primary" onclick="exportPDF()">📥 导出 PDF</button>
+  <button class="btn" onclick="window.print()">🖨 打印</button>
+</footer>
+</main>
+
+<div class="search-overlay" id="searchOverlay">
+  <div class="search-dialog">
+    <input type="text" id="searchInput" placeholder="搜索模块、概念、术语..." autofocus>
+    <div class="search-results" id="searchResults"></div>
+  </div>
+</div>
+
+<div class="back-btn"><button onclick="goBack()">← 返回学习方案</button></div>
+
+<div class="mobile-bottom-nav">
+  <div class="mbn-inner">
+    <button class="mbn-item" onclick="goBack()"><span class="mbn-icon">🏠</span> 首页</button>
+    <button class="mbn-item" onclick="document.getElementById('searchOverlay').classList.add('open');document.getElementById('searchInput').focus();"><span class="mbn-icon">🔍</span> 搜索</button>
+    <button class="mbn-item" onclick="toggleTheme()"><span class="mbn-icon">🌓</span> 主题</button>
+    <button class="mbn-item" onclick="scrollToTop()"><span class="mbn-icon">⬆</span> 顶部</button>
+  </div>
+</div>
+
+<script>
+var DEEP_DIVE_KP_ID = 'p3_2';
+
+function goBack() {
+  var MAIN_PAGE = 'vibe_coding_learning.html';
+  var WIN_NAME = '_ml_llm_main';
+  var CH_KEY = '_ml_llm_nav';
+  localStorage.setItem(CH_KEY, JSON.stringify({kpId: DEEP_DIVE_KP_ID, ts: Date.now()}));
+  var mainWin = window.open(MAIN_PAGE, WIN_NAME);
+  if (mainWin) { mainWin.focus(); }
+}
+
+function toggleTheme() {
+  var body = document.body;
+  var current = body.getAttribute('data-theme');
+  var next = current === 'dark' ? 'light' : 'dark';
+  body.setAttribute('data-theme', next);
+  localStorage.setItem('_ml_deep_theme', next);
+  var btn = document.getElementById('theme-toggle');
+  if (btn) btn.textContent = next === 'dark' ? '🌙' : '☀️';
+}
+
+function scrollToTop() {
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function exportPDF() {
+  window.print();
+}
+
+(function init() {
+  document.body.classList.remove('loading');
+  document.body.classList.add('loaded');
+
+  var saved = localStorage.getItem('_ml_deep_theme');
+  if (saved === 'light' || saved === 'dark') {
+    document.body.setAttribute('data-theme', saved);
+    var btn = document.getElementById('theme-toggle');
+    if (btn) btn.textContent = saved === 'dark' ? '🌙' : '☀️';
+  }
+
+  buildSidebar();
+  setupProgressBar();
+  setupObserver();
+  setupFormulaToggle();
+  setupSearch();
+  initCharts();
+  initKaTeX();
+})();
+
+function buildSidebar() {
+  var container = document.getElementById('sidebar-links');
+  if (!container) return;
+  var modules = document.querySelectorAll('.module');
+  modules.forEach(function(m, i) {
+    var id = m.id;
+    var h2 = m.querySelector('h2');
+    var text = h2 ? h2.textContent.replace(/⏱️.*$/, '').replace(/^\S+\s*/, '').trim() : ('模块 ' + (i+1));
+    if (text.length > 20) text = text.substring(0, 18) + '...';
+    var a = document.createElement('a');
+    a.href = '#' + id;
+    a.className = 'sidebar-link';
+    a.textContent = text;
+    a.addEventListener('click', function(e) {
+      e.preventDefault();
+      var el = document.getElementById(id);
+      if (el) el.scrollIntoView({behavior:'smooth'});
+      if (window.innerWidth <= 768) {
+        document.getElementById('sidebar').classList.remove('open');
+      }
+    });
+    container.appendChild(a);
+  });
+}
+
+function setupProgressBar() {
+  var bar = document.getElementById('progress-bar');
+  if (!bar) return;
+  window.addEventListener('scroll', function() {
+    var scrollTop = window.scrollY || document.documentElement.scrollTop;
+    var docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    var pct = docHeight > 0 ? Math.min(100, (scrollTop / docHeight) * 100) : 0;
+    bar.style.width = pct + '%';
+  });
+}
+
+function setupObserver() {
+  var modules = document.querySelectorAll('.module');
+  if (!modules.length) return;
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, {threshold: 0.15});
+  modules.forEach(function(m) { observer.observe(m); });
+
+  var sidebarLinks = document.querySelectorAll('.sidebar-link');
+  var modsArr = Array.from(modules);
+  var scrollObs = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        sidebarLinks.forEach(function(link) { link.classList.remove('active'); });
+        var idx = modsArr.indexOf(entry.target);
+        if (idx >= 0 && sidebarLinks[idx]) {
+          sidebarLinks[idx].classList.add('active');
+        }
+      }
+    });
+  }, {threshold: 0.5});
+  modules.forEach(function(m) { scrollObs.observe(m); });
+}
+
+function setupFormulaToggle() {
+  document.querySelectorAll('.formula-block').forEach(function(block) {
+    var toggle = block.querySelector('.derivation-toggle');
+    if (!toggle) return;
+    toggle.addEventListener('click', function(e) {
+      e.stopPropagation();
+      block.classList.toggle('expanded');
+      toggle.textContent = block.classList.contains('expanded') ? '▾ 收起推导' : '▸ 展开推导';
+    });
+  });
+}
+
+function setupSearch() {
+  var overlay = document.getElementById('searchOverlay');
+  var input = document.getElementById('searchInput');
+  var results = document.getElementById('searchResults');
+  if (!overlay || !input || !results) return;
+
+  document.addEventListener('keydown', function(e) {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+      e.preventDefault();
+      overlay.classList.add('open');
+      input.focus();
+    }
+    if (e.key === 'Escape') {
+      overlay.classList.remove('open');
+    }
+  });
+
+  overlay.addEventListener('click', function(e) {
+    if (e.target === overlay) overlay.classList.remove('open');
+  });
+
+  var searchIndex = [];
+  document.querySelectorAll('.module').forEach(function(m) {
+    var h2 = m.querySelector('h2');
+    var content = m.querySelector('.content');
+    if (h2 && content) {
+      searchIndex.push({title: h2.textContent.replace(/⏱️.*$/, '').trim(), content: content.textContent.substring(0, 200), id: m.id});
+    }
+  });
+
+  input.addEventListener('input', function() {
+    var query = this.value.trim().toLowerCase();
+    if (!query) { results.innerHTML = ''; return; }
+    var matches = searchIndex.filter(function(item) {
+      return item.title.toLowerCase().includes(query) || item.content.toLowerCase().includes(query);
+    });
+    if (!matches.length) {
+      results.innerHTML = '<div class="search-empty">未找到匹配结果</div>';
+      return;
+    }
+    results.innerHTML = matches.slice(0, 8).map(function(item) {
+      var title = item.title.replace(new RegExp('('+query.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi'), '<mark>$1</mark>');
+      return '<div class="sr-item" onclick="document.getElementById(\''+item.id+'\').scrollIntoView({behavior:\'smooth\'});document.getElementById(\'searchOverlay\').classList.remove(\'open\');"><div class="sr-title">'+title+'</div><div class="sr-snippet">'+item.content.substring(0,100)+'...</div></div>';
+    }).join('');
+  });
+}
+
+function initCharts() {
+  if (typeof echarts === 'undefined') return;
+  var charts = document.querySelectorAll('.chart-inner');
+  charts.forEach(function(dom) {
+    try {
+      var optStr = dom.getAttribute('data-option') || dom.dataset.option;
+      if (!optStr) return;
+      var option = JSON.parse(optStr);
+      var chart = echarts.init(dom, 'dark');
+      chart.setOption(option);
+      window.addEventListener('resize', function() { chart.resize(); });
+    } catch(e) {
+      console.warn('Chart init failed:', e);
+    }
+  });
+}
+
+function initKaTeX() {
+  if (typeof renderMathInElement === 'undefined') return;
+  try {
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: '$$', right: '$$', display: true},
+        {left: '$', right: '$', display: false}
+      ]
+    });
+  } catch(e) {}
+}
+
+window.addEventListener('resize', function() {
+  if (typeof echarts === 'undefined') return;
+  document.querySelectorAll('.chart-inner').forEach(function(dom) {
+    var instance = echarts.getInstanceByDom(dom);
+    if (instance) instance.resize();
+  });
+});
+</script>
+</body>
+</html>

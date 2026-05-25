@@ -22,7 +22,8 @@
     │
     ▼
 ┌─────────────────────────────────────┐
-│  learning-plan-generator (v3.8.0)    │
+│  learning-plan-generator             │
+│  (.claude v3.8.1 / .trae v3.8.0)    │
 │  · 主题自动分类 (60主题库)             │
 │  · 4D画像分析 (抽象/系统/数学/演化)    │
 │  · 纹理选择 (G1-G8)                   │
@@ -33,7 +34,8 @@
            │ 每个 KP 有 "深度研读" 按钮
            ▼
 ┌─────────────────────────────────────┐
-│  smart-learning-materials (v3.3.0)   │
+│  smart-learning-materials            │
+│  (.claude v3.4.1 / .trae v1.1.0)    │
 │  · 接收 context_plan 上下文标记       │
 │  · 模块评分 → 编排 (16核心+8可选)     │
 │  · 纹理感知内容生成 (G1-G8风格)       │
@@ -63,7 +65,7 @@
 
 ---
 
-## Skill 1: learning-plan-generator (v3.8.0)
+## Skill 1: learning-plan-generator (v3.8.1)
 
 **生成自适应、纹理感知的学习方案（Markdown + 交互式 HTML），适用于任意领域。**
 
@@ -95,7 +97,7 @@
 
 ---
 
-## Skill 2: smart-learning-materials (v3.3.0)
+## Skill 2: smart-learning-materials (.claude v3.4.1 / .trae v1.1.0)
 
 **针对单个知识点/概念/术语，生成结构化、多层级、多模态的高质量深度研读资料。**
 
@@ -107,6 +109,8 @@
 - **纹理感知写作**：根据 G1-G8 纹理自动调整每个模块的内容比例（公式/图表/案例/代码）
 - **CDN 增强层**：ECharts 交互图表 + KaTeX 公式渲染
 - **学习路线感知**：通过 context_plan 标记感知当前知识点在完整学习方案中的位置
+- **表格数据结构校验 (v3.4.1)**：生成后自动校验 tables 字段的 JSON 结构（caption 位置、rows 维度、行列一致性），从源头杜绝白屏
+- **Web 模板稳健性加固 (.trae v1.1.0)**：CDN 脚本异步加载（`defer`）、`body.loading` 安全超时兜底、初始化双路径、ECharts 重试机制、全局初始化时序约束，杜绝 CDN 不可达/延迟导致的永久白屏和 TypeError
 
 ### 触发方式
 
@@ -307,6 +311,10 @@ Claude Code 自动调用 smart-learning-materials：
 
 | 版本 | 日期 | 关键变更 |
 |------|------|----------|
+| smart-learning-materials .trae v1.1.0 / .claude v3.4.1 | 2026-05-25 | Web模板稳健性加固：CDN脚本异步(`defer`)、`body.loading`安全超时兜底、初始化双路径(`readyState`+`DOMContentLoaded`)、ECharts重试机制(10次×500ms)、全局初始化时序约束、主题闪烁消除；修复`applyTheme()` TypeError；两个环境模板与文档完全同步 |
+| smart-learning-materials v3.4.1 | 2026-05-25 | 表格数据结构约束：table_schema定义 + Step 5.0表格校验 + SKILL.md规范章节 |
+| smart-learning-materials v3.4.0 | 2026-05-25 | JS数据层防御性规则：引号冲突、`</script>`转义、外部JS禁止、语法自检 |
+| learning-plan-generator v3.8.1 | 2026-05-25 | 批量生成sub-agent协调验证：文件结构一致性、JS语法逐文件验证、manifest链接完整性 |
 | learning-plan-generator v3.8.0 | — | 视觉模板系统：6套可切换外观主题 + 自动匹配 |
 | learning-plan-generator v3.5.0 | — | L2 运行时自动同步：syncKPsFromManifest() |
 | learning-plan-generator v3.3.0 | — | 模板化 HTML 生成：base_plan.html 骨架 |

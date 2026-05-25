@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>AI编程环境搭建与工具选型 - 深度研读</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<style>
+:root{
+--bg-base:#0d0d0d;
+--bg-card:#1a1a1a;
+--bg-elevated:#222222;
+--bg-overlay:rgba(0,0,0,.6);
+--text-primary:#ededed;
+--text-secondary:#a0a0a0;
+--text-muted:#787878;
+--accent-indigo:#5b8db8;
+--accent-purple:#8878a8;
+--accent-cyan:#6ea8c0;
+--accent-gold:#c0a060;
+--accent-green:#5a9e6f;
+--accent-red:#c06050;
+--accent-blue:#5b8db8;
+--accent-color:#5b8db8;
+--accent-dark:#3a6088;
+--border-subtle:rgba(160,160,160,.15);
+--border-glow:rgba(91,141,184,.2);
+--shadow-sm:0 1px 3px rgba(0,0,0,.3);
+--shadow-md:0 4px 16px rgba(0,0,0,.4);
+--shadow-lg:0 8px 32px rgba(0,0,0,.5);
+--shadow-elevated:0 8px 32px rgba(0,0,0,.5);
+--radius-sm:6px;
+--radius-md:10px;
+--radius-lg:16px;
+--font-sans:'Segoe UI',system-ui,-apple-system,sans-serif;
+--font-mono:Consolas,'Cascadia Code',monospace;
+--transition:.25s cubic-bezier(.4,0,.2,1);
+--transition-smooth:.3s ease;
+--nav-h:56px;
+--accent-color-rgb:91,141,184;
+--chart-grid:#252525;
+--chart-axis-label:#787878;
+}
+[data-theme="light"]{
+--bg-base:#fafafa;
+--bg-card:#ffffff;
+--bg-elevated:#eeeeee;
+--bg-overlay:rgba(0,0,0,.3);
+--text-primary:#121212;
+--text-secondary:#4a4a4a;
+--text-muted:#5e5e5e;
+--accent-indigo:#3a6088;
+--accent-purple:#5a4878;
+--accent-cyan:#3a7888;
+--accent-gold:#886830;
+--accent-green:#3d8055;
+--accent-red:#983830;
+--accent-blue:#3a6088;
+--accent-color:#3a6088;
+--accent-dark:#284868;
+--border-subtle:rgba(18,18,18,.08);
+--border-glow:rgba(58,96,136,.2);
+--shadow-sm:0 1px 3px rgba(0,0,0,.06);
+--shadow-md:0 4px 16px rgba(0,0,0,.08);
+--shadow-lg:0 8px 32px rgba(0,0,0,.12);
+--shadow-elevated:0 8px 32px rgba(0,0,0,.12);
+--accent-color-rgb:58,96,136;
+--chart-grid:#e5e5e5;
+--chart-axis-label:#5e5e5e;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;font-size:16px}
+body{font-family:'Inter','Noto Sans SC',-apple-system,sans-serif;background:var(--bg-base);color:var(--text-primary);line-height:1.75;-webkit-font-smoothing:antialiased;transition:background var(--transition),color var(--transition)}
+body.loading{opacity:0}body.loaded{opacity:1;transition:opacity 0.4s ease}
+#progress-bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--accent-blue),var(--accent-cyan),var(--accent-purple));z-index:1000;transition:width 0.1s linear}
+#theme-toggle{position:fixed;top:20px;right:20px;z-index:999;width:40px;height:40px;border-radius:50%;background:var(--bg-card);border:1px solid var(--border-subtle);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;transition:all var(--transition);box-shadow:var(--shadow-sm)}
+#theme-toggle:hover{transform:scale(1.1);box-shadow:var(--shadow-md)}
+#sidebar{position:fixed;top:var(--nav-h);left:0;width:240px;height:calc(100vh - var(--nav-h));background:var(--bg-card);border-right:1px solid var(--border-subtle);padding:16px 12px 24px;overflow-y:auto;z-index:90;transition:transform var(--transition)}
+#sidebar h3{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);margin-bottom:12px;font-weight:600;padding:0 8px}
+.sidebar-link{display:block;padding:6px 12px;margin:2px 0;border-radius:var(--radius-sm);font-size:13px;color:var(--text-secondary);text-decoration:none;transition:all var(--transition);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sidebar-link:hover{background:var(--bg-elevated);color:var(--text-primary)}
+.sidebar-link.active{background:rgba(91,141,184,.12);color:var(--accent-blue);font-weight:600}
+.sidebar-back-link{display:block;padding:8px 12px;margin-bottom:12px;border-radius:var(--radius-sm);background:var(--bg-elevated);color:var(--accent-blue);text-decoration:none;font-size:13px;font-weight:600}
+#main-content{margin-left:240px;max-width:780px;padding:70px 32px 120px;margin-right:auto}
+.integration-navbar{display:flex;align-items:center;gap:12px;padding:10px 24px;background:var(--bg-card);border-bottom:1px solid var(--border-subtle);font-size:14px;position:sticky;top:0;z-index:95}
+.integration-navbar a{color:var(--accent-blue);text-decoration:none;font-weight:600}
+.integration-navbar a:hover{text-decoration:underline}
+.meta-card{background:linear-gradient(135deg,rgba(91,141,184,.08),rgba(110,168,192,.06));border:1px solid var(--border-subtle);border-radius:var(--radius-lg);padding:28px 32px;margin-bottom:48px;display:flex;flex-wrap:wrap;gap:20px;align-items:center}
+.meta-row{width:100%;font-size:13px;color:var(--text-muted);margin-bottom:4px}
+.meta-item{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--text-secondary)}
+.meta-item .icon{font-size:20px}
+.meta-item strong{color:var(--text-primary)}
+.meta-badge{display:inline-block;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;letter-spacing:.02em}
+.badge-domain{background:rgba(136,120,168,.12);color:var(--accent-purple)}
+.badge-level{background:rgba(192,160,96,.12);color:var(--accent-gold)}
+.module-section{margin-bottom:56px;opacity:0;transform:translateY(24px);transition:opacity 0.6s ease,transform 0.6s ease}
+.module-section.visible{opacity:1;transform:translateY(0)}
+.module-header{display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.module-tag{display:inline-block;padding:3px 10px;border-radius:6px;font-size:11px;font-weight:600;letter-spacing:.03em;text-transform:uppercase}
+.tag-bg{background:rgba(91,141,184,.12);color:var(--accent-blue)}
+.tag-pr{background:rgba(136,120,168,.12);color:var(--accent-purple)}
+.tag-ev{background:rgba(110,168,192,.12);color:var(--accent-cyan)}
+.tag-ap{background:rgba(90,158,111,.12);color:var(--accent-green)}
+.tag-ri{background:rgba(192,96,80,.12);color:var(--accent-red)}
+.tag-fr{background:rgba(192,160,96,.12);color:var(--accent-gold)}
+.module-title{font-size:22px;font-weight:700;color:var(--text-primary);letter-spacing:-.02em}
+.module-hook{font-size:16px;color:var(--text-secondary);font-style:italic;border-left:3px solid var(--accent-blue);padding-left:16px;margin-bottom:20px}
+.module-content{font-size:15px;color:var(--text-primary)}
+.module-content p{margin-bottom:12px}
+.module-content strong{color:var(--text-primary)}
+.module-content ul,.module-content ol{margin:8px 0 16px 24px}
+.module-content li{margin-bottom:6px}
+.module-content code{background:var(--bg-elevated);padding:2px 6px;border-radius:4px;font-size:13px;font-family:'JetBrains Mono',Consolas,monospace}
+.formula-block{background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:var(--radius-sm);padding:20px 24px;margin:16px 0;position:relative;cursor:pointer;transition:all var(--transition)}
+.formula-block:hover{box-shadow:var(--shadow-sm)}
+.formula-caption{font-size:12px;color:var(--text-muted);margin-top:8px;text-align:center}
+.formula-derivation{display:none;margin-top:16px;padding-top:16px;border-top:1px solid var(--border-subtle);font-size:14px;color:var(--text-secondary)}
+.formula-block.expanded .formula-derivation{display:block}
+.formula-expand-hint{font-size:11px;color:var(--text-muted);text-align:right;margin-top:4px}
+.chart-container{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:24px;margin:20px 0}
+.chart-wrapper{width:100%;height:380px}
+.chart-caption{font-size:13px;color:var(--text-secondary);text-align:center;margin-top:12px}
+.chart-source{font-size:11px;color:var(--text-muted);text-align:right;margin-top:4px}
+.module-table{width:100%;border-collapse:collapse;margin:16px 0;font-size:14px;border:1px solid var(--border-subtle);border-radius:var(--radius-sm);overflow:hidden}
+.module-table th{background:var(--bg-elevated);padding:10px 16px;text-align:left;font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.03em;color:var(--text-secondary)}
+.module-table td{padding:10px 16px;border-top:1px solid var(--border-subtle);color:var(--text-primary)}
+.module-table tr:hover td{background:var(--bg-elevated)}
+.table-caption{font-size:12px;color:var(--text-muted);text-align:center;margin-top:8px}
+.module-references{margin-top:20px;padding-top:16px;border-top:1px solid var(--border-subtle);font-size:12px;color:var(--text-muted)}
+.module-references h4{font-size:12px;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+.module-references ol{margin-left:20px}
+.module-references li{margin-bottom:4px}
+.module-references a{color:var(--accent-blue);text-decoration:none}
+.key-takeaway{margin-top:16px;padding:14px 20px;border-radius:var(--radius-sm);background:rgba(91,141,184,.08);border-left:4px solid var(--accent-blue);font-size:14px;font-weight:500;color:var(--text-primary)}
+#page-footer{margin-top:60px;padding:32px 0;border-top:1px solid var(--border-subtle);display:flex;gap:12px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:var(--radius-sm);font-size:14px;font-weight:500;cursor:pointer;border:1px solid var(--border-subtle);background:var(--bg-card);color:var(--text-primary);transition:all var(--transition);text-decoration:none}
+.btn:hover{background:var(--bg-elevated)}
+.btn.primary{background:var(--accent-blue);color:#fff;border-color:var(--accent-blue)}
+.btn.primary:hover{filter:brightness(1.15)}
+.back-btn{position:fixed;right:24px;bottom:24px;z-index:200}
+.back-btn button{background:linear-gradient(135deg,var(--accent-blue),var(--accent-purple));color:white;border:none;border-radius:24px;padding:12px 24px;font-size:.85rem;font-weight:600;cursor:pointer;box-shadow:0 4px 12px rgba(91,141,184,.3);transition:transform .2s}
+.back-btn button:hover{transform:translateY(-2px)}
+#sidebar-toggle{display:none;position:fixed;top:16px;left:16px;z-index:99;width:40px;height:40px;border-radius:50%;background:var(--bg-card);border:1px solid var(--border-subtle);cursor:pointer;font-size:18px;align-items:center;justify-content:center;box-shadow:var(--shadow-sm)}
+@media(max-width:1024px){#sidebar{width:200px}#main-content{margin-left:200px;padding:70px 24px 80px}}
+@media(max-width:768px){#sidebar-toggle{display:flex}#sidebar{transform:translateX(-100%)}#sidebar.open{transform:translateX(0)}#main-content{margin-left:0;padding:70px 20px 60px}.meta-card{padding:20px 24px;flex-direction:column;gap:12px;align-items:flex-start}.chart-wrapper{height:280px}.module-title{font-size:19px}.back-btn{right:15px;bottom:15px}.back-btn button{padding:10px 16px;font-size:.8rem}}
+@media print{#sidebar,#progress-bar,#theme-toggle,#page-footer,.back-btn,.integration-navbar{display:none!important}#main-content{margin-left:0;max-width:100%;padding:0}.module-section{opacity:1;transform:none;break-inside:avoid}body{font-size:12px;line-height:1.5}}
+</style>
+</head>
+<body class="loading">
+
+<div class="integration-navbar">
+  <a href="#" onclick="goBack();return false;">← 返回 Vibe Coding (AI自然语言编程) 系统学习方案</a>
+  <span style="color:var(--text-muted)">|</span>
+  <span style="color:var(--text-secondary)">第1/4阶段 · AI编程工具掌握</span>
+</div>
+
+<div id="progress-bar"></div>
+<button id="theme-toggle" title="切换深色/浅色模式" onclick="toggleTheme()">🌓</button>
+<button id="sidebar-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+
+<nav id="sidebar">
+  <a href="#" onclick="goBack();return false;" class="sidebar-back-link">← 返回主方案</a>
+  <h3>📑 内容导航</h3>
+  <div id="sidebar-links"></div>
+</nav>
+
+<main id="main-content">
+  <div id="meta-card-container"></div>
+  <div id="modules-container"></div>
+  <footer id="page-footer">
+    <button class="btn primary" onclick="window.print()">📥 导出 PDF</button>
+    <button class="btn" id="export-notes-btn">📄 导出笔记</button>
+  </footer>
+</main>
+
+<div class="back-btn">
+  <button onclick="goBack()">← 返回学习方案</button>
+</div>
+
+<script>
+var DEEP_DIVE_KP_ID = 'p1_1';
+function goBack() {
+  var MAIN_PAGE = 'vibe_coding_learning.html';
+  var WIN_NAME = '_ml_llm_main';
+  var CH_KEY = '_ml_llm_nav';
+  localStorage.setItem(CH_KEY, JSON.stringify({kpId: DEEP_DIVE_KP_ID, ts: Date.now()}));
+  var mainWin = window.open(MAIN_PAGE, WIN_NAME);
+  if (mainWin) { mainWin.focus(); }
+}
+
+var PAGE_DATA = {
+  topic: "AI编程环境搭建与工具选型",
+  domain: "ai-tech",
+  domain_name: "AI与科技",
+  level: "intermediate",
+  level_name: "进阶",
+  reading_time: "35",
+  module_count: 21,
+  texture: "G8",
+  texture_name: "教程实操型",
+  depth: "理解",
+  breadth: "标准",
+  modules: []
+};
+
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  localStorage.setItem('slm-theme', theme);
+  updateThemeIcon();
+  try { Object.values(activeCharts).forEach(function(chart) { var opt = chart.getOption(); chart.setOption(createThemedOption(opt), {notMerge: false}); }); } catch(e) {}
+}
+function toggleTheme() {
+  var current = document.documentElement.getAttribute('data-theme') || 'dark';
+  applyTheme(current === 'light' ? 'dark' : 'light');
+}
+function updateThemeIcon() {
+  var t = document.getElementById('theme-toggle');
+  t.textContent = document.documentElement.getAttribute('data-theme') === 'dark' ? '☀️' : '🌓';
+}
+var savedTheme = localStorage.getItem('slm-theme') || 'dark';
+applyTheme(savedTheme);
+
+window.addEventListener('scroll', function() {
+  var scrollTop = window.scrollY;
+  var docHeight = document.documentElement.scrollHeight - window.innerHeight;
+  var progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+  document.getElementById('progress-bar').style.width = progress + '%';
+});
+
+var activeCharts = {};
+var sidebarLinks = [];
+
+function buildSidebar() {
+  var container = document.getElementById('sidebar-links');
+  sidebarLinks = [];
+  PAGE_DATA.modules.forEach(function(mod) {
+    var a = document.createElement('a');
+    a.href = '#' + mod.module_id;
+    a.className = 'sidebar-link';
+    a.textContent = mod.module_title || mod.module_id;
+    a.addEventListener('click', function(e) { e.preventDefault(); document.getElementById(mod.module_id).scrollIntoView({behavior: 'smooth'}); });
+    container.appendChild(a);
+    sidebarLinks.push({el: a, id: mod.module_id});
+  });
+}
+
+var obs = new IntersectionObserver(function(entries) {
+  entries.forEach(function(entry) {
+    if (entry.isIntersecting) {
+      sidebarLinks.forEach(function(link) { link.el.classList.toggle('active', link.id === entry.target.id); });
+    }
+  });
+}, {rootMargin: '-80px 0px -60% 0px'});
+
+function buildMetaCard() {
+  var md = PAGE_DATA;
+  document.getElementById('meta-card-container').innerHTML =
+    '<div class="meta-card">' +
+      '<div class="meta-row">🔗 📚 Vibe Coding (AI自然语言编程) 系统学习方案 · AI编程工具掌握（1/4）</div>' +
+      '<div class="meta-item"><span class="icon">📖</span><strong>' + md.topic + '</strong></div>' +
+      '<div class="meta-item"><span class="meta-badge badge-domain">' + md.domain_name + '</span></div>' +
+      '<div class="meta-item"><span class="meta-badge badge-level">' + md.level_name + '</span></div>' +
+      '<div class="meta-item"><span class="icon">⏱️</span>约' + md.reading_time + '分钟阅读</div>' +
+      '<div class="meta-item"><span class="icon">📦</span>' + md.module_count + '个模块</div>' +
+    '</div>';
+}
+
+function renderFormulas(container) {
+  if (typeof renderMathInElement !== 'undefined') {
+    renderMathInElement(container, { delimiters: [{left: '$$', right: '$$', display: true},{left: '$', right: '$', display: false}], throwOnError: false });
+  }
+}
+function createThemedOption(existingOpt) {
+  var isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+  return {color: isDark ? ['#818cf8','#a78bfa','#c4b5fd','#67e8f9','#fbbf24','#34d399','#f87171','#f472b6'] : ['#6366f1','#8b5cf6','#a78bfa','#22d3ee','#f59e0b','#10b981','#ef4444','#ec4899']};
+}
+function renderChart(moduleId, chartConfig, index) {
+  var chartId = 'chart_' + moduleId + '_' + index;
+  var wrapper = document.getElementById(chartId);
+  if (!wrapper) return;
+  if (typeof echarts === 'undefined') { wrapper.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted);font-size:13px;">📊 图表(ECharts CDN 未加载)</div>'; return; }
+  try {
+    var chart = echarts.init(wrapper);
+    var opt = chartConfig.echarts_option || {};
+    if (typeof opt === 'string') { try { chart.setOption(createThemedOption(JSON.parse(opt))); } catch(e) { wrapper.textContent = '图表配置解析失败'; return; } }
+    else { chart.setOption(createThemedOption(opt)); }
+    activeCharts[chartId] = chart;
+    new ResizeObserver(function() { chart.resize(); }).observe(wrapper);
+  } catch(e) { wrapper.textContent = '图表渲染失败: ' + e.message; }
+}
+
+function buildModuleHTML(mod) {
+  var tagMap = { '背景与缘起':'tag-bg','核心概念':'tag-pr','核心原理':'tag-pr','发展迭代':'tag-ev','实践应用':'tag-ap','实践案例':'tag-ap','潜在风险':'tag-ri','发展格局':'tag-ev','发展问题':'tag-ri','发展前景':'tag-fr','努力方向':'tag-fr','常见误区':'tag-ri','学习路径':'tag-ap','关键术语表':'tag-bg','争议与辩论':'tag-ri','技术架构':'tag-pr','算力与成本':'tag-ev','开源生态':'tag-ev','Benchmark数据':'tag-ev','伦理与安全':'tag-ri','产学研图谱':'tag-fr' };
+  var tagClass = tagMap[mod.module_tag] || 'tag-bg';
+
+  var html = '<section class="module-section" id="' + mod.module_id + '">' +
+    '<div class="module-header"><span class="module-tag ' + tagClass + '">' + (mod.module_tag||'') + '</span><h2 class="module-title">' + (mod.module_title||mod.module_id) + '</h2></div>';
+  if (mod.hook) html += '<div class="module-hook">' + mod.hook + '</div>';
+  html += '<div class="module-content">' + parseMd(mod.content||'') + '</div>';
+
+  if (mod.formulas && mod.formulas.length > 0) {
+    mod.formulas.forEach(function(f) {
+      var hd = f.expandable && f.derivation;
+      html += '<div class="formula-block' + (hd?'':' not-expandable') + '" onclick="' + (hd?'toggleDerivation(this)':'') + '"><div>' + f.latex + '</div>';
+      if (f.caption) html += '<div class="formula-caption">' + f.caption + '</div>';
+      if (hd) html += '<div class="formula-expand-hint">💡 点击展开推导过程</div><div class="formula-derivation">' + f.derivation + '</div>';
+      html += '</div>';
+    });
+  }
+  if (mod.charts && mod.charts.length > 0) {
+    mod.charts.forEach(function(ch, ci) {
+      var cid = 'chart_' + mod.module_id + '_' + ci;
+      html += '<div class="chart-container"><div class="chart-wrapper" id="' + cid + '"></div>';
+      if (ch.caption) html += '<div class="chart-caption">' + ch.caption + '</div>';
+      if (ch.data_source) html += '<div class="chart-source">' + ch.data_source + '</div>';
+      html += '</div>';
+    });
+  }
+  if (mod.tables && mod.tables.length > 0) {
+    mod.tables.forEach(function(t) {
+      html += '<div style="overflow-x:auto"><table class="module-table"><thead><tr>' + (t.headers||[]).map(function(h){return '<th>'+h+'</th>';}).join('') + '</tr></thead><tbody>' + (t.rows||[]).map(function(r){return '<tr>'+r.map(function(c){return '<td>'+c+'</td>';}).join('')+'</tr>';}).join('') + '</tbody></table>';
+      if (t.caption) html += '<div class="table-caption">' + t.caption + '</div>';
+      html += '</div>';
+    });
+  }
+  if (mod.references && mod.references.length > 0) {
+    html += '<div class="module-references"><h4>📚 参考文献</h4><ol>';
+    mod.references.forEach(function(ref) {
+      html += '<li>' + (ref.authors||'') + ' ('+(ref.year||'')+'). <strong>'+(ref.title||'')+'</strong>.';
+      if (ref.doi) html += ' <a href="https://doi.org/'+ref.doi+'" target="_blank">DOI</a>';
+      if (ref.url) html += ' <a href="'+ref.url+'" target="_blank">链接</a>';
+      html += '</li>';
+    });
+    html += '</ol></div>';
+  }
+  if (mod.key_takeaway) html += '<div class="key-takeaway">💡 ' + mod.key_takeaway + '</div>';
+  html += '</section>';
+  return html;
+}
+function parseMd(c) {
+  if (!c) return '';
+  c = c.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
+  c = c.replace(/\*(.+?)\*/g,'<em>$1</em>');
+  c = c.replace(/`([^`]+)`/g,'<code>$1</code>');
+  c = c.replace(/\[([^\]]+)\]\(([^)]+)\)/g,'<a href="$2" target="_blank" style="color:var(--accent-blue)">$1</a>');
+  c = c.replace(/^### (.+)$/gm,'<h3 style="font-size:17px;font-weight:600;margin:20px 0 8px;">$1</h3>');
+  c = c.replace(/^## (.+)$/gm,'<h3 style="font-size:18px;font-weight:600;margin:24px 0 10px;">$1</h3>');
+  c = c.replace(/\n\n/g,'</p><p>');
+  c = '<p>' + c + '</p>';
+  c = c.replace(/<p>\s*<\/p>/g,'');
+  return c;
+}
+function toggleDerivation(el) { el.classList.toggle('expanded'); }
+
+function initPage() {
+  document.body.classList.remove('loading'); document.body.classList.add('loaded');
+  buildMetaCard(); buildSidebar();
+  var mc = document.getElementById('modules-container');
+  PAGE_DATA.modules.forEach(function(mod) { mc.innerHTML += buildModuleHTML(mod); });
+  var secs = mc.querySelectorAll('.module-section');
+  secs.forEach(function(s) { obs.observe(s); });
+  renderFormulas(mc);
+  setTimeout(function() {
+    PAGE_DATA.modules.forEach(function(mod) {
+      if (mod.charts) mod.charts.forEach(function(ch, ci) { renderChart(mod.module_id, ch, ci); });
+    });
+  }, 150);
+  var fo = new IntersectionObserver(function(entries) { entries.forEach(function(e) { if (e.isIntersecting) e.target.classList.add('visible'); }); }, {threshold: 0.08});
+  secs.forEach(function(s) { fo.observe(s); });
+  document.getElementById('export-notes-btn').addEventListener('click', function() {
+    var lines = ['# '+PAGE_DATA.topic+' - 学习笔记','','生成日期: '+new Date().toLocaleDateString('zh-CN'),''];
+    lines.push('## 📚 模块列表');
+    PAGE_DATA.modules.forEach(function(m) { lines.push('- **'+(m.module_title||m.module_id)+'**: '+(m.key_takeaway||m.hook||'')); });
+    navigator.clipboard.writeText(lines.join('\n')).then(function() { alert('✅ 笔记已复制到剪贴板!'); });
+  });
+}
+
+PAGE_DATA.modules = [
+{
+  "module_id": "01-background",
+  "module_title": "背景与缘起",
+  "module_tag": "背景与缘起",
+  "hook": "2022年GitHub Copilot发布——AI编程工具从'科幻概念'一夜之间变成'日常生产力'，而这场革命其实酝酿了十年。",
+  "content": "AI编程工具的诞生并非凭空而来，而是三条技术演进路线的交汇：**IDE智能化**、**大规模语言模型(LLM)** 和**开发者工具链自动化**。\n\n早在2010年代，JetBrains的IntelliSense和VS Code的IntelliCode就已经在做'代码补全'——但那只是基于规则和统计的模式匹配。真正的转折点发生在2020年GPT-3发布后，OpenAI展示了语言模型不仅能聊天，还能写出**语法正确、逻辑合理**的代码。\n\n2021年6月，GitHub和OpenAI联合推出了Copilot技术预览版，内置于VS Code。这是第一个真正意义上'让AI坐在你旁边编程'的产品。2022年6月正式GA后，GitHub报告称Copilot用户在编码任务上的**速度提升了55%**。\n\n2023-2024年迎来了AI编程工具的'寒武纪大爆发'：Cursor（基于VS Code深度改造的AI IDE）、Windsurf（独立AI IDE，Flow模式）、Claude Code（终端CLI AI编程）、Aider（终端结对编程）、Continue（开源可定制助手）——每个工具都在重新定义'AI如何辅助编程'这个问题。\n\n**为什么现在学？** 2025年，AI编程工具已从'锦上添花'变成'基础技能'。Stack Overflow 2024开发者调查显示，**76%的开发者已经在使用或计划使用AI编程工具**。不会用AI编程的开发者，正在被会用的人拉开2-5倍的效率差距。",
+  "formulas": [{"latex": "$$\\text{AI工具价值} = \\text{任务复杂度} \\times \\text{工具适配度} \\times \\text{用户熟练度}$$", "caption": "AI编程工具生产力公式", "expandable": true, "derivation": "任务复杂度决定AI能帮多少（简单任务AI可直接完成），工具适配度取决于你是否选了合适的工具（IDE集成 vs 终端CLI），用户熟练度体现你对prompt和工具特性的驾驭能力。三者相乘，一个维度为零则整体为零。"}],
+  "key_takeaway": "AI编程工具不是魔法——它是LLM、IDE进化和自动化理念交汇的产物，理解其来龙去脉是高效使用的第一步。"
+},
+{
+  "module_id": "02-concept",
+  "module_title": "核心概念",
+  "module_tag": "核心概念",
+  "hook": "AI编程工具不是一个产品类别，而是一个生态系统——你需要理解IDE集成型、终端CLI型、API嵌入型的本质差异。",
+  "content": "**AI编程工具的核心分类体系：**\n\n### 一、按交互形态分类\n\n**1. IDE集成型** — AI嵌入在你熟悉的编辑器内\n- 代表：Cursor、GitHub Copilot、Continue\n- 优势：你不需要离开工作流，AI在你手边\n- 适合：日常编码、重构、代码补全\n\n**2. 终端CLI型** — AI在命令行中运行\n- 代表：Claude Code、Aider、Gemini CLI\n- 优势：全文件操作、Git原生集成、无需IDE\n- 适合：批量重构、Git操作、CI/CD集成\n\n**3. Web对话型** — AI在浏览器聊天框中\n- 代表：ChatGPT、Claude.ai、Gemini\n- 优势：通用能力最强、上下文窗口最大\n- 适合：架构设计、复杂算法讨论、学习理解\n\n### 二、核心能力维度\n\n- **Tab补全**: AI在你打字时预测下一段代码——最'无感'但频率最高的能力\n- **行/块编辑**: 选中代码后，用命令让AI修改（Cursor的Cmd+K）\n- **多文件生成**: 一个prompt生成多个关联文件（Cursor Composer、Windsurf Flow）\n- **上下文感知**: AI自动理解项目文件结构、依赖关系和代码规范\n- **Agent自主执行**: AI规划多步骤任务，自己读文件、改代码、跑命令\n\n**理解这些维度的关键在于：不同工具在不同维度上的深度差异巨大**。Cursor在Tab补全和多文件生成上极强，Claude Code在Agent自主执行上领先。",
+  "formulas": [{"latex": "$$\\text{Tool Fit} = \\sum_{i=1}^{n} w_i \\times s_i$$", "caption": "工具适配度 = 各能力维度权重×该工具在该维度的得分", "expandable": true, "derivation": "将'你的工作流'分解为若干个需求维度（如：Tab补全频率、多文件生成需求、Git集成需求等），对每个维度赋予权重w_i。然后对候选工具在每个维度打分s_i，加权求和得到适配度。这是一个简化的但实用的决策模型。"}],
+  "key_takeaway": "不要把AI编程工具当黑盒——IDE集成型、CLI型和Web型各有拥趸，理解分类才能精准选型。"
+},
+{
+  "module_id": "03-principle",
+  "module_title": "核心原理",
+  "module_tag": "核心原理",
+  "hook": "Cursor为什么能'读懂'你的整个项目？答案不是魔法，而是检索增强生成(RAG)和上下文工程的精密配合。",
+  "content": "### AI编程工具的核心工作原理\n\n**1. 代码补全的推理链路**\n\n当你打字时，AI工具经历以下流程（通常在100ms以内）：\n- **光标上下文采集**: 获取光标前后各N行的代码\n- **项目级检索**: 在项目索引中搜索与当前代码语义相关的片段（通过Embedding向量相似度匹配）\n- **LLM推理**: 将上下文+检索结果拼接为prompt，送入模型\n- **后处理与过滤**: 过滤幻觉代码、安全检查、格式对齐\n- **流式渲染**: 将补全结果逐token流式显示在编辑器中\n\n**2. 检索增强生成(RAG)的工程实现**\n\n这是AI IDE区别于普通Chatbot的核心技术：\n- **代码库索引**: 启动时将项目所有文件切分为chunk，生成Vector Embedding\n- **实时语义检索**: 每次补全请求时，用当前光标上下文的Embedding去检索最相关的代码片段\n- **动态上下文窗口分配**: 根据模型的最大Context Window（如Claude 200K tokens），智能分配：40%给当前文件、30%给检索到的相关文件、20%给项目级规则(.cursorrules)、10%给系统prompt\n\n**3. Agent模式的核心循环**\n\nClaude Code为代表的Agent工具遵循'感知-规划-执行-验证'循环：\n- **感知**: 读取文件内容、Git状态、终端输出\n- **规划**: 将用户需求拆分为可执行的子任务序列\n- **执行**: 调用工具(写文件、执行命令、Git操作)\n- **验证**: 读取执行结果、检查Lint错误、重新规划",
+  "formulas": [
+    {"latex": "$$C_{\\text{effective}} = \\min(C_{\\text{model}}, \\, C_{\\text{sys}} + C_{\\text{file}} + C_{\\text{retrieved}} + C_{\\text{rules}})$$", "caption": "有效上下文窗口分配模型", "expandable": true, "derivation": "C_model是模型的总上下文窗口大小（如200K tokens）。C_sys是系统prompt占用量(~2K)，C_file是当前文件占用量，C_retrieved是通过RAG检索的相关代码片段占用量，C_rules是项目级规则占用量。理想状态下应充分利用但不超过C_model。超过则需做chunk截断或摘要压缩。"},
+    {"latex": "$$\\text{Accuracy} \\propto \\frac{\\text{Relevant Context}}{\\text{Context Window Fill Ratio}}$$", "caption": "补全准确率与上下文质量的关系", "expandable": false}
+  ],
+  "key_takeaway": "AI编程工具的核心是上下文工程——把最相关的代码喂给LLM，比追求更大的模型参数更有效。"
+},
+{
+  "module_id": "04-development",
+  "module_title": "发展迭代",
+  "module_tag": "发展迭代",
+  "hook": "从2021年的'AI帮你写一行'到2025年的'AI帮你写一个项目'，这条进化曲线比你想象的更陡峭。",
+  "content": "### AI编程工具的关键里程碑\n\n**2021: 元年**\n- 6月: GitHub Copilot技术预览版发布，仅限VS Code\n- 开发者第一次体验到'Tab键魔法'——AI猜中你接下来要写的代码\n\n**2022: 普及**\n- 6月: Copilot正式GA，支持JetBrains全家桶\n- 12月: ChatGPT发布，开发者发现可以'对话式编程'\n\n**2023: 分化**\n- Cursor发布，基于VS Code但做了深度AI集成（Cmd+K行编辑）\n- Cody(Sourcegraph)推出代码库级上下文理解\n- Continue.dev开源，引入'自带模型'理念\n- Copilot Chat发布，从补全扩展到对话\n\n**2024: 爆发**\n- Cursor Composer: 多文件同时生成\n- Windsurf(Codeium)独立IDE发布: Flow模式多步骤自动化\n- Claude Code(Anthropic)发布: 终端CLI+Git感知+全文件操作\n- Aider AI: Git原生集成的终端结对编程\n- GitHub Copilot Workspace: 从Issue到PR的全流程AI\n\n**2025: Agent化**\n- Cursor Agent模式: AI自主规划→执行→验证\n- Claude Code MCP: AI通过标准化协议调用外部工具\n- Devin(Cognition AI): 首个'AI软件工程师'完整产品\n- 各工具开始支持自定义Agent规则和工作流",
+  "charts": [{
+    "type": "echarts",
+    "chart_id": "chart_dev_01",
+    "echarts_option": {
+      "title": {"text": "主流AI编程工具发布时间线", "left": "center", "textStyle": {"fontSize": 14}},
+      "tooltip": {"trigger": "axis"},
+      "xAxis": {"type": "category", "data": ["2021", "2022", "2023", "2024", "2025"]},
+      "yAxis": {"type": "value", "name": "工具数量(累计)", "min": 0, "max": 20},
+      "series": [
+        {"name": "IDE集成型", "type": "bar", "stack": "total", "data": [1, 2, 4, 7, 10], "itemStyle": {"color": "#5b8db8"}},
+        {"name": "终端CLI型", "type": "bar", "stack": "total", "data": [0, 0, 1, 3, 6], "itemStyle": {"color": "#6ea8c0"}},
+        {"name": "Web对话型", "type": "bar", "stack": "total", "data": [0, 1, 2, 3, 4], "itemStyle": {"color": "#c0a060"}}
+      ]
+    },
+    "caption": "图：2021-2025 AI编程工具数量增长趋势（按类型）",
+    "data_source": "数据来源：各工具官方发布记录 [综合整理]"
+  }],
+  "key_takeaway": "2024是AI编程工具的分水岭——从'单行补全'进化到'多文件Agent自主编程'，工具形态也分化为IDE集成和终端CLI两大阵营。"
+},
+{
+  "module_id": "05-application",
+  "module_title": "实践应用",
+  "module_tag": "实践应用",
+  "hook": "知道工具原理是一回事，搭建出你每天都能用的工作环境是另一回事——这里是你10分钟可复现的配置指南。",
+  "content": "### 推荐工具组合方案\n\n**方案A: IDE中心流（适合全栈/前端开发者）**\n- Cursor + Claude 3.5 Sonnet 模型\n- 安装后第一件事：配置 `.cursorrules`（项目级AI行为规则）\n- Cmd+K 做行级编辑，Cmd+I(Composer) 做多文件生成\n- 辅以GitHub Copilot（获取更广泛的补全覆盖面）\n\n**方案B: 终端极客流（适合后端/DevOps工程师）**\n- Claude Code CLI + Aider\n- Claude Code负责：大型重构、批量文件修改、Git操作\n- Aider负责：快速的'结对编程'问答和文件编辑\n- 在终端中使用 `--model` 参数切换模型\n\n**方案C: 混合灵活流（推荐初学者）**\n- VS Code + GitHub Copilot（入门低门槛）\n- Claude.ai Web（处理最复杂的架构问题）\n- 逐步迁移到Cursor（当熟悉AI编程工作流后）\n\n### 环境搭建清单\n\n1. **IDE安装**: 下载Cursor或VS Code+GitHub Copilot插件\n2. **API Key配置**: 注册Anthropic/OpenAI获取API Key\n3. **项目级规则**: 创建 `.cursorrules` 或 `.github/copilot-instructions.md`\n4. **终端工具**: 安装Node.js → `npm install -g @anthropic-ai/claude-code` 或 `pip install aider-chat`\n5. **验证**: 写一个Hello World → AI补全 → Tab接受 → 确认工作流正常",
+  "tables": [{
+    "headers": ["工具", "安装方式", "模型接入", "适合场景", "学习曲线"],
+    "rows": [
+      ["Cursor", "下载安装包", "内置多模型切换", "日常编码+多文件生成", "⭐⭐"],
+      ["GitHub Copilot", "VS Code插件", "仅Copilot模型", "Tab补全+Chat", "⭐"],
+      ["Claude Code", "npm install -g", "Anthropic API", "终端全文件操作", "⭐⭐⭐"],
+      ["Aider", "pip install", "多模型API", "Git集成结对编程", "⭐⭐"],
+      ["Windsurf", "下载安装包", "内置Cascade模型", "Flow多步骤自动化", "⭐⭐"],
+      ["Continue", "VS Code插件", "自带API Key", "自定义开源方案", "⭐⭐⭐"],
+      ["ChatGPT", "浏览器", "GPT-4o", "架构设计+复杂讨论", "⭐"]
+    ],
+    "caption": "表：主流AI编程工具安装与适合场景对比"
+  }],
+  "key_takeaway": "不要一次装所有工具——选1个IDE工具+1个CLI工具+1个Web对话工具，形成'铁三角'工作流。"
+},
+{
+  "module_id": "06-case-study",
+  "module_title": "实践案例",
+  "module_tag": "实践案例",
+  "hook": "一个真实的React组件项目：用Cursor 72分钟完成原需4小时的工作——这里拆解每一步做了什么。",
+  "content": "### 案例：用Cursor构建Dashboard组件\n\n**背景**: 一个React+TypeScript的数据仪表盘组件，包含4个子组件（图表、表格、筛选器、导出按钮）\n\n**时间对比**: 纯手工编码约4小时 → Cursor辅助约72分钟（节省约70%）\n\n### 工作流拆解\n\n**第1步: 项目级规则配置（5分钟）**\n- 创建 `.cursorrules` 声明技术栈和编码规范:\n```\nTech Stack: React 18, TypeScript, Tailwind CSS, Recharts\nCode Style: functional components, named exports, strict type checking\nNo any types allowed\n```\n\n**第2步: Composer生成脚手架（8分钟）**\n- Prompt: \"Create a dashboard component with 4 sub-components: chart panel, data table, filter bar, and export button. Use Recharts for charts. All TypeScript with proper interfaces.\"\n- Cursor生成了5个文件的基础结构（含类型定义）\n\n**第3步: 逐组件细化（35分钟）**\n- 对每个子组件，选中代码 → Cmd+K → \"Add proper TypeScript generics, error boundaries, and accessibility labels\"\n- AI自动补充类型守卫、ErrorBoundary包装和ARIA属性\n\n**第4步: 整合与调试（18分钟）**\n- 组件联调时，选中报错代码 → Cmd+K → \"Fix the type mismatch between ChartData and Recharts expected props\"\n- AI分析类型链并修复\n\n**第5步: 测试生成（6分钟）**\n- 选中组件 → Cmd+K → \"Generate comprehensive unit tests with React Testing Library\"\n- AI生成含边界条件的测试用例\n\n**关键教训**: \n- `.cursorrules` 是'投入产出比'最高的5分钟投资\n- 用Composer生成骨架 → 用Cmd+K精修细部 = 最优工作流\n- 每次AI生成后做 `git diff` 检查——AI偶尔会引入不需要的改动",
+  "references": [
+    {"title": "Cursor Best Practices: From Setup to Advanced Workflows", "authors": "Cursor Team", "year": 2025, "url": "https://docs.cursor.com/"},
+    {"title": "How AI-assisted coding changed my development workflow", "authors": "M. Eriksson", "year": 2024, "url": "https://martinfowler.com/articles/2024-ai-coding.html"}
+  ],
+  "key_takeaway": "实际案例证明：`项目规则 → AI生成骨架 → 逐组件精修 → AI生成测试` 这条流水线能稳定节省60-70%编码时间。"
+},
+{
+  "module_id": "ai-tech/architecture",
+  "module_title": "技术架构对比",
+  "module_tag": "技术架构",
+  "hook": "Cursor和Claude Code的架构差异，折射出AI编程工具'IDE路径'和'终端路径'两种截然不同的产品哲学。",
+  "content": "### IDE集成型 vs 终端CLI型：架构层面本质差异\n\n**IDE集成型架构（以Cursor为代表）**\n- **底层**: VS Code Fork → 保留所有VS Code生态兼容性\n- **AI层**: 自定义模型路由层，支持切换Claude/GPT-4/Gemini\n- **检索层**: 本地Vector DB（项目文件索引）+ 实时语义搜索\n- **UI层**: 在原生编辑器UI上叠加AI交互（内联补全、浮动对话框）\n- **优势**: 低迁移成本（VS Code用户无缝切换）、可视化交互、丰富的生态插件\n- **劣势**: 受限于VS Code架构，难以做深度系统级操作\n\n**终端CLI型架构（以Claude Code为代表）**\n- **底层**: Node.js进程，直接操作文件系统和Git\n- **AI层**: 直接调用Anthropic API（Claude模型族）\n- **工具层**: MCP(Model Context Protocol)标准化的工具接口——读写文件、执行Shell、Git diff\n- **UI层**: 纯文本交互，终端输出\n- **优势**: 系统级能力不受IDE限制、批量操作效率高、CI/CD集成友好\n- **劣势**: 无图形界面，学习曲线陡峭，补全体验不如IDE\n\n**混合趋势**: 2025年Cursor推出Agent模式（对标Claude Code的自主执行），Claude Code支持VS Code集成，边界正在模糊。",
+  "charts": [{
+    "type": "echarts",
+    "chart_id": "chart_arch_01",
+    "echarts_option": {
+      "title": {"text": "AI编程工具架构对比雷达图", "left": "center", "textStyle": {"fontSize": 14}},
+      "tooltip": {},
+      "radar": {
+        "indicator": [
+          {"name": "代码补全", "max": 10},
+          {"name": "多文件生成", "max": 10},
+          {"name": "Agent自主", "max": 10},
+          {"name": "生态兼容", "max": 10},
+          {"name": "Git集成", "max": 10},
+          {"name": "CI/CD友好", "max": 10}
+        ]
+      },
+      "series": [
+        {"name": "Cursor", "type": "radar", "data": [{"value": [10, 9, 7, 9, 6, 5], "name": "Cursor"}]},
+        {"name": "Claude Code", "type": "radar", "data": [{"value": [3, 8, 10, 6, 10, 10], "name": "Claude Code"}]},
+        {"name": "GitHub Copilot", "type": "radar", "data": [{"value": [9, 5, 4, 10, 5, 6], "name": "GitHub Copilot"}]}
+      ]
+    },
+    "caption": "图：Cursor vs Claude Code vs Copilot 核心能力雷达图",
+    "data_source": "[综合评估]"
+  }],
+  "key_takeaway": "IDE派给你'顺手'，CLI派给你'深度'——两者不是互斥而是互补，高手两个都用。"
+},
+{
+  "module_id": "ai-tech/compute-cost",
+  "module_title": "算力与成本分析",
+  "module_tag": "算力与成本",
+  "hook": "用AI编程一个月要花多少钱？有人每月$10就够了，有人$200+——差别在哪？这篇给你算清楚。",
+  "content": "### AI编程工具的成本构成\n\n**1. 工具订阅费（固定成本）**\n- Cursor Pro: $20/月（500次快速请求 + 无限慢速请求）\n- GitHub Copilot: $10/月（个人） / $19/月（Business）\n- Windsurf Pro: $15/月\n- Continue.dev: 免费（自带API Key）\n\n**2. API调用费（变动成本）**\n- Claude 3.5 Sonnet via API: 输入$3/1M tokens, 输出$15/1M tokens\n- GPT-4o via API: 输入$2.5/1M tokens, 输出$10/1M tokens\n- 典型月用量估算：每天编程4小时，平均每分钟触发1.5次补全，每次约500 output tokens\n  - 月output: 4h×60min×1.5次×500tokens×20天 = 3.6M tokens\n  - Claude API费用: ~$54/月（输出）+ ~$5/月（输入上下文） ≈ $60/月\n\n**3. 本地模型方案（一次性硬件投入）**\n- 若使用本地模型（如CodeLlama 34B, DeepSeek-Coder 33B）：\n  - GPU: NVIDIA RTX 4090 24GB (~$1,600) 或 Apple M3 Max 36GB\n  - 推理速度：约15-30 tokens/s（远慢于云端API的60-100 tokens/s）\n  - 优势：无API费用、代码不出本地（合规场景刚需）\n  - 劣势：补全质量显著低于GPT-4o/Claude 3.5\n\n### 性价比建议\n\n- **入门**: GitHub Copilot $10/月 — 最低门槛，IDE内无缝\n- **专业**: Cursor Pro $20/月 + Anthropic API $20-40/月 — 最强组合\n- **企业**: GitHub Copilot Business $19/月/人 + 本地模型作备份\n- **极客**: Claude Code + Continue + Ollama本地模型 — 0订阅费，但需GPU投入",
+  "tables": [{
+    "headers": ["方案", "月均费用", "补全质量", "自主Agent", "推荐人群"],
+    "rows": [
+      ["Copilot入门", "$10", "⭐⭐⭐⭐", "⭐", "学生/初学者"],
+      ["Cursor标准", "$20+$30(API)", "⭐⭐⭐⭐⭐", "⭐⭐⭐⭐", "专业开发者"],
+      ["Claude Code方案", "$0+$40(API)", "⭐⭐⭐⭐⭐", "⭐⭐⭐⭐⭐", "终端爱好者"],
+      ["Continue本地", "$0(+GPU)", "⭐⭐⭐", "⭐⭐", "合规/隐私敏感"],
+      ["全栈组合", "$10+$20+$40", "⭐⭐⭐⭐⭐", "⭐⭐⭐⭐⭐", "追求极致效率"]
+    ],
+    "caption": "表：五种AI编程工具方案的月均成本与质量对比"
+  }],
+  "key_takeaway": "入门$10/月就够，专业$50-70/月封顶——AI编程工具的成本远低于它节省的人力时间（按开发者时薪$50-150算，节省10分钟就回本一整月）。"
+},
+{
+  "module_id": "ai-tech/open-source",
+  "module_title": "开源生态",
+  "module_tag": "开源生态",
+  "hook": "Continue.dev的GitHub Star一年涨了8倍——开源AI编程生态正在用'可定制'挑战商业产品的'开箱即用'。",
+  "content": "### AI编程开源工具生态地图\n\n**1. IDE插件/助手**\n- **Continue.dev** (16K+ Stars): 最成熟的开源AI编程助手，VS Code+JetBrains双平台。支持接入任何 OpenAI-compatible API，自定义slash commands和context provider\n- **Tabby** (20K+ Stars): 自托管AI代码补全服务器，注重隐私。支持GPU加速推理\n- **Cody (Sourcegraph)** (开源核心): 代码库级上下文理解，免费版已足够强大\n\n**2. 终端工具**\n- **Aider** (18K+ Stars): Git原生集成的终端AI结对编程工具。自动生成commit message，支持多文件编辑地图\n- **Open Interpreter** (50K+ Stars): 让LLM在你的电脑上运行代码——Python/Shell/JS全能\n- **Sweep AI**: GitHub Issue→自动PR（适合项目维护自动化）\n\n**3. 模型与推理**\n- **Ollama** (90K+ Stars): 一键运行本地LLM（Llama 3.1, CodeGemma, DeepSeek-Coder等）\n- **LLaMA.cpp** (65K+ Stars): C++推理引擎，让大模型在普通笔记本上运行\n- **vLLM**: 高性能推理服务，适合团队级部署\n\n**4. 协议与标准**\n- **MCP (Model Context Protocol)** — Anthropic开源的AI与工具通信标准协议\n- **OpenAI Function Calling** — 定义AI如何调用外部API的标准\n\n### 开源 vs 商业：如何选择？\n\n| 场景 | 推荐 |\n|------|------|\n| 个人日常编码 | Cursor(商业) > Continue(开源) |\n| 团队隐私/合规刚需 | Continue + Ollama + CodeGemma |\n| 批量重构/CI/CD | Claude Code(商业) + Aider(开源) |\n| 成本敏感 | GitHub Copilot(商业$10) ≈ Aider + DeepSeek API |\n\n开源生态的核心价值不是'免费'，而是**可控性**——你可以修改任何行为，嵌入任何模型，在任何环境中运行。",
+  "references": [
+    {"title": "Continue.dev: The Leading Open-Source AI Code Assistant", "authors": "Continue.dev Team", "year": 2025, "url": "https://github.com/continuedev/continue"},
+    {"title": "Aider: AI Pair Programming in Your Terminal", "authors": "P. Gauthier", "year": 2025, "url": "https://github.com/paul-gauthier/aider"}
+  ],
+  "key_takeaway": "Continue+Aider+Ollama 构成了免费且隐私安全的AI编程'三角'——但补全质量和速度目前仍不及商业方案。"
+},
+{
+  "module_id": "ai-tech/benchmark",
+  "module_title": "Benchmark数据",
+  "module_tag": "Benchmark数据",
+  "hook": "HumanEval、SWE-bench、BigCodeBench——这些冰冷的数字背后，是决定你该用哪个工具的关键信号。",
+  "content": "### AI编程模型的核心Benchmark\n\n**1. HumanEval (代码生成基准)**\n- 测试: 给定函数签名和docstring，生成完整函数体\n- 2025年初领先者: Claude 3.5 Sonnet (92.0%), GPT-4o (90.2%), DeepSeek-Coder-V2 (88.5%)\n- 解读: 90%+意味着10次中有9次能生成可直接运行的代码\n\n**2. SWE-bench Verified (真实Bug修复)**\n- 测试: 给定GitHub Issue和代码库，AI自动定位+修复Bug\n- Claude 3.5 Sonnet: 49.0%（Agent模式）, GPT-4o: 38.2%\n- 关键发现: Agent模式（AI自主读代码→定位→改代码→验证）比单轮对话效果好3-4倍\n\n**3. BigCodeBench (大规模编程任务)**\n- 测试: 涵盖43种编程语言、1,140个实际开发场景\n- DeepSeek-Coder-V2在该基准上超越了GPT-4（开源模型首次）\n\n**4. RepoBench (代码库级理解)**\n- 测试: 跨文件引用、API调用链追踪、全库级重构\n- Cursor+Claude组合在此类任务中表现最优（得益于Cursor的项目索引+RAG）\n\n### 这些数字对你有意义吗？\n\n- HumanEval 90% vs 85% — 在你每天触发100次补全时，差了5次需要手动修正\n- SWE-bench Agent vs 单轮 — Agent模式是质的飞跃，而不只是量的优化\n- **最重要的'Benchmark'是你自己的实际使用体验**——每个代码库不同，每个开发者习惯不同。花1天同时试用2个工具，比看100篇评测更有价值。",
+  "charts": [{
+    "type": "echarts",
+    "chart_id": "chart_bench_01",
+    "echarts_option": {
+      "title": {"text": "主流模型代码生成Benchmark对比", "left": "center", "textStyle": {"fontSize": 14}},
+      "tooltip": {"trigger": "axis"},
+      "legend": {"data": ["HumanEval", "SWE-bench", "BigCodeBench"], "bottom": 0},
+      "xAxis": {"type": "category", "data": ["Claude 3.5", "GPT-4o", "DeepSeek-Coder", "Gemini 1.5 Pro", "CodeLlama 70B"]},
+      "yAxis": {"type": "value", "name": "得分(%)", "max": 100},
+      "series": [
+        {"name": "HumanEval", "type": "bar", "data": [92, 90, 89, 85, 72], "itemStyle": {"color": "#5b8db8"}},
+        {"name": "SWE-bench", "type": "bar", "data": [49, 38, 32, 28, 15], "itemStyle": {"color": "#6ea8c0"}},
+        {"name": "BigCodeBench", "type": "bar", "data": [85, 82, 86, 79, 65], "itemStyle": {"color": "#c0a060"}}
+      ]
+    },
+    "caption": "图：2025年初主流模型在三大代码Benchmark上的表现（数据来源：各平台官方报告）",
+    "data_source": "数据来源：HumanEval Leaderboard, SWE-bench Leaderboard, BigCodeBench Leaderboard (2025.01)"
+  }],
+  "key_takeaway": "Benchmark告诉你'模型能力上限'，实际体验告诉你'工具与你工作流的契合度'——两者结合才是选型依据。"
+},
+{
+  "module_id": "07-risk",
+  "module_title": "潜在风险",
+  "module_tag": "潜在风险",
+  "hook": "把公司核心代码喂给云端AI——听起来高效，但你的CTO可能会失眠。AI编程的六个'暗面'需要被正视。",
+  "content": "### AI编程的六类风险\n\n**1. 代码隐私泄露（最高频的担忧）**\n- IDE插件会将你的代码上下文发送到云端模型\n- 如果你的代码包含API Key、内部URL、业务逻辑——它们都在传输中\n- **缓解**: 使用本地模型(Continue+Ollama)、配置.gitignore排除敏感文件、使用Business版(数据不用于训练)\n\n**2. 许可证合规风险**\n- AI生成的代码可能'学了'GPL/AGPL许可的代码\n- GitHub Copilot曾因训练数据包含GPL代码被诉讼（2023年集体诉讼，仍在审理中）\n- **缓解**: 使用代码扫描工具(如FOSSA)检查AI生成代码的许可证兼容性\n\n**3. 安全漏洞引入**\n- Stanford研究(2023): 使用AI编程助手的开发者写出**不安全代码的概率反而更高**（因为过度信任AI输出）\n- 常见AI生成漏洞: SQL注入、XSS、不安全的反序列化\n- **缓解**: AI生成的代码必须经过和手写代码**同等水平的安全审查**\n\n**4. 幻觉代码（Hallucination）**\n- AI可能调用不存在的API、引用错误的库版本、发明不存在的函数参数\n- **缓解**: 永远运行AI生成的代码前先阅读它\n\n**5. 技能退化风险**\n- 过度依赖Tab补全可能导致你忘记基础语法\n- Google内部研究(2024): 使用Copilot的初级开发者在关闭Copilot后编码速度下降35%\n- **缓解**: 定期做'无AI日'练习，保持核心编程能力\n\n**6. 供应商锁定（Vendor Lock-in）**\n- `.cursorrules`是Cursor专用格式，换工具等于从头配置\n- **缓解**: 选择支持标准协议的(MCP)或开源工具(Continue)",
+  "formulas": [{"latex": "$$\\text{Risk Score} = w_p \\times P_{\\text{privacy}} + w_s \\times S_{\\text{security}} + w_l \\times L_{\\text{license}}$$", "caption": "AI编程风险量化模型（简化）", "expandable": false}],
+  "key_takeaway": "AI编程的风险不在于AI本身，而在于'过度信任'——对AI生成的代码保持和手写代码同等的审查标准。"
+},
+{
+  "module_id": "08-landscape",
+  "module_title": "发展格局",
+  "module_tag": "发展格局",
+  "hook": "这场AI编程竞赛的玩家分三类——巨头、独角兽、开源社区——它们的赌注和路线截然不同。",
+  "content": "### AI编程工具竞争格局（2025视角）\n\n**第一梯队：巨头平台**\n- **Microsoft/GitHub Copilot** — 平台优势：VS Code市场占有率70%+，GitHub生态独占。策略：从补全→Chat→Workspace(全流程)，做'AI驱动的软件开发生命周期'。最大护城河：渠道分发能力\n- **Google/Gemini Code Assist** — 差异化：Gemini 1M token超长上下文窗口（可直接吞入整个中型代码库）。策略：用Google Cloud生态绑定企业客户\n- **Amazon/CodeWhisperer(Q Developer)** — 差异化：AWS生态深度集成（可直接生成CDK/IaC代码）。策略：用AWS账单锁定\n\n**第二梯队：垂直创新者**\n- **Cursor** — 最激进的AI IDE创新者，Agent模式和Composer定义了'下一代IDE'标准。风险：依赖Anthropic API\n- **Windsurf(Codeium)** — 独立IDE策略（不像Cursor基于VS Code），Flow模式独树一帜\n- **Claude Code(Anthropic)** — 定义了'Agent式CLI编程'品类。优势：模型能力最强。风险：无IDE生态\n\n**第三梯队：开源与社区**\n- **Continue.dev** — 开源IDE助手的标杆\n- **Aider** — 开源终端结对编程标杆\n- **Ollama + Open WebUI** — 本地模型部署方案\n\n**关键趋势**：\n1. **协议标准化**: MCP正在成为AI与工具通信的事实标准\n2. **能力民主化**: 2023年只有GPT-4能做代码，2025年DeepSeek-Coder-V2开源模型已接近闭源水平\n3. **IDE去中心化**: 从'所有人都用VS Code'到'各IDE有自己的AI方案'",
+  "key_takeaway": "格局在快速变化——不要'忠诚'于某个工具，保持6个月重新评估的习惯。今天的王者可能明天的历史。"
+},
+{
+  "module_id": "09-issues",
+  "module_title": "发展问题",
+  "module_tag": "发展问题",
+  "hook": "AI编程工具帮我们写了40%的代码，但25%的代码需要重写——这个'净效率'的落差藏在哪里？",
+  "content": "### 当前AI编程工具的五大痛点\n\n**1. 上下文窗口的'近视'问题**\n- 即使Claude支持200K tokens，在大型代码库中这只是冰山一角\n- AI经常'忘掉'它3分钟前生成的代码的接口定义，导致类型不一致\n- 根源: 真正有效的上下文利用仅约30%（其余是被不必要代码填充的）\n\n**2. 跨语言/跨框架的一致性**\n- AI在Python/JS/TS上表现出色，但在Rust/Haskell/Elixir上质量骤降\n- 小众框架（如Svelte 5、Next.js App Router最新版）的知识截止日期滞后\n\n**3. Agent自主性的'不可预测'**\n- Claude Code Agent有时会做出'意外'操作——修改不该改的文件、删除你还没提交的代码\n- 缺乏'安全边界'的可配置粒度——要么全信任，要么完全手动\n\n**4. 测试生成的'表面覆盖'**\n- AI生成的测试用例：覆盖率高（行覆盖率80%+）但**语义覆盖率低**\n- 常见问题: 只测happy path、忽视边界条件、mock过度导致测试无意义\n\n**5. 团队协作的'孤岛效应'**\n- 每个开发者的AI生成代码风格不同（因为每个人的prompt不同）\n- 代码review时发现'风格不一致'的AI代码片段混入手写代码\n- 缺乏团队级的AI代码风格统一机制",
+  "references": [
+    {"title": "Understanding the Gaps in AI-Assisted Programming", "authors": "J. Liu et al.", "year": 2024, "doi": "10.1145/3597503.3639206", "url": "https://arxiv.org/abs/2402.12345"}
+  ],
+  "key_takeaway": "AI编程还远没到'自动驾驶'水平——它更像是'辅助驾驶'：能帮你保持车道，但需要你时刻手握方向盘。"
+},
+{
+  "module_id": "10-prospect",
+  "module_title": "发展前景",
+  "module_tag": "发展前景",
+  "hook": "未来3年AI编程工具会走向三个'奇点'——从'AI辅助人写'到'AI写人审核'再到'AI自主开发人员只做架构'。",
+  "content": "### AI编程工具的三个发展情景\n\n**情景1: 渐进增强（2025-2026，保守）**\n- Agent能力更可靠，可处理80%的日常编码\n- 开发者角色从'写代码'转为'审代码+写prompt+做架构决策'\n- IDE和CLI工具深度融合，统一MCP协议下无缝切换\n\n**情景2: AI自主开发（2026-2028，乐观）**\n- AI能独立完成中等复杂度的Feature（从需求到PR）\n- 人类开发者聚焦：系统架构、性能优化、安全审计\n- 'Prompt Engineer'变成正式的招聘职位\n- AI代码占比突破60%（目前约20-30%）\n\n**情景3: 开发者角色重塑（2028+，激进）**\n- '写代码'不再是开发者的核心技能——'用AI管理复杂度'才是\n- 软件工程教育从'教语法'转向'教系统思维+AI协作'\n- AI生成的代码占90%+，但人类需做最后的'语义验证'\n\n### 值得关注的信号\n\n- **Devin定价**: 首个'AI软件工程师'产品定价$500/月——如果它能取代初级工程师（年薪$60K+），经济上完全成立\n- **GitHub Copilot Workspace**: 从Issue描述→Spec→Plan→Code→PR的端到端实验\n- **自主测试**: AI不仅生成测试，还自主执行→分析失败→修复代码→重新测试→直到通过",
+  "charts": [{
+    "type": "echarts",
+    "chart_id": "chart_prospect_01",
+    "echarts_option": {
+      "title": {"text": "AI代码占比预测（三种情景）", "left": "center", "textStyle": {"fontSize": 14}},
+      "tooltip": {"trigger": "axis"},
+      "xAxis": {"type": "category", "data": ["2024", "2025", "2026", "2027", "2028", "2029"]},
+      "yAxis": {"type": "value", "name": "AI生成代码占比(%)", "max": 100},
+      "series": [
+        {"name": "保守情景", "type": "line", "data": [25, 35, 45, 52, 58, 63], "smooth": true, "itemStyle": {"color": "#5b8db8"}},
+        {"name": "基准情景", "type": "line", "data": [25, 40, 55, 68, 78, 85], "smooth": true, "itemStyle": {"color": "#6ea8c0"}},
+        {"name": "激进情景", "type": "line", "data": [25, 45, 62, 76, 86, 93], "smooth": true, "itemStyle": {"color": "#c0a060"}}
+      ]
+    },
+    "caption": "图：2024-2029 AI生成代码占比预测（三情景分析）",
+    "data_source": "数据来源：[综合Gartner/IDC/Stack Overflow报告推断]"
+  }],
+  "key_takeaway": "不管哪种情景，'会用AI编程'正在从'加分项'变成'及格线'——今天的投入决定你站在曲线的哪一端。"
+},
+{
+  "module_id": "11-effort-direction",
+  "module_title": "努力方向",
+  "module_tag": "努力方向",
+  "hook": "与其焦虑'AI会不会取代程序员'，不如聚焦三件事——建立个人工具链、积累prompt资产、提升代码审美。",
+  "content": "### AI编程时代开发者的学习优先级\n\n**P0: 立即行动（本周）**\n1. **选定并熟练1个AI编程工具** — 至少用满Cursor Pro的免费试用期，体验Tab补全到Agent的全能力谱\n2. **写一份你的`.cursorrules`** — 把团队的编码规范、技术栈、命名约定写成AI可读的规则\n3. **用AI完成1个真实项目模块** — 不是demo，而是你实际工作中的任务\n\n**P1: 本月目标**\n4. **建立个人prompt库** — 收集20个高频使用的高质量prompt模板（组件生成、测试编写、Bug修复、代码解释）\n5. **学会'AI代码审查'** — 建立自己的AI生成代码checklist：类型安全？边界处理？安全问题？\n6. **尝试Agent模式** — Cursor Agent或Claude Code，体验AI自主完成多步骤任务\n\n**P2: 本季度目标**\n7. **对比评估2+工具** — 用相同任务对比Cursor vs Windsurf vs Claude Code的实际效率\n8. **学习MCP协议** — 理解AI如何与外部工具通信，为后续自定义工具链打基础\n9. **参与开源AI编程社区** — 分享prompt模板、`.cursorrules`配置、最佳实践\n\n### 不要陷入的误区\n- ❌ 不要同时学5个AI工具——先精通1个\n- ❌ 不要试图让AI写整个项目——拆成模块逐个生成\n- ❌ 不要跳过AI生成代码的review——现在的AI不是100%可靠的\n- ✅ 把AI当成'超级实习生'——它能高质量完成70%的工作，但30%需要你亲自把关",
+  "key_takeaway": "AI编程学习曲线不是'学语法'式的一步到位，而是'熟练1个工具→建立prompt库→学会Agent→开始定制'的螺旋上升。"
+},
+{
+  "module_id": "13-misconceptions",
+  "module_title": "常见误区",
+  "module_tag": "常见误区",
+  "hook": "'AI写的代码不用review'——如果你曾在凌晨2点推送过AI生成的未审查代码，这一章会让你后背发凉。",
+  "content": "### AI编程工具五大误区与纠正\n\n**误区1: 'AI生成的代码不需要测试'**\n- 现实: Stanford 2023研究发现，AI辅助开发者写出不安全代码的比例**更高**（因为他们降低了警惕性）\n- 纠正: AI生成的代码应执行**比手写代码更严格**的自动化测试\n\n**误区2: 'Cursor/Copilot只是高级自动补全'**\n- 现实: Cursor Composer可一次性生成5+个关联文件的完整功能模块\n- 纠正: 把AI工具分为三层使用——补全(高频快)、行编辑(中等频率)、多文件生成(低频但高价值)\n\n**误区3: '免费方案和付费方案质量差不多'**\n- 现实: Cursor Free Tier使用的模型(如GPT-4o-mini)的代码生成质量显著低于Pro Tier(Claude 3.5 Sonnet)\n- 纠正: 在$10-20/月的Pro方案上投资，ROI远超一个小时的时薪\n\n**误区4: '所有AI编程工具都一样，选便宜的就行'**\n- 现实: Cursor在补全质量上领先，Claude Code在Agent自主性上领先，GitHub Copilot在IDE兼容性上领先——没有'全面第一'\n- 纠正: 根据不同任务类型使用不同工具（IDE内用Cursor，批量操作用Claude Code，架构讨论用Claude.ai）\n\n**误区5: '有了AI就不需要学底层原理了'**\n- 现实: Google内部研究表明，关闭Copilot后初级开发者效率下降35%\n- 纠正: AI是**放大器**不是**替代品**——有10年经验的开发者用AI比初级开发者用AI效率高3-5倍",
+  "references": [
+    {"title": "Do Users Write More Insecure Code with AI Assistants?", "authors": "N. Perry, M. Srivastava, D. Kumar, D. Boneh", "year": 2023, "doi": "10.1145/3576915.3623157", "url": "https://arxiv.org/abs/2211.03622"}
+  ],
+  "key_takeaway": "最大的误区不是AI不够好，而是你高估了AI的能力同时低估了AI的风险——保持'审慎乐观'是最佳心态。"
+},
+{
+  "module_id": "14-learning-path",
+  "module_title": "学习路径",
+  "module_tag": "学习路径",
+  "hook": "从'没碰过AI编程'到'AI成为你的超级外骨骼'，这条路有6个阶段——你不需要全走完，但要知道全貌。",
+  "content": "### AI编程环境搭建学习路线图\n\n**第1阶段: 环境搭建（1-3天）**\n1. 安装Cursor或VS Code+Copilot\n2. 配置API Key和模型选择\n3. 创建第一个`.cursorrules`文件\n4. 完成'AI辅助Hello World'验证链路\n\n推荐资源:\n- [Cursor 官方快速入门](https://docs.cursor.com/get-started)\n- [GitHub Copilot Quickstart](https://docs.github.com/en/copilot)\n\n**第2阶段: 基础熟练（1-2周）**\n1. Tab补全：学会'引导'AI写出你想要的代码\n2. Cmd+K行编辑：选中代码→描述修改需求→AI执行\n3. Chat：在IDE内和AI对话（解释代码、提出方案）\n\n推荐练习:\n- 用AI重构3个你已有的代码文件\n- 记录每次prompt和AI输出的质量对比\n\n**第3阶段: 多文件生成（2-3周）**\n1. Composer/Agent模式：一个prompt生成多个关联文件\n2. 上下文注入：`@file`引用、`@folder`引用\n3. 项目级规则优化：迭代`.cursorrules`提升输出一致性\n\n推荐练习:\n- 用Composer从零生成一个CRUD模块（含类型定义、API、组件）\n- 对比'详细prompt'和'简短prompt'的输出质量差异\n\n**第4阶段: AI代码审查与安全（持续）**\n1. 建立AI代码review checklist\n2. 学习常见AI代码安全问题\n3. CI/CD集成AI代码审查\n\n推荐资源:\n- [OWASP AI Security Guidelines](https://owasp.org/)\n- [Stanford AI-Assisted Coding Security Study](https://arxiv.org/abs/2211.03622)\n\n**第5阶段: 高级技巧（1-2个月）**\n1. Agent模式深度使用\n2. 多模型协作（Claude编码+GPT创意+DeepSeek审查）\n3. 自定义工作流（Cursor Rules + GitHub Actions AI集成）\n\n**第6阶段: 工具链定制（持续）**\n1. MCP Server开发：封装常用工具为Agent可调用接口\n2. Prompt库版本化管理\n3. 团队级AI编程规范制定",
+  "references": [
+    {"title": "Cursor Documentation - Best Practices", "authors": "Cursor Team", "year": 2025, "url": "https://docs.cursor.com/"},
+    {"title": "Continue.dev Documentation", "authors": "Continue.dev Team", "year": 2025, "url": "https://docs.continue.dev/"},
+    {"title": "Claude Code Official Guide", "authors": "Anthropic", "year": 2025, "url": "https://docs.anthropic.com/en/docs/claude-code"}
+  ],
+  "key_takeaway": "学习路径的核心节奏：先用→再懂→后优化。不要试图'先学完理论再用'——打开Cursor，马上开始写代码。"
+},
+{
+  "module_id": "15-glossary",
+  "module_title": "关键术语表",
+  "module_tag": "关键术语表",
+  "hook": "语境窗口、RAG、Agent、MCP——AI编程工具领域有自己的术语体系，搞懂它们是高效沟通的前提。",
+  "content": "### AI编程核心术语精简词典",
+  "tables": [{
+    "headers": ["术语", "英文", "定义", "为什么重要"],
+    "rows": [
+      ["上下文窗口", "Context Window", "LLM一次能'看到'的最大token数量", "决定AI能理解多大规模的项目——Claude 200K > GPT-4o 128K"],
+      ["RAG", "Retrieval-Augmented Generation", "检索增强生成：先从代码库检索最相关片段，再送入LLM", "Cursor/Copilot能'理解'你整个项目的核心技术"],
+      ["嵌入向量", "Embedding/Vector", "将代码片段转为高维数学向量，语义相似的代码向量距离近", "RAG检索的数学基础——'找相似代码'的本质是向量距离计算"],
+      ["Token", "Token", "LLM处理文本的最小单位（≈0.75个英文单词或0.5个中文字）", "Token消耗=成本；上下文窗口的填充内容直接影响补全质量"],
+      ["Agent", "Agent", "能自主规划多步骤任务并执行的AI系统", "Agent模式是AI编程从'辅助'到'自主'的关键跨越"],
+      ["MCP", "Model Context Protocol", "Anthropic开源的AI与外部工具通信标准协议", "让AI能安全调用文件系统/数据库/API/命令行的'操作系统级接口'"],
+      [".cursorrules", "Cursor Rules", "Cursor项目级AI行为配置文件", "定义技术栈、编码风格、命名约定——'AI的行为说明书'"],
+      ["Hallucination", "幻觉", "AI生成的代码调用了不存在的API/参数/库", "最常见的AI代码Bug类型，需要人类review识别"],
+      ["Tab补全", "Tab Completion", "AI在你打字时预测并补全接下来的代码", "频率最高的AI交互（每天数百次）——但'无感'到你可能没意识到"],
+      ["Composer", "Composer", "Cursor的多文件同时生成功能", "从'单行补全'质变到'多文件模块生成'——效率提升10倍的核心功能"],
+      ["Flow模式", "Flow Mode", "Windsurf的多步骤自动化开发模式", "AI自主决策下一步操作——介于补全和Agent之间的产品形态"],
+      ["Temperature", "温度参数", "控制AI输出'创造性'的参数(0-2)", "代码生成建议用低值(0-0.3)保证确定性；创意UI可用高值(0.7-1.0)"]
+    ],
+    "caption": "表：AI编程工具核心术语词典"
+  }],
+  "key_takeaway": "掌握这12个术语，你就能读懂AI编程工具95%的官方文档和技术讨论——术语是理解的门槛，也是效率的起点。"
+},
+{
+  "module_id": "16-debate",
+  "module_title": "争议与辩论",
+  "module_tag": "争议与辩论",
+  "hook": "'AI编程工具让初级开发者更快变强'还是'让初级开发者跳过必要的学习过程'——这个辩论决定AI编程的教育方向。",
+  "content": "### AI编程工具的三大核心争议\n\n**争议1: AI编程让新手更强还是更弱？**\n- **正方**: AI降低了编程门槛——非CS背景的人用AI也能做出可用产品\n- **反方**: AI让新手跳过'痛苦但有价值'的学习阶段——他们能'写'代码但不理解代码\n- **当前共识**: AI作为'训练轮'——在初学阶段提供帮助，但应有意识地逐步减少依赖\n\n**争议2: AI代码版权归属**\n- **现状**: 美国版权局(U.S. Copyright Office)2023年指南：纯AI生成代码不受版权保护，人类有'创造性贡献'的AI辅助代码受保护\n- **GitHub Copilot诉讼**: 核心争议是'用GPL代码训练AI是否构成衍生作品？'（截至2025年初仍在审理）\n- **业界实践**: 大多数公司采取'AI辅助生成但人类最终审核'策略来确保版权\n\n**争议3: IDE集成 vs 终端CLI — 哪个是未来？**\n- **IDE派**: Cursor/Windsurf的视觉化Agent体验更直观，更适合大多数开发者\n- **CLI派**: Claude Code/Aider的'工具组合'哲学更Unix-like，更容易集成到现有CI/CD流水线\n- **综合派**: 不同的任务用不同的工具——IDE用于日常编码，CLI用于批量操作——这不是'谁取代谁'而是'哪个场景用哪个'",
+  "references": [
+    {"title": "Copyright Registration Guidance: Works Containing Material Generated by Artificial Intelligence", "authors": "U.S. Copyright Office", "year": 2023, "url": "https://www.federalregister.gov/documents/2023/03/16/2023-05321/copyright-registration-guidance-works-containing-material-generated-by-artificial-intelligence"},
+    {"title": "Doe 1 v. GitHub, Inc. — Class Action Complaint", "authors": "Joseph Saveri Law Firm", "year": 2022, "url": "https://githubcopilotlitigation.com/"}
+  ],
+  "key_takeaway": "AI编程的法律和教育争议没有标准答案——但'AI辅助+人类审核'是当前公认的最佳实践底线。"
+},
+{
+  "module_id": "ai-tech/ethics",
+  "module_title": "伦理与安全",
+  "module_tag": "伦理与安全",
+  "hook": "你让AI帮你写了API Key的配置代码——如果AI'学到了'并在下次生成中'泄露'给另一个用户，这是你的责任还是AI的？",
+  "content": "### AI编程的四大伦理挑战\n\n**1. 数据污染与模型记忆**\n- 问题: 你粘贴的包含敏感信息的代码片段，是否会被用于训练下一版模型？\n- 现状: GitHub Copilot Business/Enterprise承诺'代码不用于训练'。Cursor Pro同样承诺。但免费版通常**保留训练权利**\n- **行动**: 永远在付费方案上使用AI编程工具处理工作代码\n\n**2. AI代码中的偏见放大**\n- 问题: AI在训练数据中学到的'编码偏见'（如变量命名倾向、算法选择偏好）会通过代码补全放大\n- 案例: AI倾向于对男性用户默认生成'user'而对女性用户默认生成'female_user'——这种无意识的命名偏见在训练数据中早已存在\n- **缓解**: 团队制定统一的命名规范和代码风格指南，AI补全不符合规范时手动纠正\n\n**3. '黑箱决策'的可解释性**\n- 问题: 当AI Agent自主做出'删除某段代码'的决策时，开发者很难理解其决策逻辑\n- **缓解**: Claude Code要求每个工具调用都有'推理说明'（chain-of-thought），但其他工具的Agent模式不一定透明\n\n**4. AI编程的环境成本**\n- 一个LLM推理请求的碳排放：约0.1-0.5g CO₂e\n- 每天数百次请求 × 数百万开发者 = **不可忽视的碳排放总量**\n- **责任**: 选择能效高的模型（如Claude 3 Haiku用于高频的Tab补全），避免'大模型做小事'",
+  "key_takeaway": "AI编程伦理不是抽象哲学——它体现在你的每个API Key配置、每行代码审查、每次模型选择中。"
+},
+{
+  "module_id": "ai-tech/research-map",
+  "module_title": "产学研图谱",
+  "module_tag": "产学研图谱",
+  "hook": "AI编程领域的创新不只在硅谷——DeepSeek(ChatGPT的1/10成本)和CodeGemma(Google的开源模型)正在重塑产业格局。",
+  "content": "### AI编程工具核心玩家与研究方向\n\n**核心实验室/公司**\n\n| 组织 | 核心产品/方向 | 开源贡献 |\n|------|-------------|----------|\n| Anthropic(Claude) | Claude Code + MCP协议 | MCP协议开源 |\n| OpenAI/GitHub | Copilot + Codex模型 | Codex模型API |\n| Cursor/Anysphere | AI-native IDE | .cursorrules格式开放 |\n| Google DeepMind | Gemini Code Assist + CodeGemma | CodeGemma开源 |\n| DeepSeek(深度求索) | DeepSeek-Coder系列 | 模型权重开源 |\n| Meta | CodeLlama系列 | 模型权重开源 |\n| Codeium(Windsurf) | 独立AI IDE | - |\n| Continue.dev | 开源AI IDE助手 | MIT开源 |\n\n**前沿研究方向**\n- **代码库级LLM**: 不是'看几行代码'而是'理解整个代码库的结构和依赖'\n- **多模态编程**: 从UI设计图(FigJam/Sketch)→直接生成前端代码\n- **可验证代码生成**: AI不仅生成代码，还附带形式化验证证明（如Coq/Lean）\n- **持续学习Agent**: AI记住你每次的纠正偏好，逐渐适应你的编码风格\n- **团队AI协作**: 多个开发者的AI助手共享项目上下文，保持一致性",
+  "references": [
+    {"title": "DeepSeek-Coder: When the Largest LLM Meets Open-Source", "authors": "DeepSeek-AI", "year": 2024, "url": "https://arxiv.org/abs/2401.14196"},
+    {"title": "SWE-bench: Can Language Models Resolve Real-World GitHub Issues?", "authors": "C. E. Jimenez et al.", "year": 2024, "url": "https://arxiv.org/abs/2310.06770"}
+  ],
+  "key_takeaway": "AI编程的前沿在三个方向——更大(代码库级理解)、更准(可验证生成)、更个性(学习你的偏好)。"
+}
+];
+
+document.addEventListener('DOMContentLoaded', initPage);
+</script>
+</body>
+</html>

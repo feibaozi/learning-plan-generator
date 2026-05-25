@@ -885,6 +885,57 @@
       "_description": "v1 module_ordering 继续使用，v2在排序时额外考虑 texture 的 override 优先级",
       "v1_ordering": "保留 module_ordering 节的原排序不变",
       "v2_adjustment": "同一纹理下如有 module_overrides，该模块在排序中的位置可能前移(如需提前展示架构图等)"
+    },
+
+    "table_schema": {
+      "_description": "表格数据JSON结构约束 — v3.4.1 new，防止表格数据结构错误导致白屏",
+      "_version": "3.4.1",
+      "_usage": "Phase 3 生成 tables 字段时参照此 Schema；Step 5.0 校验时以此为准",
+      "required_fields": ["headers", "rows", "caption"],
+      "structure_requirements": {
+        "headers": {
+          "type": "string[]",
+          "description": "一维字符串数组，定义表头列名"
+        },
+        "rows": {
+          "type": "string[][]",
+          "description": "二维字符串数组，每行是一个子数组，子数组元素数量必须等于 headers 长度"
+        },
+        "caption": {
+          "type": "string",
+          "description": "表格标题，必须包含在表格对象内部（{headers, rows, caption}），不可在数组外层",
+          "critical_rule": "caption 必须在对象内部，常见错误：'tables':[{...},'caption':'...'] → 正确：'tables':[{...,'caption':'...'}]"
+        }
+      },
+      "valid_example": {
+        "headers": ["维度", "说明", "备注"],
+        "rows": [["行1列1", "行1列2", "行1列3"], ["行2列1", "行2列2", "行2列3"]],
+        "caption": "表：示例表格"
+      },
+      "common_errors": [
+        {
+          "id": "E1",
+          "name": "caption 在对象外部",
+          "wrong": "\"tables\": [{\"headers\":[\"A\"], \"rows\":[[\"a\"]]}, \"caption\":\"表：XX\"]",
+          "right": "\"tables\": [{\"headers\":[\"A\"], \"rows\":[[\"a\"]], \"caption\":\"表：XX\"}]",
+          "impact": "导致 JSON 解析失败 → JS SyntaxError → 页面白屏"
+        },
+        {
+          "id": "E2",
+          "name": "rows 为一维数组",
+          "wrong": "\"rows\": [\"a1\", \"b1\", \"a2\", \"b2\"]",
+          "right": "\"rows\": [[\"a1\", \"b1\"], [\"a2\", \"b2\"]]",
+          "impact": "行数据无法正确匹配表头 → 表格渲染异常或 JS 错误"
+        },
+        {
+          "id": "E3",
+          "name": "行元素数量与表头不一致",
+          "wrong": "\"headers\": [\"A\", \"B\"], \"rows\": [[\"a1\"], [\"a2\", \"b2\"]]",
+          "right": "\"headers\": [\"A\", \"B\"], \"rows\": [[\"a1\", \"b1\"], [\"a2\", \"b2\"]]",
+          "impact": "表格列数不一致 → 渲染错位"
+        }
+      ],
+      "validation_logic": "详见 SKILL.md Phase 5 Step 5.0 中的表格数据结构校验逻辑"
     }
   }
 }

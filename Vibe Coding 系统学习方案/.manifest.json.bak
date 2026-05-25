@@ -1,0 +1,130 @@
+{
+  "plans": [
+    {
+      "id": "vibe-coding-learning",
+      "title": "Vibe Coding (AI自然语言编程) 系统学习方案",
+      "domain": "ai-tech",
+      "texture": "G8",
+      "depth": "标准学习",
+      "template_id": "graphite-studio",
+      "markdown_file": "Vibe Coding学习方案.md",
+      "html_file": "vibe_coding_learning.html",
+      "generated_at": "2026-05-25",
+      "topic_profile": {
+        "abstract": 0.10,
+        "systemic": 0.50,
+        "math_density": 0.25,
+        "temporal": 0.95
+      },
+      "phases": [
+        {
+          "id": "p1",
+          "title": "AI编程工具掌握",
+          "weeks": "第1-4周",
+          "kps": [
+            {"id": "p1_1", "name": "AI编程环境搭建与工具选型", "topic_id": null, "has_deep_dive": false},
+            {"id": "p1_2", "name": "高效提示词编写（代码生成场景）", "topic_id": null, "has_deep_dive": false},
+            {"id": "p1_3", "name": "AI辅助代码理解与导航", "topic_id": null, "has_deep_dive": false}
+          ]
+        },
+        {
+          "id": "p2",
+          "title": "整合项目实战",
+          "weeks": "第5-9周",
+          "kps": [
+            {"id": "p2_1", "name": "从零到一的AI辅助全栈开发", "topic_id": null, "has_deep_dive": false},
+            {"id": "p2_2", "name": "AI辅助调试与错误修复", "topic_id": "ai-debugging", "has_deep_dive": true, "deep_dive_file": "ai-debugging_intermediate.html"},
+            {"id": "p2_3", "name": "AI驱动的自动化测试与文档生成", "topic_id": null, "has_deep_dive": false},
+            {"id": "p2_4", "name": "多模型协作与组合工作流", "topic_id": null, "has_deep_dive": false}
+          ]
+        },
+        {
+          "id": "p3",
+          "title": "基础原理回补",
+          "weeks": "第10-12周",
+          "kps": [
+            {"id": "p3_1", "name": "LLM工作原理与代码生成机制", "topic_id": "llm-code-generation", "has_deep_dive": true, "deep_dive_file": "llm-code-generation_deep.html"},
+            {"id": "p3_2", "name": "AI编程的安全与代码质量保障", "topic_id": "ai-code-security", "has_deep_dive": true, "deep_dive_file": "ai-code-security_deep.html"},
+            {"id": "p3_3", "name": "版本控制与AI协作最佳实践", "topic_id": "version-control-ai", "has_deep_dive": true, "deep_dive_file": "version-control-ai_deep.html"}
+          ]
+        },
+        {
+          "id": "p4",
+          "title": "进阶前沿探索",
+          "weeks": "第13-14周",
+          "kps": [
+            {"id": "p4_1", "name": "AI Agent自动化编程与MCP协议", "topic_id": "ai-agent-mcp-protocol", "has_deep_dive": true, "deep_dive_file": "ai-agent-mcp-protocol_deep.html"},
+            {"id": "p4_2", "name": "自定义AI编程工具链与工作流自动化", "topic_id": "custom-ai-toolchain-workflow", "has_deep_dive": true, "deep_dive_file": "custom-ai-toolchain-workflow_deep.html"}
+          ]
+        }
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "id": "llm-code-generation-deep",
+      "kp_id": "p3_1",
+      "topic_id": "llm-code-generation",
+      "topic_name": "LLM工作原理与代码生成机制",
+      "depth": "intermediate",
+      "html_file": "llm-code-generation_deep.html",
+      "generated_at": "2026-05-25T12:00:00Z",
+      "status": "ready",
+      "belongs_to_plan": "vibe-coding-learning",
+      "belongs_to_phase": "p3",
+      "belongs_to_kp": "p3_1"
+    },
+    {
+      "id": "ai-code-security-deep",
+      "kp_id": "p3_2",
+      "topic_id": "ai-code-security",
+      "topic_name": "AI编程的安全与代码质量保障",
+      "depth": "intermediate",
+      "html_file": "ai-code-security_deep.html",
+      "generated_at": "2026-05-25T12:00:00Z",
+      "status": "ready",
+      "belongs_to_plan": "vibe-coding-learning",
+      "belongs_to_phase": "p3",
+      "belongs_to_kp": "p3_2"
+    },
+    {
+      "id": "version-control-ai-deep",
+      "kp_id": "p3_3",
+      "topic_id": "version-control-ai",
+      "topic_name": "版本控制与AI协作最佳实践",
+      "depth": "intermediate",
+      "html_file": "version-control-ai_deep.html",
+      "generated_at": "2026-05-25T12:00:00Z",
+      "status": "ready",
+      "belongs_to_plan": "vibe-coding-learning",
+      "belongs_to_phase": "p3",
+      "belongs_to_kp": "p3_3"
+    },
+    {
+      "id": "ai-agent-mcp-protocol-deep",
+      "kp_id": "p4_1",
+      "topic_id": "ai-agent-mcp-protocol",
+      "topic_name": "AI Agent自动化编程与MCP协议",
+      "depth": "intermediate",
+      "html_file": "ai-agent-mcp-protocol_deep.html",
+      "generated_at": "2026-05-25",
+      "status": "ready",
+      "belongs_to_plan": "vibe-coding-learning",
+      "belongs_to_phase": "p4",
+      "belongs_to_kp": "p4_1"
+    },
+    {
+      "id": "custom-ai-toolchain-workflow-deep",
+      "kp_id": "p4_2",
+      "topic_id": "custom-ai-toolchain-workflow",
+      "topic_name": "自定义AI编程工具链与工作流自动化",
+      "depth": "intermediate",
+      "html_file": "custom-ai-toolchain-workflow_deep.html",
+      "generated_at": "2026-05-25",
+      "status": "ready",
+      "belongs_to_plan": "vibe-coding-learning",
+      "belongs_to_phase": "p4",
+      "belongs_to_kp": "p4_2"
+    }
+  ]
+}

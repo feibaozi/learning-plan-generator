@@ -6,10 +6,12 @@ description: >
 输出纯HTML(无CDN基线) + 可选CDN增强层和现代风格PDF。
 v3.2: 模板化HTML生成 + 悬浮返回按钮强制实现 + prompt嵌入context_plan标记。
 v3.3: 视觉模板继承 — 从 context_plan.template_id 或 manifest 自动获取外观模板。
-version: "3.3.0"
+v3.4.1: 表格数据 Schema 约束 — 在 module-mapping.json 中定义 tables 字段结构规范，Step 5.0 增强表格结构校验。
+v3.4: JS数据层防御性规则 — 杜绝深度资料白屏（引号冲突、`</script>`截断、外部JS CORS、语法自检）。
+version: "3.4.1"
 ----------------
 
-# Smart Learning Materials Generator v3.3
+# Smart Learning Materials Generator v3.4.1.1.1
 
 ## 描述
 
@@ -311,8 +313,6 @@ EXCLUDED (relevance_score < 0.40):
 选中的模块按此顺序排列。
 `texture module_overrides` 中存在 override 的模块，在同类别中优先排列。
 
-**🔴 强制验证**（v3.9 新增）：生成 MODULE_IDS 数组后，必须验证其顺序与 `module-mapping.json` 中 `module_ordering[domain]` 一致。`learning_journey` 始终排第一（当 context_plan 启用时）。若不一致：按规范顺序重排。偏差 > 2 个位置视为错误。
-
 #### Step 2.5: 动态时长估算
 
 ```
@@ -540,30 +540,6 @@ chart_count = CEIL(
 - AI: NeurIPS, ICML, ICLR, ACL, CVPR, arXiv
 - 数据来源必须标注
 
-#### Step 3.4a: 纹理合规性验证（v3.9 新增 — 必须执行）
-
-在模块内容生成完成后、写入HTML前，对照纹理模板 `global_params` 执行以下强制检查。不通过则补充内容后重新检查：
-
-| 检查项 | 阈值（以G8为例） | 不通过时 |
-|--------|-----------------|----------|
-| 代码块数量 | ≥ 2 syntax-highlighted blocks | 为前2个核心模块补充代码示例 |
-| 编号步骤序列 | ≥ 1 numbered step sequence | 为application模块补充步骤 |
-| 公式数量 | ≥ ceil(MATH_DENSITY × FORMULA_DENSITY × 3 × depth_multiplier × 0.5) | 为核心模块补充公式 |
-| 图表数量 | ≥ ceil(CHART_PRIORITY × 2 × depth_multiplier × 0.5) | 补充SVG图表至达标 |
-| 字数达成率 | total_words ≥ target_total × 0.7 | 扩充最短的3个模块，每模块 +150字 |
-
-各纹理的具体阈值见 `texture_templates.json` 的 `global_params`。G1-G8 的 FORMULA_DENSITY、CHART_PRIORITY、code_snippets_required 各不相同。
-
-**输出格式**：
-```
-✅ 纹理合规性检查通过 (G8):
-  · 代码块: 3/2 ✅
-  · 编号步骤: 2/1 ✅
-  · 公式: 4/3 ✅
-  · 图表: 2/2 ✅
-  · 字数: 8,200/7,500 (109%) ✅
-```
-
 #### Step 3.5: 内容去重重审
 
 所有模块生成完毕后，执行以下审核：
@@ -583,6 +559,76 @@ chart_count = CEIL(
   · W 对已合并/删减重复内容
 ```
 
+### ⚠️ 表格数据格式规范（v3.4.1 new — 防止 JSON 结构错误导致白屏）
+
+在 Phase 3 每个模块生成 `tables` 字段时，必须严格遵守以下结构约束。表格数据结构错误是导致白屏的常见根因之一。
+
+#### 基本结构
+
+```json
+{
+  "tables": [
+    {
+      "headers": ["维度", "说明", "备注"],
+      "rows": [
+        ["行1列1", "行1列2", "行1列3"],
+        ["行2列1", "行2列2", "行2列3"]
+      ],
+      "caption": "表：XXX对比表"
+    }
+  ]
+}
+```
+
+#### 字段说明
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `headers` | `string[]` | ✅ 是 | 表头数组，一维 |
+| `rows` | `string[][]` | ✅ 是 | 行数据，**必须为二维数组**，每行元素数量 = headers 长度 |
+| `caption` | `string` | ✅ 是 | 表格标题，**必须在表格对象内部**，不可在对象外部 |
+
+#### ❌ 常见错误
+
+**错误 1：`caption` 在对象外面**
+
+```json
+// ❌ 错误 — caption 在对象外部，导致 JSON 解析失败
+"tables": [{"headers":["A","B"],"rows":[["a1","b1"]]},"caption":"表：XX"]
+
+// ✅ 正确 — caption 在对象内部
+"tables": [{"headers":["A","B"],"rows":[["a1","b1"]],"caption":"表：XX"}]
+```
+
+**错误 2：`rows` 为一维数组**
+
+```json
+// ❌ 错误 — rows 是一维数组
+"rows": ["a1","b1","a2","b2"]
+
+// ✅ 正确 — rows 是二维数组，每行是独立的子数组
+"rows": [["a1","b1"],["a2","b2"]]
+```
+
+**错误 3：行元素数量与表头不一致**
+
+```json
+// ❌ 错误 — 第2行只有1个元素，但headers长度为2
+"headers": ["维度","说明"],
+"rows": [["a1","b1"],["a2"]]
+
+// ✅ 正确
+"rows": [["a1","b1"],["a2","b2"]]
+```
+
+#### 生成检查清单
+
+在写入 HTML 前逐项确认：
+- [ ] 每个 tables 数组元素都是独立的对象 `{headers, rows, caption}`
+- [ ] `caption` 字段在对象内部，不在数组外层
+- [ ] `rows` 是二维数组，每个子数组元素数量等于 `headers.length`
+- [ ] 所有表格对象包含全部三个必填字段
+
 ### ⚠️ CRITICAL — TEMPLATE-BASED GENERATION (NEW v3.2)
 
 **Use the verified skeleton template `resources/templates/base_deep_dive.html` as the BASE for ALL HTML output.**
@@ -599,24 +645,20 @@ WORKFLOW:
 
 **Core principle**: The template's CSS and JS skeleton are **proven working**. The ONLY things that change between materials are the DATA values and modules. Do NOT rewrite the CSS or JS logic — only inject data.
 
-**Placeholder Reference** (v3.9 更新):
+**Placeholder Reference**:
 | Placeholder | Source | Required |
 |---|---|---|
-| `%TEMPLATE_CSS%` | Full `:root{...}` + `[data-theme="light"]{...}` from `../_shared/templates/<id>/deep_dive.css` | ✅ |
+| `%TEMPLATE_CSS%` | **NEW v3.3** — Full `:root{...}` + `[data-theme="light"]{...}` from `../_shared/templates/<id>/deep_dive.css` | ✅ |
 | `%PAGE_TITLE%` | `{kp_name}深度研读` | ✅ |
-| `%HERO_TITLE%` | Full KP title (rendered in meta-card) | ✅ |
-| `%HERO_TAGS_HTML%` | Tags as `<span class="meta-tag domain/level">` elements | ✅ |
-| `%META_STATS_HTML%` | Module count, est time, depth level as `.meta-stat` divs | ✅ |
+| `%NAV_TITLE%` | `{truncated kp_name}` | ✅ |
+| `%HERO_TITLE%` | Full KP title | ✅ |
+| `%HERO_TAGS_HTML%` | Tags as `<span>` elements | ✅ |
+| `%META_STATS_HTML%` | Module count, est time, depth level | ✅ |
 | `%PLAN_FILE%` | From context_plan → plan_file | ⚠️ if context_plan |
 | `%KP_ID%` | From context_plan → kp_id | ⚠️ if context_plan |
 | `%PLAN_NAME%` | From context_plan → plan_name | ⚠️ if context_plan |
 | `%PHASE_NAME%` | From context_plan → phase_name | ⚠️ if context_plan |
-| `%POSITION%` | e.g. "第1/6阶段 · 第3个知识点" | ⚠️ if context_plan |
-| `%MODULES_HTML%` | Generated module blocks | ✅ |
-| `%MODULE_IDS_JSON%` | JSON array of module element IDs | ✅ |
-| `%SEARCH_INDEX_JSON%` | JSON array of {id, t(title), c(content)} | ✅ |
-
-**v3.9 移除的占位符**: `%NAV_TITLE%`、`%KP_NAME%`、`%PREREQUISITES%`、`%NEXT_KPS%` — 新版模板用侧边栏+integration-navbar替代旧版journey-bar，不再需要这些字段。
+| `%KP_NAME%` | KP name | ⚠️ if context_plan |
 | `%POSITION%` | e.g. "第3/8个知识点" | ⚠️ if context_plan |
 | `%PREREQUISITES%` | From context_plan → prerequisites | ⚠️ if context_plan |
 | `%NEXT_KPS%` | From context_plan → next_kps | ⚠️ if context_plan |
@@ -1057,25 +1099,23 @@ deep_dive:{query:'Black-Scholes',topic_id:'black-scholes',prompt:'深度研读',
 6. **基线HTML不要依赖CDN**: 确保文件离线可打开
 7. **尊重纹理风格**: Phase 2 确定的纹理必须在每个模块的内容风格中体现
 8. **动态时长必须基于实际数据**: 不要使用固定标签
-9. **🔴 v3.9: 深度资料模板结构强制**: 使用新版 `base_deep_dive.html` 模板（侧边栏+content-area布局）。检测 `context_plan.enabled === true` 时，保留全部 `<!-- CONDITIONAL: HAS_CONTEXT_PLAN -->` 块。输出 HTML 必须包含：
-   - `integration-navbar` — 顶部返回链接 + 阶段位置
-   - `sidebar` — 左侧固定目录导航（由JS根据模块ID动态生成链接）
-   - `back-btn` — 右下角悬浮返回按钮（始终存在）
-   - 验证命令: `grep -c 'integration-navbar' %OUTPUT_FILE%` 必须输出 ≥1
-   - 验证命令: `grep -c 'sidebar' %OUTPUT_FILE%` 必须输出 ≥1
+9. **🔴 v3.2: 悬浮返回按钮必须在 context_plan 启用时生成**: 
+   - 使用模板 `base_deep_dive.html` 生成 HTML
+   - 检测 `context_plan.enabled === true` 时，保留全部 `<!-- CONDITIONAL: HAS_CONTEXT_PLAN -->` 块
+   - 输出 HTML 中必须同时包含以下三项（缺一不可）：
+     a) `journey-bar` — 顶部学习路线导航条
+     b) `journey-footer` — 页脚返回链接 + 学习方案归属说明
+     c) `deep-floating-back` — 右下角悬浮返回按钮
+   - 验证命令: `grep -c 'deep-floating-back' %OUTPUT_FILE%` 必须输出 ≥1
+   - 验证命令: `grep -c 'journey-bar' %OUTPUT_FILE%` 必须输出 ≥1  
+   - 验证命令: `grep -c 'journey-footer' %OUTPUT_FILE%` 必须输出 ≥1
    - 验证命令: `grep -c '%[A-Z]' %OUTPUT_FILE%` 必须输出 0 (所有占位符已替换)
    - 验证命令: `grep -c 'CONDITIONAL:' %OUTPUT_FILE%` 必须输出 0 (所有条件标记已处理)
-   - 如果 context_plan 未启用: 移除 `<!-- CONDITIONAL: HAS_CONTEXT_PLAN -->` 包裹的 integration-navbar 和 sidebar-back，但 sidebar 本身保留。
+   - 如果 context_plan 未启用: 验证 `grep -c 'CONDITIONAL:' %OUTPUT_FILE%` 必须输出 0 (条件区块已移除)
 
 10. **🔴 v3.2: 必须使用 base_deep_dive.html 模板**: 不要从零手写 HTML CSS/JS。每次生成时第一步先 READ `resources/templates/base_deep_dive.html`，获取完整骨架后进行数据注入。这确保所有产出文件的导航组件、悬浮按钮、搜索、主题切换等行为完全一致。
 
 11. **🔴 v3.3 模板 CSS 注入**: `%TEMPLATE_CSS%` 必须替换为 `../_shared/templates/<template_id>/deep_dive.css` 的完整内容（一字不改）。模板 CSS 包含 `:root{}` 和 `[data-theme="light"]{}` 块。若 context_plan 存在，优先使用 context_plan.template_id；否则从 manifest 查找或自动匹配。
-
-12. **🟡 v3.9 模块结构强制**: 每个 `.module` 的 HTML 必须使用三层结构：`.module-header`(>.module-tag+.module-title+.module-hook) → `.module-content`（含至少1个 `h3` 子节）→ `.key-takeaway`（含 `<strong>核心要点：</strong><p>`）。不得使用旧版扁平结构（h2内嵌m-tag、纯文本takeaway）。
-
-13. **🟡 v3.9 字数达标**: 写入前统计 `total_words = Σmodule.content.length`（中文按字符数）。若 `total_words < phase3_word_target × 0.7`，对最短的3个模块各补充 150+ 字。phase3_word_target 由 Step 3.1 的 word_count 公式计算。
-
-14. **🟡 v3.9 文件命名**: 深度资料 HTML 必须命名为 `p{阶段号}_{阶段内序号}_{知识点英文slug}_deep.html`。例如 `p1_3_backtest_framework_deep.html`。
 
 ## 示例
 
