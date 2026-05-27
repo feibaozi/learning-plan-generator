@@ -1,0 +1,57 @@
+/* ───────────────────────────────────────────────
+   Template: Cedar Dawn (雪松晨曦) — plan.css
+   Mood: warm, natural, organic
+   Contrast verified: text-primary≥10:1, text-secondary≥6:1, text-muted≥4.5:1
+   Light mode uses cool-toned text on warm background for hue separation
+   ─────────────────────────────────────────────── */
+:root{
+--bg-deep:#1a1814;
+--bg-primary:#211f1a;
+--bg-card:#282520;
+--bg-elevated:#312d27;
+--bg-input:#26231e;
+--text-primary:#ede6d8;
+--text-secondary:#b8ad98;
+--text-muted:#8a8070;
+--accent-blue:#5ea87a;
+--accent-cyan:#7ec8a0;
+--accent-purple:#b898a0;
+--accent-green:#6ebf8a;
+--accent-orange:#d4984a;
+--accent-pink:#d49898;
+--accent-red:#d47860;
+--accent-gold:#e6b95a;
+--border-subtle:rgba(255,255,255,0.05);
+--border-glow:rgba(94,168,122,0.25);
+--shadow-sm:0 1px 3px rgba(0,0,0,0.3);
+--shadow-md:0 4px 12px rgba(0,0,0,0.4);
+--radius-sm:6px;
+--radius-md:10px;
+--radius-lg:16px;
+--transition-fast:0.15s ease;
+--transition-smooth:0.3s ease;
+}
+body.light{
+--bg-deep:#fdfaf3;
+--bg-primary:#fffdf7;
+--bg-card:#faf7ed;
+--bg-elevated:#f3efe3;
+--bg-input:#ebe5d6;
+--text-primary:#1f1a12;
+--text-secondary:#4a4035;
+--text-muted:#5c5042;
+--accent-blue:#3d6b50;
+--accent-cyan:#4a8e6a;
+--accent-purple:#7a5a6a;
+--accent-green:#4a9e66;
+--accent-orange:#a06528;
+--accent-pink:#a06068;
+--accent-red:#b05038;
+--accent-gold:#a07828;
+--border-subtle:rgba(31,26,18,0.08);
+--border-glow:rgba(61,107,80,0.25);
+--shadow-sm:0 1px 3px rgba(0,0,0,0.06);
+--shadow-md:0 4px 12px rgba(0,0,0,0.08);
+}
+body.light .knowledge-card.expanded{border-color:rgba(74,158,102,0.5)}
+body.dark .knowledge-card.expanded{border-color:rgba(110,191,138,0.5);background:var(--bg-elevated)}

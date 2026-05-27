@@ -1,0 +1,168 @@
+{
+  "_description": "Smart Learning Materials - 测试用例集",
+  "_version": "1.0.0",
+
+  "test_cases": [
+    {
+      "id": "TC-01",
+      "name": "金融-入门-简单概念",
+      "input": "什么是'市盈率(PE)'？我是新手",
+      "expected": {
+        "domain": "finance",
+        "level": "beginner",
+        "topic": "市盈率",
+        "assertions": [
+          "模块数约12个",
+          "每个模块含至少1张图表",
+          "无公式或最多1条简单公式",
+          "含\"学习路径\"和\"常见误区\"模块",
+          "不含\"发展格局\"和\"量化模型\"模块"
+        ]
+      }
+    },
+    {
+      "id": "TC-02",
+      "name": "金融-进阶-量化方法",
+      "input": "帮我生成'蒙特卡洛模拟在VaR计算中的应用'学习资料，进阶水平",
+      "expected": {
+        "domain": "finance",
+        "level": "intermediate",
+        "topic": "蒙特卡洛模拟 VaR",
+        "assertions": [
+          "模块数约22个",
+          "每个模块至少500字",
+          "含'量化模型与公式'模块",
+          "含公式且带推导过程",
+          "参考文献1-3篇/模块",
+          "含\"历史危机复盘\"模块"
+        ]
+      }
+    },
+    {
+      "id": "TC-03",
+      "name": "金融-专家-高级模型",
+      "input": "请生成'Heston随机波动率模型'专家级学习资料，需要网页和PDF",
+      "expected": {
+        "domain": "finance",
+        "level": "expert",
+        "topic": "Heston随机波动率模型",
+        "assertions": [
+          "模块数约20个",
+          "含\"创新方向\"和\"市场微观结构\"",
+          "含完整公式推导链(3+公式)",
+          "每模块800字以上",
+          "参考文献3-5篇/模块",
+          "深度学术争议讨论"
+        ]
+      }
+    },
+    {
+      "id": "TC-04",
+      "name": "AI-入门-基础概念",
+      "input": "帮我整理'神经网络是什么'入门学习资料",
+      "expected": {
+        "domain": "ai-tech",
+        "level": "beginner",
+        "topic": "神经网络",
+        "assertions": [
+          "模块数约12个",
+          "含\"技术架构图\"简化版",
+          "含\"伦理与安全\"入门讨论",
+          "含生活化比喻",
+          "无\"Benchmark数据\"和\"算力分析\""
+        ]
+      }
+    },
+    {
+      "id": "TC-05",
+      "name": "AI-进阶-核心技术",
+      "input": "深入了解'Attention注意力机制'，进阶水平，模式B",
+      "expected": {
+        "domain": "ai-tech",
+        "level": "intermediate",
+        "topic": "Attention注意力机制",
+        "assertions": [
+          "模块数约22个",
+          "含\"技术架构图\"完整版",
+          "含\"算力分析\"模块",
+          "含\"Benchmark数据\"对比",
+          "含\"开源生态\"模块",
+          "使用仪表盘模式渲染"
+        ]
+      }
+    },
+    {
+      "id": "TC-06",
+      "name": "AI-专家-前沿话题",
+      "input": "生成'RLHF(基于人类反馈的强化学习)'专家级学习资料",
+      "expected": {
+        "domain": "ai-tech",
+        "level": "expert",
+        "topic": "RLHF",
+        "assertions": [
+          "模块数约20个",
+          "含\"创新方向\"深度分析",
+          "含\"争议与辩论\"学术探讨",
+          "含\"产学研图谱\"",
+          "文献引用丰富(5+篇/模块)"
+        ]
+      }
+    },
+    {
+      "id": "TC-07",
+      "name": "输出模式-双Web+PDF",
+      "input": "请生成'CAPM资本资产定价模型'进阶学习资料，both模式+PDF",
+      "expected": {
+        "domain": "finance",
+        "level": "intermediate",
+        "output_modes": ["mode-a", "mode-b", "pdf"],
+        "assertions": [
+          "生成3个文件",
+          "Web模式A为长文阅读",
+          "Web模式B为知识仪表盘",
+          "PDF为现代风格LaTeX编译"
+        ]
+      }
+    },
+    {
+      "id": "TC-08",
+      "name": "图表质量",
+      "input": "生成'LSTM长短期记忆网络'进阶资料",
+      "expected": {
+        "assertions": [
+          "架构图清晰分层",
+          "图表使用ECharts配置",
+          "图表的JSON格式正确",
+          "有数据来源标注",
+          "图表标题和解释完整"
+        ]
+      }
+    },
+    {
+      "id": "TC-09",
+      "name": "公式渲染",
+      "input": "生成'夏普比率(Sharpe Ratio)'进阶学习资料",
+      "expected": {
+        "assertions": [
+          "公式使用LaTeX语法",
+          "所有符号已定义",
+          "进阶级含推导过程",
+          "公式标记为expandable"
+        ]
+      }
+    },
+    {
+      "id": "TC-10",
+      "name": "边界测试-模糊输入",
+      "input": "期权",
+      "expected": {
+        "assertions": [
+          "AI主动追问明确知识点",
+          "AI主动询问领域(金融vs其他)",
+          "AI主动询问层级",
+          "AI主动询问输出模式"
+        ]
+      }
+    }
+  ]
+}

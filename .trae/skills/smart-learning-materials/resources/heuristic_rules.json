@@ -1,0 +1,220 @@
+{
+  "_description": "启发式推理规则集 — 当topic_profiles.json无法匹配时，用关键词分析推断4D画像",
+  "_version": "2.0.0",
+  "_usage": "Phase 1在topic_profiles.json匹配失败后调用。按R1→R5顺序执行，每步输出一个0-1的分数。",
+
+  "R1_domain_detection": {
+    "id": "R1",
+    "name": "领域判定",
+    "output": "domain ∈ {finance, ai-tech, unknown}",
+    "method": "关键词加权投票",
+    "keywords": {
+      "finance": {
+        "high_confidence": ["期权", "期货", "衍生品", "量化交易", "对冲", "风险管理", "VaR", "定价模型",
+          "因子", "套利", "做市", "资产配置", "固收", "信用", "监管框架", "巴塞尔", "金融危机",
+          "波动率", "蒙特卡洛", "BS模型", "Black-Scholes", "CapM", "EMH", "行为金融"],
+        "medium_confidence": ["投资", "交易", "风险", "收益", "组合", "配置", "市场", "利率", "债券",
+          "股票", "杠杆", "流动性", "头寸", "保证金", "做空", "做多"],
+        "weight_high": 3,
+        "weight_medium": 1
+      },
+      "ai-tech": {
+        "high_confidence": ["神经网络", "深度学习", "Transformer", "注意力机制", "大模型", "LLM",
+          "GPT", "强化学习", "NLP", "CV", "GAN", "扩散模型", "AIGC", "RLHF", "RAG",
+          "Agent", "微调", "LoRA", "图神经网络", "多模态", "联邦学习"],
+        "medium_confidence": ["模型", "训练", "推理", "GPU", "算法", "预测", "分类", "生成",
+          "编码", "解码", "embedding", "token", "prompt", "对齐", "benchmark"],
+        "weight_high": 3,
+        "weight_medium": 1
+      }
+    },
+    "decision": {
+      "score_finance": "count(high_confidence_finance) * 3 + count(medium_confidence_finance) * 1",
+      "score_ai": "count(high_confidence_ai) * 3 + count(medium_confidence_ai) * 1",
+      "threshold": "|score_finance - score_ai| >= 2 → 取分高者",
+      "ambiguous": "|score_finance - score_ai| < 2 → 比较用户上下文语境或询问用户",
+      "total_fallback": "both scores = 0 → domain = 'unknown' → 询问用户选择"
+    }
+  },
+
+  "R2_math_density_estimation": {
+    "id": "R2",
+    "name": "数学密度估算",
+    "output": "math_density ∈ [0, 1]",
+    "method": "关键词加权 + 领域基线",
+    "baseline": {
+      "finance": 0.55,
+      "ai-tech": 0.50,
+      "unknown": 0.45
+    },
+    "boost_keywords": {
+      "strong": ["公式", "推导", "证明", "定理", "微分方程", "偏微分", "随机过程", "SDE",
+        "布朗运动", "Ito引理", "鞅", "测度", "矩阵", "特征值", "优化", "凸优化",
+        "梯度", "链式法则", "概率密度", "分布", "统计推断"],
+      "moderate": ["模型", "参数", "计算", "数学", "量化", "数值", "解析", "方程",
+        "回归", "协方差", "相关性", "概率", "随机"],
+      "weight_strong": 0.10,
+      "weight_moderate": 0.05,
+      "max_boost": 0.40
+    },
+    "reduce_keywords": {
+      "strong": ["应用", "实践", "案例", "教程", "入门", "通俗", "科普", "故事",
+        "监管", "政策", "合规", "治理", "伦理"],
+      "weight_strong": -0.06,
+      "max_reduce": -0.25
+    },
+    "formula": "MATH_DENSITY = clamp(baseline + Σ(boost) + Σ(reduce), 0.05, 0.98)"
+  },
+
+  "R3_abstract_estimation": {
+    "id": "R3",
+    "name": "抽象度估算",
+    "output": "abstract ∈ [0, 1]",
+    "method": "关键词加权 + 领域基线",
+    "baseline": {
+      "finance": 0.50,
+      "ai-tech": 0.45,
+      "unknown": 0.45
+    },
+    "boost_keywords": {
+      "strong": ["理论", "假设", "假说", "定理", "公理", "框架", "范式", "哲学",
+        "思想", "学派", "元理论", "认识论", "本体论"],
+      "moderate": ["模型", "概念", "原理", "机制", "规律", "逻辑"],
+      "weight_strong": 0.10,
+      "weight_moderate": 0.05,
+      "max_boost": 0.35
+    },
+    "reduce_keywords": {
+      "strong": ["实操", "教程", "指南", "动手", "实战", "代码", "部署", "配置",
+        "流程", "案例", "应用", "工具"],
+      "weight_strong": -0.08,
+      "max_reduce": -0.35
+    },
+    "formula": "ABSTRACT = clamp(baseline + Σ(boost) + Σ(reduce), 0.05, 0.95)"
+  },
+
+  "R4_systemic_estimation": {
+    "id": "R4",
+    "name": "系统性估算",
+    "output": "systemic ∈ [0, 1]",
+    "method": "关键词加权 + 领域基线",
+    "baseline": {
+      "finance": 0.60,
+      "ai-tech": 0.50,
+      "unknown": 0.50
+    },
+    "boost_keywords": {
+      "strong": ["系统性", "整体", "全局", "生态", "市场", "宏观", "行业", "格局",
+        "框架", "体系", "架构", "监管", "联动", "传染", "传导", "基础设施",
+        "跨领域", "交叉", "融合", "综合治理"],
+      "moderate": ["多维度", "多层次", "全景", "生态圈", "产业链", "平台"],
+      "weight_strong": 0.10,
+      "weight_moderate": 0.05,
+      "max_boost": 0.35
+    },
+    "reduce_keywords": {
+      "strong": ["单一", "局部", "孤立", "特定", "具体", "点", "一个"],
+      "weight_strong": -0.06,
+      "max_reduce": -0.20
+    },
+    "formula": "SYSTEMIC = clamp(baseline + Σ(boost) + Σ(reduce), 0.10, 0.98)"
+  },
+
+  "R5_temporal_estimation": {
+    "id": "R5",
+    "name": "演化速度估算",
+    "output": "temporal ∈ [0, 1]",
+    "method": "关键词加权 + 领域基线",
+    "baseline": {
+      "finance": 0.40,
+      "ai-tech": 0.55,
+      "unknown": 0.45
+    },
+    "boost_keywords": {
+      "strong": ["最新", "前沿", "2024", "2025", "2026", "近期", "热门", "趋势",
+        "突破", "革命", "颠覆", "快速迭代", "日新月异", "爆发", "风口"],
+      "moderate": ["新兴", "创新", "发展", "变化", "演进", "升级"],
+      "weight_strong": 0.12,
+      "weight_moderate": 0.06,
+      "max_boost": 0.40
+    },
+    "reduce_keywords": {
+      "strong": ["经典", "传统", "历史", "基础", "成熟", "稳定", "标准", "教科书",
+        "1970", "1980", "1990", "2000", "已确立"],
+      "weight_strong": -0.10,
+      "max_reduce": -0.35
+    },
+    "formula": "TEMPORAL = clamp(baseline + Σ(boost) + Σ(reduce), 0.05, 0.95)"
+  },
+
+  "R6_texture_selection": {
+    "id": "R6",
+    "name": "表达纹理自动选择",
+    "output": "texture ∈ {G1, G2, G3, G4, G5, G6, G7, G8}",
+    "description": "基于R2-R5的输出，自动选择最合适的G1-G8表达纹理",
+    "input": {
+      "abstract": "R3输出",
+      "systemic": "R4输出",
+      "math_density": "R2输出",
+      "temporal": "R5输出"
+    },
+    "calculation": {
+      "texture_score": {
+        "G1_formula_driven": {
+          "formula": "(MATH_DENSITY * 0.60 + ABSTRACT * 0.30 + (1 - TEMPORAL) * 0.10)",
+          "description": "公式推导驱动型 — 适合高数学密度+高抽象度+低演化速度的主题"
+        },
+        "G2_formula_visual": {
+          "formula": "(MATH_DENSITY * 0.40 + SYSTEMIC * 0.25 + ABSTRACT * 0.20 + TEMPORAL * 0.15)",
+          "description": "公式+可视化型 — 需要公式也需要大量图表的技术主题"
+        },
+        "G3_model_dissection": {
+          "formula": "(MATH_DENSITY * 0.35 + SYSTEMIC * 0.30 + TEMPORAL * 0.20 + (1 - ABSTRACT) * 0.15)",
+          "description": "模型拆解型 — 适合多组件架构/方法论对比"
+        },
+        "G4_narrative_driven": {
+          "formula": "(ABSTRACT * 0.35 + SYSTEMIC * 0.30 + (1 - MATH_DENSITY) * 0.25 + TEMPORAL * 0.10)",
+          "description": "叙事驱动型 — 适合高抽象+低数学+高系统性的辩论/思想类话题"
+        },
+        "G5_balanced": {
+          "formula": "(1 - |MATH_DENSITY - 0.55| * 1.5 - |ABSTRACT - 0.50| * 1.0 - |SYSTEMIC - 0.55| * 1.0)",
+          "description": "平衡型 — 适合各项指标居中的通用话题"
+        },
+        "G6_system_diagram": {
+          "formula": "(SYSTEMIC * 0.55 + (1 - MATH_DENSITY) * 0.25 + (1 - ABSTRACT) * 0.15 + TEMPORAL * 0.05)",
+          "description": "系统图解型 — 适合高系统性+较低抽象度的框架/架构话题"
+        },
+        "G7_narrative_case_trend": {
+          "formula": "(TEMPORAL * 0.45 + SYSTEMIC * 0.30 + (1 - ABSTRACT) * 0.20 + (1 - MATH_DENSITY) * 0.05)",
+          "description": "叙事案例趋势型 — 适合极高演化速度+低抽象度的行业趋势话题"
+        },
+        "G8_tutorial_hands_on": {
+          "formula": "((1 - ABSTRACT) * 0.50 + (1 - MATH_DENSITY) * 0.30 + TEMPORAL * 0.20)",
+          "description": "教程实操型 — 适合极低抽象度+实操导向的技术/策略话题"
+        }
+      }
+    },
+    "selection": "取 texture_score 最高者作为 suggested_texture",
+    "tie_breaker": "同分时优先选择 MATH_DENSITY 更高的纹理(G1 > G2 > G3 > G5 > G6 > G4 > G7 > G8)"
+  },
+
+  "R7_duration_estimation": {
+    "id": "R7",
+    "name": "动态时长估算",
+    "output": "estimated_reading_minutes ∈ N+",
+    "description": "基于实际生成内容的字数+图表数+公式数动态计算，不再使用固定标签",
+    "formula": "ESTIMATED_MINUTES = ceil(total_words / 400 + total_charts * 1.5 + total_formulas * 1.0 + total_tables * 0.8)",
+    "display_format": "约X分钟阅读",
+    "round_to": 1
+  },
+
+  "R8_depth_breadth_defaults": {
+    "id": "R8",
+    "name": "深度×广度默认值",
+    "description": "用户未明确选择时，默认(理解, 标准)组合，即 ContentDepth=1.0, CoverageBreadth=16",
+    "default_depth": "理解",
+    "default_depth_value": 1.0,
+    "default_breadth": "标准",
+    "default_max_modules": 16
+  }
+}

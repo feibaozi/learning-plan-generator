@@ -1,0 +1,250 @@
+% Smart Learning Materials - Modern LaTeX Template
+% Requires: xelatex, ctex, fontspec, unicode-math, minted, tcolorbox, tikz
+% Fonts required: Inter, Source Han Sans SC (or similar CJK font), JetBrains Mono
+
+\documentclass[a4paper,11pt]{ctexart}
+
+% ==== PACKAGES ====
+\usepackage[margin=2.2cm, left=2.5cm, right=5cm, marginparwidth=4cm, marginparsep=0.5cm]{geometry}
+\usepackage{fontspec}
+\usepackage{unicode-math}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usepackage{tcolorbox}
+\tcbuselibrary{skins, breakable}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{minted}
+\usepackage{setspace}
+\usepackage{eso-pic}
+
+% ==== FONTS (adjust paths as needed) ====
+\setmainfont{Inter}[
+  Path=resources/fonts/,
+  Extension=.ttf,
+  UprightFont=*-Regular,
+  BoldFont=*-Bold,
+  ItalicFont=*-Italic,
+  BoldItalicFont=*-BoldItalic
+]
+\setCJKmainfont{SourceHanSansSC}[
+  Path=resources/fonts/,
+  Extension=.otf,
+  UprightFont=*-Regular,
+  BoldFont=*-Bold
+]
+\setmonofont{JetBrainsMono}[
+  Path=resources/fonts/,
+  Extension=.ttf,
+  UprightFont=*-Regular,
+  BoldFont=*-Bold,
+  ItalicFont=*-Italic
+]
+\setmathfont{LatinModernMath}[
+  Path=resources/fonts/,
+  Extension=.otf
+]
+
+% ==== COLORS ====
+\definecolor{primary}{HTML}{6366F1}
+\definecolor{primaryLight}{HTML}{EEF2FF}
+\definecolor{accent}{HTML}{8B5CF6}
+\definecolor{cyan}{HTML}{22D3EE}
+\definecolor{orange}{HTML}{F59E0B}
+\definecolor{green}{HTML}{10B981}
+\definecolor{red}{HTML}{EF4444}
+\definecolor{textDark}{HTML}{0F172A}
+\definecolor{textMid}{HTML}{475569}
+\definecolor{textLight}{HTML}{94A3B8}
+\definecolor{bgLight}{HTML}{F8FAFC}
+\definecolor{borderColor}{HTML}{E2E8F0}
+
+% ==== TITLE FORMATTING ====
+\titleformat{\section}
+  {\normalfont\Large\bfseries}
+  {%
+    \begin{tikzpicture}[baseline=(t.base)]
+      \node[fill=primary!10, inner sep=6pt, rounded corners=4pt] (t) {\textcolor{primary}{\thesection}};
+    \end{tikzpicture}%
+  }
+  {0.8em}
+  {\textcolor{textDark}}
+  []
+\titlespacing*{\section}{0pt}{28pt}{14pt}
+
+\titleformat{\subsection}
+  {\normalfont\large\bfseries}
+  {\textcolor{primary}{\thesubsection}}
+  {0.6em}
+  {\textcolor{textDark}}
+  []
+\titlespacing*{\subsection}{0pt}{18pt}{8pt}
+
+% ==== MARGIN NOTES ====
+\newcommand{\marginnote}[1]{%
+  \marginpar{%
+    \footnotesize
+    \textcolor{textMid}%
+    \begin{tikzpicture}[baseline=(t.base)]
+      \node[fill=primary!5, inner sep=4pt, rounded corners=3pt, text width=3.5cm, align=left] (t) {#1};
+    \end{tikzpicture}%
+  }%
+}
+
+% ==== KNOWLEDGE BOX ====
+\newtcolorbox{knowledgebox}[1][]{
+  enhanced, breakable,
+  colback=primaryLight,
+  colframe=primary!30,
+  left=4mm, right=4mm, top=3mm, bottom=3mm,
+  fontupper=\small,
+  title={\textbf{\textcolor{primary}{💡 核心要点}}},
+  coltitle=primary,
+  attach boxed title to top left={xshift=8pt, yshift=-8pt},
+  boxed title style={colback=primary!10, frame hidden, rounded corners=4pt},
+  #1
+}
+
+% ==== FORMULA BOX ====
+\newtcolorbox{formulabox}{
+  enhanced, breakable,
+  colback=bgLight,
+  colframe=borderColor,
+  left=6mm, right=6mm, top=3mm, bottom=3mm,
+  fontupper=\small
+}
+
+% ==== CASE STUDY BOX ====
+\newtcolorbox{casebox}[1][]{
+  enhanced, breakable,
+  colback=red!3,
+  colframe=red!20,
+  left=4mm, right=4mm, top=3mm, bottom=3mm,
+  title={\textbf{\textcolor{red}{📋 案例研究}}},
+  coltitle=red,
+  attach boxed title to top left={xshift=8pt, yshift=-8pt},
+  boxed title style={colback=red!5, frame hidden, rounded corners=4pt},
+  #1
+}
+
+% ==== INNOVATION BOX ====
+\newtcolorbox{innovationbox}[1][]{
+  enhanced, breakable,
+  colback=orange!5,
+  colframe=orange!30,
+  left=4mm, right=4mm, top=3mm, bottom=3mm,
+  title={\textbf{\textcolor{orange}{🚀 创新前沿}}},
+  coltitle=orange!80!black,
+  attach boxed title to top left={xshift=8pt, yshift=-8pt},
+  boxed title style={colback=orange!3, frame hidden, rounded corners=4pt},
+  #1
+}
+
+% ==== TABLE STYLE ====
+\newcommand{\moderntable}[4]{%
+  \begin{table}[H]
+  \centering
+  \caption{#3}
+  \small
+  \begin{tabular}{#1}
+  \toprule
+  #2 \\
+  \bottomrule
+  \end{tabular}
+  \label{#4}
+  \end{table}
+}
+
+% ==== HEADER & FOOTER ====
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\textcolor{textLight}{\small{Smart Learning Materials}}}
+\fancyhead[R]{\textcolor{textLight}{\small{\leftmark}}}
+\fancyfoot[C]{\textcolor{textLight}{\small{\thepage}}}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{borderColor}\leaders\hrule height \headrulewidth\hfill}}
+
+% ==== COVER PAGE ====
+\newcommand{\makecoverpage}[4]{%
+  \thispagestyle{empty}
+  \begin{tikzpicture}[remember picture, overlay]
+    % Background gradient
+    \shade[top color=primary!15, bottom color=accent!10]
+      (current page.south west) rectangle (current page.north east);
+
+    % Decorative shapes
+    \fill[primary!8] (current page.north west) circle (6cm);
+    \fill[accent!6] (current page.south east) circle (5cm);
+
+    % Title block
+    \node[align=center, text width=14cm] at (current page.center) {
+      {\Huge\bfseries\textcolor{textDark}{#1}\par}
+      \vspace{16pt}
+      {\Large\textcolor{primary}{知识深度研究报告}\par}
+      \vspace{32pt}
+      \begin{tikzpicture}
+        \node[fill=primary, inner sep=10pt, rounded corners=8pt] {
+          \textcolor{white}{\large\bfseries #2}
+        };
+      \end{tikzpicture}
+      \par\vspace{24pt}
+      {\normalsize\textcolor{textMid}{领域：#3 \quad 深度：#4}\par}
+      \vspace{8pt}
+      {\small\textcolor{textLight}{由 Smart Learning Materials Generator 生成}\par}
+    };
+  \end{tikzpicture}
+  \newpage
+  \setcounter{page}{1}
+}
+
+% ==== METADATA ====
+\hypersetup{
+  pdftitle={TITLE_PLACEHOLDER},
+  pdfauthor={Smart Learning Materials Generator},
+  pdfsubject={DOMAIN_PLACEHOLDER - LEVEL_PLACEHOLDER},
+  pdfkeywords={KEYWORDS_PLACEHOLDER},
+  colorlinks=true,
+  linkcolor=primary,
+  urlcolor=primary,
+  citecolor=accent
+}
+
+% ==== BEGIN DOCUMENT ====
+\begin{document}
+
+% ==== COVER PAGE ====
+%% makecoverpage{<知识标题>}{<层级标签>}{<领域名>}{<层级名>}
+\makecoverpage{TITLE_PLACEHOLDER}{LEVEL_ICON_PLACEHOLDER LEVEL_NAME_PLACEHOLDER}{DOMAIN_NAME_PLACEHOLDER}{LEVEL_NAME_PLACEHOLDER}
+
+% ==== TABLE OF CONTENTS ====
+\tableofcontents
+\newpage
+
+% ==== CONTENT INJECTION POINT ====
+% AI will inject module content here using the template macros defined above.
+% Each module should follow this pattern:
+%
+% \section{模块标题}
+% \marginnote{一句话要点}
+% Hook content...
+% Main content...
+% \begin{formulabox}
+%   $$ formula $$
+% \end{formulabox}
+% \begin{knowledgebox}
+%   Key takeaway...
+% \end{knowledgebox}
+
+CONTENT_PLACEHOLDER
+
+% ==== END DOCUMENT ====
+\end{document}

@@ -1,4 +1,6 @@
-.trae/
+.trae/*
+!.trae/skills
+!.trae/rules
 .DS_Store
 Thumbs.db
 *.log

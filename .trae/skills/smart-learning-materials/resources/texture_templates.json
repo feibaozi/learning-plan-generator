@@ -1,0 +1,194 @@
+{
+  "_description": "G1-G8表达纹理模板 — 定义每种纹理下各模块的输出结构、内容比例、风格参数",
+  "_version": "2.0.0",
+  "_usage": "Phase 2模块编排时加载对应纹理模板，Override各模块的默认生成参数",
+
+  "G1_formula_driven": {
+    "id": "G1",
+    "name": "公式推导驱动型",
+    "description": "以数学公式为核心线索组织全文，推导过程是主干，图表和案例作为辅助验证",
+    "suitable_for": "高数学密度+高抽象度+低演化速度（如期权定价、BS模型、利率模型、深度学习数学基础）",
+    "global_params": {
+      "FORMULA_DENSITY": 0.82,
+      "CHART_PRIORITY": 0.45,
+      "text_formula_ratio": "45%正文 + 35%公式推导 + 15%图表 + 5%案例",
+      "hook_style": "从核心公式/方程出发，用其优雅性或反直觉性吸引读者",
+      "derivation_style": "连续递进，从简单到复杂，每步标注假设条件",
+      "analogy_style": "数学类比优先（如降维→投影），生活类比仅在入门层级使用"
+    },
+    "module_overrides": {
+      "concept": {"focus": "数学定义+边界条件+公式体系中的位置", "formula_count_multiplier": 1.3},
+      "principle": {"focus": "完整推导链，从基本假设到最终结论", "formula_count_multiplier": 1.8, "expandable_default": true},
+      "application": {"focus": "公式在具体问题中的代入与求解", "formula_count_multiplier": 1.2},
+      "development": {"focus": "公式的演进式改进（如BS→Merton→Heston）", "formula_count_multiplier": 0.8},
+      "risk": {"focus": "假设违反时的公式修正与数值偏差分析"},
+      "misconceptions": {"focus": "公式误用场景的数学纠正"}
+    }
+  },
+
+  "G2_formula_visual": {
+    "id": "G2",
+    "name": "公式+可视化平衡型",
+    "description": "公式与可视化图表并重，公式解释机制，图表展现结构与关系",
+    "suitable_for": "中数学密度+可视化需求高的技术话题（如Transformer、注意力机制、CV、多模态）",
+    "global_params": {
+      "FORMULA_DENSITY": 0.55,
+      "CHART_PRIORITY": 0.70,
+      "text_formula_ratio": "40%正文 + 22%公式 + 28%图表 + 10%案例",
+      "hook_style": "从一个可视化现象或反直觉的结构问题切入",
+      "derivation_style": "每个公式配一张示意图，公式与图一一对应",
+      "chart_density": "high — 架构图、流程图、数据流图是必须项"
+    },
+    "module_overrides": {
+      "principle": {"focus": "公式+架构图交替呈现，图文互证", "chart_count_multiplier": 1.5},
+      "architecture": {"focus": "多层次架构图+每层对应的数学原理", "chart_count_multiplier": 2.0},
+      "application": {"focus": "场景流程图+效果对比图", "chart_count_multiplier": 1.3},
+      "development": {"focus": "模型演化树+关键改进可视化", "chart_count_multiplier": 1.2},
+      "concept": {"focus": "概念关系图+关键定义"}
+    }
+  },
+
+  "G3_model_dissection": {
+    "id": "G3",
+    "name": "模型拆解型",
+    "description": "将复杂模型/方法拆解为组件，逐个分析，最后组装",
+    "suitable_for": "多组件架构/多方法对比/需要拆解理解的主题（如GAN、RLHF、自监督学习、市场微观结构）",
+    "global_params": {
+      "FORMULA_DENSITY": 0.50,
+      "CHART_PRIORITY": 0.62,
+      "text_formula_ratio": "35%正文 + 20%公式 + 25%图表 + 20%模块间对比",
+      "hook_style": "拆解一个复杂系统为几个关键组件，展示其简洁本质",
+      "derivation_style": "先拆后合—逐组件分析→组件交互分析→整体行为分析",
+      "compare_style": "tabular对比是核心表达手法，每模块至少一张对比表"
+    },
+    "module_overrides": {
+      "principle": {"focus": "组件解耦+逐个分析+交互机制", "table_count_multiplier": 1.5},
+      "architecture": {"focus": "爆炸图式的组件拆解图", "chart_count_multiplier": 1.6},
+      "application": {"focus": "不同组件在不同场景中的权重分析"},
+      "development": {"focus": "各组件的独立演化+版本兼容矩阵", "table_count_multiplier": 1.8},
+      "debate": {"focus": "不同组件设计理念的学派之争"}
+    }
+  },
+
+  "G4_narrative_driven": {
+    "id": "G4",
+    "name": "叙事驱动型",
+    "description": "以叙事和论证为骨架，公式和图表作为论据点缀，强调观点的碰撞与逻辑的推演",
+    "suitable_for": "高抽象度+高系统性+低数学密度（如有效市场假说、行为金融学、AI伦理、金融危机历史）",
+    "global_params": {
+      "FORMULA_DENSITY": 0.20,
+      "CHART_PRIORITY": 0.35,
+      "text_formula_ratio": "65%正文 + 8%公式 + 15%图表 + 12%案例",
+      "hook_style": "从一个著名的争议/反常识现象/历史事件切入",
+      "narrative_style": "论点→论据→反驳→综合的辩论式结构",
+      "case_density": "high — 每个关键观点必须有至少一个真实案例支撑"
+    },
+    "module_overrides": {
+      "background": {"focus": "思想史上的关键辩论与转折点", "word_count_multiplier": 1.5},
+      "concept": {"focus": "多学派定义+各自的历史语境", "word_count_multiplier": 1.3},
+      "debate": {"focus": "正反双方完整论述+第三方视角综合", "word_count_multiplier": 2.0},
+      "case_study": {"focus": "叙事性案例复盘，强调决策过程与后果", "word_count_multiplier": 1.5},
+      "prospect": {"focus": "多种可能性的情景分析+各自论据"},
+      "misconceptions": {"focus": "误区背后的思想史原因"}
+    }
+  },
+
+  "G5_balanced": {
+    "id": "G5",
+    "name": "全面平衡型",
+    "description": "各项元素均衡分布，适合指标居中的通用主题，兼顾理解深度与阅读体验",
+    "suitable_for": "各项指标居中/通用性强的主题（如蒙特卡洛模拟、信用风险、NLP、迁移学习）",
+    "global_params": {
+      "FORMULA_DENSITY": 0.50,
+      "CHART_PRIORITY": 0.55,
+      "text_formula_ratio": "45%正文 + 18%公式 + 22%图表 + 15%案例",
+      "hook_style": "混合切入—可以是问题、数据、或简洁的公式",
+      "derivation_style": "中等深度推导，关键步骤展开，次要步骤给出引用",
+      "balance_strategy": "每个模块至少包含2种表达元素(公式+图表 或 图表+案例 等)"
+    },
+    "module_overrides": {}
+  },
+
+  "G6_system_diagram": {
+    "id": "G6",
+    "name": "系统图解型",
+    "description": "以系统级图表为核心，用架构图/流程图/关系图串联全文，文字作为图注和展开",
+    "suitable_for": "高系统性+低抽象度+低数学密度（如金融监管、资产配置、巴塞尔协议、MLOps、知识图谱）",
+    "global_params": {
+      "FORMULA_DENSITY": 0.30,
+      "CHART_PRIORITY": 0.85,
+      "text_formula_ratio": "35%正文 + 10%公式 + 40%图表 + 15%案例",
+      "hook_style": "展示一个全景系统图，用整体结构抓住读者",
+      "chart_density": "very_high — 系统全景图、层级爆炸图、关系网络图是核心",
+      "text_role": "辅助性文字，以图为主以文为辅，文字大部分是对图的展开说明"
+    },
+    "module_overrides": {
+      "principle": {"focus": "系统运作全景图+逐层展开", "chart_count_multiplier": 2.0},
+      "architecture": {"focus": "多级嵌套的系统架构图", "chart_count_multiplier": 2.5},
+      "landscape": {"focus": "参与者地图+关系网络+权力图谱", "chart_count_multiplier": 1.8},
+      "application": {"focus": "各场景的系统部署图", "chart_count_multiplier": 1.5},
+      "risk": {"focus": "风险传导路径图+脆弱点标注", "chart_count_multiplier": 1.3},
+      "development": {"focus": "系统演化时间轴+版本对比"}
+    }
+  },
+
+  "G7_narrative_case_trend": {
+    "id": "G7",
+    "name": "叙事案例趋势型",
+    "description": "以行业动态和趋势为主线，大量案例和数据支撑叙事，图表展现趋势对比",
+    "suitable_for": "极高演化速度+低抽象度（如LLM、GPT、AIGC、AI Agent、加密货币DeFi）",
+    "global_params": {
+      "FORMULA_DENSITY": 0.25,
+      "CHART_PRIORITY": 0.65,
+      "text_formula_ratio": "40%正文 + 8%公式 + 30%图表(趋势对比) + 22%案例",
+      "hook_style": "惊人数据/最新进展/行业标志性事件切入",
+      "timeline_emphasis": "时间线和趋势对比图是核心图表类型",
+      "recency_bias": "优先引用2024-2026的最新进展和数据"
+    },
+    "module_overrides": {
+      "development": {"focus": "超详细时间轴+关键版本对比+发布节奏分析", "word_count_multiplier": 1.8, "chart_count_multiplier": 1.8},
+      "landscape": {"focus": "实时竞争格局+市场份额+融资动态", "chart_count_multiplier": 1.5},
+      "prospect": {"focus": "多情景趋势推演+技术成熟度曲线", "word_count_multiplier": 1.5},
+      "case_study": {"focus": "最新产品/应用案例+用户数据+效果指标", "word_count_multiplier": 1.3},
+      "application": {"focus": "当前主流应用+新兴场景+落地瓶颈"},
+      "effort_direction": {"focus": "创业机会+投资热点+技能需求预测"}
+    }
+  },
+
+  "G8_tutorial_hands_on": {
+    "id": "G8",
+    "name": "教程实操型",
+    "description": "以操作指南和实战步骤为核心，公式用于解释原理，图表用于展示结果",
+    "suitable_for": "极低抽象度+实操导向（如提示工程、RAG、模型微调、量化交易实操、套利策略）",
+    "global_params": {
+      "FORMULA_DENSITY": 0.35,
+      "CHART_PRIORITY": 0.50,
+      "text_formula_ratio": "30%教程步骤 + 20%原理解释 + 15%公式 + 20%图表结果 + 15%代码示例",
+      "hook_style": "从一个实际任务/问题出发（'如果你想实现X，这篇文章会教你'）",
+      "step_style": "numbered步骤+每步有预期输出+常见错误提示",
+      "code_style": "核心代码片段用 syntax-highlighted block，完整代码链接到外部仓库"
+    },
+    "module_overrides": {
+      "principle": {"focus": "原理→伪代码→实际代码的三层递进", "code_snippets_required": true},
+      "application": {"focus": "step-by-step实操指南+checkpoint验证", "word_count_multiplier": 1.6},
+      "case_study": {"focus": "可复现的完整案例（数据→代码→结果→解读）"},
+      "learning_path": {"focus": "动手项目链+在线实验环境+社区资源"},
+      "misconceptions": {"focus": "实操中常见Bug/错误用法+Debug技巧"},
+      "effort_direction": {"focus": "技能进阶路线+认证路径+就业方向"}
+    }
+  },
+
+  "texture_module_impact": {
+    "_description": "各纹理对不同模块类型的差异化影响力度",
+    "core_modules": ["concept", "principle"],
+    "core_impact": "HIGH — 纹理对核心模块的内容结构影响最大",
+    "application_modules": ["application", "case_study"],
+    "application_impact": "MEDIUM — 纹理调整案例/应用模块的详略与风格",
+    "development_modules": ["development", "landscape", "prospect"],
+    "development_impact": "MEDIUM — 纹理影响演化/格局模块的时间跨度与图表密度",
+    "risk_modules": ["risk", "issues", "debate", "misconceptions"],
+    "risk_impact": "MEDIUM — 纹理调整风险/争议模块的分析深度",
+    "supplement_modules": ["learning_path", "glossary", "effort_direction", "innovation"],
+    "supplement_impact": "LOW — 纹理对补充模块影响较小，保持通用格式"
+  }
+}

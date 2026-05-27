@@ -1,0 +1,172 @@
+/* ============================================================
+   CSS Template: Card Diagram & Interaction Styles (v2.3)
+   来源: SKILL.md Phase 4D IX5 — Diagram 容器 + 双向链接样式
+   v2.2: 新增展开卡片 grid 布局规则 — grid-column:1/-1 替代全局列数变更
+   v2.3: 新增悬浮返回按钮样式 (deep-floating-back)
+   必须在 :root 变量定义之后、响应式断点之前插入
+   ============================================================ */
+
+/* ---- 知识点卡片图示容器 (IX5) ---- */
+.card-diagram {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  margin-bottom: 12px;
+  text-align: center;
+  overflow-x: auto;
+}
+.card-diagram svg {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+}
+.card-diagram .dg-title {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  margin-top: 6px;
+  text-align: center;
+}
+
+/* ---- 关联知识链接区域 (IX2: rel双向链接) ---- */
+.card-related {
+  margin-top: 4px;
+  margin-bottom: 8px;
+  padding: 12px 14px;
+  background: rgba(255,255,255,0.015);
+  border: 1px dashed var(--border-subtle);
+  border-radius: var(--radius-sm);
+}
+.cr-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+.cr-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+/* IX2: rel链接可点击 */
+.cr-link {
+  font-size: 0.68rem;
+  padding: 4px 10px;
+  border-radius: 50px;
+  border: 1px solid var(--border-subtle);
+  color: var(--accent-cyan);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+.cr-link:hover {
+  background: rgba(38,198,218,0.1);
+  border-color: var(--accent-cyan);
+}
+
+/* ---- 阶段标签可点击样式 (IX2) ---- */
+/* IX2: skill-link 可点击，指向知识点 */
+.skill-link {
+  cursor: pointer;
+  border-color: rgba(79,195,247,0.3);
+  color: var(--accent-blue);
+}
+.skill-link:hover {
+  background: rgba(79,195,247,0.1);
+  transform: translateY(-1px);
+}
+
+/* ---- 展开全部按钮 ---- */
+.ks-expand-all {
+  background: transparent;
+  border: 1px solid var(--border-subtle);
+  color: var(--accent-cyan);
+  padding: 3px 10px;
+  border-radius: 50px;
+  font-size: 0.68rem;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all var(--transition-fast);
+  font-family: inherit;
+  margin-left: 8px;
+}
+.ks-expand-all:hover {
+  border-color: var(--accent-cyan);
+  background: rgba(38,198,218,0.08);
+}
+
+/* ---- 知识点卡片交互状态 (v2.2: grid-column 规则) ---- */
+.knowledge-card.expanded .card-header { cursor: pointer; }
+.knowledge-card.expanded .card-header:hover { background: rgba(79,195,247,0.06); }
+
+/* v2.2: 展开的卡片跨满整行，其他卡片保持原有列布局不变 */
+/* 重要: 不要在 .knowledge-grid 上使用 has-expanded 来改变 grid-template-columns */
+/* 仅通过已展开卡片的 grid-column 实现跨行效果 */
+.knowledge-card.expanded {
+  grid-column: 1 / -1;
+  border-color: var(--accent-green);
+  box-shadow: var(--shadow-md);
+}
+
+/* 深色模式下展开卡片增强可见 */
+body.dark .knowledge-card.expanded {
+  border-color: rgba(16,185,129,0.5);
+  background: var(--bg-elevated);
+}
+
+/* 移动端始终单列，无需跨行 */
+@media(max-width:768px) {
+  .knowledge-card.expanded { grid-column: auto; }
+}
+
+/* ============================================================
+   v2.3: 悬浮返回按钮样式 (用于深度资料页面)
+   ============================================================ */
+.deep-floating-back {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 10000;
+}
+
+.deep-floating-back button {
+  padding: 12px 20px;
+  background: linear-gradient(135deg, var(--accent-color, #4a90d9), var(--accent-dark, #2d6cb0));
+  color: white;
+  border: none;
+  border-radius: 24px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.deep-floating-back button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+}
+
+/* 移动端适配 */
+@media(max-width:768px) {
+  .deep-floating-back {
+    right: 15px;
+    bottom: 15px;
+  }
+  .deep-floating-back button {
+    padding: 10px 16px;
+    font-size: 0.8rem;
+  }
+}
+
+/* 深色模式适配 */
+@media (prefers-color-scheme: dark) {
+  .deep-floating-back button {
+    background: linear-gradient(135deg, var(--accent-dark, #2d6cb0), var(--accent-color, #4a90d9));
+  }
+}
+
+body.dark .deep-floating-back button {
+  background: linear-gradient(135deg, var(--accent-dark, #2d6cb0), var(--accent-color, #4a90d9));
+}

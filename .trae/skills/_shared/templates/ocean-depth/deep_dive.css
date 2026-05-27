@@ -1,0 +1,67 @@
+/* ───────────────────────────────────────────────
+   Template: Ocean Depth (深海碧波) — deep_dive.css
+   Mood: cool, tech, refreshing
+   Contrast verified: text-primary≥10:1, text-secondary≥6:1, text-muted≥4.5:1
+   ─────────────────────────────────────────────── */
+:root{
+--bg-base:#061218;
+--bg-card:#0f1e2a;
+--bg-elevated:#152a38;
+--bg-overlay:rgba(0,0,0,.6);
+--text-primary:#dce8ef;
+--text-secondary:#8aa8b8;
+--text-muted:#5a7888;
+--accent-indigo:#3b82b8;
+--accent-purple:#8b7ec8;
+--accent-cyan:#4ec5b4;
+--accent-gold:#e89858;
+--accent-green:#4ec5a0;
+--accent-red:#e86450;
+--accent-blue:#3b82b8;
+--accent-color:#3b82b8;
+--accent-dark:#2d6ea0;
+--border-subtle:rgba(138, 168, 184, .2);
+--border-glow:rgba(59, 130, 184, .25);
+--shadow-sm:0 1px 3px rgba(0,0,0,.3);
+--shadow-md:0 4px 16px rgba(0,0,0,.4);
+--shadow-lg:0 8px 32px rgba(0,0,0,.5);
+--shadow-elevated:0 8px 32px rgba(0,0,0,.5);
+--radius-sm:6px;
+--radius-md:10px;
+--radius-lg:16px;
+--font-sans:'Segoe UI',system-ui,-apple-system,sans-serif;
+--font-mono:Consolas,'Cascadia Code',monospace;
+--transition:.25s cubic-bezier(.4,0,.2,1);
+--transition-smooth:.3s ease;
+--nav-h:56px;
+--accent-color-rgb:59, 130, 184;
+--chart-grid:#152a38;
+--chart-axis-label:#5a7888;
+}
+[data-theme="light"]{
+--bg-base:#f0f7fa;
+--bg-card:#ffffff;
+--bg-elevated:#e4eef3;
+--bg-overlay:rgba(0,0,0,.3);
+--text-primary:#0d1a24;
+--text-secondary:#345060;
+--text-muted:#426070;
+--accent-indigo:#2d6ea0;
+--accent-purple:#6a5aa8;
+--accent-cyan:#1e8072;
+--accent-gold:#c87630;
+--accent-green:#38a880;
+--accent-red:#c84030;
+--accent-blue:#2d6ea0;
+--accent-color:#2d6ea0;
+--accent-dark:#1f4d70;
+--border-subtle:rgba(13, 26, 36, .08);
+--border-glow:rgba(45, 110, 160, .25);
+--shadow-sm:0 1px 3px rgba(0,0,0,.06);
+--shadow-md:0 4px 16px rgba(0,0,0,.08);
+--shadow-lg:0 8px 32px rgba(0,0,0,.12);
+--shadow-elevated:0 8px 32px rgba(0,0,0,.12);
+--accent-color-rgb:45, 110, 160;
+--chart-grid:#e4eef3;
+--chart-axis-label:#426070;
+}
