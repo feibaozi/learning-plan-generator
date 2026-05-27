@@ -1,0 +1,1120 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>上下文窗口与长文本处理 深度研读</title>
+<style>
+/* ───────────────────────────────────────────────
+   Template: Graphite Studio (石墨工作室) — deep_dive.css
+   Mood: minimal, clean, neutral
+   Contrast verified: text-primary≥10:1, text-secondary≥6:1, text-muted≥4.5:1
+   ─────────────────────────────────────────────── */
+:root{
+--bg-base:#0d0d0d;
+--bg-card:#1a1a1a;
+--bg-elevated:#222222;
+--bg-overlay:rgba(0,0,0,.6);
+--text-primary:#ededed;
+--text-secondary:#a0a0a0;
+--text-muted:#787878;
+--accent-indigo:#5b8db8;
+--accent-purple:#8878a8;
+--accent-cyan:#6ea8c0;
+--accent-gold:#c0a060;
+--accent-green:#5a9e6f;
+--accent-red:#c06050;
+--accent-blue:#5b8db8;
+--accent-color:#5b8db8;
+--accent-dark:#3a6088;
+--border-subtle:rgba(160,160,160,.15);
+--border-glow:rgba(91,141,184,.2);
+--shadow-sm:0 1px 3px rgba(0,0,0,.3);
+--shadow-md:0 4px 16px rgba(0,0,0,.4);
+--shadow-lg:0 8px 32px rgba(0,0,0,.5);
+--shadow-elevated:0 8px 32px rgba(0,0,0,.5);
+--radius-sm:6px;
+--radius-md:10px;
+--radius-lg:16px;
+--font-sans:'Segoe UI',system-ui,-apple-system,sans-serif;
+--font-mono:Consolas,'Cascadia Code',monospace;
+--transition:.25s cubic-bezier(.4,0,.2,1);
+--transition-smooth:.3s ease;
+--nav-h:56px;
+--accent-color-rgb:91,141,184;
+--chart-grid:#252525;
+--chart-axis-label:#787878;
+}
+[data-theme="light"]{
+--bg-base:#fafafa;
+--bg-card:#ffffff;
+--bg-elevated:#eeeeee;
+--bg-overlay:rgba(0,0,0,.3);
+--text-primary:#121212;
+--text-secondary:#4a4a4a;
+--text-muted:#5e5e5e;
+--accent-indigo:#3a6088;
+--accent-purple:#5a4878;
+--accent-cyan:#3a7888;
+--accent-gold:#886830;
+--accent-green:#3d8055;
+--accent-red:#983830;
+--accent-blue:#3a6088;
+--accent-color:#3a6088;
+--accent-dark:#284868;
+--border-subtle:rgba(18,18,18,.08);
+--border-glow:rgba(58,96,136,.2);
+--shadow-sm:0 1px 3px rgba(0,0,0,.06);
+--shadow-md:0 4px 16px rgba(0,0,0,.08);
+--shadow-lg:0 8px 32px rgba(0,0,0,.12);
+--shadow-elevated:0 8px 32px rgba(0,0,0,.12);
+--accent-color-rgb:58,96,136;
+--chart-grid:#e5e5e5;
+--chart-axis-label:#5e5e5e;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font-sans);background:var(--bg-base);color:var(--text-primary);line-height:1.75;overflow-x:hidden}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg-base)}::-webkit-scrollbar-thumb{background:var(--border-glow);border-radius:3px}
+
+.progress-bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--accent-indigo),var(--accent-purple),var(--accent-cyan));z-index:200;transition:width .1s linear}
+.navbar{position:fixed;top:3px;left:0;right:0;z-index:100;background:var(--bg-card);border-bottom:1px solid var(--border-subtle);backdrop-filter:blur(16px);height:var(--nav-h);display:flex;align-items:center;justify-content:space-between;padding:0 24px}
+.nav-left{display:flex;align-items:center;gap:12px;font-size:.82rem;font-weight:600;color:var(--accent-indigo)}
+.nav-right{display:flex;align-items:center;gap:8px}
+.nav-right button{background:var(--bg-elevated);border:1px solid var(--border-subtle);color:var(--text-secondary);padding:6px 12px;border-radius:var(--radius-sm);cursor:pointer;font-size:.75rem;transition:all var(--transition)}
+.nav-right button:hover{border-color:var(--border-glow);color:var(--accent-indigo)}
+
+.side-dots{position:fixed;right:16px;top:50%;transform:translateY(-50%);z-index:80;display:flex;flex-direction:column;gap:8px}
+.side-dot{width:8px;height:8px;border-radius:50%;border:2px solid var(--border-glow);cursor:pointer;transition:all var(--transition)}
+.side-dot.active,.side-dot:hover{background:var(--accent-indigo);border-color:var(--accent-indigo)}
+
+.container{max-width:calc(100% - 48px);margin:0 auto;padding:calc(var(--nav-h) + 24px) 24px 80px}
+
+.hero{text-align:center;padding:48px 0 36px}
+.hero h1{font-size:2.2rem;background:linear-gradient(135deg,var(--accent-indigo),var(--accent-purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+.hero .tags{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:12px}
+.hero .tags span{font-size:.7rem;padding:4px 12px;border-radius:50px;border:1px solid var(--border-glow);color:var(--accent-indigo);background:rgba(99,102,241,.06)}
+
+.meta-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:20px 24px;margin:0 auto 32px;max-width:700px;display:flex;justify-content:center;gap:36px;flex-wrap:wrap;box-shadow:var(--shadow-md)}
+.meta-item{text-align:center}
+.meta-item .val{font-size:1.4rem;font-weight:800;color:var(--accent-indigo)}
+.meta-item .lbl{font-size:.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px}
+
+.journey-bar{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:12px 20px;margin:0 auto 24px;max-width:900px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:.82rem;box-shadow:var(--shadow-elevated)}
+.journey-path{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.journey-icon{font-size:1rem}
+.journey-plan{color:var(--accent-purple);font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.journey-plan:hover{color:var(--accent-gold)}
+.journey-sep{color:var(--text-muted);font-size:.7rem}
+.journey-phase{color:var(--text-secondary);font-weight:600}
+.journey-kp{color:var(--text-primary);font-weight:700}
+.journey-pos{color:var(--text-muted);font-size:.72rem}
+.journey-nav{display:flex;align-items:center;gap:8px;font-size:.75rem}
+.journey-prev,.journey-next{color:var(--text-muted);cursor:default}
+.journey-divider{color:var(--border-subtle)}
+
+.module{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:28px 28px 24px;margin-bottom:20px;
+opacity:0;transform:translateY(24px);transition:opacity .5s ease,transform .5s ease;box-shadow:var(--shadow-sm)}
+.module.visible{opacity:1;transform:translateY(0)}
+.module:hover{border-color:var(--border-glow)}
+.module h2{font-size:1.15rem;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.module .m-tag{font-size:.65rem;padding:2px 10px;border-radius:50px;background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.2);color:var(--accent-indigo);font-weight:600}
+.module .m-time{font-size:.7rem;color:var(--text-muted);margin-left:auto}
+.module .hook{font-size:.9rem;color:var(--accent-purple);font-weight:600;margin:12px 0 16px;padding-left:12px;border-left:3px solid var(--accent-purple)}
+.module .content{font-size:.88rem;color:var(--text-secondary);line-height:1.8}
+.module .content p{margin-bottom:12px}
+.module .content ul,.module .content ol{margin:8px 0 12px 20px}
+.module .content li{margin-bottom:6px}
+
+.code-block{background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:var(--radius-sm);padding:14px 18px;margin:14px 0;font-family:var(--font-mono);font-size:.8rem;color:var(--text-primary);overflow-x:auto;white-space:pre-wrap;word-break:break-word}
+.code-block .cb-cap{font-size:.7rem;color:var(--text-muted);margin-bottom:6px;display:block}
+.step-block{background:rgba(91,141,184,.06);border:1px solid rgba(91,141,184,.12);border-radius:var(--radius-sm);padding:14px 18px;margin:10px 0}
+.step-block .step-num{display:inline-block;width:24px;height:24px;line-height:24px;text-align:center;background:var(--accent-indigo);color:#fff;border-radius:50%;font-size:.72rem;font-weight:700;margin-right:8px}
+.step-block .step-out{font-size:.75rem;color:var(--accent-green);margin-top:6px;padding-left:32px}
+.step-block .step-warn{font-size:.75rem;color:var(--accent-red);margin-top:4px;padding-left:32px}
+
+.formula-block{background:rgba(99,102,241,.04);border:1px solid rgba(99,102,241,.12);border-radius:var(--radius-sm);padding:14px 18px;margin:14px 0;font-family:var(--font-mono);font-size:.82rem;color:var(--accent-cyan);overflow-x:auto;position:relative}
+.formula-block .f-cap{font-size:.7rem;color:var(--text-muted);margin-bottom:6px;display:block}
+.derivation-toggle{font-size:.7rem;color:var(--accent-gold);cursor:pointer;border:none;background:none;padding:4px 0;font-family:inherit;display:block;margin-top:6px}
+.derivation-toggle:hover{text-decoration:underline}
+.derivation-content{display:none;margin-top:8px;padding:12px 16px;background:rgba(245,158,11,.04);border-radius:var(--radius-sm);border-left:3px solid var(--accent-gold);font-size:.8rem;color:var(--text-secondary)}
+.derivation-content.open{display:block}
+
+.chart-wrap{background:rgba(99,102,241,.03);border-radius:var(--radius-sm);padding:8px;margin:14px 0;text-align:center}
+.chart-wrap canvas{max-width:100%}
+.chart-wrap .ch-cap{font-size:.72rem;color:var(--text-muted);margin-top:6px}
+
+.data-table{width:100%;border-collapse:collapse;margin:12px 0;font-size:.82rem}
+.data-table th{text-align:left;padding:8px 12px;background:rgba(99,102,241,.08);border-bottom:2px solid var(--border-glow);color:var(--accent-indigo);font-weight:700}
+.data-table td{padding:8px 12px;border-bottom:1px solid var(--border-subtle);color:var(--text-secondary)}
+.data-table tr:hover td{background:rgba(99,102,241,.03)}
+
+.takeaway{font-size:.82rem;background:rgba(16,185,129,.06);border-left:3px solid var(--accent-green);padding:10px 14px;margin-top:16px;border-radius:0 var(--radius-sm) var(--radius-sm) 0;color:var(--accent-green)}
+
+.ref-list{list-style:none;padding:0;margin-top:8px;font-size:.78rem}
+.ref-list li{padding:4px 0;color:var(--text-muted)}
+.ref-list li::before{content:'📄 '}
+
+.search-overlay{position:fixed;inset:0;z-index:300;background:var(--bg-overlay);display:none;align-items:flex-start;justify-content:center;padding-top:120px}
+.search-overlay.open{display:flex}
+.search-box{width:520px;max-width:90vw;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:var(--radius-md);box-shadow:var(--shadow-lg);overflow:hidden}
+.search-box input{width:100%;padding:14px 18px;background:transparent;border:none;color:var(--text-primary);font-size:.95rem;outline:none;font-family:inherit}
+.search-results{max-height:360px;overflow-y:auto}
+.search-results div{padding:10px 18px;cursor:pointer;font-size:.82rem;color:var(--text-secondary);border-top:1px solid var(--border-subtle);transition:background var(--transition)}
+.search-results div:hover{background:rgba(99,102,241,.06);color:var(--text-primary)}
+
+.journey-footer{text-align:center;padding:40px 32px 60px;opacity:.8}
+.back-to-plan{display:inline-flex;align-items:center;gap:8px;padding:10px 24px;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:50px;color:var(--text-secondary);text-decoration:none;font-size:.85rem;font-weight:600;transition:all var(--transition-smooth)}
+.back-to-plan:hover{background:var(--bg-elevated);border-color:var(--accent-purple);color:var(--accent-purple)}
+
+.deep-floating-back{position:fixed;right:20px;bottom:20px;z-index:10000}
+.deep-floating-back button{padding:12px 20px;background:linear-gradient(135deg,var(--accent-color),var(--accent-dark));color:white;border:none;border-radius:24px;font-size:.85rem;font-weight:600;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.15);transition:transform .2s,box-shadow .2s}
+.deep-floating-back button:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.2)}
+
+.dd-toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);z-index:10001;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:8px;padding:14px 24px;box-shadow:0 4px 16px rgba(0,0,0,.15);font-size:.85rem;display:none}
+.toast-in{animation:toastIn .3s ease}
+@keyframes toastIn{from{opacity:0;transform:translate(-50%,20px)}to{opacity:1;transform:translate(-50%,0)}}
+
+@media print{.navbar,.progress-bar,.side-nav,.journey-bar,.journey-footer,.deep-floating-back{display:none!important}.module{break-inside:avoid;opacity:1!important;transform:none!important;box-shadow:none}body{background:#fff}}
+
+@media(max-width:768px){
+.hero h1{font-size:1.6rem}.module{padding:20px}.meta-card{font-size:.72rem;padding:12px 16px}.journey-bar{flex-direction:column;align-items:flex-start}
+.deep-floating-back{right:15px;bottom:15px}.deep-floating-back button{padding:10px 16px;font-size:.8rem}
+.side-dots{display:none}
+}
+</style>
+</head>
+<body data-theme="dark">
+
+<div class="progress-bar" id="progressBar" style="width:0%"></div>
+
+<nav class="navbar">
+  <div class="nav-left">📖 上下文窗口与长文本处理</div>
+  <div class="nav-right">
+    <button onclick="toggleTheme()" title="切换主题 (Ctrl+D)">🌓 主题</button>
+    <button onclick="openSearch()" title="搜索 (Ctrl+K)">🔍 搜索</button>
+  </div>
+</nav>
+
+<div class="side-dots" id="sideDots"></div>
+
+<div class="search-overlay" id="searchOverlay">
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="搜索模块内容..." oninput="doSearch()" onkeydown="if(event.key==='Escape')closeSearch()">
+    <div class="search-results" id="searchResults"></div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="hero">
+    <h1>上下文窗口与长文本处理</h1>
+    <div class="tags">
+      <span>LLM</span><span>工程实践</span><span>实操导向</span><span>核心技法</span>
+    </div>
+  </div>
+
+  <div class="meta-card">
+    <div class="meta-item"><div class="val">17</div><div class="lbl">内容模块</div></div>
+    <div class="meta-item"><div class="val">约65</div><div class="lbl">分钟阅读</div></div>
+    <div class="meta-item"><div class="val">G8</div><div class="lbl">教程实操型</div></div>
+    <div class="meta-item"><div class="val">理解</div><div class="lbl">深度等级</div></div>
+  </div>
+
+  <div class="journey-bar" id="journeyBar">
+    <div class="journey-path">
+      <span class="journey-icon">📍</span>
+      <span class="journey-plan" onclick="var w=window.open('pe_learning.html#kc-p2_4','plan_main');if(w)w.focus()">提示工程 (Prompt Engineering) 系统学习方案</span>
+      <span class="journey-sep">〉</span>
+      <span class="journey-phase">整合应用</span>
+      <span class="journey-sep">〉</span>
+      <span class="journey-kp">上下文窗口与长文本处理</span>
+      <span class="journey-pos">(阶段2/4 · 第4个知识点)</span>
+    </div>
+    <div class="journey-nav">
+      <span class="journey-prev" title="前置: 多步推理与任务分解">← 前置</span>
+      <span class="journey-divider">|</span>
+      <span class="journey-next" title="后续: 阶段3 LLM工作原理">后续 →</span>
+    </div>
+  </div>
+
+<div id="modulesContainer">
+
+<section class="module" id="mod-learning_journey">
+<h2><span class="m-tag">路线导航</span>📍 学习路线中的位置<span class="m-time">⏱ 约2分钟</span></h2>
+<div class="hook">你在「提示工程系统学习方案」第二阶段「整合应用」的最后一个知识点——在掌握了多步推理与任务分解后，这里是处理真实世界长文档的关键能力。</div>
+<div class="content">
+<p><strong>当前位置：</strong>提示工程 (Prompt Engineering) 系统学习方案 → <em>阶段2/4：整合应用</em> → 第4个知识点「上下文窗口与长文本处理」</p>
+<p><strong>← 前置依赖：</strong>本知识点依赖于 <strong>多步推理与任务分解 (p2_3)</strong>，因为长文本处理本质上是对复杂文档的分步处理策略。此外，你还需要对 Token 有基本了解——零样本/少样本提示 (p1_1) 中已经讨论过 token 的概念，如果你对 token 还不熟悉，建议先回顾 p1_1 的核心概念模块。了解本知识点后，建议同时关注阶段3中的 <strong>Token化与分词原理</strong>，两者从「消费端」和「生产端」不同视角理解 LLM 的 token 机制。</p>
+<p><strong>→ 后续学习：</strong>完成本知识点后，你将进入 <strong>阶段3：LLM工作原理</strong>，从更底层的视角理解 LLM 的 token 化、注意力机制和生成策略——这些知识将帮助你更深刻地理解为什么上下文窗口存在限制以及如何克服这些限制。</p>
+<p><strong>⏱️ 建议投入时间：</strong>标准学习节奏下，本知识点建议投入 60-90 分钟完成全部模块的阅读和代码实操。如果你是时间有限的实践者，至少完成「核心概念」「核心原理」「代码实操」「实践应用」四个模块（约25分钟）。</p>
+<p><strong>🔗 返回学习方案：</strong>点击顶部导航条中的方案名称，或直接 <a href="#" onclick="var w=window.open('pe_learning.html#kc-p2_4','plan_main');if(w)w.focus()" style="color:var(--accent-purple)">点击这里返回学习方案</a>。</p>
+</div>
+</section>
+
+<section class="module" id="mod-background">
+<h2><span class="m-tag">前置知识</span>背景与缘起<span class="m-time">⏱ 约3分钟</span></h2>
+<div class="hook">从 GPT-2 的 1024 tokens 到 Gemini 1.5 Pro 的 100万+ tokens——上下文窗口的膨胀速度远超摩尔定律，但「更大」真的意味着「更好」吗？</div>
+<div class="content">
+<p>2019年，GPT-2 的上下文窗口只有 1024 个 token。这意味着你喂给模型的内容，连一篇中等长度的维基百科文章都放不下。当时处理长文本的唯一方法是将文本切成碎片、分次处理。到 2023年，Claude 2 率先突破了 100K tokens 大关，可以用一次 API 调用「吞下」整本《了不起的盖茨比》。而到了 2024年初，Gemini 1.5 Pro 更是将上下文窗口推进到了惊人的 <strong>100 万+ tokens</strong>——相当于一次性处理 1500 页的PDF文档。</p>
+<p>但上下文窗口的扩张并非没有代价。2023年，Liu et al. 发表在 arXiv 上的经典论文 <em>"Lost in the Middle: How Language Models Use Long Contexts"</em> 揭示了一个令人不安的事实：<strong>当文本被放置在上下文窗口的中间位置时，模型提取信息的能力会显著下降</strong>。也就是说，即使模型声称拥有 128K 的上下文窗口，它对第 64K 位置附近信息的理解能力可能远不如对开头和结尾的理解。</p>
+<p>这一发现从根本上改变了我们对上下文窗口的理解范式：问题不再是「能不能塞进去」，而是「塞进去之后模型能不能有效理解」。这催生了五个核心的长文本处理策略——分块滑动窗口、层次化摘要、检索增强生成(RAG)、上下文压缩和 Prompt 缓存——它们共同构成了现代长文本提示工程的工具箱。</p>
+</div>
+</section>
+
+<section class="module" id="mod-concept">
+<h2><span class="m-tag">核心概念</span>核心概念<span class="m-time">⏱ 约5分钟</span></h2>
+<div class="hook">处理 10 万字的长文档，你可以在「分块—摘要—再摘要」的流水线上解决，也可以「只检索相关段落扔进上下文」——这五种策略构成了长文本提示工程的全部武器。</div>
+<div class="content">
+<p>面对超出上下文窗口的长文本，有五种核心处理策略，它们各自有不同的适用场景和代价：</p>
+
+<p><strong>策略一：分块/滑动窗口 (Chunking / Sliding Window)</strong></p>
+<p>将长文本按固定大小（如 512 tokens）切成多个块（chunk），每个块之间保留一定重叠（如 50 tokens 重叠），逐块送入模型处理，最后汇总结果。这是最朴素的方案，但分块边界的语义断裂是最大的问题——一句话被切成两半，模型就无法完整理解。</p>
+
+<p><strong>策略二：层次化摘要 (Hierarchical Summarization)</strong></p>
+<p>先对每个 chunk 独立生成摘要，再将所有 chunk 的摘要拼接后再次摘要——重复此过程直到摘要长度可接受。这种方法天然适合需要对全文有整体理解的任务，缺点是每次摘要都会丢失信息，层级越深信息越少。</p>
+
+<p><strong>策略三：检索增强生成 (RAG)</strong></p>
+<p>不把整篇文档放入上下文，而是将文档分块后做向量嵌入，用户提问时只检索最相关的 k 个 chunk 放入上下文。这是目前工业界最主流的长文本处理方案。核心挑战在于检索精度——召回的 chunk 如果不相关，模型就「巧妇难为无米之炊」。</p>
+
+<p><strong>策略四：上下文压缩 (Context Compression)</strong></p>
+<p>使用一个小模型（或 LLM 自身）对长文本进行压缩——去除冗余词句、保留关键信息——然后再送入目标 LLM。代表工具是微软的 LLMLingua。这种方法在 token 成本上有显著优势，但压缩过程本身可能丢失微妙的语义信息。</p>
+
+<p><strong>策略五：Prompt 缓存 (Prompt Caching)</strong></p>
+<p>当多轮对话或多次查询共享同一段长上下文时，模型服务商（如 Anthropic）允许你缓存已处理过的上下文计算结果，后续查询只需支付增量 token 费用。这本质上是一个成本优化策略而非处理策略，但在实际工程中至关重要。</p>
+
+<table class="data-table">
+<thead><tr><th>策略</th><th>核心思想</th><th>token 成本</th><th>信息保真度</th><th>最佳场景</th></tr></thead>
+<tbody>
+<tr><td>分块/滑动窗口</td><td>切分+独立处理+汇总</td><td>高</td><td>中</td><td>结构化提取</td></tr>
+<tr><td>层次化摘要</td><td>层层摘要递归</td><td>中</td><td>中低</td><td>全文概括理解</td></tr>
+<tr><td>RAG</td><td>检索+仅注入相关块</td><td>低</td><td>中高</td><td>问答/信息检索</td></tr>
+<tr><td>上下文压缩</td><td>压缩后送入LLM</td><td>最低</td><td>中</td><td>成本敏感场景</td></tr>
+<tr><td>Prompt 缓存</td><td>复用计算结果</td><td>极低(增量)</td><td>高</td><td>多轮对话/批处理</td></tr>
+</tbody>
+</table>
+
+<div class="takeaway">在实践中，这五种策略往往不是「选一个」而是「组合使用」——例如 RAG + 层次化摘要的组合（先用 RAG 检索，再对检索结果摘要）是当前公认的最佳工程方案之一。</div>
+</div>
+</section>
+
+<section class="module" id="mod-principle">
+<h2><span class="m-tag">核心概念</span>核心原理<span class="m-time">⏱ 约5分钟</span></h2>
+<div class="hook">为什么上下文窗口不是越大越好？答案藏在 Transformer 自注意力机制的 O(n²) 复杂度、「迷失在中间」现象和 token 成本的三重诅咒中。</div>
+<div class="content">
+<p>理解上下文窗口管理的必要性，需要从三个底层原理入手：</p>
+
+<p><strong>原理一：注意力复杂度的 O(n²) 诅咒</strong></p>
+<p>Transformer 的自注意力机制要求序列中的每个 token 计算与所有其他 token 的注意力权重。这意味着如果上下文有 n 个 token，计算量就是 O(n²)。从 4K 到 128K，计算量膨胀了 1024 倍。这就是为什么长上下文模型需要更强大的硬件、更长的推理时间和更高的 API 价格。即使模型厂商通过 FlashAttention、Ring Attention 等优化大幅降低了常数因子，平方级的增长趋势无法消除。</p>
+
+<p><strong>原理二：「迷失在中间」(Lost in the Middle)</strong></p>
+<p>Liu et al. (2023) 通过大量实验证明了模型的注意力分布极度不均衡：模型对上下文开头（primacy effect）和结尾（recency effect）的信息更关注，而对中间位置的信息理解能力显著下降。这种「U 形」注意力曲线意味着，如果你把关键信息放在 128K 上下文的第 60K 位置，模型可能完全「看不到」它。这对 RAG 系统的 chunk 排序策略有直接启示——最相关的 chunk 应该放在靠近上下文开头或结尾的位置。</p>
+
+<p><strong>原理三：Token 成本的线性增长</strong></p>
+<p>API 按 token 计费，上下文越长，每次调用成本越高。以 GPT-4o 为例，输入 token 单价为 $2.50/1M tokens。一次填满 128K 上下文的调用需要 $0.32，如果每天调用 1000 次，月度成本高达 $9600。这还不包括输出 token。因此，用最少的 token 传递最多的有效信息——即 <strong>信息密度优化 (Information Density Optimization)</strong>——是提示工程师的核心能力。</p>
+
+<div class="formula-block">
+<span class="f-cap">公式1: 有效上下文利用率</span>
+$$\eta = \frac{T_{\text{useful}}}{T_{\text{total}}} \times P_{\text{attention}}(pos)$$
+<button class="derivation-toggle">▸ 展开推导</button>
+<div class="derivation-content">其中 $T_{\text{useful}}$ 是传递有效信息的 token 数，$T_{\text{total}}$ 是总输入的 token 数，$P_{\text{attention}}(pos)$ 是模型对位置 $pos$ 的注意力权重（受 Lost in the Middle 效应影响）。例如：在 128K tokens 中只有 8000 tokens 是相关信息且位于中间位置（注意力权重约 0.3），则 $\eta = 8000/128000 \times 0.3 \approx 1.9\%$——也就是说，98% 的上下文窗口实际上被浪费了。这个公式解释了为什么「只检索相关 chunk 的 RAG」比「全量灌入」在大多数任务上更高效。</div>
+</div>
+
+<div class="step-block">
+<span class="step-num">1</span><strong>信息密度优先于上下文长度</strong>
+<div class="step-out">✅ 预期：每 1000 tokens 的 prompt 应包含至少一个明确的指令或关键信息点</div>
+<div class="step-warn">⚠️ 常见错误：在 prompt 中复制大段无关背景文本，模型被噪声淹没</div>
+</div>
+<div class="step-block">
+<span class="step-num">2</span><strong>关键信息放在开头或结尾</strong>
+<div class="step-out">✅ 预期：最重要的上下文信息应位于 prompt 的前 10% 或后 10% 位置，可提升 20-30% 的信息提取准确率</div>
+<div class="step-warn">⚠️ 常见错误：关键信息均匀分布在整个上下文中，模型对中间部分的理解出现明显盲区</div>
+</div>
+<div class="step-block">
+<span class="step-num">3</span><strong>先检索，再推理</strong>
+<div class="step-out">✅ 预期：RAG 模式下 token 利用率可达 40-70%，远高于全量输入模式的 2-5%</div>
+<div class="step-warn">⚠️ 常见错误：不加筛选地将整篇文档塞入 context，忽略检索环节的价值</div>
+</div>
+</div>
+</section>
+
+<section class="module" id="mod-architecture">
+<h2><span class="m-tag">核心工具</span>技术架构图<span class="m-time">⏱ 约4分钟</span></h2>
+<div class="hook">一份 500 页的 PDF 是如何变成 3 个精准答案的？从文档到答案，中间经历了一条精心设计的流水线。</div>
+<div class="content">
+<p>长文本处理的完整技术架构可以分为五个阶段：</p>
+
+<div class="chart-wrap">
+<canvas id="chart-arch-01" style="width:100%;max-width:780px;height:320px"></canvas>
+<span class="ch-cap">图：长文本处理流水线各阶段耗时占比</span>
+</div>
+
+<table class="data-table">
+<thead><tr><th>阶段</th><th>核心操作</th><th>技术选型</th><th>关键参数</th></tr></thead>
+<tbody>
+<tr><td><strong>1. 文本分割</strong></td><td>将长文档拆分为可管理的块</td><td>固定大小 / 语义分割 / 递归分割</td><td>chunk_size, chunk_overlap</td></tr>
+<tr><td><strong>2. 块选择</strong></td><td>决定哪些块进入上下文</td><td>RAG(向量检索) / 全量 / 滑动窗口</td><td>top_k, similarity_threshold</td></tr>
+<tr><td><strong>3. 并行处理</strong></td><td>对选中的块执行目标操作</td><td>MapReduce / Refine / 批量推理</td><td>batch_size, max_concurrency</td></tr>
+<tr><td><strong>4. 结果聚合</strong></td><td>将多个块的输出合并</td><td>拼接 / 摘要 / 投票</td><td>aggregation_strategy</td></tr>
+<tr><td><strong>5. 最终输出</strong></td><td>生成用户可读的最终答案</td><td>LLM 生成 / 格式化 / 后处理</td><td>max_output_tokens</td></tr>
+</tbody>
+</table>
+
+<p><strong>分块策略对比：</strong></p>
+<table class="data-table">
+<thead><tr><th>策略</th><th>原理</th><th>优点</th><th>缺点</th><th>适用场景</th></tr></thead>
+<tbody>
+<tr><td>固定大小切分</td><td>按 token 数切分</td><td>简单、可预测</td><td>语义断裂</td><td>初版原型</td></tr>
+<tr><td>语义切分</td><td>按段落/句子边界切分</td><td>语义完整</td><td>块大小不均</td><td>文档理解</td></tr>
+<tr><td>递归切分</td><td>先尝试大分隔符，失败则细化</td><td>平衡大小与语义</td><td>复杂度略高</td><td>通用场景</td></tr>
+<tr><td>滑动窗口</td><td>固定大小+重叠区</td><td>减少边界信息丢失</td><td>重复处理开销</td><td>NER/信息提取</td></tr>
+</tbody>
+</table>
+
+<p>在工程实践中，<strong>递归字符分割器 (RecursiveCharacterTextSplitter)</strong> 是最广泛使用的方案，它依次尝试 "\n\n", "\n", " ", "" 作为分隔符，在保持块大小一致的同时最大化语义完整性。</p>
+</div>
+</section>
+
+<section class="module" id="mod-code_practice">
+<h2><span class="m-tag">核心工具</span>代码实操<span class="m-time">⏱ 约6分钟</span></h2>
+<div class="hook">理论说一百遍不如跑一遍代码。这一节你将亲手实现从文档分块到 RAG 问答的完整流水线。</div>
+<div class="content">
+<p><strong>示例1：LangChain 递归文本分割器</strong></p>
+<div class="code-block">
+<span class="cb-cap">LangChain RecursiveCharacterTextSplitter 基础用法</span>
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+
+text_splitter = RecursiveCharacterTextSplitter(
+    chunk_size=512,
+    chunk_overlap=50,
+    separators=["\n\n", "\n", "。", ".", " ", ""]
+)
+
+with open("long_document.txt", "r", encoding="utf-8") as f:
+    document = f.read()
+
+chunks = text_splitter.split_text(document)
+print(f"文档被分割为 {len(chunks)} 个块")
+print(f"平均块大小: {sum(len(c) for c in chunks)/len(chunks):.0f} 字符")
+</div>
+
+<p><strong>示例2：滑动窗口实现</strong></p>
+<div class="code-block">
+<span class="cb-cap">自定义滑动窗口分块器</span>
+def sliding_window_chunks(text, window_size=500, step=400):
+    chunks = []
+    text_len = len(text)
+    for start in range(0, text_len, step):
+        end = min(start + window_size, text_len)
+        chunk = text[start:end]
+        if len(chunk) > 50:
+            chunks.append((start, chunk))
+    return chunks
+
+text = "这是一段非常长的文本..." * 1000
+chunks = sliding_window_chunks(text, window_size=500, step=400)
+print(f"滑动窗口生成 {len(chunks)} 个块，重叠率 {1-400/500:.0%}")
+</div>
+
+<p><strong>示例3：层次化摘要 (Map-Reduce)</strong></p>
+<div class="code-block">
+<span class="cb-cap">LangChain Map-Reduce 摘要链</span>
+from langchain.chains.summarize import load_summarize_chain
+from langchain_openai import ChatOpenAI
+
+llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
+
+chain = load_summarize_chain(
+    llm,
+    chain_type="map_reduce",
+    verbose=False
+)
+
+from langchain.schema import Document
+docs = [Document(page_content=chunk) for chunk in chunks[:20]]
+summary = chain.invoke(docs)
+print(summary['output_text'])
+</div>
+
+<p><strong>示例4：基于 FAISS 的 RAG 流水线</strong></p>
+<div class="code-block">
+<span class="cb-cap">端到端 RAG 问答流水线</span>
+from langchain_openai import OpenAIEmbeddings
+from langchain_community.vectorstores import FAISS
+from langchain.chains import RetrievalQA
+from langchain_openai import ChatOpenAI
+
+embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
+
+texts = [chunk for _, chunk in chunks[:100]]
+metadatas = [{"position": i} for i in range(len(texts))]
+
+vectorstore = FAISS.from_texts(texts, embeddings, metadatas=metadatas)
+
+qa_chain = RetrievalQA.from_chain_type(
+    llm=ChatOpenAI(model="gpt-4o", temperature=0),
+    chain_type="stuff",
+    retriever=vectorstore.as_retriever(search_kwargs={"k": 4})
+)
+
+question = "文档中提到的核心方法论是什么？"
+answer = qa_chain.invoke(question)
+print(f"Q: {question}")
+print(f"A: {answer['result']}")
+</div>
+
+<p><strong>示例5：LLMLingua 上下文压缩</strong></p>
+<div class="code-block">
+<span class="cb-cap">使用 LLMLingua 压缩长 prompt</span>
+from llmlingua import PromptCompressor
+
+compressor = PromptCompressor(
+    model_name="microsoft/llmlingua-2-bert-base-multilingual-cased-meetingbank",
+    use_llmlingua2=True,
+)
+
+long_context = "这是一段非常冗余、包含大量无用修饰词的文本..." * 50
+compressed = compressor.compress_prompt(
+    long_context,
+    rate=0.5,
+    force_tokens=['核心', '关键', '重要'],
+)
+
+original_tokens = len(long_context)
+compressed_tokens = len(compressed['compressed_prompt'])
+print(f"压缩率: {compressed_tokens/original_tokens:.1%}")
+print(f"节省 token: {original_tokens - compressed_tokens}")
+</div>
+
+<p><strong>示例6：Claude Prompt Caching</strong></p>
+<div class="code-block">
+<span class="cb-cap">Anthropic Prompt Caching API 示例</span>
+import anthropic
+
+client = anthropic.Anthropic()
+
+response = client.messages.create(
+    model="claude-sonnet-4-20250514",
+    max_tokens=1024,
+    system=[{
+        "type": "text",
+        "text": open("system_prompt.txt").read(),
+        "cache_control": {"type": "ephemeral"}
+    }],
+    messages=[{
+        "role": "user",
+        "content": [{
+            "type": "text",
+            "text": open("long_document.txt").read(),
+            "cache_control": {"type": "ephemeral"}
+        }]
+    }]
+)
+
+print(f"缓存创建token: {response.usage.cache_creation_input_tokens}")
+print(f"缓存读取token: {response.usage.cache_read_input_tokens}")
+print(f"节省成本: {response.usage.cache_read_input_tokens / 1e6 * 0.375:.4f} USD")
+</div>
+</div>
+</section>
+
+<section class="module" id="mod-open_source">
+<h2><span class="m-tag">实践应用</span>开源生态<span class="m-time">⏱ 约3分钟</span></h2>
+<div class="hook">从 LangChain 到 LLMLingua，从 FAISS 到 ChromaDB——长文本处理的开源工具箱已经相当成熟，选对工具能省 80% 的开发时间。</div>
+<div class="content">
+<table class="data-table">
+<thead><tr><th>工具</th><th>功能定位</th><th>核心优势</th><th>适用阶段</th></tr></thead>
+<tbody>
+<tr><td><strong>LangChain Text Splitters</strong></td><td>文本分割器集合</td><td>5+ 种分割策略，API 统一</td><td>文本分割</td></tr>
+<tr><td><strong>LlamaIndex</strong></td><td>数据索引框架</td><td>丰富的文档解析器 + 检索器</td><td>全流程</td></tr>
+<tr><td><strong>Unstructured.io</strong></td><td>文档解析</td><td>支持 PDF/Word/PPT 等 20+ 格式</td><td>文档预处理</td></tr>
+<tr><td><strong>LLMLingua</strong></td><td>上下文压缩</td><td>微软出品，压缩率 2-10x</td><td>上下文压缩</td></tr>
+<tr><td><strong>FAISS</strong></td><td>向量检索库</td><td>Meta出品，性能极致</td><td>向量检索</td></tr>
+<tr><td><strong>ChromaDB</strong></td><td>向量数据库</td><td>Pythonic API，开箱即用</td><td>向量存储</td></tr>
+<tr><td><strong>Milvus</strong></td><td>分布式向量数据库</td><td>支持十亿级向量</td><td>生产级检索</td></tr>
+<tr><td><strong>AutoCompressor</strong></td><td>上下文压缩模型</td><td>ICML 2024，专用压缩架构</td><td>深度压缩</td></tr>
+<tr><td><strong>Anthropic Prompt Caching</strong></td><td>Prompt 缓存</td><td>官方支持，缓存命中省 90%</td><td>成本优化</td></tr>
+</tbody>
+</table>
+
+<p><strong>选型建议：</strong></p>
+<ul>
+<li><strong>快速原型：</strong>LangChain + ChromaDB，30 分钟搭建可用 RAG</li>
+<li><strong>生产级系统：</strong>LlamaIndex + Milvus + LLMLingua，支持大规模文档索引和高并发检索</li>
+<li><strong>成本敏感场景：</strong>Anthropic Prompt Caching + LLMLingua 压缩，可将单次查询 token 消耗降低 70-90%</li>
+</ul>
+</div>
+</section>
+
+<section class="module" id="mod-benchmark">
+<h2><span class="m-tag">实践应用</span>Benchmark 数据<span class="m-time">⏱ 约4分钟</span></h2>
+<div class="hook">128K 上下文是「市场宣传」还是「实际可用」？Needle-in-a-Haystack 测试给出了冷冰冰的答案——你的 128K 模型可能只在 32K 以内靠谱。</div>
+<div class="content">
+<p><strong>主流模型上下文窗口对比：</strong></p>
+<table class="data-table">
+<thead><tr><th>模型</th><th>最大上下文</th><th>实际可用*</th><th>长上下文 API 价格</th><th>发布时间</th></tr></thead>
+<tbody>
+<tr><td>GPT-4o</td><td>128K</td><td>~64K</td><td>$2.50/1M input</td><td>2024.05</td></tr>
+<tr><td>Claude 3.5 Sonnet</td><td>200K</td><td>~150K</td><td>$3.00/1M input</td><td>2024.06</td></tr>
+<tr><td>Gemini 1.5 Pro</td><td>1M+(2M)</td><td>~500K</td><td>$1.25/1M input</td><td>2024.02</td></tr>
+<tr><td>Llama 3.3 70B</td><td>128K</td><td>~64K</td><td>开源免费</td><td>2024.12</td></tr>
+<tr><td>Qwen 2.5 72B</td><td>128K</td><td>~64K</td><td>开源免费</td><td>2024.12</td></tr>
+<tr><td>DeepSeek-V3</td><td>128K</td><td>~64K</td><td>$0.27/1M input</td><td>2024.12</td></tr>
+<tr><td>Claude 3 Opus</td><td>200K</td><td>~100K</td><td>$15.00/1M input</td><td>2024.03</td></tr>
+<tr><td>Mistral Large</td><td>128K</td><td>~64K</td><td>$2.00/1M input</td><td>2024.11</td></tr>
+</tbody>
+</table>
+<p><em>*「实际可用」指 Needle-in-a-Haystack 召回率 ≥90% 的最大上下文长度。</em></p>
+
+<div class="chart-wrap">
+<canvas id="chart-bench-01" style="width:100%;max-width:650px;height:300px"></canvas>
+<span class="ch-cap">图：主流模型 Needle-in-a-Haystack 各位置检索准确率对比</span>
+</div>
+
+<p><strong>Needle-in-a-Haystack 关键发现：</strong></p>
+<ul>
+<li><strong>GPT-4o：</strong>0-64K 准确率 95%+，64K-128K 下降至 75-85%。中间位置 (32-64K) 出现明显「U形谷底」。</li>
+<li><strong>Claude 3.5 Sonnet：</strong>0-150K 准确率 90%+，150K-200K 下降至 80%。长上下文表现最优的闭源模型。</li>
+<li><strong>Gemini 1.5 Pro：</strong>0-128K 准确率 99%+，128K-512K 仍有 90%+，512K-1M 下降至 80-85%。无愧当前长上下文之王。</li>
+<li><strong>Llama 3.3 70B：</strong>0-32K 准确率 95%+，32K-128K 下降明显至 60-75%。开源模型中 Qwen 2.5 在长上下文上表现更优。</li>
+</ul>
+
+<p><strong>不同上下文位置的检索准确率对比：</strong></p>
+<table class="data-table">
+<thead><tr><th>位置</th><th>GPT-4o(128K)</th><th>Claude 3.5(200K)</th><th>Gemini 1.5P(1M)</th></tr></thead>
+<tbody>
+<tr><td>0-10%</td><td>98%</td><td>99%</td><td>99%</td></tr>
+<tr><td>10-25%</td><td>95%</td><td>98%</td><td>99%</td></tr>
+<tr><td>25-50%</td><td>88%</td><td>93%</td><td>97%</td></tr>
+<tr><td>50-75%</td><td>85%</td><td>92%</td><td>95%</td></tr>
+<tr><td>75-90%</td><td>92%</td><td>96%</td><td>98%</td></tr>
+<tr><td>90-100%</td><td>96%</td><td>98%</td><td>99%</td></tr>
+</tbody>
+</table>
+<p>这张表清楚地验证了「U形注意力」的存在——中间位置 (25-75%) 的检索准确率始终最低。</p>
+</div>
+</section>
+
+<section class="module" id="mod-development">
+<h2><span class="m-tag">发展演进</span>发展迭代<span class="m-time">⏱ 约3分钟</span></h2>
+<div class="hook">从 2018 年的 512 tokens 到 2024 年的 100 万+ tokens——上下文窗口的膨胀史就是 LLM 在过去六年里「吞下世界」的历史。</div>
+<div class="content">
+<table class="data-table">
+<thead><tr><th>时间</th><th>模型/技术</th><th>上下文窗口</th><th>意义</th></tr></thead>
+<tbody>
+<tr><td>2018.06</td><td>GPT-1</td><td>512</td><td>只能处理段落级别</td></tr>
+<tr><td>2019.02</td><td>GPT-2</td><td>1,024</td><td>首次达到千级</td></tr>
+<tr><td>2020.05</td><td>GPT-3</td><td>2,048</td><td>可以处理短文</td></tr>
+<tr><td>2022.11</td><td>GPT-3.5 / ChatGPT</td><td>4,096</td><td>中篇文章可完整输入</td></tr>
+<tr><td>2023.03</td><td>GPT-4 (8K)</td><td>8,192</td><td>标准版上线</td></tr>
+<tr><td>2023.07</td><td>Claude 2</td><td>100K</td><td>首次突破10万，业界震动</td></tr>
+<tr><td>2023.11</td><td>GPT-4 Turbo</td><td>128K</td><td>OpenAI 的长上下文回应</td></tr>
+<tr><td>2024.02</td><td>Gemini 1.5 Pro</td><td>1M+</td><td>百万级上下文时代开启</td></tr>
+<tr><td>2024.03</td><td>Claude 3 Opus</td><td>200K</td><td>Anthropic 继续推进</td></tr>
+<tr><td>2024.09</td><td>Llama 3</td><td>128K</td><td>开源模型达到128K</td></tr>
+</tbody>
+</table>
+
+<div class="chart-wrap">
+<canvas id="chart-dev-01" style="width:100%;max-width:680px;height:280px"></canvas>
+<span class="ch-cap">图：上下文窗口大小随时间的增长趋势 (对数坐标)</span>
+</div>
+
+<p>从趋势来看，上下文窗口平均每 12-18 个月增长约 10 倍。但需要警惕：<strong>上下文窗口的增长速度远超模型对长上下文的有效利用能力的增长速度</strong>。这也是为什么"更大的上下文"和"更好的长文本理解"并非同一概念，RAG 等策略在很长一段时间内仍将是必要工具。</p>
+</div>
+</section>
+
+<section class="module" id="mod-application">
+<h2><span class="m-tag">实践应用</span>实践应用<span class="m-time">⏱ 约5分钟</span></h2>
+<div class="hook">从 500 页技术手册的智能问答，到头天会议录音的自动摘要——长文本处理的五个典型场景，每个都有独特的技术选型和工程考量。</div>
+<div class="content">
+
+<p><strong>场景一：书籍摘要 (Book Summarization)</strong></p>
+<div class="step-block">
+<span class="step-num">1</span><strong>层次化摘要 + Map-Reduce</strong>
+<div class="step-out">✅ 方案：先逐章摘要、再跨章主题合并、最后生成全书摘要</div>
+<div class="step-warn">⚠️ 注意：仅 Map-Reduce 一层不够，书籍通常需要 2-3 层递进摘要才能保持逻辑连贯</div>
+</div>
+<ul>
+<li><strong>推荐 chunk_size：</strong>2000-4000 tokens（保持段落完整性）</li>
+<li><strong>摘要策略：</strong>每章摘要→主题聚类→跨主题综合</li>
+<li><strong>输出要求：</strong>生成「逐章要点 + 主题脉络 + 全书总结」三层结构</li>
+</ul>
+
+<p><strong>场景二：法律文档审查 (Legal Document Review)</strong></p>
+<div class="step-block">
+<span class="step-num">2</span><strong>RAG + 语义分块 + 精确检索</strong>
+<div class="step-out">✅ 方案：按条款号分块，嵌入后支持精确条款检索，关键条款保留原文</div>
+<div class="step-warn">⚠️ 不得对法律条款做摘要——任何改写都可能改变法律含义，法律文档中原文即真理</div>
+</div>
+
+<p><strong>场景三：代码库分析 (Codebase Analysis)</strong></p>
+<div class="step-block">
+<span class="step-num">3</span><strong>AST 感知分块 + RAG</strong>
+<div class="step-out">✅ 方案：按函数/类边界分块，保留 import 依赖关系，嵌入后支持语义搜索</div>
+<div class="step-warn">⚠️ 不能按 token 数切分——会破坏函数边界，导致模型无法理解代码逻辑</div>
+</div>
+
+<p><strong>场景四：会议转录处理 (Meeting Transcript Processing)</strong></p>
+<p>会议录音转文字后通常是 1-3 万字的对话文本，核心需求是提取决议、行动项和关键观点。推荐方案：先用 RAG 检索特定议题，再用层次化摘要生成会议纪要。注意：对话文本中大量「嗯」「那个」「就是说」等口语填充词会稀释 token 密度，建议预处理时用 LLMLingua 做初步压缩。</p>
+
+<p><strong>场景五：研究论文合成 (Research Paper Synthesis)</strong></p>
+<p>需要对比多篇论文（通常 5-20 篇，每篇 5000-15000 字）。推荐方案：每篇独立 RAG 索引→跨论文检索→对比摘要链。核心挑战在于保持跨论文引用的准确性和一致性。</p>
+
+<div class="chart-wrap">
+<canvas id="chart-app-01" style="width:100%;max-width:650px;height:260px"></canvas>
+<span class="ch-cap">图：五大场景中不同策略的效果评分对比 (满分5.0)</span>
+</div>
+</div>
+</section>
+
+<section class="module" id="mod-case_study">
+<h2><span class="m-tag">实践应用</span>实践案例<span class="m-time">⏱ 约4分钟</span></h2>
+<div class="hook">一本 500 页的技术手册，500+ 个技术问题——如何用 RAG 实现「一秒检索，精准回答」？这个真实案例揭开了从原型到上线的每一层细节。</div>
+<div class="content">
+<p><strong>案例：500 页技术手册的智能问答系统</strong></p>
+<p><strong>背景：</strong>某工业自动化设备厂商拥有一本 500 页的 PDF 技术手册，客服团队每天需要花费大量时间翻阅手册查找答案。目标是构建一个能回答「设备X 的错误码 Y22 怎么排查？」这类问题的 RAG 问答系统。</p>
+
+<p><strong>实施方案：</strong></p>
+<ul>
+<li><strong>文档预处理：</strong>使用 Unstructured.io 解析 PDF，保留表格和图片标题（图片暂时不做 OCR）</li>
+<li><strong>分块策略：</strong>RecursiveCharacterTextSplitter，chunk_size=800 tokens，chunk_overlap=100 tokens。关键优化：为每个错误码说明、每个配置参数单独设定 chunk 边界（通过自定义分隔符实现）</li>
+<li><strong>嵌入模型：</strong>OpenAI text-embedding-3-large（3072 维），共生成 6,200 个向量</li>
+<li><strong>向量存储：</strong>FAISS，本地磁盘持久化</li>
+<li><strong>检索策略：</strong>top_k=5，相似度阈值 0.75（低于阈值触发「降级策略」——扩大检索到全手册的关键词匹配）</li>
+<li><strong>LLM：</strong>GPT-4o，temperature=0，system prompt 中明确「只在提供的文档中找答案，找不到就说找不到」</li>
+</ul>
+
+<p><strong>上线前测评指标：</strong></p>
+<table class="data-table">
+<thead><tr><th>指标</th><th>V1(原型)</th><th>V2(优化后)</th><th>改进</th></tr></thead>
+<tbody>
+<tr><td>检索召回率 (Recall@5)</td><td>82%</td><td>94%</td><td>+12%</td></tr>
+<tr><td>答案准确率 (Correctness)</td><td>76%</td><td>91%</td><td>+15%</td></tr>
+<tr><td>幻觉率 (Hallucination Rate)</td><td>18%</td><td>5%</td><td>-13%</td></tr>
+<tr><td>每查询平均 token 消耗</td><td>3,200</td><td>1,800</td><td>-44%</td></tr>
+<tr><td>每查询平均成本</td><td>$0.012</td><td>$0.006</td><td>-50%</td></tr>
+<tr><td>平均响应时间</td><td>4.2s</td><td>2.1s</td><td>-50%</td></tr>
+</tbody>
+</table>
+
+<p><strong>V1→V2 的关键改进点：</strong></p>
+<ul>
+<li>将 chunk_overlap 从 0 调整为 100，解决了「关键信息恰好在分割边界」导致的召回失败</li>
+<li>为错误码表格单独创建 chunk，避免表格跨页分割</li>
+<li>将 system prompt 从泛化的「你是技术助手」改为领域定制的「你是XX设备技术支持工程师，严格按照提供的文档内容回答问题」</li>
+<li>添加相似度阈值和降级策略，减少在 RAG 找不到时的幻觉</li>
+</ul>
+
+<div class="chart-wrap">
+<canvas id="chart-case-01" style="width:100%;max-width:550px;height:240px"></canvas>
+<span class="ch-cap">图：RAG系统 V1 vs V2 核心指标对比</span>
+</div>
+
+<div class="takeaway">这个案例的核心启示：RAG 系统 80% 的性能来自于「chunk 策略」和「检索质量」——LLM 本身只是一个「优秀的答案组织者」，但如果检索到的上下文是错的，任何 LLM 都救不了。</div>
+</div>
+</section>
+
+<section class="module" id="mod-risk">
+<h2><span class="m-tag">风险与挑战</span>潜在风险<span class="m-time">⏱ 约3分钟</span></h2>
+<div class="hook">你以为把文档全塞进 128K 上下文就万事大吉了？六个隐藏的风险正在悄然侵蚀你的系统质量。</div>
+<div class="content">
+<table class="data-table">
+<thead><tr><th>风险类型</th><th>描述</th><th>影响程度</th><th>缓解策略</th></tr></thead>
+<tbody>
+<tr><td><strong>分块边界信息丢失</strong></td><td>关键信息恰好跨越两个 chunk 的分割线，导致每个 chunk 都不完整</td><td>🔴 高</td><td>使用 chunk_overlap 50-100 tokens；避免在语义边界切分</td></tr>
+<tr><td><strong>上下文污染 (Context Contamination)</strong></td><td>无关的 chunk 占用了大量 context window，稀释了关键信息的注意力权重</td><td>🔴 高</td><td>提高检索精度，控制 top_k；添加 chunk 去重机制</td></tr>
+<tr><td><strong>长上下文成本爆炸</strong></td><td>每次调用填满 128K 上下文的成本是普通调用的 30-50 倍</td><td>🔴 高</td><td>使用 Prompt Caching；LLMLingua 压缩；RAG 减少无关上下文</td></tr>
+<tr><td><strong>迷失在中间</strong></td><td>模型对上下文中间位置的信息理解能力显著下降（U形注意力）</td><td>🟡 中</td><td>关键 chunk 放在开头/结尾；避免单个文档占据中间位置</td></tr>
+<tr><td><strong>注意力稀释</strong></td><td>上下文过长导致模型注意力分散，对每个细节的关注度都下降</td><td>🟡 中</td><td>限制单次输入不超过 32K tokens；使用层次化处理</td></tr>
+<tr><td><strong>幻觉放大</strong></td><td>长上下文中模型更倾向于「编造」而非承认「不知道」</td><td>🟡 中</td><td>明确 system prompt 中「找不到就说找不到」；添加 grounding 机制</td></tr>
+</tbody>
+</table>
+
+<div class="step-block">
+<span class="step-num">!</span><strong>上线前检查清单</strong>
+<div class="step-out">✅ 在不同上下文位置（前10%/中50%/后10%）各测试 50 个查询，准确率方差应小于 10%</div>
+<div class="step-out">✅ 单次查询的 token 消耗是否在预算内？日均查询量 × 单次成本 × 30 = 月度成本是否可接受？</div>
+<div class="step-warn">⚠️ 如果中间位置的准确率比其他位置低 15%+，你的 chunk 排序策略需要调整</div>
+</div>
+</div>
+</section>
+
+<section class="module" id="mod-ethics">
+<h2><span class="m-tag">风险与挑战</span>伦理与安全<span class="m-time">⏱ 约3分钟</span></h2>
+<div class="hook">你把客户的 500 页合同上传到 RAG 系统做智能问答——但你考虑过隐私泄露、数据留存和二次使用的伦理问题吗？</div>
+<div class="content">
+<p><strong>1. 长文档处理中的数据隐私</strong></p>
+<p>当一个系统需要处理长文档（合同、病历、财务报表）时，这些文档通常包含大量个人身份信息 (PII) 和商业机密。在将文档送入 LLM（尤其是通过 API 调用的第三方模型）之前，必须考虑：</p>
+<ul>
+<li><strong>API 数据传输：</strong>文档内容是否经过了第三方服务器？OpenAI、Anthropic 等厂商的隐私政策是否允许你的使用场景？</li>
+<li><strong>本地部署 vs 云端：</strong>对于高度敏感的文档，应优先使用本地部署的开源模型（如 Llama 3.3 via Ollama），确保数据不出企业内网。</li>
+<li><strong>数据脱敏：</strong>在分块和嵌入之前，应先使用 NER + 正则替换脱敏姓名、身份证号、银行卡号等 PII。</li>
+</ul>
+
+<p><strong>2. 文档分析的知情同意</strong></p>
+<p>当分析涉及个人文档（如简历、求职信、法律文件），需要确保文档所有者知晓并同意其文档被 AI 系统处理。尤其是在招聘、信贷审批等场景，AI 辅助分析未经当事人同意可能构成伦理违规。</p>
+
+<p><strong>3. RAG 系统中的数据留存</strong></p>
+<p>RAG 系统将文档分块嵌入后存储在向量数据库中。需要明确：</p>
+<ul>
+<li><strong>留存期限：</strong>嵌入向量和原始 chunk 应该保留多久？是否有定期清理机制？</li>
+<li><strong>删除权利：</strong>用户是否有权要求删除其文档的嵌入向量？（技术上可以实现——从 FAISS/ChromaDB 中按 metadata 删除特定来源的向量）</li>
+<li><strong>二次使用：</strong>嵌入向量是否会被用于训练或改进模型？这需要明确告知并获得同意。</li>
+</ul>
+
+<div class="step-block">
+<span class="step-num">✓</span><strong>伦理审查清单</strong>
+<div class="step-out">✅ 长文档在上传前是否进行了 PII 脱敏？</div>
+<div class="step-out">✅ API 调用是否使用了零数据留存模式（如 OpenAI API 的 data usage opt-out）？</div>
+<div class="step-out">✅ 向量数据库是否支持按来源删除嵌入？（metadata 中应包含 source_doc_id）</div>
+<div class="step-warn">⚠️ 不要假设「文档只是暂存在向量库里」——嵌入向量可以反向推断出原文的语义信息</div>
+</div>
+</div>
+</section>
+
+<section class="module" id="mod-prospect">
+<h2><span class="m-tag">发展演进</span>发展前景<span class="m-time">⏱ 约3分钟</span></h2>
+<div class="hook">如果 Ring Attention 让 100 万 token 成为「基本盘」，如果混合 RAG+长上下文让「任意长度」成为可能——那么上下文窗口的未来会是什么样子？</div>
+<div class="content">
+<p><strong>趋势一：无限上下文 via Ring Attention</strong></p>
+<p>Ring Attention (Liu et al., 2023) 通过将长序列的计算分布在多个设备上（如同环形接力），理论上可以处理任意长度的上下文，且计算复杂度从 O(n²) 优化为 O(n)。虽然目前实现仍有工程限制，但这代表了「不再需要上下文窗口」的技术方向。</p>
+
+<p><strong>趋势二：流式上下文 (Streaming Context)</strong></p>
+<p>Google DeepMind 的 StreamingLLM 和 MIT 的 Infini-attention 提出了一种新的注意力范式：模型不再需要「一次性看到所有上下文」，而是像人类阅读一样逐段处理，同时维护一个「压缩记忆」。这使得理论上无限的上下文成为可能——模型只需记住压缩后的关键信息，而非原始的每个 token。</p>
+
+<p><strong>趋势三：递归记忆 Transformer (Recurrent Memory Transformer)</strong></p>
+<p>DeepMind 的工作 Borgeaud et al. (2022) 展示了通过在 Transformer 中引入显式的记忆 token，模型可以在处理后续 chunk 时「回忆」前面 chunk 的信息。这种「读一段、记一段」的模式让模型在长文本上的表现显著优于传统方案。</p>
+
+<p><strong>趋势四：混合 RAG + 长上下文</strong></p>
+<p>当前最务实的趋势是：不是二选一，而是 RAG 用于粗略检索 + 长上下文用于精细理解。先用 RAG 定位相关区域（节省 95% token），再将相关区域的原始文本完整送入 LLM（保证信息保真度）。Anthropic 的 contextual retrieval 和 Google 的 RAG + Long Context 方案都在朝这个方向发展。</p>
+
+<table class="data-table">
+<thead><tr><th>时间线</th><th>标志事件</th><th>上下文范式</th></tr></thead>
+<tbody>
+<tr><td>2024-2025</td><td>Gemini 1.5 Pro 1M tokens 商用</td><td>大上下文 + RAG 混合</td></tr>
+<tr><td>2025-2026（预测）</td><td>开源模型达到 256K-512K</td><td>RAG 仍是成本最优解</td></tr>
+<tr><td>2026-2027（预测）</td><td>Ring Attention 商用，10M+ tokens</td><td>RAG 退居二线，混合方案为主</td></tr>
+<tr><td>2027+（预测）</td><td>流式记忆 Transformer 成熟</td><td>「上下文窗口」概念逐渐淡化</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<section class="module" id="mod-misconceptions">
+<h2><span class="m-tag">核心概念</span>常见误区<span class="m-time">⏱ 约3分钟</span></h2>
+<div class="hook">「上下文越大答案越好」「RAG 一定优于长上下文」「chunk 随便切都行」——这五个误区，每年浪费开发者上百万美元的 token。</div>
+<div class="content">
+<p><strong>误区 1：「更大的上下文 = 更好的答案」</strong></p>
+<p>这是最昂贵也最常见的误解。Lost in the Middle 现象证明，更大的上下文不一定带来更好的信息提取能力。在 200K 上下文中把问题答案藏在第 100K 位置，模型的准确提取率可能比 10K 上下文中答案在第 5K 位置更低。上下文窗口是「容量」，不是「能力」。</p>
+
+<p><strong>误区 2：「RAG 一定比长上下文好」</strong></p>
+<p>RAG 的优势在于成本和效率，但它有一个致命弱点：检索失败时模型完全无法回答。如果你的知识库是高度关联的（如法律判例关系），RAG 的切片式检索会丢失上下文关联。此时长上下文全量加载可能更合适——当然，前提是你能承担成本。结论：取决于任务类型，不是非此即彼。</p>
+
+<p><strong>误区 3：「全塞进去就好」</strong></p>
+<p>把整本手册、整条对话历史、所有相关文档不加筛选地全部塞进 128K 上下文——这种做法同时犯了「成本爆炸」「注意力稀释」「Lost in the Middle」三重错误。即使你不在乎成本，信息密度不足的 prompt 也会显著降低回答质量。</p>
+
+<p><strong>误区 4：「分块是小事，随便切切就行」</strong></p>
+<p>分块策略是整个长文本处理系统的基石。chunk_size 选错了、chunk_overlap 设为 0、不考虑文档结构的切分——任何一个错误都可能让你的 RAG 系统的检索召回率下降 20-30%。chunk_size 的经验法则：512-1024 tokens 适合问答，2000-4000 tokens 适合摘要。</p>
+
+<div class="step-block">
+<span class="step-num">!</span><strong>Debug 技巧</strong>
+<div class="step-out">RAG 答案质量差 → 先检查检索结果是否相关（并非 LLM 的问题）→ 调整 chunk_size 和 embedding 模型</div>
+<div class="step-out">长上下文回答遗漏关键信息 → 检查信息所在位置是否在「中间盲区」→ 将关键信息移至开头或末尾</div>
+<div class="step-out">成本失控 → 统计 prompt 中「有效 token」比例 → 如果低于 20%，考虑用 RAG 替代全量输入</div>
+</div>
+</div>
+</section>
+
+<section class="module" id="mod-learning_path">
+<h2><span class="m-tag">核心概念</span>学习路径<span class="m-time">⏱ 约3分钟</span></h2>
+<div class="hook">从动手实验不同 chunk_size 的效果，到亲手搭建一个完整的 RAG 问答系统——三个阶段的实操路线带你从 0 到 1。</div>
+<div class="content">
+<p><strong>阶段 1：动手实验 Chunking (30 分钟)</strong></p>
+<ul>
+<li>取一篇 5000 字的文章，用 LangChain RecursiveCharacterTextSplitter 分别按 chunk_size=256/512/1024/2048 切分</li>
+<li>将同一段关键信息放在不同分块策略下的不同位置，观察模型的回答准确度</li>
+<li>体会「chunk 过大→信息稀释」「chunk 过小→语义断裂」的权衡</li>
+</ul>
+<p><strong>必备工具：</strong>Jupyter Notebook / Google Colab + LangChain + OpenAI API (或本地 Ollama)</p>
+
+<p><strong>阶段 2：构建 RAG 流水线 (1 小时)</strong></p>
+<ul>
+<li>准备一个 10-50 页的 PDF 文档（可以是技术文档、论文或合同）</li>
+<li>使用 Unstructured.io 或 PyPDF2 解析文档</li>
+<li>用 RecursiveCharacterTextSplitter 分块，OpenAI Embeddings 做向量嵌入，FAISS/ChromaDB 做向量存储</li>
+<li>搭建 RetrievalQA 链，测试 20 个覆盖不同章节的问题</li>
+<li>记录检索召回率和答案准确率，迭代优化 chunk_size 和 top_k</li>
+</ul>
+<p><strong>必备工具：</strong>LangChain + FAISS/ChromaDB + OpenAI/本地 Embedding 模型</p>
+
+<p><strong>阶段 3：实现层次化摘要 (2 小时)</strong></p>
+<ul>
+<li>选择一篇 50-100 页的书籍或长报告</li>
+<li>按章分块，对每章生成摘要 (Map 阶段)</li>
+<li>将所有章摘要在一定 token 预算内合并，生成二级摘要 (Reduce 阶段)</li>
+<li>如果二级摘要仍然超出 token 限制，递归 Reduce</li>
+<li>对比直接截断（只读前 N tokens）vs 层次化摘要的效果差异</li>
+</ul>
+<p><strong>必备工具：</strong>LangChain load_summarize_chain (chain_type="map_reduce" 或 "refine")</p>
+
+<p><strong>推荐论文：</strong></p>
+<ol>
+<li>Liu et al. (2023) — Lost in the Middle: How Language Models Use Long Contexts</li>
+<li>Lewis et al. (2020) — Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks</li>
+<li>Jiang et al. (2023) — LLMLingua: Compressing Prompts for Accelerated Inference</li>
+<li>Reid et al. (2024) — Gemini 1.5: Unlocking multi-modal understanding across millions of tokens of context</li>
+</ol>
+</div>
+</section>
+
+<section class="module" id="mod-glossary">
+<h2><span class="m-tag">核心概念</span>关键术语表<span class="m-time">⏱ 约2分钟</span></h2>
+<div class="hook">Chunk、Embedding、RAG、Needle-in-a-Haystack——这些高频术语你绕不开。这个精简术语表覆盖了长文本处理中你需要的全部核心概念。</div>
+<div class="content">
+<table class="data-table">
+<thead><tr><th>术语</th><th>英文</th><th>精确定义</th></tr></thead>
+<tbody>
+<tr><td>上下文窗口</td><td>Context Window</td><td>LLM 单次推理可接收的最大 token 数量，超出部分会被自动截断</td></tr>
+<tr><td>Token 限制</td><td>Token Limit</td><td>等同于上下文窗口上限，每个模型的上下文窗口定义的最大 token 数</td></tr>
+<tr><td>分块</td><td>Chunking</td><td>将长文本按指定策略（固定大小/语义/递归）切分成多个片段的过程</td></tr>
+<tr><td>滑动窗口</td><td>Sliding Window</td><td>分块时块与块之间保留重叠区域的策略，减少边界信息丢失</td></tr>
+<tr><td>检索增强生成</td><td>RAG (Retrieval-Augmented Generation)</td><td>先检索与查询相关的文档片段，再将其作为上下文交给 LLM 生成答案的范式</td></tr>
+<tr><td>层次化摘要</td><td>Hierarchical Summarization</td><td>先对各片段生成摘要，再将摘要递归合并求摘要的多层处理策略</td></tr>
+<tr><td>迷失在中间</td><td>Lost in the Middle</td><td>LLM 对上下文窗口中间位置的文本理解能力显著下降的现象</td></tr>
+<tr><td>大海捞针测试</td><td>Needle-in-a-Haystack</td><td>在长上下文中的随机位置插入一条特定信息，测试模型能否准确提取</td></tr>
+<tr><td>嵌入/向量</td><td>Embedding / Vector</td><td>将文本映射为固定维度稠密向量的技术，用于语义检索和相似度计算</td></tr>
+<tr><td>向量存储</td><td>Vector Store / Vector Database</td><td>存储和高效检索嵌入向量的数据库，如 FAISS、ChromaDB、Milvus</td></tr>
+<tr><td>上下文压缩</td><td>Context Compression</td><td>使用 LLM 或专用压缩模型将长文本压缩为短文本，减少 token 消耗</td></tr>
+<tr><td>Prompt 缓存</td><td>Prompt Caching</td><td>模型服务商提供的机制：同一段上下文多次使用时只需支付首次token成本</td></tr>
+<tr><td>递归分割</td><td>RecursiveCharacterTextSplitter</td><td>LangChain 提供的分块工具：依次尝试不同分隔符，在保持块大小一致的前提下最大化语义完整性</td></tr>
+<tr><td>信息密度</td><td>Information Density</td><td>单位 token 传递的有效信息量，是评价 prompt 质量的核心指标之一</td></tr>
+<tr><td>Map-Reduce</td><td>Map-Reduce (LangChain)</td><td>LangChain 的链类型：先对各 chunk 独立执行操作（Map），再汇总所有结果（Reduce）</td></tr>
+<tr><td>Ring Attention</td><td>Ring Attention</td><td>将长序列注意力计算分布式分配到多设备的新型注意力机制，理论上支持无限上下文</td></tr>
+<tr><td>幻觉</td><td>Hallucination</td><td>LLM 在没有足够信息支撑的情况下编造看似合理但不符合事实的输出</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+</div>
+
+</div>
+
+<footer class="journey-footer">
+  <a href="#" class="back-to-plan" onclick="event.preventDefault();var w=window.open('pe_learning.html#kc-p2_4','plan_main');if(w)w.focus()">🔗 返回学习路线: 提示工程 (Prompt Engineering) 系统学习方案 → 整合应用</a>
+  <p style="margin-top:12px;font-size:.72rem;color:var(--text-muted)">
+    本资料是 <strong>提示工程 (Prompt Engineering) 系统学习方案</strong> 整合应用 阶段的深度研读材料
+  </p>
+</footer>
+
+<div class="deep-floating-back">
+  <button onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 16px rgba(0,0,0,.2)'"
+    onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 12px rgba(0,0,0,.15)'"
+    onclick="event.preventDefault();var w=window.open('pe_learning.html#kc-p2_4','plan_main');if(w)w.focus()">
+    ← 返回学习方案
+  </button>
+</div>
+
+<div class="dd-toast" id="toastEl"><span id="toastMsg"></span></div>
+
+<script>
+var MODULE_IDS = ["mod-learning_journey","mod-background","mod-concept","mod-principle","mod-architecture","mod-code_practice","mod-open_source","mod-benchmark","mod-development","mod-application","mod-case_study","mod-risk","mod-ethics","mod-prospect","mod-misconceptions","mod-learning_path","mod-glossary"];
+var SEARCH_INDEX = [
+{"id":"mod-learning_journey","t":"学习路线中的位置","c":"你在提示工程系统学习方案第二阶段整合应用的最后一个知识点"},
+{"id":"mod-background","t":"背景与缘起","c":"从GPT-2的1024tokens到Gemini 1.5 Pro的100万+——上下文窗口的膨胀速度远超摩尔定律"},
+{"id":"mod-concept","t":"核心概念","c":"分块滑动窗口、层次化摘要、RAG、上下文压缩、Prompt缓存五种核心策略对比"},
+{"id":"mod-principle","t":"核心原理","c":"注意力O(n2)复杂度、Lost in the Middle、token成本线性增长三重底层原理"},
+{"id":"mod-architecture","t":"技术架构图","c":"长文档到文本分割到块选择到并行处理到结果聚合到最终输出的五阶段流水线"},
+{"id":"mod-code_practice","t":"代码实操","c":"LangChain分割器、滑动窗口、Map-Reduce摘要、FAISS-RAG、LLMLingua压缩、Prompt缓存六个代码示例"},
+{"id":"mod-open_source","t":"开源生态","c":"LangChain、LlamaIndex、Unstructured.io、LLMLingua、FAISS、ChromaDB、Milvus等工具"},
+{"id":"mod-benchmark","t":"Benchmark数据","c":"GPT-4o、Claude 3.5、Gemini 1.5 Pro等模型的上下文窗口和Needle-in-a-Haystack测试"},
+{"id":"mod-development","t":"发展迭代","c":"从2018年GPT-1的512到2024年Gemini 1.5P的1M+的上下文窗口演化史"},
+{"id":"mod-application","t":"实践应用","c":"书籍摘要、法律文档审查、代码库分析、会议转录、论文合成五大应用场景"},
+{"id":"mod-case_study","t":"实践案例","c":"500页技术手册RAG问答系统从原型82%至上线94%检索召回率的优化过程"},
+{"id":"mod-risk","t":"潜在风险","c":"分块边界丢失、上下文污染、成本爆炸、Lost in the Middle等六大风险"},
+{"id":"mod-ethics","t":"伦理与安全","c":"长文档的隐私泄露、知情同意、数据留存、PII脱敏等伦理考量"},
+{"id":"mod-prospect","t":"发展前景","c":"Ring Attention无限上下文、流式上下文、递归记忆Transformer、混合RAG+长上下文"},
+{"id":"mod-misconceptions","t":"常见误区","c":"更大上下文不等于更好答案、RAG并非永远优于长上下文、chunk策略大不同"},
+{"id":"mod-learning_path","t":"学习路径","c":"30分钟chunk实验、1小时RAG流水线、2小时层次化摘要的三阶段实操路线"},
+{"id":"mod-glossary","t":"关键术语表","c":"Context Window、Chunking、RAG、Embedding、Needle-in-a-Haystack等核心术语"}
+];
+var TOAST_TIMEOUT;
+
+(function(){
+var progressBar=document.getElementById('progressBar'),sideDots=document.getElementById('sideDots');
+var modules=document.querySelectorAll('.module'),ids=[];
+modules.forEach(function(m){ids.push(m.id)});
+var dotsHTML='';ids.forEach(function(id,i){dotsHTML+='<div class="side-dot" title="模块'+(i+1)+'" onclick="document.getElementById(\''+id+'\').scrollIntoView({behavior:\'smooth\'})"><\/div>'});
+sideDots.innerHTML=dotsHTML;
+
+var observer=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting)e.target.classList.add('visible')})},{threshold:.15});
+modules.forEach(function(m){observer.observe(m)});
+
+window.addEventListener('scroll',function(){
+var st=document.documentElement.scrollTop,dh=document.documentElement.scrollHeight-window.innerHeight;
+var pct=dh>0?Math.min(100,(st/dh)*100):0;progressBar.style.width=pct+'%';
+var dots=document.querySelectorAll('.side-dot'),cur=-1;
+modules.forEach(function(m,i){if(st>=m.offsetTop-200)cur=i});
+dots.forEach(function(d,i){d.classList.toggle('active',i===cur)});
+});
+
+window.addEventListener('keydown',function(e){
+if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();openSearch()}
+if((e.ctrlKey||e.metaKey)&&e.key==='d'){e.preventDefault();toggleTheme()}
+if(e.key==='Escape')closeSearch()
+});
+})();
+
+function toggleTheme(){
+var b=document.body,isD=b.getAttribute('data-theme')==='dark';
+b.setAttribute('data-theme',isD?'light':'dark');
+try{localStorage.setItem('slm-theme',isD?'light':'dark')}catch(e){}
+showToast('已切换至'+(isD?'浅色':'深色')+'主题')
+}
+
+function openSearch(){document.getElementById('searchOverlay').classList.add('open');setTimeout(function(){document.getElementById('searchInput').focus()},100)}
+function closeSearch(){document.getElementById('searchOverlay').classList.remove('open');document.getElementById('searchResults').innerHTML=''}
+
+function doSearch(){
+var q=document.getElementById('searchInput').value.toLowerCase(),res=document.getElementById('searchResults');
+if(q.length<2){res.innerHTML='';return}
+var h='';SEARCH_INDEX.forEach(function(item){
+if(item.t.toLowerCase().indexOf(q)>=0||(item.c||'').toLowerCase().indexOf(q)>=0){
+h+='<div onclick="closeSearch();document.getElementById(\''+item.id+'\').scrollIntoView({behavior:\'smooth\'})">'+
+'<strong>'+item.t+'<\/strong><br><small style="color:var(--text-muted)">'+(item.c||'').substring(0,80)+'<\/small><\/div>';
+}
+});
+res.innerHTML=h||'<div style="padding:12px;color:var(--text-muted)">未找到匹配模块<\/div>'
+}
+
+function showToast(msg){
+var el=document.getElementById('toastEl'),mg=document.getElementById('toastMsg');
+if(!el||!mg)return;mg.textContent=msg;el.style.display='block';el.classList.add('toast-in');
+if(TOAST_TIMEOUT)clearTimeout(TOAST_TIMEOUT);
+TOAST_TIMEOUT=setTimeout(function(){el.style.display='none'},3000);
+}
+
+(function(){
+var t;try{t=localStorage.getItem('slm-theme')}catch(e){}
+if(t==='light')document.body.setAttribute('data-theme','light');
+})();
+
+(function(){
+document.querySelectorAll('.derivation-toggle').forEach(function(btn){
+btn.addEventListener('click',function(){
+var content=this.nextElementSibling;
+if(content){content.classList.toggle('open');this.textContent=content.classList.contains('open')?'▾ 收起推导':'▸ 展开推导'}
+});
+});
+})();
+
+(function(){
+var charts={};
+
+function initChart(id,option){
+var el=document.getElementById(id);
+if(!el)return;
+var isDark=document.body.getAttribute('data-theme')==='dark';
+var c=el.getContext('2d');
+if(!c)return;
+charts[id]={el:el,option:option};
+drawChart(id,isDark);
+}
+
+function drawChart(id,isDark){
+var entry=charts[id];
+if(!entry)return;
+var c=entry.el.getContext('2d');
+var w=entry.el.width=entry.el.offsetWidth*2;
+var h=entry.el.height=entry.el.offsetHeight*2;
+c.clearRect(0,0,w,h);
+c.scale(2,2);
+var o=entry.option;
+var bg=isDark?'#1a1a1a':'#ffffff';
+var fg=isDark?'#ededed':'#121212';
+var grid=isDark?'#252525':'#e5e5e5';
+var mut=isDark?'#787878':'#5e5e5e';
+var colors=isDark?['#818cf8','#a78bfa','#c4b5fd','#67e8f9','#fbbf24','#34d399','#f87171']:['#6366f1','#8b5cf6','#a78bfa','#22d3ee','#f59e0b','#10b981','#ef4444'];
+
+if(o.type==='bar'){
+var data=o.data,labels=o.labels;
+var cw=w/2,ch=h/2;
+var pad={top:30,right:20,bottom:40,left:50};
+var pw=cw-pad.left-pad.right,ph=ch-pad.top-pad.bottom;
+var maxVal=Math.max.apply(null,data.map(function(v){return Array.isArray(v)?Math.max.apply(null,v):v}));
+if(maxVal===0)maxVal=1;
+var barGap=8,groupGap=20;
+var groups=data[0]&&Array.isArray(data[0])?data.length:1;
+var barsPerGroup=data[0]&&Array.isArray(data[0])?data[0].length:data.length;
+var totalBars=labels.length*barsPerGroup;
+var barW=Math.max(4,(pw-(labels.length-1)*groupGap)/totalBars - barGap);
+
+c.strokeStyle=grid;c.lineWidth=1;
+for(var i=0;i<=4;i++){
+var gy=pad.top+ph*(i/4);
+c.beginPath();c.moveTo(pad.left,gy);c.lineTo(cw-pad.right,gy);c.stroke();
+c.fillStyle=mut;c.font='10px sans-serif';c.textAlign='right';
+c.fillText(Math.round(maxVal*(1-i/4)*10)/10,pad.left-8,gy+4);
+}
+
+if(data[0]&&Array.isArray(data[0])){
+for(var g=0;g<groups;g++){
+for(var b=0;b<barsPerGroup;b++){
+for(var l=0;l<labels.length;l++){
+var x=pad.left+l*(groupGap+barsPerGroup*(barW+barGap))+b*(barW+barGap);
+var val=data[g][l];
+var bh=(val/maxVal)*ph;
+c.fillStyle=colors[b%colors.length];
+c.fillRect(x,pad.top+ph-bh,barW,bh);
+}
+}
+}
+}
+
+c.fillStyle=mut;c.font='10px sans-serif';c.textAlign='center';
+for(var l=0;l<labels.length;l++){
+var lx=pad.left+l*(groupGap+barsPerGroup*(barW+barGap))+(barsPerGroup*(barW+barGap))/2;
+c.fillText(labels[l],lx,ch-pad.bottom+18);
+}
+}
+}
+
+initChart('chart-arch-01',{
+type:'bar',labels:['文本分割','块选择','并行处理','结果聚合','最终输出'],
+data:[[25,15,35,15,10]]
+});
+
+initChart('chart-bench-01',{
+type:'bar',labels:['0-10%','10-25%','25-50%','50-75%','75-90%','90-100%'],
+data:[[98,95,88,85,92,96],[99,98,93,92,96,98],[99,99,97,95,98,99]]
+});
+
+initChart('chart-dev-01',{
+type:'bar',labels:['GPT-2(19)','GPT-3(20)','GPT-3.5(22)','Claude2(23)','GPT-4T(23)','Gemini1.5(24)'],
+data:[[0.1,0.2,0.4,10,12.8,100]]
+});
+
+initChart('chart-app-01',{
+type:'bar',labels:['书籍摘要','法律审查','代码分析','会议转录','论文合成'],
+data:[[4.5,2.0,3.0,4.0,4.0],[4.0,4.5,2.5,3.5,4.5]]
+});
+
+initChart('chart-case-01',{
+type:'bar',labels:['召回率','准确率','幻觉率'],
+data:[[82,76,18],[94,91,5]]
+});
+
+window.addEventListener('themeChanged',function(){
+var isDark=document.body.getAttribute('data-theme')==='dark';
+Object.keys(charts).forEach(function(id){drawChart(id,isDark)});
+});
+})();
+
+var _origToggleTheme=toggleTheme;
+toggleTheme=function(){
+_origToggleTheme();
+var ev=new Event('themeChanged');
+window.dispatchEvent(ev);
+};
+</script>
+</body>
+</html>

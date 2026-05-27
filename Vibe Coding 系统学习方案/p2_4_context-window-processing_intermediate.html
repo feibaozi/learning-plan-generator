@@ -1,0 +1,1284 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>上下文窗口与长文本处理 深度研读</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<style>
+:root{
+--bg:#0d0d0d;--bg-secondary:#1a1a1a;--bg-tertiary:#222222;
+--text:#ededed;--text-secondary:#a0a0a0;--text-tertiary:#787878;
+--border:rgba(160,160,160,.15);
+--primary:#5b8db8;--primary-light:rgba(91,141,184,.12);
+--accent:#8878a8;--accent-light:rgba(136,120,168,.12);
+--cyan:#6ea8c0;--cyan-light:rgba(110,168,192,.1);
+--orange:#c0a060;--orange-light:rgba(192,160,96,.1);
+--green:#5a9e6f;--green-light:rgba(90,158,111,.1);
+--red:#c06050;--red-light:rgba(192,96,80,.1);
+--pink:#8878a8;--pink-light:rgba(136,120,168,.12);
+--shadow-sm:0 1px 3px rgba(0,0,0,.3);--shadow:0 4px 16px rgba(0,0,0,.4);
+--shadow-md:0 4px 16px rgba(0,0,0,.4);--shadow-lg:0 8px 32px rgba(0,0,0,.5);
+--radius:12px;--radius-sm:8px;--sidebar-width:240px;--transition:0.2s cubic-bezier(0.4,0,0.2,1);
+}
+
+[data-theme="light"]{
+--bg:#fafafa;--bg-secondary:#ffffff;--bg-tertiary:#eeeeee;
+--text:#121212;--text-secondary:#4a4a4a;--text-tertiary:#5e5e5e;
+--border:rgba(18,18,18,.08);
+--primary:#3a6088;--primary-light:rgba(58,96,136,.08);
+--accent:#5a4878;--accent-light:rgba(90,72,120,.08);
+--cyan:#3a7888;--cyan-light:rgba(58,120,136,.08);
+--orange:#886830;--orange-light:rgba(136,104,48,.08);
+--green:#3d8055;--green-light:rgba(61,128,85,.08);
+--red:#983830;--red-light:rgba(152,56,48,.08);
+--pink:#5a4878;--pink-light:rgba(90,72,120,.08);
+--shadow-sm:0 1px 3px rgba(0,0,0,.06);--shadow:0 4px 16px rgba(0,0,0,.08);
+--shadow-md:0 4px 16px rgba(0,0,0,.08);--shadow-lg:0 8px 32px rgba(0,0,0,.12);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  transition: background var(--transition), color var(--transition);
+}
+
+body.loading{opacity:0}body.loaded{opacity:1;transition:opacity 0.4s ease}
+
+#progress-bar {
+  position: fixed; top: 0; left: 0; height: 3px;
+  background: linear-gradient(90deg, var(--primary), var(--accent), var(--cyan));
+  z-index: 1000; transition: width 0.1s linear;
+}
+
+#theme-toggle {
+  position: fixed; top: 20px; right: 20px; z-index: 999;
+  width: 40px; height: 40px; border-radius: 50%;
+  background: var(--bg-secondary); border: 1px solid var(--border);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  font-size: 18px; transition: all var(--transition);
+  box-shadow: var(--shadow-sm);
+}
+#theme-toggle:hover { transform: scale(1.1); box-shadow: var(--shadow); }
+
+#sidebar {
+  position: fixed; top: 0; left: 0; width: var(--sidebar-width); height: 100vh;
+  background: var(--bg-secondary); border-right: 1px solid var(--border);
+  padding: 80px 16px 24px; overflow-y: auto; z-index: 100;
+  transition: transform var(--transition);
+}
+#sidebar h3 {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em;
+  color: var(--text-tertiary); margin-bottom: 12px; font-weight: 600;
+}
+.sidebar-link {
+  display: block; padding: 6px 12px; margin: 2px 0; border-radius: var(--radius-sm);
+  font-size: 13px; color: var(--text-secondary); text-decoration: none;
+  transition: all var(--transition); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.sidebar-link:hover { background: var(--bg-tertiary); color: var(--text); }
+.sidebar-link.active { background: var(--primary-light); color: var(--primary); font-weight: 600; }
+
+#main-content {
+  margin-left: var(--sidebar-width);
+  max-width: calc(100% - var(--sidebar-width) - 40px);
+  padding: 60px 32px 120px;
+}
+
+.meta-card {
+  background: linear-gradient(135deg, var(--primary-light), var(--accent-light));
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px 32px; margin-bottom: 48px;
+  display: flex; flex-wrap: wrap; gap: 24px; align-items: center;
+}
+.meta-card .meta-item { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--text-secondary); }
+.meta-card .meta-item .icon { font-size: 20px; }
+.meta-card .meta-item strong { color: var(--text); }
+.meta-badge {
+  display: inline-block; padding: 4px 12px; border-radius: 20px;
+  font-size: 12px; font-weight: 600; letter-spacing: 0.02em;
+}
+.meta-badge.domain-finance { background: var(--primary-light); color: var(--primary); }
+.meta-badge.domain-ai { background: var(--accent-light); color: var(--accent); }
+.meta-badge.level-beginner { background: var(--green-light); color: var(--green); }
+.meta-badge.level-intermediate { background: var(--orange-light); color: var(--orange); }
+.meta-badge.level-expert { background: var(--red-light); color: var(--red); }
+
+.meta-badge.texture-badge {
+  background: var(--cyan-light); color: #0891b2;
+  font-family: 'SF Mono', 'JetBrains Mono', monospace;
+}
+
+.meta-badge.depth-breadth {
+  background: var(--pink-light); color: var(--pink);
+}
+
+#cdn-indicator {
+  position: fixed; top: 20px; right: 72px; z-index: 999;
+  padding: 4px 10px; border-radius: 6px;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.03em;
+  background: var(--green-light); color: var(--green);
+  display: none;
+}
+#cdn-indicator.enhanced { display: block; background: var(--orange-light); color: var(--orange); }
+#cdn-indicator.baseline { display: block; background: var(--bg-tertiary); color: var(--text-tertiary); }
+
+.module-section {
+  margin-bottom: 56px; opacity: 0; transform: translateY(24px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.module-section.visible { opacity: 1; transform: translateY(0); }
+
+.module-header {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 16px;
+}
+.module-tag {
+  display: inline-block; padding: 3px 10px; border-radius: 6px;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.03em; text-transform: uppercase;
+}
+.tag-core { background: var(--primary-light); color: var(--primary); }
+.tag-tools { background: var(--accent-light); color: var(--accent); }
+.tag-evolution { background: var(--cyan-light); color: #0891b2; }
+.tag-application { background: var(--green-light); color: var(--green); }
+.tag-risk { background: var(--red-light); color: var(--red); }
+.tag-frontier { background: var(--orange-light); color: var(--orange); }
+
+.module-title {
+  font-size: 22px; font-weight: 700; color: var(--text); letter-spacing: -0.02em;
+}
+
+.module-hook {
+  font-size: 16px; color: var(--text-secondary); font-style: italic;
+  border-left: 3px solid var(--primary); padding-left: 16px; margin-bottom: 20px;
+}
+
+.module-content { font-size: 15px; color: var(--text); }
+.module-content p { margin-bottom: 12px; }
+.module-content strong { color: var(--text); }
+.module-content a { color: var(--primary); text-decoration: none; }
+.module-content a:hover { text-decoration: underline; }
+.module-content ul, .module-content ol { margin: 8px 0 16px 24px; }
+.module-content li { margin-bottom: 6px; }
+
+.formula-block {
+  background: var(--bg-tertiary); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 20px 24px; margin: 16px 0;
+  position: relative; cursor: pointer; transition: all var(--transition);
+}
+.formula-block:hover { box-shadow: var(--shadow); }
+.formula-caption { font-size: 12px; color: var(--text-tertiary); margin-top: 8px; text-align: center; }
+.formula-derivation {
+  display: none; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border);
+  font-size: 14px; color: var(--text-secondary);
+}
+.formula-block.expanded .formula-derivation { display: block; }
+.formula-expand-hint {
+  font-size: 11px; color: var(--text-tertiary); text-align: right; margin-top: 4px;
+}
+
+.chart-container {
+  background: var(--bg-secondary); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 24px; margin: 20px 0;
+}
+.chart-wrapper { width: 100%; height: 380px; }
+.chart-caption { font-size: 13px; color: var(--text-secondary); text-align: center; margin-top: 12px; }
+.chart-source { font-size: 11px; color: var(--text-tertiary); text-align: right; margin-top: 4px; }
+
+.module-table {
+  width: 100%; border-collapse: collapse; margin: 16px 0;
+  font-size: 14px; border: 1px solid var(--border); border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+.module-table th {
+  background: var(--bg-tertiary); padding: 10px 16px; text-align: left;
+  font-weight: 600; font-size: 12px; text-transform: uppercase;
+  letter-spacing: 0.03em; color: var(--text-secondary);
+}
+.module-table td { padding: 10px 16px; border-top: 1px solid var(--border); color: var(--text); }
+.module-table tr:hover td { background: var(--bg-tertiary); }
+.table-caption { font-size: 12px; color: var(--text-tertiary); text-align: center; margin-top: 8px; }
+
+.module-references {
+  margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border);
+  font-size: 12px; color: var(--text-tertiary);
+}
+.module-references h4 { font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+.module-references ol { margin-left: 20px; }
+.module-references li { margin-bottom: 4px; }
+
+.key-takeaway {
+  margin-top: 16px; padding: 14px 20px; border-radius: var(--radius-sm);
+  background: var(--primary-light); border-left: 4px solid var(--primary);
+  font-size: 14px; font-weight: 500; color: var(--text);
+}
+
+#page-footer {
+  margin-top: 60px; padding: 32px 0; border-top: 1px solid var(--border);
+  display: flex; gap: 12px; flex-wrap: wrap;
+}
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 10px 20px; border-radius: var(--radius-sm);
+  font-size: 14px; font-weight: 500; cursor: pointer;
+  border: 1px solid var(--border); background: var(--bg);
+  color: var(--text); transition: all var(--transition);
+  text-decoration: none;
+}
+.btn:hover { background: var(--bg-tertiary); }
+.btn.primary { background: var(--primary); color: #fff; border-color: var(--primary); }
+.btn.primary:hover { filter: brightness(1.1); }
+
+.tooltip-trigger {
+  color: var(--primary); text-decoration: underline dotted;
+  cursor: help; position: relative;
+}
+.tooltip-content {
+  display: none; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
+  background: var(--text); color: var(--bg); padding: 8px 12px; border-radius: 6px;
+  font-size: 12px; white-space: nowrap; z-index: 500; box-shadow: var(--shadow-lg);
+  pointer-events: none;
+}
+.tooltip-trigger:hover .tooltip-content { display: block; }
+
+#sidebar-toggle {
+  display: none; position: fixed; top: 16px; left: 16px; z-index: 999;
+  width: 40px; height: 40px; border-radius: 50%;
+  background: var(--bg-secondary); border: 1px solid var(--border);
+  cursor: pointer; font-size: 18px; align-items: center; justify-content: center;
+  box-shadow: var(--shadow-sm);
+}
+
+@media (max-width: 1024px) {
+  :root { --sidebar-width: 200px; }
+  #main-content { padding: 48px 24px 80px; }
+}
+@media (max-width: 768px) {
+  #sidebar-toggle { display: flex; }
+  #sidebar { transform: translateX(-100%); }
+  #sidebar.open { transform: translateX(0); }
+  #main-content { margin-left: 0; max-width: 100%; padding: 72px 20px 60px; }
+  #theme-toggle { top: 16px; right: 16px; }
+  .meta-card { padding: 20px 24px; flex-direction: column; gap: 12px; align-items: flex-start; }
+  .chart-wrapper { height: 280px; }
+  .module-title { font-size: 19px; }
+}
+
+@media print {
+  #sidebar, #progress-bar, #theme-toggle, #page-footer { display: none !important; }
+  #main-content { margin-left: 0; max-width: 100%; padding: 0; }
+  .module-section { opacity: 1; transform: none; break-inside: avoid; }
+  body { font-size: 12px; line-height: 1.5; }
+  #bg-canvas, .mobile-bottom-nav, .search-overlay, .help-overlay { display: none !important; }
+}
+
+#bg-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+
+.search-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 500; background: rgba(0,0,0,0.6); display: flex; justify-content: center; padding-top: 18vh; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
+.search-overlay.open { opacity: 1; pointer-events: auto; }
+[data-theme="dark"] .search-overlay { background: rgba(0,0,0,0.7); }
+[data-theme="light"] .search-overlay { background: rgba(15,23,42,0.3); }
+.search-dialog { width: 560px; max-width: 92vw; border-radius: 16px; background: var(--bg-secondary); border: 1px solid var(--border); box-shadow: 0 25px 60px rgba(0,0,0,0.5); overflow: hidden; }
+.search-dialog input { width: 100%; padding: 16px 20px; border: none; background: transparent; color: var(--text); font-size: 16px; outline: none; border-bottom: 1px solid var(--border); }
+.search-dialog input::placeholder { color: var(--text-tertiary); }
+.search-results { max-height: 360px; overflow-y: auto; }
+.search-results .sr-item { padding: 12px 20px; cursor: pointer; transition: background 0.15s; border-bottom: 1px solid rgba(255,255,255,0.03); }
+.search-results .sr-item:hover { background: var(--bg-tertiary); }
+.search-results .sr-item .sr-title { font-size: 14px; font-weight: 600; color: var(--text); }
+.search-results .sr-item .sr-title mark { background: rgba(52,211,153,0.25); color: #34d399; border-radius: 2px; padding: 0 2px; font-weight: 700; }
+[data-theme="light"] .search-results .sr-item .sr-title mark { background: rgba(16,185,129,0.2); color: #10b981; }
+.search-results .sr-item .sr-snippet { font-size: 12px; color: var(--text-tertiary); margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.search-empty { text-align: center; padding: 28px; color: var(--text-tertiary); font-size: 13px; }
+
+.help-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 600; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
+[data-theme="light"] .help-overlay { background: rgba(15,23,42,0.3); }
+.help-overlay.open { opacity: 1; pointer-events: auto; }
+.help-dialog { padding: 28px 32px; border-radius: 16px; background: var(--bg-secondary); border: 1px solid var(--border); max-width: 400px; margin: 0 16px; box-shadow: 0 25px 60px rgba(0,0,0,0.5); }
+.help-dialog h4 { font-size: 15px; margin-bottom: 14px; color: var(--green); }
+.help-dialog .kbd-row { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+.help-dialog .kbd-row:last-child { border-bottom: none; }
+.help-dialog .kbd-key { padding: 3px 8px; border-radius: 5px; background: var(--bg-tertiary); border: 1px solid var(--border); font-family: 'JetBrains Mono',monospace; font-size: 11px; color: var(--primary); min-width: 20px; text-align: center; white-space: nowrap; }
+.help-dialog .kbd-desc { color: var(--text-secondary); flex: 1; }
+
+.mobile-bottom-nav { display: none; position: fixed; bottom: 0; left: 0; right: 0; z-index: 300; background: var(--bg-secondary); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-top: 1px solid var(--border); padding: 6px 8px; padding-bottom: max(6px, env(safe-area-inset-bottom)); }
+.mobile-bottom-nav .mbn-inner { display: flex; justify-content: space-around; align-items: center; }
+.mobile-bottom-nav .mbn-item { display: flex; flex-direction: column; align-items: center; gap: 1px; color: var(--text-tertiary); cursor: pointer; font-size: 10px; font-weight: 500; background: transparent; border: none; padding: 4px; font-family: inherit; transition: color 0.2s; }
+.mobile-bottom-nav .mbn-item:hover, .mobile-bottom-nav .mbn-item.mbn-active { color: var(--green); }
+.mobile-bottom-nav .mbn-item .mbn-icon { font-size: 17px; }
+
+@media (max-width: 768px) {
+  .mobile-bottom-nav { display: block; }
+  #page-footer { padding-bottom: 64px; }
+}
+</style>
+</head>
+<body class="loading">
+<canvas id="bg-canvas"></canvas>
+
+<div id="progress-bar"></div>
+<button id="theme-toggle" title="切换深色/浅色模式" onclick="toggleTheme()">🌓</button>
+<button id="sidebar-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+
+<nav id="sidebar">
+  <h3>📑 内容导航</h3>
+  <div id="sidebar-links"></div>
+</nav>
+
+<main id="main-content">
+  <div id="meta-card-container"></div>
+  <div class="journey-bar" style="background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius);padding:12px 20px;margin:0 0 48px 0;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:0.82rem">
+  <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+    <span style="font-size:1rem">📍</span>
+    <span style="color:var(--primary);font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:3px" onclick="var w=window.open('pe_learning.html#kc-p2_4','plan_main');if(w)w.focus()">提示工程系统学习方案</span>
+    <span style="color:var(--text-tertiary);font-size:0.7rem">〉</span>
+    <span style="color:var(--text-secondary);font-weight:600">整合应用</span>
+    <span style="color:var(--text-tertiary);font-size:0.7rem">〉</span>
+    <span style="color:var(--text);font-weight:700">上下文窗口与长文本处理</span>
+    <span style="color:var(--text-tertiary);font-size:0.72rem">(第4/4个知识点)</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:8px;font-size:0.75rem">
+    <span style="color:var(--text-tertiary)">← 前置: 多步推理与任务分解</span>
+    <span style="color:var(--border)">|</span>
+    <span style="color:var(--text-tertiary)">后续: 无</span>
+  </div>
+</div>
+  <div id="modules-container"></div>
+  <footer id="page-footer">
+    <a href="#" style="display:inline-flex;align-items:center;gap:8px;padding:10px 24px;background:var(--bg-secondary);border:1px solid var(--primary);border-radius:50px;color:var(--text-secondary);text-decoration:none;font-size:0.85rem;font-weight:600" onclick="event.preventDefault();var w=window.open('pe_learning.html#kc-p2_4','plan_main');if(w)w.focus()">🔗 返回学习路线: 提示工程系统学习方案 → 整合应用</a>
+<button class="btn" onclick="exportNotes()">📄 导出笔记</button>
+<button class="btn" onclick="window.print()">🖨 打印</button>
+  </footer>
+</main>
+
+<div class="search-overlay" id="searchOverlay">
+  <div class="search-dialog">
+    <input type="text" id="searchInput" placeholder="搜索模块、公式、概念..." autofocus>
+    <div class="search-results" id="searchResults"></div>
+  </div>
+</div>
+
+<div class="help-overlay" id="helpOverlay">
+  <div class="help-dialog">
+    <h4>⌨ 键盘快捷键</h4>
+    <div class="kbd-row"><span class="kbd-key">Ctrl+K</span><span class="kbd-desc">打开搜索</span></div>
+    <div class="kbd-row"><span class="kbd-key">Ctrl+D</span><span class="kbd-desc">切换深色/浅色主题</span></div>
+    <div class="kbd-row"><span class="kbd-key">Esc</span><span class="kbd-desc">关闭弹窗</span></div>
+    <div class="kbd-row"><span class="kbd-key">Shift+?</span><span class="kbd-desc">显示此帮助</span></div>
+    <div style="text-align:center;margin-top:12px"><span style="font-size:12px;color:var(--text-tertiary)">点击背景或按 Esc 关闭</span></div>
+  </div>
+</div>
+
+<div class="mobile-bottom-nav" id="mobileBottomNav">
+  <div class="mbn-inner" id="mbnInner"></div>
+</div>
+
+<div class="deep-floating-back" style="position:fixed;right:20px;bottom:20px;z-index:10000">
+  <button style="padding:12px 20px;background:linear-gradient(135deg,var(--primary),var(--accent));color:white;border:none;border-radius:24px;font-size:0.85rem;font-weight:600;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.15);transition:transform 0.2s,box-shadow 0.2s" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 16px rgba(0,0,0,0.2)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 12px rgba(0,0,0,0.15)'" onclick="event.preventDefault();var w=window.open('pe_learning.html#kc-p2_4','plan_main');if(w)w.focus()">← 返回学习方案</button>
+</div>
+
+<script>
+const PAGE_DATA = {
+  topic: "上下文窗口与长文本处理",
+  domain: "ai-tech",
+  domain_name: "AI与科技",
+  level: "intermediate",
+  level_name: "进阶",
+  reading_time: "35",
+  module_count: "17",
+  texture: "G8",
+  texture_name: "教程实操型",
+  depth: "理解",
+  breadth: "标准",
+  modules: [
+    {
+      module_id: "learning_journey",
+      module_title: "学习路线",
+      module_tag: "前置知识",
+      hook: "在深入上下文窗口技术之前，先了解本知识点的学习路径和在全体系中的位置。",
+      content: "**当前知识点属于「提示工程系统学习方案」中「整合应用」章节的第4个知识点。**\n\n### 前置依赖\n- ✅ 提示工程基础（基础概念、Few-shot、Chain-of-Thought）\n- ✅ 多步推理与任务分解（理解LLM如何进行复杂推理）\n- 建议先了解Transformer架构的基本原理\n\n### 学习路径\n1. 先阅读「背景」模块：了解上下文窗口的历史演变（512→128K→1M）\n2. 重点研读「核心概念」模块：理解attention复杂度、位置编码、KV cache\n3. 深入「处理原理」和「技术架构」：掌握RoPE、ALiBi、YaRN等关键技术\n4. 阅读「实践应用」和「实战案例」：学会RAG和chunk策略\n5. 了解「评测基准」：知道如何衡量长上下文能力\n6. 关注「风险」和「伦理」：理解长上下文的局限性\n7. 浏览「开源生态」和「前景」：跟踪最新发展\n\n### 预计学习时间\n约35-40分钟完成全部17个模块的研读。",
+      key_takeaway: "上下文窗口是提示工程中最核心的基础设施之一，理解它的原理和限制，才能真正发挥LLM处理长文本的能力。"
+    },
+    {
+      module_id: "background",
+      module_title: "上下文窗口的历史演变",
+      module_tag: "发展演进",
+      hook: "从GPT-1的512 token到Gemini 1.5 Pro的1M token，上下文窗口的扩展速度甚至超过了摩尔定律。这背后是怎样的技术革命？",
+      content: "**上下文窗口（Context Window）** 是指LLM在一次推理中能处理的最大token数量。它决定了模型能「记住」多少上下文信息。\n\n### 演变时间线\n- **2018年 GPT-1**: 512 tokens — 只能处理短段落\n- **2019年 GPT-2**: 1024 tokens — 初步支持短文处理\n- **2020年 GPT-3**: 2048 tokens — 约1500个英文单词\n- **2022年 GPT-3.5**: 4096 tokens — 开始支持较长对话\n- **2023年初 GPT-4**: 8192 tokens（后扩展至32K）\n- **2023年 Claude 2**: 100K tokens — 首次突破10万大关\n- **2023年 GPT-4 Turbo**: 128K tokens — 可处理整本书\n- **2024年初 Gemini 1.5 Pro**: 1M tokens — 百万级上下文\n- **2024年中 Claude 3**: 200K tokens\n- **2024年底 Gemini 2.0 Flash**: 1M+ tokens\n\n### 关键突破\n窗口扩展并非简单的「加内存」。每次扩展都需要解决三个核心问题：\n1. **注意力计算的二次复杂度**：O(n²)使得直接扩展不可行\n2. **位置编码的泛化**：训练时未见过的位置需要新的编码方案\n3. **KV Cache的内存膨胀**：长序列的缓存可能超过GPU显存\n\n### 为什么需要长上下文\n- **代码库级别理解**：现代代码仓库动辄数万行\n- **法律文档分析**：一份合同可能上百页\n- **多轮对话**：客服系统需要记住整个对话历史\n- **长篇内容创作**：小说、论文等需要连贯性\n\n**常见误区**：更长的上下文≠更好的效果。研究表明，模型在上下文中间部分的信息检索能力显著下降（lost-in-the-middle现象）。",
+      tables: [
+        {
+          headers: ["时期", "代表模型", "上下文窗口", "关键技术突破", "典型应用"],
+          rows: [
+            ["2018-2020", "GPT-1/2/3", "512-2048", "原始Transformer注意力", "短文生成、简单问答"],
+            ["2022-2023", "GPT-3.5/4", "4K-32K", "优化注意力实现(FlashAttention)", "长对话、文档摘要"],
+            ["2023", "Claude 2", "100K", "稀疏注意力+位置插值", "整本书分析"],
+            ["2023-2024", "GPT-4 Turbo", "128K", "RoPE+高效KV Cache", "代码库分析、长篇QA"],
+            ["2024", "Gemini 1.5 Pro", "1M", "混合架构+环形注意力", "视频分析、海量文档"],
+            ["2024+", "前沿研究", "无限(理论)", "线性注意力/Mamba/SSM", "终身学习、无限记忆"]
+          ],
+          caption: "表1: 上下文窗口的历史演进对比"
+        }
+      ],
+      charts: [
+        {
+          echarts_option: {
+            title: { text: "上下文窗口增长趋势 (对数尺度)", left: "center", textStyle: { color: "#a0a0a0", fontSize: 14 } },
+            tooltip: { trigger: "axis" },
+            xAxis: { type: "category", data: ["GPT-1\\n2018","GPT-2\\n2019","GPT-3\\n2020","GPT-3.5\\n2022","GPT-4\\n2023","Claude2\\n2023","GPT-4T\\n2023","Gemini1.5\\n2024"], axisLabel: { color: "#a0a0a0", fontSize: 11 } },
+            yAxis: { type: "log", name: "Token数", nameTextStyle: { color: "#a0a0a0" }, axisLabel: { color: "#a0a0a0" } },
+            series: [{ type: "line", data: [512,1024,2048,4096,32768,100000,128000,1000000], smooth: true, lineStyle: { width: 3 }, itemStyle: { color: "#5b8db8" }, areaStyle: { color: { type: "linear", x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: "rgba(91,141,184,0.3)" }, { offset: 1, color: "rgba(91,141,184,0.02)" }] } } }],
+            grid: { left: 70, right: 30, top: 60, bottom: 60 }
+          },
+          caption: "图1: 2018-2024年主流模型上下文窗口增长趋势（对数尺度）",
+          data_source: "数据来源: OpenAI, Anthropic, Google 官方文档"
+        }
+      ],
+      references: [
+        { title: "Attention Is All You Need", authors: "Vaswani et al.", year: 2017, doi: "10.48550/arXiv.1706.03762" },
+        { title: "GPT-4 Technical Report", authors: "OpenAI", year: 2023, url: "https://arxiv.org/abs/2303.08774" }
+      ],
+      key_takeaway: "上下文窗口从512到1M的增长仅用了6年，但「更长」不等于「更好」——模型的注意力分布和中间信息丢失问题仍然存在。"
+    },
+    {
+      module_id: "concept",
+      module_title: "核心概念",
+      module_tag: "核心概念",
+      hook: "上下文窗口背后有哪些关键概念？理解Position Encoding、KV Cache和Attention Complexity，才能真正掌握长文本处理的本质。",
+      content: "### 1. Context Window（上下文窗口）\nLLM在一次前向传播中能处理的最大token数量。窗口内的所有token可以互相「看到」（在decoder-only架构中，每个token只能看到它之前的token，这是causal attention）。\n\n### 2. Position Encoding（位置编码）\nTransformer本身不具备序列位置感知能力。位置编码将token的位置信息注入到输入中。\n- **绝对位置编码**：每个位置有固定的编码向量（如正弦编码）\n- **相对位置编码**：编码token之间的相对距离（如RoPE、ALiBi）\n- **可学习位置编码**：将位置作为可训练参数\n\n### 3. KV Cache（键值缓存）\n在自回归生成中，已生成token的Key和Value矩阵被缓存，避免重复计算。这是长文本推理的**最大显存瓶颈**。\n\n### 4. Attention Complexity（注意力复杂度）\n标准Scaled Dot-Product Attention的计算复杂度为O(n²·d)，其中n是序列长度，d是隐藏维度。当n=128K时，单层注意力的计算量达到数十亿次浮点运算。\n\n### 5. Tokenization（分词）\n不同分词器对同一文本的token数不同。中文通常1个字≈1.5-2个token，英文1个词≈1.3个token。理解tokenization对估算上下文消耗至关重要。\n\n### 6. Perplexity与长文本\n随着上下文增长，模型的perplexity（困惑度）通常先下降后趋于平稳。但在超长上下文（>100K）中，某些位置（尤其是中间部分）的perplexity会异常升高。",
+      formulas: [
+        {
+          latex: "$$\\text{Attention}(Q,K,V)=\\text{softmax}\\left(\\frac{QK^T}{\\sqrt{d_k}}\\right)V$$",
+          caption: "公式1: 标准Scaled Dot-Product Attention",
+          expandable: true,
+          derivation: "**推导过程：**\n\n**第1步：计算注意力分数**\nQ（Query）和K（Key）做点积：S = QK^T，得到n×n的分数矩阵。\n\n**第2步：缩放**\n除以√d_k防止点积过大导致softmax梯度消失：S' = S/√d_k。\n\n**第3步：归一化**\n对S'的每一行做softmax，得到注意力权重矩阵A（每行之和为1）。\n\n**第4步：加权求和**\nA × V得到最终输出。\n\n**复杂度分析**：QK^T需要O(n²·d)次乘法，是瓶颈所在。当n=128K, d=128时，仅这一步就需要约2×10^12次浮点运算。"
+        },
+        {
+          latex: "$$\\text{Complexity}_{\\text{attention}} = O(n^2 \\cdot d)$$",
+          caption: "公式2: 标准注意力的计算复杂度"
+        },
+        {
+          latex: "$$\\text{Memory}_{\\text{KV-cache}} = 2 \\times n_{\\text{layers}} \\times n_{\\text{ctx}} \\times d_{\\text{model}} \\times \\text{bytes}$$",
+          caption: "公式3: KV Cache显存占用估算",
+          expandable: true,
+          derivation: "**推导过程：**\n\n**参数说明：**\n- n_layers：模型的层数（如Llama-7B有32层）\n- n_ctx：当前上下文长度\n- d_model：模型隐藏维度（如4096）\n- bytes：精度（FP16=2字节，FP32=4字节）\n\n**计算示例（Llama-7B, FP16, 128K上下文）：**\nKV Cache = 2 × 32 × 131072 × 4096 × 2 = 约68.7 GB！\n这已经超过了一张80GB A100的显存容量。\n\n这就是为什么长上下文推理需要GQA（Grouped Query Attention）、MQA（Multi-Query Attention）等优化技术。"
+        }
+      ],
+      tables: [
+        {
+          headers: ["概念", "定义", "对长文本的影响", "优化方向"],
+          rows: [
+            ["Attention Complexity", "O(n²·d)计算复杂度", "n增大时计算量爆炸", "稀疏注意力、线性注意力"],
+            ["Position Encoding", "注入位置信息", "外推能力受编码方式限制", "RoPE插值、ALiBi"],
+            ["KV Cache", "缓存已生成token的K/V", "显存随n线性增长", "GQA/MQA、KV压缩"],
+            ["Tokenization", "文本到token的映射", "中英文token数差异大", "优化分词器、token合并"],
+            ["Causal Mask", "只看前文不看后文", "decoder-only的自然限制", "双向注意力、prefix LM"]
+          ],
+          caption: "表2: 核心概念及其对长文本处理的影响"
+        }
+      ],
+      references: [
+        { title: "RoFormer: Enhanced Transformer with Rotary Position Embedding", authors: "Su et al.", year: 2021, doi: "10.48550/arXiv.2104.09864" },
+        { title: "FlashAttention: Fast and Memory-Efficient Exact Attention", authors: "Dao et al.", year: 2022, doi: "10.48550/arXiv.2205.14135" }
+      ],
+      key_takeaway: "上下文窗口的本质约束来源于三个维度：O(n²)的计算复杂度、KV Cache的显存膨胀、以及位置编码的泛化能力。理解这三者是掌握长文本处理的基础。"
+    },
+    {
+      module_id: "principle",
+      module_title: "长文本处理原理",
+      module_tag: "核心概念",
+      hook: "如何让模型处理超出训练时上下文长度的文本？滑动窗口、位置插值、稀疏注意力——这些技术背后的原理是什么？",
+      content: "### 处理长文本的四大技术路线\n\n#### 1. 滑动窗口注意力（Sliding Window Attention）\n每个token只关注其周围固定窗口大小内的token（如window_size=4096），而非整个序列。复杂度降至O(n·w·d)，其中w是窗口大小。\n- **优势**：计算量大幅降低，适合流式处理\n- **劣势**：丢失长距离依赖，不适合需要全局理解的场景\n- **代表**：Mistral-7B采用4096的滑动窗口\n\n#### 2. 位置插值（Position Interpolation）\n将超出训练长度的位置「压缩」到训练长度范围内。例如训练长度2K，要扩展到8K：\n- 将位置索引乘以 2K/8K = 0.25\n- 位置8K被映射为位置2K，模型在熟悉的范围内工作\n- **代表**：YaRN（NTK-aware插值）\n\n#### 3. 稀疏注意力（Sparse Attention）\n不计算完整的n×n注意力矩阵，而是有选择地计算部分注意力。\n- **局部+全局**：大部分token做局部注意力，少量「global token」看全局\n- **分块注意力**：将序列分块，块内全注意力+块间稀疏连接\n- **Longformer/BigBird**：组合局部窗口+随机+全局注意力\n\n#### 4. Memory机制\n引入外部记忆模块，将历史信息压缩存储，当前token可以访问压缩后的记忆。\n- **Transformer-XL**：段级循环，缓存上一段的隐状态\n- **Memorizing Transformers**：用kNN检索近似注意力\n- **Infini-attention**：压缩记忆+局部注意力的混合\n\n### 位置插值（PI）详解\n这是目前最广泛使用的长上下文扩展技术。\n\n**步骤1**：确定缩放因子 s = L_train / L_target\n**步骤2**：将所有RoPE频率除以s\n**步骤3**：微调（可选）：在新长度上做少量训练\n\n**NTK-aware插值（YaRN）的改进**：\n不同频率维度做不同程度的插值——高频维度插值少（保留局部细节），低频维度插值多（扩展长距离）。",
+      formulas: [
+        {
+          latex: "$$\\text{PI: } \\theta_i^{\\prime} = \\theta_i \\cdot s^{-1}, \\quad s = \\frac{L_{\\text{target}}}{L_{\\text{train}}}$$",
+          caption: "公式4: 位置插值（PI）的基本公式",
+          expandable: true,
+          derivation: "**推导过程：**\n\n**背景**：RoPE使用旋转角度θ_i = 10000^(-2i/d)来编码位置信息。在训练中，模型只在位置0~L_train范围内见过这些角度。\n\n**PI的做法**：将所有旋转角度乘以缩放因子的倒数(1/s)，使得L_target处的旋转角度等于原来L_train处的角度。\n\n**示例**：\n- L_train = 2048, L_target = 8192\n- s = 8192/2048 = 4\n- θ_new = θ_old / 4\n- 原来位置8192的旋转角 = 现在位置2048的旋转角\n\n**NTK-aware改进**：\n- 低频维度(λ大)：s_f ≈ s，大幅插值\n- 高频维度(λ小)：s_f ≈ 1，几乎不插值\n- 中间维度平滑过渡"
+        }
+      ],
+      tables: [
+        {
+          headers: ["技术路线", "复杂度", "长距离依赖", "实现难度", "代表工作"],
+          rows: [
+            ["滑动窗口注意力", "O(n·w·d)", "丢失", "低", "Mistral, Longformer"],
+            ["位置插值(PI/NTK)", "O(n²·d)", "保留(有限)", "中", "YaRN, CodeLlama"],
+            ["稀疏注意力", "O(n·k·d) k≪n", "部分保留", "中", "BigBird, SparseFormer"],
+            ["Memory机制", "O(n·d)+O(m·d)", "压缩保留", "高", "Transformer-XL, Infini-attn"],
+            ["线性注意力", "O(n·d²)", "损失信息", "高", "Linear Transformer, Mamba"]
+          ],
+          caption: "表3: 长文本处理技术对比"
+        }
+      ],
+      references: [
+        { title: "YaRN: Efficient Context Window Extension of Large Language Models", authors: "Peng et al.", year: 2023, doi: "10.48550/arXiv.2309.00071" },
+        { title: "Longformer: The Long-Document Transformer", authors: "Beltagy et al.", year: 2020, doi: "10.48550/arXiv.2004.05150" }
+      ],
+      key_takeaway: "位置插值是目前最实用的长上下文扩展技术。理解「频率维度差异化插值」是掌握NTK-aware方法的关键。"
+    },
+    {
+      module_id: "architecture",
+      module_title: "关键技术架构",
+      module_tag: "核心工具",
+      hook: "RoPE、ALiBi、YaRN、StreamingLLM、Infini-attention——这些看起来很酷的缩写背后，是长文本处理的核心技术架构。让我们逐一拆解。",
+      content: "### 五大关键技术详解\n\n#### 1. RoPE（Rotary Position Embedding）\n通过旋转矩阵编码相对位置信息。\n- **原理**：将Query和Key向量按维度对分组，每对做2D旋转，旋转角度与位置成正比\n- **优势**：天然编码相对位置，两个token的点积只依赖于它们之间的相对距离\n- **局限**：训练时的旋转角度范围决定了外推上限\n- **使用模型**：Llama系列、Qwen、Gemma等主流开源模型\n\n#### 2. ALiBi（Attention with Linear Biases）\n直接在注意力分数上加一个线性衰减的偏置bias。\n- **原理**：Attention(i,j) += -m × |i-j|，其中m是头特定的斜率\n- **优势**：无需可学习参数，天然支持任意长度外推\n- **局限**：在超长上下文中相对RoPE+插值的方案表现稍弱\n- **使用模型**：Bloom、早期BLOOMZ\n\n#### 3. YaRN（Yet another RoPE extensioN method）\n在RoPE的基础上结合NTK-aware插值和温度缩放。\n- **步骤1**：计算各维度的波长λ_i\n- **步骤2**：根据λ_i确定插值程度（高频→不插值，低频→大幅插值）\n- **步骤3**：对注意力softmax做温度缩放\n- **代表模型**：CodeLlama 100K、Llama-2长上下文微调版\n\n#### 4. StreamingLLM\n让模型以流式方式处理无限长文本，而无需重新计算整个序列。\n- **核心发现**：注意力汇聚（Attention Sink）——前几个token获得了不成比例的高注意力\n- **做法**：保留开头的「sink token」+滑动窗口内的token\n- **效果**：可以稳定处理400万+token，perplexity不崩溃\n\n#### 5. Infini-attention（Google DeepMind）\n将压缩记忆与局部注意力结合。\n- **局部注意力**：当前segment内的标准注意力\n- **压缩记忆**：使用线性注意力将历史信息压缩到固定大小的记忆矩阵\n- **检索**：从压缩记忆中检索与当前query相关的信息\n- **效果**：在1M token的「passkey retrieval」任务上达到100%准确率",
+      formulas: [
+        {
+          latex: "$$\\text{RoPE: } (q_m, k_n) \\mapsto q_m R_{\\Theta,m-n} k_n$$",
+          caption: "公式5: RoPE的相对位置编码特性（点积只依赖相对位置m-n）",
+          expandable: true,
+          derivation: "**推导过程：**\n\nRoPE对第i对维度（2i, 2i+1）施加旋转角度θ_i·pos：\n```\nq_pos[2i]' = q_pos[2i]·cos(θ_i·pos) - q_pos[2i+1]·sin(θ_i·pos)\nq_pos[2i+1]' = q_pos[2i]·sin(θ_i·pos) + q_pos[2i+1]·cos(θ_i·pos)\n```\n\n两个位置m和n的旋转后点积：\n```\nq_m^T k_n = Σ_i (q_m·R(θ_i·m))^T (k_n·R(θ_i·n))\n          = Σ_i q_m^T R(θ_i·(m-n)) k_n\n```\n\n结果只依赖于(m-n)，这就是RoPE编码相对位置的数学原理。\n\n这就是为什么RoPE天然支持相对位置编码——它在数学上与相对位置绑定。"
+        }
+      ],
+      tables: [
+        {
+          headers: ["技术", "核心机制", "外推能力", "训练开销", "推理开销", "最佳场景"],
+          rows: [
+            ["RoPE", "旋转编码相对位置", "需插值辅助", "低", "低", "通用场景"],
+            ["ALiBi", "线性衰减偏置", "天然支持", "零", "极低", "快速原型"],
+            ["YaRN", "NTK插值+温度缩放", "优秀(100K+)", "中(微调)", "低", "超长文本微调"],
+            ["StreamingLLM", "Attention Sink+滑动窗口", "理论上无限", "零", "极低", "流式长文本"],
+            ["Infini-attention", "压缩记忆+局部注意力", "优秀(1M+)", "高(训练)", "中", "精确长上下文检索"]
+          ],
+          caption: "表4: 五大技术架构全面对比"
+        }
+      ],
+      references: [
+        { title: "Train Short, Test Long: Attention with Linear Biases Enables Input Length Extrapolation", authors: "Press et al.", year: 2022, doi: "10.48550/arXiv.2108.12409" },
+        { title: "Efficient Streaming Language Models with Attention Sinks", authors: "Xiao et al.", year: 2023, doi: "10.48550/arXiv.2309.17453" }
+      ],
+      key_takeaway: "RoPE+YaRN是当前开源模型长上下文扩展的「标配方案」，StreamingLLM则在流式无限长处理场景中展现了惊人的稳定性。"
+    },
+    {
+      module_id: "development",
+      module_title: "发展历程：从短上下文到超长上下文",
+      module_tag: "发展演进",
+      hook: "从「为什么我的模型只能看一页纸」到「帮我分析整本《三体》」——长上下文技术的发展经历了怎样的曲折？",
+      content: "### 第一阶段：短上下文时代（2017-2020）\n- Transformer原生支持任意长度，但训练资源限制了上下文窗口\n- BERT: 512 tokens；GPT-2: 1024 tokens\n- 主要挑战：O(n²)注意力计算使得长序列训练不现实\n\n### 第二阶段：效率优化（2020-2022）\n- **稀疏注意力**：Longformer(2020), BigBird(2020)论文发表\n- **线性注意力**：Performer(2020), Linformer(2020)尝试将O(n²)降到O(n)\n- **分段处理**：Transformer-XL(2019)引入段级记忆\n- **问题**：稀疏/线性注意力在预训练复杂度上不如密集注意力\n\n### 第三阶段：长度外推（2022-2023）\n- **ALiBi(2021)**：用线性偏置实现零额外训练的外推\n- **RoPE普及**：Llama(2023)采用RoPE，成为开源标准\n- **位置插值(2023)**：简单而有效，4K→32K只需少量微调\n- **FlashAttention(2022)**：IO优化的精确注意力，大幅降低显存\n\n### 第四阶段：超长上下文突破（2023-2024）\n- **Claude 2(2023.07)**: 100K上下文窗口\n- **GPT-4 Turbo(2023.11)**: 128K上下文窗口\n- **Gemini 1.5 Pro(2024.02)**: 1M上下文窗口\n- **YaRN/NTK-aware插值**：开源模型跟进100K+\n\n### 第五阶段：无限上下文探索（2024-）\n- **Mamba/SSM**：状态空间模型的线性复杂度\n- **RWKV**：RNN式推理+Transformer式训练的混合架构\n- **Hybrid架构**：注意力层+SSM层的混合（如Jamba）\n- **压缩记忆**：Infini-attention、LongRoPE",
+      charts: [
+        {
+          echarts_option: {
+            title: { text: "长上下文技术突破时间线", left: "center", textStyle: { color: "#a0a0a0", fontSize: 14 } },
+            tooltip: { trigger: "axis" },
+            legend: { data: ["闭源模型", "开源技术"], bottom: 0, textStyle: { color: "#a0a0a0" } },
+            grid: { left: 80, right: 30, top: 60, bottom: 60 },
+            xAxis: { type: "category", data: ["2019","2020","2021","2022","2023Q1","2023Q2","2023Q3","2023Q4","2024Q1","2024Q2"], axisLabel: { color: "#a0a0a0", fontSize: 10, rotate: 30 } },
+            yAxis: { type: "log", name: "Token", axisLabel: { color: "#a0a0a0" } },
+            series: [
+              { name: "闭源模型", type: "line", data: [1024,2048,2048,4096,8192,32768,100000,128000,1000000,2000000], smooth: true, lineStyle: { color: "#c0a060", width: 3 }, itemStyle: { color: "#c0a060" } },
+              { name: "开源技术", type: "line", data: [512,1024,2048,2048,4096,8192,32768,100000,128000,256000], smooth: true, lineStyle: { color: "#5b8db8", width: 3, type: "dashed" }, itemStyle: { color: "#5b8db8" } }
+            ]
+          },
+          caption: "图2: 闭源模型vs开源技术的上下文长度发展对比",
+          data_source: "数据来源: 各模型官方技术报告"
+        }
+      ],
+      key_takeaway: "长上下文技术的发展经历了「密集注意力→效率优化→外推技术→超长突破→无限探索」五个阶段。开源社区在第二阶段后开始追赶并逐步缩小差距。"
+    },
+    {
+      module_id: "compute_cost",
+      module_title: "计算成本与内存分析",
+      module_tag: "核心概念",
+      hook: "为什么128K上下文需要近70GB显存？O(n²)的注意力到底有多「贵」？让我们用数字说话。",
+      content: "### 注意力的真实成本\n\n以Llama-2-7B为例（32层，d_model=4096，32个注意力头，每头d_k=128）：\n\n**单层注意力计算量：**\n- QK^T: n × d × n = n² × 128 FLOPs\n- Softmax: O(n²)\n- AV: n² × 128 FLOPs\n- 总计约 256 × n² FLOPs/层\n\n**不同上下文长度的计算量：**\n- n=4096: 256×16.8M ≈ 4.3 GFLOPs/层，共约138 GFLOPs\n- n=32768: 256×1.07B ≈ 274 GFLOPs/层，共约8.8 TFLOPs（64倍）\n- n=131072: 256×17.2B ≈ 4.4 TFLOPs/层，共约141 TFLOPs（1024倍）\n\n上下文长度每翻倍，注意力计算量翻4倍。\n\n### KV Cache显存分析\n\nKV Cache = 2 × n_layers × n_ctx × d_model × precision_bytes\n\n| 配置 | n=4K | n=32K | n=128K |\n|------|------|-------|--------|\n| Llama-7B (FP16) | 2.1 GB | 16.8 GB | 68.7 GB |\n| Llama-13B (FP16) | 4.0 GB | 32.0 GB | 131.1 GB |\n| Llama-70B (FP16) | 21.5 GB | 172 GB | 688 GB |\n\n### 优化方案\n\n**GQA（Grouped Query Attention）**：\n多个Query头共享一组Key/Value头，将KV Cache缩减为原来的1/g（g为组数）。Llama-2 70B使用8组GQA，KV Cache缩小8倍。\n\n**MQA（Multi-Query Attention）**：\n所有Query头共享一组K/V，KV Cache缩减最大，但质量略有损失。\n\n**FlashAttention**：\n通过分块计算（tiling）和重计算（recomputation）避免将完整注意力矩阵写入HBM。在长序列中实测加速2-4倍，显存降至O(n)。\n\n**KV量化**：\n将KV Cache从FP16量化为INT8甚至INT4，显存减少2-4倍，精度损失极小。",
+      formulas: [
+        {
+          latex: "$$\\text{FLOPs}_{\\text{attn}}(n) \\approx 4 \\cdot n_{\\text{layers}} \\cdot n^2 \\cdot d_{\\text{model}}$$",
+          caption: "公式6: 注意力计算的总FLOPs估算"
+        },
+        {
+          latex: "$$\\text{Mem}_{\\text{KV-GQA}} = \\frac{\\text{Mem}_{\\text{KV}}}{g}, \\quad g = \\frac{n_{\\text{heads}}}{n_{\\text{kv-heads}}}$$",
+          caption: "公式7: GQA下的KV Cache显存缩减"
+        }
+      ],
+      tables: [
+        {
+          headers: ["优化技术", "注意力复杂度", "KV Cache缩减", "精度影响", "是否通用"],
+          rows: [
+            ["FlashAttention v2", "O(n²)但IO最优", "无直接缩减", "无(精确)", "✅ 通用"],
+            ["GQA (Group=8)", "O(n²)", "8x缩减", "极小", "✅ 需架构支持"],
+            ["MQA", "O(n²)", "32x缩减", "轻微", "✅ 需架构支持"],
+            ["KV INT8量化", "O(n²)", "2x缩减", "极小", "✅ 通用后处理"],
+            ["KV INT4量化", "O(n²)", "4x缩减", "可接受", "⚠ 需小心校准"],
+            ["滑动窗口(w=4096)", "O(n·w·d)", "w/n缩减", "丢失远距离", "⚠ 场景限制"]
+          ],
+          caption: "表5: 计算/显存优化技术对比"
+        }
+      ],
+      charts: [
+        {
+          echarts_option: {
+            title: { text: "不同上下文长度的KV Cache显存占用", left: "center", textStyle: { color: "#a0a0a0", fontSize: 14 } },
+            tooltip: { trigger: "axis" },
+            legend: { data: ["标准MHA","GQA(g=8)","MQA"], bottom: 0, textStyle: { color: "#a0a0a0" } },
+            grid: { left: 70, right: 30, top: 60, bottom: 50 },
+            xAxis: { type: "category", data: ["4K","8K","16K","32K","64K","128K"], axisLabel: { color: "#a0a0a0" } },
+            yAxis: { type: "value", name: "GB", axisLabel: { color: "#a0a0a0" } },
+            series: [
+              { name: "标准MHA", type: "bar", data: [2.1,4.2,8.4,16.8,33.6,68.7], itemStyle: { color: "#c06050" } },
+              { name: "GQA(g=8)", type: "bar", data: [0.26,0.52,1.05,2.1,4.2,8.6], itemStyle: { color: "#5b8db8" } },
+              { name: "MQA", type: "bar", data: [0.07,0.14,0.28,0.56,1.12,2.14], itemStyle: { color: "#5a9e6f" } }
+            ]
+          },
+          caption: "图3: Llama-7B(FP16)在不同上下文长度和注意力机制下的KV Cache显存对比",
+          data_source: "数据来源: 基于Llama-2-7B架构的理论计算"
+        }
+      ],
+      key_takeaway: "128K上下文的KV Cache可达68.7GB(FP16)，远超消费级GPU。GQA可以让这个数字缩小为8.6GB。FlashAttention+GQA+KV量化的组合是当前最实用的推理优化方案。"
+    },
+    {
+      module_id: "application",
+      module_title: "实践应用指南",
+      module_tag: "实践应用",
+      hook: "有了长上下文能力，如何在实践中用好它？从chunk策略到RAG架构，从代码库分析到对话管理——这里有一套系统的实践方法论。",
+      content: "### 1. RAG中的Chunk策略\n\nRAG（检索增强生成）是长文本处理的最常见场景。Chunk策略决定了检索质量和上下文利用率。\n\n**Chunk大小选择：**\n- **小Chunk（128-256 tokens）**：精确检索，但丢失上下文。适合FAQ、精确匹配\n- **中Chunk（512-1024 tokens）**：平衡检索和上下文。**推荐起点**\n- **大Chunk（2048-4096 tokens）**：保留更多上下文，但检索精度下降\n\n**Chunk重叠（Overlap）：**\n- 建议10-20%的重叠率\n- 使用`chunk_overlap=chunk_size/5`作为起点\n\n**父子Chunk策略**：\n```\n小Chunk用于检索 → 返回对应的大Chunk（父Chunk）作为上下文\n这样保证了检索的精度和上下文的完整性\n```\n\n### 2. 长文档QA最佳实践\n\n**步骤1**：先用短prompt做文档结构分析（目录、章节）\n**步骤2**：根据问题定位相关段落\n**步骤3**：只将相关段落+问题本身放入prompt\n**步骤4**：要求模型引用原文（with citations）\n\n**提示模板示例**：\n```\n请基于以下文档片段回答问题。如果信息不足，请明确说明。\n\n文档片段：\n{retrieved_chunks}\n\n问题：{question}\n\n请引用原文中的具体内容来支持你的回答。\n```\n\n### 3. 代码库级别补全\n\n**关键挑战**：代码库可能包含数百个文件，上下文窗口无法全部容纳。\n\n**策略**：\n- 使用repo-map（仓库地图）：提取文件摘要和调用关系\n- 先放入repo-map → 再放入当前编辑文件的上下文\n- 最后放入最相关的3-5个邻近文件\n\n### 4. 多轮对话管理\n\n**滑动窗口策略**：\n- 保留最近N轮对话\n- 对历史对话做摘要压缩\n- 关键信息用structured summary保存\n\n**技巧**：\n```\n[SYSTEM] 以下是之前的对话摘要：{summary}\n[USER] 当前问题：{question}\n```\n\n### 5. 常见错误\n- ❌ 把所有文档全部塞入上下文（过长的上下文反而降低效果）\n- ❌ Chunk大小一刀切（应根据文档类型调整）\n- ❌ 忘记统计system prompt和instructions消耗的token",
+      tables: [
+        {
+          headers: ["应用场景", "推荐Chunk大小", "推荐Chunk重叠", "特殊策略", "典型token消耗"],
+          rows: [
+            ["FAQ问答", "128-256", "10%", "精确关键词匹配", "500-2K"],
+            ["技术文档QA", "512-1024", "15%", "父子Chunk", "2K-8K"],
+            ["法律合同分析", "1024-2048", "20%", "条款级分割", "8K-32K"],
+            ["论文阅读", "2048-4096", "10%", "按章节分割", "4K-16K"],
+            ["代码库分析", "512(函数级)", "0%", "repo-map优先", "8K-128K"],
+            ["多轮对话", "N/A", "N/A", "摘要压缩+滑动窗口", "2K-32K"]
+          ],
+          caption: "表6: 不同场景的Chunk策略推荐"
+        }
+      ],
+      references: [
+        { title: "A Large-Scale Study on Chunking Strategies for LLMs", authors: "LangChain Blog", year: 2024, url: "https://blog.langchain.dev/" },
+        { title: "RAPTOR: Recursive Abstractive Processing for Tree-Organized Retrieval", authors: "Sarthi et al.", year: 2024, doi: "10.48550/arXiv.2401.18059" }
+      ],
+      key_takeaway: "好的Chunk策略是RAG成功的一半。「父子Chunk+语义分块」的组合在实践中效果最好。永远不要让模型在上下文的「中间」区域找重要信息。"
+    },
+    {
+      module_id: "case_study",
+      module_title: "实战案例",
+      module_tag: "实践应用",
+      hook: "理论讲完了，来看看真实场景：如何用RAG+长上下文处理100页PDF？代码仓库级别的补全怎么实现？这里有两个完整的实操案例。",
+      content: "### 案例1：用RAG处理100页技术文档\n\n**场景**：一份100页的API文档，用户需要用自然语言查询特定功能的用法。\n\n**步骤1：文档解析与分块**\n1. 使用`PyMuPDF`或`Unstructured`提取纯文本\n2. 按标题层级（H1/H2/H3）做语义分块\n3. 每个Chunk 512 tokens，重叠128 tokens\n4. 为每个Chunk生成标题路径（如：`安装指南 > 环境配置 > Python依赖`）\n\n**步骤2：向量化与索引**\n```python\nfrom langchain.embeddings import OpenAIEmbeddings\nfrom langchain.vectorstores import Chroma\n\nembeddings = OpenAIEmbeddings(model=\"text-embedding-3-small\")\nvectorstore = Chroma.from_documents(chunks, embeddings)\n```\n\n**步骤3：混合检索**\n1. 语义检索（向量相似度）：Top-10 chunks\n2. 关键词检索（BM25）：Top-10 chunks\n3. 合并去重 → 按相关性重排序（RRF）\n4. 取Top-5 chunks作为上下文\n\n**步骤4：构建Prompt**\n```\n你是一个API文档助手。请基于以下文档片段回答问题。\n\n上下文：\n--- 片段1 (来自: 安装指南 > 环境配置) ---\n{chunk_1}\n--- 片段2 (来自: API参考 > 认证) ---\n{chunk_2}\n...\n\n问题：{user_question}\n\n请提供代码示例和参数说明。\n```\n\n**关键教训**：\n- 第3步的混合检索比纯语义检索准确率提升约15%\n- 在prompt中标注每个片段来源，有助于模型引用\n- 如果问题涉及跨章节内容，需要扩大检索范围\n\n### 案例2：代码仓库级别的函数补全\n\n**场景**：在一个包含200+文件的Python项目中，根据函数签名和上下文生成实现。\n\n**步骤1：构建Repo Map**\n```\n## 仓库结构\n- src/utils/helpers.py: 包含 validate_input(), format_output()\n- src/models/user.py: User类，主要方法 create(), authenticate()\n- src/services/auth.py: 调用 User.authenticate() 和 helpers.validate_input()\n```\n\n**步骤2：确定上下文窗口分配**\n- Repo Map: 500 tokens\n- 当前文件上下文（前后函数）: 1000 tokens\n- 关键依赖文件摘要: 2000 tokens\n- System prompt: 200 tokens\n- 总计约3700 tokens（在128K窗口中绰绰有余）\n\n**步骤3：构建完整Prompt**\n```\n[系统指令: 代码生成]\n[Repo Map: 500 tokens]\n[依赖文件: src/utils/helpers.py 的函数签名和docstring]\n[当前文件上下文: 函数上下的代码]\n[用户指令: 根据上述上下文，完成以下函数的实现]\n```\n\n**关键教训**：\n- Repo Map让模型理解全局结构，是代码补全质量的关键\n- 不需要把所有依赖文件都放进去，只放最相关的3-5个\n- 函数签名+docstring的信息密度远高于完整实现代码",
+      tables: [
+        {
+          headers: ["步骤", "案例1 (文档QA)", "案例2 (代码补全)", "共同原则"],
+          rows: [
+            ["Step 1", "PDF解析+语义分块", "构建Repo Map", "先理解全局结构"],
+            ["Step 2", "向量化+建立索引", "确定窗口分配", "精确计算token预算"],
+            ["Step 3", "混合检索(Top-5)", "精选依赖上下文", "只放相关信息"],
+            ["Step 4", "标注来源的Prompt", "分层Prompt构建", "结构化Prompt模板"],
+            ["Step 5", "验证引用准确性", "验证编译+测试", "结果验证不可少"]
+          ],
+          caption: "表7: 两个实战案例的步骤对比与共同原则"
+        }
+      ],
+      key_takeaway: "成功的长文本处理不是「把什么信息都往里塞」，而是「精心选择最有价值的信息，并结构化地组织它们」。Repo Map是代码场景的杀手锏。"
+    },
+    {
+      module_id: "benchmark",
+      module_title: "评测基准",
+      module_tag: "核心工具",
+      hook: "各厂商都说自己的模型「支持128K上下文」，但实际效果如何？Lost in the Middle、Needle in a Haystack——这些评测基准揭示了真相。",
+      content: "### 主要评测基准\n\n#### 1. Needle-in-a-Haystack（大海捞针）\n在长文档的随机位置插入一条事实（「针」），测试模型能否找到。\n- **测试维度**：文档长度×针的位置\n- **经典结论**：多数模型在文档开头和结尾表现好，中间位置显著下降\n- **GPT-4-128K**：在64K以内表现优秀（>95%），128K处中间位置降至约80%\n- **Gemini 1.5 Pro**：1M token测试中全程保持>99%\n\n#### 2. LongBench\n涵盖6大类21个子任务的长上下文评测集。\n- 单文档QA、多文档QA、摘要、Few-shot学习、代码、合成任务\n- 中英双语，0-128K长度分布\n\n#### 3. L-Eval\n专注于长上下文语言理解，包含20个子任务。\n- 包括多轮对话、长文档摘要、推理等\n\n#### 4. RULER\n更严格的「大海捞针」变体——多针、多跳推理、变量追踪。\n- 在单文档中插入多个相关事实，测试多跳推理能力\n- 大部分模型在RULER上的分数远低于简单的大海捞针\n\n#### 5. ∞Bench\n针对超长上下文（100K+）的评测，包含检索、理解、推理三类任务。\n\n### 评测结果解读\n\n**关键发现**：\n- 声明128K窗口≠在128K处有效工作\n- 「大海捞针」容易通过 → RULER更难\n- Lost in the Middle是普遍问题\n- 中文长上下文评测仍待完善",
+      tables: [
+        {
+          headers: ["评测基准", "任务类型", "长度范围", "难度", "关键指标", "典型问题"],
+          rows: [
+            ["Needle-in-Haystack", "单事实检索", "1K-1M", "低-中", "准确率×位置×长度", "太简单，不反映真实能力"],
+            ["LongBench", "多任务综合", "0-128K", "中-高", "各子任务F1/ROUGE", "英文占比高"],
+            ["L-Eval", "长文本理解", "3K-48K", "中", "各子任务得分", "长度上限不够"],
+            ["RULER", "多跳检索推理", "4K-128K", "高", "多针检索准确率", "对模型要求极高"],
+            ["∞Bench", "超长上下文", "100K-1M", "高", "三分类任务得分", "资源消耗大"]
+          ],
+          caption: "表8: 主要长上下文评测基准对比"
+        }
+      ],
+      charts: [
+        {
+          echarts_option: {
+            title: { text: "Needle-in-Haystack 性能热力示意", left: "center", textStyle: { color: "#a0a0a0", fontSize: 14 } },
+            tooltip: { trigger: "item" },
+            radar: {
+              indicator: [
+                { name: "开头(0-10%)", max: 100 },
+                { name: "前部(10-30%)", max: 100 },
+                { name: "中部(30-70%)", max: 100 },
+                { name: "后部(70-90%)", max: 100 },
+                { name: "结尾(90-100%)", max: 100 }
+              ],
+              center: ["50%", "55%"],
+              radius: "65%"
+            },
+            series: [{
+              type: "radar",
+              data: [
+                { value: [98, 95, 82, 93, 97], name: "典型128K模型", lineStyle: { color: "#c06050" }, areaStyle: { color: "rgba(192,96,80,0.15)" }, itemStyle: { color: "#c06050" } },
+                { value: [99, 98, 97, 98, 99], name: "优秀超长模型", lineStyle: { color: "#5a9e6f" }, areaStyle: { color: "rgba(90,158,111,0.15)" }, itemStyle: { color: "#5a9e6f" } }
+              ]
+            }]
+          },
+          caption: "图4: 不同位置区间的检索准确率对比（雷达图直观显示Lost-in-the-Middle效应）",
+          data_source: "数据来源: 基于多个公开评测的综合估计"
+        }
+      ],
+      references: [
+        { title: "Lost in the Middle: How Language Models Use Long Contexts", authors: "Liu et al.", year: 2023, doi: "10.48550/arXiv.2307.03172" },
+        { title: "RULER: What's the Real Context Size of Your Long-Context Language Models?", authors: "Hsieh et al.", year: 2024, doi: "10.48550/arXiv.2404.06654" },
+        { title: "LongBench: A Bilingual, Multitask Benchmark for Long Context Understanding", authors: "Bai et al.", year: 2023, doi: "10.48550/arXiv.2308.14508" }
+      ],
+      key_takeaway: "不要被模型的「声称窗口大小」迷惑。用RULER和∞Bench才能真正了解模型的长上下文能力。Lost in the Middle是几乎所有模型都面临的「阿喀琉斯之踵」。"
+    },
+    {
+      module_id: "risk",
+      module_title: "风险与挑战",
+      module_tag: "风险与挑战",
+      hook: "长上下文带来的不仅是能力提升，还有一系列隐藏的风险：幻觉加剧、位置偏差、信息污染——了解这些陷阱才能避开它们。",
+      content: "### 1. 长上下文幻觉（Long-Context Hallucination）\n当上下文中包含大量信息时，模型更容易产生幻觉。\n\n**原因**：\n- 注意力被稀释——模型的注意力分布在更多token上，每个token获得的「注意力预算」减少\n- 信息过载——模型难以区分哪些信息是关键的\n- 中间位置的信息处理最弱（Lost in the Middle）\n\n**缓解措施**：\n- 在Prompt中明确标注信息优先级\n- 将关键信息放在开头或结尾\n- 使用RAG先检索再回答，而非依赖模型的全文检索\n\n### 2. 位置偏差（Position Bias）\n模型对不同位置的信息有系统性偏好。\n\n- **首因效应（Primacy Bias）**：过度关注开头的文本\n- **近因效应（Recency Bias）**：过度关注结尾的文本\n- **中间盲区（Middle Blindness）**：中间部分的信息被系统性忽视\n\n**实证数据**：在100页文档的QA测试中，答案位于文档第40-60页时，正确率比位于前10页低20-30%。\n\n### 3. 过时信息污染（Stale Information Pollution）\n上下文中包含矛盾的、过时的信息时，模型可能给出不一致的回答。\n\n**场景**：\n- 对话历史中有旧版本的指令\n- 多轮对话中用户纠正了之前的说法，但模型仍参考旧信息\n- RAG检索到的文档版本不一致\n\n**缓解措施**：\n- 在System Prompt中明确指示信息优先级（最新>最旧）\n- 使用`仅基于最新提供的信息回答`这类指令\n\n### 4. 注意力汇聚（Attention Sink）\nStreamingLLM论文发现：前几个token（尤其是第一个token）会获得不成比例的高注意力权重。\n- 如果这些token是填充或无意义的，会浪费注意力预算\n- **建议**：始终用一个有意义的system prompt开头\n\n### 5. 成本风险\n- 128K上下文的API调用token消耗巨大\n- 每次对话都需要重新发送完整上下文\n- 成本可能比4K上下文高出10-50倍",
+      tables: [
+        {
+          headers: ["风险类型", "严重程度", "触发条件", "典型后果", "缓解策略"],
+          rows: [
+            ["长上下文幻觉", "高", "信息密度过大", "编造文档中不存在的信息", "结构化提示+来源引用"],
+            ["位置偏差", "中-高", "关键信息在中间", "遗漏中间部分的重要信息", "信息分层+关键信息前置"],
+            ["信息污染", "中", "多版本矛盾信息", "输出不一致的回答", "版本标记+优先级指令"],
+            ["注意力汇聚", "中", "开头token无意义", "注意力分布不均", "有意义的system prompt开头"],
+            ["成本膨胀", "高", "长上下文API调用", "单次API费用剧增", "RAG+摘要压缩+滑动窗口"]
+          ],
+          caption: "表9: 长上下文的主要风险与缓解策略"
+        }
+      ],
+      key_takeaway: "长上下文是双刃剑。使用「结构化提示+关键信息前置+RAG检索验证」的三重策略可以显著降低这些风险。"
+    },
+    {
+      module_id: "ethics",
+      module_title: "伦理考量",
+      module_tag: "风险与挑战",
+      hook: "当模型能「记住」上百万token的对话时，隐私问题变得前所未有的严峻。长上下文带来的伦理挑战是什么？",
+      content: "### 1. 隐私泄露风险\n\n长上下文意味着模型在一次会话中能访问更多用户数据。\n\n**典型场景**：\n- 用户上传了包含个人信息的100页文档\n- 模型在处理过程中「记住」了这些信息\n- 在后续对话中，模型可能无意中泄露给其他用户（在没有严格隔离的系统中）\n\n**关键问题**：\n- 云端模型的上下文数据存储在服务端\n- 数据保留策略不透明\n- 不同会话之间的数据隔离不完善\n\n**最佳实践**：\n- 使用本地部署模型处理敏感数据\n- 对输入进行PII（个人可识别信息）脱敏\n- 建立会话级别的数据隔离机制\n\n### 2. 偏见累积（Bias Accumulation）\n\n长上下文意味着模型暴露在更多的训练数据偏见和上下文偏见中。\n\n**累积效应**：\n- 文档中的偏见可能被放大——模型反复参考同一偏颇来源\n- 多轮对话中的偏见强化——用户的无意识偏见通过对话历史影响后续回答\n- RAG检索可能系统性地偏向某些来源\n\n**缓解策略**：\n- 多来源交叉验证\n- 在System Prompt中明确要求公正性\n- 定期审计模型输出中的偏见模式\n\n### 3. 信息过载与知情同意\n\n- 用户可能不知道自己上传的整个文档都被模型「阅读」了\n- 长上下文API调用的token消耗可能远超用户预期\n- 需要更透明的token计数和成本预估\n\n### 4. 监管合规\n\n- GDPR「被遗忘权」：如果用户数据通过长上下文进入了模型训练，如何删除？\n- 数据最小化原则：是否真的需要将整个文档放入上下文？",
+      key_takeaway: "在处理长上下文时，遵循「数据最小化」原则：只给模型必要的信息。本地部署+数据脱敏+会话隔离是保护用户隐私的三大支柱。"
+    },
+    {
+      module_id: "open_source",
+      module_title: "开源生态",
+      module_tag: "实践应用",
+      hook: "长上下文不是闭源模型的专利。LlamaIndex、LangChain、llama.cpp等开源工具已经让个人开发者也能玩转长文本处理。",
+      content: "### 1. LlamaIndex\n\n专为LLM数据连接设计的框架，长文本处理是其核心能力。\n\n**核心功能**：\n- **多策略分块**：固定大小、语义分块、句子分割、层级分块\n- **多种索引类型**：向量索引、摘要索引、树索引、知识图谱索引\n- **高级检索**：递归检索、混合检索、自动合并检索\n- **Ingestion Pipeline**：文档→分块→嵌入→索引的完整流水线\n\n**代码示例**：\n```python\nfrom llama_index.core import SimpleDirectoryReader\nfrom llama_index.core.node_parser import SentenceSplitter\n\ndocs = SimpleDirectoryReader(\"./docs\").load_data()\nparser = SentenceSplitter(chunk_size=512, chunk_overlap=64)\nnodes = parser.get_nodes_from_documents(docs)\n```\n\n### 2. LangChain\n\n更通用的LLM应用框架，长文本处理是其子集能力。\n\n**长文本特有功能**：\n- **Map-Reduce/Refine链**：分段处理+结果合并\n- **Stuff链**：全部放入上下文（需窗口足够大）\n- **Map-Rerank链**：分段评分+取最优\n\n### 3. llama.cpp\n\n高性能C++推理引擎，对长上下文的支持持续改进。\n\n**关键特性**：\n- FlashAttention后端支持\n- KV Cache量化（Q4_0, Q8_0）\n- 上下文长度可通过`-c`参数配置\n- 支持RoPE频率缩放（`--rope-freq-scale`）\n\n**长上下文推理示例**：\n```bash\n./llama-cli -m model.gguf -c 32768 \\\n  --rope-freq-scale 0.5 -n 512 \\\n  -p \"以下是长文档的摘要...\"\n```\n\n### 4. vLLM\n\n高性能LLM推理服务框架。\n- PagedAttention：将KV Cache分页管理\n- 自动批处理长序列\n- 支持max-model-len到128K+\n\n### 5. 其他重要工具\n- **Unstructured**：文档解析（PDF/HTML/Word → Markdown）\n- **Jina AI**：Reader API + Embeddings\n- **RAGFlow**：深度文档理解的RAG引擎",
+      tables: [
+        {
+          headers: ["工具/框架", "核心能力", "长上下文特色", "部署难度", "适合场景"],
+          rows: [
+            ["LlamaIndex", "数据索引+检索", "多策略分块和索引", "低", "RAG应用快速搭建"],
+            ["LangChain", "LLM工作流编排", "Map-Reduce/Refine链", "低-中", "复杂LLM流程"],
+            ["llama.cpp", "高性能本地推理", "KV量化+RoPE调整", "低", "本地长文本推理"],
+            ["vLLM", "高吞吐推理服务", "PagedAttention", "中", "生产环境部署"],
+            ["RAGFlow", "文档理解RAG", "深度文档解析", "中", "企业级文档QA"]
+          ],
+          caption: "表10: 开源长文本处理工具生态"
+        }
+      ],
+      references: [
+        { title: "LlamaIndex Documentation", authors: "LlamaIndex Team", year: 2024, url: "https://docs.llamaindex.ai/" },
+        { title: "LangChain Expression Language (LCEL)", authors: "LangChain Team", year: 2024, url: "https://python.langchain.com/" },
+        { title: "llama.cpp: LLM inference in C/C++", authors: "ggerganov", year: 2024, url: "https://github.com/ggerganov/llama.cpp" }
+      ],
+      key_takeaway: "开源生态已经相当成熟。LlamaIndex做RAG、llama.cpp做本地推理、vLLM做生产部署——三件套让个人开发者也能拥有企业级的长文本处理能力。"
+    },
+    {
+      module_id: "prospect",
+      module_title: "前景展望",
+      module_tag: "前沿探索",
+      hook: "无限上下文、神经记忆、终身学习——这些听起来像科幻的概念，正在成为LLM研究的前沿方向。",
+      content: "### 1. 无限上下文（Infinite Context）\n\n核心思想：模型不需要固定的窗口大小，而是可以处理任意长度的输入。\n\n**技术路线**：\n- **StreamingLLM+**：保持稳定的perplexity，处理百万级token\n- **压缩记忆**：Infini-attention、AutoCompressors将历史压缩为固定大小\n- **检索增强生成**：将「记忆」外化为可检索的知识库\n\n**现状**：在简单的「大海捞针」任务上接近实现，但在需要深度理解和多跳推理的场景中仍有差距。\n\n### 2. 神经记忆（Neural Memory）\n\n让模型像人一样拥有「短期记忆」（当前上下文）+「长期记忆」（外部存储）。\n\n**架构思路**：\n- **MemGPT**：操作系统式的记忆管理——虚拟上下文管理\n- **Let's Verify Step by Step**：验证链式记忆的正确性\n- **Self-Notes**：模型为自己写笔记，在后续对话中参考\n\n### 3. 终身学习（Lifelong Learning）\n\n模型在与用户持续交互中不断学习和适应。\n\n**关键挑战**：\n- 灾难性遗忘：学新东西时忘记旧知识\n- 记忆巩固：哪些信息值得长期保存？\n- 隐私边界：学习的内容属于谁？\n\n### 4. 新型架构\n\n- **Mamba/SSM**：线性复杂度的状态空间模型\n- **RWKV**：RNN式推理效率+Transformer式训练并行\n- **Hybrid架构**：注意力+SSM的混合，兼顾质量和效率\n- **Jamba**：SSM-Transformer混合的MoE模型\n\n### 5. 多模态长上下文\n\n- 视频理解（1小时视频≈数百万token）\n- 音频转录+理解的超长上下文\n- 跨模态记忆：同时记住文本、图像、音频的信息",
+      key_takeaway: "「无限上下文」正在从愿景走向现实。但在实现真正的终身学习和跨模态记忆之前，RAG+摘要压缩仍是最实用的「长记忆」方案。"
+    },
+    {
+      module_id: "research_map",
+      module_title: "研究方向全景",
+      module_tag: "前沿探索",
+      hook: "长上下文处理是LLM研究中最活跃的方向之一。线性注意力、状态空间模型、外部记忆增强——哪条路线最有可能突破O(n²)的瓶颈？",
+      content: "### 六大研究方向\n\n#### 方向1：高效注意力机制\n**目标**：保持注意力质量，降低计算复杂度。\n- FlashAttention v3：进一步优化HBM IO\n- Ring Attention：跨多GPU分布式计算长序列注意力\n- Tree Attention：利用序列结构的层级特性\n\n#### 方向2：线性复杂度替代方案\n**目标**：从根本上将复杂度从O(n²)降到O(n)。\n- **Mamba-2**：结构化状态空间对偶（SSD），连接SSM和注意力\n- **Linear Attention**：用核函数展开替换softmax\n- **RWKV-v6**：Eagle/Finch架构，RNN推理+并行训练\n\n#### 方向3：位置编码理论\n**目标**：实现零样本任意长度外推。\n- **LongRoPE**：将RoPE扩展到200万token\n- **PoSE**：用位置跳过训练模拟长序列\n- **Self-Extend**：无需微调的长度扩展\n\n#### 方向4：记忆增强架构\n**目标**：用外部记忆弥补窗口限制。\n- **Memorizing Transformers**：kNN检索近似注意力\n- **RetNet**：保留+并行+循环的三合一架构\n- **H3**：基于SSM的高效语言模型\n\n#### 方向5：训练效率\n**目标**：在不训练全长度的情况下扩展上下文。\n- **位置插值微调**：1000步微调即可扩展4倍\n- **continual pretraining**：渐进式扩展上下文\n- **Curriculum learning**：由短到长逐步训练\n\n#### 方向6：评测与理解\n**目标**：真正理解模型如何使用长上下文。\n- **Lost in the Middle的机制分析**：为什么中间位置信息丢失？\n- **注意力可视化**：模型实际在关注哪些token？\n- **上下文压缩质量评估**：摘要后丢失了多少信息？",
+      tables: [
+        {
+          headers: ["研究方向", "代表工作", "核心思路", "当前进展", "距离实用"],
+          rows: [
+            ["高效注意力", "FlashAttention v3", "IO优化+分块", "已实用", "✅ 0年"],
+            ["线性复杂度", "Mamba-2, RWKV-v6", "SSM/RNN替代注意力", "小规模验证", "⚠ 1-2年"],
+            ["位置编码", "LongRoPE, YaRN", "插值+频率调整", "部分实用", "✅ 0-0.5年"],
+            ["记忆增强", "MemGPT, Infini-attn", "外部记忆+压缩", "原型阶段", "⚠ 1-3年"],
+            ["训练效率", "PI+continual pretrain", "少量微调扩展", "已实用", "✅ 0年"],
+            ["评测理解", "RULER, ∞Bench", "严格评测+可视化", "评测已可用", "✅ 0年"]
+          ],
+          caption: "表11: 长上下文研究的六大方向与实用化进度"
+        }
+      ],
+      key_takeaway: "短期内最实用的仍然是RoPE插值+FlashAttention这条路线。线性注意力（Mamba方向）是最有希望从根本上突破O(n²)瓶颈的长期路线。"
+    },
+    {
+      module_id: "misconceptions",
+      module_title: "常见误区",
+      module_tag: "核心概念",
+      hook: "「128K上下文就是好」「chunk越大越准确」「上下文越长推理越强」——这些常见的迷思，让很多人在长文本处理中走了弯路。",
+      content: "### 误区1：更长的上下文=更好的效果\n\n**真相**：研究表明，对于大多数QA任务，4K-8K的上下文已经足够。超出任务需要的长上下文反而可能因为信息稀释而降低效果。\n\n**最佳实践**：根据任务实际需要选择上下文长度。不是「能放多少放多少」，而是「需要多少放多少」。\n\n### 误区2：Chunk越大越好\n\n**真相**：大Chunk保留更多上下文，但检索精度下降。小Chunk检索精确，但丢失上下文。\n\n**最佳实践**：\n- 检索用中型Chunk（512 tokens）\n- 上下文用父子Chunk策略\n- 小Chunk检索 → 大Chunk作为上下文\n\n### 误区3：模型能同等关注上下文中的所有位置\n\n**真相**：Lost in the Middle效应表明，中间位置的信息被系统性忽视。\n\n**最佳实践**：\n- 将最重要的信息放在开头或结尾\n- 使用结构化标记划分信息区域\n- 在提示中明确指示优先级\n\n### 误区4：RAG和长上下文是二选一\n\n**真相**：RAG和长上下文是互补的。RAG精确检索相关信息，长上下文为这些信息提供足够的「舞台」。\n\n**最佳实践**：RAG检索+长上下文承载（Top-5 Chunks → 放入长上下文窗口）\n\n### 误区5：Tokenization不重要\n\n**真相**：中英文tokenization差异巨大。同一个「128K窗口」，中文实际容纳的字符数只有英文的约2/3。\n\n**最佳实践**：始终用token计数而非字符计数来估算上下文消耗。\n\n### 误区6：一次Prompt就能完美处理长文档\n\n**真相**：复杂的文档分析需要多步骤：先做结构分析→再定位关键段落→最后深入分析。\n\n**最佳实践**：采用「先粗后细」的多轮策略。",
+      tables: [
+        {
+          headers: ["常见误区", "为什么是错的", "正确做法", "错误成本"],
+          rows: [
+            ["窗口越大越好", "信息稀释+成本暴涨", "匹配任务需求即可", "效果下降+费用翻倍"],
+            ["Chunk越大越准", "检索精度随Chunk增大下降", "中Chunk检索+大Chunk上下文", "检索命中率降低"],
+            ["所有位置同等重要", "Lost in the Middle效应", "关键信息放开头或结尾", "遗漏40%重要信息"],
+            ["RAG与长上下文互斥", "两者互补而非替代", "RAG检索+长上下文承载", "效率低下"],
+            ["token≈字符", "中英文差异巨大", "始终用token计数", "误判上下文容量"]
+          ],
+          caption: "表12: 长文本处理的常见误区与纠正"
+        }
+      ],
+      key_takeaway: "长上下文处理最常见的陷阱是「因为能放，所以全放」。记住：精挑细选的短上下文远胜过一股脑塞进去的长上下文。"
+    },
+    {
+      module_id: "learning_path",
+      module_title: "学习路线",
+      module_tag: "前置知识",
+      hook: "如何系统性地掌握上下文窗口与长文本处理？这里有一条从理论到实践的进阶路线图。",
+      content: "### 推荐学习路径\n\n**第一阶段：理解原理（2-3小时）**\n1. 阅读「Attention Is All You Need」论文的注意力机制部分\n2. 理解FlashAttention的IO优化思路\n3. 阅读「Lost in the Middle」论文，理解上下文使用模式\n\n**第二阶段：动手实践（3-5小时）**\n1. 用LangChain/LlamaIndex搭建一个简单的RAG系统\n2. 实验不同Chunk大小（128/256/512/1024）的效果差异\n3. 用llama.cpp本地运行长上下文模型，体验KV Cache\n\n**第三阶段：深入技术（4-6小时）**\n1. 阅读YaRN论文，理解RoPE插值的数学原理\n2. 研究StreamingLLM的Attention Sink现象\n3. 了解Mamba/SSM的基本原理\n\n**第四阶段：工程实战（持续）**\n1. 搭建生产级RAG系统（混合检索+重排序+父子Chunk）\n2. 实现滑动窗口对话管理\n3. 建立Prompt版本管理和A/B测试流程\n\n### 推荐资源\n- **论文必读**：Attention Is All You Need, FlashAttention, Lost in the Middle, YaRN\n- **工具必学**：LlamaIndex, LangChain, llama.cpp\n- **评测必看**：LongBench, RULER, ∞Bench的排行榜\n- **博客推荐**：Lil'Log, Sebastian Raschka的ML博客",
+      key_takeaway: "从动手搭建第一个RAG系统开始——理论看再多，不如实际跑一次。实践中遇到的token计数、chunk策略、检索精度等问题，才是真正的学习入口。"
+    },
+    {
+      module_id: "glossary",
+      module_title: "关键术语表",
+      module_tag: "核心概念",
+      hook: "快速查阅：从Attention Sink到YaRN，长文本处理领域的核心术语一网打尽。",
+      content: "### A-C\n- **Attention Sink**：前几个token获得不成比例的高注意力权重的现象\n- **ALiBi**：Attention with Linear Biases，用线性偏置支持长度外推\n- **Causal Attention**：每个token只能关注它之前的token（因果遮罩）\n- **Chunk Overlap**：相邻分块之间的重叠token数\n- **Context Window**：模型在一次推理中能处理的最大token数量\n\n### F-L\n- **FlashAttention**：IO优化的精确注意力算法，大幅降低显存\n- **GQA（Grouped Query Attention）**：多个Query头共享一组K/V头\n- **KV Cache**：缓存已生成token的Key和Value矩阵\n- **Lost in the Middle**：模型在上下文中间部分信息检索能力下降的现象\n- **LongRoPE**：将RoPE扩展到200万token的方法\n\n### M-R\n- **Mamba**：基于状态空间模型(SSM)的线性复杂度架构\n- **MQA（Multi-Query Attention）**：所有Query头共享一组K/V\n- **NTK-aware插值**：根据RoPE各维度波长做差异化插值\n- **Needle-in-a-Haystack**：在长文档中随机插入事实的经典评测\n- **Perplexity**：困惑度，衡量模型对序列预测的不确定性\n- **Position Interpolation**：将超出训练的位置映射到训练范围内\n- **RAG（Retrieval-Augmented Generation）**：检索增强生成\n- **RoPE（Rotary Position Embedding）**：旋转位置编码\n\n### S-Y\n- **Sliding Window Attention**：每个token只关注窗口内的token\n- **StreamingLLM**：通过保留Attention Sink实现无限流式处理\n- **SSM（State Space Model）**：状态空间模型，线性复杂度的替代架构\n- **YaRN**：Yet another RoPE extensioN，结合NTK插值和温度缩放",
+      tables: [
+        {
+          headers: ["缩写", "全称", "一句话解释"],
+          rows: [
+            ["RoPE", "Rotary Position Embedding", "用旋转矩阵编码相对位置的主流方案"],
+            ["GQA", "Grouped Query Attention", "多Q头共享一组K/V，缩减KV Cache"],
+            ["YaRN", "Yet another RoPE extensioN", "差异化维度插值，扩展RoPE上下文"],
+            ["RAG", "Retrieval-Augmented Generation", "检索+生成的混合长文本处理范式"],
+            ["SSM", "State Space Model", "线性复杂度的序列建模架构"],
+            ["PI", "Position Interpolation", "将位置索引压缩到训练范围内"]
+          ],
+          caption: "表13: 核心术语缩写速查表"
+        }
+      ],
+      key_takeaway: "理解术语是深入技术的第一步。特别关注RoPE、FlashAttention、GQA、YaRN这四个核心技术术语——它们构成了当前长上下文处理的「四梁八柱」。"
+    }
+  ]
+};
+
+// ============ THEME ============
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  localStorage.setItem('slm-theme', theme);
+  updateThemeIcon();
+  Object.values(activeCharts).forEach(function(chart) {
+    var opt = chart.getOption();
+    chart.setOption(createThemedOption(opt), { notMerge: false });
+  });
+}
+
+function toggleTheme() {
+  var current = document.documentElement.getAttribute('data-theme') || 'light';
+  applyTheme(current === 'dark' ? 'light' : 'dark');
+}
+
+function updateThemeIcon() {
+  var t = document.getElementById('theme-toggle');
+  var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  t.textContent = isDark ? '☀️' : '🌓';
+}
+
+var savedTheme = localStorage.getItem('slm-theme') || 'dark';
+applyTheme(savedTheme);
+
+// ============ PROGRESS BAR ============
+window.addEventListener('scroll', function() {
+  var scrollTop = window.scrollY;
+  var docHeight = document.documentElement.scrollHeight - window.innerHeight;
+  var progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+  document.getElementById('progress-bar').style.width = progress + '%';
+});
+
+// ============ SIDEBAR ============
+var activeCharts = {};
+var sidebarLinks = [];
+
+function buildSidebar() {
+  var container = document.getElementById('sidebar-links');
+  sidebarLinks = [];
+  PAGE_DATA.modules.forEach(function(mod) {
+    var a = document.createElement('a');
+    a.href = '#' + mod.module_id;
+    a.className = 'sidebar-link';
+    a.textContent = mod.module_title || mod.module_id;
+    a.addEventListener('click', function(e) {
+      e.preventDefault();
+      document.getElementById(mod.module_id).scrollIntoView({ behavior: 'smooth' });
+      if (window.innerWidth <= 768) {
+        document.getElementById('sidebar').classList.remove('open');
+      }
+    });
+    container.appendChild(a);
+    sidebarLinks.push({ el: a, id: mod.module_id });
+  });
+}
+
+var modObserver = new IntersectionObserver(function(entries) {
+  entries.forEach(function(entry) {
+    if (entry.isIntersecting) {
+      sidebarLinks.forEach(function(link) {
+        link.el.classList.toggle('active', link.id === entry.target.id);
+      });
+    }
+  });
+}, { rootMargin: '-80px 0px -60% 0px' });
+
+// ============ META CARD ============
+function buildMetaCard() {
+  var md = PAGE_DATA;
+  var domainClass = md.domain === 'finance' ? 'domain-finance' : 'domain-ai';
+  var levelClass = 'level-' + md.level;
+  var t = md.texture || '';
+  var db = md.depth + '×' + md.breadth;
+  document.getElementById('meta-card-container').innerHTML =
+    '<div class="meta-card">' +
+      '<div class="meta-item"><span class="icon">📖</span><strong>' + md.topic + '</strong></div>' +
+      '<div class="meta-item"><span class="meta-badge ' + domainClass + '">' + md.domain_name + '</span></div>' +
+      '<div class="meta-item"><span class="meta-badge ' + levelClass + '">' + md.level_name + '</span></div>' +
+      (t ? '<div class="meta-item"><span class="meta-badge texture-badge">' + t + ' ' + (md.texture_name||'') + '</span></div>' : '') +
+      (md.depth ? '<div class="meta-item"><span class="meta-badge depth-breadth">' + db + '</span></div>' : '') +
+      '<div class="meta-item"><span class="icon">⏱️</span>约' + md.reading_time + '分钟阅读</div>' +
+      '<div class="meta-item"><span class="icon">📦</span>' + md.module_count + '个模块</div>' +
+    '</div>';
+}
+
+// ============ FORMULA RENDERING ============
+function renderFormulas(container) {
+  if (typeof renderMathInElement !== 'undefined') {
+    renderMathInElement(container, {
+      delimiters: [
+        { left: '$$', right: '$$', display: true },
+        { left: '$', right: '$', display: false }
+      ],
+      throwOnError: false
+    });
+  }
+}
+
+// ============ CHART RENDERING ============
+function createThemedOption(existingOpt) {
+  var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  var color = isDark
+    ? ['#818cf8','#a78bfa','#c4b5fd','#67e8f9','#fbbf24','#34d399','#f87171','#f472b6']
+    : ['#6366f1','#8b5cf6','#a78bfa','#22d3ee','#f59e0b','#10b981','#ef4444','#ec4899'];
+  return { color: color };
+}
+
+function renderChart(moduleId, chartConfig, index) {
+  var chartId = 'chart_' + moduleId + '_' + index;
+  var wrapper = document.getElementById(chartId);
+  if (!wrapper) return;
+
+  if (typeof echarts === 'undefined') {
+    wrapper.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-tertiary);font-size:13px;">📊 图表(静态模式)<br><small>加载CDN后可交互</small></div>';
+    return;
+  }
+
+  try {
+    var chart = echarts.init(wrapper);
+    var opt = chartConfig.echarts_option || {};
+    if (typeof opt === 'string') {
+      try { chart.setOption(Object.assign(createThemedOption({}), JSON.parse(opt))); } catch(e) { wrapper.textContent = '图表配置解析失败'; return; }
+    } else {
+      chart.setOption(Object.assign(createThemedOption({}), opt));
+    }
+    activeCharts[chartId] = chart;
+
+    var resizeObserver = new ResizeObserver(function() { chart.resize(); });
+    resizeObserver.observe(wrapper);
+  } catch(e) {
+    wrapper.textContent = '图表渲染失败: ' + e.message;
+  }
+}
+
+// ============ BUILD MODULES ============
+function buildModuleHTML(mod) {
+  var tagClass = getTagClass(mod.module_tag || '');
+
+  var html =
+    '<section class="module-section" id="' + mod.module_id + '">' +
+      '<div class="module-header">' +
+        '<span class="module-tag ' + tagClass + '">' + (mod.module_tag || '') + '</span>' +
+        '<h2 class="module-title">' + (mod.module_title || mod.module_id) + '</h2>' +
+      '</div>';
+
+  if (mod.hook) {
+    html += '<div class="module-hook">' + mod.hook + '</div>';
+  }
+
+  html += '<div class="module-content">' + parseMarkdownContent(mod.content || '') + '</div>';
+
+  // Formulas
+  if (mod.formulas && mod.formulas.length > 0) {
+    mod.formulas.forEach(function(formula) {
+      var hasDerivation = formula.expandable && formula.derivation;
+      html += '<div class="formula-block' + (hasDerivation ? '' : ' not-expandable') + '" onclick="' + (hasDerivation ? 'toggleDerivation(this)' : '') + '">' +
+        '<div>' + formula.latex + '</div>';
+      if (formula.caption) {
+        html += '<div class="formula-caption">' + formula.caption + '</div>';
+      }
+      if (hasDerivation) {
+        html += '<div class="formula-expand-hint">💡 点击展开推导过程</div>' +
+        '<div class="formula-derivation">' + formula.derivation + '</div>';
+      }
+      html += '</div>';
+    });
+  }
+
+  // Charts
+  if (mod.charts && mod.charts.length > 0) {
+    mod.charts.forEach(function(chart, ci) {
+      var chartId = 'chart_' + mod.module_id + '_' + ci;
+      html += '<div class="chart-container">' +
+        '<div class="chart-wrapper" id="' + chartId + '"></div>';
+      if (chart.caption) html += '<div class="chart-caption">' + chart.caption + '</div>';
+      if (chart.data_source) html += '<div class="chart-source">' + chart.data_source + '</div>';
+      html += '</div>';
+    });
+  }
+
+  // Tables
+  if (mod.tables && mod.tables.length > 0) {
+    mod.tables.forEach(function(table) {
+      html += '<div style="overflow-x:auto">' +
+        '<table class="module-table">' +
+          '<thead><tr>' + (table.headers||[]).map(function(h) { return '<th>' + h + '</th>'; }).join('') + '</tr></thead>' +
+          '<tbody>' + (table.rows||[]).map(function(row) { return '<tr>' + row.map(function(c) { return '<td>' + c + '</td>'; }).join('') + '</tr>'; }).join('') + '</tbody>' +
+        '</table>';
+      if (table.caption) html += '<div class="table-caption">' + table.caption + '</div>';
+      html += '</div>';
+    });
+  }
+
+  // References
+  if (mod.references && mod.references.length > 0) {
+    html += '<div class="module-references"><h4>📚 参考文献</h4><ol>';
+    mod.references.forEach(function(ref) {
+      var linkHtml = ref.doi ? ' <a href="https://doi.org/' + ref.doi + '" target="_blank">DOI</a>' : '';
+      var urlHtml = ref.url ? ' <a href="' + ref.url + '" target="_blank">链接</a>' : '';
+      html += '<li>' + (ref.authors || '') + ' (' + (ref.year || '') + '). <strong>' + (ref.title || '') + '</strong>.' + linkHtml + urlHtml + '</li>';
+    });
+    html += '</ol></div>';
+  }
+
+  // Key Takeaway
+  if (mod.key_takeaway) {
+    html += '<div class="key-takeaway">💡 ' + mod.key_takeaway + '</div>';
+  }
+
+  html += '</section>';
+  return html;
+}
+
+function getTagClass(tag) {
+  var map = {
+    '核心概念': 'tag-core',
+    '前置知识': 'tag-core',
+    '核心工具': 'tag-tools',
+    '发展演进': 'tag-evolution',
+    '实践应用': 'tag-application',
+    '风险与挑战': 'tag-risk',
+    '前沿探索': 'tag-frontier'
+  };
+  return map[tag] || 'tag-core';
+}
+
+function parseMarkdownContent(content) {
+  if (!content) return '';
+  var html = content;
+  html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
+  html = html.replace(/`([^`]+)`/g, '<code style="background:var(--bg-tertiary);padding:2px 6px;border-radius:4px;font-size:13px;">$1</code>');
+  html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>');
+  html = html.replace(/^### (.+)$/gm, '<h3 style="font-size:17px;font-weight:600;margin:20px 0 8px;">$1</h3>');
+  html = html.replace(/^## (.+)$/gm, '<h3 style="font-size:18px;font-weight:600;margin:24px 0 10px;">$1</h3>');
+  html = html.replace(/\n\n/g, '</p><p>');
+  html = '<p>' + html + '</p>';
+  html = html.replace(/<p>\s*<\/p>/g, '');
+  return html;
+}
+
+function toggleDerivation(el) {
+  el.classList.toggle('expanded');
+}
+
+// ============ INIT ============
+function initPage() {
+  document.body.classList.remove('loading');
+  document.body.classList.add('loaded');
+
+  buildMetaCard();
+  buildSidebar();
+  buildMobileNav();
+
+  var modulesContainer = document.getElementById('modules-container');
+  PAGE_DATA.modules.forEach(function(mod) {
+    var html = buildModuleHTML(mod);
+    modulesContainer.innerHTML += html;
+  });
+
+  var sectionEls = modulesContainer.querySelectorAll('.module-section');
+  sectionEls.forEach(function(sec) { modObserver.observe(sec); });
+
+  renderFormulas(modulesContainer);
+
+  setTimeout(function() {
+    PAGE_DATA.modules.forEach(function(mod) {
+      if (mod.charts) {
+        mod.charts.forEach(function(chart, ci) {
+          renderChart(mod.module_id, chart, ci);
+        });
+      }
+    });
+  }, 100);
+
+  var fadeObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.08 });
+  sectionEls.forEach(function(sec) { fadeObserver.observe(sec); });
+
+  document.addEventListener('keydown', function(e) {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') { e.preventDefault(); openSearch(); }
+    if ((e.ctrlKey || e.metaKey) && e.key === 'd') { e.preventDefault(); toggleTheme(); }
+    if (e.key === 'Escape') {
+      if (document.getElementById('searchOverlay').classList.contains('open')) { closeSearch(); return; }
+      if (document.getElementById('helpOverlay').classList.contains('open')) { document.getElementById('helpOverlay').classList.remove('open'); return; }
+    }
+    if (e.shiftKey && e.key === '?') { e.preventDefault(); document.getElementById('helpOverlay').classList.add('open'); }
+  });
+}
+
+// ============ EXPORT ============
+function exportPDF() {
+  window.print();
+}
+
+function switchMode() {
+  alert('v2不再提供仪表盘模式。如需交互图表和公式渲染，请在HTML的head中取消CDN注释。');
+}
+
+// ============ CANVAS BACKGROUND ============
+(function(){
+  var cv = document.getElementById('bg-canvas');
+  var ctx = cv.getContext('2d');
+  var particles = [];
+  function rsz() { cv.width = window.innerWidth; cv.height = window.innerHeight; }
+  window.addEventListener('resize', rsz); rsz();
+  var count = Math.min(60, Math.floor((cv.width * cv.height) / 20000));
+  for (var i = 0; i < count; i++) {
+    particles.push({ x: Math.random()*cv.width, y: Math.random()*cv.height, vx: (Math.random()-0.5)*0.3, vy: (Math.random()-0.5)*0.3, r: Math.random()*1.5+0.3, a: Math.random()*0.3+0.05 });
+  }
+  function animate() {
+    ctx.clearRect(0, 0, cv.width, cv.height);
+    var isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+    var c = isDark ? '129,140,248' : '99,102,241';
+    particles.forEach(function(p) {
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < 0) p.x = cv.width; if (p.x > cv.width) p.x = 0;
+      if (p.y < 0) p.y = cv.height; if (p.y > cv.height) p.y = 0;
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 6.28);
+      ctx.fillStyle = 'rgba('+c+','+p.a+')'; ctx.fill();
+    });
+    for (var j = 0; j < particles.length; j++) {
+      for (var k = j+1; k < particles.length; k++) {
+        var dx = particles[j].x - particles[k].x;
+        var dy = particles[j].y - particles[k].y;
+        var d = Math.sqrt(dx*dx+dy*dy);
+        if (d < 110) { ctx.beginPath(); ctx.moveTo(particles[j].x, particles[j].y); ctx.lineTo(particles[k].x, particles[k].y); ctx.strokeStyle = 'rgba('+c+','+(0.06*(1-d/110))+')'; ctx.lineWidth = 0.5; ctx.stroke(); }
+      }
+    }
+    requestAnimationFrame(animate);
+  }
+  animate();
+})();
+
+// ============ SEARCH ============
+function openSearch() {
+  var ov = document.getElementById('searchOverlay'); ov.classList.add('open');
+  var inp = document.getElementById('searchInput'); inp.value = ''; inp.focus();
+  document.getElementById('searchResults').innerHTML = '';
+}
+function closeSearch() { document.getElementById('searchOverlay').classList.remove('open'); }
+document.getElementById('searchOverlay').addEventListener('click', function(e) { if (e.target === this) closeSearch(); });
+document.getElementById('searchInput').addEventListener('input', function() {
+  var q = this.value.toLowerCase(); var r = document.getElementById('searchResults');
+  if (!q || q.length < 2) { r.innerHTML = ''; return; }
+  function hl(t) { if (!t) return ''; var i = t.toLowerCase().indexOf(q); if (i === -1) return t; return t.substring(0,i)+'<mark>'+t.substring(i,i+q.length)+'</mark>'+t.substring(i+q.length); }
+  var results = [];
+  PAGE_DATA.modules.forEach(function(m) {
+    var title = m.module_title || m.module_id || '';
+    var txt = (m.hook||'') + ' ' + (m.content||'') + ' ' + (m.key_takeaway||'');
+    if (title.toLowerCase().indexOf(q) !== -1 || txt.toLowerCase().indexOf(q) !== -1) {
+      results.push({ id: m.module_id, title: hl(title), snippet: (m.hook || txt).substring(0, 80) });
+    }
+  });
+  r.innerHTML = results.slice(0, 12).map(function(x) { return '<div class="sr-item" onclick="document.getElementById(\''+x.id+'\').scrollIntoView({behavior:\'smooth\'});closeSearch();"><div class="sr-title">'+x.title+'</div><div class="sr-snippet">'+x.snippet+'</div></div>'; }).join('') || '<div class="search-empty">无匹配结果</div>';
+});
+
+// ============ EXPORT NOTES ============
+function exportNotes() {
+  var lines = ['# '+PAGE_DATA.topic+' - 学习笔记', '', '生成日期: '+new Date().toLocaleDateString('zh-CN'), ''];
+  lines.push('## 📚 模块列表');
+  PAGE_DATA.modules.forEach(function(m) { lines.push('- **'+(m.module_title||m.module_id)+'**: '+(m.key_takeaway||m.hook||'')); });
+  var txt = lines.join('\n');
+  if (navigator.clipboard) { navigator.clipboard.writeText(txt).then(function() { alert('✅ 学习笔记已复制到剪贴板!'); }); }
+  else { var ta = document.createElement('textarea'); ta.value = txt; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); alert('✅ 学习笔记已复制到剪贴板!'); }
+}
+
+// ============ MOBILE BOTTOM NAV ============
+function buildMobileNav() {
+  var items = [];
+  PAGE_DATA.modules.forEach(function(m, i) { if (i % Math.max(1, Math.ceil(PAGE_DATA.modules.length / 5)) === 0) items.push({ id: m.module_id, label: (m.module_title||m.module_id).substring(0, 4) }); });
+  if (items.length > 5) items = items.slice(0, 5);
+  var inner = document.getElementById('mbnInner');
+  inner.innerHTML = items.map(function(x) { return '<button class="mbn-item" onclick="document.getElementById(\''+x.id+'\').scrollIntoView({behavior:\'smooth\'})"><span class="mbn-icon">📑</span>'+x.label+'</button>'; }).join('');
+  items.push({ id: 'top', label: '顶部' });
+  inner.innerHTML += '<button class="mbn-item" onclick="window.scrollTo({top:0,behavior:\'smooth\'})"><span class="mbn-icon">⬆</span>顶部</button>';
+}
+document.getElementById('helpOverlay').addEventListener('click', function(e) { if (e.target === this) this.classList.remove('open'); });
+
+window.addEventListener('scroll', function() {
+  var sections = document.querySelectorAll('.module-section');
+  var activeIdx = -1;
+  sections.forEach(function(s, i) { var top = s.getBoundingClientRect().top; if (top < 150 && top > -s.offsetHeight + 150) activeIdx = i; });
+  var btns = document.querySelectorAll('.mbn-item');
+  btns.forEach(function(b, i) { b.classList.toggle('mbn-active', i === activeIdx); });
+});
+
+// Start
+document.addEventListener('DOMContentLoaded', initPage);
+
+window.addEventListener('themechange', function() {
+  Object.values(activeCharts).forEach(function(chart) {
+    chart.resize();
+  });
+});
+</script>
+</body>
+</html></mxparameter>
+</mxinvoke>
+</mxinvok

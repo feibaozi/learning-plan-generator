@@ -33,7 +33,37 @@ learning-plan-generator (LP)          smart-learning-materials (SLM)
 | `heuristic_rules.json` | `smart-learning-materials/resources/` | LP, SLM | Fallback rules R1-R6 when topic_profiles.json match fails |
 | `texture_templates.json` | `smart-learning-materials/resources/` | LP (primary) | G1-G8 texture definitions; SLM does NOT currently use this file |
 | `manifest_schema.json` | `_shared/` | LP, SLM | Schema + depth value domain mapping (see `_depth_mapping` in schema) |
-| `manifest.json` | output directory (学习资料/) | LP (write plans), SLM (write materials, read plans) | Both skills must backup before write (`.manifest.json.bak`) |
+| `manifest.json` | per-plan folder (e.g. `学习资料/[plan_name]/`) | LP (write plans), SLM (write materials, read plans) | Each plan has its own manifest.json in its own folder. Both skills must backup before write (`.manifest.json.bak`) |
+
+## Folder Convention (v3.9)
+
+All plans and their associated deep-dive materials live in a single self-contained folder per plan:
+
+```
+学习资料/
+├── 计量经济学 系统学习方案/
+│   ├── econ_learning.html
+│   ├── 计量经济学学习方案.md
+│   ├── manifest.json
+│   ├── p1_1_econometrics-intro_intermediate.html
+│   ├── p2_2_ols-estimator-derivation_intermediate.html
+│   └── ...
+├── 提示工程 系统学习方案/
+│   ├── pe_learning.html
+│   ├── 提示工程学习方案.md
+│   ├── manifest.json
+│   ├── p1_1_zero-shot-few-shot_intermediate.html
+│   ├── p2_3_multi-step-reasoning_intermediate.html
+│   └── ...
+└── (NO standalone .html or .md plan files at this level)
+```
+
+**Key invariants**:
+- Each plan folder is self-contained with its own `manifest.json`
+- All files within a folder reference each other by **pure filenames** (no path prefix)
+- Deep dive materials use `[kp_id]_[topic-slug]_[depth].html` naming convention
+- The root-level `manifest.json` is **deprecated** — new plans write to their own folder only
+- Existing root-level entries remain for backward compatibility but should not be extended
 
 ## Key Data Flow: KP → Deep Dive
 

@@ -1,0 +1,1245 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>多步推理与任务分解 深度研读</title>
+<style>
+/* ───────────────────────────────────────────────
+   Template: Graphite Studio (石墨工作室) — deep_dive.css
+   Mood: minimal, clean, neutral
+   Contrast verified: text-primary≥10:1, text-secondary≥6:1, text-muted≥4.5:1
+   ─────────────────────────────────────────────── */
+:root{
+--bg-base:#0d0d0d;
+--bg-card:#1a1a1a;
+--bg-elevated:#222222;
+--bg-overlay:rgba(0,0,0,.6);
+--text-primary:#ededed;
+--text-secondary:#a0a0a0;
+--text-muted:#787878;
+--accent-indigo:#5b8db8;
+--accent-purple:#8878a8;
+--accent-cyan:#6ea8c0;
+--accent-gold:#c0a060;
+--accent-green:#5a9e6f;
+--accent-red:#c06050;
+--accent-blue:#5b8db8;
+--accent-color:#5b8db8;
+--accent-dark:#3a6088;
+--border-subtle:rgba(160,160,160,.15);
+--border-glow:rgba(91,141,184,.2);
+--shadow-sm:0 1px 3px rgba(0,0,0,.3);
+--shadow-md:0 4px 16px rgba(0,0,0,.4);
+--shadow-lg:0 8px 32px rgba(0,0,0,.5);
+--shadow-elevated:0 8px 32px rgba(0,0,0,.5);
+--radius-sm:6px;
+--radius-md:10px;
+--radius-lg:16px;
+--font-sans:'Segoe UI',system-ui,-apple-system,sans-serif;
+--font-mono:Consolas,'Cascadia Code',monospace;
+--transition:.25s cubic-bezier(.4,0,.2,1);
+--transition-smooth:.3s ease;
+--nav-h:56px;
+--accent-color-rgb:91,141,184;
+--chart-grid:#252525;
+--chart-axis-label:#787878;
+}
+[data-theme="light"]{
+--bg-base:#fafafa;
+--bg-card:#ffffff;
+--bg-elevated:#eeeeee;
+--bg-overlay:rgba(0,0,0,.3);
+--text-primary:#121212;
+--text-secondary:#4a4a4a;
+--text-muted:#5e5e5e;
+--accent-indigo:#3a6088;
+--accent-purple:#5a4878;
+--accent-cyan:#3a7888;
+--accent-gold:#886830;
+--accent-green:#3d8055;
+--accent-red:#983830;
+--accent-blue:#3a6088;
+--accent-color:#3a6088;
+--accent-dark:#284868;
+--border-subtle:rgba(18,18,18,.08);
+--border-glow:rgba(58,96,136,.2);
+--shadow-sm:0 1px 3px rgba(0,0,0,.06);
+--shadow-md:0 4px 16px rgba(0,0,0,.08);
+--shadow-lg:0 8px 32px rgba(0,0,0,.12);
+--shadow-elevated:0 8px 32px rgba(0,0,0,.12);
+--accent-color-rgb:58,96,136;
+--chart-grid:#e5e5e5;
+--chart-axis-label:#5e5e5e;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font-sans);background:var(--bg-base);color:var(--text-primary);line-height:1.75;overflow-x:hidden}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg-base)}::-webkit-scrollbar-thumb{background:var(--border-glow);border-radius:3px}
+
+.progress-bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--accent-indigo),var(--accent-purple),var(--accent-cyan));z-index:200;transition:width .1s linear}
+.navbar{position:fixed;top:3px;left:0;right:0;z-index:100;background:var(--bg-card);border-bottom:1px solid var(--border-subtle);backdrop-filter:blur(16px);height:var(--nav-h);display:flex;align-items:center;justify-content:space-between;padding:0 24px}
+.nav-left{display:flex;align-items:center;gap:12px;font-size:.82rem;font-weight:600;color:var(--accent-indigo)}
+.nav-right{display:flex;align-items:center;gap:8px}
+.nav-right button{background:var(--bg-elevated);border:1px solid var(--border-subtle);color:var(--text-secondary);padding:6px 12px;border-radius:var(--radius-sm);cursor:pointer;font-size:.75rem;transition:all var(--transition)}
+.nav-right button:hover{border-color:var(--border-glow);color:var(--accent-indigo)}
+
+.side-dots{position:fixed;right:16px;top:50%;transform:translateY(-50%);z-index:80;display:flex;flex-direction:column;gap:8px}
+.side-dot{width:8px;height:8px;border-radius:50%;border:2px solid var(--border-glow);cursor:pointer;transition:all var(--transition)}
+.side-dot.active,.side-dot:hover{background:var(--accent-indigo);border-color:var(--accent-indigo)}
+
+.container{max-width:calc(100% - 48px);margin:0 auto;padding:calc(var(--nav-h) + 24px) 24px 80px}
+
+.hero{text-align:center;padding:48px 0 36px}
+.hero h1{font-size:2.2rem;background:linear-gradient(135deg,var(--accent-indigo),var(--accent-purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+.hero .tags{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:12px}
+.hero .tags span{font-size:.7rem;padding:4px 12px;border-radius:50px;border:1px solid var(--border-glow);color:var(--accent-indigo);background:rgba(99,102,241,.06)}
+
+.meta-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:20px 24px;margin:0 auto 32px;max-width:700px;display:flex;justify-content:center;gap:36px;flex-wrap:wrap;box-shadow:var(--shadow-md)}
+.meta-item{text-align:center}
+.meta-item .val{font-size:1.4rem;font-weight:800;color:var(--accent-indigo)}
+.meta-item .lbl{font-size:.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px}
+
+.journey-bar{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:12px 20px;margin:0 auto 24px;max-width:900px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:.82rem;box-shadow:var(--shadow-elevated)}
+.journey-path{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.journey-icon{font-size:1rem}
+.journey-plan{color:var(--accent-purple);font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.journey-plan:hover{color:var(--accent-gold)}
+.journey-sep{color:var(--text-muted);font-size:.7rem}
+.journey-phase{color:var(--text-secondary);font-weight:600}
+.journey-kp{color:var(--text-primary);font-weight:700}
+.journey-pos{color:var(--text-muted);font-size:.72rem}
+.journey-nav{display:flex;align-items:center;gap:8px;font-size:.75rem}
+.journey-prev,.journey-next{color:var(--text-muted);cursor:default}
+.journey-divider{color:var(--border-subtle)}
+
+.module{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:28px 28px 24px;margin-bottom:20px;
+opacity:0;transform:translateY(24px);transition:opacity .5s ease,transform .5s ease;box-shadow:var(--shadow-sm)}
+.module.visible{opacity:1;transform:translateY(0)}
+.module:hover{border-color:var(--border-glow)}
+.module h2{font-size:1.15rem;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.module .m-tag{font-size:.65rem;padding:2px 10px;border-radius:50px;background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.2);color:var(--accent-indigo);font-weight:600}
+.module .m-time{font-size:.7rem;color:var(--text-muted);margin-left:auto}
+.module .hook{font-size:.9rem;color:var(--accent-purple);font-weight:600;margin:12px 0 16px;padding-left:12px;border-left:3px solid var(--accent-purple)}
+.module .content{font-size:.88rem;color:var(--text-secondary);line-height:1.8}
+.module .content p{margin-bottom:12px}
+.module .content ul,.module .content ol{margin:8px 0 12px 20px}
+.module .content li{margin-bottom:6px}
+
+.code-block{background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:var(--radius-sm);padding:14px 18px;margin:14px 0;font-family:var(--font-mono);font-size:.8rem;color:var(--text-primary);overflow-x:auto;white-space:pre-wrap;word-break:break-word}
+.code-block .cb-cap{font-size:.7rem;color:var(--text-muted);margin-bottom:6px;display:block}
+.step-block{background:rgba(91,141,184,.06);border:1px solid rgba(91,141,184,.12);border-radius:var(--radius-sm);padding:14px 18px;margin:10px 0}
+.step-block .step-num{display:inline-block;width:24px;height:24px;line-height:24px;text-align:center;background:var(--accent-indigo);color:#fff;border-radius:50%;font-size:.72rem;font-weight:700;margin-right:8px}
+.step-block .step-out{font-size:.75rem;color:var(--accent-green);margin-top:6px;padding-left:32px}
+.step-block .step-warn{font-size:.75rem;color:var(--accent-red);margin-top:4px;padding-left:32px}
+
+.formula-block{background:rgba(99,102,241,.04);border:1px solid rgba(99,102,241,.12);border-radius:var(--radius-sm);padding:14px 18px;margin:14px 0;font-family:var(--font-mono);font-size:.82rem;color:var(--accent-cyan);overflow-x:auto;position:relative}
+.formula-block .f-cap{font-size:.7rem;color:var(--text-muted);margin-bottom:6px;display:block}
+.derivation-toggle{font-size:.7rem;color:var(--accent-gold);cursor:pointer;border:none;background:none;padding:4px 0;font-family:inherit;display:block;margin-top:6px}
+.derivation-toggle:hover{text-decoration:underline}
+.derivation-content{display:none;margin-top:8px;padding:12px 16px;background:rgba(245,158,11,.04);border-radius:var(--radius-sm);border-left:3px solid var(--accent-gold);font-size:.8rem;color:var(--text-secondary)}
+.derivation-content.open{display:block}
+
+.chart-wrap{background:rgba(99,102,241,.03);border-radius:var(--radius-sm);padding:8px;margin:14px 0;text-align:center}
+.chart-wrap canvas{max-width:100%}
+.chart-wrap .ch-cap{font-size:.72rem;color:var(--text-muted);margin-top:6px}
+
+.data-table{width:100%;border-collapse:collapse;margin:12px 0;font-size:.82rem}
+.data-table th{text-align:left;padding:8px 12px;background:rgba(99,102,241,.08);border-bottom:2px solid var(--border-glow);color:var(--accent-indigo);font-weight:700}
+.data-table td{padding:8px 12px;border-bottom:1px solid var(--border-subtle);color:var(--text-secondary)}
+.data-table tr:hover td{background:rgba(99,102,241,.03)}
+
+.takeaway{font-size:.82rem;background:rgba(16,185,129,.06);border-left:3px solid var(--accent-green);padding:10px 14px;margin-top:16px;border-radius:0 var(--radius-sm) var(--radius-sm) 0;color:var(--accent-green)}
+
+.ref-list{list-style:none;padding:0;margin-top:8px;font-size:.78rem}
+.ref-list li{padding:4px 0;color:var(--text-muted)}
+.ref-list li::before{content:'📄 '}
+
+.search-overlay{position:fixed;inset:0;z-index:300;background:var(--bg-overlay);display:none;align-items:flex-start;justify-content:center;padding-top:120px}
+.search-overlay.open{display:flex}
+.search-box{width:520px;max-width:90vw;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:var(--radius-md);box-shadow:var(--shadow-lg);overflow:hidden}
+.search-box input{width:100%;padding:14px 18px;background:transparent;border:none;color:var(--text-primary);font-size:.95rem;outline:none;font-family:inherit}
+.search-results{max-height:360px;overflow-y:auto}
+.search-results div{padding:10px 18px;cursor:pointer;font-size:.82rem;color:var(--text-secondary);border-top:1px solid var(--border-subtle);transition:background var(--transition)}
+.search-results div:hover{background:rgba(99,102,241,.06);color:var(--text-primary)}
+
+.journey-footer{text-align:center;padding:40px 32px 60px;opacity:.8}
+.back-to-plan{display:inline-flex;align-items:center;gap:8px;padding:10px 24px;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:50px;color:var(--text-secondary);text-decoration:none;font-size:.85rem;font-weight:600;transition:all var(--transition-smooth)}
+.back-to-plan:hover{background:var(--bg-elevated);border-color:var(--accent-purple);color:var(--accent-purple)}
+
+.deep-floating-back{position:fixed;right:20px;bottom:20px;z-index:10000}
+.deep-floating-back button{padding:12px 20px;background:linear-gradient(135deg,var(--accent-color),var(--accent-dark));color:white;border:none;border-radius:24px;font-size:.85rem;font-weight:600;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.15);transition:transform .2s,box-shadow .2s}
+.deep-floating-back button:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.2)}
+
+.dd-toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);z-index:10001;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:8px;padding:14px 24px;box-shadow:0 4px 16px rgba(0,0,0,.15);font-size:.85rem;display:none}
+.toast-in{animation:toastIn .3s ease}
+@keyframes toastIn{from{opacity:0;transform:translate(-50%,20px)}to{opacity:1;transform:translate(-50%,0)}}
+
+@media print{.navbar,.progress-bar,.side-nav,.journey-bar,.journey-footer,.deep-floating-back{display:none!important}.module{break-inside:avoid;opacity:1!important;transform:none!important;box-shadow:none}body{background:#fff}}
+
+@media(max-width:768px){
+.hero h1{font-size:1.6rem}.module{padding:20px}.meta-card{font-size:.72rem;padding:12px 16px}.journey-bar{flex-direction:column;align-items:flex-start}
+.deep-floating-back{right:15px;bottom:15px}.deep-floating-back button{padding:10px 16px;font-size:.8rem}
+.side-dots{display:none}
+}
+</style>
+</head>
+<body data-theme="dark">
+
+<div class="progress-bar" id="progressBar" style="width:0%"></div>
+
+<nav class="navbar">
+  <div class="nav-left">📖 多步推理与任务分解</div>
+  <div class="nav-right">
+    <button onclick="toggleTheme()" title="切换主题 (Ctrl+D)">🌓 主题</button>
+    <button onclick="openSearch()" title="搜索 (Ctrl+K)">🔍 搜索</button>
+  </div>
+</nav>
+
+<div class="side-dots" id="sideDots"></div>
+
+<div class="search-overlay" id="searchOverlay">
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="搜索模块内容..." oninput="doSearch()" onkeydown="if(event.key==='Escape')closeSearch()">
+    <div class="search-results" id="searchResults"></div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="hero">
+    <h1>多步推理与任务分解</h1>
+    <div class="tags">
+      <span>LLM</span><span>工程实践</span><span>任务分解</span><span>多步推理</span><span>整合应用</span>
+    </div>
+  </div>
+
+  <div class="meta-card">
+    <div class="meta-item"><div class="val">17</div><div class="lbl">内容模块</div></div>
+    <div class="meta-item"><div class="val">约65</div><div class="lbl">分钟阅读</div></div>
+    <div class="meta-item"><div class="val">G8</div><div class="lbl">教程实操型</div></div>
+    <div class="meta-item"><div class="val">应用</div><div class="lbl">深度等级</div></div>
+  </div>
+
+  <div class="journey-bar" id="journeyBar">
+    <div class="journey-path">
+      <span class="journey-icon">📍</span>
+      <span class="journey-plan" onclick="var w=window.open('pe_learning.html#kc-p2_3','plan_main');if(w)w.focus()">提示工程 (Prompt Engineering) 系统学习方案</span>
+      <span class="journey-sep">〉</span>
+      <span class="journey-phase">整合应用</span>
+      <span class="journey-sep">〉</span>
+      <span class="journey-kp">多步推理与任务分解</span>
+      <span class="journey-pos">(阶段2/4 · 第3个知识点)</span>
+    </div>
+    <div class="journey-nav">
+      <span class="journey-prev" title="前置: 提示迭代优化策略">← 前置</span>
+      <span class="journey-divider">|</span>
+      <span class="journey-next" title="后续: 上下文窗口与长文本处理">后续 →</span>
+    </div>
+  </div>
+
+<div id="modulesContainer">
+
+<!-- module: learning_journey -->
+<section class="module" id="mod-learning_journey">
+<h2><span class="m-tag">路线导航</span>📍 学习路线中的位置<span class="m-time">⏱ 约2分钟</span></h2>
+<div class="hook">你在「提示工程系统学习方案」第二阶段「整合应用」的第三个知识点，这是将前阶段核心工具组合成解决复杂问题流水线的关键枢纽。</div>
+<div class="content">
+<p><strong>当前位置：</strong>提示工程 (Prompt Engineering) 系统学习方案 → <em>阶段2/4：整合应用</em> → 第3个知识点「多步推理与任务分解」</p>
+<p><strong>← 前置依赖：</strong>提示迭代优化策略。在掌握如何逐步优化单个 prompt 后，你需要学习如何将一个复杂任务拆解为多个可管理的子任务。同时，本知识点与阶段1中的 <strong>思维链提示 (Chain-of-Thought)</strong> 密切相关——思维链是单次推理中的步进式思考，而任务分解是将整个任务结构化为多个独立的推理步骤。</p>
+<p><strong>→ 后续学习：</strong>掌握本知识点后，你将进入 <strong>上下文窗口与长文本处理</strong>——任务分解产生的大量中间结果需要有效的上下文管理策略，这两个知识点天然互补。</p>
+<p><strong>⏱️ 建议投入时间：</strong>标准学习节奏下，本知识点建议投入 60-90 分钟完成全部模块的阅读和代码实操。如果你是时间有限的实践者，至少完成「核心概念」「核心原理」「代码实操」三个模块（约25分钟）。</p>
+<p><strong>🔗 返回学习方案：</strong>点击顶部导航条中的方案名称，或直接 <a href="#" onclick="var w=window.open('pe_learning.html#kc-p2_3','plan_main');if(w)w.focus()" style="color:var(--accent-purple)">点击这里返回学习方案</a>。</p>
+</div>
+</section>
+
+<!-- module: background -->
+<section class="module" id="mod-background">
+<h2><span class="m-tag">前置知识</span>背景与缘起<span class="m-time">⏱ 约3分钟</span></h2>
+<div class="hook">LLM 不是万能的——面对一个50页的合同分析或需要跨文档推理的问题，单次调用就像让一个人一秒钟读完一本书并写书评。任务分解的思想早就埋在人类解决问题的本能里，现在我们需要把它灌输给机器。</div>
+<div class="content">
+<p>大语言模型虽然在单轮对话中表现出色，但面对 <strong>复杂任务</strong>（如多跳推理、长文档分析、多步骤代码生成）时，单次调用的能力依然受限。这并非模型「不够聪明」，而是受限于 <strong>上下文窗口的注意力稀释</strong> 和 <strong>单次推理的认知负荷上限</strong>。</p>
+<p>人类在面对复杂问题时，天然会采用 <strong>分而治之 (Divide and Conquer)</strong> 的策略——将大问题拆分为多个小问题，逐一解决后汇总。这一定性思维在计算机科学中源远流长：从归并排序到 MapReduce，分解一直是处理复杂性的核心范式。</p>
+<p>早在 1950 年，Alan Turing 在其开创性论文 <em>Computing Machinery and Intelligence</em> 中就探讨了将复杂问题分解为机器可处理的子问题的思想。70多年后，这一思想在 LLM 时代获得了全新的生命——我们不再需要手动编写子问题求解器，而是可以通过精心设计的 prompt 链让 LLM 自行分解和执行。</p>
+<p>2023 年以来，随着 ReAct、Tree of Thoughts、Graph of Thoughts 等方法的相继提出，任务分解已经从一种「写 prompt 的技巧」演变为一门系统的工程方法论。今天的多步推理与任务分解，是连接「单次 LLM 调用」和「自主 Agent 系统」之间的桥梁。</p>
+</div>
+</section>
+
+<!-- module: concept -->
+<section class="module" id="mod-concept">
+<h2><span class="m-tag">核心概念</span>核心概念<span class="m-time">⏱ 约4分钟</span></h2>
+<div class="hook">如果把 LLM 比作一个聪明但容易分心的研究员，任务分解就是给他一本操作手册：先做什么、再做什么、每步要达到什么标准——而不是扔给他整个项目然后说「搞完」。</div>
+<div class="content">
+<p>多步推理与任务分解领域的核心方法可以分为四大流派：</p>
+<p><strong>1. Least-to-Most (从易到难)</strong></p>
+<p>由 Zhou et al. (2023) 提出。核心思想：将一个复杂问题分解为一系列子问题，从最简单的子问题开始逐步求解，每个子问题的解作为后续子问题的上下文。适合「难度逐级递增」的推理任务。</p>
+<p><strong>2. Tree of Thoughts / ToT (思维树)</strong></p>
+<p>由 Yao et al. (2023) 提出。核心思想：在每一步推理中探索多个可能的推理路径（分支），用 LLM 自身评估每条路径的质量，选择最有前景的路径继续探索。适合「需要试错和回溯」的搜索型任务。</p>
+<p><strong>3. ReAct (推理-行动交替)</strong></p>
+<p>由 Yao et al. (2023) 提出。核心思想：将推理 (Reasoning) 和行动 (Acting) 交替执行——LLM 生成一个「思考」步骤，然后执行一个「行动」（如搜索、计算），根据行动结果继续推理。适合需要外部知识或工具辅助的任务。</p>
+<p><strong>4. Chain-of-Verification (验证链)</strong></p>
+<p>由 Dhuliawala et al. (2023) 提出。核心思想：LLM 先生成初步答案，然后生成一系列验证问题，独立回答每个验证问题，最后根据验证结果修正初始答案。适合需要高可靠性的任务。</p>
+
+<table class="data-table">
+<thead><tr><th>方法</th><th>核心机制</th><th>适用场景</th><th>计算成本</th><th>典型提升</th></tr></thead>
+<tbody>
+<tr><td><strong>Least-to-Most</strong></td><td>难度递进分解</td><td>数学推理、符号操作</td><td>中 (子问题数×单次调用)</td><td>GSM8K +8-15%</td></tr>
+<tr><td><strong>Tree of Thoughts</strong></td><td>BFS/DFS 搜索 + 评估</td><td>创意写作、规划、博弈</td><td>高 (分支数×深度次调用)</td><td>Game of 24: 4%→74%</td></tr>
+<tr><td><strong>ReAct</strong></td><td>推理-行动交替</td><td>知识问答、事实核查、工具使用</td><td>中高 (多轮交互)</td><td>HotpotQA +10-20%</td></tr>
+<tr><td><strong>Chain-of-Verification</strong></td><td>生成→验证→修正</td><td>事实性问答、长文本摘要</td><td>中 (2-3倍调用)</td><td>幻觉率降低30-50%</td></tr>
+</tbody>
+</table>
+
+<p><strong>边界定义：</strong>任务分解 (Task Decomposition) 与思维链 (Chain-of-Thought) 是不同层次的概念——思维链是单次推理中的步进式思考模式（在同一 prompt 内），而任务分解是将整个问题结构化为多个独立的推理步骤（可能跨越多次 LLM 调用）。前者是「怎么思考」，后者是「怎么组织思考」。</p>
+</div>
+</section>
+
+<!-- module: principle -->
+<section class="module" id="mod-principle">
+<h2><span class="m-tag">核心概念</span>核心原理<span class="m-time">⏱ 约4分钟</span></h2>
+<div class="hook">为什么把一个复杂问题拆开反而能解决？答案和「为什么维基百科用章节而不是一整段」一样：结构化降低了每一步的认知负荷，同时让中间结果可以被验证。</div>
+<div class="content">
+<p>任务分解有效性的底层原理可以归纳为以下核心原则：</p>
+
+<div class="step-block">
+<span class="step-num">1</span><strong>降低单次认知负荷</strong>
+<div class="step-out">✅ 每个子任务只处理一个问题维度，LLM 不需要同时考虑多个推理目标</div>
+<div class="step-warn">⚠️ 认知负荷公式：$\text{CognitiveLoad}(T) = \text{Complexity}(T) / \text{ContextAvailable}$。分解后每步子任务的 Complexity 降低 60-90%</div>
+</div>
+
+<div class="step-block">
+<span class="step-num">2</span><strong>明确子任务范围</strong>
+<div class="step-out">✅ 每个子任务有清晰的输入、输出和成功标准，消除歧义</div>
+<div class="step-warn">⚠️ 子任务定义模糊时，分解反而引入额外的理解成本</div>
+</div>
+
+<div class="step-block">
+<span class="step-num">3</span><strong>中间结果可验证</strong>
+<div class="step-out">✅ 每个步骤的输出可以独立验证，错误在传播前就被拦截</div>
+<div class="step-warn">⚠️ 这是分解相对于端到端方法最大的优势——错误隔离</div>
+</div>
+
+<div class="step-block">
+<span class="step-num">4</span><strong>错误隔离与恢复</strong>
+<div class="step-out">✅ 步骤3出错时只需重做步骤3，而非整个流程</div>
+<div class="step-warn">⚠️ 但错误传播风险依然存在——步骤3的错误可能被步骤4放大</div>
+</div>
+
+<div class="formula-block">
+<span class="f-cap">公式1: 任务复杂度降低模型</span>
+$$C_{\text{decomposed}} = \sum_{i=1}^{n} C(s_i) + C_{\text{merge}} \ll C_{\text{e2e}}$$
+<button class="derivation-toggle">▸ 展开推导</button>
+<div class="derivation-content">其中 $C_{\text{e2e}}$ 是端到端处理的复杂度，$C(s_i)$ 是第 i 个子任务的复杂度，$C_{\text{merge}}$ 是合并子任务结果的成本。由于 LLM 的推理能力与输入复杂度呈超线性关系（注意力矩阵计算为 $O(n^2)$），分解后的总计算量 $\sum C(s_i)$ 通常远小于 $C_{\text{e2e}}$。实验数据表明，对于包含 5 个以上推理步骤的任务，分解可降低 40-70% 的错误率。</div>
+</div>
+
+<p><strong>实操三原则（G8 教程法）：</strong></p>
+<div class="step-block">
+<span class="step-num">1</span><strong>先分析任务结构，再选择分解策略</strong>
+<div class="step-out">✅ 线性因果链任务 → Least-to-Most；需探索的任务 → ToT；需外部知识的任务 → ReAct</div>
+<div class="step-warn">⚠️ 常见错误：用 ToT 处理线性任务——70% 的分支探索都是浪费</div>
+</div>
+<div class="step-block">
+<span class="step-num">2</span><strong>每步子任务必须有明确的可验证输出</strong>
+<div class="step-out">✅ 预期：每个子步骤输出一个结构化结果（JSON/列表/评分），而非自由文本</div>
+<div class="step-warn">⚠️ 常见错误：子任务输出模糊导致下游步骤无法精确使用</div>
+</div>
+<div class="step-block">
+<span class="step-num">3</span><strong>设计回退机制——关键步骤失败时重试而非继续</strong>
+<div class="step-out">✅ 预期：在每个步骤后设置一个简短的验证 prompt，不合格则重试</div>
+<div class="step-warn">⚠️ 常见错误：让错误一直传播到最终结果才发现</div>
+</div>
+</div>
+</section>
+
+<!-- module: architecture -->
+<section class="module" id="mod-architecture">
+<h2><span class="m-tag">核心工具</span>技术架构图<span class="m-time">⏱ 约4分钟</span></h2>
+<div class="hook">从一个复杂任务到最终答案，中间不是一条直线，而是一棵需要精心设计的推理树。理解这个「分解流水线」的架构，是你从「用 LLM」到「建 LLM 系统」的分水岭。</div>
+<div class="content">
+<p>任务分解的核心架构是一个多阶段的处理流水线：</p>
+
+<div class="chart-wrap">
+<canvas id="chart-arch-01" style="width:100%;max-width:780px;height:320px"></canvas>
+<span class="ch-cap">图：任务分解的通用流水线架构</span>
+</div>
+
+<p><strong>分解拓扑的三种基本形态：</strong></p>
+
+<table class="data-table">
+<thead><tr><th>拓扑类型</th><th>执行方式</th><th>适用场景</th><th>优缺点</th></tr></thead>
+<tbody>
+<tr><td><strong>顺序链 (Sequential)</strong></td><td>S1 → S2 → S3 → S4</td><td>因果推理、流水线处理</td><td>简单可靠，但无法并行，单点故障会中断</td></tr>
+<tr><td><strong>并行扇出 (Parallel)</strong></td><td>S1; (S2a, S2b, S2c) → Merge</td><td>多维度分析、独立子任务</td><td>速度快，但合并逻辑设计复杂</td></tr>
+<tr><td><strong>树/图搜索 (Tree/Graph)</strong></td><td>分支+评估+剪枝/回溯</td><td>规划、搜索、创意任务</td><td>探索能力强，但计算成本高</td></tr>
+</tbody>
+</table>
+
+<p><strong>完整流水线组成：</strong></p>
+<ul>
+<li><strong>任务分析器 (Task Analyzer)：</strong>接收复杂任务，使用 LLM 分析任务结构，生成子任务列表及其依赖关系。</li>
+<li><strong>子任务执行器 (Sub-task Executor)：</strong>按拓扑顺序执行每个子任务，支持并行扇出。</li>
+<li><strong>结果验证器 (Result Validator)：</strong>对每个子任务的输出进行质量检查，不合格则触发重试。</li>
+<li><strong>结果合并器 (Result Merger)：</strong>将所有子任务结果汇总为最终输出。</li>
+</ul>
+
+<p>在实际工程中，这个流水线通常由 LangChain、LlamaIndex 或自建编排逻辑实现。关键设计决策是选择<strong>静态分解</strong>（预先定义子任务结构）还是<strong>动态分解</strong>（运行时由 LLM 决定下一步做什么）。</p>
+</div>
+</section>
+
+<!-- module: code_practice -->
+<section class="module" id="mod-code_practice">
+<h2><span class="m-tag">实践应用</span>代码实操<span class="m-time">⏱ 约6分钟</span></h2>
+<div class="hook">任务分解不是纸上谈兵——下面五个代码示例覆盖了从最简单到最复杂的分解模式，让你从「看懂」到「能写」。</div>
+<div class="content">
+
+<p><strong>示例1：Least-to-Most 提示实现</strong></p>
+<div class="code-block">
+<span class="cb-cap">Least-to-Most 分解——数学问题求解</span>
+def least_to_most_solve(problem, llm_call):
+    # 步骤1：分解
+    decomposition_prompt = f"""将以下问题分解为 3-5 个由易到难的子问题。
+只输出子问题列表，每行一个，不要包含答案。
+
+问题：{problem}
+子问题："""
+    sub_problems = llm_call(decomposition_prompt).strip().split('\n')
+
+    # 步骤2-5：逐步求解（每个子问题获得前面所有答案作为上下文）
+    context = ""
+    answers = []
+    for i, sub in enumerate(sub_problems):
+        solve_prompt = f"""{context}
+请回答以下子问题（只输出答案，不要推理过程）：
+
+子问题：{sub}
+答案："""
+        answer = llm_call(solve_prompt).strip()
+        answers.append(answer)
+        context += f"\n子问题{i+1}：{sub}\n答案{i+1}：{answer}"
+
+    # 汇总
+    final_prompt = f"""基于以下子问题及其答案，给出原问题的最终解答：
+原问题：{problem}
+{context}
+最终答案："""
+    return llm_call(final_prompt)
+</div>
+
+<p><strong>示例2：ReAct 模式 Python 实现</strong></p>
+<div class="code-block">
+<span class="cb-cap">ReAct 推理-行动交替循环</span>
+import re
+
+def react_loop(question, llm_call, max_steps=5):
+    context = f"问题：{question}\n"
+    for step in range(max_steps):
+        prompt = f"""{context}
+你需要通过「思考-行动-观察」循环来回答问题。
+
+思考：[分析当前已知信息，决定下一步需要什么]
+行动：[选择一个行动：Search[查询词] 或 Finish[答案]]
+"""
+        response = llm_call(prompt)
+
+        # 解析思考和行动
+        thought = re.search(r'思考：(.+)', response)
+        action = re.search(r'行动：(.+)', response)
+
+        if thought:
+            context += f"思考：{thought.group(1)}\n"
+
+        if action:
+            act = action.group(1)
+            context += f"行动：{act}\n"
+
+            if act.startswith("Finish"):
+                return act.replace("Finish[", "").rstrip("]")
+            elif act.startswith("Search"):
+                query = act.replace("Search[", "").rstrip("]")
+                # 调用外部搜索工具
+                observation = external_search(query)
+                context += f"观察：{observation}\n"
+
+    return "达到最大步数，未能完成推理"
+</div>
+
+<p><strong>示例3：Tree of Thoughts 搜索实现</strong></p>
+<div class="code-block">
+<span class="cb-cap">ToT 宽度优先搜索——Game of 24</span>
+def tree_of_thoughts_search(problem, llm_call, beam_width=3, max_depth=4):
+    states = [(problem, "", 0)]  # (当前状态, 推理路径, 评分)
+
+    for depth in range(max_depth):
+        candidates = []
+        for state, path, score in states:
+            # 生成候选下一步
+            prompt = f"""问题：{problem}
+当前状态：{state}
+推理路径：{path}
+请提出 {beam_width} 个不同的下一步操作："""
+            next_steps = llm_call(prompt).strip().split('\n')
+
+            for step in next_steps:
+                # 评估每个候选
+                eval_prompt = f"""问题：{problem}
+当前状态：{state}
+候选操作：{step}
+请评估此操作的有效性（1-10分，只输出数字）："""
+                step_score = float(llm_call(eval_prompt).strip())
+
+                new_state = f"{state}\n→ {step}"
+                new_path = f"{path}\n{step}"
+                candidates.append((new_state, new_path, step_score))
+
+        # 保留前 beam_width 个候选
+        candidates.sort(key=lambda x: x[2], reverse=True)
+        states = candidates[:beam_width]
+
+        # 检查是否有候选已经达到目标
+        for state, path, score in states:
+            if is_goal_state(state, problem):
+                return path
+
+    return states[0][1]  # 返回最佳路径
+</div>
+
+<p><strong>示例4：LangChain 任务分解链</strong></p>
+<div class="code-block">
+<span class="cb-cap">用 LangChain 实现简单分解流水线</span>
+from langchain.chains import LLMChain
+from langchain.prompts import PromptTemplate
+from langchain.llms import OpenAI
+
+llm = OpenAI(temperature=0)
+
+# 分解 prompt
+decompose_template = """将以下任务分解为 3-5 个子任务，按执行顺序列出：
+任务：{task}
+子任务（每行一个）："""
+decompose_chain = LLMChain(
+    llm=llm,
+    prompt=PromptTemplate.from_template(decompose_template)
+)
+
+# 执行 prompt
+execute_template = """完成以下子任务，输出简洁明确的结果：
+上下文：{context}
+子任务：{subtask}
+结果："""
+execute_chain = LLMChain(
+    llm=llm,
+    prompt=PromptTemplate.from_template(execute_template)
+)
+
+# 合并 prompt
+merge_template = """基于以下子任务结果，合成最终输出：
+{all_results}
+最终输出："""
+merge_chain = LLMChain(
+    llm=llm,
+    prompt=PromptTemplate.from_template(merge_template)
+)
+
+def decomposition_pipeline(task):
+    subtasks = decompose_chain.run(task=task).strip().split('\n')
+    results = []
+    context = ""
+    for st in subtasks:
+        result = execute_chain.run(context=context, subtask=st)
+        results.append(f"[子任务] {st}\n[结果] {result}")
+        context += f"\n已完成: {st} -> {result}"
+    final = merge_chain.run(all_results='\n'.join(results))
+    return final
+</div>
+
+<p><strong>示例5：AutoGen 多智能体分解</strong></p>
+<div class="code-block">
+<span class="cb-cap">AutoGen 多智能体协作分解</span>
+import autogen
+
+config_list = [{"model": "gpt-4", "api_key": "YOUR_API_KEY"}]
+
+# 定义智能体角色
+planner = autogen.AssistantAgent(
+    name="Planner",
+    system_message="你是任务分解专家。将复杂任务拆分为子任务并分配给合适的执行者。",
+    llm_config={"config_list": config_list}
+)
+
+analyst = autogen.AssistantAgent(
+    name="Analyst",
+    system_message="你是数据分析专家。执行数据相关的子任务。",
+    llm_config={"config_list": config_list}
+)
+
+writer = autogen.AssistantAgent(
+    name="Writer",
+    system_message="你是内容撰写专家。执行写作和报告相关的子任务。",
+    llm_config={"config_list": config_list}
+)
+
+reviewer = autogen.AssistantAgent(
+    name="Reviewer",
+    system_message="你是审核专家。检查其他智能体的输出质量。",
+    llm_config={"config_list": config_list}
+)
+
+user_proxy = autogen.UserProxyAgent(
+    name="User",
+    human_input_mode="NEVER",
+    code_execution_config={"work_dir": "workspace"}
+)
+
+groupchat = autogen.GroupChat(
+    agents=[user_proxy, planner, analyst, writer, reviewer],
+    messages=[],
+    max_round=12
+)
+manager = autogen.GroupChatManager(groupchat=groupchat)
+
+user_proxy.initiate_chat(
+    manager,
+    message="分析这份50页的市场报告，提取关键趋势并生成执行摘要。"
+)
+</div>
+
+</div>
+</section>
+
+<!-- module: open_source -->
+<section class="module" id="mod-open_source">
+<h2><span class="m-tag">实践应用</span>开源生态<span class="m-time">⏱ 约3分钟</span></h2>
+<div class="hook">不想从零手写分解逻辑？开源社区已经为你准备好了从「轻量级链式调用」到「多智能体协作」的全套工具箱。</div>
+<div class="content">
+<p>以下是支持任务分解的主流开源框架对比：</p>
+
+<table class="data-table">
+<thead><tr><th>框架</th><th>分解支持</th><th>核心优势</th><th>适用场景</th><th>学习曲线</th></tr></thead>
+<tbody>
+<tr><td><strong>LangChain</strong></td><td>Chain/LCEL 组合；支持 SequentialChain、RouterChain</td><td>生态最丰富；社区活跃；文档完善</td><td>通用任务流水线</td><td>中等</td></tr>
+<tr><td><strong>LlamaIndex</strong></td><td>QueryPipeline；支持子查询分解</td><td>与 RAG 深度集成；查询分解内置</td><td>文档分析、知识问答</td><td>中等</td></tr>
+<tr><td><strong>DSPy</strong></td><td>多步 Module 编排；编译期自动优化</td><td>声明式编程；自动搜索最优策略</td><td>需要自动优化的复杂 pipeline</td><td>较高</td></tr>
+<tr><td><strong>AutoGen</strong></td><td>多智能体对话；GroupChat 编排</td><td>角色分工清晰；人机协作能力强</td><td>多角色协作任务</td><td>中等</td></tr>
+<tr><td><strong>CrewAI</strong></td><td>Agent 角色 + Task 定义 + 顺序/层级流程</td><td>API 简洁直观；适合快速原型</td><td>多步骤自动化工作流</td><td>较低</td></tr>
+</tbody>
+</table>
+
+<p><strong>选择建议：</strong></p>
+<ul>
+<li><strong>刚入门：</strong>CrewAI——API 最直观，30分钟可上手</li>
+<li><strong>需要最大灵活性：</strong>LangChain——组件可自由组合</li>
+<li><strong>需要自动优化：</strong>DSPy——让框架帮你找最优分解策略</li>
+<li><strong>多角色协作：</strong>AutoGen——原生支持人机多轮协作</li>
+<li><strong>与 RAG 结合：</strong>LlamaIndex——查询分解和文档处理一体化</li>
+</ul>
+</div>
+</section>
+
+<!-- module: benchmark -->
+<section class="module" id="mod-benchmark">
+<h2><span class="m-tag">实践应用</span>Benchmark 数据<span class="m-time">⏱ 约3分钟</span></h2>
+<div class="hook">任务分解到底能带来多少提升？数据不会说谎——在某些 benchmark 上，分解让你从「几乎不能用」跳到「超越人类」。</div>
+<div class="content">
+<p>以下是在代表性 benchmark 上直接提示 vs 分解提示的性能对比：</p>
+
+<table class="data-table">
+<thead><tr><th>Benchmark</th><th>任务类型</th><th>直接提示 (GPT-4)</th><th>Least-to-Most</th><th>ReAct</th><th>ToT</th><th>提升幅度</th></tr></thead>
+<tbody>
+<tr><td>GSM8K</td><td>小学数学推理</td><td>92.0%</td><td>96.2%</td><td>-</td><td>-</td><td>+4.2%</td></tr>
+<tr><td>StrategyQA</td><td>多步隐式推理</td><td>68.5%</td><td>78.3%</td><td>81.2%</td><td>-</td><td>+12.7%</td></tr>
+<tr><td>HotpotQA</td><td>多跳知识问答</td><td>52.3%</td><td>-</td><td>65.8%</td><td>-</td><td>+13.5%</td></tr>
+<tr><td>Game of 24</td><td>数学搜索任务</td><td>7.3%</td><td>-</td><td>-</td><td>74.0%</td><td>+66.7%</td></tr>
+<tr><td>FEVER</td><td>事实验证</td><td>82.1%</td><td>-</td><td>85.6%</td><td>-</td><td>+3.5%</td></tr>
+</tbody>
+</table>
+
+<div class="chart-wrap">
+<canvas id="chart-bench-01" style="width:100%;max-width:650px;height:280px"></canvas>
+<span class="ch-cap">图：直接提示 vs 任务分解方法准确率对比 (GPT-4)</span>
+</div>
+
+<p><strong>关键发现：</strong></p>
+<ul>
+<li><strong>搜索型任务收益最大：</strong>Game of 24 从 7.3% 跳到 74.0%——对需要探索多路径的任务，分解是刚需而非锦上添花。</li>
+<li><strong>多跳推理稳中有升：</strong>StrategyQA 和 HotpotQA 中，ReAct 带来了 12-14% 的稳定提升。</li>
+<li><strong>简单推理任务增益有限：</strong>GSM8K 上 Least-to-Most 仅提升 4.2%，因为直接 CoT 提示已经能处理大部分问题。</li>
+<li><strong>成本-收益比：</strong>对于 GSM8K 这样的任务，直接 CoT 提示足以胜任，分解的成本（3-5倍 token 消耗）可能不划算。</li>
+</ul>
+</div>
+</section>
+
+<!-- module: development -->
+<section class="module" id="mod-development">
+<h2><span class="m-tag">发展演进</span>发展迭代<span class="m-time">⏱ 约3分钟</span></h2>
+<div class="hook">从 2022 年写下第一个「Let's think step by step」到 2024 年的多智能体系统——任务分解在短短两年内完成了从「提示技巧」到「系统架构」的飞跃。</div>
+<div class="content">
+<p>任务分解方法论的发展脉络清晰地揭示了 LLM 从「单次推理」到「系统化思考」的进化：</p>
+
+<table class="data-table">
+<thead><tr><th>时间</th><th>里程碑</th><th>关键贡献</th><th>影响</th></tr></thead>
+<tbody>
+<tr><td>2022.01</td><td>Chain-of-Thought (Wei et al.)</td><td>首次证明在 prompt 中加入推理步骤可大幅提升复杂推理</td><td>开创了「推理即过程」的范式</td></tr>
+<tr><td>2023.03</td><td>ReAct (Yao et al.)</td><td>将推理与行动交替，使 LLM 能使用外部工具</td><td>任务分解从纯推理扩展到工具使用</td></tr>
+<tr><td>2023.05</td><td>Tree of Thoughts (Yao et al.)</td><td>引入树搜索结构，LLM 可探索多条推理路径</td><td>任务分解从线性走向分支化</td></tr>
+<tr><td>2023.10</td><td>Least-to-Most (Zhou et al.)</td><td>系统化难度递增分解策略</td><td>形成可复用的分解范式模板</td></tr>
+<tr><td>2024.02</td><td>Graph of Thoughts (Besta et al.)</td><td>将树结构扩展为图结构，支持循环和合并</td><td>推理结构更加灵活自由</td></tr>
+<tr><td>2024.06</td><td>Multi-agent 框架 (AutoGen/CrewAI)</td><td>将不同子任务分配给不同角色的 LLM 实例</td><td>任务分解进入多角色协作时代</td></tr>
+<tr><td>2025.01</td><td>DeepSeek-R1 / o1 推理模型</td><td>模型内化推理链，部分任务不再需要显式分解</td><td>分解从「必须写 prompt」到「模型自动做」</td></tr>
+</tbody>
+</table>
+
+<div class="formula-block">
+<span class="f-cap">公式2: 分解方法复杂度演化模型</span>
+$$\text{Complexity}(t) = O(1) \xrightarrow{\text{CoT}} O(\text{steps}) \xrightarrow{\text{ToT}} O(b^d) \xrightarrow{\text{GoT}} O(V+E)$$
+<button class="derivation-toggle">▸ 展开推导</button>
+<div class="derivation-content">其中 CoT 引入线性步骤复杂度，ToT 引入指数级分支探索（$b$ 为分支数，$d$ 为深度），GoT 将复杂度重新控制在图结构范围内（$V$ 为节点数，$E$ 为边数）。2025年的推理模型（o1, DeepSeek-R1）通过内化推理链，将复杂度隐藏在模型内部，对外暴露为 $O(1)$ 的接口——这是「显式分解」向「隐式分解」的范式转移。</div>
+</div>
+
+<p>当前趋势：<strong>推理模型正在让显式分解在某些场景中变得不再必要</strong>。但当任务涉及多工具、多数据源或多角色协作时，结构化的任务分解仍然是不可替代的工程范式。</p>
+</div>
+</section>
+
+<!-- module: application -->
+<section class="module" id="mod-application">
+<h2><span class="m-tag">实践应用</span>实践应用<span class="m-time">⏱ 约5分钟</span></h2>
+<div class="hook">理论说完了，现在来看看任务分解在实际业务中长什么样——从文档分析到代码审查，从商业报告到合同审查，每个场景都有对应的分解套路。</div>
+<div class="content">
+<p>以下是多步推理与任务分解的 5 个核心应用场景：</p>
+
+<p><strong>场景一：文档分析流水线</strong></p>
+<div class="step-block">
+<span class="step-num">1</span><strong>分解为：提取 → 分类 → 摘要 → 关联分析</strong>
+<div class="step-out">✅ 预期：长文档被拆分为主题块，每个主题块独立处理后再合并</div>
+<div class="step-warn">⚠️ 常见错误：所有块一次性扔给模型，上下文窗口溢出</div>
+</div>
+<div class="code-block">
+<span class="cb-cap">文档分析分解流水线</span>
+步骤1: [提取] 识别文档中的主要主题段落 → 输出段落边界
+步骤2: [分类] 对每个段落标注类型(论点/数据/案例/结论) → 类型映射表
+步骤3: [摘要] 对每个段落生成一句话摘要 → 段落摘要列表
+步骤4: [关联] 识别段落间的逻辑关系(支持/反驳/补充) → 关系图
+步骤5: [合并] 生成结构化分析报告 → 最终输出
+</div>
+
+<p><strong>场景二：多跳问答</strong></p>
+<div class="step-block">
+<span class="step-num">2</span><strong>使用 ReAct 模式：检索→推理→再检索→再推理</strong>
+<div class="step-out">✅ 预期：交替使用搜索工具和推理，直至收集到足够信息回答</div>
+<div class="step-warn">⚠️ 常见错误：搜索一次就试图回答，遗漏关键信息</div>
+</div>
+
+<p><strong>场景三：代码审查-修复-测试循环</strong></p>
+<div class="step-block">
+<span class="step-num">3</span><strong>分解为：静态分析 → 逻辑审查 → 修复建议 → 生成测试 → 验证</strong>
+<div class="step-out">✅ 预期：每个步骤专注一个维度，最终生成完整的审查报告和修复方案</div>
+<div class="step-warn">⚠️ 常见错误：静态分析和逻辑审查混在一起，导致问题遗漏</div>
+</div>
+
+<p><strong>场景四：商业报告生成</strong></p>
+<p>将「生成一份 Q3 市场分析报告」分解为：数据收集 → 趋势识别 → 竞品分析 → SWOT 分析 → 建议生成 → 报告撰写。每个子任务可并行执行（数据收集/竞品分析/趋势识别互不依赖），最后串行合并。</p>
+
+<p><strong>场景五：法律文档分析</strong></p>
+<p>将合同/法规分析分解为：条款提取 → 风险识别 → 合规检查 → 案例关联 → 摘要生成。这是任务分解价值最明显的场景之一（详见实践案例模块）。</p>
+
+<div class="chart-wrap">
+<canvas id="chart-app-01" style="width:100%;max-width:650px;height:260px"></canvas>
+<span class="ch-cap">图：不同应用场景下分解 vs 直接提示的效果提升</span>
+</div>
+
+</div>
+</section>
+
+<!-- module: case_study -->
+<section class="module" id="mod-case_study">
+<h2><span class="m-tag">实践应用</span>实践案例<span class="m-time">⏱ 约4分钟</span></h2>
+<div class="hook">分析一份 50 页的商业合同——直接扔给 LLM，它可能漏掉第 37 页的隐藏风险条款。用任务分解，每一步都精确可控，最终产出的是一份律师可以直接采用的审查报告。</div>
+<div class="content">
+<p><strong>案例：50 页商业合同智能审查系统</strong></p>
+<p><strong>背景：</strong>某法律科技公司需要自动审查商业合同，识别关键条款和潜在风险。直接让 LLM 分析整份 50 页的合同效果很差——遗漏率高达 30%，且经常混淆不同章节的条款。</p>
+<p><strong>分解方案：</strong>将合同分析拆分为 4 个顺序步骤：</p>
+
+<div class="step-block">
+<span class="step-num">1</span><strong>提取关键条款</strong>
+<div class="step-out">✅ 从合同中提取 15 类关键条款（违约责任、知识产权、保密、终止条件等），每类条款输出结构化的条款文本和页码位置</div>
+</div>
+<div class="step-block">
+<span class="step-num">2</span><strong>条款风险识别</strong>
+<div class="step-out">✅ 对每类条款逐一分析风险等级（高/中/低），列出具体风险点和影响范围</div>
+</div>
+<div class="step-block">
+<span class="step-num">3</span><strong>法规交叉引用</strong>
+<div class="step-out">✅ 将识别出的风险条款与相关法规（公司法、合同法、劳动法等）进行对照，标注合规性问题</div>
+</div>
+<div class="step-block">
+<span class="step-num">4</span><strong>生成审查摘要报告</strong>
+<div class="step-out">✅ 合并前三步结果，生成结构化审查报告：总览摘要 → 风险清单 → 合规建议 → 修改建议</div>
+</div>
+
+<div class="code-block">
+<span class="cb-cap">合同审查分解链的核心 Prompt 结构</span>
+# 步骤1 Prompt
+你是一名合同分析专家。请从以下合同中提取以下类别的关键条款：
+- 违约责任 (Liability)
+- 知识产权 (IP Rights)  
+- 保密条款 (Confidentiality)
+- 终止条件 (Termination)
+- 争议解决 (Dispute Resolution)
+对每类条款，请输出：条款原文 + 所在页码
+
+# 步骤2 Prompt  
+基于上一轮提取的条款，对每类条款进行风险评估：
+风险等级：🔴高风险 / 🟡中风险 / 🟢低风险
+风险描述：[具体风险]
+影响范围：[谁受影响]
+
+# 步骤3 Prompt
+将识别的风险条款与中国《民法典》合同编相关条款对照：
+条款X 对应民法典第Y条 → 合规状态：合规/部分合规/不合规
+不合规项：建议修改方向
+
+# 步骤4 Prompt
+基于前三轮分析，生成最终审查报告：
+一、合同总览 (200字)
+二、高风险条款清单 (表格)
+三、法规合规性总结
+四、修改建议优先级列表
+</div>
+
+<p><strong>效果对比：</strong></p>
+<table class="data-table">
+<thead><tr><th>指标</th><th>直接分析 (GPT-4)</th><th>分解流水线</th><th>提升</th></tr></thead>
+<tbody>
+<tr><td>高风险条款检出率</td><td>70%</td><td>96%</td><td>+26%</td></tr>
+<tr><td>法规对照准确率</td><td>58%</td><td>89%</td><td>+31%</td></tr>
+<tr><td>幻觉条款（虚构条款）</td><td>12%</td><td>2%</td><td>-83%</td></tr>
+<tr><td>总处理时间</td><td>~45秒</td><td>~180秒</td><td>+300%</td></tr>
+<tr><td>总 Token 消耗</td><td>~8,000 tokens</td><td>~35,000 tokens</td><td>+338%</td></tr>
+</tbody>
+</table>
+
+<p>尽管成本和时间增加了约4倍，但偏差检出率提升26%、法规对照准确率提升31%、幻觉率降低83%——对于法律场景，这种成本换质量是绝对划算的。</p>
+
+<div class="chart-wrap">
+<canvas id="chart-case-01" style="width:100%;max-width:550px;height:240px"></canvas>
+<span class="ch-cap">图：合同审查：直接分析 vs 分解流水线效果对比</span>
+</div>
+
+</div>
+</section>
+
+<!-- module: risk -->
+<section class="module" id="mod-risk">
+<h2><span class="m-tag">风险与挑战</span>潜在风险<span class="m-time">⏱ 约3分钟</span></h2>
+<div class="hook">任务分解不是银弹——它会带来全新的问题：错误传播、成本爆炸、延迟累加。最危险的情况是：步骤1的微小错误在步骤4被放大成灾难性后果。</div>
+<div class="content">
+<p>多步推理与任务分解在实际应用中的五大核心风险：</p>
+
+<table class="data-table">
+<thead><tr><th>风险类型</th><th>描述</th><th>影响程度</th><th>缓解策略</th></tr></thead>
+<tbody>
+<tr><td><strong>错误传播 (Error Propagation)</strong></td><td>前序步骤的错误作为输入喂给后续步骤，导致错误级联放大</td><td>🔴 高</td><td>每步后设置验证节点；关键步骤输出置信度评分；不通过验证时自动重试</td></tr>
+<tr><td><strong>分解失败 (Decomposition Failure)</strong></td><td>LLM 对任务结构理解错误，产生不合理的子任务划分</td><td>🔴 高</td><td>使用 few-shot 示例展示正确的分解方式；人工审核分解方案</td></tr>
+<tr><td><strong>成本倍增 (Cost Multiplication)</strong></td><td>N 步分解导致调用次数和 token 消耗成倍增长</td><td>🟡 中</td><td>评估每步的成本-收益比；对简单任务只用直接提示；使用 prompt caching</td></tr>
+<tr><td><strong>延迟累积 (Latency Accumulation)</strong></td><td>每个步骤的 API 延迟累加，总响应时间可能远超用户容忍度</td><td>🟡 中</td><td>并行执行无依赖的子任务；使用流式输出降低感知延迟</td></tr>
+<tr><td><strong>协调开销 (Coordination Overhead)</strong></td><td>子任务间上下文传递和结果合并引入额外的复杂性</td><td>🟡 中</td><td>定义统一的中间结果格式（JSON Schema）；使用状态机管理流程</td></tr>
+</tbody>
+</table>
+
+<div class="formula-block">
+<span class="f-cap">公式3: 错误传播概率模型</span>
+$$P_{\text{error}}^{\text{total}} = 1 - \prod_{i=1}^{n} (1 - P_{\text{error}}^{(i)}) \approx n \cdot P_{\text{error}} \ (\text{当 } P_{\text{error}} \text{ 较小时})$$
+<button class="derivation-toggle">▸ 展开推导</button>
+<div class="derivation-content">假设每个子步骤的独立错误概率为 $P_{\text{error}}$，经过 n 步后总错误概率约为 $n \cdot P_{\text{error}}$（一阶近似）。这意味着：如果每步错误率是 5%，5 步分解后的总错误率约为 23%。但实际情况更复杂——错误传播意味着不是所有错误独立，前步错误会提高后步错误的条件概率。因此，验证节点的设计是决定分解效果的关键。</div>
+</div>
+
+<div class="step-block">
+<span class="step-num">!</span><strong>安全检查清单</strong>
+<div class="step-out">✅ 每个子步骤是否有明确的验证标准？</div>
+<div class="step-out">✅ 关键步骤验证失败时是否有重试机制？</div>
+<div class="step-out">✅ 子任务间的数据传递格式是否严格定义？</div>
+<div class="step-warn">⚠️ 如果分解后总错误率超过直接调用——你的分解方案有问题</div>
+</div>
+</div>
+</section>
+
+<!-- module: ethics -->
+<section class="module" id="mod-ethics">
+<h2><span class="m-tag">风险与挑战</span>伦理与安全<span class="m-time">⏱ 约3分钟</span></h2>
+<div class="hook">当一个 AI 系统通过十几个步骤推理出「你应该拒绝这笔贷款」时，你需要能够解释它是怎么得出这个结论的——否则这就是一个无法问责的黑箱。</div>
+<div class="content">
+<p>任务分解引入的伦理问题与传统单次 LLM 调用有本质区别，因为多步推理创造了一个可追溯但也可操纵的决策链：</p>
+
+<p><strong>1. 推理链的透明度 (Transparency of Reasoning Chains)</strong></p>
+<p>多步推理会产生一系列中间决策。这在理论上提供了更好的可解释性（可以看到每一步的推理），但也创造了新的风险：中间步骤可能被精心设计以引导出特定的最终结论。你需要确保：每个步骤的输入、输出和推理过程都完整保留，形成不可篡改的审计轨迹。</p>
+
+<p><strong>2. 多步决策的问责 (Accountability for Multi-step Decisions)</strong></p>
+<p>当最终决策是十几步推理的结果时，谁为错误负责？是设计分解方案的人？提供每个步骤 prompt 的人？还是执行推理的模型？合成谬误（Composition Fallacy）——每一步单独看都合理，但组合起来导致错误结论——是多步系统中特有的伦理陷阱。</p>
+
+<p><strong>3. 隐蔽的偏见放大</strong></p>
+<p>多步推理中，每一步都可能引入微小的偏见（如示例选择偏差、模型固有偏见）。这些偏见在多步传播中可能被放大。例如：步骤1略偏向某种解读 → 步骤2基于此偏向进行推理 → 步骤3的结论已经严重偏离客观事实。</p>
+
+<div class="step-block">
+<span class="step-num">✓</span><strong>伦理审查清单</strong>
+<div class="step-out">✅ 每个推理步骤的输入和输出是否可完整追溯？</div>
+<div class="step-out">✅ 是否设置了偏见检测节点（如要求每个步骤列出替代解释）？</div>
+<div class="step-out">✅ 最终决策是否有独立于推理链的人工复核环节？</div>
+<div class="step-out">✅ 是否记录了每个步骤的置信度，以便在必要时回退？</div>
+<div class="step-warn">⚠️ 核心原则：复杂度越高，解释义务越重——不要让多步推理成为推卸责任的借口</div>
+</div>
+</div>
+</section>
+
+<!-- module: prospect -->
+<section class="module" id="mod-prospect">
+<h2><span class="m-tag">发展演进</span>发展前景<span class="m-time">⏱ 约3分钟</span></h2>
+<div class="hook">当 LLM 开始学会自己判断「这个问题我需要拆开来想」时，手动写分解 prompt 的日子就屈指可数了——但在此之前，理解分解的底层逻辑会让你建出更好的系统。</div>
+<div class="content">
+<p><strong>趋势一：智能体工作流 (Agentic Workflows)</strong></p>
+<p>2025年，Andrew Ng 提出 Agentic Workflow 概念——LLM 不再被动等待指令，而是主动判断任务复杂度、自行决定是否需要分解、自行选择分解策略。这是从「人类手动分解」到「模型自主分解」的关键转折。LangGraph、AutoGen 等框架已经在支持这种模式。</p>
+
+<p><strong>趋势二：自修正推理链 (Self-Correcting Chains)</strong></p>
+<p>未来的分解流水线将内置自我修正能力——当验证步骤发现问题时，系统自动回溯到出错步骤、修正后重新执行下游。这类似于程序调试中的断点-修复-继续流程，使分解系统的鲁棒性大幅提升。</p>
+
+<p><strong>趋势三：动态分解 (Dynamic Decomposition)</strong></p>
+<p>从静态分解（预先定义子任务）到动态分解（根据中间结果实时决定下一步）。这需要 LLM 具有「元认知」能力——能够评估自己的推理状态并规划接下来的步骤。DSPy 的动态 Module 和 ReAct 的交替模式已经展示了这种潜力。</p>
+
+<p><strong>趋势四：LLM-as-Judge 步骤验证</strong></p>
+<p>用独立的 LLM 实例作为「裁判」来评估每个步骤的输出质量。这个裁判 LLM 可以使用不同的模型（避免自评偏差）或不同的 prompt 策略（如要求严格评分），提供独立的质量保证。</p>
+
+<table class="data-table">
+<thead><tr><th>时间线</th><th>分解方式</th><th>核心驱动力</th></tr></thead>
+<tbody>
+<tr><td>2024-2025</td><td>人工设计分解链 + 框架编排</td><td>LangChain/LlamaIndex/CrewAI</td></tr>
+<tr><td>2026-2027（预测）</td><td>半自动分解 + 人工审核和修正</td><td>Agentic Workflow + LLM-as-Judge</td></tr>
+<tr><td>2028+（预测）</td><td>全自动分解 + 人类仅设置目标和约束</td><td>推理模型的元认知能力内化</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<!-- module: misconceptions -->
+<section class="module" id="mod-misconceptions">
+<h2><span class="m-tag">核心概念</span>常见误区<span class="m-time">⏱ 约3分钟</span></h2>
+<div class="hook">「拆的步骤越多越好」「思维链就是任务分解」「任何任务拆开都比直接做好」——这三个误区，每一个都能让你的系统从「还能用」变成「完全不可用」。</div>
+<div class="content">
+<p><strong>误区 1：「更多步骤 = 更好结果」</strong></p>
+<p>任务分解存在明显的 <strong>边际收益递减</strong>。实验数据表明：2-5步的分解通常带来最大收益（提升 5-20%），超过 8 步后每增加一步的收益通常低于 1%，而错误传播风险快速上升。盲目堆砌步骤不仅浪费成本，还可能因为协调开销反而降低最终质量。</p>
+
+<p><strong>误区 2：「Chain-of-Thought = 任务分解」</strong></p>
+<p>这是最容易混淆的一对概念。Chain-of-Thought (CoT) 是<strong>推理风格</strong>——在单次 prompt 中要求模型展示推理步骤；任务分解 (Task Decomposition) 是<strong>结构策略</strong>——将整个问题拆分为多次独立的 LLM 调用。CoT 发生在一次调用内部，分解发生在多次调用之间。两者的关系是互补的：你可以在分解后的每个子任务中使用 CoT 来提升推理质量。</p>
+
+<p><strong>误区 3：「分解总能改善效果」</strong></p>
+<p>分解不是免费的午餐。对于以下情况，分解可能适得其反：(1) 任务本身结构简单、LLM 一次就能处理好的；(2) 子任务之间高度耦合、分解后信息丢失严重；(3) 每个子任务都需要大量上下文，拆开后 token 总量反而更大。判断是否需要分解的黄金法则：<strong>先跑一次直接提示，如果结果不满意，再分析失败原因决定是否需要分解</strong>。</p>
+
+<p><strong>误区 4：「ReAct 适合所有需要外部信息的任务」</strong></p>
+<p>ReAct 在 HotpotQA 等需要多跳检索的任务中表现出色，但对于只需要一次检索就能获取全部所需信息的任务，ReAct 的多轮交互是纯粹的浪费。一个更实用的策略是：先检索一次，评估信息充足性，只有在不足时才进行第二轮检索。</p>
+
+<div class="step-block">
+<span class="step-num">!</span><strong>Debug 技巧：出现以下症状时该怎么排查</strong>
+<div class="step-out">分解后效果反而更差 → 检查子任务划分是否合理；尝试减少步骤数</div>
+<div class="step-out">成本暴涨但效果没提升 → 检查是否用了 ToT 处理线性任务（应该用 Least-to-Most）</div>
+<div class="step-out">中间步骤输出看起来都对但最终结果错 → 检查是否有隐蔽的错误传播（每步都加验证）</div>
+</div>
+</div>
+</section>
+
+<!-- module: learning_path -->
+<section class="module" id="mod-learning_path">
+<h2><span class="m-tag">核心概念</span>学习路径<span class="m-time">⏱ 约3分钟</span></h2>
+<div class="hook">从「我会写分解 prompt 了」到「我能设计高鲁棒的分解系统」，中间只需要 3 个阶段、约 3.5 小时的刻意练习。</div>
+<div class="content">
+<p><strong>阶段 1：手动分解练习（30 分钟）</strong></p>
+<ul>
+<li>选 3 个不同类型的复杂任务（数学推理、长文档分析、多跳问答）</li>
+<li>对每个任务，手动写出你认为最优的子任务列表</li>
+<li>在 ChatGPT/Claude 中用直接提示和分解提示分别测试，对比结果</li>
+<li>思考：哪些任务从分解中获益最大？为什么？</li>
+</ul>
+
+<p><strong>阶段 2：实现 Least-to-Most 分解器（1 小时）</strong></p>
+<ul>
+<li>用 Python + OpenAI API 实现一个最简单的 Least-to-Most 流水线</li>
+<li>在 GSM8K 数据集的 10 个问题上测试，记录每题的准确率和 token 消耗</li>
+<li>对比直接 CoT 提示的效果差异</li>
+<li>尝试加入简单的结果验证步骤（如要求模型对中间结果打分）</li>
+</ul>
+
+<p><strong>阶段 3：构建完整的分解流水线（2 小时）</strong></p>
+<ul>
+<li>选择 LangChain 或 LlamaIndex 框架</li>
+<li>构建一个包含分解-执行-验证-合并四阶段的完整流水线</li>
+<li>实现错误重试机制（验证失败时自动重试，最多3次）</li>
+<li>添加并行执行支持（无依赖的子任务并行调用）</li>
+<li>编写 5-10 个测试用例，系统记录每步的性能数据</li>
+</ul>
+
+<p><strong>必读论文（按阅读优先级）：</strong></p>
+<ol>
+<li>Yao et al. (2023) — ReAct: Synergizing Reasoning and Acting in Language Models</li>
+<li>Yao et al. (2023) — Tree of Thoughts: Deliberate Problem Solving with LLMs</li>
+<li>Zhou et al. (2023) — Least-to-Most Prompting Enables Complex Reasoning in LLMs</li>
+<li>Dhuliawala et al. (2023) — Chain-of-Verification Reduces Hallucination in LLMs</li>
+<li>Besta et al. (2024) — Graph of Thoughts: Solving Elaborate Problems with LLMs</li>
+</ol>
+
+<p><strong>推荐工具/平台：</strong></p>
+<ul>
+<li><strong>LangSmith：</strong>调试和追踪多步 LLM 调用的必备工具</li>
+<li><strong>CrewAI：</strong>最快上手的多智能体分解框架</li>
+<li><strong>LangGraph：</strong>构建有状态的循环/分支 Agent 逻辑</li>
+<li><strong>DSPy：</strong>自动优化分解链中的每一步 prompt</li>
+</ul>
+</div>
+</section>
+
+<!-- module: glossary -->
+<section class="module" id="mod-glossary">
+<h2><span class="m-tag">核心概念</span>关键术语表<span class="m-time">⏱ 约2分钟</span></h2>
+<div class="hook">任务分解领域术语密集——这个术语表覆盖了从基础到前沿的全部核心概念，可作为后续深入学习的索引。</div>
+<div class="content">
+<table class="data-table">
+<thead><tr><th>术语</th><th>英文</th><th>精确定义</th></tr></thead>
+<tbody>
+<tr><td>任务分解</td><td>Task Decomposition</td><td>将一个复杂任务按逻辑结构拆分为多个可独立执行的子任务的过程</td></tr>
+<tr><td>从易到难</td><td>Least-to-Most Prompting</td><td>按难度递增顺序将问题分解为子问题、逐步求解的策略（Zhou et al., 2023）</td></tr>
+<tr><td>思维树</td><td>Tree of Thoughts (ToT)</td><td>在推理过程中探索多条路径、用 LLM 评估并选择最优路径的方法（Yao et al., 2023）</td></tr>
+<tr><td>推理-行动交替</td><td>ReAct</td><td>交替执行推理（Reasoning）和行动（Acting），使 LLM 能与外部环境交互（Yao et al., 2023）</td></tr>
+<tr><td>验证链</td><td>Chain-of-Verification</td><td>先生成答案，再生成验证问题、独立回答后修正初始答案（Dhuliawala et al., 2023）</td></tr>
+<tr><td>子任务</td><td>Sub-task</td><td>复杂任务被分解后产生的独立处理单元，有明确的输入、输出和成功标准</td></tr>
+<tr><td>结果聚合</td><td>Result Aggregation / Merge</td><td>将多个子任务的输出合并为最终结果的步骤，通常由专用的合并 prompt 完成</td></tr>
+<tr><td>错误传播</td><td>Error Propagation</td><td>前序子任务的错误被传递给后续子任务，导致最终结果质量下降的现象</td></tr>
+<tr><td>思维图</td><td>Graph of Thoughts (GoT)</td><td>将树结构推理扩展为图结构，支持循环和合并等复杂拓扑（Besta et al., 2024）</td></tr>
+<tr><td>协调开销</td><td>Coordination Overhead</td><td>管理子任务间的依赖关系、数据传递和流程控制所引入的额外复杂度</td></tr>
+<tr><td>智能体工作流</td><td>Agentic Workflow</td><td>LLM 自主决定任务分解策略和执行计划的交互模式（Andrew Ng, 2024）</td></tr>
+<tr><td>LLM-as-Judge</td><td>LLM-as-Judge</td><td>使用独立的 LLM 实例评估推理步骤质量的验证模式</td></tr>
+<tr><td>分而治之</td><td>Divide and Conquer</td><td>将大问题递归拆分为小问题、解决后合并的经典算法范式</td></tr>
+<tr><td>多跳推理</td><td>Multi-hop Reasoning</td><td>需要组合多个信息片段才能得出答案的推理任务类型</td></tr>
+<tr><td>认知负荷</td><td>Cognitive Load</td><td>单次 LLM 调用需要同时处理的推理维度数量</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+</div><!-- /modulesContainer -->
+
+</div><!-- /container -->
+
+<footer class="journey-footer">
+  <a href="#" class="back-to-plan" onclick="event.preventDefault();var w=window.open('pe_learning.html#kc-p2_3','plan_main');if(w)w.focus()">🔗 返回学习路线: 提示工程 (Prompt Engineering) 系统学习方案 → 整合应用</a>
+  <p style="margin-top:12px;font-size:.72rem;color:var(--text-muted)">
+    本资料是 <strong>提示工程 (Prompt Engineering) 系统学习方案</strong> 整合应用 阶段的深度研读材料
+  </p>
+</footer>
+
+<div class="deep-floating-back">
+  <button onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 16px rgba(0,0,0,.2)'"
+    onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 12px rgba(0,0,0,.15)'"
+    onclick="event.preventDefault();var w=window.open('pe_learning.html#kc-p2_3','plan_main');if(w)w.focus()">
+    ← 返回学习方案
+  </button>
+</div>
+
+<div class="dd-toast" id="toastEl"><span id="toastMsg"></span></div>
+
+<script>
+var MODULE_IDS = ["mod-learning_journey","mod-background","mod-concept","mod-principle","mod-architecture","mod-code_practice","mod-open_source","mod-benchmark","mod-development","mod-application","mod-case_study","mod-risk","mod-ethics","mod-prospect","mod-misconceptions","mod-learning_path","mod-glossary"];
+var SEARCH_INDEX = [
+{"id":"mod-learning_journey","t":"学习路线中的位置","c":"你在提示工程系统学习方案第二阶段整合应用的第三个知识点，多步推理与任务分解"},
+{"id":"mod-background","t":"背景与缘起","c":"LLM不是万能的，面对复杂任务时单次调用受限，分而治之策略从Alan Turing到LLM时代"},
+{"id":"mod-concept","t":"核心概念","c":"Least-to-Most、Tree of Thoughts、ReAct、Chain-of-Verification四大核心方法对比"},
+{"id":"mod-principle","t":"核心原理","c":"降低认知负荷、明确子任务范围、中间结果验证、错误隔离四大原则"},
+{"id":"mod-architecture","t":"技术架构图","c":"分解流水线的五阶段流程：任务分析器、子任务执行器、结果验证器、结果合并器"},
+{"id":"mod-code_practice","t":"代码实操","c":"Least-to-Most、ReAct、ToT、LangChain链、AutoGen多智能体五个代码示例"},
+{"id":"mod-open_source","t":"开源生态","c":"LangChain、LlamaIndex、DSPy、AutoGen、CrewAI五大框架对比"},
+{"id":"mod-benchmark","t":"Benchmark数据","c":"GSM8K、StrategyQA、HotpotQA、Game of 24等评测集上分解方法的性能增益"},
+{"id":"mod-development","t":"发展迭代","c":"从2022 CoT到2025推理模型的里程碑演化路径"},
+{"id":"mod-application","t":"实践应用","c":"文档分析、多跳问答、代码审查、商业报告、法律文档五大应用场景"},
+{"id":"mod-case_study","t":"实践案例","c":"50页商业合同智能审查：条款提取→风险识别→法规对照→报告生成四步流水线"},
+{"id":"mod-risk","t":"潜在风险","c":"错误传播、分解失败、成本倍增、延迟累积、协调开销五大风险及缓解策略"},
+{"id":"mod-ethics","t":"伦理与安全","c":"推理链透明度、多步决策问责、隐蔽偏见放大等伦理问题"},
+{"id":"mod-prospect","t":"发展前景","c":"Agentic Workflow、自修正推理链、动态分解、LLM-as-Judge四大趋势"},
+{"id":"mod-misconceptions","t":"常见误区","c":"更多步骤≠更好、CoT≠任务分解、分解不是银弹、ReAct非万能"},
+{"id":"mod-learning_path","t":"学习路径","c":"手动分解练习→实现Least-to-Most→构建完整分解流水线，三阶段约3.5小时"},
+{"id":"mod-glossary","t":"关键术语表","c":"Task Decomposition、Least-to-Most、ToT、ReAct、Error Propagation等核心术语定义"}
+];
+var TOAST_TIMEOUT;
+
+(function(){
+var progressBar=document.getElementById('progressBar'),sideDots=document.getElementById('sideDots');
+var modules=document.querySelectorAll('.module'),ids=[];
+modules.forEach(function(m){ids.push(m.id)});
+var dotsHTML='';ids.forEach(function(id,i){dotsHTML+='<div class="side-dot" title="模块'+(i+1)+'" onclick="document.getElementById(\''+id+'\').scrollIntoView({behavior:\'smooth\'})"><\/div>'});
+sideDots.innerHTML=dotsHTML;
+
+var observer=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting)e.target.classList.add('visible')})},{threshold:.15});
+modules.forEach(function(m){observer.observe(m)});
+
+window.addEventListener('scroll',function(){
+var st=document.documentElement.scrollTop,dh=document.documentElement.scrollHeight-window.innerHeight;
+var pct=dh>0?Math.min(100,(st/dh)*100):0;progressBar.style.width=pct+'%';
+var dots=document.querySelectorAll('.side-dot'),cur=-1;
+modules.forEach(function(m,i){if(st>=m.offsetTop-200)cur=i});
+dots.forEach(function(d,i){d.classList.toggle('active',i===cur)});
+});
+
+window.addEventListener('keydown',function(e){
+if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();openSearch()}
+if((e.ctrlKey||e.metaKey)&&e.key==='d'){e.preventDefault();toggleTheme()}
+if(e.key==='Escape')closeSearch()
+});
+})();
+
+function toggleTheme(){
+var b=document.body,isD=b.getAttribute('data-theme')==='dark';
+b.setAttribute('data-theme',isD?'light':'dark');
+try{localStorage.setItem('slm-theme',isD?'light':'dark')}catch(e){}
+showToast('已切换至'+(isD?'浅色':'深色')+'主题')
+}
+
+function openSearch(){document.getElementById('searchOverlay').classList.add('open');setTimeout(function(){document.getElementById('searchInput').focus()},100)}
+function closeSearch(){document.getElementById('searchOverlay').classList.remove('open');document.getElementById('searchResults').innerHTML=''}
+
+function doSearch(){
+var q=document.getElementById('searchInput').value.toLowerCase(),res=document.getElementById('searchResults');
+if(q.length<2){res.innerHTML='';return}
+var h='';SEARCH_INDEX.forEach(function(item){
+if(item.t.toLowerCase().indexOf(q)>=0||(item.c||'').toLowerCase().indexOf(q)>=0){
+h+='<div onclick="closeSearch();document.getElementById(\''+item.id+'\').scrollIntoView({behavior:\'smooth\'})">'+
+'<strong>'+item.t+'<\/strong><br><small style="color:var(--text-muted)">'+(item.c||'').substring(0,80)+'<\/small><\/div>';
+}
+});
+res.innerHTML=h||'<div style="padding:12px;color:var(--text-muted)">未找到匹配模块<\/div>'
+}
+
+function showToast(msg){
+var el=document.getElementById('toastEl'),mg=document.getElementById('toastMsg');
+if(!el||!mg)return;mg.textContent=msg;el.style.display='block';el.classList.add('toast-in');
+if(TOAST_TIMEOUT)clearTimeout(TOAST_TIMEOUT);
+TOAST_TIMEOUT=setTimeout(function(){el.style.display='none'},3000);
+}
+
+(function(){
+var t;try{t=localStorage.getItem('slm-theme')}catch(e){}
+if(t==='light')document.body.setAttribute('data-theme','light');
+})();
+
+(function(){
+document.querySelectorAll('.derivation-toggle').forEach(function(btn){
+btn.addEventListener('click',function(){
+var content=this.nextElementSibling;
+if(content){content.classList.toggle('open');this.textContent=content.classList.contains('open')?'▾ 收起推导':'▸ 展开推导'}
+});
+});
+})();
+
+// Charts initialization
+(function(){
+var charts={};
+
+function initChart(id,option){
+var el=document.getElementById(id);
+if(!el)return;
+var isDark=document.body.getAttribute('data-theme')==='dark';
+var c=el.getContext('2d');
+if(!c)return;
+charts[id]={el:el,option:option};
+drawChart(id,isDark);
+}
+
+function drawChart(id,isDark){
+var entry=charts[id];
+if(!entry)return;
+var c=entry.el.getContext('2d');
+var w=entry.el.width=entry.el.offsetWidth*2;
+var h=entry.el.height=entry.el.offsetHeight*2;
+c.clearRect(0,0,w,h);
+c.scale(2,2);
+var o=entry.option;
+var bg=isDark?'#1a1a1a':'#ffffff';
+var fg=isDark?'#ededed':'#121212';
+var grid=isDark?'#252525':'#e5e5e5';
+var mut=isDark?'#787878':'#5e5e5e';
+var colors=isDark?['#818cf8','#a78bfa','#c4b5fd','#67e8f9','#fbbf24','#34d399','#f87171']:['#6366f1','#8b5cf6','#a78bfa','#22d3ee','#f59e0b','#10b981','#ef4444'];
+
+if(o.type==='bar'){
+var data=o.data,labels=o.labels;
+var cw=w/2,ch=h/2;
+var pad={top:30,right:20,bottom:40,left:50};
+var pw=cw-pad.left-pad.right,ph=ch-pad.top-pad.bottom;
+var maxVal=Math.max.apply(null,data.map(function(v){return Array.isArray(v)?Math.max.apply(null,v):v}));
+if(maxVal===0)maxVal=1;
+var barGap=8,groupGap=20;
+var groups=data[0]&&Array.isArray(data[0])?data.length:1;
+var barsPerGroup=data[0]&&Array.isArray(data[0])?data[0].length:data.length;
+var totalBars=labels.length*barsPerGroup;
+var barW=Math.max(4,(pw-(labels.length-1)*groupGap)/totalBars - barGap);
+
+// Grid
+c.strokeStyle=grid;c.lineWidth=1;
+for(var i=0;i<=4;i++){
+var gy=pad.top+ph*(i/4);
+c.beginPath();c.moveTo(pad.left,gy);c.lineTo(cw-pad.right,gy);c.stroke();
+c.fillStyle=mut;c.font='10px sans-serif';c.textAlign='right';
+c.fillText(Math.round(maxVal*(1-i/4)*10)/10,pad.left-8,gy+4);
+}
+// Bars
+if(data[0]&&Array.isArray(data[0])){
+for(var g=0;g<groups;g++){
+for(var b=0;b<barsPerGroup;b++){
+for(var l=0;l<labels.length;l++){
+var x=pad.left+l*(groupGap+barsPerGroup*(barW+barGap))+b*(barW+barGap);
+var val=data[g][l];
+var bh=(val/maxVal)*ph;
+c.fillStyle=colors[b%colors.length];
+c.fillRect(x,pad.top+ph-bh,barW,bh);
+}
+}
+}
+}
+// Labels
+c.fillStyle=mut;c.font='10px sans-serif';c.textAlign='center';
+for(var l=0;l<labels.length;l++){
+var lx=pad.left+l*(groupGap+barsPerGroup*(barW+barGap))+(barsPerGroup*(barW+barGap))/2;
+c.fillText(labels[l],lx,ch-pad.bottom+18);
+}
+}
+}
+
+// Init architecture chart - Decomposition Pipeline Layers
+initChart('chart-arch-01',{
+type:'bar',labels:['任务分析','子任务1','子任务2','子任务3','结果合并'],
+data:[[0.95,0.88,0.82,0.78,0.92],[0.95,0.88,0.82,0.78,0.92]]
+});
+
+// Init benchmark chart - Direct vs Decomposed Accuracy
+initChart('chart-bench-01',{
+type:'bar',labels:['GSM8K','StrategyQA','HotpotQA','Game of 24','FEVER'],
+data:[[92,68.5,52.3,7.3,82.1],[96.2,81.2,65.8,74,85.6]]
+});
+
+// Init application chart - Decomposition methods comparison
+initChart('chart-app-01',{
+type:'bar',labels:['文档分析','多跳问答','代码审查','商业报告','合同审查'],
+data:[[82,58,75,70,65],[94,81,92,88,96]]
+});
+
+// Init case study chart - Contract analysis comparison
+initChart('chart-case-01',{
+type:'bar',labels:['条款检出率','法规准确率','幻觉率'],
+data:[[70,58,12],[96,89,2]]
+});
+
+window.addEventListener('themeChanged',function(){
+var isDark=document.body.getAttribute('data-theme')==='dark';
+Object.keys(charts).forEach(function(id){drawChart(id,isDark)});
+});
+})();
+
+// Override toggleTheme to emit themeChanged
+var _origToggleTheme=toggleTheme;
+toggleTheme=function(){
+_origToggleTheme();
+var ev=new Event('themeChanged');
+window.dispatchEvent(ev);
+};
+</script>
+</body>
+</html>

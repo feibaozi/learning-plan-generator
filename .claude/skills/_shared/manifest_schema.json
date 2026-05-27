@@ -18,7 +18,7 @@
       "depth": "快速概览 | 标准学习 | 深度掌握",
       "template_id": "indigo-night | cedar-dawn | graphite-studio | ocean-depth | sunset-amber | arctic-frost",
       "markdown_file": "string — .md 文件路径 (相对)",
-      "html_file": "string — .html 文件路径 (相对)",
+      "html_file": "string — .html 文件名（纯文件名，不含路径）。manifest.json 与 HTML 在同一目录。示例: 'pe_learning.html'",
       "generated_at": "ISO date string",
       "topic_profile": {"abstract": "0-1", "systemic": "0-1", "math_density": "0-1", "temporal": "0-1"},
       "phases": [
@@ -48,7 +48,7 @@
       "depth": "概览 | 理解 | 精通 — 中文值域。SLM 内部使用 beginner/intermediate/expert（英文），写入 manifest 时映射为中文值域",
       "breadth": "核心 | 标准 | 全景",
       "texture": "G1 | G2 | G3 | G4 | G5 | G6 | G7 | G8 — SLM 当前不写入此字段（留空或 null）",
-      "html_file": "string — .html 文件路径 (相对)",
+      "html_file": "string — .html 文件名，遵循 [kp_id]_[topic-slug]_[depth].html 格式。纯文件名不含路径，与 manifest.json 在同一目录。示例: 'p2_2_ols-estimator-derivation_intermediate.html'",
       "generated_at": "ISO date string",
       "template_id": "indigo-night | cedar-dawn | graphite-studio | ocean-depth | sunset-amber | arctic-frost",
       "status": "ready | lost — 由 SLM 写入，标记文件状态",

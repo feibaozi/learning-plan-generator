@@ -1,8 +1,17 @@
 ---
 name: "learning-plan-generator"
 description: "Generate adaptive, texture-aware learning plans (Markdown + interactive HTML) for ANY domain. Auto-classifies topics, dynamically determines phase count/week allocation, and selects optimal learning texture (G1-G8). Invoke when user asks for: learning plan, study roadmap, course outline, 学习方案, 学习计划, 学习路线."
-version: "3.8.1"
+version: "3.9.0"
 changelog: |
+  v3.9.0: 文件夹强制约定 + 深度资料命名标准化
+  - Constraint #18 从 🟠 升级为 🔴: MUST 语言 + 强制子文件夹结构，绝对禁止根目录直接存放方案文件
+  - Phase 4 新增 FOLDER CREATION 步骤：在任何文件写入前必须先创建 学习资料/[plan_name]/ 子文件夹
+  - Phase 5.3 新增 4 项 🔴 验证 (#36-#39): 文件夹存在性、manifest html_file 无路径前缀、根目录泄漏检查、plan_folder 命名规范
+  - Phase 6 交付确认更新文件列表为文件夹前缀格式
+  - Phase 4E context_plan 路径约定扩展为完整 4 条不变量说明
+  - 新增 Constraint #22: 深度资料命名约定 [kp_id]_[topic-slug]_[depth].html（与 smart-learning-materials v3.6.0 对齐）
+  - Phase 5.4 manifest 注册改为写入 per-plan 文件夹内的 manifest.json（废弃根目录 manifest）
+  - Output File Naming Convention 新增文件夹路径规范
   v3.8.1: 批量生成 sub-agent 协调验证 — 防止并行深度资料生成的结构不一致
   - 新增 Batch Deep-Dive Verification: 批量触发深度资料时的 sub-agent 一致性检查清单
   - Phase 6 交付确认新增 sub-agent 输出验证步骤：文件结构、JS 语法、manifest 一致性
@@ -462,6 +471,30 @@ WORKFLOW:
 
 **Core principle**: The template's CSS and JS skeleton are **proven working** across multiple plans (SQL, derivatives). The ONLY things that change between plans are the DATA values. Do NOT rewrite the CSS or JS logic — only inject data.
 
+### ⚠️ CRITICAL — FOLDER CREATION (NEW v3.9.0)
+
+**Before ANY file writing, create the output folder. This is a 🔴 hard requirement — violation causes root-directory pollution.**
+
+```
+1. DETERMINE plan_folder = plan_name（与方案标题中的 plan_name 一致）
+   示例: plan_name = "提示工程" → plan_folder = "提示工程 系统学习方案"
+2. CREATE directory: 学习资料/[plan_folder]/
+3. SET output_dir = 学习资料/[plan_folder]/
+4. ALL subsequent Write calls use output_dir as the base path
+```
+
+**强制目录结构**:
+```
+学习资料/[plan_folder]/
+  ├── [abbr]_learning.html       ← 主方案 HTML
+  ├── [Topic]学习方案.md         ← Markdown 方案
+  ├── manifest.json              ← 此方案的独立 manifest
+  └── (深度资料后续生成)
+```
+
+**The template `base_plan.html` and CSS files are READ from their installed locations;
+the output HTML is WRITTEN to the new folder.**
+
 ### 4A: Template Placeholder Reference
 
 | Placeholder | Type | Description |
@@ -479,7 +512,7 @@ WORKFLOW:
 | `%FOOTER_TEXT%` | string | Footer copyright text |
 | `%METHOD_STEPS_HTML%` | HTML | Derivation methodology steps HTML (only used if HAS_METHOD) |
 | `%STORAGE_KEY%` | string | localStorage key prefix, e.g. `"derivatives_pricing"` |
-| `%PLAN_JSON%` | JSON literal | PLAN object: `{id:"...", title:"...", html_file:"...", template_id:"..."}` |
+| `%PLAN_JSON%` | JSON literal | PLAN object: `{id:"...", title:"...", html_file:"...", template_id:"..."}`. **html_file MUST be pure filename** (e.g. `"pe_learning.html"`), no path prefix — manifest.json is in the same folder |
 | `%PHASES_JSON%` | JSON literal | PHASES array (see C4 structure below) |
 | `%KPS_JSON%` | JSON literal | KPS array (see C2 structure below) |
 | `%FORMULA_TABS_JSON%` | JSON literal or `[]` | FORMULA_TABS array (see C5) |
@@ -659,7 +692,17 @@ When the user clicks "📖 深度研读" on a KP card, `buildKPDeepDivePrompt()`
 | `prerequisites` | `KP.prerequisites` (逗号分隔) | ⚠️ |
 | `next_kps` | `KP.next_kps` (逗号分隔) | ⚠️ |
 
-> ⚠️ **跨 skill 一致性**: `plan_file` 只写**文件名**（不含文件夹路径），因为深度资料与主方案在同一文件夹内。这与 smart-learning-materials SKILL.md Phase 1.6 的 `html_file` 规则一致。
+> ⚠️ **跨 skill 路径约定 (v3.9.0)**: `plan_file` 必须是**纯文件名**（不含文件夹路径）。这基于以下不变量：
+> 1. 主方案 HTML = `学习资料/[plan_name]/[abbr]_learning.html`
+> 2. 深度资料 HTML = `学习资料/[plan_name]/[kp_id]_[slug]_[depth].html`
+> 3. manifest.json = `学习资料/[plan_name]/manifest.json`
+> 4. **所有文件在同一文件夹内**，因此跨文件引用使用纯文件名即可
+> 
+> 此约定同时适用于:
+> - `context_plan.plan_file`（传递给 smart-learning-materials）
+> - `PLAN.html_file`（页面内 JS 全局变量）
+> - `manifest.json` 中的 `html_file` 字段
+> - SLM Step 5.1.4 写入 KPS 的 `html_file`
 
 **Dual-class expansion mechanism** (verified in template): `tKCT()` and `tKC_go()` add BOTH `expanded` AND `open` classes to `.knowledge-card`. The CSS uses `.knowledge-card.open .card-detail, .knowledge-card.expanded .card-detail{display:block}`. `collapseCard()` removes both classes via two separate `classList.remove()` calls (not the comma-separated form). This ensures reliable expand/collapse across all browsers.
 
@@ -722,6 +765,10 @@ Checklist items are grouped by severity. Check in order: 🔴 first, then 🟠, 
 | 34 | 🟠 renderAllFormulas 存在 | grep `renderAllFormulas` | 函数定义存在，`init()` 末尾调用 | — |
 | 35 | 🟠 公式表单元格带 ft-formula class | grep `ft-formula` | hFs() 在公式 `<td>` 上设置 class | — |
 | 11 | 🔴 Diagram 无 XML 注入 | 检查所有 diagram SVG | 无破损标签 | IX5 |
+| 36 | 🔴 文件在专用子文件夹内 | `ls 学习资料/[plan_folder]/` | 文件夹存在，含 HTML + MD + manifest.json | v3.9 |
+| 37 | 🔴 manifest html_file 无路径前缀 | grep `html_file` manifest.json | 纯文件名（如 `"pe_learning.html"`），不含 `/` | v3.9 |
+| 38 | 🔴 根目录无方案文件泄漏 | `ls 学习资料/*.html` 对比 manifest 注册 | 每个 .html 方案文件都属于某个子文件夹 | v3.9 |
+| 39 | 🟠 plan_folder 命名规范 | 检查文件夹名称 | 匹配 plan_name，推荐以 " 系统学习方案" 结尾 | v3.9 |
 
 **🟠 重要级（遗漏将导致功能异常但不致白屏/崩溃）：**
 
@@ -758,11 +805,11 @@ Checklist items are grouped by severity. Check in order: 🔴 first, then 🟠, 
 
 ---
 
-### 5.4 Manifest Registration (NEW in v3.0)
+### 5.4 Manifest Registration (NEW in v3.0, UPDATED v3.9.0)
 
-After successful delivery, register the plan in `manifest.json` at the output directory root:
+After successful delivery, register the plan in `manifest.json` **inside the plan's own folder** (NOT the root directory):
 
-1. Read existing `manifest.json` (if exists). If not, create from `../_shared/manifest_schema.json` template.
+1. Read `学习资料/[plan_folder]/manifest.json` (if exists). If not, create from `../_shared/manifest_schema.json` template.
 2. Append a new entry to `plans[]`:
 ```json
 {
@@ -773,7 +820,7 @@ After successful delivery, register the plan in `manifest.json` at the output di
   "depth": "<快速概览|标准学习|深度掌握>",
   "template_id": "<indigo-night|cedar-dawn|graphite-studio|ocean-depth|sunset-amber|arctic-frost>",
   "markdown_file": "<Topic>学习方案.md",
-  "html_file": "<abbr>_learning.html",
+  "html_file": "<abbr>_learning.html",   // 纯文件名，不含路径 — manifest.json 与 HTML 在同一文件夹
   "generated_at": "<ISO date>",
   "topic_profile": {"abstract": 0.xx, "systemic": 0.xx, "math_density": 0.xx, "temporal": 0.xx},
   "phases": [
@@ -812,9 +859,10 @@ After successful delivery, register the plan in `manifest.json` at the output di
    · [RESOURCE_COUNT] 个推荐资源
 
 📄 产出文件:
-   · Markdown: [Topic]学习方案.md
-   · HTML: [abbr]_learning.html
-   · Manifest: manifest.json (已注册)
+   · 文件夹: 学习资料/[plan_name]/
+   · Markdown: [plan_name]/[Topic]学习方案.md
+   · HTML: [plan_name]/[abbr]_learning.html
+   · Manifest: [plan_name]/manifest.json (已注册)
 
 🔗 深度研读:
    · [N] 个知识点可触发深度资料生成 — 点击卡片上的 "📖 深度研读" 按钮
@@ -902,11 +950,13 @@ FOR EACH generated deep-dive HTML file:
 15. **🔴 v3.3**: After replacing placeholders, grep the output for `%[A-Z]` to confirm ALL markers were replaced
 16. **🔴 v3.3**: Grep the output for `(function()\s*\{` inside `<script>` — must NOT find a wrapper IIFE
 17. **🔴 v3.5**: `syncKPsFromManifest()` function must exist in output and be called at the end of `init()` — this is the L2 runtime fallback for deep dive linkage
-18. **🟠 v3.7 文件夹约定**: 主方案 HTML 应生成在以 `plan_name`（或 `plan_id`）命名的子文件夹中，与 manifest.json 同目录。smart-learning-materials 生成深度资料时，会按 `context_plan` 中的 `plan_file`（纯文件名）在同一文件夹中查找主方案。若主方案在根目录而深度资料在子文件夹，`goBack()` 的相对路径将 404。**推荐结构**：`学习资料/[plan_name]/[abbr]_learning.html` + `学习资料/[plan_name]/manifest.json`。
+18. **🔴 v3.9.0 文件夹强制约定**: 所有输出文件（HTML、Markdown、manifest.json）**必须**生成在以 `plan_name` 命名的**专用子文件夹**中。根目录不得直接存放方案文件。强制结构: `学习资料/[plan_name]/[abbr]_learning.html` + `学习资料/[plan_name]/manifest.json`。**绝对禁止**: 主方案 HTML/MD 直接放在 `学习资料/` 根目录下。此规则同时确保 smart-learning-materials 深度资料与主方案在同一文件夹内，`goBack()` 的相对路径始终正确。
 19. **🔴 v3.8 模板 CSS 注入**: `%TEMPLATE_CSS%` 必须替换为 `../_shared/templates/<template_id>/plan.css` 的完整内容（一字不改）。模板 CSS 包含 `:root{}`、`body.light{}`、和 expanded card 规则。读取后直接注入，不修改任何变量名或值。
 20. **🔴 v3.8 模板 ID 传播**: PLAN JSON 必须包含 `template_id` 字段，通过 context_plan 传递给 smart-learning-materials，确保深度资料与主方案外观一致。
 
 21. **🔴 v3.8.1 批量深度研读后验证**: 当用户通过 `ddBatch()` 批量触发多个深度资料生成时，必须在所有 sub-agent 完成后执行 Step 6.1.1-6.1.5 的验证流程。逐文件 `node --check`、结构一致性对比、manifest 双向链接验证缺一不可。
+
+22. **🔴 v3.9.0 深度资料命名约定**: 深度资料 HTML 文件**必须**遵循 `[kp_id]_[topic-slug]_[depth].html` 命名格式（详见 smart-learning-materials SKILL.md v3.6.0）。`kp_id` 与主方案 KPS 数组中的 `id` 字段一致（如 `p2_3`），`depth` 使用标准化后缀 `overview`/`intermediate`/`deep`。manifest.json 中的 `materials[].html_file` 必须使用完整文件名（含 kp_id 前缀）。示例: `p2_3_multi-step-reasoning_intermediate.html`。
 
 ---
 
@@ -973,5 +1023,8 @@ Use `base_plan.html` template for all layout, interaction, and rendering pattern
 
 ## Output File Naming Convention
 
-- Markdown: `<Topic>学习方案.md` (e.g., `机器学习学习方案.md`)
-- HTML: `<abbreviation>_learning.html` (e.g., `ml_learning.html`)
+- **Output folder**: `学习资料/[plan_name]/` (e.g., `学习资料/提示工程 系统学习方案/`)
+- **Markdown**: `[plan_name]/<Topic>学习方案.md` (e.g., `提示工程 系统学习方案/提示工程学习方案.md`)
+- **HTML**: `[plan_name]/<abbreviation>_learning.html` (e.g., `提示工程 系统学习方案/pe_learning.html`)
+- **Depth dive** (by smart-learning-materials): `[plan_name]/[kp_id]_[topic-slug]_[depth].html` (e.g., `提示工程 系统学习方案/p1_1_zero-shot-few-shot_intermediate.html`)
+- **Manifest**: `[plan_name]/manifest.json` — every plan folder has its own manifest

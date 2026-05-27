@@ -23,8 +23,8 @@
           "title": "核心工具",
           "weeks": "第1-4周",
           "kps": [
-            {"id": "p1_1", "name": "零样本与少样本提示", "topic_id": "prompt-engineering", "has_deep_dive": false},
-            {"id": "p1_2", "name": "思维链提示(Chain-of-Thought)", "topic_id": "prompt-engineering", "has_deep_dive": false},
+            {"id": "p1_1", "name": "零样本与少样本提示", "topic_id": "prompt-engineering", "has_deep_dive": true},
+            {"id": "p1_2", "name": "思维链提示(Chain-of-Thought)", "topic_id": "prompt-engineering", "has_deep_dive": true},
             {"id": "p1_3", "name": "角色扮演与系统提示", "topic_id": "prompt-engineering", "has_deep_dive": false}
           ]
         },
@@ -44,7 +44,7 @@
           "title": "基础奠基",
           "weeks": "第10-12周",
           "kps": [
-            {"id": "p3_1", "name": "LLM工作原理概述", "topic_id": "llm", "has_deep_dive": false},
+            {"id": "p3_1", "name": "LLM工作原理概述", "topic_id": "llm", "has_deep_dive": true},
             {"id": "p3_2", "name": "Token化与分词原理", "topic_id": "prompt-engineering", "has_deep_dive": false},
             {"id": "p3_3", "name": "推理参数调优", "topic_id": "prompt-engineering", "has_deep_dive": false}
           ]
@@ -61,5 +61,44 @@
       ]
     }
   ],
-  "materials": []
+  "materials": [
+    {
+      "id": "mat_p1_1",
+      "belongs_to_plan": "prompt-engineering-learning",
+      "belongs_to_phase": "p1",
+      "belongs_to_kp": "p1_1",
+      "type": "deep_dive",
+      "depth": "intermediate",
+      "breadth": "standard",
+      "texture": "G8",
+      "title": "零样本与少样本提示深度研读",
+      "html_file": "p1_1_zero-shot-few-shot_intermediate.html",
+      "template_id": "graphite-studio",
+      "generated_at": "2026-05-26"
+    },
+    {
+      "id": "mat_p1_2",
+      "belongs_to_plan": "prompt-engineering-learning",
+      "belongs_to_phase": "p1",
+      "belongs_to_kp": "p1_2",
+      "type": "deep_dive",
+      "depth": "intermediate",
+      "breadth": "standard",
+      "texture": "G8",
+      "title": "思维链提示(Chain-of-Thought)深度研读",
+      "html_file": "p1_2_chain-of-thought_intermediate.html",
+      "template_id": "graphite-studio",
+      "generated_at": "2026-05-26"
+    },
+    {
+      "id": "mat_p3_1",
+      "belongs_to_plan": "prompt-engineering-learning",
+      "belongs_to_kp": "p3_1",
+      "type": "deep_dive",
+      "depth": "intermediate",
+      "title": "LLM工作原理概述",
+      "html_file": "p3_1_llm-overview_intermediate.html",
+      "generated_at": "2026-05-26"
+    }
+  ]
 }

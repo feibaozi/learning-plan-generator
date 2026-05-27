@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>零样本与少样本提示 深度研读</title>
+<style>
+/* ───────────────────────────────────────────────
+   Template: Graphite Studio (石墨工作室) — deep_dive.css
+   Mood: minimal, clean, neutral
+   Contrast verified: text-primary≥10:1, text-secondary≥6:1, text-muted≥4.5:1
+   ─────────────────────────────────────────────── */
+:root{
+--bg-base:#0d0d0d;
+--bg-card:#1a1a1a;
+--bg-elevated:#222222;
+--bg-overlay:rgba(0,0,0,.6);
+--text-primary:#ededed;
+--text-secondary:#a0a0a0;
+--text-muted:#787878;
+--accent-indigo:#5b8db8;
+--accent-purple:#8878a8;
+--accent-cyan:#6ea8c0;
+--accent-gold:#c0a060;
+--accent-green:#5a9e6f;
+--accent-red:#c06050;
+--accent-blue:#5b8db8;
+--accent-color:#5b8db8;
+--accent-dark:#3a6088;
+--border-subtle:rgba(160,160,160,.15);
+--border-glow:rgba(91,141,184,.2);
+--shadow-sm:0 1px 3px rgba(0,0,0,.3);
+--shadow-md:0 4px 16px rgba(0,0,0,.4);
+--shadow-lg:0 8px 32px rgba(0,0,0,.5);
+--shadow-elevated:0 8px 32px rgba(0,0,0,.5);
+--radius-sm:6px;
+--radius-md:10px;
+--radius-lg:16px;
+--font-sans:'Segoe UI',system-ui,-apple-system,sans-serif;
+--font-mono:Consolas,'Cascadia Code',monospace;
+--transition:.25s cubic-bezier(.4,0,.2,1);
+--transition-smooth:.3s ease;
+--nav-h:56px;
+--accent-color-rgb:91,141,184;
+--chart-grid:#252525;
+--chart-axis-label:#787878;
+}
+[data-theme="light"]{
+--bg-base:#fafafa;
+--bg-card:#ffffff;
+--bg-elevated:#eeeeee;
+--bg-overlay:rgba(0,0,0,.3);
+--text-primary:#121212;
+--text-secondary:#4a4a4a;
+--text-muted:#5e5e5e;
+--accent-indigo:#3a6088;
+--accent-purple:#5a4878;
+--accent-cyan:#3a7888;
+--accent-gold:#886830;
+--accent-green:#3d8055;
+--accent-red:#983830;
+--accent-blue:#3a6088;
+--accent-color:#3a6088;
+--accent-dark:#284868;
+--border-subtle:rgba(18,18,18,.08);
+--border-glow:rgba(58,96,136,.2);
+--shadow-sm:0 1px 3px rgba(0,0,0,.06);
+--shadow-md:0 4px 16px rgba(0,0,0,.08);
+--shadow-lg:0 8px 32px rgba(0,0,0,.12);
+--shadow-elevated:0 8px 32px rgba(0,0,0,.12);
+--accent-color-rgb:58,96,136;
+--chart-grid:#e5e5e5;
+--chart-axis-label:#5e5e5e;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font-sans);background:var(--bg-base);color:var(--text-primary);line-height:1.75;overflow-x:hidden}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg-base)}::-webkit-scrollbar-thumb{background:var(--border-glow);border-radius:3px}
+
+.progress-bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--accent-indigo),var(--accent-purple),var(--accent-cyan));z-index:200;transition:width .1s linear}
+.navbar{position:fixed;top:3px;left:0;right:0;z-index:100;background:var(--bg-card);border-bottom:1px solid var(--border-subtle);backdrop-filter:blur(16px);height:var(--nav-h);display:flex;align-items:center;justify-content:space-between;padding:0 24px}
+.nav-left{display:flex;align-items:center;gap:12px;font-size:.82rem;font-weight:600;color:var(--accent-indigo)}
+.nav-right{display:flex;align-items:center;gap:8px}
+.nav-right button{background:var(--bg-elevated);border:1px solid var(--border-subtle);color:var(--text-secondary);padding:6px 12px;border-radius:var(--radius-sm);cursor:pointer;font-size:.75rem;transition:all var(--transition)}
+.nav-right button:hover{border-color:var(--border-glow);color:var(--accent-indigo)}
+
+.sidebar{position:fixed;left:0;top:0;height:100vh;width:280px;background:var(--bg-base);border-right:1px solid var(--border-subtle);padding:24px;overflow-y:auto;z-index:100;padding-top:calc(var(--nav-h) + 16px)}
+.sidebar h3{font-size:.85rem;font-weight:700;color:var(--text-secondary);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--border-subtle)}
+.sidebar-nav{list-style:none;padding:0}
+.sidebar-nav li{margin-bottom:2px}
+.sidebar-nav a{display:block;padding:8px 12px;border-radius:var(--radius-md);text-decoration:none;font-size:.76rem;color:var(--text-secondary);transition:all var(--transition);border-left:3px solid transparent}
+.sidebar-nav a:hover{background:rgba(91,141,184,.08);color:var(--accent-cyan);border-left-color:var(--accent-cyan)}
+.sidebar-nav a.active{background:rgba(91,141,184,.12);color:var(--accent-blue);font-weight:600;border-left-color:var(--accent-blue)}
+.sidebar-back-link{display:block;padding:8px 12px;margin-bottom:12px;border-radius:8px;background:var(--bg-elevated);color:var(--accent-blue);text-decoration:none;font-size:.78rem;font-weight:600}
+.sidebar-back-link:hover{color:var(--accent-cyan)}
+
+.content-area{margin-left:280px;width:calc(100% - 280px)}
+.container{max-width:calc(100% - 48px);margin:0 auto;padding:calc(var(--nav-h) + 24px) 24px 80px}
+
+.hero{text-align:center;padding:48px 0 36px}
+.hero h1{font-size:2.2rem;background:linear-gradient(135deg,var(--accent-indigo),var(--accent-purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+.hero .tags{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:12px}
+.hero .tags span{font-size:.7rem;padding:4px 12px;border-radius:50px;border:1px solid var(--border-glow);color:var(--accent-indigo);background:rgba(99,102,241,.06)}
+
+.meta-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:20px 24px;margin:0 auto 32px;max-width:700px;display:flex;justify-content:center;gap:36px;flex-wrap:wrap;box-shadow:var(--shadow-md)}
+.meta-item{text-align:center}
+.meta-item .val{font-size:1.4rem;font-weight:800;color:var(--accent-indigo)}
+.meta-item .lbl{font-size:.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px}
+
+/* Journey Bar */
+.journey-bar{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:12px 20px;margin:0 auto 24px;max-width:900px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:.82rem;box-shadow:var(--shadow-elevated)}
+.journey-path{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.journey-icon{font-size:1rem}
+.journey-plan{color:var(--accent-purple);font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.journey-plan:hover{color:var(--accent-gold)}
+.journey-sep{color:var(--text-muted);font-size:.7rem}
+.journey-phase{color:var(--text-secondary);font-weight:600}
+.journey-kp{color:var(--text-primary);font-weight:700}
+.journey-pos{color:var(--text-muted);font-size:.72rem}
+.journey-nav{display:flex;align-items:center;gap:8px;font-size:.75rem}
+.journey-prev,.journey-next{color:var(--text-muted);cursor:default}
+.journey-divider{color:var(--border-subtle)}
+
+.module{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:28px 28px 24px;margin-bottom:20px;
+opacity:0;transform:translateY(24px);transition:opacity .5s ease,transform .5s ease;box-shadow:var(--shadow-sm)}
+.module.visible{opacity:1;transform:translateY(0)}
+.module:hover{border-color:var(--border-glow)}
+.module h2{font-size:1.15rem;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.module .m-tag{font-size:.65rem;padding:2px 10px;border-radius:50px;background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.2);color:var(--accent-indigo);font-weight:600}
+.module .m-time{font-size:.7rem;color:var(--text-muted);margin-left:auto}
+.module .hook{font-size:.9rem;color:var(--accent-purple);font-weight:600;margin:12px 0 16px;padding-left:12px;border-left:3px solid var(--accent-purple)}
+.module .content{font-size:.88rem;color:var(--text-secondary);line-height:1.8}
+.module .content p{margin-bottom:12px}
+.module .content ul,.module .content ol{margin:8px 0 12px 20px}
+.module .content li{margin-bottom:6px}
+
+.code-block{background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:var(--radius-sm);padding:14px 18px;margin:14px 0;font-family:var(--font-mono);font-size:.8rem;color:var(--text-primary);overflow-x:auto;white-space:pre-wrap;word-break:break-word}
+.code-block .cb-cap{font-size:.7rem;color:var(--text-muted);margin-bottom:6px;display:block}
+.step-block{background:rgba(91,141,184,.06);border:1px solid rgba(91,141,184,.12);border-radius:var(--radius-sm);padding:14px 18px;margin:10px 0}
+.step-block .step-num{display:inline-block;width:24px;height:24px;line-height:24px;text-align:center;background:var(--accent-indigo);color:#fff;border-radius:50%;font-size:.72rem;font-weight:700;margin-right:8px}
+.step-block .step-out{font-size:.75rem;color:var(--accent-green);margin-top:6px;padding-left:32px}
+.step-block .step-warn{font-size:.75rem;color:var(--accent-red);margin-top:4px;padding-left:32px}
+
+.formula-block{background:rgba(99,102,241,.04);border:1px solid rgba(99,102,241,.12);border-radius:var(--radius-sm);padding:14px 18px;margin:14px 0;font-family:var(--font-mono);font-size:.82rem;color:var(--accent-cyan);overflow-x:auto;position:relative}
+.formula-block .f-cap{font-size:.7rem;color:var(--text-muted);margin-bottom:6px;display:block}
+.derivation-toggle{font-size:.7rem;color:var(--accent-gold);cursor:pointer;border:none;background:none;padding:4px 0;font-family:inherit;display:block;margin-top:6px}
+.derivation-toggle:hover{text-decoration:underline}
+.derivation-content{display:none;margin-top:8px;padding:12px 16px;background:rgba(245,158,11,.04);border-radius:var(--radius-sm);border-left:3px solid var(--accent-gold);font-size:.8rem;color:var(--text-secondary)}
+.derivation-content.open{display:block}
+
+.chart-wrap{background:rgba(99,102,241,.03);border-radius:var(--radius-sm);padding:8px;margin:14px 0;text-align:center}
+.chart-wrap > div{width:100%;height:280px}
+.chart-wrap .ch-cap{font-size:.72rem;color:var(--text-muted);margin-top:6px}
+
+.table-container{margin:20px 0;overflow-x:auto}
+.table-container table{width:100%;border-collapse:collapse;border-radius:var(--radius-md);overflow:hidden}
+.table-container th{background:var(--bg-elevated);color:var(--accent-cyan);font-weight:700;padding:12px 16px;text-align:left;font-size:.8rem}
+.table-container td{padding:12px 16px;border-bottom:1px solid var(--border-subtle);font-size:.82rem;color:var(--text-secondary)}
+.table-container tr:hover td{background:rgba(91,141,184,.03)}
+.table-container .table-caption{font-size:.72rem;color:var(--text-muted);margin-bottom:8px;text-align:center}
+
+.takeaway{font-size:.82rem;background:rgba(16,185,129,.06);border-left:3px solid var(--accent-green);padding:10px 14px;margin-top:16px;border-radius:0 var(--radius-sm) var(--radius-sm) 0;color:var(--accent-green)}
+
+.ref-list{list-style:none;padding:0;margin-top:8px;font-size:.78rem}
+.ref-list li{padding:4px 0;color:var(--text-muted)}
+.ref-list li::before{content:'📄 '}
+
+.search-overlay{position:fixed;inset:0;z-index:300;background:var(--bg-overlay);display:none;align-items:flex-start;justify-content:center;padding-top:120px}
+.search-overlay.open{display:flex}
+.search-box{width:520px;max-width:90vw;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:var(--radius-md);box-shadow:var(--shadow-lg);overflow:hidden}
+.search-box input{width:100%;padding:14px 18px;background:transparent;border:none;color:var(--text-primary);font-size:.95rem;outline:none;font-family:inherit}
+.search-results{max-height:360px;overflow-y:auto}
+.search-results div{padding:10px 18px;cursor:pointer;font-size:.82rem;color:var(--text-secondary);border-top:1px solid var(--border-subtle);transition:background var(--transition)}
+.search-results div:hover{background:rgba(99,102,241,.06);color:var(--text-primary)}
+
+/* Journey Footer */
+.journey-footer{text-align:center;padding:40px 32px 60px;opacity:.8}
+.back-to-plan{display:inline-flex;align-items:center;gap:8px;padding:10px 24px;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:50px;color:var(--text-secondary);text-decoration:none;font-size:.85rem;font-weight:600;transition:all var(--transition-smooth)}
+.back-to-plan:hover{background:var(--bg-elevated);border-color:var(--accent-purple);color:var(--accent-purple)}
+
+/* Floating Back Button */
+.deep-floating-back{position:fixed;right:20px;bottom:20px;z-index:10000}
+.deep-floating-back button{padding:12px 20px;background:linear-gradient(135deg,var(--accent-color),var(--accent-dark));color:white;border:none;border-radius:24px;font-size:.85rem;font-weight:600;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.15);transition:transform .2s,box-shadow .2s}
+.deep-floating-back button:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.2)}
+
+/* Toast */
+.dd-toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);z-index:10001;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:8px;padding:14px 24px;box-shadow:0 4px 16px rgba(0,0,0,.15);font-size:.85rem;display:none}
+.toast-in{animation:toastIn .3s ease}
+@keyframes toastIn{from{opacity:0;transform:translate(-50%,20px)}to{opacity:1;transform:translate(-50%,0)}}
+
+/* Print */
+@media print{.navbar,.progress-bar,.sidebar,.journey-bar,.journey-footer,.deep-floating-back{display:none!important}.content-area{margin-left:0;width:100%}.module{break-inside:avoid;opacity:1!important;transform:none!important;box-shadow:none}body{background:#fff}}
+
+@media(max-width:1024px){.sidebar{display:none}.content-area{margin-left:0;width:100%}}
+@media(max-width:768px){
+.hero h1{font-size:1.6rem}.module{padding:20px}.meta-card{font-size:.72rem;padding:12px 16px}.journey-bar{flex-direction:column;align-items:flex-start}
+.deep-floating-back{right:15px;bottom:15px}.deep-floating-back button{padding:10px 16px;font-size:.8rem}
+}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+</head>
+<body data-theme="dark">
+
+<div class="progress-bar" id="progressBar" style="width:0%"></div>
+
+<nav class="navbar">
+  <div class="nav-left">📖 零样本与少样本提示</div>
+  <div class="nav-right">
+    <button onclick="toggleTheme()" title="切换主题 (Ctrl+D)">🌓 主题</button>
+    <button onclick="openSearch()" title="搜索 (Ctrl+K)">🔍 搜索</button>
+  </div>
+</nav>
+
+<div class="sidebar">
+  <a href="#" class="sidebar-back-link" onclick="event.preventDefault();var w=window.open('pe_learning.html#kc-p1_1','plan_main');if(w)w.focus()">← 返回主方案</a>
+  <h3>📖 目录导航</h3>
+  <ul class="sidebar-nav">
+    <li><a href="#mod-learning_journey">学习路线位置</a></li>
+    <li><a href="#mod-background">背景与缘起</a></li>
+    <li><a href="#mod-concept">核心概念</a></li>
+    <li><a href="#mod-principle">核心原理</a></li>
+    <li><a href="#mod-architecture">技术架构图</a></li>
+    <li><a href="#mod-compute_cost">算力与成本分析</a></li>
+    <li><a href="#mod-open_source">开源生态</a></li>
+    <li><a href="#mod-benchmark">Benchmark数据</a></li>
+    <li><a href="#mod-development">发展迭代</a></li>
+    <li><a href="#mod-application">实践应用</a></li>
+    <li><a href="#mod-case_study">实践案例</a></li>
+    <li><a href="#mod-risk">潜在风险</a></li>
+    <li><a href="#mod-ethics">伦理与安全</a></li>
+    <li><a href="#mod-prospect">发展前景</a></li>
+    <li><a href="#mod-misconceptions">常见误区</a></li>
+    <li><a href="#mod-checklist">能力自测清单</a></li>
+    <li><a href="#mod-summary">总结回顾</a></li>
+  </ul>
+</div>
+
+<div class="content-area">
+<div class="search-overlay" id="searchOverlay">
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="搜索模块内容..." oninput="doSearch()" onkeydown="if(event.key==='Escape')closeSearch()">
+    <div class="search-results" id="searchResults"></div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="hero">
+    <h1>零样本与少样本提示</h1>
+    <div class="tags">
+      <span>LLM</span><span>工程实践</span><span>实操导向</span><span>核心技法</span>
+    </div>
+  </div>
+
+  <div class="meta-card">
+    <div class="meta-item"><div class="val">17</div><div class="lbl">内容模块</div></div>
+    <div class="meta-item"><div class="val">约65</div><div class="lbl">分钟阅读</div></div>
+    <div class="meta-item"><div class="val">G8</div><div class="lbl">教程实操型</div></div>
+    <div class="meta-item"><div class="val">理解</div><div class="lbl">深度等级</div></div>
+  </div>
+
+  <div class="journey-bar" id="journeyBar">
+    <div class="journey-path">
+      <span class="journey-icon">📍</span>
+      <span class="journey-plan" onclick="var w=window.open('pe_learning.html#kc-p1_1','plan_main');if(w)w.focus()">提示工程 (Prompt Engineering) 系统学习方案</span>
+      <span class="journey-sep">〉</span>
+      <span class="journey-phase">核心工具</span>
+      <span class="journey-sep">〉</span>
+      <span class="journey-kp">零样本与少样本提示</span>
+      <span class="journey-pos">(阶段1/4 · 第1个知识点)</span>
+    </div>
+    <div class="journey-nav">
+      <span class="journey-prev" title="前置: 无（首个知识点）">← 前置</span>
+      <span class="journey-divider">|</span>
+      <span class="journey-next" title="后续: 思维链提示/角色扮演与系统提示">后续 →</span>
+    </div>
+  </div>
+
+<!-- module: learning_journey -->
+<section class="module" id="mod-learning_journey">
+<h2><span class="m-tag">路线导航</span>📍 学习路线中的位置<span class="m-time">⏱ 约2分钟</span></h2>
+<div class="hook">你在「提示工程系统学习方案」第一阶段「核心工具」的第一个知识点，这是进入提示工程世界的大门。</div>
+<div class="content">
+<p><strong>当前位置：</strong>提示工程 (Prompt Engineering) 系统学习方案 → <em>阶段1/4：核心工具</em> → 第1个知识点「零样本与少样本提示」</p>
+<p><strong>← 前置依赖：</strong>无。这是学习方案的起点，零样本与少样本提示是提示工程最基础、最核心的技法。你不需要任何先修知识，只需要理解「什么是大语言模型(LLM)」的基本概念即可——如果你完全不熟悉 LLM，建议先花10分钟阅读 <a href="https://platform.openai.com/docs/introduction" style="color:var(--accent-cyan)">OpenAI 平台介绍</a> 或类似入门资料。</p>
+<p><strong>→ 后续学习：</strong>掌握本知识点后，你将进入 <strong>思维链提示 (Chain-of-Thought)</strong> 和 <strong>角色扮演与系统提示</strong>，这两个技法建立在本知识点的零样本/少样本基础之上，分别解决「复杂推理」和「行为控制」问题。</p>
+<p><strong>⏱️ 建议投入时间：</strong>标准学习节奏下，本知识点建议投入 60-90 分钟完成全部模块的阅读和代码实操。如果你是时间有限的实践者，至少完成「核心概念」「核心原理」「实践应用」三个模块（约25分钟）。</p>
+<p><strong>🔗 返回学习方案：</strong>点击顶部导航条中的方案名称，或直接 <a href="#" onclick="var w=window.open('pe_learning.html#kc-p1_1','plan_main');if(w)w.focus()" style="color:var(--accent-purple)">点击这里返回学习方案</a>。</p>
+</div>
+</section>
+
+<!-- module: background -->
+<section class="module" id="mod-background">
+<h2><span class="m-tag">前置知识</span>背景与缘起<span class="m-time">⏱ 约3分钟</span></h2>
+<div class="hook">2020年，GPT-3 的论文中一个惊人的发现改变了 NLP 世界：你不需要为每个任务训练一个模型，只需在 prompt 里给几个例子，模型就能「理解」你要什么。</div>
+<div class="content">
+<p>在 GPT-3 出现之前（2020年以前），自然语言处理的主流范式是 <strong>「预训练 + 微调」(pre-train + fine-tune)</strong>：先在大规模语料上预训练一个语言模型，然后针对每个具体任务（情感分析、翻译、摘要等）收集标注数据、微调模型参数。这种方法需要大量标注数据，且每个任务都要维护一个独立的模型副本。</p>
+<p>2020年6月，OpenAI 发布了 GPT-3（Brown et al., 2020），展示了令人震惊的能力：<strong>在不更新任何模型参数的情况下</strong>，仅仅通过在 prompt（提示文本）中描述任务或给出少量示例，1750亿参数的模型就能完成翻译、问答、代码生成等数十种任务。这种范式被称为 <strong>in-context learning（上下文学习）</strong>。</p>
+<p>根据 prompt 中是否包含任务示例，in-context learning 被分为三个梯度：</p>
+<ul>
+<li><strong>零样本 (Zero-shot)：</strong>prompt 中只描述任务，不提供任何示例。</li>
+<li><strong>单样本 (One-shot)：</strong>prompt 中提供一个示例。</li>
+<li><strong>少样本 (Few-shot)：</strong>prompt 中提供少量示例（通常 2-8 个）。</li>
+</ul>
+<p>这一发现开启了提示工程 (Prompt Engineering) 的新纪元——与其训练模型，不如训练 prompt。此后，思维链 (Chain-of-Thought, Wei et al., 2022)、指令微调 (Instruction Tuning)、RLHF 等技术相继出现，但零样本/少样本提示始终是提示工程最基本、最常用的工具。</p>
+</div>
+</section>
+
+<!-- module: concept -->
+<section class="module" id="mod-concept">
+<h2><span class="m-tag">核心概念</span>核心概念<span class="m-time">⏱ 约4分钟</span></h2>
+<div class="hook">如果把大语言模型想象成一个通晓万物的实习生，zero-shot 就是直接告诉他「做X」，few-shot 则是给他看几个你做过的例子然后说「照这个做」。</div>
+<div class="content">
+<p><strong>零样本提示 (Zero-shot Prompting)</strong> 指在不提供任何任务示例的情况下，仅通过指令文本让模型执行任务。模型完全依赖其预训练阶段学到的知识和指令理解能力来完成推理。</p>
+<p><strong>少样本提示 (Few-shot Prompting)</strong> 指在 prompt 中提供少量（通常 2-8 个）输入-输出示例对 (demonstrations)，让模型通过示例模式「学会」如何完成任务，然后对新的输入进行推理。</p>
+<p>两者的核心差异可以从以下几个维度理解：</p>
+
+<div class="table-container">
+<table>
+<thead><tr><th>维度</th><th>零样本 (Zero-shot)</th><th>少样本 (Few-shot)</th></tr></thead>
+<tbody>
+<tr><td>示例数量</td><td>0</td><td>1-8（典型值 3-5）</td></tr>
+<tr><td>prompt 长度</td><td>短，仅指令</td><td>较长，含示例上下文</td></tr>
+<tr><td>token 消耗</td><td>低</td><td>中等（示例占据 token）</td></tr>
+<tr><td>适用场景</td><td>简单分类、翻译、摘要</td><td>复杂推理、特定格式输出、细粒度分类</td></tr>
+<tr><td>对指令质量的依赖</td><td>极高——指令必须极其清晰</td><td>中等——示例可弥补指令模糊</td></tr>
+<tr><td>模型规模要求</td><td>大模型（通常≥7B）效果好</td><td>中等模型（≥1B）即可受益</td></tr>
+<tr><td>核心挑战</td><td>指令歧义、任务理解偏差</td><td>示例偏差(label bias)、示例顺序敏感</td></tr>
+</tbody>
+</table>
+</div>
+
+<p><strong>边界定义</strong>：零样本/少样本的核心特点是 <strong>模型参数不更新</strong>（即不进行梯度下降）。这与微调 (fine-tuning) 有本质区别——微调需要更新模型参数。在提示工程语境中，零样本和少样本都属于 <strong>in-context learning</strong> 的范畴。</p>
+</div>
+</section>
+
+<!-- module: principle -->
+<section class="module" id="mod-principle">
+<h2><span class="m-tag">核心概念</span>核心原理<span class="m-time">⏱ 约5分钟</span></h2>
+<div class="hook">模型在训练时从未「见过」你的任务，但为什么给它几个例子就能做？答案藏在 Transformer 的注意力机制和语言模型在预训练阶段形成的「模式匹配直觉」中。</div>
+<div class="content">
+<p>零样本/少样本提示能工作的底层原理可以从三个层面理解：</p>
+
+<p><strong>层面一：语言建模即隐式多任务学习</strong></p>
+<p>在预训练阶段，语言模型的目标是预测下一个 token。Radford et al. (2019) 和 Brown et al. (2020) 指出，互联网文本中天然包含大量「任务示例」——例如论坛中的问答对、代码文档中的输入输出示例、学术论文中的摘要。当模型学会预测下一个 token 时，它同时也隐式学会了执行这些任务。因此，当你给出一个任务描述或示例时，模型实际上是在做它训练时就在做的事：<strong>根据前文模式续写后续内容</strong>。</p>
+
+<p><strong>层面二：Transformer 的上下文关联能力</strong></p>
+<p>Transformer 的自注意力机制允许每个 token 关注输入序列中的所有其他 token。在 few-shot 场景中，模型可以「看到」所有示例的输入-输出对应关系，注意力权重会自动捕捉这种模式。从数学上看，这相当于在上下文中构建了一个隐式的 <strong>条件概率分布</strong>：</p>
+
+<div class="formula-block">
+<span class="f-cap">公式1: Few-shot 的条件概率视角</span>
+$$P(y \mid x, \mathcal{D}) = \frac{\exp(f_\theta(x, \mathcal{D})_y)}{\sum_{y'} \exp(f_\theta(x, \mathcal{D})_{y'})}$$
+<button class="derivation-toggle">▸ 展开推导</button>
+<div class="derivation-content">其中 $\mathcal{D} = \{(x_1, y_1), ..., (x_k, y_k)\}$ 是示例集，$f_\theta$ 是参数为 $\theta$ 的 Transformer。与标准监督学习不同的是，这里 $\theta$ 不更新，而是通过在前向传播中将 $\mathcal{D}$ 作为额外的上下文注入，让注意力机制隐式地「学习」了从 $x_i$ 到 $y_i$ 的映射模式。实际上，Dai et al. (2023) 证明 Transformer 的前向传播在数学上等价于对某个隐式线性模型执行一步梯度下降——这解释了为什么更多的示例通常意味着更好的表现。</div>
+</div>
+
+<p><strong>层面三：指令跟随（Instruction Following）能力</strong></p>
+<p>对于 zero-shot，模型依赖的是指令跟随能力——它在指令微调 (Instruction Tuning) 阶段学会了「理解并用自然语言指令指导行为」。这也是为什么经过指令微调的模型（如 ChatGPT、Claude）zero-shot 能力远超原始预训练模型。</p>
+
+<p><strong>实操三原则（G8 教程法）</strong>：</p>
+<div class="step-block">
+<span class="step-num">1</span><strong>先试 zero-shot，不行再加 few-shot</strong>
+<div class="step-out">✅ 预期：简单分类、摘要等高共识任务可直接 zero-shot</div>
+<div class="step-warn">⚠️ 常见错误：一上来就写 8 个示例，浪费 token 且可能引入示例偏差</div>
+</div>
+<div class="step-block">
+<span class="step-num">2</span><strong>示例要多样且均衡</strong>
+<div class="step-out">✅ 预期：如果你的任务有 3 个类别，每个类别至少给 1 个示例</div>
+<div class="step-warn">⚠️ 常见错误：所有示例都来自同一类别，导致模型产生严重标签偏差</div>
+</div>
+<div class="step-block">
+<span class="step-num">3</span><strong>示例格式要严格一致</strong>
+<div class="step-out">✅ 预期：所有示例采用完全相同的格式，包括标点符号和换行方式</div>
+<div class="step-warn">⚠️ 常见错误：示例之间格式不统一，模型会学到错误格式而非任务逻辑</div>
+</div>
+</div>
+</section>
+
+<!-- module: architecture -->
+<section class="module" id="mod-architecture">
+<h2><span class="m-tag">核心工具</span>技术架构图<span class="m-time">⏱ 约4分钟</span></h2>
+<div class="hook">一个 prompt 从你敲下回车到模型返回结果，中间经历了哪些环节？拆开来看，整个流程比直觉上要复杂得多。</div>
+<div class="content">
+<p>理解零样本/少样本提示的完整技术架构，需要看清从用户输入到模型输出的端到端流程。以下是核心架构分层：</p>
+
+<div class="chart-wrap">
+<div id="chart-arch-01"></div>
+<span class="ch-cap">图：零样本/少样本提示的技术架构分层</span>
+</div>
+
+<div class="table-container">
+<table>
+<thead><tr><th>架构层</th><th>零样本模式</th><th>少样本模式</th><th>关键差异</th></tr></thead>
+<tbody>
+<tr><td><strong>1. 输入层</strong></td><td>纯指令文本</td><td>指令 + k 个 (示例输入, 示例输出) 对 + 待推理输入</td><td>少样本的 prompt 长度显著增长</td></tr>
+<tr><td><strong>2. Token化层</strong></td><td>tokenize 后通常 10-200 tokens</td><td>tokenize 后通常 200-2000 tokens</td><td>示例消耗大量上下文窗口</td></tr>
+<tr><td><strong>3. 嵌入层</strong></td><td>每个 token 映射为 $d_{model}$ 维向量</td><td>同左，但序列更长</td><td>无本质差异</td></tr>
+<tr><td><strong>4. Transformer 层</strong></td><td>自注意力仅关注指令内部关系</td><td>自注意力跨指令和所有示例建立关联</td><td>少样本中示例间产生交叉注意力模式</td></tr>
+<tr><td><strong>5. 输出层</strong></td><td>直接从指令语义解码</td><td>结合示例模式 + 指令语义解码</td><td>少样本有更强的格式约束</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>在少样本模式中，前向传播时 Transformer 的自注意力机制实际上执行了一种 <strong>隐式匹配</strong>：模型将待推理输入的 attention pattern 与所有示例输入的 attention pattern 进行比较，找到最相似的示例，然后「类比」输出。这可以理解为一种软性的 nearest-neighbor 搜索——只不过搜索是并行地、连续地发生在高维语义空间中。</p>
+</div>
+</section>
+
+<!-- module: compute_cost -->
+<section class="module" id="mod-compute_cost">
+<h2><span class="m-tag">核心工具</span>算力与成本分析<span class="m-time">⏱ 约3分钟</span></h2>
+<div class="hook">同样的任务，zero-shot 只要 50 tokens，few-shot 可能要 800 tokens——成本差 16 倍。在规模化使用时，选择哪种方案直接影响你的预算。</div>
+<div class="content">
+<p>不同提示策略的 token 消耗差异巨大，这直接影响 API 成本和推理延迟：</p>
+
+<div class="table-container">
+<table>
+<thead><tr><th>策略</th><th>典型 prompt tokens</th><th>GPT-4o 单次成本</th><th>千次调用成本</th><th>延迟</th></tr></thead>
+<tbody>
+<tr><td>Zero-shot</td><td>30-100</td><td>$0.00015-0.00050</td><td>$0.15-0.50</td><td>0.3-0.8s</td></tr>
+<tr><td>One-shot</td><td>100-300</td><td>$0.00050-0.00150</td><td>$0.50-1.50</td><td>0.5-1.2s</td></tr>
+<tr><td>3-shot</td><td>300-600</td><td>$0.00150-0.00300</td><td>$1.50-3.00</td><td>0.8-1.8s</td></tr>
+<tr><td>8-shot</td><td>600-1500</td><td>$0.00300-0.00750</td><td>$3.00-7.50</td><td>1.5-3.0s</td></tr>
+<tr><td>微调 (GPT-3.5)</td><td>仅推理 tokens</td><td>训练 $0.008/1K + 推理 $0.003/1K</td><td>取决于训练量</td><td>训练需数小时</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="formula-block">
+<span class="f-cap">公式2: 单次 API 调用成本估算</span>
+$$\text{Cost} = P_{\text{in}} \times C_{\text{input}} + P_{\text{out}} \times C_{\text{output}}$$
+<button class="derivation-toggle">▸ 展开推导</button>
+<div class="derivation-content">其中 $P_{\text{in}}$ 是输入 token 数（包含系统提示 + 用户 prompt + 示例），$P_{\text{out}}$ 是输出 token 数，$C_{\text{input}}$ 和 $C_{\text{output}}$ 是每 token 单价。以 GPT-4o 为例，$C_{\text{input}} = \$2.50/1M$ tokens，$C_{\text{output}} = \$10.00/1M$ tokens。一个典型的 5-shot prompt（~800 input tokens）产出 100 output tokens 的单次成本约为 $0.003。</div>
+</div>
+
+<p><strong>成本优化建议：</strong></p>
+<ul>
+<li><strong>最优示例数：</strong>研究发现 4-8 个示例通常是性价比最优区间——超过8个示例后边际收益急剧下降。</li>
+<li><strong>缓存策略：</strong>如果多个请求共享相同的示例集，使用 prompt caching（如 Anthropic 的 prompt caching）可节省 90% 的示例 token 开销。</li>
+<li><strong>动态选择：</strong>在生产系统中，先 zero-shot 尝试，置信度低时自动降级为 few-shot。</li>
+</ul>
+</div>
+</section>
+
+<!-- module: open_source -->
+<section class="module" id="mod-open_source">
+<h2><span class="m-tag">实践应用</span>开源生态<span class="m-time">⏱ 约3分钟</span></h2>
+<div class="hook">不用 OpenAI API 也能玩 zero-shot/few-shot？开源社区提供了丰富的选择——从 7B 到 405B，从本地部署到云端推理。</div>
+<div class="content">
+<p>开源模型对 zero-shot/few-shot 的支持程度差异显著。以下是主流开源模型的能力对比：</p>
+
+<div class="table-container">
+<table>
+<thead><tr><th>模型</th><th>参数量</th><th>Zero-shot 能力</th><th>Few-shot 能力</th><th>本地部署门槛</th></tr></thead>
+<tbody>
+<tr><td>Llama 3.3 (Meta)</td><td>70B</td><td>⭐⭐⭐⭐</td><td>⭐⭐⭐⭐⭐</td><td>需要 2×A100 80G</td></tr>
+<tr><td>Qwen 2.5 (阿里)</td><td>72B</td><td>⭐⭐⭐⭐</td><td>⭐⭐⭐⭐⭐</td><td>需要 2×A100 80G</td></tr>
+<tr><td>DeepSeek-V3</td><td>671B MoE</td><td>⭐⭐⭐⭐⭐</td><td>⭐⭐⭐⭐⭐</td><td>极高，推荐 API</td></tr>
+<tr><td>Mistral Small 3</td><td>24B</td><td>⭐⭐⭐</td><td>⭐⭐⭐⭐</td><td>单张 A100 40G</td></tr>
+<tr><td>Phi-4 (Microsoft)</td><td>14B</td><td>⭐⭐⭐</td><td>⭐⭐⭐</td><td>单张 RTX 4090</td></tr>
+<tr><td>Gemma 3 (Google)</td><td>27B</td><td>⭐⭐⭐</td><td>⭐⭐⭐⭐</td><td>单张 A100 40G</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="code-block">
+<span class="cb-cap">本地使用 Ollama 进行 Few-shot 推理</span>
+# 安装 Ollama
+curl -fsSL https://ollama.com/install.sh | sh
+
+# 拉取模型
+ollama pull llama3.3:70b
+
+# Few-shot 推理 - 情感分类
+ollama run llama3.3:70b "Classify the sentiment:
+Text: I love this product! → Positive
+Text: Worst experience ever. → Negative
+Text: It's okay, nothing special. → Neutral
+Text: The delivery was surprisingly fast. →"
+</div>
+
+<p><strong>开源工具链推荐：</strong></p>
+<ul>
+<li><strong>LangChain / LlamaIndex：</strong>提供 FewShotPromptTemplate，自动管理示例选择和格式化。</li>
+<li><strong>DSPy：</strong>Stanford 推出的提示优化框架，自动搜索最优 few-shot 示例组合。</li>
+<li><strong>vLLM / SGLang：</strong>高性能推理引擎，支持动态批处理，大幅降低 few-shot 延迟。</li>
+</ul>
+</div>
+</section>
+
+<!-- module: benchmark -->
+<section class="module" id="mod-benchmark">
+<h2><span class="m-tag">实践应用</span>Benchmark 数据<span class="m-time">⏱ 约3分钟</span></h2>
+<div class="hook">零样本/少样本到底「够不够用」？看看模型在标准评测集上的真实表现——有些任务 zero-shot 已经超越人类，有些任务 8-shot 依然挣扎。</div>
+<div class="content">
+<p>以下是代表性模型在主流 benchmark 上 zero-shot 和 few-shot 的性能对比（2024-2025 数据）：</p>
+
+<div class="table-container">
+<table>
+<thead><tr><th>Benchmark</th><th>任务类型</th><th>GPT-4o ZS</th><th>GPT-4o 5-shot</th><th>Claude 3.5 ZS</th><th>Claude 3.5 5-shot</th><th>人类基线</th></tr></thead>
+<tbody>
+<tr><td>MMLU</td><td>多学科知识问答</td><td>87.2%</td><td>88.9%</td><td>88.7%</td><td>89.5%</td><td>89.8%</td></tr>
+<tr><td>HellaSwag</td><td>常识推理</td><td>95.3%</td><td>95.8%</td><td>94.1%</td><td>95.0%</td><td>95.6%</td></tr>
+<tr><td>GSM8K</td><td>小学数学推理</td><td>92.0%</td><td>94.2%</td><td>91.5%</td><td>93.8%</td><td>-</td></tr>
+<tr><td>HumanEval</td><td>代码生成</td><td>90.2%</td><td>91.5%</td><td>92.0%</td><td>93.3%</td><td>-</td></tr>
+<tr><td>BBH</td><td>复杂推理</td><td>83.1%</td><td>86.4%</td><td>82.5%</td><td>85.9%</td><td>-</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="chart-wrap">
+<div id="chart-bench-01"></div>
+<span class="ch-cap">图：Zero-shot vs 5-shot 性能增益对比（GPT-4o）</span>
+</div>
+
+<p><strong>关键发现：</strong></p>
+<ul>
+<li><strong>高共识任务：</strong>常识推理（HellaSwag）、简单代码生成中，zero-shot 和 few-shot 差距很小（1-3%）。直接 zero-shot 即可。</li>
+<li><strong>复杂推理任务：</strong>在 BBH（BIG-Bench Hard）、数学推理（GSM8K）中，few-shot 比 zero-shot 有 3-5% 的稳定提升。投入示例是值得的。</li>
+<li><strong>知识密集型任务：</strong>MMLU 的 few-shot 增益最小（~2%），说明对于「回忆知识」类的任务，示例的作用有限。</li>
+<li><strong>小模型受益更多：</strong>对于 7B-13B 级别的模型，few-shot 相比 zero-shot 的提升通常更大（5-15%），因为小模型更需要示例来「锚定」任务。</li>
+</ul>
+</div>
+</section>
+
+<!-- module: development -->
+<section class="module" id="mod-development">
+<h2><span class="m-tag">发展演进</span>发展迭代<span class="m-time">⏱ 约3分钟</span></h2>
+<div class="hook">从 2020 年 GPT-3 论文中的惊人发现，到 2025 年「零样本本身就是一种超能力」——短短五年，零样本/少样本从实验性发现变成了产业标配。</div>
+<div class="content">
+<p>零样本/少样本提示的发展脉络清晰地反映了 LLM 能力的演化轨迹：</p>
+
+<div class="table-container">
+<table>
+<thead><tr><th>时间</th><th>里程碑</th><th>关键贡献</th><th>影响</th></tr></thead>
+<tbody>
+<tr><td>2020.05</td><td>GPT-3 论文 (Brown et al.)</td><td>首次系统展示 in-context learning，定义 zero/one/few-shot</td><td>开创提示工程领域</td></tr>
+<tr><td>2021.09</td><td>Instruction Tuning (FLAN, Wei et al.)</td><td>通过在多样化指令集上微调，显著提升 zero-shot 能力</td><td>Zero-shot 成为实用工具</td></tr>
+<tr><td>2022.01</td><td>Chain-of-Thought (Wei et al.)</td><td>将 few-shot 扩展为包含推理步骤，解决复杂推理</td><td>Few-shot 从分类延伸到推理</td></tr>
+<tr><td>2022.11</td><td>ChatGPT 发布</td><td>RLHF + 指令微调使 zero-shot 对话达到可用水平</td><td>Zero-shot 成为主流交互范式</td></tr>
+<tr><td>2023.02</td><td>DSPy 框架 (Khattab et al.)</td><td>自动搜索最优 few-shot 示例，替代人工选择</td><td>Few-shot 优化自动化</td></tr>
+<tr><td>2024.03</td><td>Claude 3 / GPT-4o</td><td>200K+ 上下文窗口使大批量 few-shot 成为可能</td><td>示例数量约束大大放松</td></tr>
+<tr><td>2025.01</td><td>DeepSeek-R1</td><td>推理模型无需 few-shot 即可进行复杂推理</td><td>推理类任务 zero-shot 能力质变</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="formula-block">
+<span class="f-cap">公式3: 示例数量的边际收益递减模型</span>
+$$\Delta \operatorname{Acc}(k) = \operatorname{Acc}(k) - \operatorname{Acc}(0) \approx A \cdot (1 - e^{-k/B})$$
+<button class="derivation-toggle">▸ 展开推导</button>
+<div class="derivation-content">这是一个经验公式，其中 $A$ 是最大可能的提升幅度（任务相关），$B$ 是「半饱和」示例数（通常 2-4）。当 $k = B$ 时收益达到最大值的约 63%。研究表明大多数 NLP 任务的 $B$ 在 2-4 之间，$A$ 在 3-15% 之间。这意味着超过 8 个示例后，每增加一个示例的边际收益通常低于 0.5%。</div>
+</div>
+
+<p>当前趋势是：<strong>推理模型（如 o1、DeepSeek-R1）正在模糊 zero-shot 和 few-shot 的边界</strong>——它们通过内部推理链在 zero-shot 模式下就能达到传统 few-shot + CoT 的效果，这可能是下一个重要的范式转变。</p>
+</div>
+</section>
+
+<!-- module: application -->
+<section class="module" id="mod-application">
+<h2><span class="m-tag">实践应用</span>实践应用<span class="m-time">⏱ 约5分钟</span></h2>
+<div class="hook">「我会了 zero-shot 和 few-shot 的概念，但真到写 prompt 时还是不知道怎么写。」这个模块就是为这个问题准备的——手把手教你从零写出工业级的 prompt。</div>
+<div class="content">
+<p>以下是零样本与少样本提示的 5 个核心应用场景，每个场景附带完整的实操指南：</p>
+
+<p><strong>场景一：文本分类（Zero-shot）</strong></p>
+<div class="step-block">
+<span class="step-num">1</span><strong>明确分类标签和定义</strong>
+<div class="step-out">✅ 预期输出：模型按标签返回分类结果</div>
+<div class="step-warn">⚠️ 常见错误：标签定义模糊（如「正面」和「非常正面」的区别不明确）</div>
+</div>
+<div class="code-block">
+<span class="cb-cap">Zero-shot 文本分类 Prompt 模板</span>
+将以下客户反馈分类为以下类别之一：
+- 产品质量
+- 物流配送  
+- 客服体验
+- 价格相关
+
+规则：只输出类别名称，不要加任何解释。
+
+客户反馈：「快递比预期早了三天到，包装也很完整，非常满意！」
+</div>
+
+<p><strong>场景二：命名实体识别（Few-shot）</strong></p>
+<div class="step-block">
+<span class="step-num">2</span><strong>提供 3-5 个格式一致的标注示例</strong>
+<div class="step-out">✅ 预期输出：模型按示例格式标注新文本</div>
+<div class="step-warn">⚠️ 常见错误：示例中实体类型的覆盖不均衡</div>
+</div>
+<div class="code-block">
+<span class="cb-cap">Few-shot NER Prompt 模板</span>
+从文本中提取人名(PER)、组织(ORG)、地点(LOC)。
+
+文本：张三在阿里巴巴杭州总部工作。
+实体：PER: 张三 | ORG: 阿里巴巴 | LOC: 杭州
+
+文本：李四代表腾讯参加了北京的技术峰会。
+实体：PER: 李四 | ORG: 腾讯 | LOC: 北京
+
+文本：王五从上海飞往深圳参加华为的发布会。
+实体：
+</div>
+
+<p><strong>场景三：代码生成（Zero-shot）</strong></p>
+<div class="step-block">
+<span class="step-num">3</span><strong>明确技术栈、输入输出格式、边界条件</strong>
+<div class="step-out">✅ 预期输出：完整可运行的函数代码</div>
+<div class="step-warn">⚠️ 常见错误：描述过于简短，遗漏边界情况处理要求</div>
+</div>
+
+<p><strong>场景四：翻译（Zero-shot + 风格约束）</strong></p>
+<p>翻译是 zero-shot 表现最好的任务之一。关键是明确源语言、目标语言和风格要求。</p>
+
+<p><strong>场景五：数据增强（Few-shot）</strong></p>
+<p>利用 few-shot 生成训练数据是当前最常见的工业应用之一。给定 3-5 个标注样本，让模型生成 100+ 个同分布样本。但需注意：生成的样本可能带有模型自身的偏差。</p>
+
+<div class="chart-wrap">
+<div id="chart-app-01"></div>
+<span class="ch-cap">图：不同任务类型 Zero-shot vs Few-shot 成功率对比（基于 GPT-4o 测试）</span>
+</div>
+</div>
+</section>
+
+<!-- module: case_study -->
+<section class="module" id="mod-case_study">
+<h2><span class="m-tag">实践应用</span>实践案例<span class="m-time">⏱ 约4分钟</span></h2>
+<div class="hook">一个电商客服团队用 few-shot 将自动分类准确率从 72% 提升到 94%，而成本只增加了 40%。这不是魔法——是正确的示例选择和 prompt 设计的结果。</div>
+<div class="content">
+<p><strong>案例 1：电商客服工单分类系统</strong></p>
+<p><strong>背景：</strong>某电商平台每天收到 5000+ 客服工单，需要自动分类为「退款」「换货」「物流查询」「投诉」「咨询」五类。</p>
+<p><strong>方案演化：</strong></p>
+<ul>
+<li><strong>V1 (Zero-shot)：</strong>准确率 72%。问题：模型对「退款」和「换货」混淆严重（两者都涉及退货流程）。</li>
+<li><strong>V2 (5-shot)：</strong>准确率 94%。关键改进：为每个类别选了 1 个「边界案例」作为示例（如「商品有质量问题，但我不想要了，能退吗？」→ 退款 vs 换货的边界）。</li>
+</ul>
+<p><strong>代码实现（DSPy 框架）：</strong></p>
+<div class="code-block">
+<span class="cb-cap">DSPy Few-shot 分类优化</span>
+import dspy
+
+class TicketClassifier(dspy.Signature):
+    """将客服工单分类为五个类别之一"""
+    ticket = dspy.InputField()
+    category = dspy.OutputField(desc="退款/换货/物流查询/投诉/咨询")
+
+classify = dspy.ChainOfThought(TicketClassifier)
+
+# 使用 DSPy 自动搜索最优 few-shot 示例
+from dspy.teleprompt import BootstrapFewShot
+optimizer = BootstrapFewShot(metric=accuracy_metric)
+optimized = optimizer.compile(classify, trainset=train_examples)
+</div>
+<p><strong>成本分析：</strong>V1 平均 35 tokens/请求 → $0.00009/次；V2 平均 280 tokens/请求 → $0.0007/次。日均 5000 请求，月成本从 $13.5 增至 $105——但省下的 22% 人工审核成本约 $8000/月。</p>
+
+<div class="chart-wrap">
+<div id="chart-case-01"></div>
+<span class="ch-cap">图：Zero-shot vs Few-shot 分类准确率与成本对比</span>
+</div>
+</div>
+</section>
+
+<!-- module: risk -->
+<section class="module" id="mod-risk">
+<h2><span class="m-tag">风险与挑战</span>潜在风险<span class="m-time">⏱ 约3分钟</span></h2>
+<div class="hook">Few-shot 不是越多样例越好——选错了示例比不给示例还糟糕。这被称为「示例偏差」，是提示工程中最容易被忽视的陷阱。</div>
+<div class="content">
+<p>零样本/少样本提示在实际应用中的主要风险：</p>
+
+<div class="table-container">
+<table>
+<thead><tr><th>风险类型</th><th>描述</th><th>影响程度</th><th>缓解策略</th></tr></thead>
+<tbody>
+<tr><td><strong>示例偏差 (Label Bias)</strong></td><td>示例的标签分布不均导致模型倾向于高频标签</td><td>🔴 高</td><td>确保每个类别至少 1 个示例；使用平衡采样</td></tr>
+<tr><td><strong>顺序敏感 (Order Sensitivity)</strong></td><td>改变示例的排列顺序可能导致不同输出</td><td>🟡 中</td><td>多次推理取多数票；随机排列示例</td></tr>
+<tr><td><strong>格式过拟合 (Format Overfitting)</strong></td><td>模型学习示例的格式而非任务逻辑</td><td>🟡 中</td><td>在测试 prompt 中微调格式以检验鲁棒性</td></tr>
+<tr><td><strong>幻觉放大 (Hallucination)</strong></td><td>Few-shot 示例中的虚构信息被模型「学习」并复制</td><td>🔴 高</td><td>严格审查示例内容的真实性；添加「如不确定请标注」指令</td></tr>
+<tr><td><strong>上下文窗口溢出</strong></td><td>过多示例超出模型上下文窗口导致截断</td><td>🟡 中</td><td>动态计算 token 数；使用示例选择策略</td></tr>
+<tr><td><strong>对抗注入 (Prompt Injection)</strong></td><td>攻击者在用户输入中嵌入指令，覆盖 zero-shot 任务定义</td><td>🔴 高</td><td>使用分隔符隔离用户输入；输入清洗</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="formula-block">
+<span class="f-cap">公式4: 示例顺序敏感度量化</span>
+$$\operatorname{OSI} = \frac{\max_{\pi \in S_k} \operatorname{Acc}(\pi) - \min_{\pi \in S_k} \operatorname{Acc}(\pi)}{\operatorname{Acc}_{\text{avg}}}$$
+<button class="derivation-toggle">▸ 展开推导</button>
+<div class="derivation-content">$\operatorname{OSI}$ 衡量示例排列顺序对准确率的影响程度。$S_k$ 是 $k$ 个示例的所有排列，$\operatorname{Acc}(\pi)$ 是排列 $\pi$ 下的准确率。$\operatorname{OSI} \gt 0.15$ 表示顺序敏感度很高，建议使用多次随机排列取均值。Lu et al. (2022) 发现 GPT-3 在部分任务上 $\operatorname{OSI}$ 可达 0.20-0.30。</div>
+</div>
+
+<div class="step-block">
+<span class="step-num">!</span><strong>安全检查清单</strong>
+<div class="step-out">✅ 应用上线前：至少用 3 种不同示例排列测试准确率方差</div>
+<div class="step-warn">⚠️ 如果方差 &gt; 5%，说明你的 prompt 对示例顺序过于敏感，需要增加示例多样性</div>
+</div>
+</div>
+</section>
+
+<!-- module: ethics -->
+<section class="module" id="mod-ethics">
+<h2><span class="m-tag">风险与挑战</span>伦理与安全<span class="m-time">⏱ 约3分钟</span></h2>
+<div class="hook">一个看似无害的 few-shot 分类 prompt，可能因为示例中的隐性偏见而系统性歧视某些群体——你写的每个示例都在「训练」模型的价值观。</div>
+<div class="content">
+<p>零样本/少样本提示的伦理问题常常被低估，因为人们容易认为「只是给几个例子而已」。但研究表明，示例对模型输出有直接的价值观塑造效应：</p>
+
+<p><strong>1. 刻板印象传播</strong></p>
+<p>如果 few-shot 示例中所有医生都是男性、所有护士都是女性，模型会在后续推理中复现这种刻板印象。Zhao et al. (2021) 的经典实验表明，仅仅改变一个分类示例中的性别代词，就能使模型对职业性别的预测翻转 40% 以上。</p>
+
+<p><strong>2. 文化偏见放大器</strong></p>
+<p>示例中的文化默认（如所有示例都用英文名字、西方场景）会让模型在非西方语境下表现显著下降。Hershcovich et al. (2022) 发现，用全英文示例进行 few-shot 分类时，模型对非英语文化场景的准确率下降 15-20%。</p>
+
+<p><strong>3. 越狱风险</strong></p>
+<p>Few-shot 示例可以被恶意设计来绕过安全护栏。例如，在 prompt 中给出几个「拒绝回答」的示例，再给一个「但这次破例」的示例，可能诱导模型在后续回答中降低安全标准。</p>
+
+<div class="step-block">
+<span class="step-num">✓</span><strong>伦理审查清单（建议在发布 prompt 前逐一检查）</strong>
+<div class="step-out">✅ 示例是否覆盖了不同性别/文化/年龄的角色？</div>
+<div class="step-out">✅ 示例比例是否反映真实分布（而非刻板印象分布）？</div>
+<div class="step-out">✅ 是否添加了明确的安全边界指令？（如「请拒绝回答涉及非法活动的请求」）</div>
+<div class="step-warn">⚠️ 不要假设模型会自动纠正你的示例偏见——它们不会。</div>
+</div>
+</div>
+</section>
+
+<!-- module: prospect -->
+<section class="module" id="mod-prospect">
+<h2><span class="m-tag">发展演进</span>发展前景<span class="m-time">⏱ 约3分钟</span></h2>
+<div class="hook">当 GPT-5 的 zero-shot 能力已经超过 GPT-4 的 8-shot 时，few-shot 还有存在的意义吗？答案是：有的——但在快速变化。</div>
+<div class="content">
+<p><strong>趋势一：Zero-shot 能力的持续跃升</strong></p>
+<p>每一代新模型的 zero-shot 能力都在逼近上一代模型的 few-shot 水平。这主要得益于：(1) 更大规模的预训练数据；(2) 更精细的指令微调；(3) RLHF/DPO 等对齐技术的成熟。预计未来 1-2 年内，简单到中等难度的 NLP 任务将基本实现「zero-shot 即够用」。</p>
+
+<p><strong>趋势二：Few-shot 从「演示」到「校准」</strong></p>
+<p>Few-shot 的角色正在从「教模型怎么做」转变为「校准模型的输出分布」。在推理模型（如 o1、DeepSeek-R1）上，few-shot 的主要价值不再是提供任务定义，而是校准输出格式、风格和精度。</p>
+
+<p><strong>趋势三：动态示例选择（Dynamic Example Selection）</strong></p>
+<p>与其使用固定的示例集，未来系统将根据每个输入动态选择最相关的示例。这类似于 RAG（检索增强生成）的思路——从示例库中检索与当前输入最相似的 k 个示例组成 prompt。DSPy 和 LangChain 已经提供了这方面的初步工具。</p>
+
+<p><strong>趋势四：自动 prompt 优化</strong></p>
+<p>手工编写 few-shot 示例正在被自动化工具取代。DSPy、TextGrad 等框架可以自动搜索最优示例组合和排列，将 prompt 工程从「手艺活」转变为「优化问题」。</p>
+
+<div class="table-container">
+<table>
+<thead><tr><th>时间线</th><th>Zero-shot 地位</th><th>Few-shot 地位</th></tr></thead>
+<tbody>
+<tr><td>2024-2025</td><td>简单任务零样本化</td><td>复杂推理和格式控制仍需要</td></tr>
+<tr><td>2026-2027（预测）</td><td>中等难度任务零样本化</td><td>主要用于格式校准和边缘情况</td></tr>
+<tr><td>2028+（预测）</td><td>大部分任务零样本够用</td><td>退化为可选的精度微调手段</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+
+<!-- module: misconceptions -->
+<section class="module" id="mod-misconceptions">
+<h2><span class="m-tag">核心概念</span>常见误区<span class="m-time">⏱ 约3分钟</span></h2>
+<div class="hook">「Zero-shot 就是不给例子，Few-shot 就是给例子」——如果你对两者的理解止步于此，你已经在犯第一个错误了。</div>
+<div class="content">
+<p><strong>误区 1：「Zero-shot = 零信息」</strong></p>
+<p>Zero-shot 不是「什么都不给模型」，而是「不给示例但给清晰的指令」。一个精心设计的 zero-shot prompt 可能比一个模糊的 few-shot prompt 效果更好。在实践中，「指令的清晰度」比「是否有示例」更重要。</p>
+
+<p><strong>误区 2：「示例越多效果越好」</strong></p>
+<p>这是最常见也最昂贵的误解。如前文公式所示，few-shot 收益服从边际递减规律。超过 8 个示例后，每增加一个示例的准确率提升通常低于 0.5%。盲目堆叠示例不仅浪费 token，还可能引入更多噪声和偏差。</p>
+
+<p><strong>误区 3：「Zero-shot 只适合简单任务」</strong></p>
+<p>随着模型能力的提升，zero-shot 在越来越多的复杂任务上表现出色。GPT-4o 的 zero-shot 在 GSM8K 数学题上达到 92%，在 HumanEval 代码生成上达到 90%——这些都不是「简单任务」。真正的限制在于：zero-shot 对指令的质量极其敏感。</p>
+
+<p><strong>误区 4：「Few-shot 可以解决所有问题」</strong></p>
+<p>Few-shot 不能创造知识——它只是让模型更好地利用已有的知识。如果任务需要的知识不在模型的预训练数据中，再多的示例也无法弥补。在这种情况下，需要结合 RAG（检索增强生成）或微调。</p>
+
+<p><strong>误区 5：「格式无关紧要」</strong></p>
+<p>示例的格式一致性是 few-shot 成功的关键。研究表明，当示例之间格式不一致时，模型的性能可能下降 20-30%。这是因为模型会同时学习格式和任务逻辑，格式的噪声会干扰任务学习。</p>
+</div>
+</section>
+
+<!-- module: checklist -->
+<section class="module" id="mod-checklist">
+<h2><span class="m-tag">学习评估</span>能力自测清单<span class="m-time">⏱ 约3分钟</span></h2>
+<div class="hook">检验你是否真正掌握零样本与少样本提示的能力清单——每个问题都对应一个核心知识点。</div>
+<div class="content">
+<p><strong>基础能力（应能独立完成）：</strong></p>
+<ul>
+<li>✅ 能区分 zero-shot、one-shot 和 few-shot 的适用场景</li>
+<li>✅ 能写出一个有效的 zero-shot 分类 prompt</li>
+<li>✅ 能设计格式一致的 few-shot 示例</li>
+<li>✅ 能计算不同提示策略的 token 成本</li>
+</ul>
+
+<p><strong>进阶能力（应能独立完成）：</strong></p>
+<ul>
+<li>✅ 能诊断并修复示例偏差问题</li>
+<li>✅ 能根据任务复杂度选择最优示例数量</li>
+<li>✅ 能设计 AB 测试来比较不同提示策略</li>
+<li>✅ 能识别并缓解顺序敏感问题</li>
+</ul>
+
+<p><strong>实践能力（应能实际应用）：</strong></p>
+<ul>
+<li>✅ 能将业务问题转化为 zero-shot/few-shot prompt</li>
+<li>✅ 能使用 DSPy 或 LangChain 构建 few-shot 系统</li>
+<li>✅ 能在生产环境中监控提示策略的效果</li>
+<li>✅ 能平衡成本与准确率选择合适的提示策略</li>
+</ul>
+
+<p><strong>自测题：</strong></p>
+<p>Q1：你有一个情感分类任务，有 5 个类别，训练数据很少。应该选择 zero-shot 还是 few-shot？为什么？</p>
+<p>Q2：你的 few-shot prompt 在测试集上表现很好，但上线后准确率骤降。可能的原因是什么？</p>
+<p>Q3：如何在不增加 token 成本的前提下提升 few-shot 效果？</p>
+</div>
+</section>
+
+<!-- module: summary -->
+<section class="module" id="mod-summary">
+<h2><span class="m-tag">学习评估</span>总结回顾<span class="m-time">⏱ 约2分钟</span></h2>
+<div class="hook">从 GPT-3 的惊人发现到今天的产业标配，零样本与少样本提示走过了一条从实验到实用的道路。让我们回顾一下核心要点。</div>
+<div class="content">
+<p><strong>核心要点回顾：</strong></p>
+
+<ol>
+<li><strong>范式转变：</strong>In-context learning 让 LLM 在不更新参数的情况下完成任务，开启了提示工程时代。</li>
+<li><strong>梯度选择：</strong>从 zero-shot（无示例）到 few-shot（2-8 个示例），选择取决于任务复杂度和指令清晰度。</li>
+<li><strong>底层原理：</strong>Transformer 的自注意力机制让模型能够在上下文中建立示例与待推理输入之间的关联。</li>
+<li><strong>成本权衡：</strong>示例越多准确率可能越高，但 token 成本和延迟也随之增加，边际收益递减。</li>
+<li><strong>关键风险：</strong>示例偏差、顺序敏感、格式过拟合是 few-shot 的三大陷阱。</li>
+<li><strong>伦理考量：</strong>示例中的隐性偏见会被模型学习和放大，需要进行偏见审计。</li>
+</ol>
+
+<p><strong>下一步行动建议：</strong></p>
+<ul>
+<li>用 zero-shot 尝试你当前的任务——可能已经足够好</li>
+<li>如果效果不佳，尝试 3-5 个精心选择的示例</li>
+<li>测试不同示例顺序的稳定性</li>
+<li>监控生产环境中的实际表现，持续迭代</li>
+</ul>
+
+<div class="takeaway">零样本与少样本提示是提示工程的基石。掌握这一技法，你就掌握了与 LLM 对话的基本语言。记住：先试 zero-shot，不行再加 few-shot，永远保持示例的多样性和格式一致性。</div>
+</div>
+</section>
+
+</div>
+
+<footer class="journey-footer">
+  <a href="#" class="back-to-plan" onclick="event.preventDefault();var w=window.open('pe_learning.html#kc-p1_1','plan_main');if(w)w.focus()">🔗 返回学习路线: 提示工程 (Prompt Engineering) 系统学习方案 → 核心工具</a>
+  <p style="margin-top:12px;font-size:.72rem;color:var(--text-muted)">
+    本资料是 <strong>提示工程 (Prompt Engineering) 系统学习方案</strong> 核心工具阶段的深度研读材料
+  </p>
+</footer>
+
+<div class="deep-floating-back">
+  <button onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 16px rgba(0,0,0,.2)'"
+    onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 12px rgba(0,0,0,.15)'"
+    onclick="event.preventDefault();var w=window.open('pe_learning.html#kc-p1_1','plan_main');if(w)w.focus()">
+    ← 返回学习方案
+  </button>
+</div>
+</div>
+
+<div class="dd-toast" id="toastEl"><span id="toastMsg"></span></div>
+
+<script>
+var MODULE_IDS = ["mod-learning_journey", "mod-background", "mod-concept", "mod-principle", "mod-architecture", "mod-compute_cost", "mod-open_source", "mod-benchmark", "mod-development", "mod-application", "mod-case_study", "mod-risk", "mod-ethics", "mod-prospect", "mod-misconceptions", "mod-checklist", "mod-summary"];
+var SEARCH_INDEX = [{"id":"mod-learning_journey","t":"学习路线位置","c":"你在提示工程系统学习方案第一阶段核心工具的第一个知识点"},{"id":"mod-background","t":"背景与缘起","c":"2020年GPT-3论文中的惊人发现改变了NLP世界"},{"id":"mod-concept","t":"核心概念","c":"零样本提示与少样本提示的定义和差异"},{"id":"mod-principle","t":"核心原理","c":"语言建模即隐式多任务学习，Transformer的上下文关联能力"},{"id":"mod-architecture","t":"技术架构图","c":"理解零样本少样本提示的完整技术架构"},{"id":"mod-compute_cost","t":"算力与成本分析","c":"不同提示策略的token消耗差异巨大"},{"id":"mod-open_source","t":"开源生态","c":"开源模型对zero-shot few-shot的支持程度"},{"id":"mod-benchmark","t":"Benchmark数据","c":"代表性模型在主流benchmark上的性能对比"},{"id":"mod-development","t":"发展迭代","c":"零样本少样本提示的发展脉络"},{"id":"mod-application","t":"实践应用","c":"零样本与少样本提示的核心应用场景"},{"id":"mod-case_study","t":"实践案例","c":"电商客服工单分类系统案例"},{"id":"mod-risk","t":"潜在风险","c":"零样本少样本提示在实际应用中的主要风险"},{"id":"mod-ethics","t":"伦理与安全","c":"零样本少样本提示的伦理问题"},{"id":"mod-prospect","t":"发展前景","c":"Zero-shot能力的持续跃升趋势"},{"id":"mod-misconceptions","t":"常见误区","c":"关于zero-shot和few-shot的常见误解"},{"id":"mod-checklist","t":"能力自测清单","c":"检验掌握零样本与少样本提示的能力"},{"id":"mod-summary","t":"总结回顾","c":"核心要点回顾和下一步行动建议"}];
+var TOAST_TIMEOUT;
+
+(function(){
+var progressBar=document.getElementById('progressBar');
+var modules=document.querySelectorAll('.module');
+
+var observer=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting)e.target.classList.add('visible')})},{threshold:.15});
+modules.forEach(function(m){observer.observe(m)});
+
+var navLinks=document.querySelectorAll('.sidebar-nav a');
+var navObserver=new IntersectionObserver(function(entries){
+entries.forEach(function(e){
+if(e.isIntersecting){
+navLinks.forEach(function(a){a.classList.remove('active')});
+var act=document.querySelector('.sidebar-nav a[href="#'+e.target.id+'"]');
+if(act)act.classList.add('active');
+}
+})},{threshold:.3});
+modules.forEach(function(m){navObserver.observe(m)});
+
+window.addEventListener('scroll',function(){
+var st=document.documentElement.scrollTop,dh=document.documentElement.scrollHeight-window.innerHeight;
+var pct=dh>0?Math.min(100,(st/dh)*100):0;progressBar.style.width=pct+'%';
+});
+
+window.addEventListener('keydown',function(e){
+if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();openSearch()}
+if((e.ctrlKey||e.metaKey)&&e.key==='d'){e.preventDefault();toggleTheme()}
+if(e.key==='Escape')closeSearch()
+});
+})();
+
+function toggleTheme(){
+var b=document.body,isD=b.getAttribute('data-theme')==='dark';
+b.setAttribute('data-theme',isD?'light':'dark');
+try{localStorage.setItem('slm-theme',isD?'light':'dark')}catch(e){}
+showToast('已切换至'+(isD?'浅色':'深色')+'主题')
+}
+
+function openSearch(){document.getElementById('searchOverlay').classList.add('open');setTimeout(function(){document.getElementById('searchInput').focus()},100)}
+function closeSearch(){document.getElementById('searchOverlay').classList.remove('open');document.getElementById('searchResults').innerHTML=''}
+
+function doSearch(){
+var q=document.getElementById('searchInput').value.toLowerCase(),res=document.getElementById('searchResults');
+if(q.length<2){res.innerHTML='';return}
+var h='';SEARCH_INDEX.forEach(function(item){
+if(item.t.toLowerCase().indexOf(q)>=0||(item.c||'').toLowerCase().indexOf(q)>=0){
+h+='<div onclick="closeSearch();document.getElementById(\''+item.id+'\').scrollIntoView({behavior:\'smooth\'})">'+
+'<strong>'+item.t+'</strong><br><small style="color:var(--text-muted)">'+(item.c||'').substring(0,80)+'</small></div>';
+}
+});
+res.innerHTML=h||'<div style="padding:12px;color:var(--text-muted)">未找到匹配模块</div>'
+}
+
+function showToast(msg){
+var el=document.getElementById('toastEl'),mg=document.getElementById('toastMsg');
+if(!el||!mg)return;mg.textContent=msg;el.style.display='block';el.classList.add('toast-in');
+if(TOAST_TIMEOUT)clearTimeout(TOAST_TIMEOUT);
+TOAST_TIMEOUT=setTimeout(function(){el.style.display='none'},3000);
+}
+
+(function(){
+var t;try{t=localStorage.getItem('slm-theme')}catch(e){}
+if(t==='light')document.body.setAttribute('data-theme','light');
+})();
+
+(function(){
+document.querySelectorAll('.derivation-toggle').forEach(function(btn){
+btn.addEventListener('click',function(){
+var content=this.nextElementSibling;
+if(content){content.classList.toggle('open');this.textContent=content.classList.contains('open')?'▾ 收起推导':'▸ 展开推导'}
+});
+});
+})();
+
+(function initCharts(){
+if(typeof echarts==='undefined')return;
+var charts=[];
+function makeChart(elId,option){
+var el=document.getElementById(elId);
+if(!el)return null;
+var chart=echarts.init(el);
+chart.setOption(option);
+return chart;
+}
+
+// 架构图
+charts.push(makeChart('chart-arch-01',{
+title:{text:'零样本/少样本提示技术架构',left:'center',textStyle:{color:'var(--text-secondary)',fontSize:12}},
+tooltip:{trigger:'axis',axisPointer:{type:'shadow'}},
+legend:{data:['零样本','少样本'],bottom:10,textStyle:{color:'var(--text-muted)',fontSize:11}},
+grid:{left:'3%',right:'4%',bottom:'15%',top:'15%',containLabel:true},
+xAxis:[{type:'category',data:['输入层','Token化','嵌入层','Transformer','输出层'],axisLabel:{color:'var(--text-muted)',fontSize:10}}],
+yAxis:[{type:'value',axisLine:{lineStyle:{color:'var(--border-subtle)'}},splitLine:{lineStyle:{color:'var(--border-subtle)'}}}],
+series:[{name:'零样本',type:'bar',data:[1,1.5,2,3,2.5],itemStyle:{color:'var(--accent-indigo)',borderRadius:[4,4,0,0]}},{name:'少样本',type:'bar',data:[3,4,2,5,4],itemStyle:{color:'var(--accent-purple)',borderRadius:[4,4,0,0]}}]
+}));
+
+// Benchmark对比图
+charts.push(makeChart('chart-bench-01',{
+title:{text:'Zero-shot vs 5-shot 性能对比',left:'center',textStyle:{color:'var(--text-secondary)',fontSize:12}},
+tooltip:{trigger:'axis',axisPointer:{type:'shadow'}},
+legend:{data:['Zero-shot','5-shot'],bottom:10,textStyle:{color:'var(--text-muted)',fontSize:11}},
+grid:{left:'3%',right:'4%',bottom:'15%',top:'15%',containLabel:true},
+xAxis:[{type:'category',data:['MMLU','HellaSwag','GSM8K','HumanEval','BBH'],axisLabel:{color:'var(--text-muted)',fontSize:10}}],
+yAxis:[{type:'value',max:100,axisLabel:{formatter:'{value}%',color:'var(--text-muted)',fontSize:10},axisLine:{lineStyle:{color:'var(--border-subtle)'}},splitLine:{lineStyle:{color:'var(--border-subtle)'}}}],
+series:[{name:'Zero-shot',type:'bar',data:[87.2,95.3,92.0,90.2,83.1],itemStyle:{color:'var(--accent-indigo)',borderRadius:[4,4,0,0]}},{name:'5-shot',type:'bar',data:[88.9,95.8,94.2,91.5,86.4],itemStyle:{color:'var(--accent-purple)',borderRadius:[4,4,0,0]}}]
+}));
+
+// 应用场景对比图
+charts.push(makeChart('chart-app-01',{
+title:{text:'不同任务类型成功率对比',left:'center',textStyle:{color:'var(--text-secondary)',fontSize:12}},
+tooltip:{trigger:'axis',axisPointer:{type:'shadow'}},
+legend:{data:['Zero-shot','Few-shot'],bottom:10,textStyle:{color:'var(--text-muted)',fontSize:11}},
+grid:{left:'3%',right:'4%',bottom:'15%',top:'15%',containLabel:true},
+xAxis:[{type:'category',data:['分类','NER','代码生成','翻译','数据增强'],axisLabel:{color:'var(--text-muted)',fontSize:10}}],
+yAxis:[{type:'value',max:100,axisLabel:{formatter:'{value}%',color:'var(--text-muted)',fontSize:10},axisLine:{lineStyle:{color:'var(--border-subtle)'}},splitLine:{lineStyle:{color:'var(--border-subtle)'}}}],
+series:[{name:'Zero-shot',type:'bar',data:[85,65,75,92,40],itemStyle:{color:'var(--accent-indigo)',borderRadius:[4,4,0,0]}},{name:'Few-shot',type:'bar',data:[95,90,88,95,85],itemStyle:{color:'var(--accent-purple)',borderRadius:[4,4,0,0]}}]
+}));
+
+// 案例对比图
+charts.push(makeChart('chart-case-01',{
+title:{text:'Zero-shot vs Few-shot 分类效果',left:'center',textStyle:{color:'var(--text-secondary)',fontSize:12}},
+tooltip:{trigger:'axis',axisPointer:{type:'shadow'}},
+legend:{data:['准确率','相对成本'],bottom:10,textStyle:{color:'var(--text-muted)',fontSize:11}},
+grid:{left:'3%',right:'4%',bottom:'15%',top:'15%',containLabel:true},
+xAxis:[{type:'category',data:['V1 Zero-shot','V2 Few-shot'],axisLabel:{color:'var(--text-muted)',fontSize:10}}],
+yAxis:[{type:'value',max:100,axisLabel:{formatter:'{value}%',color:'var(--text-muted)',fontSize:10},axisLine:{lineStyle:{color:'var(--border-subtle)'}},splitLine:{lineStyle:{color:'var(--border-subtle)'}}}],
+series:[{name:'准确率',type:'bar',data:[72,94],itemStyle:{color:'var(--accent-green)',borderRadius:[4,4,0,0]}},{name:'相对成本',type:'bar',data:[100,400],itemStyle:{color:'var(--accent-gold)',borderRadius:[4,4,0,0]}}]
+}));
+
+window.addEventListener('resize',function(){charts.forEach(function(c){c.resize()})});
+})();
+</script>
+</body>
+</html>

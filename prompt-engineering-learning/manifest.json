@@ -1,0 +1,236 @@
+{
+  "version": "1.0",
+  "plans": [
+    {
+      "id": "prompt-engineering-learning",
+      "title": "提示工程 (Prompt Engineering) 系统学习方案",
+      "domain": "ai-tech",
+      "texture": "G8",
+      "depth": "标准学习",
+      "template_id": "graphite-studio",
+      "markdown_file": "提示工程学习方案.md",
+      "html_file": "pe_learning.html",
+      "generated_at": "2026-05-26",
+      "topic_profile": {
+        "abstract": 0.20,
+        "systemic": 0.30,
+        "math_density": 0.15,
+        "temporal": 0.85
+      },
+      "phases": [
+        {
+          "id": "p1",
+          "title": "核心工具",
+          "weeks": "第1-4周",
+          "kps": [
+            {"id": "p1_1", "name": "零样本与少样本提示", "topic_id": "prompt-engineering", "has_deep_dive": true},
+            {"id": "p1_2", "name": "思维链提示(Chain-of-Thought)", "topic_id": "prompt-engineering", "has_deep_dive": true},
+            {"id": "p1_3", "name": "角色扮演与系统提示", "topic_id": "prompt-engineering", "has_deep_dive": true}
+          ]
+        },
+        {
+          "id": "p2",
+          "title": "整合应用",
+          "weeks": "第5-9周",
+          "kps": [
+            {"id": "p2_1", "name": "结构化输出控制", "topic_id": "prompt-engineering", "has_deep_dive": true},
+            {"id": "p2_2", "name": "提示迭代优化策略", "topic_id": "prompt-engineering", "has_deep_dive": true},
+            {"id": "p2_3", "name": "多步推理与任务分解", "topic_id": "prompt-engineering", "has_deep_dive": true},
+            {"id": "p2_4", "name": "上下文窗口与长文本处理", "topic_id": "prompt-engineering", "has_deep_dive": true}
+          ]
+        },
+        {
+          "id": "p3",
+          "title": "基础奠基",
+          "weeks": "第10-12周",
+          "kps": [
+            {"id": "p3_1", "name": "LLM工作原理概述", "topic_id": "llm", "has_deep_dive": true},
+            {"id": "p3_2", "name": "Token化与分词原理", "topic_id": "prompt-engineering", "has_deep_dive": true},
+            {"id": "p3_3", "name": "推理参数调优", "topic_id": "prompt-engineering", "has_deep_dive": true}
+          ]
+        },
+        {
+          "id": "p4",
+          "title": "进阶前沿",
+          "weeks": "第13-14周",
+          "kps": [
+            {"id": "p4_1", "name": "自动化提示优化", "topic_id": "prompt-engineering", "has_deep_dive": true},
+            {"id": "p4_2", "name": "多模态提示工程", "topic_id": "multimodal", "has_deep_dive": true}
+          ]
+        }
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "id": "mat_p1_1",
+      "belongs_to_plan": "prompt-engineering-learning",
+      "belongs_to_phase": "p1",
+      "belongs_to_kp": "p1_1",
+      "type": "deep_dive",
+      "depth": "intermediate",
+      "breadth": "standard",
+      "texture": "G8",
+      "title": "零样本与少样本提示深度研读",
+      "html_file": "p1_1_zero-shot-few-shot_intermediate.html",
+      "template_id": "graphite-studio",
+      "generated_at": "2026-05-26"
+    },
+    {
+      "id": "mat_p1_2",
+      "belongs_to_plan": "prompt-engineering-learning",
+      "belongs_to_phase": "p1",
+      "belongs_to_kp": "p1_2",
+      "type": "deep_dive",
+      "depth": "intermediate",
+      "breadth": "standard",
+      "texture": "G8",
+      "title": "思维链提示(Chain-of-Thought)深度研读",
+      "html_file": "p1_2_chain-of-thought_intermediate.html",
+      "template_id": "graphite-studio",
+      "generated_at": "2026-05-26"
+    },
+    {
+      "id": "mat_p1_3",
+      "belongs_to_plan": "prompt-engineering-learning",
+      "belongs_to_phase": "p1",
+      "belongs_to_kp": "p1_3",
+      "type": "deep_dive",
+      "depth": "intermediate",
+      "breadth": "standard",
+      "texture": "G8",
+      "title": "角色扮演与系统提示深度研读",
+      "html_file": "p1_3_role-playing-system-prompt_intermediate.html",
+      "template_id": "graphite-studio",
+      "generated_at": "2026-05-26"
+    },
+    {
+      "id": "mat_p3_1",
+      "belongs_to_plan": "prompt-engineering-learning",
+      "belongs_to_phase": "p3",
+      "belongs_to_kp": "p3_1",
+      "type": "deep_dive",
+      "depth": "intermediate",
+      "breadth": "standard",
+      "texture": "G8",
+      "title": "LLM工作原理概述",
+      "html_file": "p3_1_llm-overview_intermediate.html",
+      "template_id": "graphite-studio",
+      "generated_at": "2026-05-26"
+    },
+    {
+      "id": "mat_p3_2",
+      "belongs_to_plan": "prompt-engineering-learning",
+      "belongs_to_phase": "p3",
+      "belongs_to_kp": "p3_2",
+      "type": "deep_dive",
+      "depth": "intermediate",
+      "breadth": "standard",
+      "texture": "G8",
+      "title": "Token化与分词原理",
+      "html_file": "p3_2_tokenization_intermediate.html",
+      "template_id": "graphite-studio",
+      "generated_at": "2026-05-26"
+    },
+    {
+      "id": "mat_p3_3",
+      "belongs_to_plan": "prompt-engineering-learning",
+      "belongs_to_phase": "p3",
+      "belongs_to_kp": "p3_3",
+      "type": "deep_dive",
+      "depth": "intermediate",
+      "breadth": "standard",
+      "texture": "G8",
+      "title": "推理参数调优深度研读",
+      "html_file": "p3_3_inference-parameters_intermediate.html",
+      "template_id": "graphite-studio",
+      "generated_at": "2026-05-26"
+    },
+    {
+      "id": "mat_p4_1",
+      "belongs_to_plan": "prompt-engineering-learning",
+      "belongs_to_phase": "p4",
+      "belongs_to_kp": "p4_1",
+      "type": "deep_dive",
+      "depth": "intermediate",
+      "breadth": "standard",
+      "texture": "G8",
+      "topic_id": "prompt-engineering",
+      "title": "自动化提示优化深度研读",
+      "html_file": "p4_1_auto-prompt-optimization_intermediate.html",
+      "template_id": "graphite-studio",
+      "generated_at": "2026-05-26"
+    },
+    {
+      "id": "mat_p4_2",
+      "belongs_to_plan": "prompt-engineering-learning",
+      "belongs_to_phase": "p4",
+      "belongs_to_kp": "p4_2",
+      "type": "deep_dive",
+      "depth": "intermediate",
+      "breadth": "standard",
+      "texture": "G2",
+      "topic_id": "multimodal",
+      "title": "多模态提示工程深度研读",
+      "html_file": "p4_2_multimodal-prompt-engineering_intermediate.html",
+      "template_id": "graphite-studio",
+      "generated_at": "2026-05-26"
+    },
+    {
+      "id": "mat_p2_1",
+      "belongs_to_plan": "prompt-engineering-learning",
+      "belongs_to_phase": "p2",
+      "belongs_to_kp": "p2_1",
+      "type": "deep_dive",
+      "depth": "intermediate",
+      "breadth": "standard",
+      "texture": "G8",
+      "title": "结构化输出控制深度研读",
+      "html_file": "p2_1_structured-output_intermediate.html",
+      "template_id": "graphite-studio",
+      "generated_at": "2026-05-27"
+    },
+    {
+      "id": "mat_p2_2",
+      "belongs_to_plan": "prompt-engineering-learning",
+      "belongs_to_phase": "p2",
+      "belongs_to_kp": "p2_2",
+      "type": "deep_dive",
+      "depth": "intermediate",
+      "breadth": "standard",
+      "texture": "G8",
+      "title": "提示迭代优化策略深度研读",
+      "html_file": "p2_2_iteration-optimization_intermediate.html",
+      "template_id": "graphite-studio",
+      "generated_at": "2026-05-27"
+    },
+    {
+      "id": "mat_p2_3",
+      "belongs_to_plan": "prompt-engineering-learning",
+      "belongs_to_phase": "p2",
+      "belongs_to_kp": "p2_3",
+      "type": "deep_dive",
+      "depth": "intermediate",
+      "breadth": "standard",
+      "texture": "G8",
+      "title": "多步推理与任务分解深度研读",
+      "html_file": "p2_3_reasoning-decomposition_intermediate.html",
+      "template_id": "graphite-studio",
+      "generated_at": "2026-05-27"
+    },
+    {
+      "id": "mat_p2_4",
+      "belongs_to_plan": "prompt-engineering-learning",
+      "belongs_to_phase": "p2",
+      "belongs_to_kp": "p2_4",
+      "type": "deep_dive",
+      "depth": "intermediate",
+      "breadth": "standard",
+      "texture": "G8",
+      "title": "上下文窗口与长文本处理深度研读",
+      "html_file": "p2_4_context-window_intermediate.html",
+      "template_id": "graphite-studio",
+      "generated_at": "2026-05-27"
+    }
+  ]
+}

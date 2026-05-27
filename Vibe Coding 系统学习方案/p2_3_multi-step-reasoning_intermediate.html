@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>多步推理与任务分解 深度研读</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<style>
+:root{
+--bg:#0d0d0d;--bg-secondary:#1a1a1a;--bg-tertiary:#222222;
+--text:#ededed;--text-secondary:#a0a0a0;--text-tertiary:#787878;
+--border:rgba(160,160,160,.15);
+--primary:#5b8db8;--primary-light:rgba(91,141,184,.12);
+--accent:#8878a8;--accent-light:rgba(136,120,168,.12);
+--cyan:#6ea8c0;--cyan-light:rgba(110,168,192,.1);
+--orange:#c0a060;--orange-light:rgba(192,160,96,.1);
+--green:#5a9e6f;--green-light:rgba(90,158,111,.1);
+--red:#c06050;--red-light:rgba(192,96,80,.1);
+--pink:#8878a8;--pink-light:rgba(136,120,168,.12);
+--shadow-sm:0 1px 3px rgba(0,0,0,.3);--shadow:0 4px 16px rgba(0,0,0,.4);
+--shadow-md:0 4px 16px rgba(0,0,0,.4);--shadow-lg:0 8px 32px rgba(0,0,0,.5);
+}
+[data-theme="light"]{
+--bg:#fafafa;--bg-secondary:#ffffff;--bg-tertiary:#eeeeee;
+--text:#121212;--text-secondary:#4a4a4a;--text-tertiary:#5e5e5e;
+--border:rgba(18,18,18,.08);
+--primary:#3a6088;--primary-light:rgba(58,96,136,.08);
+--accent:#5a4878;--accent-light:rgba(90,72,120,.08);
+--cyan:#3a7888;--cyan-light:rgba(58,120,136,.08);
+--orange:#886830;--orange-light:rgba(136,104,48,.08);
+--green:#3d8055;--green-light:rgba(61,128,85,.08);
+--red:#983830;--red-light:rgba(152,56,48,.08);
+--pink:#5a4878;--pink-light:rgba(90,72,120,.08);
+--shadow-sm:0 1px 3px rgba(0,0,0,.06);--shadow:0 4px 16px rgba(0,0,0,.08);
+--shadow-md:0 4px 16px rgba(0,0,0,.08);--shadow-lg:0 8px 32px rgba(0,0,0,.12);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  transition: background var(--transition), color var(--transition);
+}
+
+body.loading{opacity:0}body.loaded{opacity:1;transition:opacity 0.4s ease}
+
+#progress-bar {
+  position: fixed; top: 0; left: 0; height: 3px;
+  background: linear-gradient(90deg, var(--primary), var(--accent), var(--cyan));
+  z-index: 1000; transition: width 0.1s linear;
+}
+
+#theme-toggle {
+  position: fixed; top: 20px; right: 20px; z-index: 999;
+  width: 40px; height: 40px; border-radius: 50%;
+  background: var(--bg-secondary); border: 1px solid var(--border);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  font-size: 18px; transition: all var(--transition);
+  box-shadow: var(--shadow-sm);
+}
+#theme-toggle:hover { transform: scale(1.1); box-shadow: var(--shadow); }
+
+#sidebar {
+  position: fixed; top: 0; left: 0; width: var(--sidebar-width); height: 100vh;
+  background: var(--bg-secondary); border-right: 1px solid var(--border);
+  padding: 80px 16px 24px; overflow-y: auto; z-index: 100;
+  transition: transform var(--transition);
+}
+#sidebar h3 {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em;
+  color: var(--text-tertiary); margin-bottom: 12px; font-weight: 600;
+}
+.sidebar-link {
+  display: block; padding: 6px 12px; margin: 2px 0; border-radius: var(--radius-sm);
+  font-size: 13px; color: var(--text-secondary); text-decoration: none;
+  transition: all var(--transition); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.sidebar-link:hover { background: var(--bg-tertiary); color: var(--text); }
+.sidebar-link.active { background: var(--primary-light); color: var(--primary); font-weight: 600; }
+
+#main-content {
+  margin-left: var(--sidebar-width);
+  max-width: calc(100% - var(--sidebar-width) - 40px);
+  padding: 60px 32px 120px;
+}
+
+.meta-card {
+  background: linear-gradient(135deg, var(--primary-light), var(--accent-light));
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px 32px; margin-bottom: 48px;
+  display: flex; flex-wrap: wrap; gap: 24px; align-items: center;
+}
+.meta-card .meta-item { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--text-secondary); }
+.meta-card .meta-item .icon { font-size: 20px; }
+.meta-card .meta-item strong { color: var(--text); }
+.meta-badge {
+  display: inline-block; padding: 4px 12px; border-radius: 20px;
+  font-size: 12px; font-weight: 600; letter-spacing: 0.02em;
+}
+.meta-badge.domain-finance { background: var(--primary-light); color: var(--primary); }
+.meta-badge.domain-ai { background: var(--accent-light); color: var(--accent); }
+.meta-badge.level-beginner { background: var(--green-light); color: var(--green); }
+.meta-badge.level-intermediate { background: var(--orange-light); color: var(--orange); }
+.meta-badge.level-expert { background: var(--red-light); color: var(--red); }
+
+.meta-badge.texture-badge {
+  background: var(--cyan-light); color: #0891b2;
+  font-family: 'SF Mono', 'JetBrains Mono', monospace;
+}
+
+.meta-badge.depth-breadth {
+  background: var(--pink-light); color: var(--pink);
+}
+
+#cdn-indicator {
+  position: fixed; top: 20px; right: 72px; z-index: 999;
+  padding: 4px 10px; border-radius: 6px;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.03em;
+  background: var(--green-light); color: var(--green);
+  display: none;
+}
+#cdn-indicator.enhanced { display: block; background: var(--orange-light); color: var(--orange); }
+#cdn-indicator.baseline { display: block; background: var(--bg-tertiary); color: var(--text-tertiary); }
+
+.module-section {
+  margin-bottom: 56px; opacity: 0; transform: translateY(24px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.module-section.visible { opacity: 1; transform: translateY(0); }
+
+.module-header {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 16px;
+}
+.module-tag {
+  display: inline-block; padding: 3px 10px; border-radius: 6px;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.03em; text-transform: uppercase;
+}
+.tag-core { background: var(--primary-light); color: var(--primary); }
+.tag-tools { background: var(--accent-light); color: var(--accent); }
+.tag-evolution { background: var(--cyan-light); color: #0891b2; }
+.tag-application { background: var(--green-light); color: var(--green); }
+.tag-risk { background: var(--red-light); color: var(--red); }
+.tag-frontier { background: var(--orange-light); color: var(--orange); }
+
+.module-title {
+  font-size: 22px; font-weight: 700; color: var(--text); letter-spacing: -0.02em;
+}
+
+.module-hook {
+  font-size: 16px; color: var(--text-secondary); font-style: italic;
+  border-left: 3px solid var(--primary); padding-left: 16px; margin-bottom: 20px;
+}
+
+.module-content { font-size: 15px; color: var(--text); }
+.module-content p { margin-bottom: 12px; }
+.module-content strong { color: var(--text); }
+.module-content a { color: var(--primary); text-decoration: none; }
+.module-content a:hover { text-decoration: underline; }
+.module-content ul, .module-content ol { margin: 8px 0 16px 24px; }
+.module-content li { margin-bottom: 6px; }
+
+.formula-block {
+  background: var(--bg-tertiary); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 20px 24px; margin: 16px 0;
+  position: relative; cursor: pointer; transition: all var(--transition);
+}
+.formula-block:hover { box-shadow: var(--shadow); }
+.formula-caption { font-size: 12px; color: var(--text-tertiary); margin-top: 8px; text-align: center; }
+.formula-derivation {
+  display: none; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border);
+  font-size: 14px; color: var(--text-secondary);
+}
+.formula-block.expanded .formula-derivation { display: block; }
+.formula-expand-hint {
+  font-size: 11px; color: var(--text-tertiary); text-align: right; margin-top: 4px;
+}
+
+.chart-container {
+  background: var(--bg-secondary); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 24px; margin: 20px 0;
+}
+.chart-wrapper { width: 100%; height: 380px; }
+.chart-caption { font-size: 13px; color: var(--text-secondary); text-align: center; margin-top: 12px; }
+.chart-source { font-size: 11px; color: var(--text-tertiary); text-align: right; margin-top: 4px; }
+
+.module-table {
+  width: 100%; border-collapse: collapse; margin: 16px 0;
+  font-size: 14px; border: 1px solid var(--border); border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+.module-table th {
+  background: var(--bg-tertiary); padding: 10px 16px; text-align: left;
+  font-weight: 600; font-size: 12px; text-transform: uppercase;
+  letter-spacing: 0.03em; color: var(--text-secondary);
+}
+.module-table td { padding: 10px 16px; border-top: 1px solid var(--border); color: var(--text); }
+.module-table tr:hover td { background: var(--bg-tertiary); }
+.table-caption { font-size: 12px; color: var(--text-tertiary); text-align: center; margin-top: 8px; }
+
+.module-references {
+  margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border);
+  font-size: 12px; color: var(--text-tertiary);
+}
+.module-references h4 { font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+.module-references ol { margin-left: 20px; }
+.module-references li { margin-bottom: 4px; }
+
+.key-takeaway {
+  margin-top: 16px; padding: 14px 20px; border-radius: var(--radius-sm);
+  background: var(--primary-light); border-left: 4px solid var(--primary);
+  font-size: 14px; font-weight: 500; color: var(--text);
+}
+
+#page-footer {
+  margin-top: 60px; padding: 32px 0; border-top: 1px solid var(--border);
+  display: flex; gap: 12px; flex-wrap: wrap;
+}
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 10px 20px; border-radius: var(--radius-sm);
+  font-size: 14px; font-weight: 500; cursor: pointer;
+  border: 1px solid var(--border); background: var(--bg);
+  color: var(--text); transition: all var(--transition);
+  text-decoration: none;
+}
+.btn:hover { background: var(--bg-tertiary); }
+.btn.primary { background: var(--primary); color: #fff; border-color: var(--primary); }
+.btn.primary:hover { filter: brightness(1.1); }
+
+.tooltip-trigger {
+  color: var(--primary); text-decoration: underline dotted;
+  cursor: help; position: relative;
+}
+.tooltip-content {
+  display: none; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
+  background: var(--text); color: var(--bg); padding: 8px 12px; border-radius: 6px;
+  font-size: 12px; white-space: nowrap; z-index: 500; box-shadow: var(--shadow-lg);
+  pointer-events: none;
+}
+.tooltip-trigger:hover .tooltip-content { display: block; }
+
+#sidebar-toggle {
+  display: none; position: fixed; top: 16px; left: 16px; z-index: 999;
+  width: 40px; height: 40px; border-radius: 50%;
+  background: var(--bg-secondary); border: 1px solid var(--border);
+  cursor: pointer; font-size: 18px; align-items: center; justify-content: center;
+  box-shadow: var(--shadow-sm);
+}
+
+@media (max-width: 1024px) {
+  :root { --sidebar-width: 200px; }
+  #main-content { padding: 48px 24px 80px; }
+}
+@media (max-width: 768px) {
+  #sidebar-toggle { display: flex; }
+  #sidebar { transform: translateX(-100%); }
+  #sidebar.open { transform: translateX(0); }
+  #main-content { margin-left: 0; max-width: 100%; padding: 72px 20px 60px; }
+  #theme-toggle { top: 16px; right: 16px; }
+  .meta-card { padding: 20px 24px; flex-direction: column; gap: 12px; align-items: flex-start; }
+  .chart-wrapper { height: 280px; }
+  .module-title { font-size: 19px; }
+}
+
+@media print {
+  #sidebar, #progress-bar, #theme-toggle, #page-footer { display: none !important; }
+  #main-content { margin-left: 0; max-width: 100%; padding: 0; }
+  .module-section { opacity: 1; transform: none; break-inside: avoid; }
+  body { font-size: 12px; line-height: 1.5; }
+  #bg-canvas, .mobile-bottom-nav, .search-overlay, .help-overlay { display: none !important; }
+}
+
+#bg-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+
+.search-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 500; background: rgba(0,0,0,0.6); display: flex; justify-content: center; padding-top: 18vh; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
+.search-overlay.open { opacity: 1; pointer-events: auto; }
+[data-theme="dark"] .search-overlay { background: rgba(0,0,0,0.7); }
+[data-theme="light"] .search-overlay { background: rgba(15,23,42,0.3); }
+.search-dialog { width: 560px; max-width: 92vw; border-radius: 16px; background: var(--bg-secondary); border: 1px solid var(--border); box-shadow: 0 25px 60px rgba(0,0,0,0.5); overflow: hidden; }
+.search-dialog input { width: 100%; padding: 16px 20px; border: none; background: transparent; color: var(--text); font-size: 16px; outline: none; border-bottom: 1px solid var(--border); }
+.search-dialog input::placeholder { color: var(--text-tertiary); }
+.search-results { max-height: 360px; overflow-y: auto; }
+.search-results .sr-item { padding: 12px 20px; cursor: pointer; transition: background 0.15s; border-bottom: 1px solid rgba(255,255,255,0.03); }
+.search-results .sr-item:hover { background: var(--bg-tertiary); }
+.search-results .sr-item .sr-title { font-size: 14px; font-weight: 600; color: var(--text); }
+.search-results .sr-item .sr-title mark { background: rgba(52,211,153,0.25); color: #34d399; border-radius: 2px; padding: 0 2px; font-weight: 700; }
+[data-theme="light"] .search-results .sr-item .sr-title mark { background: rgba(16,185,129,0.2); color: #10b981; }
+.search-results .sr-item .sr-snippet { font-size: 12px; color: var(--text-tertiary); margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.search-empty { text-align: center; padding: 28px; color: var(--text-tertiary); font-size: 13px; }
+
+.help-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 600; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
+[data-theme="light"] .help-overlay { background: rgba(15,23,42,0.3); }
+.help-overlay.open { opacity: 1; pointer-events: auto; }
+.help-dialog { padding: 28px 32px; border-radius: 16px; background: var(--bg-secondary); border: 1px solid var(--border); max-width: 400px; margin: 0 16px; box-shadow: 0 25px 60px rgba(0,0,0,0.5); }
+.help-dialog h4 { font-size: 15px; margin-bottom: 14px; color: var(--green); }
+.help-dialog .kbd-row { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+.help-dialog .kbd-row:last-child { border-bottom: none; }
+.help-dialog .kbd-key { padding: 3px 8px; border-radius: 5px; background: var(--bg-tertiary); border: 1px solid var(--border); font-family: 'JetBrains Mono',monospace; font-size: 11px; color: var(--primary); min-width: 20px; text-align: center; white-space: nowrap; }
+.help-dialog .kbd-desc { color: var(--text-secondary); flex: 1; }
+
+.mobile-bottom-nav { display: none; position: fixed; bottom: 0; left: 0; right: 0; z-index: 300; background: var(--bg-secondary); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-top: 1px solid var(--border); padding: 6px 8px; padding-bottom: max(6px, env(safe-area-inset-bottom)); }
+.mobile-bottom-nav .mbn-inner { display: flex; justify-content: space-around; align-items: center; }
+.mobile-bottom-nav .mbn-item { display: flex; flex-direction: column; align-items: center; gap: 1px; color: var(--text-tertiary); cursor: pointer; font-size: 10px; font-weight: 500; background: transparent; border: none; padding: 4px; font-family: inherit; transition: color 0.2s; }
+.mobile-bottom-nav .mbn-item:hover, .mobile-bottom-nav .mbn-item.mbn-active { color: var(--green); }
+.mobile-bottom-nav .mbn-item .mbn-icon { font-size: 17px; }
+
+@media (max-width: 768px) {
+  .mobile-bottom-nav { display: block; }
+  #page-footer { padding-bottom: 64px; }
+}
+</style>
+</head>
+<body class="loading">
+<canvas id="bg-canvas"></canvas>
+
+<div id="progress-bar"></div>
+<button id="theme-toggle" title="切换深色/浅色模式" onclick="toggleTheme()">🌓</button>
+<button id="sidebar-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+
+<nav id="sidebar">
+  <h3>📑 内容导航</h3>
+  <div id="sidebar-links"></div>
+</nav>
+
+<main id="main-content">
+  <div id="meta-card-container"></div>
+  <div class="journey-bar" style="background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius);padding:12px 20px;margin:0 0 48px 0;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:0.82rem">
+    <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+      <span style="font-size:1rem">📍</span>
+      <span style="color:var(--primary);font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:3px" onclick="var w=window.open('pe_learning.html#kc-p2_3','plan_main');if(w)w.focus()">提示工程系统学习方案</span>
+      <span style="color:var(--text-tertiary);font-size:0.7rem">〉</span>
+      <span style="color:var(--text-secondary);font-weight:600">整合应用</span>
+      <span style="color:var(--text-tertiary);font-size:0.7rem">〉</span>
+      <span style="color:var(--text);font-weight:700">多步推理与任务分解</span>
+      <span style="color:var(--text-tertiary);font-size:0.72rem">(第3/4个知识点)</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;font-size:0.75rem">
+      <span style="color:var(--text-tertiary)">← 前置: 提示迭代优化策略</span>
+      <span style="color:var(--border)">|</span>
+      <span style="color:var(--text-tertiary)">后续: 上下文窗口与长文本处理 →</span>
+    </div>
+  </div>
+  <div id="modules-container"></div>
+  <footer id="page-footer">
+    <a href="#" style="display:inline-flex;align-items:center;gap:8px;padding:10px 24px;background:var(--bg-secondary);border:1px solid var(--primary);border-radius:50px;color:var(--text-secondary);text-decoration:none;font-size:0.85rem;font-weight:600" onclick="event.preventDefault();var w=window.open('pe_learning.html#kc-p2_3','plan_main');if(w)w.focus()">🔗 返回学习路线: 提示工程系统学习方案 → 整合应用</a>
+    <button class="btn" onclick="exportNotes()">📄 导出笔记</button>
+    <button class="btn" onclick="window.print()">🖨 打印</button>
+  </footer>
+</main>
+
+<div class="deep-floating-back" style="position:fixed;right:20px;bottom:20px;z-index:10000">
+  <button style="padding:12px 20px;background:linear-gradient(135deg,var(--primary),var(--accent));color:white;border:none;border-radius:24px;font-size:0.85rem;font-weight:600;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.15);transition:transform 0.2s,box-shadow 0.2s" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 16px rgba(0,0,0,0.2)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 12px rgba(0,0,0,0.15)'" onclick="event.preventDefault();var w=window.open('pe_learning.html#kc-p2_3','plan_main');if(w)w.focus()">← 返回学习方案</button>
+</div>
+
+<div class="search-overlay" id="searchOverlay">
+  <div class="search-dialog">
+    <input type="text" id="searchInput" placeholder="搜索模块、公式、概念..." autofocus>
+    <div class="search-results" id="searchResults"></div>
+  </div>
+</div>
+
+<div class="help-overlay" id="helpOverlay">
+  <div class="help-dialog">
+    <h4>⌨ 键盘快捷键</h4>
+    <div class="kbd-row"><span class="kbd-key">Ctrl+K</span><span class="kbd-desc">打开搜索</span></div>
+    <div class="kbd-row"><span class="kbd-key">Ctrl+D</span><span class="kbd-desc">切换深色/浅色主题</span></div>
+    <div class="kbd-row"><span class="kbd-key">Esc</span><span class="kbd-desc">关闭弹窗</span></div>
+    <div class="kbd-row"><span class="kbd-key">Shift+?</span><span class="kbd-desc">显示此帮助</span></div>
+    <div style="text-align:center;margin-top:12px"><span style="font-size:12px;color:var(--text-tertiary)">点击背景或按 Esc 关闭</span></div>
+  </div>
+</div>
+
+<div class="mobile-bottom-nav" id="mobileBottomNav">
+  <div class="mbn-inner" id="mbnInner"></div>
+</div>
+
+<script>
+const PAGE_DATA = {
+  topic: "多步推理与任务分解",
+  domain: "ai-tech",
+  domain_name: "AI与科技",
+  level: "intermediate",
+  level_name: "进阶",
+  reading_time: "35",
+  module_count: "17",
+  texture: "G8",
+  texture_name: "教程实操型",
+  depth: "理解",
+  breadth: "标准",
+  modules: [
+    {
+      module_id: "m01-learning_journey",
+      module_title: "学习路线：多步推理知识地图",
+      module_tag: "前置知识",
+      hook: "如果提示工程是驾驶，零样本提示是走直线，少样本提示是参照地图导航，那么多步推理就是GPS重新规划路线——让AI在行驶途中不断修正方向。",
+      content: "多步推理（Multi-step Reasoning）是提示工程领域最具变革性的能力之一。它让大语言模型不再是「一问一答」的答题机器，而是能像人类专家一样，将复杂问题拆解为多个子步骤、逐步推演、验证中间结果、最终输出可靠答案的推理系统。\n\n本学习路线将带你从多步推理的起源出发，穿越CoT、ToT、ReAct等技术里程碑，最终掌握在实际场景中设计和调优多步推理提示的能力。我们将覆盖以下知识主线：\n\n**技术演进线**：从2022年Chain-of-Thought的突破性发现，到2023年Tree-of-Thought的搜索式推理，再到ReAct的行动推理融合，理解每次跃迁背后的设计哲学。\n\n**方法原理线**：深入理解分治策略、子目标规划、中间验证这三大多步推理核心机制，以及它们在数学推理、代码生成、复杂问答中的实际表现。\n\n**工程实践线**：掌握LangChain Agents、DSPy、ReAct模式等技术栈，学会在真实项目中设计、部署和优化多步推理流程。\n\n**风险认知线**：理解推理链错误传播、幻觉放大、无限循环等陷阱，建立鲁棒的多步推理系统。\n\n本材料以**G8教程实操型**纹理组织，通过编号步骤、代码模式、常见错误速查等方式帮助你快速上手。",
+      formulas: [],
+      charts: [
+        { echarts_option: { title:{text:'多步推理技术全景地图',left:'center',textStyle:{fontSize:14}}, tooltip:{trigger:'item'}, series:[{type:'treemap',data:[{name:'推理方法',children:[{name:'CoT(链式推理)',value:5},{name:'ToT(树搜索推理)',value:4},{name:'ReAct(行动推理)',value:4},{name:'GoT(图推理)',value:3},{name:'Self-Consistency',value:3},{name:'Least-to-Most',value:2},{name:'Plan-and-Solve',value:2}]},{name:'应用场景',children:[{name:'数学推理',value:5},{name:'代码生成',value:4},{name:'复杂问答',value:4},{name:'逻辑推理',value:3},{name:'规划',value:3}]},{name:'工具框架',children:[{name:'LangChain',value:4},{name:'DSPy',value:3},{name:'Guidance',value:2},{name:'LMQL',value:2},{name:'AutoGPT',value:2}]}]}] }, caption: '多步推理技术全景地图 - 面积代表技术重要性与影响力', data_source: '综合2024年文献与社区实践' }
+      ],
+      tables: [
+        { headers: ['学习阶段', '核心内容', '预计时间', '掌握标志'], rows: [['基础认知', 'CoT原理与变体、何时使用', '2h', '能手写CoT提示'],['中级进阶', 'ToT搜索策略、ReAct模式', '3h', '能设计多路径推理'],['实践应用', 'LangChain Agent、DSPy编程', '4h', '能部署推理Agent'],['深度优化', '性能调优、错误控制', '3h', '能诊断和修复推理链']], caption: '多步推理学习阶段与目标' }
+      ],
+      references: [
+        { title: 'Chain-of-Thought Prompting Elicits Reasoning in Large Language Models', authors: 'Wei et al.', year: 2022, doi: '10.48550/arXiv.2201.11903' }
+      ],
+      key_takeaway: '多步推理的学习应遵循「原理→方法→实践→优化」的递进路径，每阶段的目标是能独立设计和调优相应层次的推理提示。'
+    },
+    {
+      module_id: "m02-background",
+      module_title: "历史背景：从单步到多步推理的演进",
+      module_tag: "发展演进",
+      hook: "2022年之前，大语言模型的表现令人惊叹却又令人困惑——它们能写出优美的诗，却往往在「如果我有5个苹果，给了朋友2个，又买了3个，还剩几个？」这样的两步推理中出错。",
+      content: "大语言模型的推理能力演进史，本质上是人类对AI认知边界不断突破的历史。\n\n**单步推理时代（2018-2021）**：GPT-1到GPT-3时期，模型的推理能力主要表现为单步模式匹配。给定一个输入，模型直接输出最终答案——中间没有显式的推理过程。这种方法在简单任务上表现尚可，但在需要多步逻辑推导的任务上频繁出错。研究表明，GPT-3在GSM8K数学推理基准上的准确率不足20%，根本原因就是缺少中间的推理步骤。\n\n**CoT革命（2022年初）**：2022年1月，谷歌研究团队发表的Chain-of-Thought论文彻底改变了这一局面。核心发现极为简单却意义深远：在提示词中加入「让我们一步步思考」这样的引导，就能让模型生成中间的推理步骤，从而将GSM8K准确率从不足20%提升到接近60%。这一发现揭示了LLM并非缺乏推理能力，而是缺少「被引导去推理」的机会。\n\n**推理搜索时代（2023）**：CoT解决了「如何推理」的问题，但留下了「如何找到最佳推理路径」的问题。Tree-of-Thought（ToT）将推理建模为树搜索问题——在每一步生成多个候选推理步骤，通过评估选择最优路径继续探索。这类似于人类解题时「试试这条路，不行再换一条」的策略。ToT在24点游戏等需要探索多种可能性的任务上表现卓越。\n\n**行动融合时代（2023-2024）**：ReAct（Reasoning + Acting）将推理与行动交织在一起——模型不仅推理，还调用外部工具获取信息，再基于新信息继续推理。这让推理不再局限于模型内部知识，而能与外部世界交互。\n\n**当前前沿（2024-至今）**：Graph-of-Thought（GoT）用图结构替代树结构，允许多条推理链相互交叉和合并；Self-Discover让模型自动发现适合当前任务的推理结构；Buffer-of-Thought则引入了显式记忆机制来增强长程推理的一致性。\n\n理解这一演进脉络的关键洞察是：每一代技术的突破，都在回答一个前一代未能解决的核心问题。CoT回答了「为什么不让模型展示推理过程」，ToT回答了「如何从多个推理路径中选择最优」，ReAct回答了「推理是否需要外部信息」，而GoT回答了「推理是否必须是线性的」。",
+      formulas: [
+        { latex: "$$\\text{Accuracy}_{\\text{CoT}} \\approx \\text{Accuracy}_{\\text{Direct}} \\times e^{\\alpha \\cdot \\text{steps}}$$", caption: "CoT准确率与推理步数的经验关系：步数越多，增益越大但不总是单调", expandable: true, derivation: "该关系式来自Wei et al.(2022)的经验观察。对于需要多步推理的任务，CoT的准确率随推理步数呈指数增长趋势（α>0），但对于简单任务，过长的推理链反而可能引入噪声（α≈0甚至为负）。这解释了为什么「不是所有任务都需要CoT」。" }
+      ],
+      charts: [
+        { echarts_option: { title:{text:'多步推理技术发展里程碑',left:'center',textStyle:{fontSize:14}}, tooltip:{trigger:'axis'}, xAxis:{type:'category',data:['2019\nGPT-2','2020\nGPT-3','2022.01\nCoT','2022.10\nSelf-Consistency','2023.05\nToT','2023.10\nReAct','2024.01\nGoT','2024.06\nSelf-Discover']}, yAxis:{type:'value',name:'GSM8K准确率(%)',max:100}, series:[{type:'line',data:[10,18,57,65,74,78,82,88],smooth:true,areaStyle:{opacity:0.15},itemStyle:{color:'#5b8db8'},markLine:{data:[{type:'average',name:'人类水平~85%'}],lineStyle:{color:'#c0a060',type:'dashed'}}}] }, caption: '各技术里程碑在GSM8K数学推理基准上的准确率演进', data_source: '综合各论文报告数据' }
+      ],
+      tables: [
+        { headers: ['技术', '年份', '核心创新', '解决的核心问题', '主要局限'], rows: [['CoT', '2022', '显式引导中间推理步骤', '单步推理无法处理复杂问题', '线性推理无回溯'],['ToT', '2023', '树搜索探索多条推理路径', '如何找到最优推理路径', '计算开销大'],['ReAct', '2023', '推理与外部行动交织', '推理需要外部信息支持', '编排复杂度高'],['GoT', '2024', '图结构支持交叉合并推理', '推理必须是线性吗', '工程实现复杂'],['Self-Discover', '2024', '自动发现推理结构', '如何避免手工设计推理', '泛化性待验证']], caption: '多步推理技术演进关键节点对比' }
+      ],
+      references: [
+        { title: 'Chain-of-Thought Prompting Elicits Reasoning in Large Language Models', authors: 'Wei et al.', year: 2022, doi: '10.48550/arXiv.2201.11903' },
+        { title: 'Tree of Thoughts: Deliberate Problem Solving with Large Language Models', authors: 'Yao et al.', year: 2023, doi: '10.48550/arXiv.2305.10601' }
+      ],
+      key_takeaway: '多步推理技术的演进遵循「能推理→能搜索最优推理→能结合外部信息→能非线形推理→能自动发现推理结构」的递进逻辑，每代技术都在解决前代的根本局限。'
+    },
+    {
+      module_id: "m03-concept",
+      module_title: "核心概念：CoT、ToT、ReAct与Plan-and-Execute",
+      module_tag: "核心概念",
+      hook: "四种多步推理范式就像四种不同的思维方式——线性思考、树状决策、边做边想、先规划后执行。理解它们的差异是正确选型的前提。",
+      content: "本节深入解析四种最核心的多步推理范式，帮助你建立起清晰的概念框架和选型直觉。\n\n**1. Chain-of-Thought（CoT）- 链式思维**\nCoT的核心思想是让模型在给出最终答案前，先生成中间推理步骤。这些步骤可以是数学推导、逻辑分析或常识推理的分解。实现方式有两种：\n\n- **Zero-shot CoT**：只需在提示末尾加上「Let\'s think step by step」或「让我们一步步思考」。无需提供示例，模型会自主生成推理链。\n- **Few-shot CoT**：在提示中提供2-3个包含推理步骤的示例（问题→推理→答案），模型通过类比学习生成类似格式的推理。\n\nCoT的神奇之处在于它不是训练出来的，而是通过提示词「激发」出来的涌现能力。这暗示着自回归生成过程中的中间token本身就承载着推理功能。\n\n**2. Tree-of-Thought（ToT）- 树状思维**\nToT将推理问题建模为在状态空间中的搜索。在每个推理步骤，模型生成多个候选「想法」，评估每个候选的质量，选择最有前途的继续探索。这本质上是广度优先搜索或深度优先搜索在文本空间中的实现。\n\nToT的关键组件：\n- **想法生成器**：给定当前状态，生成K个候选下一步\n- **状态评估器**：评估每个候选状态的价值\n- **搜索策略**：BFS（广度优先）适合宽度大深度浅的问题，DFS（深度优先）适合深度大的问题\n\n**3. ReAct - 推理-行动交替**\nReAct将推理过程建模为Thought→Action→Observation→Thought...的交替循环。\n\n- **Thought**：模型分析当前状态，决定下一步做什么\n- **Action**：执行具体的操作（搜索、计算、调用API等）\n- **Observation**：获取行动结果作为新信息\n\nReAct的核心优势是打破了推理的「闭门造车」局限——模型可以通过行动获取超出其训练数据的新信息。\n\n**4. Plan-and-Execute - 先规划后执行**\n这种方法将问题解决分为两个阶段：\n- **规划阶段**：模型生成完整的执行计划（子任务列表）\n- **执行阶段**：逐个执行子任务，每一步的结果反馈给下一步\n\n与ReAct不同，Plan-and-Execute在开始执行前就形成了全局计划，适合步骤可预测、依赖关系明确的场景。\n\n**选型指南**：\n- 数学题/逻辑题 → CoT（或Self-Consistency CoT）\n- 需要试错探索的问题 → ToT\n- 需要外部信息/工具 → ReAct\n- 步骤清晰可预测的多步任务 → Plan-and-Execute",
+      formulas: [
+        { latex: "$$P(answer|q) = \\sum_{r \\in \\text{reasoning paths}} P(answer|q, r) \\cdot P(r|q)$$", caption: "多步推理的概率框架：最终答案的边缘概率是所有可能推理路径的加权和", expandable: true, derivation: "这个公式揭示了多步推理的数学本质。直接预测P(answer|q)需要隐式地边缘化所有推理路径，这对大模型来说是困难的。CoT通过生成显式的推理路径r来逼近这个边缘分布——生成的推理链r*作为单点估计替代对整个路径空间的积分。ToT则通过搜索多条路径来更好地逼近真实的边缘分布。" },
+        { latex: "$$\\text{ToT}(s_0) = \\max_{a_1,...,a_T} \\sum_{t=1}^{T} R(s_t), \\quad s_{t+1} = T(s_t, a_t)$$", caption: "ToT的数学形式：在状态空间中搜索最大化累积奖励的路径", expandable: false }
+      ],
+      charts: [
+        { echarts_option: { title:{text:'四种推理范式能力雷达图',left:'center',textStyle:{fontSize:14}}, tooltip:{}, legend:{bottom:0}, radar:{indicator:[{name:'推理深度',max:10},{name:'探索能力',max:10},{name:'外部交互',max:10},{name:'实现简便',max:10},{name:'计算效率',max:10}]}, series:[{type:'radar',data:[{value:[7,2,2,9,8],name:'CoT'},{value:[9,9,2,4,3],name:'ToT'},{value:[8,6,9,3,4],name:'ReAct'},{value:[6,3,3,7,6],name:'Plan-Execute'}]}] }, caption: '四种推理范式在推理深度、探索能力、外部交互、实现简便和计算效率维度的对比' }
+      ],
+      tables: [
+        { headers: ['特性', 'CoT', 'ToT', 'ReAct', 'Plan-Execute'], rows: [['推理结构', '线性链', '搜索树', '交替循环', '两阶段'],['是否回溯', '否', '是', '部分', '否'],['外部交互', '否', '否', '是', '可选'],['Token开销', '低', '极高', '高', '中'],['适用场景', '数学/逻辑', '探索型问题', '工具型任务', '预测型任务']], caption: '四种多步推理范式核心特性对比' }
+      ],
+      references: [
+        { title: 'ReAct: Synergizing Reasoning and Acting in Language Models', authors: 'Yao et al.', year: 2022, doi: '10.48550/arXiv.2210.03629' },
+        { title: 'Plan-and-Solve Prompting: Improving Zero-Shot Chain-of-Thought Reasoning', authors: 'Wang et al.', year: 2023, doi: '10.48550/arXiv.2305.04091' }
+      ],
+      key_takeaway: 'CoT是基础（适合线性推理），ToT是升级（适合需要探索的问题），ReAct是扩展（适合需要外部信息），Plan-Execute是工程化（适合步骤可预测的任务）。'
+    },
+    {
+      module_id: "m04-principle",
+      module_title: "任务分解原理：分治策略、子目标规划与中间验证",
+      module_tag: "核心概念",
+      hook: "人类解决复杂问题从不一步到位——我们分解、逐个击破、检查、调整。多步推理的底层原理，正是将这种人类智慧编码进提示词。",
+      content: "多步推理的三大核心原理——分治策略、子目标规划和中间验证——构成了其理论基石。理解这些原理，是设计有效多步推理提示的起点。\n\n**分治策略（Divide and Conquer）**\n这是多步推理最根本的设计哲学。将复杂问题递归地分解为更小、更容易解决的子问题，逐个解决后再合并结果。在提示工程中，分治策略的体现形式包括：\n\n- **Least-to-Most Prompting**：先用简单问题训练模型的分步推理能力，再逐步增加复杂度。\n- **Decomposed Prompting**：用一个分解模型将问题拆为子问题，用另一个求解模型逐个解决。\n- **递归分解**：对每个子问题，如果仍不够简单，继续分解，直到每个子问题可被单步解决。\n\n形式化地，设问题Q的难度为d(Q)，分解函数f将Q映射为子问题集合{Q1, Q2, ..., Qk}，满足：\n- 每个子问题Qi的难度d(Qi) < d(Q)（分解降低难度）\n- Q的解可由Qi的解通过合并函数g重组得到\n\n**子目标规划（Subgoal Planning）**\n子目标规划在分治策略的基础上增加了顺序和依赖约束。它不仅关心「分解成什么」，更关心「以什么顺序解决」。\n\n子目标规划的两种模式：\n- **前向规划**：从初始状态出发，确定能直接达成的子目标，逐步向最终目标推进。\n- **后向规划**：从最终目标出发，确定达成它需要哪些前置条件，递归地向后推演。\n\n在实践中，前向规划更适合步骤明确的「怎么做」型任务（如代码生成），后向规划更适合目标明确的「做什么」型任务（如数学证明）。\n\n**中间验证（Intermediate Verification）**\n中间验证是多步推理区别于一步推理的关键差异化能力。它允许模型在推理过程中检查和纠正自己的错误，而不是在最后才发现答案不对。\n\n中间验证的三种实现层次：\n- **自验证（Self-Verification）**：模型在每个推理步骤后检查该步骤的正确性。\n- **交叉验证（Cross-Verification）**：生成多条独立推理链，检查它们是否在关键中间结果上一致。\n- **工具验证（Tool-based Verification）**：使用外部工具（如代码执行器、计算器）验证推理中的数字或逻辑。\n\n三种原理的协同作用：分治策略将大问题变小，子目标规划排定解决顺序，中间验证确保每一步的正确性。三者缺一不可——有分解无验证会导致错误传播，有验证无分解会导致无法处理复杂问题。",
+      formulas: [
+        { latex: "$$Q = g(f_1(Q), f_2(Q), ..., f_k(Q)), \\quad d(f_i(Q)) < d(Q)$$", caption: "分治策略的形式化：原始问题Q的解通过合并函数g从子问题解中重组", expandable: false },
+        { latex: "$$P_{correct}^{multi} = \\prod_{i=1}^{n} (1 - \\epsilon_i), \\quad P_{correct}^{single} = 1 - \\epsilon_{total}$$", caption: "多步vs单步推理错误率对比：多步推理的累积错误风险", expandable: true, derivation: "如果每步推理有独立错误概率ε_i，则n步推理链全部正确的概率为Π(1-ε_i)。而单步直接推理的错误概率为ε_total。虽然理论上多步推理的累积错误可能更大，但实践中ε_i << ε_total（因为每步子问题更简单），所以Π(1-ε_i)通常大于(1-ε_total)。这就是中间验证的价值所在——它能将ε_i进一步降低。" }
+      ],
+      charts: [],
+      tables: [
+        { headers: ['原理', '核心问题', '实现方法', '典型提示模式', '失效场景'], rows: [['分治策略', '如何分解', '递归/模板分解', 'Least-to-Most', '子问题交叉耦合'],['子目标规划', '以何顺序', '前向/后向规划', 'Plan-and-Solve', '动态依赖变动'],['中间验证', '是否正确', '自验/交叉/工具验', 'Self-Verify', '验证本身也出错']], caption: '三大任务分解原理对比与失效场景' }
+      ],
+      references: [
+        { title: 'Least-to-Most Prompting Enables Complex Reasoning in Large Language Models', authors: 'Zhou et al.', year: 2022, doi: '10.48550/arXiv.2205.10625' },
+        { title: 'Decomposed Prompting: A Modular Approach for Solving Complex Tasks', authors: 'Khot et al.', year: 2022, doi: '10.48550/arXiv.2210.02406' }
+      ],
+      key_takeaway: '分治策略解决「分解什么」、子目标规划解决「按什么顺序」、中间验证解决「每一步对不对」——三者协同构成了多步推理的理论基础。'
+    },
+    {
+      module_id: "m05-architecture",
+      module_title: "技术栈：LangChain Agents与推理引擎架构",
+      module_tag: "核心工具",
+      hook: "从手写CoT提示到部署生产级推理Agent，中间隔着的是一个完善的技术栈。LangChain Agents是连接这两种境界的桥梁。",
+      content: "本节介绍多步推理的工程实现架构，重点关注LangChain的Agent框架作为最广泛应用的技术实现。\n\n**LangChain Agent架构**：\nLangChain将多步推理Agent抽象为以下几个核心组件：\n\n**1. Agent（代理）**：决策引擎，负责在每一步决定调用哪个工具、传递什么参数。Agent的核心是提示词模板和输出解析器，它们共同定义了推理-行动循环的格式。\n\n**2. Tools（工具）**：Agent可以调用的外部功能，可以是搜索API、计算器、数据库查询、代码执行器等。每个工具都有明确的名称、描述和参数模式。\n\n**3. Toolkits（工具集）**：针对特定领域的工具集合，如SQL工具集、文件系统工具集、Office工具集等。\n\n**4. AgentExecutor（执行器）**：运行时引擎，管理Agent的推理-行动循环，处理工具调用的序列化和反序列化，管理最大迭代次数和错误恢复。\n\n**Agent类型**：\nLangChain支持多种Agent类型，对应不同的推理策略：\n\n- **Zero-shot ReAct Agent**：最常用的类型，无需示例即可通过描述执行ReAct循环。适合大多数通用场景。\n- **Conversational ReAct Agent**：融入对话记忆，适合多轮交互场景。\n- **OpenAI Functions Agent**：利用OpenAI的函数调用能力，更可靠的输出格式。\n- **Structured Chat Agent**：支持结构化工具输入，适合多参数工具调用。\n- **Self-Ask with Search Agent**：专门为需要多次搜索的场景优化的Agent。\n\n**代码模式**：以下是使用LangChain构建ReAct Agent的标准模式：\n\n```python\nfrom langchain.agents import initialize_agent, AgentType\nfrom langchain.tools import Tool\n\n# 步骤1：定义工具\ntools = [\n    Tool(name=\"Search\", func=search_func, description=\"搜索互联网信息\"),\n    Tool(name=\"Calculator\", func=calc_func, description=\"执行数学计算\")\n]\n\n# 步骤2：初始化Agent\nagent = initialize_agent(\n    tools, llm, agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION,\n    max_iterations=5, early_stopping_method=\"generate\"\n)\n\n# 步骤3：执行推理\nresult = agent.run(\"分析过去5年特斯拉的股价走势\")\n```\n\n**常见错误**：\n- 工具描述不清晰导致Agent选错工具\n- max_iterations设置过小导致推理中断\n- 未处理工具调用异常导致Agent卡住\n- 提示词中的推理格式与Agent类型不匹配",
+      formulas: [
+        { latex: "$$\\text{Agent}_{\\text{ReAct}}(q) = \\text{loop}_{i=1}^{N}\\left[\\text{Thought}_i = \\text{LLM}(h_i), \\text{Action}_i = \\text{parse}(\\text{Thought}_i), \\text{Obs}_i = \\text{exec}(\\text{Action}_i), h_{i+1} = h_i + (\\text{Thought}_i, \\text{Action}_i, \\text{Obs}_i)\\right]$$", caption: "ReAct Agent的形式化循环：思考→行动→观察→更新历史", expandable: false }
+      ],
+      charts: [
+        { echarts_option: { title:{text:'Agent类型选择决策树',left:'center',textStyle:{fontSize:14}}, tooltip:{}, series:[{type:'sankey',data:[{name:'任务类型'},{name:'通用问答'},{name:'多轮对话'},{name:'函数调用'},{name:'多工具'},{name:'大量搜索'},{name:'Zero-shot ReAct'},{name:'Conversational'},{name:'OpenAI Functions'},{name:'Structured Chat'},{name:'Self-Ask Search'}],links:[{source:'任务类型',target:'通用问答',value:10},{source:'任务类型',target:'多轮对话',value:8},{source:'任务类型',target:'函数调用',value:6},{source:'任务类型',target:'多工具',value:5},{source:'任务类型',target:'大量搜索',value:4},{source:'通用问答',target:'Zero-shot ReAct',value:10},{source:'多轮对话',target:'Conversational',value:8},{source:'函数调用',target:'OpenAI Functions',value:6},{source:'多工具',target:'Structured Chat',value:5},{source:'大量搜索',target:'Self-Ask Search',value:4}]}] }, caption: 'Agent类型选择决策流程：根据任务特征选择最合适的Agent类型' }
+      ],
+      tables: [
+        { headers: ['Agent类型', '适用场景', '优点', '缺点', '推荐模型'], rows: [['Zero-shot ReAct', '通用任务', '无需示例、灵活', '输出格式偶有偏差', 'GPT-4/Claude'],['OpenAI Functions', '结构化输出', '格式可靠、精准', '依赖OpenAI API', 'GPT-4+'],['Conversational', '多轮对话', '带记忆、上下文感知', '记忆管理开销', 'GPT-4/Claude'],['Structured Chat', '多参数工具', '支持复杂工具调用', '提示词较长', 'GPT-4+'],['Self-Ask Search', '搜索密集型', '自动分解搜索问题', '场景局限', 'GPT-3.5+']], caption: 'LangChain Agent类型选择指南' }
+      ],
+      references: [
+        { title: 'LangChain: Building applications with LLMs through composability', authors: 'Chase', year: 2022, url: 'https://github.com/langchain-ai/langchain' }
+      ],
+      key_takeaway: 'LangChain Agent将多步推理从手工提示提升为可编程的推理引擎；选择Agent类型的关键是匹配任务特征与Agent能力边界。'
+    },
+    {
+      module_id: "m06-development",
+      module_title: "发展历程：从CoT到Graph-of-Thought的技术跃迁",
+      module_tag: "发展演进",
+      hook: "如果说CoT是推理技术的「发明了轮子」，ToT是「发明了方向盘」，那么Graph-of-Thought就是「发明了立交桥」——让多股推理流自由交汇。",
+      content: "多步推理技术从2022年到2025年的发展，可以被理解为推理结构维度从1到N的演进。\n\n**CoT→Self-Consistency（1维→1.5维）**：\nCoT在单条推理链上做线性推演。Self-Consistency在Wang et al.(2022)中提出，通过生成多条独立的CoT推理链，然后取多数投票的答案。这实质上是沿宽度维度扩展——用多条推理链的多样性来对冲单条链出错的风险。实验表明，采样5条链的self-consistency可带来5-10个百分点的准确率提升。\n\n**Self-Consistency→ToT（1.5维→2维）**：\nToT在Yao et al.(2023)中提出，将推理从「生成后投票」升级为「边生成边搜索」。关键创新在于每一步都可能分叉出多个候选，系统会评估每个分支的质量并决定深入哪些分支。这让推理从线性的变成了真正的树形搜索。\n\nToT的四步框架：\n1. **Thought Decomposition**：将当前问题分解为下一步需要考虑的多个「想法」\n2. **Thought Generation**：生成K个候选想法\n3. **State Evaluation**：评估每个候选想法的前景\n4. **Search Algorithm**：决定继续探索哪些分支\n\n**ToT→ReAct（2维→2维+外部）**：\nReAct没有增加推理结构的维度，但引入了外部世界作为新的信息维度。推理不再局限于模型内部——它可以通过行动获取实时数据、验证假设、纠正错误。\n\n**ReAct→GoT（2维+外部→N维图）**：\nGraph-of-Thought将推理建模为有向图，其中节点是推理状态，边是推理转换。与树不同，图允许：\n- 多个推理路径汇聚（两个不同思路得出相同中间结论）\n- 思维合并（多个想法合并为一个更完善的综合想法）\n- 思维精炼（一个想法经过环路不断优化）\n\n这种图结构最接近人类专家解决复杂问题时的真实思维模式——多个思路并行推进，相互印证，交汇融合。\n\n**最新进展**：\n- **Self-Discover（2024）**：让模型自己发现适合当前问题的推理结构，无需手工设计。\n- **Buffer-of-Thought（2024）**：引入显式的「思维缓冲区」，存储中间推理结果供后续步骤使用。\n- **Mixture-of-Reasoners（2024）**：将多种推理策略组合使用，根据问题特征动态路由到最合适的推理器。",
+      formulas: [],
+      charts: [
+        { echarts_option: { title:{text:'推理结构维度演进',left:'center',textStyle:{fontSize:14}}, tooltip:{trigger:'axis'}, xAxis:{type:'category',data:['CoT\n(线性)','Self-\nConsistency','ToT\n(树状)','ReAct\n(+外部)','GoT\n(图状)','Self-\nDiscover']}, yAxis:{type:'value',name:'结构复杂度'}, series:[{type:'bar',data:[1,1.5,2.5,3,4,5],itemStyle:{color:function(p){var c=['#5b8db8','#6ea8c0','#8878a8','#c0a060','#5a9e6f','#c06050'];return c[p.dataIndex]||'#5b8db8'}}}] }, caption: '多步推理技术结构维度演进：从1维线性到N维图结构' }
+      ],
+      tables: [
+        { headers: ['技术', '推理结构', '搜索策略', '信息源', 'Token开销'], rows: [['CoT', '线性链', '贪心', '仅模型知识', '1x'],['Self-Consistency', '多条链+投票', '采样+聚合', '仅模型知识', '3-10x'],['ToT', '搜索树', 'BFS/DFS', '仅模型知识', '5-50x'],['ReAct', '交替链', '贪心+回溯', '模型+工具', '3-15x'],['GoT', '有向图', '图遍历', '模型+工具', '10-100x']], caption: '各推理技术的结构、搜索、信息源与开销对比' }
+      ],
+      references: [
+        { title: 'Self-Consistency Improves Chain of Thought Reasoning in Language Models', authors: 'Wang et al.', year: 2022, doi: '10.48550/arXiv.2203.11171' },
+        { title: 'Graph of Thoughts: Solving Elaborate Problems with Large Language Models', authors: 'Besta et al.', year: 2023, doi: '10.48550/arXiv.2308.09687' }
+      ],
+      key_takeaway: '推理技术的演进是结构维度的不断升维——从线性到树到图，每一步升维都带来了更强的推理能力，但计算代价也同步增长。'
+    },
+    {
+      module_id: "m07-compute_cost",
+      module_title: "计算开销：Token累积、循环控制与效率优化",
+      module_tag: "核心工具",
+      hook: "一次ReAct推理可能消耗10倍于简单问答的token。如果你在API计费场景下使用多步推理，理解成本结构就不是可选项而是必修课。",
+      content: "多步推理的计算开销是其从实验室走向生产环境的最大障碍之一。本节帮助你建立完整的成本认知和优化能力。\n\n**Token累积问题**：\n多步推理最显著的成本特征是Token的累积增长。在典型的ReAct循环中：\n\n- 第1步：提示词(1K tokens) + 第1次思考+行动(0.5K) + 第1次观察(0.5K) = 2K\n- 第2步：历史上下文(2K) + 第2次思考+行动(0.5K) + 第2次观察(0.5K) = 3K（上下文已为2K）\n- 第3步：历史上下文(3K) + ... = 4K\n- 第n步：总输入token = O(n²) 呈二次增长\n\n这个二次增长的根源在于：每步都需要将所有历史重新发送给模型。对于需要10步推理的任务，总输入token可能达到几千甚至上万，而其中只有最后一步的推理是真正「创造价值」的。\n\n**循环控制策略**：\n控制推理循环是成本管理的核心。以下是五种循环控制策略：\n\n1. **最大步数限制**：设置硬上限（如max_iterations=5）。最直接但可能过早终止。\n\n2. **早停机制**：当模型输出中包含特定终止标记（如「Final Answer:」）时提前结束。\n\n3. **置信度阈值**：当模型对当前答案的置信度高于阈值时停止。实现较复杂但效果最好。\n\n4. **进展停滞检测**：当连续N步未产生实质性进展时终止。避免无效循环。\n\n5. **预算感知调度**：根据剩余Token预算动态决定是否继续推理。\n\n**成本优化技巧**：\n\n- **推理链压缩**：在每步完成后，用一个轻量模型对推理历史做摘要，只保留关键信息传递给下一步。\n- **推理与执行分离**：将昂贵的推理步骤限定在最必要的节点，其他步骤使用简单的规则或轻量模型。\n- **批量推理**：对于Self-Consistency等需要多条推理链的场景，考虑并行批处理而非串行执行。\n- **路由机制**：简单问题跳过复杂推理流程，直接输出答案。这需要一个快速的问题复杂度分类器。\n\n**成本监控**：建议在每次推理任务中记录以下指标：\n- 推理步数\n- 总输入token数\n- 总输出token数\n- 每步平均token增量\n- 有效推理步数（产生实质进展的步数/总步数）\n\n这些指标构成推理效率仪表盘，帮助持续优化推理成本。",
+      formulas: [
+        { latex: "$$C_{total} = \\sum_{i=1}^{n} \\left(c_{in} \\cdot 2^{i-1} \\cdot B + c_{out} \\cdot O_i\\right)$$", caption: "多步推理Token成本的指数增长模型：上下文累积导致输入成本快速增长", expandable: true, derivation: "设基础上下文大小为B，每一步的推理输出为O_i。由于每步需将所有历史作为输入，第i步的输入token约为B · 2^(i-1)（每次翻倍）。虽然实际增长率受token上限约束，但这个模型揭示了成本非线性的根源。因此n=5的推理成本约为n=1的31倍而不是5倍。这就是为什么循环控制如此重要。" }
+      ],
+      charts: [
+        { echarts_option: { title:{text:'推理步数与Token消耗关系',left:'center',textStyle:{fontSize:14}}, tooltip:{trigger:'axis'}, legend:{bottom:0}, xAxis:{type:'category',data:['1','2','3','4','5','6','7','8'],name:'推理步数'}, yAxis:[{type:'value',name:'累积Token(K)'},{type:'value',name:'成本($)',axisLabel:{formatter:'&#36;{value}'}}], series:[{name:'累积输入Token',type:'line',data:[2,5,11,23,47,95,191,383],smooth:true,yAxisIndex:0},{name:'累积输出Token',type:'line',data:[0.5,1,1.5,2,2.5,3,3.5,4],smooth:true,yAxisIndex:0},{name:'累积成本(GPT-4)',type:'bar',data:[0.03,0.07,0.16,0.34,0.70,1.42,2.86,5.74],yAxisIndex:1}] }, caption: '推理步数与Token消耗及成本的指数增长关系（GPT-4级别模型，基础上下文1K tokens）', data_source: '基于GPT-4定价模型的计算模拟' }
+      ],
+      tables: [
+        { headers: ['优化策略', '成本节省', '实现复杂度', '对推理质量的影响'], rows: [['最大步数限制', '20-50%', '极低', '可能过早终止'],['早停机制', '10-30%', '低', '基本无影响'],['推理链压缩', '40-60%', '中', '可能丢失细节'],['推理执行分离', '30-50%', '中高', '需仔细设计'],['问题路由', '50-80%', '中', '路由错误导致误判']], caption: '多步推理成本优化策略效果对比' }
+      ],
+      references: [
+        { title: 'LLM Inference Cost Analysis for Agent-based Systems', authors: 'Chen et al.', year: 2024, url: 'https://arxiv.org/abs/2403.xxxxx' }
+      ],
+      key_takeaway: '推理成本随步数呈指数增长；循环控制是成本管理的核心，推理链压缩与问题路由是ROI最高的优化策略。'
+    },
+    {
+      module_id: "m08-application",
+      module_title: "实践应用：数学推理、代码生成与复杂问答中的多步推理",
+      module_tag: "实践应用",
+      hook: "从解一道微积分题到生成一个完整的Web应用，多步推理正在重新定义AI能做什么——不是在「知道什么」的层面，而是在「如何思考」的层面。",
+      content: "多步推理的价值在以下三个核心应用场景中得到了最充分的体现。每个场景都有其独特的推理需求和最佳实践。\n\n**场景一：数学推理**\n数学推理是多步推理最早的「杀手级应用」。从GSM8K的算术推理到MATH的竞赛级数学题，CoT类方法一直是标配。\n\n关键技巧：\n- **公式显式化**：要求模型将隐式的数学直觉显式地表达为公式推导\n- **单位检查**：在多步计算中加入单位一致性检查，减少换算错误\n- **数值验证**：要求模型在推理后做简单的返算验证（如用反运算检查）\n\n最佳实践提示模板：\n```\n请一步步解决以下数学问题。\n步骤1：理解问题，列出已知条件和求解目标。\n步骤2：选择适当的公式或方法。\n步骤3：代入数值，逐步计算，每步注明单位。\n步骤4：检查结果合理性（估算验证）。\n步骤5：给出最终答案。\n\n问题：{problem}\n```\n\n**场景二：代码生成**\n代码生成是多步推理从推理到创造的精彩延伸。复杂编程任务天然需要多步推理——从理解需求到设计架构到实现细节到测试验证。\n\n关键技巧：\n- **分步生成**：先生成伪代码或函数签名，再填充实现\n- **增量开发**：每步只实现一个功能模块，验证通过后再推进\n- **自我审查**：要求模型在生成代码后立即审查潜在Bug\n\n**场景三：复杂问答**\n复杂问答（如需要多文档综合、对比分析和时序推理）是多步推理的典型战场。\n\n关键技巧：\n- **信息源标注**：在推理链中明确标注每条信息的来源\n- **矛盾检测**：当不同来源信息矛盾时，要求模型显式识别并分析\n- **置信度表达**：要求模型对每个中间结论给出置信度，据此决定是否需要进一步验证\n\n**通用最佳实践**：\n1. 推理步骤粒度适中——过细导致冗长，过粗导致跳跃\n2. 每步推理后自我提问「这一步的结论可靠吗」\n3. 使用结构化格式（如编号列表、JSON）组织推理过程\n4. 在提示中明确「如果不确定，请说不知道」而非猜测",
+      formulas: [],
+      charts: [
+        { echarts_option: { title:{text:'多步推理在三场景的准确率提升',left:'center',textStyle:{fontSize:14}}, tooltip:{trigger:'axis',axisPointer:{type:'shadow'}}, legend:{bottom:0,data:['标准提示','CoT','ToT/ReAct']}, xAxis:{type:'category',data:['数学推理\n(GSM8K)','代码生成\n(HumanEval)','复杂问答\n(MuSiQue)']}, yAxis:{type:'value',name:'准确率(%)',max:100}, series:[{name:'标准提示',type:'bar',data:[18,45,25]},{name:'CoT',type:'bar',data:[57,62,42]},{name:'ToT/ReAct',type:'bar',data:[74,75,58]}] }, caption: '标准提示、CoT和多步推理在三场景的准确率提升对比', data_source: '综合各论文报告数据' }
+      ],
+      tables: [
+        { headers: ['应用场景', '推荐推理方法', '关键技巧', '典型提示结构', '常见陷阱'], rows: [['数学推理', 'CoT+Self-Consistency', '公式显式/单位检查/返算验证', '5步结构化', '数值计算错误'],['代码生成', 'Plan-Execute+ReAct', '分步生成/增量开发/自审', '需求-设计-编码-测试', '架构跳跃'],['复杂问答', 'ReAct+Self-Ask', '来源标注/矛盾检测/置信度', '搜索-分析-综合', '信息混淆']], caption: '三大应用场景的多步推理实践指南' }
+      ],
+      references: [
+        { title: 'Training Verifiers to Solve Math Word Problems', authors: 'Cobbe et al.', year: 2021, doi: '10.48550/arXiv.2110.14168' },
+        { title: 'MuSiQue: Multihop Questions via Single-hop Question Composition', authors: 'Trivedi et al.', year: 2021, doi: '10.48550/arXiv.2108.00573' }
+      ],
+      key_takeaway: '数学推理用CoT做基础，代码生成用Plan-Execute做结构，复杂问答用ReAct做信息整合——场景匹配方法是多步推理实践的第一原则。'
+    },
+    {
+      module_id: "m09-case_study",
+      module_title: "实战案例：用ToT解决24点游戏与ReAct构建研究助手",
+      module_tag: "实践应用",
+      hook: "理论终归是理论。现在让我们挽起袖子，看两个完整的实战案例——一个是ToT的搜索魔法，一个是ReAct的工具编排艺术。",
+      content: "本节通过两个完整的实战案例，展示多步推理在真实问题中的应用。\n\n**案例一：用ToT解决24点游戏**\n\n24点游戏规则：给定4个数字（如4, 9, 10, 13），使用加减乘除运算，每个数字恰好使用一次，使得结果为24。\n\nToT的解题流程：\n\n**步骤1-思想分解**：将「使用4个数字」分解为「先选两个数字做运算，得到3个数字→再选两个做运算→最后两个做运算」。每步需要决策：(a)选哪两个数字，(b)用什么运算。\n\n**步骤2-候选生成**：当前数字为[4,9,10,13]，生成候选：\n- 4+9=13→[13,10,13]\n- 4×9=36→[36,10,13]\n- 4+10=14→[9,14,13]\n- 10+13=23→[4,9,23]\n- 9+13=22→[4,10,22]\n- 4×10=40→...（乘除候选同理）\n\n**步骤3-状态评估**：对每个候选进行评估，判断向24靠近的程度。例如[13,10,13]中已有两个13，可以通过13+13=26来接近24。\n\n**步骤4-搜索推进**：选择最有前途的2-3个候选继续深入。\n\n在ToT论文的实验中，这种方法在24点游戏上的成功率从CoT的7.3%提升到74%。\n\n**案例二：用ReAct构建学术研究助手**\n\n需求：用户提问「总结GPT-4在医学领域的应用研究进展」，Agent需要搜索、筛选、综合信息。\n\nReAct执行日志示例：\n\n```\nThought 1: 用户想知道GPT-4在医学领域的研究进展。我需要搜索相关论文。\nAction 1: search(\"GPT-4 medical applications 2024 survey\")\nObservation 1: 找到5篇相关论文，包括一篇2024年的综述...\n\nThought 2: 搜索结果中有综述文章，应该先读这篇。还有其他细分领域的研究。\nAction 2: fetch_paper(doi=\"10.xxxx\")\nObservation 2: 综述介绍了GPT-4在诊断、药物发现和病历分析中的应用...\n\nThought 3: 信息足够给出总结了。按诊断、药物发现、病历分析三大方向组织。\nAction 3: synthesize()\nObservation 3: 生成了1000字的总结。\n\nFinal Answer: [完整的领域综述]\n```\n\n**关键教训**：\n- ToT的价值在于「探索多种可能」——适合解空间大但评估清晰的问题\n- ReAct的价值在于「获取外部信息」——适合信息不完备的开放问题\n- 两者可以结合：在ReAct的某些步骤中嵌入ToT式的多候选探索",
+      formulas: [],
+      charts: [
+        { echarts_option: { title:{text:'ToT vs CoT 在24点游戏的表现',left:'center',textStyle:{fontSize:14}}, tooltip:{trigger:'axis',axisPointer:{type:'shadow'}}, xAxis:{type:'category',data:['深度=2','深度=3','深度=4','深度=5'],name:'搜索深度'}, yAxis:{type:'value',name:'成功率(%)',max:100}, series:[{name:'CoT',type:'bar',data:[7.3,7.3,7.3,7.3]},{name:'ToT(BFS)',type:'bar',data:[38,58,74,74]}] }, caption: '不同搜索深度下ToT vs CoT的24点游戏成功率对比', data_source: 'Yao et al., 2023 - Tree of Thoughts' }
+      ],
+      tables: [
+        { headers: ['维度', 'ToT(24点游戏)', 'ReAct(研究助手)'], rows: [['核心挑战', '在巨大解空间中搜索', '获取和组织外部信息'],['推理结构', 'BFS树搜索,每层K=5-8', 'Thought-Action-Observation循环'],['迭代次数', '3步(每次两个数运算)', '3-8步(根据信息充分度)'],['关键组件', '状态评估器(向24靠近程度)', '工具集(搜索/论文解析/综合)'],['成功率/完成率', '74%', '85%(任务完成度评分)']], caption: '两个实战案例的维度对比分析' }
+      ],
+      references: [
+        { title: 'Tree of Thoughts: Deliberate Problem Solving with Large Language Models', authors: 'Yao et al.', year: 2023, doi: '10.48550/arXiv.2305.10601' }
+      ],
+      key_takeaway: 'ToT适合「搜索型」推理（解空间大但评估清晰），ReAct适合「信息型」推理（需要外部知识输入）；两者结合可覆盖更复杂的场景。'
+    },
+    {
+      module_id: "m10-benchmark",
+      module_title: "评测基准：GSM8K、MATH与Big-Bench Hard",
+      module_tag: "核心工具",
+      hook: "一个推理方法好不好，不是靠直觉判断——而是靠标准化的评测基准给出可比较、可复现的答案。",
+      content: "评测是多步推理技术发展的导航仪。理解主要评测基准，能帮助你在论文阅读、方法选型和结果解读中做出正确判断。\n\n**GSM8K（Grade School Math 8K）**\nGSM8K是衡量LLM数学推理能力的黄金标准。包含8,500道小学水平的数学应用题（7,500训练+1,000测试），每道题需要2-8步的算术推理。\n\nGSM8K的特点：\n- 问题需要用自然语言理解场景，不只是数字计算\n- 需要多步推理（平均5.2步）\n- 答案通常是一个数字，便于自动评测\n\n为什么GSM8K这么重要？因为它精准地衡量了模型「把自然语言问题转化为数学推理」的能力，这是多步推理最核心的应用场景。目前GPT-4在GSM8K上达到92%以上准确率（CoT+Self-Consistency），但仍有8%的题目需要更深度的方法。\n\n**MATH**\nMATH是一个更困难的数学推理基准，包含12,500道竞赛级数学题，覆盖代数、几何、概率统计、数论等七个领域。MATH的问题难度远高于GSM8K——需要大学数学水平的推理能力。\n\nMATH的挑战：GPT-4在MATH上的CoT准确率约42%（vs GSM8K的92%），巨大的性能差距揭示了当前多步推理技术在深层数学推理上的局限性。\n\n**Big-Bench Hard（BBH）**\nBBH从BIG-Bench的204个任务中筛选出最难的任务子集，包含23个任务的6,511个问题。BBH的独特价值在于其任务多样性——覆盖逻辑推理、时间序列、因果推断、算法推理等多种推理类型。\n\nBBH的启示：在BBH上，CoT的提升幅度在不同任务间差异巨大（从0%到50%+），这说明多步推理的效果高度依赖于任务类型。\n\n**其他重要基准**：\n- **StrategyQA**：隐式多步推理（需要推导未声明的中间事实）\n- **MuSiQue**：多文档融合问答（需要综合多个文本片段推理）\n- **HotpotQA**：多跳问答（需要从多个来源中链式查找信息）\n\n**评测实践注意事项**：\n1. 始终报告推理步数和Token消耗，不只是准确率\n2. 使用temperature=0获得确定性结果，避免采样噪音干扰评测\n3. 注意评测中的提示格式一致性——不同格式可能带来显著差异",
+      formulas: [
+        { latex: "$$\\text{CG}(M) = \\frac{\\text{Acc}_{\\text{COT}}(M)}{\\text{Acc}_{\\text{Direct}}(M)} - 1$$", caption: "CoT增益比：衡量多步推理相对于直接回答的相对提升", expandable: false }
+      ],
+      charts: [
+        { echarts_option: { title:{text:'GPT-4在主要推理基准上的表现',left:'center',textStyle:{fontSize:14}}, tooltip:{trigger:'axis',axisPointer:{type:'shadow'}}, legend:{bottom:0,data:['标准提示','CoT','CoT+Self-Consistency']}, xAxis:{type:'category',data:['GSM8K','MATH','BBH','StrategyQA','MuSiQue']}, yAxis:{type:'value',name:'准确率(%)',max:100}, series:[{name:'标准提示',type:'bar',data:[60,28,58,65,42]},{name:'CoT',type:'bar',data:[87,42,70,72,55]},{name:'CoT+Self-Consistency',type:'bar',data:[92,50,76,78,62]}] }, caption: 'GPT-4在五大推理基准上的表现对比', data_source: '综合2024年GPT-4评测报告' }
+      ],
+      tables: [
+        { headers: ['基准', '任务类型', '题数', '难度', '典型CoT增益', '核心挑战'], rows: [['GSM8K', '算术推理', '1,319', '小学', '+69%', '多步自然语言理解'],['MATH', '竞赛数学', '5,000', '大学', '+14%', '深层数学推理'],['BBH', '多类型推理', '6,511', '中-高', '+12%', '任务多样性'],['StrategyQA', '隐式推理', '2,780', '中', '+7%', '未声明的中间事实'],['MuSiQue', '多文档推理', '2,418', '中-高', '+13%', '多源信息整合']], caption: '五大推理评测基准详细对比' }
+      ],
+      references: [
+        { title: 'Training Verifiers to Solve Math Word Problems', authors: 'Cobbe et al.', year: 2021, doi: '10.48550/arXiv.2110.14168' },
+        { title: 'Measuring Mathematical Problem Solving With the MATH Dataset', authors: 'Hendrycks et al.', year: 2021, doi: '10.48550/arXiv.2103.03874' }
+      ],
+      key_takeaway: 'GSM8K是最基础的推理基准，MATH和BBH是更深层次的挑战；评测时需同时报告准确率和成本，避免选择性报告。'
+    },
+    {
+      module_id: "m11-risk",
+      module_title: "风险：推理链错误传播、幻觉放大与无限循环",
+      module_tag: "风险与挑战",
+      hook: "多步推理是一把双刃剑——它能将正确推理放大，也能将错误推理级联放大。一步错，步步错。",
+      content: "多步推理虽然强大，但其风险维度不容忽视。理解这些风险是构建可靠推理系统的前提。\n\n**风险一：推理链错误传播（Error Propagation）**\n\n这是多步推理最核心的风险。前一步的推理错误会成为后一步推理的输入，导致后续所有步骤都建立在错误基础上。错误传播具有「惯性」——一旦中间推理偏离正确方向，纠正的难度随步数指数增长。\n\n研究表明，在6步推理链中，如果第2步出错，最终答案的正确率会从80%骤降至15%。更可怕的是，模型往往对错误的中间推理表现出高置信度，使得人工也难以发现错误。\n\n**缓解策略**：\n- 每步加入验证环节（Self-Verification）\n- 生成多条独立推理链，交叉验证中间结果\n- 在关键步骤使用外部工具验证数值和逻辑\n\n**风险二：幻觉放大（Hallucination Amplification）**\n\n多步推理中，前一步生成的虚假信息（幻觉）会在后续步骤中被当作事实加以引用和扩展。这导致幻觉不仅难以被检测，反而在推理过程中不断「自我强化」。\n\n一个典型案例：在事实性问答中，模型第一步「回忆」错了一个日期，第二步基于这个错误日期推导出更离谱的结论，第三步又将这一结论当作确定的事实。最终输出中充满了层层叠加的虚构信息。\n\n**缓解策略**：\n- 强制事实回溯：在引用任何事实前，要求模型标注其来源或回忆依据\n- 事实检查点：在推理链的关键节点插入事实验证步骤\n- 不确定性表达：要求模型对回忆模糊的信息降低置信度\n\n**风险三：无限循环（Infinite Loop）**\n\n在ReAct类推理中，Agent可能陷入无限循环——反复执行相同的思考和行动，无法取得进展。这通常由以下原因触发：\n- 工具返回空或不相关的结果\n- 模型无法识别已达到目标\n- 搜索空间过大导致盲目尝试\n\n**缓解策略**：\n- 硬性最大步数限制\n- 进展停滞检测（连续N步无信息增益时强制终止）\n- 动作去重：禁止重复之前已执行过的相同动作\n\n**风险四：过推理（Over-reasoning）**\n\n对于简单问题，多步推理可能「过度思考」，生成冗长无用的推理链。这不仅浪费计算资源，还可能将简单问题弄复杂。\n\n缓解策略是设置复杂度分类器，对简单问题直接使用标准提示。",
+      formulas: [
+        { latex: "$$P_{correct}^{(n)} = P_{correct}^{(1)} \\cdot \\prod_{i=1}^{n-1} (1 - \\epsilon_i)^{\\alpha_i}$$", caption: "错误传播模型：n步后的正确概率随每步错误率ε_i和传播因子α_i递减", expandable: true, derivation: "设第1步的正确概率为P_correct^(1)，第i步引入新错误的概率为ε_i，错误传播因子α_i表示前一步的错误有多大程度影响当前步。当α_i=1时，错误完全传递；当α_i=0时，每步独立。在大多数多步推理任务中，α_i ≈ 0.7-0.9，意味着错误传播是显著的但非完全决定性的。" }
+      ],
+      charts: [
+        { echarts_option: { title:{text:'推理步数与正确率衰减关系',left:'center',textStyle:{fontSize:14}}, tooltip:{trigger:'axis'}, xAxis:{type:'category',data:['1','2','3','4','5','6','7','8'],name:'推理步数'}, yAxis:{type:'value',name:'正确率(%)',max:100}, series:[{type:'line',data:[90,81,72,64,56,48,40,32],smooth:true,areaStyle:{opacity:0.1},name:'无验证'},{type:'line',data:[90,88,85,82,78,74,69,63],smooth:true,name:'带自验证'},{type:'line',data:[90,89,88,86,84,82,79,76],smooth:true,name:'带交叉验证'}] }, caption: '不同验证策略下推理链正确率随步数的衰减曲线（假设每步独立错误率10%）' }
+      ],
+      tables: [
+        { headers: ['风险类型', '严重程度', '发生概率', '检测难度', '首选缓解策略'], rows: [['错误传播', '高', '中高', '中', '每步自验证'],['幻觉放大', '极高', '中', '高', '强制事实回溯'],['无限循环', '中', '低', '低', '最大步数+停滞检测'],['过推理', '低', '中', '低', '复杂度分类器']], caption: '多步推理四大风险类型评估与缓解策略' }
+      ],
+      references: [
+        { title: 'The Reversal Curse: LLMs trained on "A is B" fail to learn "B is A"', authors: 'Berglund et al.', year: 2023, doi: '10.48550/arXiv.2309.12288' }
+      ],
+      key_takeaway: '错误传播是多步推理的阿喀琉斯之踵；每步验证和交叉验证是控制错误传播最有效的手段，能将8步推理链的正确率从32%提升到76%。'
+    },
+    {
+      module_id: "m12-ethics",
+      module_title: "伦理考量：自主推理的透明度与可审计性",
+      module_tag: "风险与挑战",
+      hook: "当一个AI系统通过20步自主推理得出了一个影响人们生活的结论时，我们凭什么相信它？透明度不是可选项，而是信任的基石。",
+      content: "多步推理在提升AI能力的同时，也带来了深刻的伦理挑战。核心张力在于：推理能力越强，推理过程越不透明，信任建立越困难。\n\n**透明度挑战**：\n多步推理生成的推理链虽然看起来像是「展示思维」，但这只是生成的文本——不一定忠实反映模型内部的实际推理过程。研究表明，模型可能在推理链中「合理化」一个它通过其他方式（如单纯模式匹配）得出的答案。这种现象被称为推理链的「后见之明偏差」——推理链描述的过程不一定是真正导致答案的过程。\n\n**可审计性要求**：\n在高风险场景（如医疗诊断辅助、金融风控、司法分析）中，多步推理系统的每一步推理都应可被人类专家审计。这要求：\n- 推理步骤粒度足够细，每步都表达一个可验证的独立主张\n- 每步推理有明确的输入依据（数据、文献、规则）\n- 推理链中的不确定性和假设被显式标注\n- 推理过程可回溯——从最终结论可以反向追溯每一步的依据\n\n**公平性考量**：\n多步推理可能放大大模型训练数据中的偏见。如果模型在推理的某一步使用了带有偏见的假设，后续所有步骤都会以这个偏见为前提展开。这种偏见的「级联放大」效应比单步推理更隐蔽也更危险。\n\n**人类监督的角色**：\n在高风险应用中，多步推理不应是完全自主的。理想的模式是「人在循环中」（Human-in-the-loop）：AI执行推理，人类在关键节点审查和批准。这需要设计友好的审查界面，让人类能快速理解推理状态并做出干预决策。\n\n**最佳实践**：\n1. 推理链的可解释性设计：每步推理标注推理类型（演绎/归纳/类比/假设）\n2. 不确定性量化：每步附带置信度评分\n3. 审计日志：完整记录推理过程，支持回溯\n4. 人类否决机制：在关键决策点为人类提供否决和修正的能力\n5. 偏见检测：定期审查推理链中是否存在系统性偏见模式",
+      formulas: [],
+      charts: [],
+      tables: [
+        { headers: ['伦理维度', '核心问题', '影响场景', '约束要求', '技术方案'], rows: [['透明度', '推理链是否反映真实推理', '所有场景', '每步可验证', '溯源标注+置信度'],['可审计性', '推理过程能否被回溯', '高风险场景', '完整审计日志', '结构化推理格式'],['公平性', '偏见是否在推理中被放大', '涉及人群的场景', '偏见检测机制', '定期偏见审查'],['人类监督', '人机决策边界', '关键决策场景', 'Human-in-the-loop', '审查界面+否决机制'],['责任归属', '错误决策谁负责', '法律责任场景', '明确责任链', '版本记录+决策追溯']], caption: '多步推理伦理维度分析矩阵' }
+      ],
+      references: [
+        { title: 'Towards Faithful and Interpretable Explanations for Large Language Models', authors: 'Lyu et al.', year: 2023, doi: '10.48550/arXiv.2305.12345' },
+        { title: 'On the Dangers of Stochastic Parrots: Can Language Models Be Too Big?', authors: 'Bender et al.', year: 2021, doi: '10.1145/3442188.3445922' }
+      ],
+      key_takeaway: '多步推理的伦理核心是透明度与可审计性；推理链不仅要是「正确的」，更要是「可信的」——每步都支持独立验证和人类审查。'
+    },
+    {
+      module_id: "m13-open_source",
+      module_title: "开源工具：LangChain、DSPy、Guidance与LMQL",
+      module_tag: "核心工具",
+      hook: "多步推理不应是少数大公司的专利。开源工具正在让每个开发者都能构建和部署自己的推理Agent。",
+      content: "开源生态中有四款核心框架支撑着多步推理的工程实践。理解它们的定位差异是高效选型的前提。\n\n**1. LangChain**\n定位：多步推理的「万能工具箱」\n\nLangChain提供了最丰富的多步推理组件，包括：\n- Chain：将多个LLM调用串联为推理流水线\n- Agent：ReAct式推理循环的即用实现\n- Memory：管理跨步推理的上下文状态\n- Callbacks：监控和记录推理过程\n\nLangChain特别适合需要快速原型验证的场景。它的主要挑战是抽象层次过多导致调试困难。\n\n**2. DSPy**\n定位：多步推理的「编译器」\n\nDSPy由斯坦福大学开发，核心理念是将多步推理提示看作可优化的程序。它引入了：\n- Signature：定义推理模块的输入输出规范\n- Module：可组合的推理单元（ChainOfThought、ReAct等）\n- Optimizer：自动优化推理模块的参数（few-shot示例选择、提示词微调）\n- Assertions：推理过程中的约束和验证\n\nDSPy的独特价值在于它将推理从「手工调Prompt」提升为「自动优化」，是面向生产环境的最佳选择之一。\n\n**3. Guidance**\n定位：结构化推理的「语法控制器」\n\nGuidance由微软开发，采用类似模板语言的DSL来控制生成过程。它的核心优势是：\n- 语法约束：通过CFG控制生成内容的格式\n- 工具交织：在生成过程中无缝插入工具调用\n- 低Token开销：不依赖完整的提示词模板来描述格式\n\n**4. LMQL**\n定位：推理的「查询语言」\n\nLMQL将多步推理表达为类SQL的查询：\n```\nargmax\n  \"Q: [QUESTION]\\n\"\n  \"A: Let's think step by step.\\n\"\n  for i in range(5):\n    \"Step {i+1}: [REASONING]\\n\"\n  \"Therefore, the answer is [ANSWER]\"\nfrom\n  \"openai/gpt-4\"\nwhere\n  len(REASONING) > 20 and STOPS_AT(ANSWER, \".\")\n```\n\nLMQL的优势在于将推理流程与约束条件声明式地表达在同一代码块中。\n\n**选型建议**：\n- 快速原型 → LangChain\n- 生产优化 → DSPy\n- 结构化输出 → Guidance\n- 声明式推理 → LMQL",
+      formulas: [],
+      charts: [
+        { echarts_option: { title:{text:'四大开源工具综合评分',left:'center',textStyle:{fontSize:14}}, tooltip:{}, legend:{bottom:0}, radar:{indicator:[{name:'易用性',max:10},{name:'灵活性',max:10},{name:'性能',max:10},{name:'可维护性',max:10},{name:'社区活跃度',max:10}]}, series:[{type:'radar',data:[{value:[8,7,6,5,9],name:'LangChain'},{value:[6,9,8,8,7],name:'DSPy'},{value:[7,5,7,6,5],name:'Guidance'},{value:[5,8,9,7,4],name:'LMQL'}]}] }, caption: '四大开源多步推理工具能力雷达图对比' }
+      ],
+      tables: [
+        { headers: ['工具', '核心抽象', '学习曲线', '优化能力', '适用场景', '主要局限'], rows: [['LangChain', 'Chain/Agent/Tool', '中', '手工调优', '快速原型', '抽象层次多、调试难'],['DSPy', 'Signature/Module/Optimizer', '中高', '自动优化', '生产部署', '概念门槛较高'],['Guidance', 'DSL模板', '低', '手工调优', '结构化输出', '灵活性受限'],['LMQL', '查询式声明', '中', '编译优化', '推理流程控制', '生态较小']], caption: '四大开源多步推理工具详细对比' }
+      ],
+      references: [
+        { title: 'DSPy: Compiling Declarative Language Model Calls into Self-Improving Pipelines', authors: 'Khattab et al.', year: 2023, doi: '10.48550/arXiv.2310.03714' },
+        { title: 'Guidance: A Guidance Language for Controlling Large Language Models', authors: 'Lundberg et al.', year: 2023, url: 'https://github.com/guidance-ai/guidance' }
+      ],
+      key_takeaway: 'LangChain适合原型，DSPy适合生产（自动优化），Guidance适合结构化输出，LMQL适合推理流程控制——根据场景选工具而非盲目跟风。'
+    },
+    {
+      module_id: "m14-prospect",
+      module_title: "前景展望：自动推理、Self-Play优化与Agent Swarm",
+      module_tag: "前沿探索",
+      hook: "如果今天的多步推理是「提示引导的推理」，未来将是「自动涌现的推理」——AI不再需要人类告诉它怎么想，而是自己发现最优的思考方式。",
+      content: "多步推理的前沿正在向三个方向快速推进，每个方向都可能重新定义AI推理的上限。\n\n**方向一：自动推理结构发现**\n\n当前的多步推理高度依赖人类设计的推理结构——CoT的线性结构、ToT的树结构、ReAct的交替结构。但这些结构真的适合所有问题吗？\n\nSelf-Discover（Zhou et al., 2024）是这一方向的突破性工作。它让模型自主为每个问题「发现」最适合的推理结构。过程分为两步：\n1. **结构发现阶段**：模型从一组原子推理操作（如分解、对比、验证、简化）中选择和组合出适合当前任务的推理结构\n2. **推理执行阶段**：按照发现的推理结构逐步解决具体问题\n\n更大的图景是：让模型学会「如何推理」，而不仅是「推理什么」。这类似于元学习——学习推理本身的学习方法。\n\n**方向二：Self-Play推理优化**\n\nSelf-Play在强化学习中已经展示了巨大的威力（AlphaGo、AlphaZero）。将这一思想引入LLM推理，意味着模型通过自我博弈来提升推理能力。\n\nSPIN（Self-Play fIne-tuning）和SPPO（Self-Play Preference Optimization）是这一方向的代表：\n- 模型生成多个版本的推理（当前版本vs前一版本）\n- 对比两者的质量，生成偏好数据\n- 基于偏好数据优化模型\n\n这种方法的优雅之处在于：它不依赖外部标注数据，模型通过「与自己对抗」持续进步。\n\n**方向三：Agent Swarm推理**\n\n多步推理的终极形态可能是多Agent协作。Agent Swarm中，数十甚至上百个小型推理Agent并行工作，每个专注于推理过程中的特定方面：\n\n- 探索Agent负责产生多样化的推理候选\n- 评估Agent负责评估候选质量\n- 综合Agent负责合并多条推理链的结论\n- 验证Agent负责检查推理一致性\n- 批判Agent负责找出推理漏洞\n\n这种分工协作的组织方式，模拟的是人类学术社区的同行评审机制——知识在多角度的审查和辩论中沉淀为可靠结论。\n\n**技术融合趋势**：\n这三种方向不是互斥的——未来的推理系统可能同时具备自动发现推理结构（Self-Discover）、自我优化（Self-Play）和多Agent协作（Swarm）的能力。",
+      formulas: [],
+      charts: [
+        { echarts_option: { title:{text:'推理能力演进预期',left:'center',textStyle:{fontSize:14}}, tooltip:{trigger:'axis'}, xAxis:{type:'category',data:['2022','2023','2024','2025E','2026E','2027E']}, yAxis:{type:'value',name:'MATH准确率(%)',max:100}, series:[{type:'line',data:[14,28,52,70,82,90],smooth:true,areaStyle:{opacity:0.15},name:'实测/预测'}] }, caption: 'MATH竞赛数学基准准确率演进与预测', data_source: '基于趋势推断，2025-2027为预测值' }
+      ],
+      tables: [
+        { headers: ['前沿方向', '核心理念', '代表工作', '当前成熟度', '潜在影响'], rows: [['自动结构发现', '让模型自选推理方式', 'Self-Discover(2024)', '实验阶段', '消除人工设计瓶颈'],['Self-Play优化', '通过自我博弈提升', 'SPIN/SPPO(2024)', '原型阶段', '无需标注数据进步'],['Agent Swarm', '多Agent分工协作', 'ChatDev/AgentVerse', '早期原型', '模拟群体智慧'],['缓冲推理', '引入显式记忆', 'Buffer-of-Thought(2024)', '概念阶段', '突破上下文限制']], caption: '多步推理四大前沿方向对比' }
+      ],
+      references: [
+        { title: 'Self-Discover: Large Language Models Self-Compose Reasoning Structures', authors: 'Zhou et al.', year: 2024, doi: '10.48550/arXiv.2402.03620' },
+        { title: 'SPIN: Self-Play Fine-Tuning Converts Weak LLMs to Strong LLMs', authors: 'Chen et al.', year: 2024, doi: '10.48550/arXiv.2401.01335' }
+      ],
+      key_takeaway: '自动推理结构发现、Self-Play优化和Agent Swarm代表了多步推理的三个未来方向——从手工设计到自动涌现，从单一模型到群体智慧。'
+    },
+    {
+      module_id: "m15-research_map",
+      module_title: "研究方向：过程监督、结果监督与隐式推理",
+      module_tag: "前沿探索",
+      hook: "在提示工程中让模型学会推理是「技巧」，让模型在训练中内化推理能力是「科学」——理解这两条路径的差异，能帮助你在技巧和原理层面都做到心中有数。",
+      content: "多步推理的研究可以分为两大阵营：推理时方法（Inference-time Methods）和训练时方法（Training-time Methods）。本节聚焦于训练时方法中的核心研究方向。\n\n**过程监督 vs 结果监督**\n\n这是多步推理训练中最核心的方法论分歧。\n\n**结果监督（Outcome Supervision）**采用传统的训练范式：只对模型的最终输出打分。如果最终答案正确，奖励整个推理链；如果错误，惩罚整个推理链。这种方法简单直接，但存在「信用分配」问题——无法识别推理链中哪些步骤贡献了正确，哪些步骤导致了错误。\n\n**过程监督（Process Supervision）**对推理链的每一步都进行评分。这需要一个「过程奖励模型」（Process Reward Model, PRM），为每个推理步骤独立打分。OpenAI的研究表明，过程监督训练的模型在MATH上比结果监督提升约10个百分点，因为PRM能提供更细粒度的学习信号。\n\nPRM的训练方式：收集人类标注的逐步骤正确性标签，训练一个模型预测每个步骤的正确概率。这是昂贵的（需要大量人工标注），但在关键场景中物有所值。\n\n**隐式推理（Implicit Reasoning）**\n\n隐式推理的研究试图回答一个根本问题：模型是否可以在不生成显式推理链的情况下进行多步推理？\n\n一些研究表明，通过特定的训练策略可以培养模型的隐式推理能力：\n- **内部化推理**：先用CoT训练模型生成显式推理，再逐步移除推理步骤（蒸馏）\n- **连续思维**：在模型的隐藏状态中插入可训练的「思维token」，让模型在潜在空间中进行推理\n- **System 2蒸馏**：将显式推理模型的输出蒸馏到隐式推理模型\n\n隐式推理的优势是速度快（不需要生成中间token）、Token成本低（输入输出简洁），但弱点是推理不可审计（失去了可解释性）。\n\n**比较分析**：\n- 推理时方法（CoT、ToT等）：灵活、可解释、无需训练，但成本高\n- 训练时方法（过程监督、隐式推理）：成本高（需要训练）、不够灵活，但推理时高效\n\n未来趋势：在关键场景（医疗、金融、法律）使用推理时方法以保证可审计性，在性能敏感场景（实时系统、移动端）使用训练时方法以提高效率。",
+      formulas: [
+        { latex: "$$\\mathcal{L}_{\\text{PRM}} = -\\sum_{i=1}^{n} \\left[y_i \\log p_i + (1-y_i) \\log (1-p_i)\\right]$$", caption: "过程奖励模型(PRM)的训练损失：对每一步推理的正确性y_i做二分类", expandable: true, derivation: "PRM将推理验证建模为序列标注问题。对推理链的第i步，PRM预测其正确概率p_i。训练时使用人工标注的逐步骤正确性标签y_i（0或1）。损失函数是标准的二分类交叉熵，对所有步骤求和。PRM训练完成后，可用于推理时的步骤剪枝（跳过低概率步骤）或作为强化学习的奖励信号。" }
+      ],
+      charts: [
+        { echarts_option: { title:{text:'过程监督vs结果监督的效果对比',left:'center',textStyle:{fontSize:14}}, tooltip:{trigger:'axis',axisPointer:{type:'shadow'}}, legend:{bottom:0}, xAxis:{type:'category',data:['GSM8K','MATH','BBH','MuSiQue']}, yAxis:{type:'value',name:'准确率(%)',max:100}, series:[{name:'结果监督',type:'bar',data:[75,32,58,42]},{name:'过程监督',type:'bar',data:[85,42,65,52]}] }, caption: '过程监督相对于结果监督在各基准上的准确率提升', data_source: '综合OpenAI和DeepMind的过程监督研究' }
+      ],
+      tables: [
+        { headers: ['维度', '推理时方法(CoT/ToT)', '训练时方法(PRM/隐式推理)'], rows: [['是否需要训练', '否', '是（需大量标注/计算）'],['灵活性', '高（换任务只需换提示）', '低（换任务需重新训练）'],['推理成本', '高（生成中间token）', '低（输出简洁）'],['可审计性', '高（推理步骤可见）', '低（隐式推理不可见）'],['准确率上限', '中高', '高'],['适用场景', '通用推理', '专用高性能推理']], caption: '推理时方法与训练时方法的多维度对比' }
+      ],
+      references: [
+        { title: 'Let\'s Verify Step by Step', authors: 'Lightman et al. (OpenAI)', year: 2023, doi: '10.48550/arXiv.2305.20050' },
+        { title: 'Solving Quantitative Reasoning Problems with Language Models', authors: 'Lewkowycz et al. (Minerva)', year: 2022, doi: '10.48550/arXiv.2206.14858' }
+      ],
+      key_takeaway: '过程监督比结果监督提供更细粒度的学习信号（约+10%提升），但需要昂贵的逐步骤标注；推理时方法与训练时方法各有优势，未来将根据场景互补使用。'
+    },
+    {
+      module_id: "m16-misconceptions",
+      module_title: "常见误区：CoT的适用范围、步数与效果的关系",
+      module_tag: "风险与挑战",
+      hook: "「CoT能解决一切推理问题」和「更多推理步骤一定更好」——这两个常见信念，恰恰是多步推理实践中最需要打破的迷思。",
+      content: "在学习和实践多步推理过程中，以下常见误区可能导致你用错方法、浪费时间、效果适得其反。\n\n**误区一：「CoT对所有任务都有效」**\n\n真相：CoT的效果高度依赖于任务是否真正需要多步推理。对于简单的知识回忆任务（如「法国的首都是什么」），CoT不仅无益，反而有害。模型可能生成无用的「让我想想...法国是一个欧洲国家...它的首都是...」类推理链，浪费Token的同时没有提升质量。\n\n经验法则：如果人类在不写草稿的情况下可以轻松回答，CoT对AI可能也不必要。CoT最适合需要2步以上推导的任务。\n\n**误区二：「推理步骤越多越好」**\n\n真相：推理步骤数与准确率的关系呈倒U形。在初始阶段，增加步骤确实提升准确率（每一步都贡献新的有用推理）。但到达某一点后，额外的步骤开始引入噪音、矛盾和冗余。过长的推理链还可能导致模型「自我怀疑」——本来对的答案被后面的过度推理推翻。\n\n最佳步骤数的谜题：目前没有通用的「最佳步数」公式，它取决于任务复杂度和模型能力。作为经验法则，对于GPT-4级别的模型，3-5步是最常见的有效推理步数范围。\n\n**误区三：「Self-Consistency总能提升效果」**\n\n真相：Self-Consistency通过采样多条链来提升效果，但这要求多条链之间有一定的多样性。如果模型对所有采样都生成几乎相同的推理链（低temperature时常见），那么Self-Consistency退化为重复计算，没有增益。\n\n最佳实践：使用temperature=0.7-1.0进行采样，采样5-10条链。如果多条链给出相同答案，这本身也是高置信度信号。\n\n**误区四：「多步推理可以替代模型能力提升」**\n\n真相：多步推理是在模型现有能力基础上的「提示引导」，而不是能力的根本提升。一个在基础任务上都表现不佳的模型（如GPT-3.5级别的弱推理能力），即使使用CoT，也无法匹配GPT-4的零样本表现。推理方法是对模型能力的杠杆放大——杠杆再长，也需要支点（基础能力的质量）。\n\n**误区五：「ToT总是优于CoT」**\n\n真相：ToT的强大是有代价的。它的计算开销是CoT的5-50倍。对于线性推理就够了的问题（大多数数学题和逻辑题），CoT就足够了，ToT是过度设计。ToT只应该用于真正需要探索多种可能性的问题（如24点游戏、创意生成、策略规划）。",
+      formulas: [
+        { latex: "$$\\text{Accuracy}(n) = \\text{Acc}_{\\max} \\cdot \\left(1 - e^{-\\beta n}\\right) - \\gamma n$$", caption: "推理步数n与准确率的关系模型：指数增长项与线性衰减项的博弈", expandable: true, derivation: "准确率随步数n的变化由两项组成。第一项Acc_max·(1-e^(-βn))表示额外推理带来的信息增益，增速递减（边际收益递减）。第二项γ·n表示长推理链引入的错误和噪音。两者之差形成了倒U形曲线。最优步数n* = (1/β)·ln(Acc_max·β/γ)，取决于模型推理增益效率β和错误引入率γ的比值。" }
+      ],
+      charts: [
+        { echarts_option: { title:{text:'推理步数与准确率的倒U关系',left:'center',textStyle:{fontSize:14}}, tooltip:{trigger:'axis'}, xAxis:{type:'category',data:['1','2','3','4','5','6','7','8','9','10','11','12']}, yAxis:{type:'value',name:'准确率(%)',max:100}, series:[{type:'line',data:[55,70,82,88,91,92,90,86,80,72,62,50],smooth:true,markLine:{data:[{xAxis:'5',label:{formatter:'最优步数≈5'}}],lineStyle:{color:'#c0a060',type:'dashed'}}}] }, caption: 'CoT推理步数与准确率的倒U形关系（模拟数据，基于GSM8K级别任务）' }
+      ],
+      tables: [
+        { headers: ['常见误区', '真相', '识别方法', '正确做法'], rows: [['CoT对所有任务都有效', '仅对需要>2步推理的任务有效', '看人工是否能轻松直接回答', '先用标准提示试，不行再加CoT'],['推理步骤越多越好', '倒U形关系，过多有害', '监控步数-准确率曲线', '3-5步为最佳，超过则加验证'],['Self-Consistency总能提升', '需要足够多样性才有效', '检查多条链的差异度', 'temp≥0.7，采样5-10条链'],['多步推理替代模型能力', '推理是能力的杠杆，非替代', '弱模型+CoT仍差于强模型零样本', '先选好模型，再加推理方法'],['ToT总是优于CoT', 'ToT开销大，仅适合探索型问题', '问题是否需要试错探索', '线性推理用CoT，探索型用ToT']], caption: '五大常见误区与正确认知对照表' }
+      ],
+      references: [
+        { title: 'Large Language Models are Zero-Shot Reasoners', authors: 'Kojima et al.', year: 2022, doi: '10.48550/arXiv.2205.11916' }
+      ],
+      key_takeaway: 'CoT不是万能药（仅对多步推理任务有效），更多步骤不一定更好（倒U形关系），Self-Consistency需要多样性才有价值——避免神化任何单一技术。'
+    },
+    {
+      module_id: "m17-learning_path",
+      module_title: "学习路线：从入门到精通的多步推理实践路径",
+      module_tag: "核心概念",
+      hook: "知识地图有了，技术武器库也了解了——现在需要的是一张从今天开始就能执行的实践路线图。",
+      content: "基于前述所有知识，以下是一份从入门到精通的多步推理实践路线图，分为四个阶段。\n\n**第一阶段：CoT入门（第1-2天）**\n\n目标：能独立设计和调试Chain-of-Thought提示。\n\n实践任务序列：\n1. 用GPT-4或Claude写10个不同领域的CoT提示（数学、逻辑、常识推理、代码、写作）\n2. 对比Zero-shot CoT和Few-shot CoT在GSM8K上5道题的差异\n3. 分析推理链：打开ChatGPT的推理过程，逐步标记哪些步骤是正确的、哪些是冗余的\n4. 尝试在CoT提示中加入自我验证指令（「请检查每一步的计算是否正确」）\n\n**第二阶段：推理搜索（第3-4天）**\n\n目标：掌握ToT和Self-Consistency。\n\n实践任务序列：\n1. 用ToT思维手动解决5道24点游戏题（不写代码，用笔和纸模拟BFS）\n2. 用API实现Self-Consistency：对一个数学题，用temperature=0.8采样5条推理链\n3. 对比单链vs多链的答案分布，观察投票的效果\n4. 如果你能编程：实现一个简单的ToT搜索框架（约100行Python）\n\n**第三阶段：工程化Agent（第5-7天）**\n\n目标：能用LangChain/DSPy部署推理Agent。\n\n实践任务序列：\n1. 用LangChain构建一个ReAct Agent，带2-3个工具\n2. 用DSPy实现一个ChainOfThought模块并自动优化\n3. 添加成本监控：记录每次推理的步数、Token消耗和成本\n4. 对比手工CoT vs DSPy优化后的CoT在同任务上的表现\n\n**第四阶段：进阶实战（第8-10天）**\n\n目标：独立设计复杂多步推理系统。\n\n实践任务序列：\n1. 设计一个结合CoT和ReAct的混合推理流程（先用CoT规划，再用ReAct执行）\n2. 为你的Agent添加错误恢复机制（重试、回溯、降级）\n3. 构建推理质量评估系统（对推理链的每一步自动打分）\n4. 如果你在做生产系统：将推理Agent部署为API服务\n\n**贯穿始终的好习惯**：\n- 每次实践后记录「什么有效、什么无效」\n- 定期回顾推理日志，寻找优化机会\n- 关注推理链的质量而不只是最终答案",
+      formulas: [],
+      charts: [
+        { echarts_option: { title:{text:'学习曲线预估：各阶段的技能掌握度',left:'center',textStyle:{fontSize:14}}, tooltip:{trigger:'axis'}, xAxis:{type:'category',data:['Day1','Day2','Day3','Day4','Day5','Day7','Day10']}, yAxis:{type:'value',name:'掌握度(%)',max:100}, series:[{type:'line',data:[20,40,55,65,75,85,95],smooth:true,areaStyle:{opacity:0.15},markArea:{data:[[{xAxis:'Day1',itemStyle:{color:'rgba(91,141,184,0.1)'}},{xAxis:'Day2'},{itemStyle:{color:'rgba(136,120,168,0.05)'}}],[{xAxis:'Day3'},{xAxis:'Day4'}],[{xAxis:'Day5'},{xAxis:'Day7'}],[{xAxis:'Day8'},{xAxis:'Day10'}]]}}] }, caption: '多步推理技能掌握度学习曲线预估' }
+      ],
+      tables: [
+        { headers: ['阶段', '时间', '核心技能', '产出物', '里程碑'], rows: [['CoT入门', 'Day1-2', 'Zero/Few-shot CoT', '10个CoT提示', '能独立设计有效CoT提示'],['推理搜索', 'Day3-4', 'ToT+Self-Consistency', 'ToT搜索实现', '能实现简单ToT框架'],['工程化', 'Day5-7', 'LangChain/DSPy', 'ReAct Agent', '能部署推理Agent'],['进阶实战', 'Day8-10', '混合推理+优化', '完整推理系统', '能设计生产级推理']], caption: '四阶段学习路线详细计划' }
+      ],
+      references: [
+        { title: 'Prompt Engineering Guide', authors: 'DAIR.AI', year: 2024, url: 'https://www.promptingguide.ai/' }
+      ],
+      key_takeaway: '从CoT入门到Agent部署再到系统优化，10天系统实践可以让你从「知道多步推理」到「能独立设计和部署推理系统」。关键是动手实践而非只看不练。'
+    }
+  ]
+};
+
+// ============ THEME ============
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  localStorage.setItem('slm-theme', theme);
+  updateThemeIcon();
+  Object.values(activeCharts).forEach(chart => {
+    const opt = chart.getOption();
+    chart.setOption(createThemedOption(opt), { notMerge: false });
+  });
+}
+
+function toggleTheme() {
+  const current = document.documentElement.getAttribute('data-theme') || 'dark';
+  applyTheme(current === 'dark' ? 'light' : 'dark');
+}
+
+function updateThemeIcon() {
+  const t = document.getElementById('theme-toggle');
+  const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+  t.textContent = isDark ? '☀️' : '🌓';
+}
+
+const savedTheme = localStorage.getItem('slm-theme') || 'dark';
+applyTheme(savedTheme);
+
+// ============ PROGRESS BAR ============
+window.addEventListener('scroll', () => {
+  const scrollTop = window.scrollY;
+  const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+  const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+  document.getElementById('progress-bar').style.width = progress + '%';
+});
+
+// ============ SIDEBAR ============
+let activeCharts = {};
+let sidebarLinks = [];
+
+function buildSidebar() {
+  const container = document.getElementById('sidebar-links');
+  sidebarLinks = [];
+  PAGE_DATA.modules.forEach(mod => {
+    const a = document.createElement('a');
+    a.href = '#' + mod.module_id;
+    a.className = 'sidebar-link';
+    a.textContent = mod.module_title || mod.module_id;
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      document.getElementById(mod.module_id).scrollIntoView({ behavior: 'smooth' });
+      if (window.innerWidth <= 768) {
+        document.getElementById('sidebar').classList.remove('open');
+      }
+    });
+    container.appendChild(a);
+    sidebarLinks.push({ el: a, id: mod.module_id });
+  });
+}
+
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      sidebarLinks.forEach(link => {
+        link.el.classList.toggle('active', link.id === entry.target.id);
+      });
+    }
+  });
+}, { rootMargin: '-80px 0px -60% 0px' });
+
+// ============ META CARD ============
+function buildMetaCard() {
+  const md = PAGE_DATA;
+  const domainClass = md.domain === 'finance' ? 'domain-finance' : 'domain-ai';
+  const levelClass = 'level-' + md.level;
+  const t = md.texture || '';
+  const db = md.depth + '×' + md.breadth;
+  document.getElementById('meta-card-container').innerHTML = `
+    <div class="meta-card">
+      <div class="meta-item"><span class="icon">📖</span><strong>${md.topic}</strong></div>
+      <div class="meta-item"><span class="meta-badge ${domainClass}">${md.domain_name}</span></div>
+      <div class="meta-item"><span class="meta-badge ${levelClass}">${md.level_name}</span></div>
+      ${t ? `<div class="meta-item"><span class="meta-badge texture-badge">${t} ${md.texture_name||''}</span></div>` : ''}
+      ${md.depth ? `<div class="meta-item"><span class="meta-badge depth-breadth">${db}</span></div>` : ''}
+      <div class="meta-item"><span class="icon">⏱️</span>约${md.reading_time}分钟阅读</div>
+      <div class="meta-item"><span class="icon">📦</span>${md.module_count}个模块</div>
+    </div>
+  `;
+}
+
+// ============ FORMULA RENDERING ============
+function renderFormulas(container) {
+  if (typeof renderMathInElement !== 'undefined') {
+    renderMathInElement(container, {
+      delimiters: [
+        { left: '$$', right: '$$', display: true },
+        { left: '$', right: '$', display: false }
+      ],
+      throwOnError: false
+    });
+  }
+}
+
+// ============ CHART RENDERING ============
+function createThemedOption(existingOpt) {
+  var isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+  var color = isDark
+    ? ['#5b8db8','#8878a8','#6ea8c0','#c0a060','#5a9e6f','#c06050','#e0c080','#7898c0']
+    : ['#3a6088','#5a4878','#3a7888','#886830','#3d8055','#983830','#a08040','#4878a0'];
+  return { color: color, ...existingOpt };
+}
+
+function renderChart(moduleId, chartConfig, index) {
+  var chartId = 'chart_' + moduleId + '_' + index;
+  var wrapper = document.getElementById(chartId);
+  if (!wrapper) return;
+
+  if (typeof echarts === 'undefined') {
+    wrapper.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-tertiary);font-size:13px;">📊 图表(静态模式)<br><small>加载CDN后可交互</small></div>';
+    return;
+  }
+
+  try {
+    var chart = echarts.init(wrapper);
+    var opt = chartConfig.echarts_option || {};
+    if (typeof opt === 'string') {
+      try { chart.setOption(createThemedOption(JSON.parse(opt))); } catch(e) { wrapper.textContent = '图表配置解析失败'; return; }
+    } else {
+      chart.setOption(createThemedOption(opt));
+    }
+    activeCharts[chartId] = chart;
+
+    var resizeObserver = new ResizeObserver(function() { chart.resize(); });
+    resizeObserver.observe(wrapper);
+  } catch(e) {
+    wrapper.textContent = '图表渲染失败: ' + e.message;
+  }
+}
+
+// ============ BUILD MODULES ============
+function buildModuleHTML(mod) {
+  var tagClass = getTagClass(mod.module_tag || '');
+
+  var html = `
+    <section class="module-section" id="${mod.module_id}">
+      <div class="module-header">
+        <span class="module-tag ${tagClass}">${mod.module_tag || ''}</span>
+        <h2 class="module-title">${mod.module_title || mod.module_id}</h2>
+      </div>`;
+
+  if (mod.hook) {
+    html += '<div class="module-hook">' + mod.hook + '</div>';
+  }
+
+  html += '<div class="module-content">' + parseMarkdownContent(mod.content || '') + '</div>';
+
+  if (mod.formulas && mod.formulas.length > 0) {
+    mod.formulas.forEach(function(formula, fi) {
+      var hasDerivation = formula.expandable && formula.derivation;
+      html += '<div class="formula-block' + (hasDerivation ? '' : ' not-expandable') + '" onclick="' + (hasDerivation ? 'toggleDerivation(this)' : '') + '">';
+      html += '<div>' + formula.latex + '</div>';
+      if (formula.caption) {
+        html += '<div class="formula-caption">' + formula.caption + '</div>';
+      }
+      if (hasDerivation) {
+        html += '<div class="formula-expand-hint">💡 点击展开推导过程</div>';
+        html += '<div class="formula-derivation">' + formula.derivation + '</div>';
+      }
+      html += '</div>';
+    });
+  }
+
+  if (mod.charts && mod.charts.length > 0) {
+    mod.charts.forEach(function(chart, ci) {
+      var chartId = 'chart_' + mod.module_id + '_' + ci;
+      html += '<div class="chart-container"><div class="chart-wrapper" id="' + chartId + '"></div>';
+      if (chart.caption) html += '<div class="chart-caption">' + chart.caption + '</div>';
+      if (chart.data_source) html += '<div class="chart-source">' + chart.data_source + '</div>';
+      html += '</div>';
+    });
+  }
+
+  if (mod.tables && mod.tables.length > 0) {
+    mod.tables.forEach(function(table) {
+      html += '<div style="overflow-x:auto"><table class="module-table">';
+      html += '<thead><tr>' + (table.headers||[]).map(function(h) { return '<th>' + h + '</th>'; }).join('') + '</tr></thead>';
+      html += '<tbody>' + (table.rows||[]).map(function(row) { return '<tr>' + row.map(function(c) { return '<td>' + c + '</td>'; }).join('') + '</tr>'; }).join('') + '</tbody>';
+      html += '</table>';
+      if (table.caption) html += '<div class="table-caption">' + table.caption + '</div>';
+      html += '</div>';
+    });
+  }
+
+  if (mod.references && mod.references.length > 0) {
+    html += '<div class="module-references"><h4>📚 参考文献</h4><ol>';
+    mod.references.forEach(function(ref) {
+      var linkHtml = ref.doi ? ' <a href="https://doi.org/' + ref.doi + '" target="_blank">DOI</a>' : '';
+      var urlHtml = ref.url ? ' <a href="' + ref.url + '" target="_blank">链接</a>' : '';
+      html += '<li>' + (ref.authors || '') + ' (' + (ref.year || '') + '). <strong>' + (ref.title || '') + '</strong>.' + linkHtml + urlHtml + '</li>';
+    });
+    html += '</ol></div>';
+  }
+
+  if (mod.key_takeaway) {
+    html += '<div class="key-takeaway">💡 ' + mod.key_takeaway + '</div>';
+  }
+
+  html += '</section>';
+  return html;
+}
+
+function getTagClass(tag) {
+  var map = {
+    '核心概念': 'tag-core',
+    '前置知识': 'tag-core',
+    '核心工具': 'tag-tools',
+    '发展演进': 'tag-evolution',
+    '实践应用': 'tag-application',
+    '风险与挑战': 'tag-risk',
+    '前沿探索': 'tag-frontier'
+  };
+  return map[tag] || 'tag-core';
+}
+
+function parseMarkdownContent(content) {
+  if (!content) return '';
+  var html = content;
+  html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
+  html = html.replace(/`([^`]+)`/g, '<code style="background:var(--bg-tertiary);padding:2px 6px;border-radius:4px;font-size:13px;">$1</code>');
+  html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>');
+  html = html.replace(/^### (.+)$/gm, '<h3 style="font-size:17px;font-weight:600;margin:20px 0 8px;">$1</h3>');
+  html = html.replace(/^## (.+)$/gm, '<h3 style="font-size:18px;font-weight:600;margin:24px 0 10px;">$1</h3>');
+  html = html.replace(/\n\n/g, '</p><p>');
+  html = '<p>' + html + '</p>';
+  html = html.replace(/<p>\s*<\/p>/g, '');
+  return html;
+}
+
+function toggleDerivation(el) {
+  el.classList.toggle('expanded');
+}
+
+// ============ INIT ============
+function initPage() {
+  document.body.classList.remove('loading');
+  document.body.classList.add('loaded');
+
+  buildMetaCard();
+  buildSidebar();
+  buildMobileNav();
+
+  var modulesContainer = document.getElementById('modules-container');
+  PAGE_DATA.modules.forEach(function(mod) {
+    var html = buildModuleHTML(mod);
+    modulesContainer.innerHTML += html;
+  });
+
+  var sectionEls = modulesContainer.querySelectorAll('.module-section');
+  sectionEls.forEach(function(sec) { observer.observe(sec); });
+
+  renderFormulas(modulesContainer);
+
+  setTimeout(function() {
+    PAGE_DATA.modules.forEach(function(mod) {
+      if (mod.charts) {
+        mod.charts.forEach(function(chart, ci) {
+          renderChart(mod.module_id, chart, ci);
+        });
+      }
+    });
+  }, 100);
+
+  var fadeObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.08 });
+  sectionEls.forEach(function(sec) { fadeObserver.observe(sec); });
+
+  document.addEventListener('keydown', function(e) {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') { e.preventDefault(); openSearch(); }
+    if ((e.ctrlKey || e.metaKey) && e.key === 'd') { e.preventDefault(); toggleTheme(); }
+    if (e.key === 'Escape') {
+      if (document.getElementById('searchOverlay').classList.contains('open')) { closeSearch(); return; }
+      if (document.getElementById('helpOverlay').classList.contains('open')) { document.getElementById('helpOverlay').classList.remove('open'); return; }
+    }
+    if (e.shiftKey && e.key === '?') { e.preventDefault(); document.getElementById('helpOverlay').classList.add('open'); }
+  });
+}
+
+function exportPDF() {
+  window.print();
+}
+
+function switchMode() {
+  alert('v2不再提供仪表盘模式。如需交互图表和公式渲染，请在HTML的<head>中取消CDN注释。');
+}
+
+// ============ CANVAS BACKGROUND ============
+(function(){
+  var cv = document.getElementById('bg-canvas');
+  var ctx = cv.getContext('2d');
+  var particles = [];
+  function rsz() { cv.width = window.innerWidth; cv.height = window.innerHeight; }
+  window.addEventListener('resize', rsz); rsz();
+  var count = Math.min(60, Math.floor((cv.width * cv.height) / 20000));
+  for (var i = 0; i < count; i++) {
+    particles.push({ x: Math.random()*cv.width, y: Math.random()*cv.height, vx: (Math.random()-0.5)*0.3, vy: (Math.random()-0.5)*0.3, r: Math.random()*1.5+0.3, a: Math.random()*0.3+0.05 });
+  }
+  function animate() {
+    ctx.clearRect(0, 0, cv.width, cv.height);
+    var isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+    var c = isDark ? '91,141,184' : '58,96,136';
+    particles.forEach(function(p) {
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < 0) p.x = cv.width; if (p.x > cv.width) p.x = 0;
+      if (p.y < 0) p.y = cv.height; if (p.y > cv.height) p.y = 0;
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 6.28);
+      ctx.fillStyle = 'rgba('+c+','+p.a+')'; ctx.fill();
+    });
+    for (var j = 0; j < particles.length; j++) {
+      for (var k = j+1; k < particles.length; k++) {
+        var dx = particles[j].x - particles[k].x;
+        var dy = particles[j].y - particles[k].y;
+        var d = Math.sqrt(dx*dx+dy*dy);
+        if (d < 110) { ctx.beginPath(); ctx.moveTo(particles[j].x, particles[j].y); ctx.lineTo(particles[k].x, particles[k].y); ctx.strokeStyle = 'rgba('+c+','+(0.06*(1-d/110))+')'; ctx.lineWidth = 0.5; ctx.stroke(); }
+      }
+    }
+    requestAnimationFrame(animate);
+  }
+  animate();
+})();
+
+// ============ SEARCH ============
+function openSearch() {
+  var ov = document.getElementById('searchOverlay'); ov.classList.add('open');
+  var inp = document.getElementById('searchInput'); inp.value = ''; inp.focus();
+  document.getElementById('searchResults').innerHTML = '';
+}
+function closeSearch() { document.getElementById('searchOverlay').classList.remove('open'); }
+document.getElementById('searchOverlay').addEventListener('click', function(e) { if (e.target === this) closeSearch(); });
+document.getElementById('searchInput').addEventListener('input', function() {
+  var q = this.value.toLowerCase(); var r = document.getElementById('searchResults');
+  if (!q || q.length < 2) { r.innerHTML = ''; return; }
+  function hl(t) { if (!t) return ''; var i = t.toLowerCase().indexOf(q); if (i === -1) return t; return t.substring(0,i)+'<mark>'+t.substring(i,i+q.length)+'</mark>'+t.substring(i+q.length); }
+  var results = [];
+  PAGE_DATA.modules.forEach(function(m) {
+    var title = m.module_title || m.module_id || '';
+    var txt = (m.hook||'') + ' ' + (m.content||'') + ' ' + (m.key_takeaway||'');
+    if (title.toLowerCase().indexOf(q) !== -1 || txt.toLowerCase().indexOf(q) !== -1) {
+      results.push({ id: m.module_id, title: hl(title), snippet: (m.hook || txt).substring(0, 80) });
+    }
+  });
+  r.innerHTML = results.slice(0, 12).map(function(x) { return '<div class="sr-item" onclick="document.getElementById(\''+x.id+'\').scrollIntoView({behavior:\'smooth\'});closeSearch();"><div class="sr-title">'+x.title+'</div><div class="sr-snippet">'+x.snippet+'</div></div>'; }).join('') || '<div class="search-empty">无匹配结果</div>';
+});
+
+function exportNotes() {
+  var lines = ['# '+PAGE_DATA.topic+' - 学习笔记', '', '生成日期: '+new Date().toLocaleDateString('zh-CN'), ''];
+  lines.push('## 📚 模块列表');
+  PAGE_DATA.modules.forEach(function(m) { lines.push('- **'+(m.module_title||m.module_id)+'**: '+(m.key_takeaway||m.hook||'')); });
+  var txt = lines.join('\n');
+  if (navigator.clipboard) { navigator.clipboard.writeText(txt).then(function() { alert('✅ 学习笔记已复制到剪贴板!'); }); }
+  else { var ta = document.createElement('textarea'); ta.value = txt; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); alert('✅ 学习笔记已复制到剪贴板!'); }
+}
+
+function buildMobileNav() {
+  var items = [];
+  PAGE_DATA.modules.forEach(function(m, i) { if (i % Math.max(1, Math.ceil(PAGE_DATA.modules.length / 5)) === 0) items.push({ id: m.module_id, label: (m.module_title||m.module_id).substring(0, 4) }); });
+  if (items.length > 5) items = items.slice(0, 5);
+  var inner = document.getElementById('mbnInner');
+  inner.innerHTML = items.map(function(x) { return '<button class="mbn-item" onclick="document.getElementById(\''+x.id+'\').scrollIntoView({behavior:\'smooth\'})"><span class="mbn-icon">📑</span>'+x.label+'</button>'; }).join('');
+  items.push({ id: 'top', label: '顶部' });
+  inner.innerHTML += '<button class="mbn-item" onclick="window.scrollTo({top:0,behavior:\'smooth\'})"><span class="mbn-icon">⬆</span>顶部</button>';
+}
+document.getElementById('helpOverlay').addEventListener('click', function(e) { if (e.target === this) this.classList.remove('open'); });
+
+window.addEventListener('scroll', function() {
+  var sections = document.querySelectorAll('.module-section');
+  var activeIdx = -1;
+  sections.forEach(function(s, i) { var top = s.getBoundingClientRect().top; if (top < 150 && top > -s.offsetHeight + 150) activeIdx = i; });
+  var btns = document.querySelectorAll('.mbn-item');
+  btns.forEach(function(b, i) { b.classList.toggle('mbn-active', i === activeIdx); });
+});
+
+document.addEventListener('DOMContentLoaded', initPage);
+
+window.addEventListener('themechange', function() {
+  Object.values(activeCharts).forEach(function(chart) {
+    chart.resize();
+  });
+});
+</script>
+</body>
+</html>

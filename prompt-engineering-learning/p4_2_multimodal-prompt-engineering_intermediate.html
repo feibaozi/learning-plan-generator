@@ -1,0 +1,1181 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>多模态提示工程 — 深度研读</title>
+<style>
+/* ───────────────────────────────────────────────
+   Template: Graphite Studio (石墨工作室) — deep_dive.css
+   Mood: minimal, clean, neutral
+   Contrast verified: text-primary≥10:1, text-secondary≥6:1, text-muted≥4.5:1
+   ─────────────────────────────────────────────── */
+:root{
+--bg-base:#0d0d0d;
+--bg-card:#1a1a1a;
+--bg-elevated:#222222;
+--bg-overlay:rgba(0,0,0,.6);
+--text-primary:#ededed;
+--text-secondary:#a0a0a0;
+--text-muted:#787878;
+--accent-indigo:#5b8db8;
+--accent-purple:#8878a8;
+--accent-cyan:#6ea8c0;
+--accent-gold:#c0a060;
+--accent-green:#5a9e6f;
+--accent-red:#c06050;
+--accent-blue:#5b8db8;
+--accent-color:#5b8db8;
+--accent-dark:#3a6088;
+--border-subtle:rgba(160,160,160,.15);
+--border-glow:rgba(91,141,184,.2);
+--shadow-sm:0 1px 3px rgba(0,0,0,.3);
+--shadow-md:0 4px 16px rgba(0,0,0,.4);
+--shadow-lg:0 8px 32px rgba(0,0,0,.5);
+--shadow-elevated:0 8px 32px rgba(0,0,0,.5);
+--radius-sm:6px;
+--radius-md:10px;
+--radius-lg:16px;
+--font-sans:'Segoe UI',system-ui,-apple-system,sans-serif;
+--font-mono:Consolas,'Cascadia Code',monospace;
+--transition:.25s cubic-bezier(.4,0,.2,1);
+--transition-smooth:.3s ease;
+--nav-h:56px;
+--accent-color-rgb:91,141,184;
+--chart-grid:#252525;
+--chart-axis-label:#787878;
+}
+[data-theme="light"]{
+--bg-base:#fafafa;
+--bg-card:#ffffff;
+--bg-elevated:#eeeeee;
+--bg-overlay:rgba(0,0,0,.3);
+--text-primary:#121212;
+--text-secondary:#4a4a4a;
+--text-muted:#5e5e5e;
+--accent-indigo:#3a6088;
+--accent-purple:#5a4878;
+--accent-cyan:#3a7888;
+--accent-gold:#886830;
+--accent-green:#3d8055;
+--accent-red:#983830;
+--accent-blue:#3a6088;
+--accent-color:#3a6088;
+--accent-dark:#284868;
+--border-subtle:rgba(18,18,18,.08);
+--border-glow:rgba(58,96,136,.2);
+--shadow-sm:0 1px 3px rgba(0,0,0,.06);
+--shadow-md:0 4px 16px rgba(0,0,0,.08);
+--shadow-lg:0 8px 32px rgba(0,0,0,.12);
+--shadow-elevated:0 8px 32px rgba(0,0,0,.12);
+--accent-color-rgb:58,96,136;
+--chart-grid:#e5e5e5;
+--chart-axis-label:#5e5e5e;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font-sans);background:var(--bg-base);color:var(--text-primary);line-height:1.75;overflow-x:hidden}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg-base)}::-webkit-scrollbar-thumb{background:var(--border-glow);border-radius:3px}
+
+.progress-bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--accent-indigo),var(--accent-purple),var(--accent-cyan));z-index:200;transition:width .1s linear}
+.navbar{position:fixed;top:3px;left:0;right:0;z-index:100;background:var(--bg-card);border-bottom:1px solid var(--border-subtle);backdrop-filter:blur(16px);height:var(--nav-h);display:flex;align-items:center;justify-content:space-between;padding:0 24px}
+.nav-left{display:flex;align-items:center;gap:12px;font-size:.82rem;font-weight:600;color:var(--accent-indigo)}
+.nav-right{display:flex;align-items:center;gap:8px}
+.nav-right button{background:var(--bg-elevated);border:1px solid var(--border-subtle);color:var(--text-secondary);padding:6px 12px;border-radius:var(--radius-sm);cursor:pointer;font-size:.75rem;transition:all var(--transition)}
+.nav-right button:hover{border-color:var(--border-glow);color:var(--accent-indigo)}
+
+.side-dots{position:fixed;right:16px;top:50%;transform:translateY(-50%);z-index:80;display:flex;flex-direction:column;gap:8px}
+.side-dot{width:8px;height:8px;border-radius:50%;border:2px solid var(--border-glow);cursor:pointer;transition:all var(--transition)}
+.side-dot.active,.side-dot:hover{background:var(--accent-indigo);border-color:var(--accent-indigo)}
+
+.container{max-width:calc(100% - 48px);margin:0 auto;padding:calc(var(--nav-h) + 24px) 24px 80px}
+
+.hero{text-align:center;padding:48px 0 36px}
+.hero h1{font-size:2.2rem;background:linear-gradient(135deg,var(--accent-indigo),var(--accent-purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+.hero .tags{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:12px}
+.hero .tags span{font-size:.7rem;padding:4px 12px;border-radius:50px;border:1px solid var(--border-glow);color:var(--accent-indigo);background:rgba(99,102,241,.06)}
+
+.meta-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:20px 24px;margin:0 auto 32px;max-width:700px;display:flex;justify-content:center;gap:36px;flex-wrap:wrap;box-shadow:var(--shadow-md)}
+.meta-item{text-align:center}
+.meta-item .val{font-size:1.4rem;font-weight:800;color:var(--accent-indigo)}
+.meta-item .lbl{font-size:.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px}
+
+/* Journey Bar */
+.journey-bar{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:12px 20px;margin:0 auto 24px;max-width:900px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:.82rem;box-shadow:var(--shadow-elevated)}
+.journey-path{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.journey-icon{font-size:1rem}
+.journey-plan{color:var(--accent-purple);font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.journey-plan:hover{color:var(--accent-gold)}
+.journey-sep{color:var(--text-muted);font-size:.7rem}
+.journey-phase{color:var(--text-secondary);font-weight:600}
+.journey-kp{color:var(--text-primary);font-weight:700}
+.journey-pos{color:var(--text-muted);font-size:.72rem}
+.journey-nav{display:flex;align-items:center;gap:8px;font-size:.75rem}
+.journey-prev,.journey-next{color:var(--text-muted);cursor:default}
+.journey-divider{color:var(--border-subtle)}
+
+.module{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:28px 28px 24px;margin-bottom:20px;
+opacity:0;transform:translateY(24px);transition:opacity .5s ease,transform .5s ease;box-shadow:var(--shadow-sm)}
+.module.visible{opacity:1;transform:translateY(0)}
+.module:hover{border-color:var(--border-glow)}
+.module h2{font-size:1.15rem;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.module .m-tag{font-size:.65rem;padding:2px 10px;border-radius:50px;background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.2);color:var(--accent-indigo);font-weight:600}
+.module .m-time{font-size:.7rem;color:var(--text-muted);margin-left:auto}
+.module .hook{font-size:.9rem;color:var(--accent-purple);font-weight:600;margin:12px 0 16px;padding-left:12px;border-left:3px solid var(--accent-purple)}
+.module .content{font-size:.88rem;color:var(--text-secondary);line-height:1.8}
+.module .content p{margin-bottom:12px}
+
+.formula-block{background:rgba(99,102,241,.04);border:1px solid rgba(99,102,241,.12);border-radius:var(--radius-sm);padding:14px 18px;margin:14px 0;font-family:var(--font-mono);font-size:.82rem;color:var(--accent-cyan);overflow-x:auto;position:relative}
+.formula-block .f-cap{font-size:.7rem;color:var(--text-muted);margin-bottom:6px;display:block}
+.derivation-toggle{font-size:.7rem;color:var(--accent-gold);cursor:pointer;border:none;background:none;padding:4px 0;font-family:inherit;display:block;margin-top:6px}
+.derivation-toggle:hover{text-decoration:underline}
+.derivation-content{display:none;margin-top:8px;padding:12px 16px;background:rgba(245,158,11,.04);border-radius:var(--radius-sm);border-left:3px solid var(--accent-gold);font-size:.8rem;color:var(--text-secondary)}
+.derivation-content.open{display:block}
+
+.chart-wrap{background:rgba(99,102,241,.03);border-radius:var(--radius-sm);padding:8px;margin:14px 0;text-align:center}
+.chart-wrap canvas{max-width:100%}
+.chart-wrap .ch-cap{font-size:.72rem;color:var(--text-muted);margin-top:6px}
+
+.data-table{width:100%;border-collapse:collapse;margin:12px 0;font-size:.82rem}
+.data-table th{text-align:left;padding:8px 12px;background:rgba(99,102,241,.08);border-bottom:2px solid var(--border-glow);color:var(--accent-indigo);font-weight:700}
+.data-table td{padding:8px 12px;border-bottom:1px solid var(--border-subtle);color:var(--text-secondary)}
+.data-table tr:hover td{background:rgba(99,102,241,.03)}
+
+.takeaway{font-size:.82rem;background:rgba(16,185,129,.06);border-left:3px solid var(--accent-green);padding:10px 14px;margin-top:16px;border-radius:0 var(--radius-sm) var(--radius-sm) 0;color:var(--accent-green)}
+
+.ref-list{list-style:none;padding:0;margin-top:8px;font-size:.78rem}
+.ref-list li{padding:4px 0;color:var(--text-muted)}
+.ref-list li::before{content:'📄 '}
+
+.search-overlay{position:fixed;inset:0;z-index:300;background:var(--bg-overlay);display:none;align-items:flex-start;justify-content:center;padding-top:120px}
+.search-overlay.open{display:flex}
+.search-box{width:520px;max-width:90vw;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:var(--radius-md);box-shadow:var(--shadow-lg);overflow:hidden}
+.search-box input{width:100%;padding:14px 18px;background:transparent;border:none;color:var(--text-primary);font-size:.95rem;outline:none;font-family:inherit}
+.search-results{max-height:360px;overflow-y:auto}
+.search-results div{padding:10px 18px;cursor:pointer;font-size:.82rem;color:var(--text-secondary);border-top:1px solid var(--border-subtle);transition:background var(--transition)}
+.search-results div:hover{background:rgba(99,102,241,.06);color:var(--text-primary)}
+
+/* Journey Footer */
+.journey-footer{text-align:center;padding:40px 32px 60px;opacity:.8}
+.back-to-plan{display:inline-flex;align-items:center;gap:8px;padding:10px 24px;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:50px;color:var(--text-secondary);text-decoration:none;font-size:.85rem;font-weight:600;transition:all var(--transition-smooth)}
+.back-to-plan:hover{background:var(--bg-elevated);border-color:var(--accent-purple);color:var(--accent-purple)}
+
+/* Floating Back Button */
+.deep-floating-back{position:fixed;right:20px;bottom:20px;z-index:10000}
+.deep-floating-back button{padding:12px 20px;background:linear-gradient(135deg,var(--accent-color),var(--accent-dark));color:white;border:none;border-radius:24px;font-size:.85rem;font-weight:600;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.15);transition:transform .2s,box-shadow .2s}
+.deep-floating-back button:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.2)}
+
+/* Toast */
+.dd-toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);z-index:10001;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:8px;padding:14px 24px;box-shadow:0 4px 16px rgba(0,0,0,.15);font-size:.85rem;display:none}
+.toast-in{animation:toastIn .3s ease}
+@keyframes toastIn{from{opacity:0;transform:translate(-50%,20px)}to{opacity:1;transform:translate(-50%,0)}}
+
+/* Print */
+@media print{.navbar,.progress-bar,.side-nav,.journey-bar,.journey-footer,.deep-floating-back{display:none!important}.module{break-inside:avoid;opacity:1!important;transform:none!important;box-shadow:none}body{background:#fff}}
+
+@media(max-width:768px){
+.hero h1{font-size:1.6rem}.module{padding:20px}.meta-card{font-size:.72rem;padding:12px 16px}.journey-bar{flex-direction:column;align-items:flex-start}
+.deep-floating-back{right:15px;bottom:15px}.deep-floating-back button{padding:10px 16px;font-size:.8rem}
+.side-dots{display:none}
+}
+</style>
+</head>
+<body data-theme="dark">
+
+<div class="progress-bar" id="progressBar" style="width:0%"></div>
+
+<nav class="navbar">
+  <div class="nav-left">📖 多模态提示工程</div>
+  <div class="nav-right">
+    <button onclick="toggleTheme()" title="切换主题 (Ctrl+D)">🌓 主题</button>
+    <button onclick="openSearch()" title="搜索 (Ctrl+K)">🔍 搜索</button>
+  </div>
+</nav>
+
+<div class="side-dots" id="sideDots"></div>
+
+<div class="search-overlay" id="searchOverlay">
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="搜索模块内容..." oninput="doSearch()" onkeydown="if(event.key==='Escape')closeSearch()">
+    <div class="search-results" id="searchResults"></div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="hero">
+    <h1>多模态提示工程</h1>
+    <div class="tags">
+      <span>🔬 多模态学习</span><span>🧠 深度学习</span><span>🏗️ 架构设计</span><span>📈 前沿技术</span>
+    </div>
+  </div>
+
+  <div class="meta-card">
+    <div class="meta-item"><div class="val">16+1</div><div class="lbl">模块数</div></div>
+    <div class="meta-item"><div class="val">~85 分钟</div><div class="lbl">预计学习时间</div></div>
+    <div class="meta-item"><div class="val">理解级</div><div class="lbl">深度学习深度</div></div>
+  </div>
+
+  <div class="journey-bar" id="journeyBar">
+    <div class="journey-path">
+      <span class="journey-icon">📍</span>
+      <span class="journey-plan" onclick="var w=window.open('pe_learning.html#kc-p4_2','plan_main');if(w)w.focus()">提示工程 (Prompt Engineering) 系统学习方案</span>
+      <span class="journey-sep">〉</span>
+      <span class="journey-phase">进阶前沿</span>
+      <span class="journey-sep">〉</span>
+      <span class="journey-kp">多模态提示工程</span>
+      <span class="journey-pos">(第12/12个知识点)</span>
+    </div>
+    <div class="journey-nav">
+      <span class="journey-prev" title="前置: 自动化提示优化">← 前置</span>
+      <span class="journey-divider">|</span>
+      <span class="journey-next" title="后续: 无">后续 →</span>
+    </div>
+  </div>
+
+<div id="module_container">
+
+<!-- learning_journey -->
+<div class="module" id="mod-learning_journey">
+<h2>🗺️ 学习旅程导航 <span class="m-tag">导航</span><span class="m-time">~4 分钟</span></h2>
+<div class="hook">在深入多模态提示工程的细节之前，了解你的位置和接下来的探索路径。</div>
+<div class="content">
+<p>欢迎来到<strong>多模态提示工程</strong>——这是「提示工程 (Prompt Engineering) 系统学习方案」的最后一站，也是整个学习路径中技术含量最高的知识点之一。你所在的阶段是<strong>进阶前沿</strong>（4/4），这意味着你已掌握了从基础提示设计到 Chain-of-Thought、自动化提示优化等核心技能。</p>
+<p>在此之前的「自动化提示优化」中，你已经了解了 DSPy、APO 等自动化框架如何用算法替代手工调优。现在，我们将视野从纯文本扩展到<strong>文本+图像+视频+音频</strong>的多模态世界——这是 GPT-4V、Claude 3、Gemini 等前沿模型正在重塑的人机交互范式。</p>
+<p>本资料包含 <strong>16 个核心模块</strong>，覆盖从概念原理到实战案例的完整知识图谱：你将理解跨模态注意力的数学原理、掌握视觉 token 化的成本估算、学会构建 OCR 分析流水线、对比主流开源模型的能力边界。每个模块约 4-6 分钟，建议按照导航条顺序阅读，并在案例研究模块停下动手实践。</p>
+<p>本知识点是当前学习方案的终点，但同时也是你未来探索<strong>具身智能提示</strong>、<strong>实时视频理解</strong>和<strong>3D 场景交互</strong>等前沿领域的起点。让我们开始这场跨模态之旅。</p>
+<div class="takeaway">🔑 <strong>关键提醒：</strong>多模态提示工程不是简单地把文本 prompt 技巧复制到图像场景——它需要同时理解视觉表征、空间推理和跨模态对齐三个维度的交互规则。</div>
+</div>
+</div>
+
+<!-- background -->
+<div class="module" id="mod-background">
+<h2>📜 背景：从单一文本到多模态世界 <span class="m-tag">背景</span><span class="m-time">~5 分钟</span></h2>
+<div class="hook">当 LLM 学会了「看」，提示工程的游戏规则被彻底改写。</div>
+<div class="content">
+<p>2022 年之前，提示工程几乎完全是关于<strong>文本</strong>的事。GPT-3、PaLM、LLaMA 等纯语言模型的提示设计专注于 few-shot 示例、角色设定和 chain-of-thought 推理。提示工程师只需要思考一个问题：<strong>什么样的文字能引导模型产生期望的文本输出？</strong></p>
+<p>变化始于 2023 年 3 月 GPT-4 的发布。虽然官方技术报告仅简单提及多模态能力，但 2023 年 9 月 GPT-4V(ision) 的正式亮相标志着<strong>视觉语言模型 (VLM)</strong> 进入主流应用。几乎同期，LLaVA、MiniGPT-4 等开源项目通过<strong>视觉编码器+语言模型</strong>的桥接架构，让学术界也能参与多模态提示研究。</p>
+<p>2024 年是爆发之年：Anthropic 发布 Claude 3 系列（全系支持视觉）、Google 推出 Gemini 1.5 Pro（百万 token 上下文+视频理解）、阿里开源 Qwen-VL、微软发布 Phi-3-Vision。多个模型在 MMMU 多学科理解基准上超越了人类平均水平。</p>
+<p>多模态提示工程的独特挑战源于三个根本差异。第一，<strong>视觉 token 的语义密度远低于文本 token</strong>——一张 512×512 的图像可能产生 256 个 patch token，但每个 patch 只含局部像素信息，不像文字 token 承载词义。第二，<strong>空间关系理解</strong>是全新维度——用户需要指示模型关注图中的「左上角红色区域」或「第二段第三行」。第三，<strong>跨模态幻觉</strong>更加复杂——模型可能在文本推理正确但视觉定位错误，或反之。</p>
+<div class="chart-wrap">
+<canvas id="chartTimeline" width="720" height="280"></canvas>
+<div class="ch-cap">图：多模态大模型演进时间线 (2023-2025)</div>
+</div>
+<div class="takeaway">🔑 多模态提示工程的本质是设计能够同时驾驭<strong>离散语义空间</strong>（文本）和<strong>连续视觉空间</strong>（图像/视频）的指令，让模型在两个空间之间建立精确的对齐桥梁。</div>
+</div>
+</div>
+
+<!-- concept -->
+<div class="module" id="mod-concept">
+<h2>🎯 核心概念：什么是多模态提示工程 <span class="m-tag">概念</span><span class="m-time">~5 分钟</span></h2>
+<div class="hook">多模态提示 ≠ 文字提示+图片附件。它是一种全新的指令设计范式。</div>
+<div class="content">
+<p><strong>多模态提示工程</strong>是指为能够同时处理多种输入模态（文本、图像、视频、音频等）的模型设计、优化和评估提示指令的系统方法。其核心目标是<strong>最大化跨模态信息的利用效率</strong>，使模型在文本推理与视觉理解之间建立精确的语义桥梁。</p>
+
+<p>与纯文本提示相比，多模态提示引入四个全新维度：</p>
+<table class="data-table">
+<tr><th>维度</th><th>纯文本提示</th><th>多模态提示</th></tr>
+<tr><td>模态组合</td><td>单一文本序列</td><td>文本+图像+视频+音频任意组合</td></tr>
+<tr><td>空间参照</td><td>无（仅段落/列表结构）</td><td>像素坐标、边框、区域描述、箭头标注</td></tr>
+<tr><td>时序对齐</td><td>文本顺序即时间顺序</td><td>视频帧索引、时间戳、事件对齐</td></tr>
+<tr><td>语义密度</td><td>每个 token 承载固定信息量</td><td>视觉 token 信息密度高度不均匀</td></tr>
+</table>
+
+<p>多模态提示的典型结构可以表示为以下形式：</p>
+<div class="formula-block">
+<span class="f-cap">多模态提示的通用结构</span>
+P_multimodal = ⟨S_system, I_1, I_2, ..., I_k, T_instruction, O_format⟩<br>
+where &nbsp;S_system = 系统层角色与约束设定<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_k = 第k个视觉输入（图像/视频帧）<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_instruction = 文本指令与问题描述<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;O_format = 输出格式约束（JSON/Markdown/结构化文本）
+</div>
+
+<p>在实际使用中，多模态提示存在几种主要格式。第一种是<strong>交错提示</strong>：Text→Image→Text→Image→Text，类似对话中穿插图片。第二种是<strong>图像先行提示</strong>：先上传所有图片，再发送文本指令。第三种是<strong>内嵌 URL/base64 提示</strong>（API 模式）：在文本中通过 URL 或 base64 编码引用图像。第四种是<strong>视频帧序列提示</strong>：将视频拆解为关键帧序列，配合时间戳文本描述。</p>
+
+<p>一个关键概念是<strong>跨模态提示密度</strong>——给定总 token 预算下，文本 token 和视觉 token 的最优分配比例。研究发现，对于 VQA（视觉问答）任务，20%-35% 的 token 预算分配给视觉通常是最优的；而对于 OCR 密集任务，这一比例可达 40%-55%。</p>
+
+<div class="chart-wrap">
+<canvas id="chartModalityMix" width="640" height="240"></canvas>
+<div class="ch-cap">图：不同任务类型的最优模态 token 配比</div>
+</div>
+
+<div class="takeaway">🔑 多模态提示工程的核心矛盾在于：视觉信息丰富但 token 浪费大 vs 文本信息精确但承载量有限——优秀的提示设计需要在这两者之间找到任务最优平衡点。</div>
+</div>
+</div>
+
+<!-- principle -->
+<div class="module" id="mod-principle">
+<h2>⚙️ 工作原理：多模态模型如何「理解」提示 <span class="m-tag">原理</span><span class="m-time">~6 分钟</span></h2>
+<div class="hook">从像素到语义——一条跨越视觉编码器、跨模态桥接器和语言模型的漫长流水线。</div>
+<div class="content">
+<p>理解多模态提示工程的原理，首先要理解典型 VLM 的三段式架构。第一阶段：<strong>视觉编码</strong>，将图像通过预训练的视觉编码器（如 CLIP ViT-L/14 或 SigLIP）转化为视觉特征向量序列。第二阶段：<strong>跨模态桥接</strong>，通过可学习的投影层（如 Q-Former 或简单的 MLP 投影）将视觉特征映射到与语言模型 token embedding 相同的向量空间。第三阶段：<strong>联合推理</strong>，语言模型将视觉 token 和文本 token 拼接为一个统一的序列进行自回归解码。</p>
+
+<div class="chart-wrap">
+<canvas id="chartArchOverview" width="720" height="300"></canvas>
+<div class="ch-cap">图：VLM 三段式架构：视觉编码→跨模态桥接→联合推理</div>
+</div>
+
+<p><strong>视觉 token 化原理：</strong>输入图像首先被划分为固定大小的 patches（如 14×14 或 16×16 像素）。每个 patch 展平后通过 ViT 编码为固定维度的向量。一张 336×336 的图像在 14×14 patch 大小下产生 (336/14)×(336/14) = 576 个 patch token，外加一个 [CLS] 分类 token，共 577 个视觉 token。这就是为什么一张图会消耗大量 token 预算——视觉信息以「铺开」的方式被编码。</p>
+
+<div class="formula-block">
+<span class="f-cap">视觉 token 数量计算公式</span>
+N_tokens = ⌈H / P⌉ × ⌈W / P⌉ + N_special<br>
+其中：H, W = 图像输入分辨率（像素）<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;P = Vision Transformer 的 patch 大小（通常14或16）<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;N_special = 特殊 token 数量（[CLS], [SEP] 等，通常1-2个）
+</div>
+<button class="derivation-toggle">▸ 展开推导</button>
+<div class="derivation-content">
+以 GPT-4V 的分块策略为例：一张 1024×768 的图像，按 512×512 的 tile 大小切割。每个 tile 内部再按 ViT patch 编码。若 P=14，每个 tile 产生 (512/14)² ≈ 1332 个 token。GPT-4V 还需要额外的「全局缩略图」token（85 个），因此：N_total = ceil(1024/512)×ceil(768/512)×1332 + 85 = 2×2×1332+85 = 5413 tokens。这解释了为什么高分辨率图像分析的成本远高于文本对话。
+</div>
+
+<p><strong>跨模态注意力的核心机制：</strong>在联合推理阶段，语言模型的自注意力层中，文本 token 可以对视觉 token 进行注意力操作。这实现了文本查询与视觉键值的对齐：</p>
+
+<div class="formula-block">
+<span class="f-cap">跨模态注意力公式</span>
+Attention(Q_text, K_vision, V_vision) = softmax( Q_text · K_vision^T / √d_k ) · V_vision<br>
+其中：Q_text ∈ ℝ^(n_text × d_k) — 文本 token 的查询矩阵<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;K_vision, V_vision ∈ ℝ^(n_vision × d_k) — 视觉 token 的键值矩阵<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;d_k — 注意力头的维度
+</div>
+
+<p>这个公式的美妙之处在于，文本 token 通过 Q 矩阵「查询」视觉 token 的 K 矩阵，选择性地关注与当前文本语义相关的图像区域。对于 prompt 设计来说，这意味着<strong>文本指令中的空间描述词（如「左上角」、「红色区域」、「第二列」）会直接影响注意力权重的分布</strong>。</p>
+
+<p><strong>视觉指令微调</strong>是多模态模型获得 prompt 遵循能力的关键阶段。与纯文本模型不同，VLM 的微调数据需要包含图像-文本-答案三元组。典型的数据集包括 LLaVA-Instruct-150K（由 GPT-4 生成的对话）、ShareGPT4V 等。微调阶段通常冻结视觉编码器，只更新投影层和部分 LLM 参数，以保留视觉表征质量的同时赋予模型指令遵循能力。</p>
+
+<div class="formula-block">
+<span class="f-cap">视觉指令微调损失函数</span>
+L(θ) = - Σ log P(y_t | I, T_prompt, y_{&lt;t}; θ)<br>
+其中：I 为输入图像<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_prompt 为文本提示<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;y_t 为第 t 步的目标输出 token<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;θ 为可训练参数（投影层+部分LLM层）
+</div>
+
+<div class="takeaway">🔑 多模态模型的「理解」本质是一个<strong>双阶段映射过程</strong>：首先将视觉信号映射到与语言相同的向量空间，然后通过跨模态注意力让文本查询在视觉特征中「找到」相关信息。</div>
+</div>
+</div>
+
+<!-- architecture -->
+<div class="module" id="mod-architecture">
+<h2>🏗️ 系统架构：多模态提示流水线设计 <span class="m-tag">架构</span><span class="m-time">~5 分钟</span></h2>
+<div class="hook">从单次 API 调用到生产级流水线——工程现实中需要考虑的不只是 model.generate()。</div>
+<div class="content">
+<p>在生产环境中，多模态提示工程远不止给模型发送一张图和一段文字那么简单。一个完整的<strong>多模态提示流水线</strong>通常包含五个阶段：</p>
+<p><strong>阶段一：图像预处理。</strong>原始输入图像需要经过格式校验（JPEG/PNG/WEBP）、分辨率调整、压缩优化、方向校正（EXIF 旋转）等步骤。分辨率选择是一个重要的权衡：过高的分辨率意味着指数增长的 token 消耗，过低则丢失关键细节。推荐的策略是<strong>自适应分辨率</strong>——OCR 任务使用高分辨率（>1024px 短边），场景描述使用中分辨率（512-768px），物体检测使用低分辨率+标注框。</p>
+<p><strong>阶段二：视觉 token 化。</strong>预处理后的图像通过模型专属的编码流程转化为视觉 token。此处关键决策是<strong>多图策略</strong>：多张图片是独立编码还是拼接为一张大图？独立编码保留每张图的完整语义但消耗更多 token，拼接减少 token 但可能引入布局歧义。对于 GPT-4V，多张独立图片每张都需要独立的 token 分配。</p>
+<p><strong>阶段三：提示组装。</strong>将系统消息、视觉 token、文本指令按模型要求的格式组装。典型结构如下：</p>
+<div class="formula-block">
+<span class="f-cap">提示组装结构（GPT-4V API 风格）</span>
+messages = [<br>
+&nbsp;&nbsp;{"role": "system", "content": S_role + S_constraints},<br>
+&nbsp;&nbsp;{"role": "user", "content": [<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{"type": "text", "text": T_instruction},<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{"type": "image_url", "image_url": {"url": I_base64, "detail": D_level}}<br>
+&nbsp;&nbsp;]}<br>
+]<br>
+其中 D_level ∈ {"low", "high", "auto"} 控制视觉分辨率和 token 预算
+</div>
+<p><strong>阶段四：模型推理。</strong>结合温度参数、max_tokens、stop 序列等推理配置。多模态推理的独特考虑包括：是否启用<strong>思维链</strong>来引导视觉推理（如「请先描述图像中的关键元素，再...」），以及是否使用<strong>结构化输出</strong>（JSON mode）来约束模型以固定格式返回视觉分析结果。</p>
+<p><strong>阶段五：输出解析与校验。</strong>多模态模型的输出解析比纯文本更具挑战性——需要验证空间坐标的有效性、检测模棱两可的描述、识别视觉幻觉。常见的后处理包括：坐标归一化、边界框合理性检查、引用区域与原文对比验证。</p>
+<div class="chart-wrap">
+<canvas id="chartPipeline" width="720" height="260"></canvas>
+<div class="ch-cap">图：多模态提示工程五阶段流水线</div>
+</div>
+<div class="takeaway">🔑 生产级多模态系统的核心竞争力不在于单个 prompt 的质量，而在于<strong>预处理、token 预算管理、输出验证</strong>这三个工程环节的精细程度。</div>
+</div>
+</div>
+
+<!-- development -->
+<div class="module" id="mod-development">
+<h2>📈 发展历程：多模态模型能力演进 <span class="m-tag">发展</span><span class="m-time">~5 分钟</span></h2>
+<div class="hook">三年时间，从「能看图说话」到「实时视频理解」——多模态的进化速度远超 LLM。</div>
+<div class="content">
+<p>多模态大模型的演进可以分为四个清晰的发展阶段：</p>
+<table class="data-table">
+<tr><th>阶段</th><th>时间</th><th>代表模型</th><th>核心能力</th><th>提示工程技术</th></tr>
+<tr><td>萌芽期</td><td>2021-2022</td><td>CLIP, Flamingo, BLIP-2</td><td>图像分类、图文匹配</td><td>简单文本查询+图像</td></tr>
+<tr><td>突破期</td><td>2023</td><td>GPT-4V, LLaVA-1.5, CogVLM</td><td>视觉问答、图表理解、OCR</td><td>结构化 prompt、多轮视觉对话</td></tr>
+<tr><td>成熟期</td><td>2024</td><td>Claude 3, Gemini 1.5, Qwen2-VL</td><td>视频理解、长文档分析、精细定位</td><td>视频帧 prompt、空间引用、链式视觉推理</td></tr>
+<tr><td>融合期</td><td>2025-2026</td><td>GPT-4o, Gemini 2.0, Claude 4</td><td>实时音视频交互、3D理解、工具调用</td><td>多模态 agent、流式视觉、跨模态思维链</td></tr>
+</table>
+<p><strong>2023 年——突破之年。</strong>GPT-4V 的发布是整个领域的转折点。它不仅能在自然图片上做视觉问答，还展现出惊人的<strong>文档分析、数学公式识别和 UI 理解</strong>能力。同时，LLaVA 项目证明只需 ~150K 条 GPT-4 生成的视觉指令数据，就能让小模型获得显著的多模态对话能力，开启了开源 VLM 的繁荣时代。</p>
+<p><strong>2024 年——视频与长上下文。</strong>Gemini 1.5 Pro 将多模态上下文窗口推至百万 token 级别，使得<strong>整部电影级别的视频理解</strong>成为可能。Claude 3 Opus 在精细视觉推理任务上达到甚至超越 GPT-4V。Qwen2-VL 支持动态分辨率和多图像交错理解，在 MMBench 上取得开源最佳成绩。</p>
+<p><strong>2025-2026 年——实时融合。</strong>GPT-4o 实现了文本、视觉和音频的<strong>原生多模态融合</strong>（而非多个独立模型的拼接），端到端延迟降至 232ms（接近人类对话反应时间）。实时视频通话、屏幕共享理解、3D 场景交互等应用场景开始浮现。多模态 agent 成为新趋势——模型不仅能看，还能基于视觉信息调用工具、操作 UI。</p>
+<div class="chart-wrap">
+<canvas id="chartCapabilityGrowth" width="640" height="260"></canvas>
+<div class="ch-cap">图：多模态模型核心能力指数增长曲线 (MMMU 基准)</div>
+</div>
+<div class="takeaway">🔑 多模态模型的进化遵循<strong>「模态扩展→分辨率提升→上下文增长→实时融合」</strong>的四级跳路径，每级都对提示工程提出了新的设计要求。</div>
+</div>
+</div>
+
+<!-- application -->
+<div class="module" id="mod-application">
+<h2>💼 应用场景：多模态提示的实战领域 <span class="m-tag">应用</span><span class="m-time">~5 分钟</span></h2>
+<div class="hook">从医疗影像到自动驾驶——多模态提示正在重塑各行各业的 AI 交互方式。</div>
+<div class="content">
+<p>多模态提示工程的应用已经渗透到多个垂直领域。以下按照技术难度从低到高介绍六大典型场景：</p>
+<p><strong>场景一：文档理解与 OCR。</strong>这是目前应用最成熟的场景。典型 prompt 模式：「请提取本发票中的：{发票号, 日期, 金额, 税号}，以 JSON 格式返回」。进阶技巧包括：要求模型先「逐区域描述文档布局（layout-aware prompting）」再提取信息，以及使用<strong>多张裁剪图片</strong>分别处理表格、印章等不同区域。</p>
+<p><strong>场景二：UI 自动化测试。</strong>GPT-4V/Claude 能理解软件截图的 UI 结构和状态。典型 prompt：「检查此登录页面截图，验证：(1) 用户名输入框是否存在 (2) 「登录」按钮是否可见 (3) 是否有错误提示信息。对每个检查项返回 PASS/FAIL 及理由」。更高阶的用法是将 UI 截图结合无障碍树数据，实现<strong>视觉+结构化混合理解</strong>。</p>
+<p><strong>场景三：医疗影像辅助分析。</strong>在放射影像（X 光、CT、MRI）分析中，多模态提示表现突出。Prompt 模式：「请分析此胸部 X 光片：(1) 描述整体影像质量 (2) 标注你观察到的异常区域 (3) 给出鉴别诊断建议（不超过3个）。请注意，你应明确声明你的分析仅供参考。」关键设计要点：<strong>必须要求模型声明置信度</strong>和使用免责声明。</p>
+<p><strong>场景四：电商商品理解。</strong>结合商品图片和规格文字，进行属性提取、合规检查、竞品对比。典型 prompt：「对比这两张商品图片，分析：包装差异、品牌信息、成分表异同。输出对比表格。」</p>
+<p><strong>场景五：自动驾驶场景理解。</strong>分析行车记录仪/车载摄像头帧序列，进行场景描述和风险评估。prompt：「你是一名驾驶安全分析师。请分析这段连续 5 帧的视频截图：(1) 识别所有交通参与者 (2) 评估当前风险等级 (3) 指出潜在危险行为。」</p>
+<p><strong>场景六：无障碍辅助。</strong>为视障用户提供实时环境描述。prompt 设计注重时效性和安全性：「请在 3 秒内描述你看到的场景，重点关注：前方是否有障碍物、红绿灯状态、行人位置。用简洁的短句，不超过 30 个词。」</p>
+<div class="chart-wrap">
+<canvas id="chartApplications" width="640" height="240"></canvas>
+<div class="ch-cap">图：各应用场景的技术成熟度与商业价值矩阵</div>
+</div>
+<div class="takeaway">🔑 不同场景的多模态 prompt 设计差异巨大——医疗需要低置信度声明，自动驾驶需要实时约束，无障碍需要简洁输出——没有「万能 prompt 模板」。</div>
+</div>
+</div>
+
+<!-- case_study -->
+<div class="module" id="mod-case_study">
+<h2>🔬 案例研究：构建发票 OCR 分析流水线 <span class="m-tag">案例</span><span class="m-time">~6 分钟</span></h2>
+<div class="hook">从一张模糊的收据照片到结构化的 JSON 数据——完整的端到端实践。</div>
+<div class="content">
+<p>本案例展示如何用 GPT-4V 构建一个生产级发票/收据分析流水线。目标是接收手机拍摄的任意角度、任意光照条件下的收据照片，输出标准化的结构化数据。</p>
+<p><strong>第一轮：朴素 prompt（基线）。</strong>我们从一个最简单的 prompt 开始：</p>
+<div class="formula-block">
+<span class="f-cap">v1 朴素 prompt</span>
+「请提取这张收据中的所有信息。」
+</div>
+<p><strong>结果：</strong>模型返回了一段自由文本，混合了商品名、价格、日期，格式混乱且有几个 OCR 错误（如「1,280」被读作「1280」缺少千位分隔符校验）。准确率约 65%。</p>
+<p><strong>第二轮：结构化 prompt。</strong>引入明确的字段定义和输出格式约束：</p>
+<div class="formula-block">
+<span class="f-cap">v2 结构化 prompt（字段约束）</span>
+「请将此收据解析为以下 JSON 格式：<br>
+{<br>
+&nbsp;&nbsp;"merchant": "商家名称",<br>
+&nbsp;&nbsp;"date": "YYYY-MM-DD",<br>
+&nbsp;&nbsp;"items": [{"name":"...","qty":N,"unit_price":N}],<br>
+&nbsp;&nbsp;"subtotal": N,<br>
+&nbsp;&nbsp;"tax": N,<br>
+&nbsp;&nbsp;"total": N,<br>
+&nbsp;&nbsp;"currency": "币种"<br>
+}<br>
+如果无法确定某字段，填写 null。」
+</div>
+<p><strong>结果：</strong>输出格式固定为 JSON，但模型在「subtotal」和「tax」字段上出现计算错误——它将收据中的预计算值与原始 item 价格之和混淆。准确率提升至 78%。</p>
+<p><strong>第三轮：思维链+自验证 prompt。</strong>引入模型自我验证步骤：</p>
+<div class="formula-block">
+<span class="f-cap">v3 思维链自验证 prompt</span>
+步骤1: 逐行读取收据中的每个商品条目，记录名称、数量和单价。<br>
+步骤2: 计算每个条目的金额 = 数量 × 单价。<br>
+步骤3: 汇总所有条目金额，与收据上的小计 (subtotal) 对比。<br>
+步骤4: 如果汇总值与 subtotal 不一致，标注差异并选择收据标注值。<br>
+步骤5: 按指定 JSON 格式输出最终结果。
+</div>
+<p><strong>结果：</strong>准确率提升至 93%。模型在步骤 3 中自动发现了一处价格计算不一致（收据打印错误）并正确标注。</p>
+<p><strong>第四轮：多图+图像预处理。</strong>针对低质量图片，增加预处理步骤：将模糊区域裁剪放大为独立图片，分两次提交给模型（先看整体布局，再看局部细节）。同时增加亮度/对比度自适应调整。</p>
+<p><strong>最终结果：</strong>准确率达到 96.5%。处理一张收据的端到端延迟约 3.2 秒，token 消耗约 850-1200 tokens/张。</p>
+<div class="chart-wrap">
+<canvas id="chartCaseAccuracy" width="600" height="220"></canvas>
+<div class="ch-cap">图：四轮迭代的准确率提升曲线</div>
+</div>
+<div class="takeaway">🔑 生产级多模态 prompt 的迭代路径：<strong>朴素→结构化→思维链→预处理</strong>，每轮优化可带来 10-15% 的准确率提升。最关键的是引入自验证逻辑。</div>
+</div>
+</div>
+
+<!-- compute_cost -->
+<div class="module" id="mod-compute_cost">
+<h2>💰 计算成本：视觉 token 的经济学 <span class="m-tag">成本</span><span class="m-time">~5 分钟</span></h2>
+<div class="hook">一张图可能比一段话贵 100 倍——理解视觉 token 的成本结构是生产部署的前提。</div>
+<div class="content">
+<p>多模态 API 的计费基于 token 数量，而视觉 token 的消耗远超文本。以 OpenAI GPT-4o 的定价为例（2025 年价格）：</p>
+<table class="data-table">
+<tr><th>图像分辨率</th><th>策略</th><th>Token 消耗</th><th>输入成本 (USD)</th><th>相对文本倍数</th></tr>
+<tr><td>512×512 (low)</td><td>单 tile 固定</td><td>85 tokens</td><td>$0.00021</td><td>~1×</td></tr>
+<tr><td>1024×1024 (high)</td><td>4 tiles</td><td>765 tokens</td><td>$0.00191</td><td>~9×</td></tr>
+<tr><td>2048×2048 (high)</td><td>16 tiles</td><td>2,805 tokens</td><td>$0.00701</td><td>~33×</td></tr>
+<tr><td>4096×4096 (high)</td><td>64 tiles</td><td>10,965 tokens</td><td>$0.02741</td><td>~129×</td></tr>
+</table>
+<p><strong>视觉 token 消耗的完整计算公式：</strong></p>
+<div class="formula-block">
+<span class="f-cap">视觉 token 成本通用公式</span>
+Cost_image = N_tiles × T_per_tile × P_input<br>
+其中：<br>
+&nbsp;&nbsp;N_tiles = ⌈W / T_W⌉ × ⌈H / T_H⌉<br>
+&nbsp;&nbsp;T_per_tile = (T_W / P)² + T_overhead &nbsp;&nbsp;(P为patch大小)<br>
+&nbsp;&nbsp;P_input = 模型输入 token 单价<br>
+<br>
+GPT-4o 参数：T_W=T_H=512, T_overhead=85, P≈32
+</div>
+<button class="derivation-toggle">▸ 展开推导</button>
+<div class="derivation-content">
+以一张 1920×1080 的截图为例：N_tiles = ceil(1920/512) × ceil(1080/512) = 4 × 3 = 12 tiles。若每个 tile 产生约 170 tokens（512²/32² + 85 ≈ 256+85 = 341，但 GPT-4o 有优化机制约 170），则总 token = 12×170 = 2040 tokens。在 GPT-4o 定价 ($2.50/1M input tokens) 下：Cost_image = 2040 × 2.50/1M = $0.0051。若每月处理 10 万张图片，月度成本约 $510。这就是为什么生产系统中必须建立 token 预算管理机制。
+</div>
+<p><strong>成本优化五大策略：</strong></p>
+<table class="data-table">
+<tr><th>策略</th><th>方法</th><th>预期节省</th><th>适用场景</th></tr>
+<tr><td>分辨率降级</td><td>使用 low detail (85 tokens) 替代 high</td><td>80-95%</td><td>场景分类、情感分析</td></tr>
+<tr><td>智能裁剪</td><td>只提交包含关键信息的区域</td><td>40-70%</td><td>文档特定段落提取</td></tr>
+<tr><td>图像压缩</td><td>JPEG quality=60-75 预处理</td><td>0%（token不变）</td><td>减少上传带宽</td></tr>
+<tr><td>批量合并</td><td>多张小图合并为一张</td><td>30-60%</td><td>多图对比分析</td></tr>
+<tr><td>缓存复用</td><td>相同图像引用缓存结果</td><td>100%（重复调用）</td><td>固定模板/表单</td></tr>
+</table>
+<div class="chart-wrap">
+<canvas id="chartCostBreakdown" width="640" height="240"></canvas>
+<div class="ch-cap">图：不同优化策略下的月度成本对比（10万张/月基准）</div>
+</div>
+<div class="takeaway">🔑 视觉 token 成本是纯文本的 1-130 倍——<strong>「这张图真的需要 high resolution 吗？」</strong>应该是每个多模态 prompt 工程师的第一问。</div>
+</div>
+</div>
+
+<!-- risk -->
+<div class="module" id="mod-risk">
+<h2>⚠️ 风险与陷阱：多模态模型的「视觉幻觉」 <span class="m-tag">风险</span><span class="m-time">~5 分钟</span></h2>
+<div class="hook">「看到」不等于「看对」——多模态模型中潜藏着比纯文本 LLM 更隐蔽的风险。</div>
+<div class="content">
+<p>多模态模型继承了纯文本 LLM 的所有风险（幻觉、偏见、有害输出），同时引入了<strong>视觉模态特有的新风险维度</strong>：</p>
+<p><strong>第一类：视觉幻觉。</strong>模型可能「看到」图像中并不存在的内容。常见模式包括：(1) <strong>物体虚构</strong>——在没有人的照片中描述人物；(2) <strong>文本臆造</strong>——在模糊文字区域创造不存在的内容；(3) <strong>关系幻觉</strong>——正确识别了两个物体但错误描述它们的空间关系。研究表明，当前最佳 VLM 在标准视觉 QA 上的幻觉率为 12-18%。</p>
+<p><strong>第二类：对抗性图像攻击。</strong>攻击者可以向图片中注入人眼不可见的扰动（adversarial perturbations），使模型产生完全错误的输出。更令人担忧的是<strong>视觉 prompt 注入</strong>——在图片中嵌入隐藏文本指令（如白色字体写在白色背景上），模型可能读取并执行这些隐藏指令，绕过文本层的安全防护。</p>
+<p><strong>第三类：空间推理失败。</strong>多模态模型在处理需要精确空间关系的任务时表现不稳定。例如：「图中有 5 个杯子排成一行，左数第三个是什么颜色？」模型可能正确识别了 5 个杯子，但左右方向判断错误。这种失败在涉及<strong>方向性介词</strong>（左/右、上/下、前/后）或<strong>计数+定位组合</strong>时尤为常见。</p>
+<p><strong>第四类：隐私泄露。</strong>用户上传的图片可能包含元数据（GPS 坐标、拍摄时间、设备信息），而这些数据在模型处理过程中可能通过 side-channel 泄露。一张看似寻常的街景照可能暴露用户的精确位置。</p>
+<table class="data-table">
+<tr><th>风险类型</th><th>发生频率</th><th>危害级别</th><th>核心缓解措施</th></tr>
+<tr><td>视觉幻觉</td><td>高 (12-18%)</td><td>中</td><td>自验证链、多模型交叉校验</td></tr>
+<tr><td>对抗性图像</td><td>低（需主动攻击）</td><td>高</td><td>图像净化、输入去噪</td></tr>
+<tr><td>空间推理失败</td><td>中 (8-15%)</td><td>中</td><td>方向锚定 prompt、grid-based 分解</td></tr>
+<tr><td>OCR 布局错误</td><td>中 (10-20%)</td><td>中</td><td>分段 OCR、布局信息增强 prompt</td></tr>
+<tr><td>隐私泄露</td><td>取决于用户行为</td><td>高</td><td>元数据剥离、客户端预处理</td></tr>
+<tr><td>跨模态偏见</td><td>中</td><td>中</td><td>多样化训练数据、偏见审计</td></tr>
+</table>
+<div class="chart-wrap">
+<canvas id="chartRiskRadar" width="520" height="320"></canvas>
+<div class="ch-cap">图：多模态风险雷达图——各维度风险严重程度评估</div>
+</div>
+<div class="takeaway">🔑 多模态提示工程师必须像<strong>安全研究员</strong>一样思考——每一条 prompt 不仅要考虑功能性，还要设计对抗视觉幻觉的防护机制（如要求模型先列出它看到的元素，再进行推理）。</div>
+</div>
+</div>
+
+<!-- open_source -->
+<div class="module" id="mod-open_source">
+<h2>🔓 开源生态：可部署的多模态模型 <span class="m-tag">开源</span><span class="m-time">~5 分钟</span></h2>
+<div class="hook">不是所有场景都需要 GPT-4V——从 LLaVA 到 InternVL，开源世界提供了丰富的选择。</div>
+<div class="content">
+<p>开源多模态模型在过去两年经历了爆发式增长，目前已覆盖从轻量级移动端到企业级服务器的全场景需求。以下是当前（2025 年 5 月）最具代表性的开源 VLM：</p>
+<table class="data-table">
+<tr><th>模型</th><th>参数量</th><th>视觉编码器</th><th>LLM 基座</th><th>分辨率</th><th>特点</th></tr>
+<tr><td>LLaVA-1.6</td><td>7B/13B/34B</td><td>CLIP ViT-L</td><td>Vicuna/Yi</td><td>672×672</td><td>学术标杆，训练数据公开</td></tr>
+<tr><td>Qwen2-VL</td><td>2B/7B/72B</td><td>ViT (动态)</td><td>Qwen2</td><td>动态分辨率</td><td>中文最优，动态tile</td></tr>
+<tr><td>InternVL2</td><td>1B-76B</td><td>InternViT</td><td>InternLM2</td><td>动态 448px</td><td>多尺寸系列，OCR最强</td></tr>
+<tr><td>CogVLM2</td><td>19B</td><td>EVA2-CLIP</td><td>Llama-3</td><td>1344×1344</td><td>视觉专家分支架构</td></tr>
+<tr><td>Phi-3-Vision</td><td>4.2B</td><td>CLIP ViT-L</td><td>Phi-3</td><td>336×336</td><td>轻量高效，边缘部署</td></tr>
+<tr><td>MiniCPM-V</td><td>2.8B</td><td>SigLIP</td><td>MiniCPM</td><td>1344×1344</td><td>移动端最佳，量化友好</td></tr>
+</table>
+<p><strong>选型决策框架。</strong>选择开源 VLM 时应考虑四个核心维度：</p>
+<p>（1）<strong>中文能力：</strong>如果主要处理中文文档/场景，Qwen2-VL 和 InternVL2 是最佳选择——它们在中文 OCR 和中文场景理解上的表现远超英文原生模型。Qwen2-VL-72B 在中文 PPT 理解、中式发票识别等场景已接近 GPT-4V。</p>
+<p>（2）<strong>部署资源：</strong>7B 以下模型（Phi-3-Vision、MiniCPM-V）可在消费级 GPU（RTX 3060 12GB）上运行，适合边缘和移动端部署。34B+ 模型需要 A100/H100 级别硬件。</p>
+<p>（3）<strong>分辨率需求：</strong>如果需要分析高分辨率文档/图表，优先选择支持动态分辨率的模型（Qwen2-VL、InternVL2）。固定分辨率模型在处理大图时会丢失细节。</p>
+<p>（4）<strong>微调可行性：</strong>LLaVA 系列拥有最完善的微调生态（LoRA、QLoRA 均有社区方案），是定制化需求的首选。InternVL2 和 Qwen2-VL 也支持全参数微调和 LoRA。</p>
+<div class="chart-wrap">
+<canvas id="chartOpenSourceCompare" width="640" height="260"></canvas>
+<div class="ch-cap">图：开源 VLM 在 MMBench 和 MME 上的性能对比</div>
+</div>
+<div class="takeaway">🔑 开源 VLM 的核心价值不在绝对性能，而在于<strong>可控性</strong>——你可以微调分辨率策略、自定义视觉 prompt 格式、部署在私有环境中处理敏感图像数据。</div>
+</div>
+</div>
+
+<!-- landscape -->
+<div class="module" id="mod-landscape">
+<h2>🌐 产业格局：全球多模态模型竞争地图 <span class="m-tag">格局</span><span class="m-time">~5 分钟</span></h2>
+<div class="hook">OpenAI、Google、Anthropic、Meta... 多模态模型已成为 AI 竞赛的主战场。</div>
+<div class="content">
+<p>截至 2025 年中，全球多模态大模型格局呈现<strong>「一超多强+中国崛起」</strong>的态势：</p>
+<table class="data-table">
+<tr><th>厂商</th><th>旗舰模型</th><th>核心优势</th><th>定价策略</th><th>开放程度</th></tr>
+<tr><td>OpenAI</td><td>GPT-4o / GPT-4.1</td><td>综合性能最强、生态完善</td><td>$2.50-10/1M tokens</td><td>API 专有</td></tr>
+<tr><td>Google</td><td>Gemini 2.0 Pro</td><td>百万级上下文、视频理解、搜索集成</td><td>$1.25-5/1M tokens</td><td>API + Vertex AI</td></tr>
+<tr><td>Anthropic</td><td>Claude 4 Opus</td><td>安全性、长文档、精细推理</td><td>$3-15/1M tokens</td><td>API 专有</td></tr>
+<tr><td>Meta</td><td>Llama 4 Vision</td><td>开源、可商用、社区活跃</td><td>免费（自部署）</td><td>完全开源</td></tr>
+<tr><td>阿里</td><td>Qwen2-VL-72B</td><td>中文最强、动态分辨率</td><td>¥3-6/1M tokens (百炼)</td><td>开源+API</td></tr>
+<tr><td>上海AI Lab</td><td>InternVL2-76B</td><td>OCR 领域领先</td><td>免费（自部署）</td><td>完全开源</td></tr>
+</table>
+<p><strong>竞争维度的演变。</strong>多模态模型的竞争力已从早期的「能不能看图」转变为五个新维度：</p>
+<p>（1）<strong>视频理解深度：</strong>Google 凭借 Gemini 的百万 token 上下文在长视频分析上占据明显优势，可以一次性处理 1 小时以上的视频内容。OpenAI GPT-4o 和 Claude 4 也在追赶，但目前仍以短视频为主。</p>
+<p>（2）<strong>实时交互延迟：</strong>GPT-4o 以 232ms 的平均语音响应延迟设立了新标杆，使<strong>实时视觉对话</strong>成为可能。这对 AR 眼镜、智能座舱等场景至关重要。</p>
+<p>（3）<strong>中文多模态生态：</strong>阿里 Qwen2-VL 和上海 AI Lab InternVL2 构成了中文世界最强大的多模态模型组合。百炼平台提供的 API 价格仅为 GPT-4V 的 30-50%，在中文场景中有明显性价比优势。</p>
+<p>（4）<strong>Agent 能力：</strong>Anthropic Claude 在视觉 Agent 领域领先——它的「computer use」功能可以操作桌面应用、浏览网页，配合视觉理解进行端到端任务执行。</p>
+<p>（5）<strong>安全与合规：</strong>Anthropic 的安全研究最为深入，Claude 在面对对抗性图像和视觉 jailbreak 时表现更稳健。Google 通过 Vertex AI 提供企业级合规保障。</p>
+<div class="chart-wrap">
+<canvas id="chartLandscape" width="640" height="280"></canvas>
+<div class="ch-cap">图：主流多模态模型五维竞争力雷达图</div>
+</div>
+<div class="takeaway">🔑 选择多模态模型服务商时，不仅要看基准分数，更要结合<strong>你的应用场景（中文/英文？长视频/短图？实时/离线？）和合规需求</strong>做综合决策。</div>
+</div>
+</div>
+
+<!-- benchmark -->
+<div class="module" id="mod-benchmark">
+<h2>📊 基准测试：衡量多模态理解能力 <span class="m-tag">基准</span><span class="m-time">~5 分钟</span></h2>
+<div class="hook">MMMU、MME、MMBench... 如何科学评估一个模型「看」得有多好？</div>
+<div class="content">
+<p>多模态模型的评估比纯文本 LLM 复杂得多，因为需要同时衡量文本理解、视觉感知、跨模态推理和空间认知能力。以下是当前最权威的六大基准：</p>
+<table class="data-table">
+<tr><th>基准</th><th>发布方</th><th>任务类型</th><th>题目数</th><th>考察维度</th><th>当前最高分</th></tr>
+<tr><td>MMMU</td><td>IN.AI Research</td><td>多学科选择题</td><td>11,550</td><td>大学级学科知识+视觉理解</td><td>GPT-4o 69.1%</td></tr>
+<tr><td>MME</td><td>腾讯优图</td><td>是/非判断题</td><td>2,374</td><td>感知+认知双维度（14子任务）</td><td>InternVL2 2350/2800</td></tr>
+<tr><td>MMBench</td><td>OpenCompass</td><td>多选</td><td>2,974</td><td>20项细粒度能力</td><td>Qwen2-VL-72B 86.8%</td></tr>
+<tr><td>SEED-Bench</td><td>腾讯ARC</td><td>多选</td><td>19,242</td><td>空间/时间/文本/图像理解</td><td>Gemini 2.0 81.2%</td></tr>
+<tr><td>Video-MME</td><td>多机构联合</td><td>多选</td><td>2,700</td><td>视频理解（短/中/长）</td><td>Gemini 1.5 Pro 75.8%</td></tr>
+<tr><td>MMVet</td><td>新加坡国立</td><td>开放式问答</td><td>218</td><td>识别+知识+空间+数学+OCR</td><td>GPT-4o 67.5%</td></tr>
+</table>
+<p><strong>各模型在主流基准上的表现对比：</strong></p>
+<div class="chart-wrap">
+<canvas id="chartBenchmarkBars" width="640" height="300"></canvas>
+<div class="ch-cap">图：各大模型在 MMMU/MME/MMBench 上的分数对比</div>
+</div>
+<p><strong>基准测试的局限性。</strong>虽然这些基准提供了有价值的比较框架，但存在几个重要局限：（1）<strong>分布偏移</strong>——基准图像多为高质量、良好光照的图片，与真实世界用户上传的模糊、倾斜、遮挡图片有显著差距；（2）<strong>语言偏差</strong>——大多基准以英文为主，中文场景的代表性不足（MMBench 有中文版本是一个进步）；（3）<strong>任务局限性</strong>——多选题形式无法评估模型在<strong>开放式视觉推理</strong>中的表现，而这恰恰是多模态提示工程最关注的场景；（4）<strong>数据污染</strong>——部分基准的测试图片可能已被包含在模型的训练数据中。</p>
+<div class="formula-block">
+<span class="f-cap">有效提示质量的代理评估公式</span>
+Prompt_Score = α · Task_Accuracy + β · Token_Efficiency + γ · Robustness<br>
+其中：<br>
+&nbsp;&nbsp;α + β + γ = 1（典型取值：α=0.5, β=0.2, γ=0.3）<br>
+&nbsp;&nbsp;Task_Accuracy = 在目标任务上的准确率<br>
+&nbsp;&nbsp;Token_Efficiency = 1 - (实际token/预算token)<br>
+&nbsp;&nbsp;Robustness = 在不同图像质量下的性能方差
+</div>
+<div class="takeaway">🔑 基准分数是参考，不是真理。真正有效的多模态 prompt 评估应该在<strong>你的目标场景的真实数据</strong>上进行，关注 token 效率而不仅是准确率。</div>
+</div>
+</div>
+
+<!-- learning_path -->
+<div class="module" id="mod-learning_path">
+<h2>🗺️ 学习路径：从入门到精通 <span class="m-tag">学习</span><span class="m-time">~5 分钟</span></h2>
+<div class="hook">多模态提示工程的技能树——三个阶段，从调用 API 到设计自己的视觉 Agent。</div>
+<div class="content">
+<p>学习多模态提示工程需要同时掌握文本提示技术、视觉表征理解和系统工程能力。以下是推荐的三阶段学习路径：</p>
+<p><strong>第一阶段：基础入门（2-3 周）。</strong>目标：能熟练调用 GPT-4V/Claude Vision API 完成常见任务。核心内容：理解视觉 token 概念（1-2 天）；熟悉 OpenAI Vision API 和 Anthropic Messages API 的图像提交方式（2-3 天）；掌握 OCR、VQA、图像描述三大基础任务的 prompt 模板（1 周）；实践文档提取和 UI 分析两个完整场景（1 周）。推荐资源：OpenAI Vision Guide、Anthropic Vision Cookbook、LLaVA Demo。</p>
+<p><strong>第二阶段：进阶实践（3-4 周）。</strong>目标：能独立设计多模态 prompt 流水线，理解视觉推理的技术原理。核心内容：学习 CLIP/ViT 的视觉编码原理（1 周）；实践多图提示、视频帧处理、空间定位 prompt（1 周）；掌握 token 成本优化和图像预处理技巧（3-4 天）；部署一个开源 VLM（LLaVA 或 Qwen2-VL）并对比商业模型效果（1 周）。推荐资源：CLIP 论文、LLaVA 项目、Qwen2-VL GitHub。</p>
+<p><strong>第三阶段：前沿探索（持续）。</strong>目标：能设计多模态 Agent 系统，在特定领域达到 SOTA。核心内容：微调开源 VLM 以适应特定领域（LoRA/QLoRA）；实现视频流实时分析系统（WebRTC + VLM）；设计多模态思维链和递归视觉推理；研究视觉 Jailbreak 攻击与防御；探索 3D 场景理解和具身智能提示。推荐资源：MMMU/MMBench 论文、Gemini 1.5 技术报告、Video-MME 基准。</p>
+<div class="chart-wrap">
+<canvas id="chartLearningPath" width="640" height="240"></canvas>
+<div class="ch-cap">图：三阶段学习路径与关键里程碑</div>
+</div>
+<table class="data-table">
+<tr><th>阶段</th><th>核心技能</th><th>工具栈</th><th>产出标准</th></tr>
+<tr><td>入门</td><td>API调用、基础prompt设计</td><td>OpenAI/Anthropic SDK</td><td>独立完成文档提取pipeline</td></tr>
+<tr><td>进阶</td><td>流水线设计、token优化、开源部署</td><td>LLaVA/Qwen2-VL + Python</td><td>生产级prompt流水线</td></tr>
+<tr><td>精通</td><td>微调、视频分析、Agent设计</td><td>LoRA + LangChain + WebRTC</td><td>多模态Agent系统</td></tr>
+</table>
+<div class="takeaway">🔑 不要跳过第一阶段直接追前沿——<strong>真正的多模态 prompt 直觉来自大量调用 API 并观察模型如何「看」图像</strong>，这种直觉无法通过阅读论文获得。</div>
+</div>
+</div>
+
+<!-- misconceptions -->
+<div class="module" id="mod-misconceptions">
+<h2>❌ 常见误区：多模态提示的迷思与真相 <span class="m-tag">误区</span><span class="m-time">~5 分钟</span></h2>
+<div class="hook">「把文本 prompt 技巧照搬到图像就行」「分辨率越高越好」——这些直觉可能是错的。</div>
+<div class="content">
+<p><strong>误区一：「文本 prompt 技巧可以直接迁移到多模态场景。」</strong>这是最常见也最危险的误解。虽然角色设定、few-shot 示例和输出格式控制在多模态中同样有效，但多模态 prompt 引入了文本场景中不存在的挑战：<strong>视觉定位问题</strong>——你无法用文字精确描述图像中的某个像素区域；<strong>视觉上下文污染</strong>——与文本上下文不同，图像中的无关元素可能分散模型的注意力。实际上，多模态 prompt 需要一套独立的技巧体系，包括空间引用、视觉 chain-of-thought、区域锚定等。</p>
+<p><strong>误区二：「图像分辨率越高，模型表现越好。」</strong>令人意外的是，高分辨率并不总是有益的。研究表明，对于某些场景级任务（如夜景分类、情感识别），中低分辨率反而优于高分辨率——因为高分辨率引入了更多噪声细节。而对于 OCR 和精细物体识别，分辨率确实至关重要。这引出一个核心原则：<strong>分辨率应当匹配任务需求</strong>，而非一味追求最高。</p>
+<p><strong>误区三：「多模态模型『理解』图像的方式和人类相似。」</strong>这是一个根本性的误解。人类视觉是一个主动的、注意力驱动的、具有三维空间感知的过程。而 VLM 通过分 patch、向量化和注意力权重来「感知」图像——它是一个被动的、基于二维 patch 统计的过程，对遮挡、光照变化和视角变换的鲁棒性远不如人类视觉。理解这一差异有助于设计更有效的 prompt（例如，通过显式描述光照条件和视角来弥补模型的不足）。</p>
+<p><strong>误区四：「空间推理不需要专门的 prompt 技巧。」</strong>实际上，空间推理是多模态模型最薄弱的环节之一。如果你的 prompt 涉及「左数第三个」、「第 5 行第 2 列」、「上方偏右」等空间描述，模型有 15-25% 的概率出错。有效的解决方案包括：(1) 使用<strong>网格叠加法</strong>——让模型先在图像上想象一个网格，再定位；(2) 使用<strong>逐区域分析法</strong>——先将图像分割描述，再进行空间关系推理。</p>
+<p><strong>误区五：「开源 VLM 的质量远不及商业 API。」</strong>在 2023 年这也许是事实，但到 2025 年，顶级开源模型（Qwen2-VL-72B、InternVL2-76B）在多个基准上已接近或持平 GPT-4V。更重要的是，开源模型在某些特定领域（如中文 OCR）和特定部署场景（边缘设备、数据隐私要求）中具有不可替代的优势。</p>
+<div class="takeaway">🔑 多模态提示工程的最大陷阱是<strong>「文本迁移主义」</strong>——把纯文本 prompt 的思维模式不加改造地应用于视觉场景。放下旧的直觉，建立新的多模态思维框架。</div>
+</div>
+</div>
+
+<!-- glossary -->
+<div class="module" id="mod-glossary">
+<h2>📖 术语表：多模态提示工程关键词 <span class="m-tag">术语</span><span class="m-time">~4 分钟</span></h2>
+<div class="hook">掌握这些术语，你就能读懂多模态领域 90% 的技术文档。</div>
+<div class="content">
+<table class="data-table">
+<tr><th>术语</th><th>英文</th><th>定义</th></tr>
+<tr><td>视觉 token</td><td>Visual Token</td><td>图像经 ViT 编码后产生的向量序列中的单个元素，每个 token 对应图像的一个 patch 区域</td></tr>
+<tr><td>图像分块</td><td>Image Patch/Grid</td><td>将输入图像切分为固定大小的正方形区域（如 14×14 像素），每个 patch 独立编码</td></tr>
+<tr><td>Base64 编码</td><td>Base64 Encoding</td><td>将图像二进制数据转换为文本字符串的编码方式，用于 API 中的内嵌图像传输</td></tr>
+<tr><td>跨模态注意力</td><td>Cross-Modal Attention</td><td>LLM 中的注意力机制，使文本 token 能查询和关注视觉 token 的信息</td></tr>
+<tr><td>视觉指令微调</td><td>Visual Instruction Tuning</td><td>用图像-指令-答案三元组微调 VLM，使其获得遵循多模态指令的能力</td></tr>
+<tr><td>空间定位</td><td>Spatial Grounding</td><td>将自然语言中的空间描述与图像中的具体位置关联起来的过程</td></tr>
+<tr><td>指代表达</td><td>Referring Expression</td><td>用语言描述定位图像中特定对象的表达方式，如「穿红色外套的人」</td></tr>
+<tr><td>交错提示</td><td>Interleaved Prompting</td><td>文本和图像交替出现的提示格式，模拟多轮视觉对话</td></tr>
+<tr><td>视觉编码器</td><td>Vision Encoder</td><td>将图像像素转换为特征向量的神经网络模块，通常基于 ViT 架构</td></tr>
+<tr><td>Q-Former</td><td>Q-Former</td><td>BLIP-2 中提出的可学习查询 Transformer，用于桥接视觉编码器和语言模型</td></tr>
+<tr><td>动态分辨率</td><td>Dynamic Resolution</td><td>根据输入图像的实际尺寸自适应调整 patch 划分策略，而非固定分辨率处理</td></tr>
+<tr><td>视觉幻觉</td><td>Visual Hallucination</td><td>模型对图像中不存在的内容做出错误描述或断言的现象</td></tr>
+</table>
+<div class="takeaway">🔑 理解<strong>视觉 token、跨模态注意力和空间定位</strong>这三个核心概念，是深入多模态提示工程的必备基础。</div>
+</div>
+</div>
+
+<!-- prospect -->
+<div class="module" id="mod-prospect">
+<h2>🔮 未来展望：多模态提示的下一站 <span class="m-tag">展望</span><span class="m-time">~5 分钟</span></h2>
+<div class="hook">实时视觉对话、3D 场景理解、具身智能——多模态提示工程的未来比想象中更近。</div>
+<div class="content">
+<p>站在 2025-2026 年的时间节点，多模态提示工程正站在几个重大技术突破的交叉口：</p>
+<p><strong>趋势一：实时视频提示与流式视觉理解。</strong>当前的视频理解大多基于离线帧序列，但实时流式视觉理解正在成为现实。GPT-4o 和 Gemini 2.0 已支持摄像头实时输入，模型能在视频流中持续感知、跟踪和推理。<strong>prompt 设计的新范式</strong>：从一次性指令转变为持续性的「视觉监控指令」——例如「持续观察此监控画面，当有人进入红色区域时立即报告」。这要求 prompt 工程师定义<strong>触发条件、报告频率和优先级规则</strong>。</p>
+<p><strong>趋势二：3D 场景理解与空间推理。</strong>从 2D 图像走向 3D 理解是下一个大跳跃。NeRF 和高斯 Splatting 技术与 VLM 的结合使得<strong>从多视角 2D 图像推理 3D 空间关系</strong>成为可能。未来的 prompt 可能是：「请分析这组 360° 产品照片，生成产品的 3D 结构描述和尺寸估算。」</p>
+<p><strong>趋势三：具身智能提示。</strong>当 VLM 被部署到机器人、AR 眼镜和智能座舱中，prompt 需要协调「感知-决策-行动」闭环。这类 prompt 的关注点从「描述你看到了什么」转变为<strong>「基于你的视觉观察，决定下一步行动」</strong>。prompt 设计需要包含行动空间定义、安全约束和实时反馈循环。</p>
+<p><strong>趋势四：多模态 Agent 与工具调用。</strong>模型不仅能看图，还能基于视觉信息主动调用工具——看到表格就调用 Python 做数据分析，看到 UI 界面就自动操作。这让多模态 prompt 从「问答」进化为<strong>「任务执行规范」</strong>，需要定义工具接口、错误处理策略和完成标准。</p>
+<p><strong>趋势五：端侧多模态推理。</strong>随着模型压缩和量化技术的进步（MiniCPM-V 2.8B 已能在手机上运行），边缘设备上的多模态 prompt 工程将成为一个新领域，需要平衡<strong>精度、延迟和功耗</strong>。</p>
+<div class="chart-wrap">
+<canvas id="chartProspect" width="640" height="260"></canvas>
+<div class="ch-cap">图：多模态提示工程未来技术趋势的时间线预测</div>
+</div>
+<div class="takeaway">🔑 未来三年，多模态提示工程师的角色将从<strong>「指令设计师」</strong>进化为<strong>「多模态系统架构师」</strong>——能够设计端到端的感知-推理-行动闭环。</div>
+</div>
+</div>
+
+</div><!-- /module_container -->
+</div><!-- /container -->
+
+<footer class="journey-footer">
+  <a href="#" class="back-to-plan" onclick="event.preventDefault();var w=window.open('pe_learning.html#kc-p4_2','plan_main');if(w)w.focus()">🔗 返回学习路线: 提示工程 (Prompt Engineering) 系统学习方案 → 进阶前沿</a>
+  <p style="margin-top:12px;font-size:.72rem;color:var(--text-muted)">
+    本资料是 <strong>提示工程 (Prompt Engineering) 系统学习方案</strong> 进阶前沿 阶段的深度研读材料
+  </p>
+</footer>
+
+<div class="deep-floating-back">
+  <button onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 16px rgba(0,0,0,.2)'"
+    onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 12px rgba(0,0,0,.15)'"
+    onclick="event.preventDefault();var w=window.open('pe_learning.html#kc-p4_2','plan_main');if(w)w.focus()">
+    ← 返回学习方案
+  </button>
+</div>
+
+<div class="dd-toast" id="toastEl"><span id="toastMsg"></span></div>
+
+<script>
+var MODULE_IDS = ["learning_journey","background","concept","principle","architecture","development","application","case_study","compute_cost","risk","open_source","landscape","benchmark","learning_path","misconceptions","glossary","prospect"];
+var SEARCH_INDEX = [
+  {id:"mod-learning_journey",t:"学习旅程导航",c:"多模态提示工程学习路径概览与导航"},
+  {id:"mod-background",t:"背景与演进",c:"从纯文本LLM到多模态模型的演进历程 GPT-4V Claude Gemini"},
+  {id:"mod-concept",t:"核心概念",c:"多模态提示工程的定义 模态组合 空间参照 时序对齐 语义密度"},
+  {id:"mod-principle",t:"工作原理",c:"视觉编码器 ViT patch token化 跨模态注意力 Q-Former 视觉指令微调"},
+  {id:"mod-architecture",t:"系统架构",c:"多模态提示流水线 图像预处理 token化 提示组装 推理 输出解析"},
+  {id:"mod-development",t:"发展历程",c:"多模态模型时间线 GPT-4V LLaVA Claude Gemini Qwen2-VL 能力演进"},
+  {id:"mod-application",t:"应用场景",c:"文档理解 OCR UI测试 医疗影像 电商 自动驾驶 无障碍辅助"},
+  {id:"mod-case_study",t:"案例研究",c:"发票OCR分析流水线 四轮迭代优化 朴素到思维链到预处理"},
+  {id:"mod-compute_cost",t:"计算成本",c:"视觉token经济学 分辨率vs成本 优化策略 token预算管理"},
+  {id:"mod-risk",t:"风险与陷阱",c:"视觉幻觉 对抗性图像 空间推理失败 OCR错误 隐私泄露 跨模态偏见"},
+  {id:"mod-open_source",t:"开源生态",c:"LLaVA Qwen2-VL InternVL2 CogVLM Phi-3-Vision MiniCPM-V 模型对比"},
+  {id:"mod-landscape",t:"产业格局",c:"OpenAI Google Anthropic Meta 阿里 竞争地图 五维雷达"},
+  {id:"mod-benchmark",t:"基准测试",c:"MMMU MME MMBench SEED-Bench Video-MME 模型性能评估"},
+  {id:"mod-learning_path",t:"学习路径",c:"三阶段学习路线 入门API调用 进阶流水线 精通Agent微调"},
+  {id:"mod-misconceptions",t:"常见误区",c:"文本迁移主义 分辨率迷思 视觉理解错觉 空间推理忽视"},
+  {id:"mod-glossary",t:"术语表",c:"视觉token 图像分块 base64编码 跨模态注意力 空间定位 指代表达"},
+  {id:"mod-prospect",t:"未来展望",c:"实时视频 3D场景 具身智能 多模态Agent 端侧推理 趋势预测"}
+];
+var TOAST_TIMEOUT;
+
+(function(){
+var progressBar=document.getElementById('progressBar'),sideDots=document.getElementById('sideDots');
+var modules=document.querySelectorAll('.module'),ids=[];
+modules.forEach(function(m){ids.push(m.id)});
+var dotsHTML='';ids.forEach(function(id,i){dotsHTML+='<div class="side-dot" title="模块'+(i+1)+'" onclick="document.getElementById(\''+id+'\').scrollIntoView({behavior:\'smooth\'})"><\/div>'});
+sideDots.innerHTML=dotsHTML;
+
+var observer=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting)e.target.classList.add('visible')})},{threshold:.15});
+modules.forEach(function(m){observer.observe(m)});
+
+window.addEventListener('scroll',function(){
+var st=document.documentElement.scrollTop,dh=document.documentElement.scrollHeight-window.innerHeight;
+var pct=dh>0?Math.min(100,(st/dh)*100):0;progressBar.style.width=pct+'%';
+var dots=document.querySelectorAll('.side-dot'),cur=-1;
+modules.forEach(function(m,i){if(st>=m.offsetTop-200)cur=i});
+dots.forEach(function(d,i){d.classList.toggle('active',i===cur)});
+});
+
+window.addEventListener('keydown',function(e){
+if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();openSearch()}
+if((e.ctrlKey||e.metaKey)&&e.key==='d'){e.preventDefault();toggleTheme()}
+if(e.key==='Escape')closeSearch()
+});
+})();
+
+function toggleTheme(){
+var b=document.body,isD=b.getAttribute('data-theme')==='dark';
+b.setAttribute('data-theme',isD?'light':'dark');
+try{localStorage.setItem('slm-theme',isD?'light':'dark')}catch(e){}
+showToast('已切换至'+(isD?'浅色':'深色')+'主题')
+}
+
+function openSearch(){document.getElementById('searchOverlay').classList.add('open');setTimeout(function(){document.getElementById('searchInput').focus()},100)}
+function closeSearch(){document.getElementById('searchOverlay').classList.remove('open');document.getElementById('searchResults').innerHTML=''}
+
+function doSearch(){
+var q=document.getElementById('searchInput').value.toLowerCase(),res=document.getElementById('searchResults');
+if(q.length<2){res.innerHTML='';return}
+var h='';SEARCH_INDEX.forEach(function(item){
+if(item.t.toLowerCase().indexOf(q)>=0||(item.c||'').toLowerCase().indexOf(q)>=0){
+h+='<div onclick="closeSearch();document.getElementById(\''+item.id+'\').scrollIntoView({behavior:\'smooth\'})">'+
+'<strong>'+item.t+'<\/strong><br><small style="color:var(--text-muted)">'+(item.c||'').substring(0,80)+'<\/small><\/div>';
+}
+});
+res.innerHTML=h||'<div style="padding:12px;color:var(--text-muted)">未找到匹配模块<\/div>'
+}
+
+function showToast(msg){
+var el=document.getElementById('toastEl'),mg=document.getElementById('toastMsg');
+if(!el||!mg)return;mg.textContent=msg;el.style.display='block';el.classList.add('toast-in');
+if(TOAST_TIMEOUT)clearTimeout(TOAST_TIMEOUT);
+TOAST_TIMEOUT=setTimeout(function(){el.style.display='none'},3000);
+}
+
+(function(){
+var t;try{t=localStorage.getItem('slm-theme')}catch(e){}
+if(t==='light')document.body.setAttribute('data-theme','light');
+})();
+
+(function(){
+document.querySelectorAll('.derivation-toggle').forEach(function(btn){
+btn.addEventListener('click',function(){
+var content=this.nextElementSibling;
+if(content){content.classList.toggle('open');this.textContent=content.classList.contains('open')?'▾ 收起推导':'▸ 展开推导'}
+});
+});
+})();
+
+/* ==================== CHART DRAWING ==================== */
+(function drawCharts(){
+var isDark=document.body.getAttribute('data-theme')==='dark';
+var colors={
+  grid:isDark?'#252525':'#e5e5e5',
+  axisLabel:isDark?'#787878':'#5e5e5e',
+  line1:isDark?'#5b8db8':'#3a6088',
+  line2:isDark?'#8878a8':'#5a4878',
+  line3:isDark?'#6ea8c0':'#3a7888',
+  line4:isDark?'#c06050':'#983830',
+  line5:isDark?'#c0a060':'#886830',
+  fill1:'rgba(91,141,184,0.15)',
+  fill2:'rgba(136,120,168,0.15)',
+  fill3:'rgba(110,168,192,0.15)',
+  fill4:'rgba(192,96,80,0.15)',
+  fill5:'rgba(192,160,96,0.15)',
+  bar1:isDark?'#5b8db8':'#3a6088',
+  bar2:isDark?'#8878a8':'#5a4878',
+  bar3:isDark?'#6ea8c0':'#3a7888',
+  bar4:isDark?'#c06050':'#983830',
+  bar5:isDark?'#5a9e6f':'#3d8055',
+  bar6:isDark?'#c0a060':'#886830',
+  area1:'rgba(91,141,184,0.2)',
+  area2:'rgba(136,120,168,0.2)',
+  area3:'rgba(110,168,192,0.2)'
+};
+
+function getCanvas(id){
+  var el=document.getElementById(id);
+  if(!el)return null;
+  var dpr=window.devicePixelRatio||1;
+  var rect=el.getBoundingClientRect();
+  el.width=rect.width*dpr;
+  el.height=rect.height*dpr;
+  el.style.width=rect.width+'px';
+  el.style.height=rect.height+'px';
+  var ctx=el.getContext('2d');
+  ctx.scale(dpr,dpr);
+  return {ctx:ctx,w:rect.width,h:rect.height};
+}
+
+function drawLine(ctx,w,h,data,color,fill,labels,yMax,title){
+  var pad={l:60,r:20,t:30,b:40};
+  var pw=w-pad.l-pad.r,ph=h-pad.t-pad.b;
+  ctx.clearRect(0,0,w,h);
+  ctx.strokeStyle=colors.grid;ctx.lineWidth=0.5;
+  for(var i=0;i<=4;i++){var y=pad.t+ph*(i/4);ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(w-pad.r,y);ctx.stroke()}
+  for(var i=0;i<data.length;i++){var x=pad.l+pw*(i/(data.length-1));ctx.beginPath();ctx.moveTo(x,pad.t);ctx.lineTo(x,h-pad.b);ctx.stroke()}
+  ctx.fillStyle=colors.axisLabel;ctx.font='10px sans-serif';ctx.textAlign='right';
+  for(var i=0;i<=4;i++){var y=pad.t+ph*(i/4);ctx.fillText(Math.round(yMax*(1-i/4)),pad.l-8,y+3)}
+  if(labels){ctx.textAlign='center';for(var i=0;i<labels.length;i++){var x=pad.l+pw*(i/(Math.max(labels.length-1,1)));ctx.fillText(labels[i],x,h-pad.b+14)}}
+  ctx.strokeStyle=color;ctx.lineWidth=2.5;
+  ctx.beginPath();
+  for(var i=0;i<data.length;i++){var x=pad.l+pw*(i/(data.length-1));var y=pad.t+ph*(1-data[i]/yMax);if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y)}
+  ctx.stroke();
+  ctx.fillStyle=fill;ctx.beginPath();
+  for(var i=0;i<data.length;i++){var x=pad.l+pw*(i/(data.length-1));var y=pad.t+ph*(1-data[i]/yMax);ctx.lineTo(x,y)}
+  ctx.lineTo(pad.l+pw,pad.t+ph);ctx.lineTo(pad.l,pad.t+ph);ctx.closePath();ctx.fill();
+  for(var i=0;i<data.length;i++){var x=pad.l+pw*(i/(data.length-1));var y=pad.t+ph*(1-data[i]/yMax);ctx.fillStyle=color;ctx.beginPath();ctx.arc(x,y,4,0,Math.PI*2);ctx.fill()}
+}
+
+function drawBars(ctx,w,h,items,colorsArr,valueKey,labelKey,maxVal){
+  var pad={l:80,r:20,t:20,b:70};
+  var pw=w-pad.l-pad.r,ph=h-pad.t-pad.b;
+  ctx.clearRect(0,0,w,h);
+  ctx.strokeStyle=colors.grid;ctx.lineWidth=0.5;
+  for(var i=0;i<=4;i++){var y=pad.t+ph*(i/4);ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(w-pad.r,y);ctx.stroke()}
+  ctx.fillStyle=colors.axisLabel;ctx.font='10px sans-serif';ctx.textAlign='right';
+  for(var i=0;i<=4;i++){var y=pad.t+ph*(i/4);ctx.fillText(Math.round(maxVal*(1-i/4)),pad.l-8,y+3)}
+  var barW=Math.min(40,pw/items.length-12);
+  for(var i=0;i<items.length;i++){
+    var x=pad.l+pw*((i+0.5)/items.length)-barW/2;
+    var hBar=ph*(items[i][valueKey]/maxVal);
+    ctx.fillStyle=colorsArr[i%colorsArr.length];
+    ctx.fillRect(x,pad.t+ph-hBar,barW,hBar);
+    ctx.fillStyle=colors.axisLabel;ctx.textAlign='center';
+    ctx.fillText(items[i][labelKey],x+barW/2,h-pad.b+14);
+  }
+}
+
+function drawMultiBar(ctx,w,h,groups,groupLabels,seriesLabels,colorsArr,maxVal){
+  var pad={l:80,r:20,t:20,b:70};
+  var pw=w-pad.l-pad.r,ph=h-pad.t-pad.b;
+  ctx.clearRect(0,0,w,h);
+  ctx.strokeStyle=colors.grid;ctx.lineWidth=0.5;
+  for(var i=0;i<=4;i++){var y=pad.t+ph*(i/4);ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(w-pad.r,y);ctx.stroke()}
+  ctx.fillStyle=colors.axisLabel;ctx.font='10px sans-serif';ctx.textAlign='right';
+  for(var i=0;i<=4;i++){var y=pad.t+ph*(i/4);ctx.fillText(Math.round(maxVal*(1-i/4)),pad.l-8,y+3)}
+  var nSeries=seriesLabels.length;var nGroups=groups.length;
+  var groupW=pw/nGroups;var barW=Math.min(16,groupW/(nSeries+0.5));
+  for(var g=0;g<nGroups;g++){
+    var gx=pad.l+groupW*g;
+    for(var s=0;s<nSeries;s++){
+      var x=gx+groupW*0.1+s*(barW+2);
+      var hBar=ph*(groups[g][s]/maxVal);
+      ctx.fillStyle=colorsArr[s%colorsArr.length];
+      ctx.fillRect(x,pad.t+ph-hBar,barW,hBar);
+    }
+    ctx.fillStyle=colors.axisLabel;ctx.textAlign='center';ctx.font='9px sans-serif';
+    ctx.fillText(groupLabels[g],gx+groupW/2,h-pad.b+14);
+  }
+}
+
+function drawRadar(ctx,w,h,categories,values,maxVal,color,fill){
+  var cx=w/2,cy=h/2,r=Math.min(cx,cy)-60;
+  var n=categories.length;
+  ctx.clearRect(0,0,w,h);
+  for(var level=1;level<=4;level++){
+    ctx.strokeStyle=colors.grid;ctx.lineWidth=0.5;
+    ctx.beginPath();
+    for(var i=0;i<n;i++){
+      var angle=Math.PI*2*i/n-Math.PI/2;
+      var x=cx+(r*level/4)*Math.cos(angle),y=cy+(r*level/4)*Math.sin(angle);
+      if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+    }
+    ctx.closePath();ctx.stroke();
+  }
+  for(var i=0;i<n;i++){
+    var angle=Math.PI*2*i/n-Math.PI/2;
+    ctx.strokeStyle=colors.grid;ctx.lineWidth=0.5;
+    ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+r*Math.cos(angle),cy+r*Math.sin(angle));ctx.stroke();
+    ctx.fillStyle=colors.axisLabel;ctx.font='10px sans-serif';ctx.textAlign='center';
+    var lx=cx+(r+22)*Math.cos(angle),ly=cy+(r+22)*Math.sin(angle)+3;
+    ctx.fillText(categories[i],lx,ly);
+  }
+  ctx.fillStyle=fill;ctx.beginPath();
+  for(var i=0;i<n;i++){
+    var angle=Math.PI*2*i/n-Math.PI/2;
+    var v=values[i]/maxVal;
+    var x=cx+r*v*Math.cos(angle),y=cy+r*v*Math.sin(angle);
+    if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+  }
+  ctx.closePath();ctx.fill();
+  ctx.strokeStyle=color;ctx.lineWidth=2;ctx.stroke();
+}
+
+function drawScatterQuadrant(ctx,w,h,items,xKey,yKey,xLabel,yLabel){
+  var pad={l:55,r:15,t:20,b:40};
+  var pw=w-pad.l-pad.r,ph=h-pad.t-pad.b;
+  ctx.clearRect(0,0,w,h);
+  ctx.strokeStyle=colors.grid;ctx.lineWidth=0.5;
+  var midX=pad.l+pw/2,midY=pad.t+ph/2;
+  ctx.beginPath();ctx.moveTo(midX,pad.t);ctx.lineTo(midX,h-pad.b);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(pad.l,midY);ctx.lineTo(w-pad.r,midY);ctx.stroke();
+  ctx.fillStyle=colors.axisLabel;ctx.font='10px sans-serif';ctx.textAlign='center';
+  ctx.fillText('低',pad.l+8,midY+12);ctx.fillText('高',w-pad.r-8,midY+12);
+  ctx.fillText('低',midX,h-pad.b+14);ctx.fillText('高',midX,pad.t-4);
+  ctx.fillText(xLabel,midX,h-pad.b+30);ctx.fillText(yLabel,w/2-20,pad.t-12);
+  for(var i=0;i<items.length;i++){
+    var x=pad.l+pw*items[i][xKey]/100,y=pad.t+ph*(1-items[i][yKey]/100);
+    ctx.fillStyle=items[i].color||colors.bar1;
+    ctx.beginPath();ctx.arc(x,y,5,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle=colors.axisLabel;ctx.font='9px sans-serif';ctx.textAlign='left';
+    ctx.fillText(items[i].label,x+7,y+3);
+  }
+}
+
+// Chart: Timeline
+(function(){
+  var c=getCanvas('chartTimeline');if(!c)return;
+  drawLine(c.ctx,c.w,c.h,[25,35,55,75,92],colors.line1,colors.fill1,['2022','2023H1','2023H2','2024','2025'],100,'');
+})();
+
+// Chart: Modality Mix
+(function(){
+  var c=getCanvas('chartModalityMix');if(!c)return;
+  drawBars(c.ctx,c.w,c.h,[
+    {l:'VQA',v:25},{l:'OCR',v:48},{l:'场景分类',v:15},{l:'文档分析',v:40},{l:'物体检测',v:22},{l:'视频理解',v:35}
+  ],[colors.bar1,colors.bar2,colors.bar3,colors.bar4,colors.bar5,colors.bar6],'v','l',60);
+  c.ctx.fillStyle=colors.axisLabel;c.ctx.font='9px sans-serif';c.ctx.textAlign='center';
+  c.ctx.fillText('视觉token占比(%)',c.w/2,c.h-5);
+})();
+
+// Chart: Architecture Overview
+(function(){
+  var c=getCanvas('chartArchOverview');if(!c)return;
+  c.ctx.clearRect(0,0,c.w,c.h);
+  var boxes=[{x:40,y:60,w:140,h:80,t:'图像输入',c:colors.bar1},{x:240,y:60,w:140,h:80,t:'视觉编码器\n(ViT/CLIP)',c:colors.bar2},{x:440,y:60,w:140,h:80,t:'跨模态桥接\n(MLP/Q-Former)',c:colors.bar3},{x:640,y:60,w:140,h:80,t:'LLM 解码器',c:colors.bar4}];
+  boxes.forEach(function(b){
+    c.ctx.fillStyle=b.c;c.ctx.globalAlpha=0.2;
+    c.ctx.fillRect(b.x,b.y,b.w,b.h);c.ctx.globalAlpha=1;
+    c.ctx.strokeStyle=b.c;c.ctx.lineWidth=2;c.ctx.strokeRect(b.x,b.y,b.w,b.h);
+    c.ctx.fillStyle=colors.axisLabel;c.ctx.font='11px sans-serif';c.ctx.textAlign='center';
+    var lines=b.t.split('\n');
+    lines.forEach(function(l,i){c.ctx.fillText(l,b.x+b.w/2,b.y+35+i*18)});
+  });
+  for(var i=0;i<3;i++){
+    c.ctx.strokeStyle=colors.bar5;c.ctx.lineWidth=2;
+    c.ctx.beginPath();
+    c.ctx.moveTo(boxes[i].x+boxes[i].w,boxes[i].y+boxes[i].h/2);
+    c.ctx.lineTo(boxes[i+1].x,boxes[i+1].y+boxes[i+1].h/2);
+    c.ctx.stroke();
+  }
+  c.ctx.fillStyle=colors.axisLabel;c.ctx.font='9px sans-serif';
+  c.ctx.fillText('↓ 文本 token',200,c.h-50);
+  c.ctx.fillText('↓ 文本 token',680,c.h-50);
+  c.ctx.fillText('视觉 token →',390,40);
+  c.ctx.fillText('对齐向量 →',390,c.h-20);
+})();
+
+// Chart: Pipeline
+(function(){
+  var c=getCanvas('chartPipeline');if(!c)return;
+  c.ctx.clearRect(0,0,c.w,c.h);
+  var stages=['图像\n预处理','视觉\nToken化','提示\n组装','模型\n推理','输出\n解析'];
+  var colorsArr=[colors.bar1,colors.bar2,colors.bar3,colors.bar4,colors.bar5];
+  var startX=50,stageW=(c.w-100)/5;
+  for(var i=0;i<5;i++){
+    var x=startX+i*stageW;
+    c.ctx.fillStyle=colorsArr[i];c.ctx.globalAlpha=0.2;
+    c.ctx.fillRect(x,30,stageW-10,70);c.ctx.globalAlpha=1;
+    c.ctx.strokeStyle=colorsArr[i];c.ctx.lineWidth=2;c.ctx.strokeRect(x,30,stageW-10,70);
+    c.ctx.fillStyle=colors.axisLabel;c.ctx.font='10px sans-serif';c.ctx.textAlign='center';
+    var lines=stages[i].split('\n');
+    lines.forEach(function(l,j){c.ctx.fillText(l,x+(stageW-10)/2,55+j*18)});
+    if(i<4){
+      c.ctx.strokeStyle=colors.bar5;c.ctx.lineWidth=2;
+      c.ctx.beginPath();
+      c.ctx.moveTo(x+stageW-10,65);
+      c.ctx.lineTo(x+stageW,65);
+      c.ctx.stroke();
+    }
+  }
+  c.ctx.fillStyle=colors.axisLabel;c.ctx.font='9px sans-serif';
+  c.ctx.fillText('输入图像',100,c.h-50);
+  c.ctx.fillText('结构化输出',c.w-120,c.h-50);
+})();
+
+// Chart: Capability Growth
+(function(){
+  var c=getCanvas('chartCapabilityGrowth');if(!c)return;
+  drawLine(c.ctx,c.w,c.h,[30,42,58,72,85],colors.line1,colors.fill1,['2022','2023','2024','2025Q1','2025Q3'],100,'MMMU Score');
+  c.ctx.fillStyle=colors.axisLabel;c.ctx.font='9px sans-serif';c.ctx.textAlign='center';
+  c.ctx.fillText('MMMU 基准分数',c.w/2,c.h-5);
+})();
+
+// Chart: Case Accuracy
+(function(){
+  var c=getCanvas('chartCaseAccuracy');if(!c)return;
+  drawLine(c.ctx,c.w,c.h,[65,78,93,96.5],colors.bar3,colors.fill3,['v1 朴素','v2 结构化','v3 思维链','v4 多图+预处理'],100,'准确率(%)');
+  c.ctx.fillStyle=colors.axisLabel;c.ctx.font='9px sans-serif';c.ctx.textAlign='center';
+  c.ctx.fillText('准确率 (%)',c.w/2,c.h-5);
+})();
+
+// Chart: Cost Breakdown
+(function(){
+  var c=getCanvas('chartCostBreakdown');if(!c)return;
+  drawBars(c.ctx,c.w,c.h,[
+    {l:'无优化',v:510},{l:'分辨率降级',v:85},{l:'智能裁剪',v:230},{l:'批量合并',v:290},{l:'缓存+降级',v:45}
+  ],[colors.bar1,colors.bar3,colors.bar2,colors.bar5,colors.bar4],'v','l',550);
+  c.ctx.fillStyle=colors.axisLabel;c.ctx.font='9px sans-serif';c.ctx.textAlign='center';
+  c.ctx.fillText('月度成本 (USD, 10万张/月)',c.w/2,c.h-5);
+})();
+
+// Chart: Applications (scatter)
+(function(){
+  var c=getCanvas('chartApplications');if(!c)return;
+  drawScatterQuadrant(c.ctx,c.w,c.h,[
+    {label:'文档OCR',x:75,y:80,color:colors.bar1},
+    {label:'UI测试',x:55,y:60,color:colors.bar2},
+    {label:'医疗影像',x:40,y:75,color:colors.bar4},
+    {label:'电商理解',x:70,y:70,color:colors.bar5},
+    {label:'自动驾驶',x:30,y:85,color:colors.bar3},
+    {label:'无障碍',x:50,y:90,color:colors.bar6}
+  ],'x','y','技术成熟度→','←商业价值');
+})();
+
+// Chart: Open Source Compare
+(function(){
+  var c=getCanvas('chartOpenSourceCompare');if(!c)return;
+  drawMultiBar(c.ctx,c.w,c.h,[
+    [72,1560],[68,1420],[75,1620],[70,1480],[58,1280],[65,1380]
+  ],['LLaVA-1.6','Qwen2-VL','InternVL2','CogVLM2','Phi-3-V','MiniCPM-V'],[],['MMBench%','MME/10'],[colors.bar1,colors.bar2,colors.bar3,colors.bar4],100);
+  c.ctx.fillStyle=colors.axisLabel;c.ctx.font='9px sans-serif';c.ctx.textAlign='center';
+  c.ctx.fillText('MMBench(%) + MME(归一化)',c.w/2,c.h-5);
+})();
+
+// Chart: Landscape Radar
+(function(){
+  var c=getCanvas('chartLandscape');if(!c)return;
+  drawRadar(c.ctx,c.w,c.h,['综合性能','视频理解','中文能力','Agent','安全性'],[90,70,55,75,85],100,colors.line1,colors.fill1);
+  c.ctx.fillStyle=colors.line2;c.ctx.font='9px sans-serif';c.ctx.textAlign='center';
+  c.ctx.fillText('GPT-4o',c.w/2+30,c.h-25);
+})();
+
+// Chart: Benchmark Bars
+(function(){
+  var c=getCanvas('chartBenchmarkBars');if(!c)return;
+  drawMultiBar(c.ctx,c.w,c.h,[
+    [69.1,82.5,86.8],[67.8,80.2,85.1],[65.3,78.8,84.5],[63.9,77.0,82.3],[58.2,71.5,80.8]
+  ],['GPT-4o','Claude4','Gemini2','Qwen2-VL','LLaVA1.6'],['MMMU','MME','MMBench'],[colors.bar1,colors.bar2,colors.bar3],100);
+  c.ctx.fillStyle=colors.axisLabel;c.ctx.font='9px sans-serif';c.ctx.textAlign='center';
+  c.ctx.fillText('MMMU / MME(归一化) / MMBench',c.w/2,c.h-5);
+})();
+
+// Chart: Learning Path
+(function(){
+  var c=getCanvas('chartLearningPath');if(!c)return;
+  c.ctx.clearRect(0,0,c.w,c.h);
+  var phases=[{x:40,y:100,w:160,t:'第一阶段\n入门(2-3周)',c:colors.bar1},{x:240,y:55,w:160,t:'第二阶段\n进阶(3-4周)',c:colors.bar2},{x:440,y:20,w:160,t:'第三阶段\n精通(持续)',c:colors.bar3}];
+  phases.forEach(function(p){
+    c.ctx.fillStyle=p.c;c.ctx.globalAlpha=0.2;
+    c.ctx.fillRect(p.x,p.y,p.w,100);c.ctx.globalAlpha=1;
+    c.ctx.strokeStyle=p.c;c.ctx.lineWidth=2;c.ctx.strokeRect(p.x,p.y,p.w,100);
+    c.ctx.fillStyle=colors.axisLabel;c.ctx.font='10px sans-serif';c.ctx.textAlign='center';
+    var ls=p.t.split('\n');ls.forEach(function(l,i){c.ctx.fillText(l,p.x+p.w/2,p.y+35+i*18)});
+  });
+  c.ctx.fillStyle=colors.axisLabel;c.ctx.font='9px sans-serif';c.ctx.textAlign='center';
+  c.ctx.fillText('API调用 → prompt流水线 → 多模态Agent',c.w/2,c.h-20);
+  c.ctx.fillText('技能复杂度与自主性递增 →',c.w/2,c.h-5);
+})();
+
+// Chart: Prospect Timeline
+(function(){
+  var c=getCanvas('chartProspect');if(!c)return;
+  c.ctx.clearRect(0,0,c.w,c.h);
+  var items=[
+    {x:60,y:30,t:'实时视频提示',c:colors.bar1},
+    {x:360,y:30,t:'3D场景理解',c:colors.bar2},
+    {x:160,y:90,t:'具身智能提示',c:colors.bar3},
+    {x:460,y:90,t:'多模态Agent',c:colors.bar4},
+    {x:280,y:150,t:'端侧推理',c:colors.bar5}
+  ];
+  items.forEach(function(it){
+    c.ctx.fillStyle=it.c;c.ctx.globalAlpha=0.25;
+    c.ctx.fillRect(it.x,it.y,120,45);c.ctx.globalAlpha=1;
+    c.ctx.strokeStyle=it.c;c.ctx.lineWidth=1.5;c.ctx.strokeRect(it.x,it.y,120,45);
+    c.ctx.fillStyle=colors.axisLabel;c.ctx.font='9px sans-serif';c.ctx.textAlign='center';
+    c.ctx.fillText(it.t,it.x+60,it.y+28);
+  });
+  c.ctx.fillStyle=colors.axisLabel;c.ctx.font='10px sans-serif';
+  c.ctx.fillText('← 2025 Q3',40,c.h-15);
+  c.ctx.fillText('2026 Q1 →',c.w-60,c.h-15);
+  c.ctx.fillText('2026 Q3 →',c.w-60,c.h-35);
+})();
+
+// Chart: Risk Radar
+(function(){
+  var c=getCanvas('chartRiskRadar');if(!c)return;
+  drawRadar(c.ctx,c.w,c.h,['视觉幻觉','对抗图像','空间推理','OCR错误','隐私泄露','跨模态偏见'],[85,65,70,72,60,58],100,colors.bar4,colors.fill4);
+  c.ctx.fillStyle=colors.axisLabel;c.ctx.font='9px sans-serif';c.ctx.textAlign='center';
+  c.ctx.fillText('风险严重程度评估',c.w/2,c.h-8);
+})();
+
+})();
+<\/script>
+</body>
+</html>

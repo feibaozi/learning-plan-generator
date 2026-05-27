@@ -1,0 +1,1218 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>提示迭代优化策略 深度研读</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"><\/script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"><\/script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"><\/script>
+<style>
+:root{
+--bg:#0d0d0d;--bg-secondary:#1a1a1a;--bg-tertiary:#222222;
+--text:#ededed;--text-secondary:#a0a0a0;--text-tertiary:#787878;
+--border:rgba(160,160,160,.15);
+--primary:#5b8db8;--primary-light:rgba(91,141,184,.12);
+--accent:#8878a8;--accent-light:rgba(136,120,168,.12);
+--cyan:#6ea8c0;--cyan-light:rgba(110,168,192,.1);
+--orange:#c0a060;--orange-light:rgba(192,160,96,.1);
+--green:#5a9e6f;--green-light:rgba(90,158,111,.1);
+--red:#c06050;--red-light:rgba(192,96,80,.1);
+--pink:#8878a8;--pink-light:rgba(136,120,168,.12);
+--shadow-sm:0 1px 3px rgba(0,0,0,.3);--shadow:0 4px 16px rgba(0,0,0,.4);
+--shadow-md:0 4px 16px rgba(0,0,0,.4);--shadow-lg:0 8px 32px rgba(0,0,0,.5);
+}
+[data-theme="light"]{
+--bg:#fafafa;--bg-secondary:#ffffff;--bg-tertiary:#eeeeee;
+--text:#121212;--text-secondary:#4a4a4a;--text-tertiary:#5e5e5e;
+--border:rgba(18,18,18,.08);
+--primary:#3a6088;--primary-light:rgba(58,96,136,.08);
+--accent:#5a4878;--accent-light:rgba(90,72,120,.08);
+--cyan:#3a7888;--cyan-light:rgba(58,120,136,.08);
+--orange:#886830;--orange-light:rgba(136,104,48,.08);
+--green:#3d8055;--green-light:rgba(61,128,85,.08);
+--red:#983830;--red-light:rgba(152,56,48,.08);
+--pink:#5a4878;--pink-light:rgba(90,72,120,.08);
+--shadow-sm:0 1px 3px rgba(0,0,0,.06);--shadow:0 4px 16px rgba(0,0,0,.08);
+--shadow-md:0 4px 16px rgba(0,0,0,.08);--shadow-lg:0 8px 32px rgba(0,0,0,.12);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  transition: background var(--transition), color var(--transition);
+}
+
+body.loading{opacity:0}body.loaded{opacity:1;transition:opacity 0.4s ease}
+
+/* Progress Bar */
+#progress-bar {
+  position: fixed; top: 0; left: 0; height: 3px;
+  background: linear-gradient(90deg, var(--primary), var(--accent), var(--cyan));
+  z-index: 1000; transition: width 0.1s linear;
+}
+
+/* Theme Toggle */
+#theme-toggle {
+  position: fixed; top: 20px; right: 20px; z-index: 999;
+  width: 40px; height: 40px; border-radius: 50%;
+  background: var(--bg-secondary); border: 1px solid var(--border);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  font-size: 18px; transition: all var(--transition);
+  box-shadow: var(--shadow-sm);
+}
+#theme-toggle:hover { transform: scale(1.1); box-shadow: var(--shadow); }
+
+/* Sidebar */
+#sidebar {
+  position: fixed; top: 0; left: 0; width: var(--sidebar-width); height: 100vh;
+  background: var(--bg-secondary); border-right: 1px solid var(--border);
+  padding: 80px 16px 24px; overflow-y: auto; z-index: 100;
+  transition: transform var(--transition);
+}
+#sidebar h3 {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em;
+  color: var(--text-tertiary); margin-bottom: 12px; font-weight: 600;
+}
+.sidebar-link {
+  display: block; padding: 6px 12px; margin: 2px 0; border-radius: var(--radius-sm);
+  font-size: 13px; color: var(--text-secondary); text-decoration: none;
+  transition: all var(--transition); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.sidebar-link:hover { background: var(--bg-tertiary); color: var(--text); }
+.sidebar-link.active { background: var(--primary-light); color: var(--primary); font-weight: 600; }
+
+/* Main Content */
+#main-content {
+  margin-left: var(--sidebar-width);
+  max-width: calc(100% - var(--sidebar-width) - 40px);
+  padding: 60px 32px 120px;
+}
+
+/* Meta Card */
+.meta-card {
+  background: linear-gradient(135deg, var(--primary-light), var(--accent-light));
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px 32px; margin-bottom: 48px;
+  display: flex; flex-wrap: wrap; gap: 24px; align-items: center;
+}
+.meta-card .meta-item { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--text-secondary); }
+.meta-card .meta-item .icon { font-size: 20px; }
+.meta-card .meta-item strong { color: var(--text); }
+.meta-badge {
+  display: inline-block; padding: 4px 12px; border-radius: 20px;
+  font-size: 12px; font-weight: 600; letter-spacing: 0.02em;
+}
+.meta-badge.domain-finance { background: var(--primary-light); color: var(--primary); }
+.meta-badge.domain-ai { background: var(--accent-light); color: var(--accent); }
+.meta-badge.level-beginner { background: var(--green-light); color: var(--green); }
+.meta-badge.level-intermediate { background: var(--orange-light); color: var(--orange); }
+.meta-badge.level-expert { background: var(--red-light); color: var(--red); }
+
+.meta-badge.texture-badge {
+  background: var(--cyan-light); color: #0891b2;
+  font-family: 'SF Mono', 'JetBrains Mono', monospace;
+}
+
+.meta-badge.depth-breadth {
+  background: var(--pink-light); color: var(--pink);
+}
+
+#cdn-indicator {
+  position: fixed; top: 20px; right: 72px; z-index: 999;
+  padding: 4px 10px; border-radius: 6px;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.03em;
+  background: var(--green-light); color: var(--green);
+  display: none;
+}
+#cdn-indicator.enhanced { display: block; background: var(--orange-light); color: var(--orange); }
+#cdn-indicator.baseline { display: block; background: var(--bg-tertiary); color: var(--text-tertiary); }
+
+/* Module Section */
+.module-section {
+  margin-bottom: 56px; opacity: 0; transform: translateY(24px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.module-section.visible { opacity: 1; transform: translateY(0); }
+
+.module-header {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 16px;
+}
+.module-tag {
+  display: inline-block; padding: 3px 10px; border-radius: 6px;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.03em; text-transform: uppercase;
+}
+.tag-core { background: var(--primary-light); color: var(--primary); }
+.tag-tools { background: var(--accent-light); color: var(--accent); }
+.tag-evolution { background: var(--cyan-light); color: #0891b2; }
+.tag-application { background: var(--green-light); color: var(--green); }
+.tag-risk { background: var(--red-light); color: var(--red); }
+.tag-frontier { background: var(--orange-light); color: var(--orange); }
+
+.module-title {
+  font-size: 22px; font-weight: 700; color: var(--text); letter-spacing: -0.02em;
+}
+
+.module-hook {
+  font-size: 16px; color: var(--text-secondary); font-style: italic;
+  border-left: 3px solid var(--primary); padding-left: 16px; margin-bottom: 20px;
+}
+
+.module-content { font-size: 15px; color: var(--text); }
+.module-content p { margin-bottom: 12px; }
+.module-content strong { color: var(--text); }
+.module-content a { color: var(--primary); text-decoration: none; }
+.module-content a:hover { text-decoration: underline; }
+.module-content ul, .module-content ol { margin: 8px 0 16px 24px; }
+.module-content li { margin-bottom: 6px; }
+
+/* Formula */
+.formula-block {
+  background: var(--bg-tertiary); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 20px 24px; margin: 16px 0;
+  position: relative; cursor: pointer; transition: all var(--transition);
+}
+.formula-block:hover { box-shadow: var(--shadow); }
+.formula-caption { font-size: 12px; color: var(--text-tertiary); margin-top: 8px; text-align: center; }
+.formula-derivation {
+  display: none; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border);
+  font-size: 14px; color: var(--text-secondary);
+}
+.formula-block.expanded .formula-derivation { display: block; }
+.formula-expand-hint {
+  font-size: 11px; color: var(--text-tertiary); text-align: right; margin-top: 4px;
+}
+
+/* Chart */
+.chart-container {
+  background: var(--bg-secondary); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 24px; margin: 20px 0;
+}
+.chart-wrapper { width: 100%; height: 380px; }
+.chart-caption { font-size: 13px; color: var(--text-secondary); text-align: center; margin-top: 12px; }
+.chart-source { font-size: 11px; color: var(--text-tertiary); text-align: right; margin-top: 4px; }
+
+/* Table */
+.module-table {
+  width: 100%; border-collapse: collapse; margin: 16px 0;
+  font-size: 14px; border: 1px solid var(--border); border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+.module-table th {
+  background: var(--bg-tertiary); padding: 10px 16px; text-align: left;
+  font-weight: 600; font-size: 12px; text-transform: uppercase;
+  letter-spacing: 0.03em; color: var(--text-secondary);
+}
+.module-table td { padding: 10px 16px; border-top: 1px solid var(--border); color: var(--text); }
+.module-table tr:hover td { background: var(--bg-tertiary); }
+.table-caption { font-size: 12px; color: var(--text-tertiary); text-align: center; margin-top: 8px; }
+
+/* References */
+.module-references {
+  margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border);
+  font-size: 12px; color: var(--text-tertiary);
+}
+.module-references h4 { font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+.module-references ol { margin-left: 20px; }
+.module-references li { margin-bottom: 4px; }
+
+/* Key Takeaway */
+.key-takeaway {
+  margin-top: 16px; padding: 14px 20px; border-radius: var(--radius-sm);
+  background: var(--primary-light); border-left: 4px solid var(--primary);
+  font-size: 14px; font-weight: 500; color: var(--text);
+}
+
+/* Footer */
+#page-footer {
+  margin-top: 60px; padding: 32px 0; border-top: 1px solid var(--border);
+  display: flex; gap: 12px; flex-wrap: wrap;
+}
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 10px 20px; border-radius: var(--radius-sm);
+  font-size: 14px; font-weight: 500; cursor: pointer;
+  border: 1px solid var(--border); background: var(--bg);
+  color: var(--text); transition: all var(--transition);
+  text-decoration: none;
+}
+.btn:hover { background: var(--bg-tertiary); }
+.btn.primary { background: var(--primary); color: #fff; border-color: var(--primary); }
+.btn.primary:hover { filter: brightness(1.1); }
+
+/* Tooltip */
+.tooltip-trigger {
+  color: var(--primary); text-decoration: underline dotted;
+  cursor: help; position: relative;
+}
+.tooltip-content {
+  display: none; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
+  background: var(--text); color: var(--bg); padding: 8px 12px; border-radius: 6px;
+  font-size: 12px; white-space: nowrap; z-index: 500; box-shadow: var(--shadow-lg);
+  pointer-events: none;
+}
+.tooltip-trigger:hover .tooltip-content { display: block; }
+
+/* Mobile Sidebar */
+#sidebar-toggle {
+  display: none; position: fixed; top: 16px; left: 16px; z-index: 999;
+  width: 40px; height: 40px; border-radius: 50%;
+  background: var(--bg-secondary); border: 1px solid var(--border);
+  cursor: pointer; font-size: 18px; align-items: center; justify-content: center;
+  box-shadow: var(--shadow-sm);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  :root { --sidebar-width: 200px; }
+  #main-content { padding: 48px 24px 80px; }
+}
+@media (max-width: 768px) {
+  #sidebar-toggle { display: flex; }
+  #sidebar { transform: translateX(-100%); }
+  #sidebar.open { transform: translateX(0); }
+  #main-content { margin-left: 0; max-width: 100%; padding: 72px 20px 60px; }
+  #theme-toggle { top: 16px; right: 16px; }
+  .meta-card { padding: 20px 24px; flex-direction: column; gap: 12px; align-items: flex-start; }
+  .chart-wrapper { height: 280px; }
+  .module-title { font-size: 19px; }
+}
+
+@media print {
+  #sidebar, #progress-bar, #theme-toggle, #page-footer { display: none !important; }
+  #main-content { margin-left: 0; max-width: 100%; padding: 0; }
+  .module-section { opacity: 1; transform: none; break-inside: avoid; }
+  body { font-size: 12px; line-height: 1.5; }
+  #bg-canvas, .mobile-bottom-nav, .search-overlay, .help-overlay { display: none !important; }
+}
+
+/* Canvas Background */
+#bg-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+
+/* Search Overlay */
+.search-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 500; background: rgba(0,0,0,0.6); display: flex; justify-content: center; padding-top: 18vh; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
+.search-overlay.open { opacity: 1; pointer-events: auto; }
+[data-theme="dark"] .search-overlay { background: rgba(0,0,0,0.7); }
+[data-theme="light"] .search-overlay { background: rgba(15,23,42,0.3); }
+.search-dialog { width: 560px; max-width: 92vw; border-radius: 16px; background: var(--bg-secondary); border: 1px solid var(--border); box-shadow: 0 25px 60px rgba(0,0,0,0.5); overflow: hidden; }
+.search-dialog input { width: 100%; padding: 16px 20px; border: none; background: transparent; color: var(--text); font-size: 16px; outline: none; border-bottom: 1px solid var(--border); }
+.search-dialog input::placeholder { color: var(--text-tertiary); }
+.search-results { max-height: 360px; overflow-y: auto; }
+.search-results .sr-item { padding: 12px 20px; cursor: pointer; transition: background 0.15s; border-bottom: 1px solid rgba(255,255,255,0.03); }
+.search-results .sr-item:hover { background: var(--bg-tertiary); }
+.search-results .sr-item .sr-title { font-size: 14px; font-weight: 600; color: var(--text); }
+.search-results .sr-item .sr-title mark { background: rgba(52,211,153,0.25); color: #34d399; border-radius: 2px; padding: 0 2px; font-weight: 700; }
+[data-theme="light"] .search-results .sr-item .sr-title mark { background: rgba(16,185,129,0.2); color: #10b981; }
+.search-results .sr-item .sr-snippet { font-size: 12px; color: var(--text-tertiary); margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.search-empty { text-align: center; padding: 28px; color: var(--text-tertiary); font-size: 13px; }
+
+/* Help Overlay */
+.help-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 600; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
+[data-theme="light"] .help-overlay { background: rgba(15,23,42,0.3); }
+.help-overlay.open { opacity: 1; pointer-events: auto; }
+.help-dialog { padding: 28px 32px; border-radius: 16px; background: var(--bg-secondary); border: 1px solid var(--border); max-width: 400px; margin: 0 16px; box-shadow: 0 25px 60px rgba(0,0,0,0.5); }
+.help-dialog h4 { font-size: 15px; margin-bottom: 14px; color: var(--green); }
+.help-dialog .kbd-row { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+.help-dialog .kbd-row:last-child { border-bottom: none; }
+.help-dialog .kbd-key { padding: 3px 8px; border-radius: 5px; background: var(--bg-tertiary); border: 1px solid var(--border); font-family: 'JetBrains Mono',monospace; font-size: 11px; color: var(--primary); min-width: 20px; text-align: center; white-space: nowrap; }
+.help-dialog .kbd-desc { color: var(--text-secondary); flex: 1; }
+
+/* Mobile Bottom Nav */
+.mobile-bottom-nav { display: none; position: fixed; bottom: 0; left: 0; right: 0; z-index: 300; background: var(--bg-secondary); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-top: 1px solid var(--border); padding: 6px 8px; padding-bottom: max(6px, env(safe-area-inset-bottom)); }
+.mobile-bottom-nav .mbn-inner { display: flex; justify-content: space-around; align-items: center; }
+.mobile-bottom-nav .mbn-item { display: flex; flex-direction: column; align-items: center; gap: 1px; color: var(--text-tertiary); cursor: pointer; font-size: 10px; font-weight: 500; background: transparent; border: none; padding: 4px; font-family: inherit; transition: color 0.2s; }
+.mobile-bottom-nav .mbn-item:hover, .mobile-bottom-nav .mbn-item.mbn-active { color: var(--green); }
+.mobile-bottom-nav .mbn-item .mbn-icon { font-size: 17px; }
+
+@media (max-width: 768px) {
+  .mobile-bottom-nav { display: block; }
+  #page-footer { padding-bottom: 64px; }
+}
+</style>
+</head>
+<body class="loading">
+<canvas id="bg-canvas"></canvas>
+
+<div id="progress-bar"></div>
+<button id="theme-toggle" title="切换深色/浅色模式" onclick="toggleTheme()">🌓</button>
+<button id="sidebar-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+
+<nav id="sidebar">
+  <h3>📑 内容导航</h3>
+  <div id="sidebar-links"></div>
+</nav>
+
+<main id="main-content">
+  <div id="meta-card-container"></div>
+  <div class="journey-bar" style="background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius);padding:12px 20px;margin:0 0 48px 0;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:0.82rem">
+    <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+      <span style="font-size:1rem">📍</span>
+      <span style="color:var(--primary);font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:3px" onclick="var w=window.open('pe_learning.html#kc-p2_2','plan_main');if(w)w.focus()">提示工程系统学习方案</span>
+      <span style="color:var(--text-tertiary);font-size:0.7rem">〉</span>
+      <span style="color:var(--text-secondary);font-weight:600">整合应用</span>
+      <span style="color:var(--text-tertiary);font-size:0.7rem">〉</span>
+      <span style="color:var(--text);font-weight:700">提示迭代优化策略</span>
+      <span style="color:var(--text-tertiary);font-size:0.72rem">(第2/4个知识点)</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;font-size:0.75rem">
+      <span style="color:var(--text-tertiary)">← 前置: 结构化输出控制</span>
+      <span style="color:var(--border)">|</span>
+      <span style="color:var(--text-tertiary)">后续: 多步推理与任务分解 →</span>
+    </div>
+  </div>
+  <div id="modules-container"></div>
+  <footer id="page-footer">
+    <a href="#" style="display:inline-flex;align-items:center;gap:8px;padding:10px 24px;background:var(--bg-secondary);border:1px solid var(--primary);border-radius:50px;color:var(--text-secondary);text-decoration:none;font-size:0.85rem;font-weight:600" onclick="event.preventDefault();var w=window.open('pe_learning.html#kc-p2_2','plan_main');if(w)w.focus()">🔗 返回学习路线: 提示工程系统学习方案 → 整合应用</a>
+    <button class="btn" onclick="exportNotes()">📄 导出笔记</button>
+    <button class="btn" onclick="window.print()">🖨 打印</button>
+  </footer>
+</main>
+
+<div class="search-overlay" id="searchOverlay">
+  <div class="search-dialog">
+    <input type="text" id="searchInput" placeholder="搜索模块、公式、概念..." autofocus>
+    <div class="search-results" id="searchResults"></div>
+  </div>
+</div>
+
+<div class="help-overlay" id="helpOverlay">
+  <div class="help-dialog">
+    <h4>⌨ 键盘快捷键</h4>
+    <div class="kbd-row"><span class="kbd-key">Ctrl+K</span><span class="kbd-desc">打开搜索</span></div>
+    <div class="kbd-row"><span class="kbd-key">Ctrl+D</span><span class="kbd-desc">切换深色/浅色主题</span></div>
+    <div class="kbd-row"><span class="kbd-key">Esc</span><span class="kbd-desc">关闭弹窗</span></div>
+    <div class="kbd-row"><span class="kbd-key">Shift+?</span><span class="kbd-desc">显示此帮助</span></div>
+    <div style="text-align:center;margin-top:12px"><span style="font-size:12px;color:var(--text-tertiary)">点击背景或按 Esc 关闭</span></div>
+  </div>
+</div>
+
+<div class="mobile-bottom-nav" id="mobileBottomNav">
+  <div class="mbn-inner" id="mbnInner"></div>
+</div>
+
+<div class="deep-floating-back" style="position:fixed;right:20px;bottom:20px;z-index:10000">
+  <button style="padding:12px 20px;background:linear-gradient(135deg,var(--primary),var(--accent));color:white;border:none;border-radius:24px;font-size:0.85rem;font-weight:600;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.15);transition:transform 0.2s,box-shadow 0.2s" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 16px rgba(0,0,0,0.2)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 12px rgba(0,0,0,0.15)'" onclick="event.preventDefault();var w=window.open('pe_learning.html#kc-p2_2','plan_main');if(w)w.focus()">← 返回学习方案</button>
+</div>
+
+<script>
+// ============ DATA INJECTION POINT ============
+const PAGE_DATA = {
+  topic: "提示迭代优化策略",
+  domain: "ai-tech",
+  domain_name: "AI与科技",
+  level: "intermediate",
+  level_name: "进阶",
+  reading_time: "35",
+  module_count: "16",
+  texture: "G8",
+  texture_name: "教程实操型",
+  depth: "理解",
+  breadth: "标准",
+  modules: [
+    {
+      module_id: "learning_journey",
+      module_title: "学习路线导航",
+      module_tag: "路线导航",
+      hook: "在提示工程的「整合应用」阶段，提示迭代优化策略是连接理论到实践的核心桥梁——掌握它，你就掌握了让提示从「能用」到「好用」的关键方法论。",
+      content: "本文隶属于**提示工程系统学习方案**的第二阶段：整合应用（Integrated Application）。该阶段共设4个关键知识点，按照学习顺序排列为：\n\n**① 结构化输出控制** → 学习如何精确约束LLM的输出格式（JSON、XML、Markdown等），这是迭代优化的前提——你无法优化一个输出格式都不确定的提示。\n\n**② 提示迭代优化策略（本文）** → 在输出格式可控的基础上，引入系统化的优化方法论，通过PDCA循环、A/B测试和自动化评测框架持续提升提示质量。\n\n**③ 多步推理与任务分解** → 将复杂任务拆解为子任务链，配合迭代优化，实现端到端的性能提升。\n\n**④ 提示链与工作流设计** → 将优化后的多个提示串联为生产级流水线，完成从单提示优化到系统级部署的跨越。\n\n本文作为第2个知识点，假设读者已掌握结构化输出控制（能通过System Prompt和格式约束精确控制模型输出），并将在此基础上引入量化评估和迭代改进的完整工具体系。建议你在阅读本文时，同步打开一个LLM Playground（如OpenAI Playground或Anthropic Console），随时动手实践文中提到的每一条优化策略。",
+      key_takeaway: "本文是整合应用阶段的第2个知识点，承上启下：前置依赖结构化输出控制，后续衔接多步推理与提示链设计。学习时应注重动手实践，每个优化步骤都要在真实LLM环境中验证效果。"
+    },
+    {
+      module_id: "background",
+      module_title: "背景与缘起",
+      module_tag: "前置知识",
+      hook: "2022年ChatGPT横空出世时，人们以为「写提示」就像「问问题」一样简单。直到第一个生产级Prompt在边缘case上表现惨淡，工程师们才意识到：提示不是一次性的，而是需要像代码一样迭代优化的。",
+      content: "在LLM应用的早期（2022-2023），业界普遍认为提示工程就是「写一个足够好的Prompt然后部署」。这种**单次式（One-Shot）思维方式**很快在实践中暴露了致命缺陷：\n\n**1. 长尾失效问题**：一个在100条测试样本上表现完美的提示，在10000条真实数据上可能只有70%的准确率。边缘case的累积效应远超预期。\n\n**2. 模型升级引发的退化**：当GPT-3.5升级到GPT-4时，某些精心调优的Few-Shot Prompt反而表现变差——因为新模型对示例的依赖模式发生了变化（Zhou et al., 2024）。\n\n**3. 任务定义的模糊性**：在实际业务中，「好的摘要」的定义因人而异。产品经理、设计师、工程师对同一输出可能有完全不同的评价标准。单次提示无法调和这些分歧。\n\n**4. 成本意识的觉醒**：随着企业级LLM部署规模扩大，每次API调用的token成本成为核心关注点。一个未经迭代优化的冗长Prompt可能比优化后的短Prompt贵3-5倍，而效果却更差。\n\n这些痛点催生了**提示迭代优化（Prompt Iteration Optimization）**这一系统化方法论。其核心思想来自软件工程的持续集成/持续交付（CI/CD）实践：将提示视为可版本管理、可测试、可度量的代码资产，通过快速的「假设-实验-验证」循环持续提升质量。\n\n2023年下半年，随着LangSmith、PromptLayer等专业工具的涌现，以及**DSPy**（Stanford, 2023）提出「Programming—not prompting—foundation models」的理念，提示迭代优化正式从手工作坊时代进入工业化阶段。",
+      key_takeaway: "提示迭代优化的诞生源于四个核心痛点：长尾失效、模型升级退化、任务定义模糊性和成本压力。它将软件工程的CI/CD理念引入提示管理，实现了从「一次性写作」到「持续优化」的范式转变。",
+      references: [
+        { title: "Demystifying Prompts in Language Models via Perplexity Estimation", authors: "Gonen, H. et al.", year: 2023, doi: "10.48550/arXiv.2212.04037" },
+        { title: "DSPy: Compiling Declarative Language Model Calls into Self-Improving Pipelines", authors: "Khattab, O. et al.", year: 2023, doi: "10.48550/arXiv.2310.03714" }
+      ]
+    },
+    {
+      module_id: "concept",
+      module_title: "核心概念",
+      module_tag: "核心概念",
+      hook: "如果把提示比作一个函数，那么提示迭代优化就是在寻找这个函数的最优参数——只不过这里的「参数」不是浮点数，而是自然语言。",
+      content: "提示迭代优化的核心定义是：**通过系统化的测试、评估和调整循环，持续提升LLM在特定任务上的输出质量、一致性和效率的过程。**\n\n其三个核心支柱为：\n\n### 1. A/B测试（Prompt A/B Testing）\n对同一任务设计两个或多个提示变体，在相同测试集上运行，通过量化指标比较表现。例如：\n- **变体A**：直接指令 `将以下文本总结为3句话`\n- **变体B**：结构化指令 `请按以下格式总结：[要点1]、[要点2]、[要点3]`\n\nA/B测试的关键原则：**每次只改变一个变量**（控制变量法），否则无法归因性能变化。\n\n### 2. 提示版本管理（Prompt Versioning）\n将每次修改的提示保存为不可变版本（类似Git commit），记录：\n- 修改时间、修改人、修改原因\n- 对应的评测分数（准确率、延迟、token消耗）\n- 模型版本和超参数配置\n\n推荐命名规范：`task_v{major}.{minor}_{date}`，例如 `summarize_v2.3_20260115`\n\n### 3. 评测循环（Evaluation Loop）\n每次提示修改后自动触发评测流程：\n1. 加载测试集（含标准答案或评分标准）\n2. 批量调用LLM获取输出\n3. 计算评测指标（准确率、F1、ROUGE-L等）\n4. 生成对比报告\n\n这三个支柱共同构成了提示优化的「骨架」——缺少任何一个，优化过程就会退化为「凭感觉修改」。",
+      key_takeaway: "提示迭代优化 = A/B测试（控制变量） + 版本管理（可追溯） + 评测循环（数据驱动）。三者缺一不可，共同保证优化过程的科学性和可重复性。",
+      tables: [
+        {
+          headers: ["维度", "单次提示（One-Shot）", "迭代优化（Iterative）"],
+          rows: [
+            ["开发周期", "数小时", "数天到数周"],
+            ["评测方式", "主观感受", "量化指标 + 人工评审"],
+            ["版本管理", "无/手动备份", "Git式版本控制"],
+            ["边缘case处理", "靠运气", "针对性优化"],
+            ["成本控制", "事后发现", "优化过程中持续监控"],
+            ["团队协作", "个人经验依赖", "可复现、可交接"],
+            ["模型升级适应", "重新手写", "评测驱动微调"]
+          ],
+          caption: "表：单次提示 vs 迭代优化的核心差异对比"
+        }
+      ]
+    },
+    {
+      module_id: "principle",
+      module_title: "核心原理",
+      module_tag: "核心概念",
+      hook: "PDCA是制造业用了70年的质量改进方法，当它遇到LLM提示工程，一个优雅的优化框架就此诞生。",
+      content: "提示迭代优化最经典的理论框架是**PDCA循环**（Plan-Do-Check-Act），它由统计学家戴明推广，但在LLM时代被赋予了全新的内涵：\n\n### Plan（计划阶段）\n- 分析当前提示的缺点：通过错误分析（Error Analysis）识别高频失败模式\n- 设定优化目标：例如「将分类准确率从87%提升到93%」\n- 制定优化假设：例如「添加2个Few-Shot示例应该能减少格式错误」\n\n### Do（执行阶段）\n- 基于假设创建提示的新版本\n- 修改范围应尽量小：「一次只改变一个因素」\n- 记录修改内容到版本管理系统\n\n### Check（检查阶段）\n- 在新旧提示之间运行A/B测试\n- 计算量化指标差异，检查是否满足目标\n- 进行统计显著性检验：提升是否显著，还是随机波动？\n\n### Act（处理阶段）\n- 如果目标达成：将新提示设为生产版本，记录成功经验\n- 如果未达成：分析失败原因，返回Plan阶段提出新假设\n- 关键原则：**每个PDCA循环完成后，基线（Baseline）自动更新为最新最优版本**\n\n### 反馈回路分析\n一个完整的提示优化迭代可以形式化为以下优化过程：给定初始提示 $$p_0$$ 和评测函数 $$E(p)$$（返回提示p在某任务上的性能分数），我们希望在迭代次数 $$T$$ 内找到：\n\n$$p^* = \\arg\\max_{p \\in \\{p_0, p_1, ..., p_T\\}} E(p)$$\n\n其中每一步 $$p_{t+1} = f(p_t, \\Delta_t)$$，$$\\Delta_t$$ 是基于第t轮检查结果得出的修改策略。",
+      key_takeaway: "PDCA为提示优化提供了清晰的四步节奏：Plan（假设驱动）、Do（小步修改）、Check（量化验证）、Act（决策与归档）。每一步产生的新基线自动成为下一轮优化的起点，形成持续改进的正向循环。",
+      formulas: [
+        {
+          latex: "$$E(p) = \\alpha \\cdot Q(p) + \\beta \\cdot (1 - \\frac{C(p)}{C_{max}}) + \\gamma \\cdot (1 - \\frac{L(p)}{L_{max}})$$",
+          caption: "多目标优化评分函数：综合质量（Q）、成本（C）和延迟（L），α+β+γ=1",
+          expandable: true,
+          derivation: "这是提示优化的核心评分公式：Q(p)是质量得分（如准确率），C(p)是token消耗，L(p)是响应延迟。权重α、β、γ由业务需求决定。例如，对实时聊天应用，γ可能设为0.4（延迟敏感）；对批量报表生成，γ可能设为0.05。实际使用中，推荐初始权重为α=0.5, β=0.3, γ=0.2，然后根据业务反馈调整。"
+        },
+        {
+          latex: "$$\\text{Effect Size} = \\frac{\\bar{E}_{new} - \\bar{E}_{old}}{\\sigma_{pooled}}$$",
+          caption: "效果量（Cohen's d）：判断优化提升是否具有实际意义",
+          expandable: true,
+          derivation: "Cohen's d > 0.2为小效果，> 0.5为中效果，> 0.8为大效果。在提示优化中，如果d < 0.2，即使p值显著，也应谨慎考虑是否值得部署——因为微小的效果提升可能被生产环境的噪声淹没。σ_pooled是新旧提示评分标准差的合成值。"
+        }
+      ],
+      charts: [
+        {
+          echarts_option: {
+            title: { text: "PDCA提示优化循环示意", left: "center", textStyle: { color: "#a0a0a0", fontSize: 14 } },
+            tooltip: { trigger: "item" },
+            series: [{
+              type: "pie",
+              radius: ["45%", "70%"],
+              avoidLabelOverlap: false,
+              itemStyle: { borderRadius: 8, borderColor: "#1a1a1a", borderWidth: 3 },
+              label: { show: true, position: "outside", formatter: "{b}\n{d}%", color: "#a0a0a0", fontSize: 12 },
+              emphasis: { label: { fontSize: 16, fontWeight: "bold" } },
+              data: [
+                { value: 25, name: "Plan 计划", itemStyle: { color: "#5b8db8" } },
+                { value: 25, name: "Do 执行", itemStyle: { color: "#8878a8" } },
+                { value: 25, name: "Check 检查", itemStyle: { color: "#6ea8c0" } },
+                { value: 25, name: "Act 处理", itemStyle: { color: "#c0a060" } }
+              ]
+            }]
+          },
+          caption: "图：PDCA四阶段在提示优化中的等权重分布——每个阶段同等重要",
+          data_source: "基于Deming PDCA框架的提示工程适配"
+        }
+      ]
+    },
+    {
+      module_id: "architecture",
+      module_title: "技术架构",
+      module_tag: "核心工具",
+      hook: "一套成熟的提示迭代工具体系，就像开发者的IDE一样不可或缺——没有工具支撑的「手工优化」，注定会在规模化面前崩溃。",
+      content: "现代提示迭代优化的技术架构通常分为四层，每一层解决不同的问题：\n\n### ① 提示管理层（Prompt Management Layer）\n负责提示的存储、版本管理和协作。核心能力：\n- **Git式版本控制**：记录每次修改的diff和commit message\n- **环境分离**：Development → Staging → Production 三级环境\n- **模板变量**：支持 `{{variable}}` 占位符，与业务逻辑解耦\n\n### ② 评测执行层（Evaluation Execution Layer）\n负责批量运行测试和收集结果：\n- **数据集管理**：训练集/验证集/测试集的划分和版本管理\n- **批量推理**：并行调用LLM API，支持速率限制和重试策略\n- **结果持久化**：将每次运行的输入-输出对存储为结构化数据\n\n### ③ 指标计算层（Metrics Computation Layer）\n负责计算各类评测指标：\n- **自动指标**：准确率、F1、ROUGE-L、BLEU等\n- **LLM-as-Judge**：用更强的模型（如GPT-4）评判输出质量\n- **人工评审集成**：对接标注平台，计算人工评分\n\n### ④ 可视化与分析层（Visualization & Analysis Layer）\n负责将数据转化为可操作的洞察：\n- **实验对比仪表盘**：并排展示多个提示版本的指标\n- **错误聚类分析**：自动识别高频失败模式的分布\n- **成本-质量帕累托前沿**：帮助在成本和效果之间找到最优平衡\n\n主流工具栈对照如下：",
+      key_takeaway: "四层架构（提示管理→评测执行→指标计算→可视化分析）构成完整的提示迭代工具链。选择工具时，优先考虑与现有技术栈的集成度和社区的活跃度。",
+      tables: [
+        {
+          headers: ["层级", "LangSmith", "PromptLayer", "Helicone", "自建方案"],
+          rows: [
+            ["提示管理", "✅ 内置", "✅ 核心功能", "❌ 需配合", "Git + 数据库"],
+            ["评测执行", "✅ 数据集+运行", "❌ 基础支持", "✅ 网关日志", "自建Pipeline"],
+            ["指标计算", "✅ 丰富内置", "✅ 监控侧重", "✅ 延迟+成本", "自选指标库"],
+            ["可视化", "✅ 仪表盘", "✅ 对比视图", "✅ 成本分析", "Grafana"],
+            ["开源", "❌ SaaS", "❌ SaaS", "❌ SaaS", "✅ 可控"],
+            ["价格", "免费层+付费", "免费层+付费", "免费层+付费", "基础设施成本"],
+            ["学习曲线", "中等", "低", "低", "高"]
+          ],
+          caption: "表：主流提示迭代优化工具栈的功能对比"
+        }
+      ],
+      references: [
+        { title: "LangSmith Documentation: Evaluation", authors: "LangChain", year: 2024, url: "https://docs.smith.langchain.com/evaluation" },
+        { title: "PromptLayer: The First Platform for Prompt Engineering", authors: "PromptLayer Team", year: 2024, url: "https://promptlayer.com" }
+      ]
+    },
+    {
+      module_id: "development",
+      module_title: "发展迭代",
+      module_tag: "发展演进",
+      hook: "从手工调参到AI自动优化，提示迭代的发展史就是一部「人类逐渐把重复劳动外包给机器」的微缩史。",
+      content: "提示迭代优化的发展可以分为四个代际，每一代都标志着自动化程度的显著提升：\n\n### 第一代：手工试探期（2022 - 2023初）\nGPT-3.5发布后，开发者通过**反复手动修改**提示来改善效果。典型工作流：修改提示 → 手动测试几条样本 → 凭感觉判断是否更好 → 重复。这一阶段的问题是：**极度依赖个人经验**，且不具备可复现性。\n\n### 第二代：系统化A/B测试期（2023中 - 2023底）\n随着LangChain等框架的普及，开发者开始：\n- 建立**固定测试集**（50-200条标注样本）\n- 使用脚本**批量运行对比实验**\n- 通过准确率等**量化指标**判断优劣\n\n这一阶段的核心进步是**从定性到定量的转变**。\n\n### 第三代：自动优化探索期（2024初 - 2024中）\n**DSPy**框架的提出标志着范式转变：「不要手写提示，让算法来优化」。核心思路：\n- 将提示参数化（用自然语言签名替代硬编码的提示文本）\n- 使用梯度下降类算法自动搜索最优提示组合\n- 支持的优化器包括 `BootstrapFewShot`、`MIPRO`、`COPRO`\n\n### 第四代：端到端自动化期（2024中 - 至今）\n最新进展包括：\n- **TextGrad**：将文本梯度反向传播引入LLM提示优化\n- **APE（Automatic Prompt Engineer）**：用LLM自身生成和筛选候选提示\n- **Meta-Prompting**：用一个「元提示」来优化另一个提示\n- **自我改进系统**：在生产环境中持续收集反馈并自动迭代",
+      key_takeaway: "提示迭代优化经历了「手工试探 → 系统化A/B → 算法自动优化 → 端到端自动化」四个代际。当前最佳实践是G2+G3混合：人工设计评测框架 + 算法辅助搜索最优提示变体。",
+      charts: [
+        {
+          echarts_option: {
+            title: { text: "提示迭代优化技术演进时间线", left: "center", textStyle: { color: "#a0a0a0", fontSize: 14 } },
+            tooltip: { trigger: "axis" },
+            xAxis: { type: "category", data: ["2022", "2023H1", "2023H2", "2024H1", "2024H2", "2025"], axisLabel: { color: "#787878" } },
+            yAxis: { type: "value", name: "自动化程度", max: 100, axisLabel: { color: "#787878" }, nameTextStyle: { color: "#787878" } },
+            series: [
+              { name: "手工试探", type: "line", data: [5, 10, null, null, null, null], itemStyle: { color: "#c06050" }, lineStyle: { color: "#c06050" } },
+              { name: "系统化A/B", type: "line", data: [null, 10, 30, 35, null, null], itemStyle: { color: "#6ea8c0" }, lineStyle: { color: "#6ea8c0" } },
+              { name: "算法自动优化", type: "line", data: [null, null, null, 55, 70, 75], itemStyle: { color: "#5b8db8" }, lineStyle: { color: "#5b8db8" } },
+              { name: "端到端自动化", type: "line", data: [null, null, null, null, 85, 90], itemStyle: { color: "#5a9e6f" }, lineStyle: { color: "#5a9e6f" } }
+            ]
+          },
+          caption: "图：提示迭代自动化的代际演进 — 每个新技术都显著提升了自动化程度",
+          data_source: "综合LangChain、DSPy、TextGrad等项目的发展历程"
+        }
+      ]
+    },
+    {
+      module_id: "compute_cost",
+      module_title: "计算成本",
+      module_tag: "核心工具",
+      hook: "一个不经意的5轮迭代，可能烧掉&#36;500的API费用——在提示优化的世界里，「优化成本」本身也是一个需要优化的目标。",
+      content: "提示迭代优化的成本结构可以分为三个部分，需要**全局优化**而非局部削减：\n\n### 1. 测试运行成本（&#36;_{test}）\n每次评测运行的总token消耗：\n- 输入token（测试集中的prompt + Few-Shot示例）\n- 输出token（LLM生成的回答）\n- 模型定价：GPT-4约为&#36;0.03/1K input, &#36;0.06/1K output\n\n### 2. LLM-as-Judge成本（&#36;_{judge}）\n如果用GPT-4作为评判模型来打分：\n- 每次评判需要额外一次LLM调用\n- 评判prompt通常包含评分标准和示例（约500-2000 input tokens）\n\n### 3. 人工评审成本（&#36;_{human}）\n当自动指标不足以判断时：\n- 标注人员的时间成本（约&#36;0.10-&#36;0.50/条）\n- 通常只在关键迭代节点进行，而非每轮都做\n\n### 降本策略\n\n**策略1：分层评测（Tiered Evaluation）**\n- Tier 1（每轮必做）：自动指标（免费，如ROUGE-L计算）\n- Tier 2（每3-5轮）：LLM-as-Judge（成本可控）\n- Tier 3（关键决策节点）：人工评审（成本高但信息量大）\n\n**策略2：测试集采样**\n- 日常迭代使用100条采样子集（成本降低90%）\n- 最终部署前使用完整1000条测试集验证\n\n**策略3：模型降级测试**\n- 初始迭代使用GPT-3.5-turbo（成本约为GPT-4的1/20）\n- 确认方向正确后再切换到GPT-4做精调",
+      key_takeaway: "优化总成本 = min(测试成本 + 评判成本 + 人工成本)，而非单纯削减某一项。推荐三层策略：每轮自动指标 → 阶段性LLM-Judge → 关键节点人工评审，在成本和信息量之间找到最优平衡。",
+      formulas: [
+        {
+          latex: "$$C_{total} = N_{iters} \\cdot (N_{samples} \\cdot (C_{in} \\cdot T_{in} + C_{out} \\cdot T_{out}) + C_{judge}) + N_{human} \\cdot C_{human}$$",
+          caption: "提示迭代总成本模型",
+          expandable: true,
+          derivation: "N_iters为迭代轮数，N_samples为测试样本数，C_in和C_out分别为输入/输出token单价，T_in/T_out为平均token数，C_judge为评判成本，N_human为人工评审样本数，C_human为单条人工评审成本。通过调整各参数，可在总成本和质量之间找到最优配置。"
+        }
+      ],
+      tables: [
+        {
+          headers: ["降本策略", "适用场景", "成本降低幅度", "质量损失风险"],
+          rows: [
+            ["分层评测", "所有迭代场景", "40-60%", "低（Tier3仅在关键节点）"],
+            ["测试集采样", "日常快速迭代", "80-90%", "中（小样本方差大）"],
+            ["模型降级测试", "初始方向探索", "95%", "中（廉价模型行为有差异）"],
+            ["缓存复用", "重复测试相同输入", "30-50%", "极低（确定性缓存）"],
+            ["单轮多假设", "多个假设同时验证", "50-70%", "低（共享测试集）"]
+          ],
+          caption: "表：提示迭代优化的五种降本策略对比"
+        }
+      ]
+    },
+    {
+      module_id: "application",
+      module_title: "实践应用",
+      module_tag: "实践应用",
+      hook: "理论说了这么多，现在让我们卷起袖子：以下是一份可以直接复制到你的项目中执行的6步迭代优化手册。",
+      content: "以下是经过10+个生产项目验证的**提示迭代优化标准流程**（Standard Operating Procedure）：\n\n### 步骤1：建立基线（Baseline） ⏱️ 约1小时\n- [ ] 编写提示的初始版本 `prompt_v1.0`\n- [ ] 准备**黄金测试集**（Golden Test Set）：至少50条代表性样本+标准答案\n- [ ] 运行基线评测，记录所有指标作为基准\n- [ ] **代码示例**：\n```\nimport json\nresults = []\nfor sample in test_set:\n    output = llm.call(prompt_v1, sample.input)\n    score = evaluate(output, sample.golden_answer)\n    results.append(score)\nbaseline_score = sum(results) / len(results)\nprint(f\"Baseline: {baseline_score:.2%}\")\n```\n\n### 步骤2：错误分析（Error Analysis） ⏱️ 约1-2小时\n- [ ] 将测试结果按错误类型聚类：格式错误、内容遗漏、幻觉、逻辑错误等\n- [ ] 为每类错误统计频率，生成**帕累托图**（Pareto Chart）确定优先级\n- [ ] 提出2-3个优化假设，按预期效果排序\n\n### 步骤3：创建变体（Create Variants） ⏱️ 约30分钟/个\n- [ ] 基于假设创建提示变体：`prompt_v1.1`, `prompt_v1.2`\n- [ ] 每次只改变**一个因素**（控制变量法）\n- [ ] 记录修改内容：`git commit -m \"v1.1: add role setting 'You are an expert summarizer'\"`\n\n### 步骤4：并行评测（Parallel Evaluation） ⏱️ 取决于API速率\n- [ ] 同时运行所有变体 + 基线（确保模型版本一致）\n- [ ] 记录：准确率、F1、延迟、token消耗\n- [ ] 运行统计显著性检验（如McNemar检验）\n\n### 步骤5：分析与决策（Analysis & Decision） ⏱️ 约30分钟\n- [ ] 生成对比报告：变体 vs 基线的**效果量**（Effect Size）\n- [ ] 做出决策：采纳 / 拒绝 / 回滚\n- [ ] 决策矩阵：\n  - 效果 > 5% 且 p < 0.05 → **立即采纳**\n  - 效果 2-5% 且 p < 0.05 → **可选采纳（需人工评审确认）**\n  - 效果 < 2% 或 p > 0.05 → **拒绝（退回步骤2）**\n\n### 步骤6：部署与监控（Deploy & Monitor） ⏱️ 持续\n- [ ] 将新基线推送到生产环境\n- [ ] 设置**漂移检测**：每周自动运行评测，检测性能是否下降\n- [ ] 当性能下降到阈值时，自动触发新一轮迭代",
+      key_takeaway: "标准迭代流程（6步）：建立基线 → 错误分析 → 创建变体 → 并行评测 → 分析与决策 → 部署与监控。关键原则：控制变量（每次只改一个因素）、量化决策（效果量 + 统计显著性）、自动监控（漂移检测触发新一轮迭代）。",
+      formulas: [
+        {
+          latex: "$$\\text{Decision} = \\begin{cases} \\text{Deploy} & \\text{if } \\Delta E > 5\\% \\land p < 0.05 \\\\ \\text{Review} & \\text{if } 2\\% < \\Delta E < 5\\% \\land p < 0.05 \\\\ \\text{Reject} & \\text{otherwise} \\end{cases}$$",
+          caption: "提示迭代优化中的量化决策矩阵",
+          expandable: false
+        }
+      ]
+    },
+    {
+      module_id: "case_study",
+      module_title: "实践案例",
+      module_tag: "实践应用",
+      hook: "理论需要案例来「落地」——以下是两个真实场景的提示迭代优化全过程，包含从问题诊断到最终效果的完整数据。",
+      content: "### 案例1：新闻摘要提示优化\n\n**背景**：某新闻聚合平台使用GPT-4生成新闻摘要，初始提示成功率仅76%（定义：摘要包含所有关键信息且无幻觉）。\n\n**迭代过程**：\n\n**第1轮（v1.0 → v1.1）**：增加角色设定\n- 修改：添加 `你是一位拥有10年经验的新闻编辑`\n- 效果：成功率 76% → 81%（+5%，p=0.03）\n- 决策：采纳\n\n**第2轮（v1.1 → v1.2）**：添加Few-Shot示例\n- 修改：添加2个高质量摘要示例\n- 效果：成功率 81% → 87%（+6%，p=0.01）\n- 决策：采纳\n\n**第3轮（v1.2 → v1.3）**：结构化输出约束\n- 修改：要求输出 `[标题]\\n[核心要点]\\n[关键细节]` 格式\n- 效果：成功率 87% → 93%（+6%，p<0.001）\n- **幻觉率从8.5%降至2.1%**\n- 决策：采纳并部署\n\n### 案例2：代码生成提示优化\n\n**背景**：某开发者工具需要LLM根据自然语言描述生成Python函数，初版提示的函数可用率仅62%。\n\n**迭代过程**：\n\n**第1轮**：添加约束 `生成的代码必须包含类型注解和docstring`\n- 可用率：62% → 68%\n\n**第2轮**：添加思维链 `请先分析需求，再编写代码`\n- 可用率：68% → 74%\n\n**第3轮**：添加负面示例 `不要使用已弃用的API，不要生成不存在的库`\n- 可用率：74% → 82%\n\n**第4轮**：使用DSPy自动优化Few-Shot示例的选择\n- 可用率：82% → 88%（DSPy自动找到了最优的示例组合）\n\n总提升：62% → 88%（+26个百分点），在保持token消耗不变的情况下完成。",
+      key_takeaway: "两个案例的共同启示：①结构化输出是最大单次提升来源（+6%）；②Few-Shot的质量比数量更重要；③DSPy自动优化可以作为「最后一公里」的补充手段。每次迭代的提升幅度不应期望超过10%，累积效应才是关键。",
+      tables: [
+        {
+          headers: ["迭代轮次", "修改内容", "案例1成功率", "案例2可用率", "修改类型"],
+          rows: [
+            ["v1.0", "初始版本", "76%", "62%", "基线"],
+            ["v1.1", "角色设定/代码约束", "81%", "68%", "System Prompt"],
+            ["v1.2", "Few-Shot示例", "87%", "74%", "示例工程"],
+            ["v1.3", "结构化输出/负面示例", "93%", "82%", "格式约束"],
+            ["v1.4", "—/DSPy自动优化", "—", "88%", "自动优化"]
+          ],
+          caption: "表：两个案例的分轮迭代效果追踪"
+        }
+      ],
+      references: [
+        { title: "Prompt Engineering Guide: Iterative Prompt Development", authors: "DAIR.AI", year: 2024, url: "https://www.promptingguide.ai/introduction/tips" },
+        { title: "Best practices for prompt engineering with OpenAI API", authors: "OpenAI", year: 2024, url: "https://help.openai.com/en/articles/6654000-best-practices-for-prompt-engineering-with-openai-api" }
+      ]
+    },
+    {
+      module_id: "benchmark",
+      module_title: "基准评测",
+      module_tag: "核心工具",
+      hook: "如果你不能度量它，你就不能改进它——这句管理学的金科玉律在提示优化领域同样适用。",
+      content: "提示质量的评测可以分为三个层级，从完全自动到完全人工，形成了一个**评测金字塔**：\n\n### 层级1：自动指标（Automatic Metrics）\n适合分类、抽取等有明确答案的任务：\n- **准确率（Accuracy）**：输出完全匹配的比例\n- **F1 Score**：精确率与召回率的调和平均\n- **ROUGE-L**：基于最长公共子序列的文本相似度\n- **BLEU**：基于n-gram重叠的机器翻译指标（也适用于格式化输出）\n\n### 层级2：LLM-as-Judge\n适合摘要、翻译等开放式任务：\n- **G-Eval**（Liu et al., 2023）：用GPT-4按多维度打分（1-5分）\n- **MT-Bench**：使用强模型评判弱模型的多轮对话质量\n- 关键设计：评判prompt需要包含**详细的评分标准**和**锚定示例**\n\n### 层级3：人工评审（Human Evaluation）\n适合需要专业领域知识的任务：\n- **成对比较（Pairwise Comparison）**：标注者选择A/B中更好的输出\n- **Likert量表**：1-5分评分，通常多人取平均以减少主观偏差\n- **标注者间一致性（Inter-annotator Agreement）**：用Cohen's κ确保评审质量\n\n### 指标选择原则\n1. **相关性**：指标是否真正衡量了你关心的质量维度？\n2. **灵敏度**：能否区分0.5%和5%的效果提升？\n3. **成本效率**：每单位信息增益的成本是多少？",
+      key_takeaway: "三层评测金字塔（自动指标 → LLM-as-Judge → 人工评审）提供了从低成本高速度到高成本高精度的完整光谱。实践经验：日常迭代用层级1+2，部署决策前补充层级3。",
+      tables: [
+        {
+          headers: ["评测方法", "成本/条", "速度", "适用任务", "局限性"],
+          rows: [
+            ["准确率/F1", "几乎免费", "毫秒级", "分类、抽取", "不适用开放式生成"],
+            ["ROUGE-L", "几乎免费", "毫秒级", "摘要、问答", "只衡量词汇重叠"],
+            ["BLEU", "几乎免费", "毫秒级", "翻译、格式化", "对语义变化不敏感"],
+            ["G-Eval (GPT-4)", "≈&#36;0.02", "1-3秒", "摘要、对话", "Judge本身可能有bias"],
+            ["成对比较(人工)", "≈&#36;0.30", "30-60秒", "所有任务", "成本高、速度慢"],
+            ["Likert量表(人工)", "≈&#36;0.20", "20-40秒", "质量评估", "评分标准需校准"]
+          ],
+          caption: "表：六种主流评测方法的成本-速度-适用性对比"
+        }
+      ],
+      formulas: [
+        {
+          latex: "$$\\kappa = \\frac{P_o - P_e}{1 - P_e}$$",
+          caption: "Cohen's κ（Kappa系数）：衡量标注者间一致性，κ>0.6为可接受，κ>0.8为优秀",
+          expandable: true,
+          derivation: "P_o是观察到的一致性比例，P_e是期望的随机一致性比例。在提示优化的人工评审中，如果κ<0.6，说明评审标准不够清晰，需要重新定义评分细则并对标注者进行再培训。"
+        }
+      ],
+      references: [
+        { title: "G-Eval: NLG Evaluation using GPT-4 with Better Human Alignment", authors: "Liu, Y. et al.", year: 2023, doi: "10.48550/arXiv.2303.16634" },
+        { title: "Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena", authors: "Zheng, L. et al.", year: 2023, doi: "10.48550/arXiv.2306.05685" }
+      ]
+    },
+    {
+      module_id: "risk",
+      module_title: "潜在风险",
+      module_tag: "风险与挑战",
+      hook: "提示优化的「黑暗面」：过度优化可能让你在一个完美的测试集上得到100%的分数，然后在真实用户面前一败涂地。",
+      content: "提示迭代优化中需要警惕的五类风险，以及相应的防范措施：\n\n### 风险1：过拟合（Overfitting to Test Set）\n**现象**：测试集分数持续上升，但生产环境表现停滞或下降。\n**根因**：提示逐渐「记忆」了测试集中的特定模式，而非真正提升泛化能力。\n**防范**：\n- 定期**刷新测试集**（每季度从生产日志采样新数据）\n- 保留**留出集（Hold-out Set）**，只在最终决策时使用\n- 关注**测试集与生产集的指标差异**，当差异>5%时触发告警\n\n### 风险2：提示漂移（Prompt Drift）\n**现象**：模型静默更新后，原本优化的提示效果逐渐下降。\n**根因**：LLM服务商（OpenAI, Anthropic）会定期更新模型版本，行为可能发生变化。\n**防范**：\n- **固定模型版本**（如 `gpt-4-0613` 而非 `gpt-4`）\n- 设置**每周自动评测**，检测性能退化\n- 当退化>3%时自动触发重新优化\n\n### 风险3：测试集污染（Test Set Contamination）\n**现象**：优化过程中测试集答案被泄露到提示中（例如通过Few-Shot示例）。\n**根因**：开发者无意中将测试样本作为Few-Shot示例写入提示。\n**防范**：\n- Few-Shot示例**必须来自训练集**，严禁使用测试集样本\n- 使用**数据溯源工具**追踪每条示例的来源\n\n### 风险4：成本爆炸（Cost Explosion）\n**现象**：随着迭代轮次增加，Few-Shot示例越来越多，token消耗指数增长。\n**防范**：\n- 将token消耗纳入优化目标（使用多目标评分函数）\n- 定期**修剪冗余示例**（删除对效果贡献小的示例）\n\n### 风险5：优化方向错误（Wrong Optimization Direction）\n**现象**：团队在优化一个不重要的指标，而忽略了真正的用户需求。\n**防范**：\n- **每5轮迭代进行一次用户反馈收集**\n- 确保评测指标与**业务KPI对齐**（如用户留存率而非准确率）",
+      key_takeaway: "五大核心风险（过拟合、提示漂移、测试污染、成本爆炸、方向错误）都可以通过流程设计来防范：留出集 + 版本锁定 + 数据溯源 + 成本约束 + 业务对齐。记住：最好的提示不是评测分数最高的，而是在生产环境中持续稳定交付价值的。",
+      tables: [
+        {
+          headers: ["风险类型", "严重程度", "发生概率", "检测难度", "推荐防范措施"],
+          rows: [
+            ["过拟合", "🔴高", "🟡中", "🔴高", "留出集 + 定期刷新测试集"],
+            ["提示漂移", "🟡中", "🟢高", "🟢低", "固定模型版本 + 每周自动评测"],
+            ["测试集污染", "🔴高", "🟢低", "🟡中", "数据溯源 + 严格分离"],
+            ["成本爆炸", "🟡中", "🟡中", "🟢低", "token预算上限 + 定期修剪"],
+            ["方向错误", "🔴高", "🟡中", "🔴高", "用户反馈 + 业务KPI对齐"]
+          ],
+          caption: "表：提示迭代优化五大风险评估矩阵"
+        }
+      ]
+    },
+    {
+      module_id: "ethics",
+      module_title: "AI伦理",
+      module_tag: "风险与挑战",
+      hook: "当你在迭代优化一个招聘筛选提示时，每一次「小幅提升」都可能在不经意间放大了对某个群体的偏见——优化不是中性的，它带着你的价值观。",
+      content: "提示迭代优化中的伦理问题往往比技术问题更隐蔽，但一旦爆发，后果也更为严重。以下三个核心伦理维度需要在每一轮迭代中持续审视：\n\n### 1. 偏见放大（Bias Amplification）\n迭代优化本质上是「奖励」某些输出模式、「惩罚」另一些模式。如果没有意识地检查公平性，优化过程可能：\n- **放大训练数据中的偏见**：例如，Few-Shot示例中默认使用「他」作为医生的代词\n- **系统性歧视某些表达方式**：例如，对非标准英语的回复给予系统性低分\n\n**防范清单**：\n① 测试集中包含**多样性检查样本**（不同性别、种族、年龄的输入）\n② 对每个受保护群体**分别计算评测指标**，差异>5%需排查\n③ Few-Shot示例中**主动展示反刻板印象案例**\n\n### 2. 透明度与可解释性（Transparency）\n当提示经历了10轮优化后，原始的设计意图可能已经模糊。需要：\n- **Prompt Changelog**：记录每轮优化的伦理影响评估\n- **决策可追溯**：为什么选择了v3.2而非v3.1？评分差异是什么？\n\n### 3. 用户自主权（User Autonomy）\n过度优化的提示可能变得具有**操纵性**：\n- 例如，一个客服提示经过优化后，能「说服」95%的用户接受方案——但这95%中有多少人是在充分了解替代方案的情况下做出的选择？\n- 需要在优化目标中加入**信息完整性指标**：输出是否包含了用户做出独立决策所需的所有信息？",
+      key_takeaway: "提示优化的伦理三原则：①公平性——对每个群体分别评测，差异控制在5%以内；②透明度——记录每轮优化的伦理影响；③用户自主权——优化目标中加入信息完整性指标。记住：一个「太有效」的提示可能是伦理上最有问题的提示。",
+      references: [
+        { title: "On the Dangers of Stochastic Parrots: Can Language Models Be Too Big?", authors: "Bender, E.M. et al.", year: 2021, doi: "10.1145/3442188.3445922" },
+        { title: "Taxonomy of Risks posed by Language Models", authors: "Weidinger, L. et al.", year: 2022, doi: "10.1145/3531146.3533088" }
+      ]
+    },
+    {
+      module_id: "open_source",
+      module_title: "开源生态",
+      module_tag: "核心工具",
+      hook: "从DSPy的「编程而非提示」到TextGrad的「文本反向传播」，开源社区正在重新定义提示优化的可能性边界。",
+      content: "当前提示迭代优化领域的主要开源工具可以分为三个类别，每一类解决不同层次的问题：\n\n### 编译优化型\n\n**DSPy**（Stanford NLP, ⭐ 18k+）\n核心理念：**「Programming—not prompting」**。将LLM调用抽象为声明式模块，通过编译器自动优化提示和Few-Shot示例选择。\n```python\nimport dspy\nlm = dspy.OpenAI(model='gpt-4')\ndspy.settings.configure(lm=lm)\n\nclass Summarizer(dspy.Module):\n    def __init__(self):\n        self.summarize = dspy.ChainOfThought(\"document -> summary\")\n    def forward(self, document):\n        return self.summarize(document=document)\n\n# 自动优化\nfrom dspy.teleprompt import BootstrapFewShot\noptimizer = BootstrapFewShot(metric=quality_metric)\noptimized = optimizer.compile(Summarizer(), trainset=train_data)\n```\n\n### 梯度优化型\n\n**TextGrad**（Stanford, ⭐ 5k+）\n将「文本梯度」概念引入提示优化：用LLM生成对提示的「批评」（即文本梯度），然后沿梯度方向更新提示。适合需要**细粒度优化**的场景。\n\n### 评测基准型\n\n**PromptBench**（Microsoft, ⭐ 3k+）\n统一的提示评测基准，支持10+种对抗攻击测试（如字符级扰动、语义等价改写），帮助评估提示的**鲁棒性**。\n\n**OpenPrompt**（THUNLP, ⭐ 4k+）\n标准化的提示学习框架，支持多种Prompt Tuning方法（硬提示、软提示、连续提示）。",
+      key_takeaway: "开源三剑客：DSPy（编译优化，上手最快）、TextGrad（梯度优化，精度最高）、PromptBench（鲁棒性测试，安全必备）。推荐学习路径：先用PromptBench评估现有提示的鲁棒性 → 用DSPy自动优化 → 对关键任务用TextGrad精细调整。",
+      tables: [
+        {
+          headers: ["工具", "Star", "核心理念", "学习曲线", "适用场景", "是否需要标注数据"],
+          rows: [
+            ["DSPy", "18k+", "编译优化", "中等（3-5天）", "通用提示优化", "需要（50-200条）"],
+            ["TextGrad", "5k+", "文本梯度", "较高（1-2周）", "需要细粒度控制", "可选"],
+            ["PromptBench", "3k+", "鲁棒性评测", "低（1天）", "安全测试", "不需要"],
+            ["OpenPrompt", "4k+", "提示学习", "较高（1-2周）", "学术研究", "需要（大量）"],
+            ["LangSmith", "非开源", "全流程管理", "低（1-2天）", "生产部署", "需要"],
+            ["Promptfoo", "5k+", "本地A/B测试", "低（半天）", "快速迭代", "可选"]
+          ],
+          caption: "表：提示优化开源/商业工具全景对比"
+        }
+      ],
+      references: [
+        { title: "DSPy: Compiling Declarative Language Model Calls into Self-Improving Pipelines", authors: "Khattab, O. et al.", year: 2023, doi: "10.48550/arXiv.2310.03714" },
+        { title: "TextGrad: Automatic 'Differentiation' via Text", authors: "Yuksekgonul, M. et al.", year: 2024, doi: "10.48550/arXiv.2406.07496" },
+        { title: "PromptBench: Towards Evaluating the Robustness of Large Language Models on Adversarial Prompts", authors: "Zhu, K. et al.", year: 2023, doi: "10.48550/arXiv.2306.04528" }
+      ]
+    },
+    {
+      module_id: "prospect",
+      module_title: "发展前景",
+      module_tag: "发展演进",
+      hook: "如果今天的提示优化还停留在人类手动调整的阶段，那么明天它将成为LLM自己优化自己的能力——Auto-Prompting的时代正在到来。",
+      content: "展望2025-2027，提示迭代优化将沿以下五个方向快速发展：\n\n### 1. 自我优化系统（Self-Optimizing Systems）\nLLM将具备**内省能力**：在执行任务时自动检测输出质量，当低于阈值时自动触发自我优化流程。这不再需要外部评测框架——模型自己就是自己的QA团队。\n\n**关键里程碑**：\n- 2024: Reflexion（Shinn et al.）展示了LLM通过「反思」自我改进的能力\n- 2025: 预计出现首个能在生产环境中**无人值守运行3个月以上**的自我优化提示系统\n\n### 2. 元提示（Meta-Prompting）\n用一个**元提示**来生成、评估和选择任务提示：\n- 元提示输入：任务描述 + 历史优化记录 + 约束条件\n- 元提示输出：优化后的任务提示 + 预期的性能提升\n- **核心优势**：将领域专家从「写提示」解放为「写元提示」\n\n### 3. 跨模型迁移优化（Cross-Model Transfer）\n当前为GPT-4优化的提示在Claude上可能需要重新优化。未来将出现**模型无关的提示表示**：\n- 将提示分解为「意图」（intent）和「格式」（format）两个层次\n- 意图层模型无关，可直接迁移\n- 格式层根据目标模型自动适配\n\n### 4. 多模态提示优化（Multimodal Prompt Optimization）\nGPT-4V和Claude 3带来了视觉能力，提示迭代优化也将扩展到：\n- **图文联合优化**：同时优化文本提示和示例图片的选择/标注\n- **视觉提示工程**：如何用图像作为Few-Shot示例来约束模型行为\n\n### 5. 持续学习与适应（Continual Adaptation）\n提示不再是静态的，而是**实时响应**数据分布变化：\n- 当用户查询的主题发生漂移时（例如从技术文档转向营销文案），提示自动调整\n- 基于**在线学习**范式，从每条用户反馈中持续改进",
+      key_takeaway: "未来3年的五大趋势：自我优化、元提示、跨模型迁移、多模态优化、持续适应。其中「自我优化系统」是最接近落地的方向——建议优先关注Reflexion和DSPy的最新进展，它们正在将今天的「手动迭代」变成明天的「自动迭代」。",
+      references: [
+        { title: "Reflexion: Language Agents with Verbal Reinforcement Learning", authors: "Shinn, N. et al.", year: 2023, doi: "10.48550/arXiv.2303.11366" },
+        { title: "Large Language Models Are Human-Level Prompt Engineers", authors: "Zhou, Y. et al.", year: 2023, doi: "10.48550/arXiv.2211.01910" }
+      ]
+    },
+    {
+      module_id: "research_map",
+      module_title: "研究方向",
+      module_tag: "前沿探索",
+      hook: "提示优化已经从工程实践演变为一个活跃的研究领域——顶级会议（NeurIPS, ICML, ACL）上每年有50+篇相关论文，这是一个正在快速膨胀的知识前沿。",
+      content: "当前提示迭代优化领域的研究热点可以归纳为五个方向，每个方向都代表了不同的解题思路：\n\n### 方向1：基于梯度的软提示优化（Soft Prompt Tuning）\n不修改自然语言提示本身，而是学习一个**连续的向量嵌入**（Continuous Embedding）作为「软提示」。优势是可以通过梯度下降直接优化，缺点是**不可解释**——你无法看到「优化后的提示」是什么样的。\n\n**代表工作**：Prefix Tuning（Li & Liang, 2021）、P-Tuning v2（Liu et al., 2022）\n\n### 方向2：基于LLM的提示自动生成（Automatic Prompt Generation）\n使用LLM自身来生成和筛选提示变体：\n- **APE**（Zhou et al., 2023）：LLM生成候选提示 → 在训练集上评测 → 选择最优\n- **OPRO**（Yang et al., 2024）：用优化器LLM根据历史分数迭代生成新提示\n\n### 方向3：多目标提示优化（Multi-Objective Prompt Optimization）\n实际场景中需要同时优化多个冲突的目标（如准确性、成本、延迟、安全性）。研究方向包括：\n- **帕累托前沿搜索**：找到一组「不被任何其他方案支配」的最优提示\n- **偏好学习**：从人工偏好数据中学习权重\n\n### 方向4：对抗鲁棒性（Adversarial Robustness）\n研究提示在面对恶意输入时的稳定性：\n- **越狱攻击防御**：优化提示使其在对抗性输入下仍保持安全\n- **提示注入防御**：设计对注入攻击免疫的提示结构\n\n### 方向5：可扩展评测（Scalable Evaluation）\n当提示优化涉及100+个变体时，如何高效评测：\n- **主动学习评测**：优先评测信息量最大的样本\n- **代理模型评测**：用小模型模拟大模型行为来降低评测成本",
+      key_takeaway: "研究方向五大热点：软提示优化（学术侧重）、自动提示生成（产业侧重）、多目标优化（实际刚需）、对抗鲁棒性（安全必备）、可扩展评测（基础设施）。其中「多目标优化」和「可扩展评测」是当前最需要工程突破的方向。",
+      charts: [
+        {
+          echarts_option: {
+            title: { text: "提示优化研究热度分布 (2024)", left: "center", textStyle: { color: "#a0a0a0", fontSize: 14 } },
+            tooltip: { trigger: "axis", axisPointer: { type: "shadow" } },
+            xAxis: { type: "category", data: ["软提示优化", "自动提示生成", "多目标优化", "对抗鲁棒性", "可扩展评测"], axisLabel: { color: "#787878", rotate: 15, fontSize: 11 } },
+            yAxis: { type: "value", name: "论文数（2024）", axisLabel: { color: "#787878" }, nameTextStyle: { color: "#787878" } },
+            series: [{
+              type: "bar",
+              data: [
+                { value: 35, itemStyle: { color: "#5b8db8" } },
+                { value: 42, itemStyle: { color: "#8878a8" } },
+                { value: 28, itemStyle: { color: "#6ea8c0" } },
+                { value: 22, itemStyle: { color: "#c0a060" } },
+                { value: 18, itemStyle: { color: "#5a9e6f" } }
+              ],
+              barWidth: "50%",
+              label: { show: true, position: "top", color: "#a0a0a0", fontSize: 11 }
+            }]
+          },
+          caption: "图：2024年提示优化五大研究方向的论文数量分布（基于arXiv和顶会收录估计）",
+          data_source: "综合NeurIPS 2024, ICML 2024, ACL 2024, EMNLP 2024的录用论文统计"
+        }
+      ],
+      references: [
+        { title: "Large Language Models Are Human-Level Prompt Engineers", authors: "Zhou, Y. et al.", year: 2023, doi: "10.48550/arXiv.2211.01910" },
+        { title: "Large Language Models as Optimizers", authors: "Yang, C. et al.", year: 2024, doi: "10.48550/arXiv.2309.03409" },
+        { title: "Prefix-Tuning: Optimizing Continuous Prompts for Generation", authors: "Li, X.L. & Liang, P.", year: 2021, doi: "10.48550/arXiv.2101.00190" }
+      ]
+    },
+    {
+      module_id: "misconceptions",
+      module_title: "常见误区",
+      module_tag: "风险与挑战",
+      hook: "「多迭代几次总会更好的」——这是提示优化中最危险的错觉。就像健身不是「练得越多越好」，提示优化也有自己的「过训练」问题。",
+      content: "基于数十个生产项目的经验总结，以下是提示迭代优化中最常见的六个误区：\n\n### 误区1：「迭代越多越好」\n**真相**：大多数提示在5-8轮迭代后就会遇到**收益递减点**（Diminishing Returns Point）。超过这个点，每轮提升可能<1%，而过度优化的风险（过拟合、提示膨胀）急剧上升。\n**正确做法**：设置**早停标准**（Early Stopping Criteria）——连续2轮提升<2%即停止。\n\n### 误区2：「评测分数高 = 生产表现好」\n**真相**：评测分数和生产表现之间的相关性通常在0.6-0.8之间（r值），这意味着有相当比例的「高分提示」在生产中表现平平。\n**正确做法**：在优化流程中加入**A/B上线测试**（Shadow Deployment），将候选提示部署到5-10%的流量上观察实际表现。\n\n### 误区3：「模型越大，提示越不重要」\n**真相**：GPT-4虽然比GPT-3.5更「聪明」，但对提示中的**歧义**也更加敏感。一个在GPT-3.5上「碰巧好用」的模糊提示，在GPT-4上可能产生完全不同的解释。\n\n### 误区4：「Few-Shot示例越多越好」\n**真相**：示例数量与效果的关系是非线性的。3-5个精选示例通常达到最佳效果，超过8个反而可能因**上下文窗口稀释**导致性能下降。\n\n### 误区5：「优化 = 不断加内容」\n**真相**：有效的优化经常是**做减法**：删除冗余的指令、精简示例、用更准确的措辞替代模糊描述。\n\n### 误区6：「自动化可以完全替代人工判断」\n**真相**：自动指标和LLM-as-Judge只能告诉你「是否更好」，不能告诉你「为什么更好」。保留人工抽检环节（至少每5轮一次）对于发现**指标无法捕获的质量问题**至关重要。",
+      key_takeaway: "六大误区的共同教训：提示优化是一个需要「克制」的过程。早停、A/B上线测试、精选示例、减法思维、保留人工抽检——这些「反直觉」的实践往往比无脑迭代更有效。记住奥卡姆剃刀原则：最简单的有效提示就是最好的提示。",
+      tables: [
+        {
+          headers: ["常见误区", "真相", "导致的后果", "纠正方法"],
+          rows: [
+            ["迭代越多越好", "5-8轮后收益递减", "过拟合 + 成本爆炸", "设置早停标准（连续2轮<2%）"],
+            ["评测高分 = 生产好用", "相关性仅0.6-0.8", "上线后效果不及预期", "Shadow Deployment（5-10%流量测试）"],
+            ["模型越大提示越不重要", "大模型对歧义更敏感", "模型升级后提示失效", "跨模型一致性测试"],
+            ["Few-Shot越多越好", "3-5个最优，>8个递减", "上下文窗口浪费 + 性能下降", "示例消融实验（逐个移除测试）"],
+            ["优化=不断加内容", "最优优化常是做减法", "提示膨胀 + token浪费", "每次优化考虑「可以删除什么」"],
+            ["自动化=无人化", "自动指标有盲区", "质量问题被系统化遗漏", "每5轮一次人工抽检"]
+          ],
+          caption: "表：提示迭代优化的六大误区与纠正方法"
+        }
+      ]
+    },
+    {
+      module_id: "learning_path",
+      module_title: "学习路径",
+      module_tag: "核心工具",
+      hook: "从「凭感觉写提示」到「数据驱动优化提示」的转变不是一蹴而就的——以下是一条经过验证的渐进式学习路径。",
+      content: "推荐按照以下五个阶段循序渐进地掌握提示迭代优化：\n\n### 阶段1：建立评测意识（第1-2周）\n**目标**：能从主观感受转向量化评估\n- 📖 阅读：OpenAI Prompt Engineering Guide 评测章节\n- 🛠 实践：为你当前的提示编写一个包含50条样本的测试集\n- 📊 输出：一份基线评测报告（准确率/成功率）\n- ✅ 检验标准：能说出当前提示在5个评测维度上的得分\n\n### 阶段2：掌握A/B测试（第3-4周）\n**目标**：能设计并执行一次完整的A/B测试\n- 📖 阅读：DSPy官方教程的前3章\n- 🛠 实践：创建2-3个提示变体，运行一次完整的对比评测\n- 📊 输出：一份A/B测试报告（含统计显著性分析）\n- ✅ 检验标准：能正确判断哪个变体更好，并解释为什么\n\n### 阶段3：工具化工作流（第5-6周）\n**目标**：能用工具（LangSmith/DSPy/Promptfoo）建立自动化评测流水线\n- 🛠 实践：使用Promptfoo搭建本地A/B测试环境\n- 🛠 实践：使用DSPy对一个提示进行自动优化\n- 📊 输出：一个可复用的评测脚本/配置文件\n- ✅ 检验标准：运行一条命令就能完成完整的评测流程\n\n### 阶段4：生产级部署（第7-8周）\n**目标**：能将优化流程集成到CI/CD流水线中\n- 🛠 实践：设置漂移检测（每周自动评测 + 性能退化告警）\n- 🛠 实践：搭建Shadow Deployment环境\n- 📊 输出：一份生产监控仪表盘\n- ✅ 检验标准：系统能在无人干预的情况下运行2周，自动检测并报告性能变化\n\n### 阶段5：持续优化（第9周起）\n**目标**：建立「优化即文化」的团队习惯\n- 🔄 每周Review：回顾本周的评测数据和用户反馈\n- 🔄 每月大Review：重新审视评测指标是否与业务KPI对齐\n- 🔄 每季度：刷新测试集，清理过时样本\n- ✅ 检验标准：团队成员能独立完成一轮完整的PDCA循环",
+      key_takeaway: "五阶段学习路径（建立评测→A/B测试→工具化→生产部署→持续优化）的核心设计原则是：每个阶段都有明确的输出物和检验标准，确保「学过」等于「会用」。建议每周投入4-6小时，8周内完成前四个阶段，之后进入持续优化阶段。",
+      tables: [
+        {
+          headers: ["阶段", "时间", "核心技能", "关键工具", "输出物"],
+          rows: [
+            ["1. 建立评测意识", "第1-2周", "量化评估", "Excel/Pandas", "基线报告"],
+            ["2. 掌握A/B测试", "第3-4周", "实验设计", "DSPy/Promptfoo", "A/B测试报告"],
+            ["3. 工具化工作流", "第5-6周", "自动化", "LangSmith/DSPy", "评测脚本"],
+            ["4. 生产级部署", "第7-8周", "CI/CD集成", "GitHub Actions", "监控仪表盘"],
+            ["5. 持续优化", "第9周起", "文化建设", "全工具链", "周/月Review报告"]
+          ],
+          caption: "表：五阶段学习路径概览"
+        }
+      ]
+    }
+  ]
+};
+// =============================================
+
+// ============ THEME ============
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  localStorage.setItem('slm-theme', theme);
+  updateThemeIcon();
+  Object.values(activeCharts).forEach(chart => {
+    const opt = chart.getOption();
+    chart.setOption(createThemedOption(opt), { notMerge: false });
+  });
+}
+
+function toggleTheme() {
+  const current = document.documentElement.getAttribute('data-theme') || 'light';
+  applyTheme(current === 'dark' ? 'light' : 'dark');
+}
+
+function updateThemeIcon() {
+  const t = document.getElementById('theme-toggle');
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  t.textContent = isDark ? '\u2600\uFE0F' : '\uD83C\uDF13';
+}
+
+const savedTheme = localStorage.getItem('slm-theme') || 'dark';
+applyTheme(savedTheme);
+
+// ============ PROGRESS BAR ============
+window.addEventListener('scroll', () => {
+  const scrollTop = window.scrollY;
+  const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+  const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+  document.getElementById('progress-bar').style.width = progress + '%';
+});
+
+// ============ SIDEBAR ============
+let activeCharts = {};
+let sidebarLinks = [];
+
+function buildSidebar() {
+  const container = document.getElementById('sidebar-links');
+  sidebarLinks = [];
+  PAGE_DATA.modules.forEach(mod => {
+    const a = document.createElement('a');
+    a.href = '#' + mod.module_id;
+    a.className = 'sidebar-link';
+    a.textContent = mod.module_title || mod.module_id;
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      document.getElementById(mod.module_id).scrollIntoView({ behavior: 'smooth' });
+      if (window.innerWidth <= 768) {
+        document.getElementById('sidebar').classList.remove('open');
+      }
+    });
+    container.appendChild(a);
+    sidebarLinks.push({ el: a, id: mod.module_id });
+  });
+}
+
+// IntersectionObserver for sidebar active state
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      sidebarLinks.forEach(link => {
+        link.el.classList.toggle('active', link.id === entry.target.id);
+      });
+    }
+  });
+}, { rootMargin: '-80px 0px -60% 0px' });
+
+// ============ META CARD ============
+function buildMetaCard() {
+  const md = PAGE_DATA;
+  const domainClass = md.domain === 'finance' ? 'domain-finance' : 'domain-ai';
+  const levelClass = 'level-' + md.level;
+  const t = md.texture || '';
+  const db = md.depth + '\u00D7' + md.breadth;
+  document.getElementById('meta-card-container').innerHTML = '\n    <div class="meta-card">\n      <div class="meta-item"><span class="icon">\uD83D\uDCD6</span><strong>' + md.topic + '<\/strong><\/div>\n      <div class="meta-item"><span class="meta-badge ' + domainClass + '">' + md.domain_name + '<\/span><\/div>\n      <div class="meta-item"><span class="meta-badge ' + levelClass + '">' + md.level_name + '<\/span><\/div>\n      ' + (t ? '<div class="meta-item"><span class="meta-badge texture-badge">' + t + ' ' + (md.texture_name||'') + '<\/span><\/div>' : '') + '\n      ' + (md.depth ? '<div class="meta-item"><span class="meta-badge depth-breadth">' + db + '<\/span><\/div>' : '') + '\n      <div class="meta-item"><span class="icon">\u23F1\uFE0F<\/span>\u7EA6' + md.reading_time + '\u5206\u949F\u9605\u8BFB<\/div>\n      <div class="meta-item"><span class="icon">\uD83D\uDCE6<\/span>' + md.module_count + '\u4E2A\u6A21\u5757<\/div>\n    <\/div>\n  ';
+}
+
+// ============ FORMULA RENDERING ============
+function renderFormulas(container) {
+  if (typeof renderMathInElement !== 'undefined') {
+    renderMathInElement(container, {
+      delimiters: [
+        { left: '$$', right: '$$', display: true },
+        { left: '$', right: '$', display: false }
+      ],
+      throwOnError: false
+    });
+  }
+}
+
+// ============ CHART RENDERING ============
+function createThemedOption(existingOpt) {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const color = isDark
+    ? ['#5b8db8','#8878a8','#6ea8c0','#c0a060','#5a9e6f','#c06050','#8878a8']
+    : ['#3a6088','#5a4878','#3a7888','#886830','#3d8055','#983830','#5a4878'];
+  return { color: color, ...existingOpt };
+}
+
+function renderChart(moduleId, chartConfig, index) {
+  const chartId = 'chart_' + moduleId + '_' + index;
+  const wrapper = document.getElementById(chartId);
+  if (!wrapper) return;
+
+  if (typeof echarts === 'undefined') {
+    wrapper.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-tertiary);font-size:13px;">\uD83D\uDCCA \u56FE\u8868(\u9759\u6001\u6A21\u5F0F)<br><small>\u52A0\u8F7DCDN\u540E\u53EF\u4EA4\u4E92<\/small><\/div>';
+    return;
+  }
+
+  try {
+    const chart = echarts.init(wrapper);
+    const opt = chartConfig.echarts_option || {};
+    if (typeof opt === 'string') {
+      try { chart.setOption(createThemedOption(JSON.parse(opt))); } catch(e) { wrapper.textContent = '\u56FE\u8868\u914D\u7F6E\u89E3\u6790\u5931\u8D25'; return; }
+    } else {
+      chart.setOption(createThemedOption(opt));
+    }
+    activeCharts[chartId] = chart;
+
+    const resizeObserver = new ResizeObserver(() => chart.resize());
+    resizeObserver.observe(wrapper);
+  } catch(e) {
+    wrapper.textContent = '\u56FE\u8868\u6E32\u67D3\u5931\u8D25: ' + e.message;
+  }
+}
+
+// ============ BUILD MODULES ============
+function buildModuleHTML(mod) {
+  const tagClass = getTagClass(mod.module_tag || '');
+
+  let html = '\n    <section class="module-section" id="' + mod.module_id + '">\n      <div class="module-header">\n        <span class="module-tag ' + tagClass + '">' + (mod.module_tag || '') + '<\/span>\n        <h2 class="module-title">' + (mod.module_title || mod.module_id) + '<\/h2>\n      <\/div>';
+
+  if (mod.hook) {
+    html += '<div class="module-hook">' + mod.hook + '<\/div>';
+  }
+
+  html += '<div class="module-content">' + parseMarkdownContent(mod.content || '') + '<\/div>';
+
+  // Formulas
+  if (mod.formulas && mod.formulas.length > 0) {
+    mod.formulas.forEach(function(formula, fi) {
+      var hasDerivation = formula.expandable && formula.derivation;
+      html += '<div class="formula-block' + (hasDerivation ? '' : ' not-expandable') + '" onclick="' + (hasDerivation ? 'toggleDerivation(this)' : '') + '">\n        <div>' + formula.latex + '<\/div>';
+      if (formula.caption) {
+        html += '<div class="formula-caption">' + formula.caption + '<\/div>';
+      }
+      if (hasDerivation) {
+        html += '<div class="formula-expand-hint">\uD83D\uDCA1 \u70B9\u51FB\u5C55\u5F00\u63A8\u5BFC\u8FC7\u7A0B<\/div>\n        <div class="formula-derivation">' + formula.derivation + '<\/div>';
+      }
+      html += '<\/div>';
+    });
+  }
+
+  // Charts
+  if (mod.charts && mod.charts.length > 0) {
+    mod.charts.forEach(function(chart, ci) {
+      var chartId = 'chart_' + mod.module_id + '_' + ci;
+      html += '<div class="chart-container">\n        <div class="chart-wrapper" id="' + chartId + '"><\/div>';
+      if (chart.caption) html += '<div class="chart-caption">' + chart.caption + '<\/div>';
+      if (chart.data_source) html += '<div class="chart-source">' + chart.data_source + '<\/div>';
+      html += '<\/div>';
+    });
+  }
+
+  // Tables
+  if (mod.tables && mod.tables.length > 0) {
+    mod.tables.forEach(function(table) {
+      html += '<div style="overflow-x:auto">\n        <table class="module-table">\n          <thead><tr>' + (table.headers||[]).map(function(h){ return '<th>' + h + '<\/th>'; }).join('') + '<\/tr><\/thead>\n          <tbody>' + (table.rows||[]).map(function(row){ return '<tr>' + row.map(function(c){ return '<td>' + c + '<\/td>'; }).join('') + '<\/tr>'; }).join('') + '<\/tbody>\n        <\/table>';
+      if (table.caption) html += '<div class="table-caption">' + table.caption + '<\/div>';
+      html += '<\/div>';
+    });
+  }
+
+  // References
+  if (mod.references && mod.references.length > 0) {
+    html += '<div class="module-references"><h4>\uD83D\uDCDA \u53C2\u8003\u6587\u732E<\/h4><ol>';
+    mod.references.forEach(function(ref) {
+      var linkHtml = ref.doi ? ' <a href="https://doi.org/' + ref.doi + '" target="_blank">DOI<\/a>' : '';
+      var urlHtml = ref.url ? ' <a href="' + ref.url + '" target="_blank">\u94FE\u63A5<\/a>' : '';
+      html += '<li>' + (ref.authors || '') + ' (' + (ref.year || '') + '). <strong>' + (ref.title || '') + '<\/strong>.' + linkHtml + urlHtml + '<\/li>';
+    });
+    html += '<\/ol><\/div>';
+  }
+
+  // Key Takeaway
+  if (mod.key_takeaway) {
+    html += '<div class="key-takeaway">\uD83D\uDCA1 ' + mod.key_takeaway + '<\/div>';
+  }
+
+  html += '<\/section>';
+  return html;
+}
+
+function getTagClass(tag) {
+  const map = {
+    '\u6838\u5FC3\u6982\u5FF5': 'tag-core',
+    '\u524D\u7F6E\u77E5\u8BC6': 'tag-core',
+    '\u8DEF\u7EBF\u5BFC\u822A': 'tag-core',
+    '\u6838\u5FC3\u5DE5\u5177': 'tag-tools',
+    '\u53D1\u5C55\u6F14\u8FDB': 'tag-evolution',
+    '\u5B9E\u8DF5\u5E94\u7528': 'tag-application',
+    '\u98CE\u9669\u4E0E\u6311\u6218': 'tag-risk',
+    '\u524D\u6CBF\u63A2\u7D22': 'tag-frontier'
+  };
+  return map[tag] || 'tag-core';
+}
+
+function parseMarkdownContent(content) {
+  if (!content) return '';
+  let html = content;
+  // Bold
+  html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1<\/strong>');
+  // Italic
+  html = html.replace(/\*(.+?)\*/g, '<em>$1<\/em>');
+  // Inline code
+  html = html.replace(/`([^`]+)`/g, '<code style="background:var(--bg-tertiary);padding:2px 6px;border-radius:4px;font-size:13px;">$1<\/code>');
+  // Links
+  html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1<\/a>');
+  // Headers
+  html = html.replace(/^### (.+)$/gm, '<h3 style="font-size:17px;font-weight:600;margin:20px 0 8px;">$1<\/h3>');
+  html = html.replace(/^## (.+)$/gm, '<h3 style="font-size:18px;font-weight:600;margin:24px 0 10px;">$1<\/h3>');
+  // Line breaks -> paragraphs
+  html = html.replace(/\n\n/g, '<\/p><p>');
+  html = '<p>' + html + '<\/p>';
+  html = html.replace(/<p>\s*<\/p>/g, '');
+  return html;
+}
+
+function toggleDerivation(el) {
+  el.classList.toggle('expanded');
+}
+
+// ============ INIT ============
+function initPage() {
+  document.body.classList.remove('loading');
+  document.body.classList.add('loaded');
+
+  buildMetaCard();
+  buildSidebar();
+  buildMobileNav();
+
+  const modulesContainer = document.getElementById('modules-container');
+  PAGE_DATA.modules.forEach(mod => {
+    const html = buildModuleHTML(mod);
+    modulesContainer.innerHTML += html;
+  });
+
+  // Set sidebar link hrefs
+  const sectionEls = modulesContainer.querySelectorAll('.module-section');
+  sectionEls.forEach(sec => observer.observe(sec));
+
+  // Render formulas
+  renderFormulas(modulesContainer);
+
+  // Render charts (after DOM is ready)
+  setTimeout(() => {
+    PAGE_DATA.modules.forEach(mod => {
+      if (mod.charts) {
+        mod.charts.forEach((chart, ci) => {
+          renderChart(mod.module_id, chart, ci);
+        });
+      }
+    });
+  }, 100);
+
+  // Scroll fade-in animation
+  const fadeObserver = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.08 });
+  sectionEls.forEach(sec => fadeObserver.observe(sec));
+
+  // Keyboard shortcut for theme
+  document.addEventListener('keydown', e => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') { e.preventDefault(); openSearch(); }
+    if ((e.ctrlKey || e.metaKey) && e.key === 'd') { e.preventDefault(); toggleTheme(); }
+    if (e.key === 'Escape') {
+      if (document.getElementById('searchOverlay').classList.contains('open')) { closeSearch(); return; }
+      if (document.getElementById('helpOverlay').classList.contains('open')) { document.getElementById('helpOverlay').classList.remove('open'); return; }
+    }
+    if (e.shiftKey && e.key === '?') { e.preventDefault(); document.getElementById('helpOverlay').classList.add('open'); }
+  });
+}
+
+// ============ EXPORT & SWITCH ============
+function exportPDF() {
+  window.print();
+}
+
+// ============ CANVAS BACKGROUND ============
+(function(){
+  var cv = document.getElementById('bg-canvas');
+  var ctx = cv.getContext('2d');
+  var particles = [];
+  function rsz() { cv.width = window.innerWidth; cv.height = window.innerHeight; }
+  window.addEventListener('resize', rsz); rsz();
+  var count = Math.min(60, Math.floor((cv.width * cv.height) / 20000));
+  for (var i = 0; i < count; i++) {
+    particles.push({ x: Math.random()*cv.width, y: Math.random()*cv.height, vx: (Math.random()-0.5)*0.3, vy: (Math.random()-0.5)*0.3, r: Math.random()*1.5+0.3, a: Math.random()*0.3+0.05 });
+  }
+  function animate() {
+    ctx.clearRect(0, 0, cv.width, cv.height);
+    var isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+    var c = isDark ? '91,141,184' : '58,96,136';
+    particles.forEach(function(p) {
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < 0) p.x = cv.width; if (p.x > cv.width) p.x = 0;
+      if (p.y < 0) p.y = cv.height; if (p.y > cv.height) p.y = 0;
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 6.28);
+      ctx.fillStyle = 'rgba('+c+','+p.a+')'; ctx.fill();
+    });
+    for (var j = 0; j < particles.length; j++) {
+      for (var k = j+1; k < particles.length; k++) {
+        var dx = particles[j].x - particles[k].x;
+        var dy = particles[j].y - particles[k].y;
+        var d = Math.sqrt(dx*dx+dy*dy);
+        if (d < 110) { ctx.beginPath(); ctx.moveTo(particles[j].x, particles[j].y); ctx.lineTo(particles[k].x, particles[k].y); ctx.strokeStyle = 'rgba('+c+','+(0.06*(1-d/110))+')'; ctx.lineWidth = 0.5; ctx.stroke(); }
+      }
+    }
+    requestAnimationFrame(animate);
+  }
+  animate();
+})();
+
+// ============ SEARCH ============
+function openSearch() {
+  var ov = document.getElementById('searchOverlay'); ov.classList.add('open');
+  var inp = document.getElementById('searchInput'); inp.value = ''; inp.focus();
+  document.getElementById('searchResults').innerHTML = '';
+}
+function closeSearch() { document.getElementById('searchOverlay').classList.remove('open'); }
+document.getElementById('searchOverlay').addEventListener('click', function(e) { if (e.target === this) closeSearch(); });
+document.getElementById('searchInput').addEventListener('input', function() {
+  var q = this.value.toLowerCase(); var r = document.getElementById('searchResults');
+  if (!q || q.length < 2) { r.innerHTML = ''; return; }
+  function hl(t) { if (!t) return ''; var i = t.toLowerCase().indexOf(q); if (i === -1) return t; return t.substring(0,i)+'<mark>'+t.substring(i,i+q.length)+'<\/mark>'+t.substring(i+q.length); }
+  var results = [];
+  PAGE_DATA.modules.forEach(function(m) {
+    var title = m.module_title || m.module_id || '';
+    var txt = (m.hook||'') + ' ' + (m.content||'') + ' ' + (m.key_takeaway||'');
+    if (title.toLowerCase().indexOf(q) !== -1 || txt.toLowerCase().indexOf(q) !== -1) {
+      results.push({ id: m.module_id, title: hl(title), snippet: (m.hook || txt).substring(0, 80) });
+    }
+  });
+  r.innerHTML = results.slice(0, 12).map(function(x) { return '<div class="sr-item" onclick="document.getElementById(\''+x.id+'\').scrollIntoView({behavior:\'smooth\'});closeSearch();"><div class="sr-title">'+x.title+'<\/div><div class="sr-snippet">'+x.snippet+'<\/div><\/div>'; }).join('') || '<div class="search-empty">\u65E0\u5339\u914D\u7ED3\u679C<\/div>';
+});
+
+// ============ EXPORT NOTES ============
+function exportNotes() {
+  var lines = ['# '+PAGE_DATA.topic+' - \u5B66\u4E60\u7B14\u8BB0', '', '\u751F\u6210\u65E5\u671F: '+new Date().toLocaleDateString('zh-CN'), ''];
+  lines.push('## \uD83D\uDCDA \u6A21\u5757\u5217\u8868');
+  PAGE_DATA.modules.forEach(function(m) { lines.push('- **'+(m.module_title||m.module_id)+'**: '+(m.key_takeaway||m.hook||'')); });
+  var txt = lines.join('\n');
+  if (navigator.clipboard) { navigator.clipboard.writeText(txt).then(function() { alert('\u2705 \u5B66\u4E60\u7B14\u8BB0\u5DF2\u590D\u5236\u5230\u526A\u8D34\u677F!'); }); }
+  else { var ta = document.createElement('textarea'); ta.value = txt; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); alert('\u2705 \u5B66\u4E60\u7B14\u8BB0\u5DF2\u590D\u5236\u5230\u526A\u8D34\u677F!'); }
+}
+
+// ============ MOBILE BOTTOM NAV ============
+function buildMobileNav() {
+  var items = [];
+  PAGE_DATA.modules.forEach(function(m, i) { if (i % Math.max(1, Math.ceil(PAGE_DATA.modules.length / 5)) === 0) items.push({ id: m.module_id, label: (m.module_title||m.module_id).substring(0, 4) }); });
+  if (items.length > 5) items = items.slice(0, 5);
+  var inner = document.getElementById('mbnInner');
+  inner.innerHTML = items.map(function(x) { return '<button class="mbn-item" onclick="document.getElementById(\''+x.id+'\').scrollIntoView({behavior:\'smooth\'})"><span class="mbn-icon">\uD83D\uDCD1<\/span>'+x.label+'<\/button>'; }).join('');
+  items.push({ id: 'top', label: '\u9876\u90E8' });
+  inner.innerHTML += '<button class="mbn-item" onclick="window.scrollTo({top:0,behavior:\'smooth\'})"><span class="mbn-icon">\u2B06<\/span>\u9876\u90E8<\/button>';
+}
+document.getElementById('helpOverlay').addEventListener('click', function(e) { if (e.target === this) this.classList.remove('open'); });
+
+// Scroll-based mobile nav active tracking
+window.addEventListener('scroll', function() {
+  var sections = document.querySelectorAll('.module-section');
+  var activeIdx = -1;
+  sections.forEach(function(s, i) { var top = s.getBoundingClientRect().top; if (top < 150 && top > -s.offsetHeight + 150) activeIdx = i; });
+  var btns = document.querySelectorAll('.mbn-item');
+  btns.forEach(function(b, i) { b.classList.toggle('mbn-active', i === activeIdx); });
+});
+
+// Start
+document.addEventListener('DOMContentLoaded', initPage);
+
+// Handle global theme changes for ECharts
+window.addEventListener('themechange', () => {
+  Object.values(activeCharts).forEach(chart => {
+    chart.resize();
+  });
+});
+</script>
+</body>
+</html>
+</parameter>

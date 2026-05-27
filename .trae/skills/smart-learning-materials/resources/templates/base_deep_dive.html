@@ -17,10 +17,17 @@ body{font-family:var(--font-sans);background:var(--bg-base);color:var(--text-pri
 .nav-right button{background:var(--bg-elevated);border:1px solid var(--border-subtle);color:var(--text-secondary);padding:6px 12px;border-radius:var(--radius-sm);cursor:pointer;font-size:.75rem;transition:all var(--transition)}
 .nav-right button:hover{border-color:var(--border-glow);color:var(--accent-indigo)}
 
-.side-dots{position:fixed;right:16px;top:50%;transform:translateY(-50%);z-index:80;display:flex;flex-direction:column;gap:8px}
-.side-dot{width:8px;height:8px;border-radius:50%;border:2px solid var(--border-glow);cursor:pointer;transition:all var(--transition)}
-.side-dot.active,.side-dot:hover{background:var(--accent-indigo);border-color:var(--accent-indigo)}
+.sidebar{position:fixed;left:0;top:0;height:100vh;width:280px;background:var(--bg-base);border-right:1px solid var(--border-subtle);padding:24px;overflow-y:auto;z-index:100;padding-top:calc(var(--nav-h) + 16px)}
+.sidebar h3{font-size:.85rem;font-weight:700;color:var(--text-secondary);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--border-subtle)}
+.sidebar-nav{list-style:none;padding:0}
+.sidebar-nav li{margin-bottom:2px}
+.sidebar-nav a{display:block;padding:8px 12px;border-radius:var(--radius-md);text-decoration:none;font-size:.76rem;color:var(--text-secondary);transition:all var(--transition);border-left:3px solid transparent}
+.sidebar-nav a:hover{background:rgba(91,141,184,.08);color:var(--accent-cyan);border-left-color:var(--accent-cyan)}
+.sidebar-nav a.active{background:rgba(91,141,184,.12);color:var(--accent-blue);font-weight:600;border-left-color:var(--accent-blue)}
+.sidebar-back-link{display:block;padding:8px 12px;margin-bottom:12px;border-radius:8px;background:var(--bg-elevated);color:var(--accent-blue);text-decoration:none;font-size:.78rem;font-weight:600}
+.sidebar-back-link:hover{color:var(--accent-cyan)}
 
+.content-area{margin-left:280px;width:calc(100% - 280px)}
 .container{max-width:calc(100% - 48px);margin:0 auto;padding:calc(var(--nav-h) + 24px) 24px 80px}
 
 .hero{text-align:center;padding:48px 0 36px}
@@ -66,13 +73,15 @@ opacity:0;transform:translateY(24px);transition:opacity .5s ease,transform .5s e
 .derivation-content.open{display:block}
 
 .chart-wrap{background:rgba(99,102,241,.03);border-radius:var(--radius-sm);padding:8px;margin:14px 0;text-align:center}
-.chart-wrap canvas{max-width:100%}
+.chart-wrap > div{width:100%;height:280px}
 .chart-wrap .ch-cap{font-size:.72rem;color:var(--text-muted);margin-top:6px}
 
-.data-table{width:100%;border-collapse:collapse;margin:12px 0;font-size:.82rem}
-.data-table th{text-align:left;padding:8px 12px;background:rgba(99,102,241,.08);border-bottom:2px solid var(--border-glow);color:var(--accent-indigo);font-weight:700}
-.data-table td{padding:8px 12px;border-bottom:1px solid var(--border-subtle);color:var(--text-secondary)}
-.data-table tr:hover td{background:rgba(99,102,241,.03)}
+.table-container{margin:20px 0;overflow-x:auto}
+.table-container table{width:100%;border-collapse:collapse;border-radius:var(--radius-md);overflow:hidden}
+.table-container th{background:var(--bg-elevated);color:var(--accent-cyan);font-weight:700;padding:12px 16px;text-align:left;font-size:.8rem}
+.table-container td{padding:12px 16px;border-bottom:1px solid var(--border-subtle);font-size:.82rem;color:var(--text-secondary)}
+.table-container tr:hover td{background:rgba(91,141,184,.03)}
+.table-container .table-caption{font-size:.72rem;color:var(--text-muted);margin-bottom:8px;text-align:center}
 
 .takeaway{font-size:.82rem;background:rgba(16,185,129,.06);border-left:3px solid var(--accent-green);padding:10px 14px;margin-top:16px;border-radius:0 var(--radius-sm) var(--radius-sm) 0;color:var(--accent-green)}
 
@@ -104,14 +113,15 @@ opacity:0;transform:translateY(24px);transition:opacity .5s ease,transform .5s e
 @keyframes toastIn{from{opacity:0;transform:translate(-50%,20px)}to{opacity:1;transform:translate(-50%,0)}}
 
 /* Print */
-@media print{.navbar,.progress-bar,.side-nav,.journey-bar,.journey-footer,.deep-floating-back{display:none!important}.module{break-inside:avoid;opacity:1!important;transform:none!important;box-shadow:none}body{background:#fff}}
+@media print{.navbar,.progress-bar,.sidebar,.journey-bar,.journey-footer,.deep-floating-back{display:none!important}.content-area{margin-left:0;width:100%}.module{break-inside:avoid;opacity:1!important;transform:none!important;box-shadow:none}body{background:#fff}}
 
+@media(max-width:1024px){.sidebar{display:none}.content-area{margin-left:0;width:100%}}
 @media(max-width:768px){
 .hero h1{font-size:1.6rem}.module{padding:20px}.meta-card{font-size:.72rem;padding:12px 16px}.journey-bar{flex-direction:column;align-items:flex-start}
 .deep-floating-back{right:15px;bottom:15px}.deep-floating-back button{padding:10px 16px;font-size:.8rem}
-.side-dots{display:none}
 }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
 </head>
 <body data-theme="dark">
 
@@ -125,8 +135,15 @@ opacity:0;transform:translateY(24px);transition:opacity .5s ease,transform .5s e
   </div>
 </nav>
 
-<div class="side-dots" id="sideDots"></div>
+<div class="sidebar">
+  <a href="#" class="sidebar-back-link" onclick="event.preventDefault();var w=window.open('%PLAN_FILE%#kc-%KP_ID%','plan_main');if(w)w.focus()">← 返回主方案</a>
+  <h3>📖 目录导航</h3>
+  <ul class="sidebar-nav">
+    %SIDEBAR_NAV_HTML%
+  </ul>
+</div>
 
+<div class="content-area">
 <div class="search-overlay" id="searchOverlay">
   <div class="search-box">
     <input type="text" id="searchInput" placeholder="搜索模块内容..." oninput="doSearch()" onkeydown="if(event.key==='Escape')closeSearch()">
@@ -186,6 +203,7 @@ opacity:0;transform:translateY(24px);transition:opacity .5s ease,transform .5s e
   </button>
 </div>
 <!-- /CONDITIONAL -->
+</div>
 
 <div class="dd-toast" id="toastEl"><span id="toastMsg"></span></div>
 
@@ -195,21 +213,26 @@ var SEARCH_INDEX = %SEARCH_INDEX_JSON%;
 var TOAST_TIMEOUT;
 
 (function(){
-var progressBar=document.getElementById('progressBar'),sideDots=document.getElementById('sideDots');
-var modules=document.querySelectorAll('.module'),ids=[];
-modules.forEach(function(m){ids.push(m.id)});
-var dotsHTML='';ids.forEach(function(id,i){dotsHTML+='<div class="side-dot" title="模块'+(i+1)+'" onclick="document.getElementById(\''+id+'\').scrollIntoView({behavior:\'smooth\'})"></div>'});
-sideDots.innerHTML=dotsHTML;
+var progressBar=document.getElementById('progressBar');
+var modules=document.querySelectorAll('.module');
 
 var observer=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting)e.target.classList.add('visible')})},{threshold:.15});
 modules.forEach(function(m){observer.observe(m)});
 
+var navLinks=document.querySelectorAll('.sidebar-nav a');
+var navObserver=new IntersectionObserver(function(entries){
+entries.forEach(function(e){
+if(e.isIntersecting){
+navLinks.forEach(function(a){a.classList.remove('active')});
+var act=document.querySelector('.sidebar-nav a[href="#'+e.target.id+'"]');
+if(act)act.classList.add('active');
+}
+})},{threshold:.3});
+modules.forEach(function(m){navObserver.observe(m)});
+
 window.addEventListener('scroll',function(){
 var st=document.documentElement.scrollTop,dh=document.documentElement.scrollHeight-window.innerHeight;
 var pct=dh>0?Math.min(100,(st/dh)*100):0;progressBar.style.width=pct+'%';
-var dots=document.querySelectorAll('.side-dot'),cur=-1;
-modules.forEach(function(m,i){if(st>=m.offsetTop-200)cur=i});
-dots.forEach(function(d,i){d.classList.toggle('active',i===cur)});
 });
 
 window.addEventListener('keydown',function(e){
@@ -260,6 +283,21 @@ var content=this.nextElementSibling;
 if(content){content.classList.toggle('open');this.textContent=content.classList.contains('open')?'▾ 收起推导':'▸ 展开推导'}
 });
 });
+})();
+
+/* ===== ECharts 初始化模板 ===== */
+(function initCharts(){
+if(typeof echarts==='undefined')return;
+var charts=[];
+function makeChart(elId,option){
+var el=document.getElementById(elId);
+if(!el)return null;
+var chart=echarts.init(el);
+chart.setOption(option);
+return chart;
+}
+%ECHARTS_INIT_CODE%
+window.addEventListener('resize',function(){charts.forEach(function(c){c.resize()})});
 })();
 </script>
 </body>

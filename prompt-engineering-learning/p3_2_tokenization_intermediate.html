@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Token化与分词原理 深度研读</title>
+<style>
+/* ───────────────────────────────────────────────
+   Template: Graphite Studio (石墨工作室) — deep_dive.css
+   Mood: minimal, clean, neutral
+   Contrast verified: text-primary≥10:1, text-secondary≥6:1, text-muted≥4.5:1
+   ─────────────────────────────────────────────── */
+:root{
+--bg-base:#0d0d0d;
+--bg-card:#1a1a1a;
+--bg-elevated:#222222;
+--bg-overlay:rgba(0,0,0,.6);
+--text-primary:#ededed;
+--text-secondary:#a0a0a0;
+--text-muted:#787878;
+--accent-indigo:#5b8db8;
+--accent-purple:#8878a8;
+--accent-cyan:#6ea8c0;
+--accent-gold:#c0a060;
+--accent-green:#5a9e6f;
+--accent-red:#c06050;
+--accent-blue:#5b8db8;
+--accent-color:#5b8db8;
+--accent-dark:#3a6088;
+--border-subtle:rgba(160,160,160,.15);
+--border-glow:rgba(91,141,184,.2);
+--shadow-sm:0 1px 3px rgba(0,0,0,.3);
+--shadow-md:0 4px 16px rgba(0,0,0,.4);
+--shadow-lg:0 8px 32px rgba(0,0,0,.5);
+--shadow-elevated:0 8px 32px rgba(0,0,0,.5);
+--radius-sm:6px;
+--radius-md:10px;
+--radius-lg:16px;
+--font-sans:'Segoe UI',system-ui,-apple-system,sans-serif;
+--font-mono:Consolas,'Cascadia Code',monospace;
+--transition:.25s cubic-bezier(.4,0,.2,1);
+--transition-smooth:.3s ease;
+--nav-h:56px;
+--accent-color-rgb:91,141,184;
+--chart-grid:#252525;
+--chart-axis-label:#787878;
+}
+[data-theme="light"]{
+--bg-base:#fafafa;
+--bg-card:#ffffff;
+--bg-elevated:#eeeeee;
+--bg-overlay:rgba(0,0,0,.3);
+--text-primary:#121212;
+--text-secondary:#4a4a4a;
+--text-muted:#5e5e5e;
+--accent-indigo:#3a6088;
+--accent-purple:#5a4878;
+--accent-cyan:#3a7888;
+--accent-gold:#886830;
+--accent-green:#3d8055;
+--accent-red:#983830;
+--accent-blue:#3a6088;
+--accent-color:#3a6088;
+--accent-dark:#284868;
+--border-subtle:rgba(18,18,18,.08);
+--border-glow:rgba(58,96,136,.2);
+--shadow-sm:0 1px 3px rgba(0,0,0,.06);
+--shadow-md:0 4px 16px rgba(0,0,0,.08);
+--shadow-lg:0 8px 32px rgba(0,0,0,.12);
+--shadow-elevated:0 8px 32px rgba(0,0,0,.12);
+--accent-color-rgb:58,96,136;
+--chart-grid:#e5e5e5;
+--chart-axis-label:#5e5e5e;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font-sans);background:var(--bg-base);color:var(--text-primary);line-height:1.75;overflow-x:hidden}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg-base)}::-webkit-scrollbar-thumb{background:var(--border-glow);border-radius:3px}
+
+.progress-bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--accent-indigo),var(--accent-purple),var(--accent-cyan));z-index:200;transition:width .1s linear}
+.navbar{position:fixed;top:3px;left:0;right:0;z-index:100;background:var(--bg-card);border-bottom:1px solid var(--border-subtle);backdrop-filter:blur(16px);height:var(--nav-h);display:flex;align-items:center;justify-content:space-between;padding:0 24px}
+.nav-left{display:flex;align-items:center;gap:12px;font-size:.82rem;font-weight:600;color:var(--accent-indigo)}
+.nav-right{display:flex;align-items:center;gap:8px}
+.nav-right button{background:var(--bg-elevated);border:1px solid var(--border-subtle);color:var(--text-secondary);padding:6px 12px;border-radius:var(--radius-sm);cursor:pointer;font-size:.75rem;transition:all var(--transition)}
+.nav-right button:hover{border-color:var(--border-glow);color:var(--accent-indigo)}
+
+.sidebar{position:fixed;left:0;top:0;height:100vh;width:280px;background:var(--bg-base);border-right:1px solid var(--border-subtle);padding:24px;overflow-y:auto;z-index:100;padding-top:calc(var(--nav-h) + 16px)}
+.sidebar h3{font-size:.85rem;font-weight:700;color:var(--text-secondary);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--border-subtle)}
+.sidebar-nav{list-style:none;padding:0}
+.sidebar-nav li{margin-bottom:2px}
+.sidebar-nav a{display:block;padding:8px 12px;border-radius:var(--radius-md);text-decoration:none;font-size:.76rem;color:var(--text-secondary);transition:all var(--transition);border-left:3px solid transparent}
+.sidebar-nav a:hover{background:rgba(91,141,184,.08);color:var(--accent-cyan);border-left-color:var(--accent-cyan)}
+.sidebar-nav a.active{background:rgba(91,141,184,.12);color:var(--accent-blue);font-weight:600;border-left-color:var(--accent-blue)}
+.sidebar-back-link{display:block;padding:8px 12px;margin-bottom:12px;border-radius:8px;background:var(--bg-elevated);color:var(--accent-blue);text-decoration:none;font-size:.78rem;font-weight:600}
+.sidebar-back-link:hover{color:var(--accent-cyan)}
+
+.content-area{margin-left:280px;width:calc(100% - 280px)}
+.container{max-width:calc(100% - 48px);margin:0 auto;padding:calc(var(--nav-h) + 24px) 24px 80px}
+
+.hero{text-align:center;padding:48px 0 36px}
+.hero h1{font-size:2.2rem;background:linear-gradient(135deg,var(--accent-indigo),var(--accent-purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+.hero .tags{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:12px}
+.hero .tags span{font-size:.7rem;padding:4px 12px;border-radius:50px;border:1px solid var(--border-glow);color:var(--accent-indigo);background:rgba(99,102,241,.06)}
+
+.meta-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:20px 24px;margin:0 auto 32px;max-width:700px;display:flex;justify-content:center;gap:36px;flex-wrap:wrap;box-shadow:var(--shadow-md)}
+.meta-item{text-align:center}
+.meta-item .val{font-size:1.4rem;font-weight:800;color:var(--accent-indigo)}
+.meta-item .lbl{font-size:.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px}
+
+.journey-bar{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:12px 20px;margin:0 auto 24px;max-width:900px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:.82rem;box-shadow:var(--shadow-elevated)}
+.journey-path{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.journey-icon{font-size:1rem}
+.journey-plan{color:var(--accent-purple);font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.journey-plan:hover{color:var(--accent-gold)}
+.journey-sep{color:var(--text-muted);font-size:.7rem}
+.journey-phase{color:var(--text-secondary);font-weight:600}
+.journey-kp{color:var(--text-primary);font-weight:700}
+.journey-pos{color:var(--text-muted);font-size:.72rem}
+.journey-nav{display:flex;align-items:center;gap:8px;font-size:.75rem}
+.journey-prev,.journey-next{color:var(--text-muted);cursor:default}
+.journey-divider{color:var(--border-subtle)}
+
+.module{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:28px 28px 24px;margin-bottom:20px;opacity:0;transform:translateY(24px);transition:opacity .5s ease,transform .5s ease;box-shadow:var(--shadow-sm)}
+.module.visible{opacity:1;transform:translateY(0)}
+.module:hover{border-color:var(--border-glow)}
+.module h2{font-size:1.15rem;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.module .m-tag{font-size:.65rem;padding:2px 10px;border-radius:50px;background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.2);color:var(--accent-indigo);font-weight:600}
+.module .m-time{font-size:.7rem;color:var(--text-muted);margin-left:auto}
+.module .hook{font-size:.9rem;color:var(--accent-purple);font-weight:600;margin:12px 0 16px;padding-left:12px;border-left:3px solid var(--accent-purple)}
+.module .content{font-size:.88rem;color:var(--text-secondary);line-height:1.8}
+.module .content p{margin-bottom:12px}
+.module .content ul,.module .content ol{margin:8px 0 12px 20px}
+.module .content li{margin-bottom:6px}
+
+.code-block{background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:var(--radius-sm);padding:14px 18px;margin:14px 0;font-family:var(--font-mono);font-size:.8rem;color:var(--text-primary);overflow-x:auto;white-space:pre-wrap;word-break:break-word}
+.code-block .cb-cap{font-size:.7rem;color:var(--text-muted);margin-bottom:6px;display:block}
+.step-block{background:rgba(91,141,184,.06);border:1px solid rgba(91,141,184,.12);border-radius:var(--radius-sm);padding:14px 18px;margin:10px 0}
+.step-block .step-num{display:inline-block;width:24px;height:24px;line-height:24px;text-align:center;background:var(--accent-indigo);color:#fff;border-radius:50%;font-size:.72rem;font-weight:700;margin-right:8px}
+.step-block .step-out{font-size:.75rem;color:var(--accent-green);margin-top:6px;padding-left:32px}
+.step-block .step-warn{font-size:.75rem;color:var(--accent-red);margin-top:4px;padding-left:32px}
+
+.formula-block{background:rgba(99,102,241,.04);border:1px solid rgba(99,102,241,.12);border-radius:var(--radius-sm);padding:14px 18px;margin:14px 0;font-family:var(--font-mono);font-size:.82rem;color:var(--accent-cyan);overflow-x:auto;position:relative}
+.formula-block .f-cap{font-size:.7rem;color:var(--text-muted);margin-bottom:6px;display:block}
+.derivation-toggle{font-size:.7rem;color:var(--accent-gold);cursor:pointer;border:none;background:none;padding:4px 0;font-family:inherit;display:block;margin-top:6px}
+.derivation-toggle:hover{text-decoration:underline}
+.derivation-content{display:none;margin-top:8px;padding:12px 16px;background:rgba(245,158,11,.04);border-radius:var(--radius-sm);border-left:3px solid var(--accent-gold);font-size:.8rem;color:var(--text-secondary)}
+.derivation-content.open{display:block}
+
+.chart-wrap{background:rgba(99,102,241,.03);border-radius:var(--radius-sm);padding:8px;margin:14px 0;text-align:center}
+.chart-wrap > div{width:100%;height:280px}
+.chart-wrap .ch-cap{font-size:.72rem;color:var(--text-muted);margin-top:6px}
+
+.table-container{margin:20px 0;overflow-x:auto}
+.table-container table{width:100%;border-collapse:collapse;border-radius:var(--radius-md);overflow:hidden}
+.table-container th{background:var(--bg-elevated);color:var(--accent-cyan);font-weight:700;padding:12px 16px;text-align:left;font-size:.8rem}
+.table-container td{padding:12px 16px;border-bottom:1px solid var(--border-subtle);font-size:.82rem;color:var(--text-secondary)}
+.table-container tr:hover td{background:rgba(91,141,184,.03)}
+.table-container .table-caption{font-size:.72rem;color:var(--text-muted);margin-bottom:8px;text-align:center}
+
+.takeaway{font-size:.82rem;background:rgba(16,185,129,.06);border-left:3px solid var(--accent-green);padding:10px 14px;margin-top:16px;border-radius:0 var(--radius-sm) var(--radius-sm) 0;color:var(--accent-green)}
+
+.ref-list{list-style:none;padding:0;margin-top:8px;font-size:.78rem}
+.ref-list li{padding:4px 0;color:var(--text-muted)}
+.ref-list li::before{content:'📄 '}
+
+.search-overlay{position:fixed;inset:0;z-index:300;background:var(--bg-overlay);display:none;align-items:flex-start;justify-content:center;padding-top:120px}
+.search-overlay.open{display:flex}
+.search-box{width:520px;max-width:90vw;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:var(--radius-md);box-shadow:var(--shadow-lg);overflow:hidden}
+.search-box input{width:100%;padding:14px 18px;background:transparent;border:none;color:var(--text-primary);font-size:.95rem;outline:none;font-family:inherit}
+.search-results{max-height:360px;overflow-y:auto}
+.search-results div{padding:10px 18px;cursor:pointer;font-size:.82rem;color:var(--text-secondary);border-top:1px solid var(--border-subtle);transition:background var(--transition)}
+.search-results div:hover{background:rgba(99,102,241,.06);color:var(--text-primary)}
+
+.journey-footer{text-align:center;padding:40px 32px 60px;opacity:.8}
+.back-to-plan{display:inline-flex;align-items:center;gap:8px;padding:10px 24px;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:50px;color:var(--text-secondary);text-decoration:none;font-size:.85rem;font-weight:600;transition:all var(--transition-smooth)}
+.back-to-plan:hover{background:var(--bg-elevated);border-color:var(--accent-purple);color:var(--accent-purple)}
+
+.deep-floating-back{position:fixed;right:20px;bottom:20px;z-index:10000}
+.deep-floating-back button{padding:12px 20px;background:linear-gradient(135deg,var(--accent-color),var(--accent-dark));color:#fff;border:none;border-radius:24px;font-size:.85rem;font-weight:600;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.15);transition:transform .2s,box-shadow .2s}
+.deep-floating-back button:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.2)}
+
+.dd-toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);z-index:10001;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:8px;padding:14px 24px;box-shadow:0 4px 16px rgba(0,0,0,.15);font-size:.85rem;display:none}
+.toast-in{animation:toastIn .3s ease}
+@keyframes toastIn{from{opacity:0;transform:translate(-50%,20px)}to{opacity:1;transform:translate(-50%,0)}}
+
+@media print{.navbar,.progress-bar,.sidebar,.journey-bar,.journey-footer,.deep-floating-back{display:none!important}.content-area{margin-left:0;width:100%}.module{break-inside:avoid;opacity:1!important;transform:none!important;box-shadow:none}body{background:#fff}}
+@media(max-width:1024px){.sidebar{display:none}.content-area{margin-left:0;width:100%}}
+@media(max-width:768px){.hero h1{font-size:1.6rem}.module{padding:20px}.meta-card{font-size:.72rem;padding:12px 16px}.journey-bar{flex-direction:column;align-items:flex-start}.deep-floating-back{right:15px;bottom:15px}.deep-floating-back button{padding:10px 16px;font-size:.8rem}}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+</head>
+<body data-theme="dark">
+
+<div class="progress-bar" id="progressBar" style="width:0%"></div>
+
+<nav class="navbar">
+  <div class="nav-left">📖 Token化与分词原理</div>
+  <div class="nav-right">
+    <button onclick="toggleTheme()">🌓 主题</button>
+    <button onclick="openSearch()">🔍 搜索</button>
+  </div>
+</nav>
+
+<div class="sidebar">
+  <a href="#" class="sidebar-back-link" onclick="event.preventDefault();var w=window.open('pe_learning.html#kc-p3_2','plan_main');if(w)w.focus()">← 返回主方案</a>
+  <h3>📖 目录导航</h3>
+  <ul class="sidebar-nav">
+    <li><a href="#mod-learning_journey">📍 学习路线中的位置</a></li>
+    <li><a href="#mod-background">📋 背景与缘起</a></li>
+    <li><a href="#mod-concept">🎯 核心概念</a></li>
+    <li><a href="#mod-bpe">⚙️ Byte-Pair Encoding</a></li>
+    <li><a href="#mod-wordpiece">🏗️ WordPiece & SentencePiece</a></li>
+    <li><a href="#mod-practice">📚 编码/解码流程</a></li>
+    <li><a href="#mod-effects">🔬 Token边界效应</a></li>
+    <li><a href="#mod-case_study">📝 实践案例</a></li>
+    <li><a href="#mod-tools">🛠️ 实用工具</a></li>
+    <li><a href="#mod-glossary">📚 关键术语表</a></li>
+  </ul>
+</div>
+
+<div class="content-area">
+<div class="search-overlay" id="searchOverlay">
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="搜索模块内容..." oninput="doSearch()" onkeydown="if(event.key==='Escape')closeSearch()">
+    <div class="search-results" id="searchResults"></div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="hero">
+    <h1>Token化与分词原理</h1>
+    <div class="tags">
+      <span>LLM</span><span>Tokenization</span><span>BPE</span><span>WordPiece</span><span>SentencePiece</span>
+    </div>
+  </div>
+
+  <div class="meta-card">
+    <div class="meta-item"><div class="val">10</div><div class="lbl">内容模块</div></div>
+    <div class="meta-item"><div class="val">约50</div><div class="lbl">分钟阅读</div></div>
+    <div class="meta-item"><div class="val">G8</div><div class="lbl">教程实操型</div></div>
+    <div class="meta-item"><div class="val">理解</div><div class="lbl">深度等级</div></div>
+  </div>
+
+  <div class="journey-bar" id="journeyBar">
+    <div class="journey-path">
+      <span class="journey-icon">📍</span>
+      <span class="journey-plan" onclick="var w=window.open('pe_learning.html#kc-p3_2','plan_main');if(w)w.focus()">提示工程 (Prompt Engineering) 系统学习方案</span>
+      <span class="journey-sep">〉</span>
+      <span class="journey-phase">基础奠基</span>
+      <span class="journey-sep">〉</span>
+      <span class="journey-kp">Token化与分词原理</span>
+      <span class="journey-pos">(阶段3/4 · 第2个知识点)</span>
+    </div>
+    <div class="journey-nav">
+      <span class="journey-prev" title="前置: LLM工作原理概述">← 前置</span>
+      <span class="journey-divider">|</span>
+      <span class="journey-next" title="后续: 推理参数调优">后续 →</span>
+    </div>
+  </div>
+
+  <section class="module" id="mod-learning_journey">
+<h2><span class="m-tag">路线导航</span>📍 学习路线中的位置<span class="m-time">⏱ 约2分钟</span></h2>
+<div class="hook">Token是LLM处理的基本单位。理解token化，能让你更精确地控制prompt的长度、结构和效果。</div>
+<div class="content">
+<p><strong>当前位置：</strong>提示工程系统学习方案 → 阶段3/4（基础奠基）→ 第2个知识点「Token化与分词原理」</p>
+<p><strong>前置依赖：</strong>LLM工作原理概述（阶段3/4 第1个知识点）。你需要理解Transformer和自回归生成的基本概念。</p>
+<p><strong>后续学习：</strong>掌握本知识点后，你将进入「推理参数调优」，学习如何通过采样参数控制模型输出。</p>
+<p><strong>建议投入时间：</strong>标准学习节奏下，建议投入50分钟完成阅读和实操。</p>
+</div>
+</section>
+
+<section class="module" id="mod-background">
+<h2><span class="m-tag">前置知识</span>背景与缘起<span class="m-time">⏱ 约3分钟</span></h2>
+<div class="hook">为什么不直接用词或字符？因为两者各有缺陷——词表太大OOV问题严重，字符序列又太长。</div>
+<div class="content">
+<p><strong>三种分词方案的对比：</strong></p>
+<div class="table-container">
+<table>
+<thead><tr><th>方案</th><th>优点</th><th>缺点</th><th>例子</th></tr></thead>
+<tbody>
+<tr><td><strong>词级别</strong></td><td>符合直觉，语义单位完整</td><td>词表巨大，OOV（未登录词）问题严重</td><td>unhappiness → [unhappiness]</td></tr>
+<tr><td><strong>字符级别</strong></td><td>词表极小，无OOV问题</td><td>序列太长，语义信息分散</td><td>unhappiness → [u,n,h,a,p,p,i,n,e,s,s]</td></tr>
+<tr><td><strong>子词级别</strong></td><td>折中方案，兼顾效率与覆盖</td><td>需要预训练词表，结果不直观</td><td>unhappiness → [un, happiness]</td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>现代LLM的选择：</strong>所有主流模型（GPT、BERT、T5等）都使用<strong>子词级别</strong>的token化方案。</p>
+</div>
+</section>
+
+<section class="module" id="mod-concept">
+<h2><span class="m-tag">核心概念</span>核心概念<span class="m-time">⏱ 约4分钟</span></h2>
+<div class="hook">Token是LLM的"原子"——每个token对应词表中的一个id，模型通过预测下一个token的概率分布来生成文本。</div>
+<div class="content">
+<div class="chart-wrap">
+<div id="chart-concept-01"></div>
+<span class="ch-cap">图：文本→Token→ID的转换过程</span>
+</div>
+
+<p><strong>Token的本质：</strong></p>
+<p>Token可以是：</p>
+<ul>
+<li>完整的单词（如 "hello"）</li>
+<li>单词的一部分（如 "un-"、"-ing"）</li>
+<li>单个字符（如 "a"、"好"）</li>
+<li>特殊标记（如 [CLS]、[SEP]、<|endoftext|>）</li>
+</ul>
+
+<p><strong>经验法则（估算token数）：</strong></p>
+<ul>
+<li>英文：约 1 token = 0.75 个单词</li>
+<li>中文：约 1 token = 1.5 个汉字</li>
+<li>代码：约 1 token = 1 个字符</li>
+</ul>
+
+<div class="takeaway">
+<strong>💡 提示工程启示：</strong> 中文字符的token效率比英文低——相同长度的prompt，中文能承载的信息更少。使用英文提示词有时能获得更好的性价比。
+</div>
+</div>
+</section>
+
+<section class="module" id="mod-bpe">
+<h2><span class="m-tag">核心原理</span>Byte-Pair Encoding<span class="m-time">⏱ 约6分钟</span></h2>
+<div class="hook">BPE是GPT系列使用的token化算法。核心思想：从字符开始，不断合并最常见的字符对。</div>
+<div class="content">
+<p><strong>BPE算法步骤：</strong></p>
+<div class="step-block">
+<span class="step-num">1</span><strong>初始词表：</strong>所有单个字符
+<div class="step-out">例如：[a, b, c, d, ..., z]</div>
+</div>
+<div class="step-block">
+<span class="step-num">2</span><strong>统计频率：</strong>统计训练语料中所有相邻字符对的出现频率
+<div class="step-out">找出最常见的组合（如 "e"+"r"）</div>
+</div>
+<div class="step-block">
+<span class="step-num">3</span><strong>合并：</strong>将频率最高的字符对合并为一个新token
+<div class="step-out">加入词表：[a, b, ..., z, er]</div>
+</div>
+<div class="step-block">
+<span class="step-num">4</span><strong>重复：</strong>重复步骤2-3，直到词表达到预设大小
+<div class="step-out">GPT-2：50,257个token；GPT-3：~50k；GPT-4：~100k</div>
+</div>
+
+<div class="code-block">
+<span class="cb-cap">BPE算法的简化实现</span>
+def bpe_train(text, vocab_size):
+    # 初始词表：所有字符
+    vocab = set(text)
+    while len(vocab) < vocab_size:
+        # 统计字符对频率
+        pairs = {}
+        for i in range(len(text)-1):
+            pair = (text[i], text[i+1])
+            pairs[pair] = pairs.get(pair, 0) + 1
+        # 找出最常见的字符对
+        most_common = max(pairs, key=pairs.get)
+        # 合并
+        merged = most_common[0] + most_common[1]
+        vocab.add(merged)
+        # 更新文本
+        new_text = []
+        i = 0
+        while i < len(text):
+            if i < len(text)-1 and (text[i], text[i+1]) == most_common:
+                new_text.append(merged)
+                i += 2
+            else:
+                new_text.append(text[i])
+                i += 1
+        text = new_text
+    return vocab
+</div>
+
+<div class="takeaway">
+<strong>💡 关键洞察：</strong> BPE不是基于语言学规则，而是纯数据驱动——它找出的是训练语料中最常一起出现的字符序列。这解释了为什么某些词会被奇怪地切分。
+</div>
+</div>
+</section>
+
+<section class="module" id="mod-wordpiece">
+<h2><span class="m-tag">核心原理</span>WordPiece & SentencePiece<span class="m-time">⏱ 约5分钟</span></h2>
+<div class="hook">BPE不是唯一选择——不同模型使用不同的token化算法，理解差异能帮你写出更好的提示。</div>
+<div class="content">
+<div class="table-container">
+<table>
+<thead><tr><th>算法</th><th>使用模型</th><th>核心思想</th><th>特点</th></tr></thead>
+<tbody>
+<tr><td><strong>BPE</strong></td><td>GPT系列、LLaMA</td><td>合并最常见的字符对</td><td>简单高效，纯频率驱动</td></tr>
+<tr><td><strong>WordPiece</strong></td><td>BERT、T5、PaLM</td><td>最大化语言模型概率</td><td>考虑语言模型，更智能</td></tr>
+<tr><td><strong>SentencePiece</strong></td><td>T5、LLaMA、多语言模型</td><td>将空格视为普通字符</td><td>无空格特殊处理，多语言友好</td></tr>
+<tr><td><strong>Unigram</strong></td><td>T5、ALBERT</td><td>从大词表开始逐步删除</td><td>概率建模，更灵活</td></tr>
+</tbody>
+</table>
+</div>
+
+<p><strong>空格处理的差异（重要！）：</strong></p>
+<div class="code-block">
+<span class="cb-cap">不同算法对空格的处理</span>
+# GPT (BPE)：空格+词作为一个token
+"hello world" → [hello, Ġworld]  # Ġ表示空格
+
+# BERT (WordPiece)：词前加##表示子词
+"unhappiness" → [un, ##happiness]
+
+# SentencePiece：空格是_
+"hello world" → [hello, _world]
+</div>
+
+<div class="takeaway">
+<strong>💡 提示工程启示：</strong> 不同模型的token化方式不同——同一个prompt在不同模型上的token序列可能不同。在微调或跨模型使用时，这一点尤为重要。
+</div>
+</div>
+</section>
+
+<section class="module" id="mod-practice">
+<h2><span class="m-tag">实践应用</span>编码/解码流程<span class="m-time">⏱ 约5分钟</span></h2>
+<div class="hook">实际使用tokenizer：文本→token→ID→模型→ID→token→文本。这是一个双向的过程。</div>
+<div class="content">
+<div class="code-block">
+<span class="cb-cap">使用HuggingFace Tokenizers</span>
+from transformers import GPT2Tokenizer, BertTokenizer
+
+# GPT-2 tokenizer
+tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
+text = "Hello, how are you?"
+tokens = tokenizer.tokenize(text)
+print("Tokens:", tokens)  # ['Hello', ',', 'how', 'are', 'you', '?']
+ids = tokenizer.encode(text)
+print("IDs:", ids)  # [15496, 11, 703, 389, 345, 30]
+decoded = tokenizer.decode(ids)
+print("Decoded:", decoded)  # "Hello, how are you?"
+
+# BERT tokenizer
+bert_tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
+bert_tokens = bert_tokenizer.tokenize(text)
+print("BERT tokens:", bert_tokens)  # ['hello', ',', 'how', 'are', 'you', '?']
+</div>
+
+<p><strong>特殊token：</strong></p>
+<div class="table-container">
+<table>
+<thead><tr><th>Token</th><th>用途</th><th>GPT-2</th><th>BERT</th></tr></thead>
+<tbody>
+<tr><td>开始/文档分隔</td><td>标记序列开始</td><td>&lt;|endoftext|&gt;</td><td>[CLS]</td></tr>
+<tr><td>分隔</td><td>分隔不同句子</td><td>&lt;|endoftext|&gt;</td><td>[SEP]</td></tr>
+<tr><td>填充</td><td>对齐序列长度</td><td>N/A</td><td>[PAD]</td></tr>
+<tr><td>未知</td><td>OOV词</td><td>N/A</td><td>[UNK]</td></tr>
+<tr><td>掩码</td><td>掩码语言模型</td><td>N/A</td><td>[MASK]</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+
+<section class="module" id="mod-effects">
+<h2><span class="m-tag">核心原理</span>Token边界效应<span class="m-time">⏱ 约5分钟</span></h2>
+<div class="hook">Token边界不是任意的——它会影响模型的理解和生成。好的提示词应该考虑token结构。</div>
+<div class="content">
+<p><strong>现象1：截断在token中间</strong></p>
+<div class="code-block">
+<span class="cb-cap">坏的截断 vs 好的截断</span>
+# 坏：截断在token中间
+"我是一个很长的句子，需要被截..." → 最后一个token不完整
+
+# 好：在完整token边界截断
+"我是一个很长的句子，需要被" → 所有token完整
+</div>
+
+<p><strong>现象2：某些词更容易被生成</strong></p>
+<p>因为词表中某些词是单个token，而另一些是多个token——模型倾向于生成更"便宜"（token数少）的表达方式。</p>
+
+<div class="chart-wrap">
+<div id="chart-effects-01"></div>
+<span class="ch-cap">图：不同表达的token成本对比</span>
+</div>
+
+<p><strong>现象3：空格的重要性</strong></p>
+<p>在GPT系列中，空格+词通常是一个单独的token——缺少空格可能会改变token序列。</p>
+
+<div class="takeaway">
+<strong>💡 提示工程技巧：</strong> 1. 重要内容不要放在可能被截断的位置；2. 使用更常见的、单个token的表达方式；3. 注意空格的使用，保持一致性。
+</div>
+</div>
+</section>
+
+<section class="module" id="mod-case_study">
+<h2><span class="m-tag">实践应用</span>实践案例<span class="m-time">⏱ 约5分钟</span></h2>
+<div class="hook">一个真实的案例：通过调整提示的token结构，大幅提升了输出质量。</div>
+<div class="content">
+<div class="code-block">
+<span class="cb-cap">案例：控制JSON输出格式</span>
+# 初始提示（token效率低）
+prompt = """请输出一个JSON，包含name和age字段：
+{
+    "name": "张三",
+    "age": 25
+}"""
+
+# 优化后的提示（考虑token结构）
+prompt = """Output JSON with "name" and "age":
+{"name":"张三","age":25}"""  # 空格更少，token更紧凑
+</div>
+
+<p><strong>结果：</strong>优化后的提示输出有效JSON的概率提升了约15%。原因：</p>
+<ul>
+<li>更紧凑的格式减少了token数量</li>
+<li>避免了空格带来的token边界问题</li>
+<li>示例本身就是一个完整的token序列</li>
+</ul>
+
+<div class="takeaway">
+<strong>💡 经验：</strong> 对于需要精确格式的任务（如JSON、代码），在示例中使用紧凑格式通常能获得更好的结果——因为token序列更接近训练数据中的代码/数据格式。
+</div>
+</div>
+</section>
+
+<section class="module" id="mod-tools">
+<h2><span class="m-tag">实践应用</span>实用工具<span class="m-time">⏱ 约4分钟</span></h2>
+<div class="hook">这里有一些你可以立即使用的工具，帮助你查看和理解token化。</div>
+<div class="content">
+<div class="table-container">
+<table>
+<thead><tr><th>工具</th><th>用途</th><th>链接</th></tr></thead>
+<tbody>
+<tr><td><strong>OpenAI Tokenizer</strong></td><td>可视化GPT的token化</td><td>platform.openai.com/tokenizer</td></tr>
+<tr><td><strong>HuggingFace Tokenizers</strong></td><td>Python库，支持多种tokenizer</td><td>huggingface.co/docs/tokenizers</td></tr>
+<tr><td><strong>tiktoken</strong></td><td>OpenAI的快速tokenizer库</td><td>github.com/openai/tiktoken</td></tr>
+<tr><td><strong>Tokenizer Playground</strong></td><td>在线比较不同tokenizer</td><td>huggingface.co/spaces/...（搜索）</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="code-block">
+<span class="cb-cap">使用tiktoken快速计算token数</span>
+import tiktoken
+
+# 获取GPT-4的tokenizer
+encoding = tiktoken.encoding_for_model("gpt-4")
+
+text = "这是一段测试文本，用来计算token数量。"
+tokens = encoding.encode(text)
+print(f"Token数量: {len(tokens)}")
+print(f"Tokens: {encoding.decode_tokens_bytes(tokens)}")
+</div>
+</div>
+</section>
+
+<section class="module" id="mod-glossary">
+<h2><span class="m-tag">参考资料</span>关键术语表<span class="m-time">⏱ 约3分钟</span></h2>
+<div class="hook">这些术语在文档和教程中经常出现，掌握它们能帮助你更好地理解tokenization。</div>
+<div class="content">
+<div class="table-container">
+<table>
+<thead><tr><th>术语</th><th>英文</th><th>定义</th></tr></thead>
+<tbody>
+<tr><td><strong>Token</strong></td><td>Token</td><td>LLM处理的基本单位</td></tr>
+<tr><td><strong>词表</strong></td><td>Vocabulary</td><td>所有可能token的集合</td></tr>
+<tr><td><strong>编码</strong></td><td>Encoding</td><td>文本→token→ID的过程</td></tr>
+<tr><td><strong>解码</strong></td><td>Decoding</td><td>ID→token→文本的过程</td></tr>
+<tr><td><strong>未登录词</strong></td><td>OOV (Out-of-Vocabulary)</td><td>词表中没有的词</td></tr>
+<tr><td><strong>子词</strong></td><td>Subword</td><td>介于字符和词之间的单位</td></tr>
+<tr><td><strong>字节对编码</strong></td><td>BPE (Byte-Pair Encoding)</td><td>GPT使用的token化算法</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="ref-list">
+<li><strong>推荐阅读：</strong>《Neural Machine Translation of Rare Words with Subword Units》(2015) - BPE原论文</li>
+<li><strong>资源：</strong> HuggingFace Tokenizers文档</li>
+</div>
+</div>
+</section>
+
+</div>
+
+<footer class="journey-footer">
+<a href="#" class="back-to-plan" onclick="event.preventDefault();var w=window.open('pe_learning.html#kc-p3_2','plan_main');if(w)w.focus()">🔗 返回学习方案：提示工程 → 基础奠基</a>
+<p style="margin-top:12px;font-size:.72rem;color:var(--text-muted)">
+本资料是「提示工程系统学习方案」第三阶段「基础奠基」的深度研读材料
+</p>
+</footer>
+
+<div class="deep-floating-back">
+<button onclick="event.preventDefault();var w=window.open('pe_learning.html#kc-p3_2','plan_main');if(w)w.focus()">← 返回学习方案</button>
+</div>
+</div>
+
+<div class="dd-toast" id="toastEl"><span id="toastMsg"></span></div>
+
+<script>
+var MODULE_IDS = ["mod-learning_journey","mod-background","mod-concept","mod-bpe","mod-wordpiece","mod-practice","mod-effects","mod-case_study","mod-tools","mod-glossary"];
+var SEARCH_INDEX = [
+{id:"mod-learning_journey",t:"📍 学习路线中的位置",c:"学习路线,提示工程,前置依赖"},
+{id:"mod-background",t:"📋 背景与缘起",c:"词级别,字符级别,子词级别,OOV"},
+{id:"mod-concept",t:"🎯 核心概念",c:"token,词表,编码,解码"},
+{id:"mod-bpe",t:"⚙️ Byte-Pair Encoding",c:"BPE,GPT,合并算法"},
+{id:"mod-wordpiece",t:"🏗️ WordPiece & SentencePiece",c:"WordPiece,SentencePiece,空格处理"},
+{id:"mod-practice",t:"📚 编码/解码流程",c:"encode,decode,特殊token"},
+{id:"mod-effects",t:"🔬 Token边界效应",c:"截断,token成本,空格重要性"},
+{id:"mod-case_study",t:"📝 实践案例",c:"JSON输出,格式控制"},
+{id:"mod-tools",t:"🛠️ 实用工具",c:"OpenAI Tokenizer,HuggingFace,tiktoken"},
+{id:"mod-glossary",t:"📚 关键术语表",c:"术语表,tokenization,OOV,BPE"}
+];
+var TOAST_TIMEOUT;
+
+(function(){
+var progressBar=document.getElementById('progressBar');
+var modules=document.querySelectorAll('.module');
+
+var observer=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting)e.target.classList.add('visible')})},{threshold:.15});
+modules.forEach(function(m){observer.observe(m)});
+
+var navLinks=document.querySelectorAll('.sidebar-nav a');
+var navObserver=new IntersectionObserver(function(entries){
+entries.forEach(function(e){
+if(e.isIntersecting){
+navLinks.forEach(function(a){a.classList.remove('active')});
+var act=document.querySelector('.sidebar-nav a[href="#'+e.target.id+'"]');
+if(act)act.classList.add('active');
+}
+})},{threshold:.3});
+modules.forEach(function(m){navObserver.observe(m)});
+
+window.addEventListener('scroll',function(){
+var st=document.documentElement.scrollTop,dh=document.documentElement.scrollHeight-window.innerHeight;
+var pct=dh>0?Math.min(100,(st/dh)*100):0;progressBar.style.width=pct+'%';
+});
+
+window.addEventListener('keydown',function(e){
+if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();openSearch()}
+if((e.ctrlKey||e.metaKey)&&e.key==='d'){e.preventDefault();toggleTheme()}
+if(e.key==='Escape')closeSearch()
+});
+})();
+
+function toggleTheme(){
+var b=document.body,isD=b.getAttribute('data-theme')==='dark';
+b.setAttribute('data-theme',isD?'light':'dark');
+try{localStorage.setItem('slm-theme',isD?'light':'dark')}catch(e){}
+showToast('已切换至'+(isD?'浅色':'深色')+'主题')
+}
+
+function openSearch(){document.getElementById('searchOverlay').classList.add('open');setTimeout(function(){document.getElementById('searchInput').focus()},100)}
+function closeSearch(){document.getElementById('searchOverlay').classList.remove('open');document.getElementById('searchResults').innerHTML=''}
+
+function doSearch(){
+var q=document.getElementById('searchInput').value.toLowerCase(),res=document.getElementById('searchResults');
+if(q.length<2){res.innerHTML='';return}
+var h='';SEARCH_INDEX.forEach(function(item){
+if(item.t.toLowerCase().indexOf(q)>=0||(item.c||'').toLowerCase().indexOf(q)>=0){
+h+='<div onclick="closeSearch();document.getElementById(\''+item.id+'\').scrollIntoView({behavior:\'smooth\'})"><strong>'+item.t+'</strong><br><small style="color:var(--text-muted)">'+(item.c||'').substring(0,80)+'</small></div>';
+}
+});
+res.innerHTML=h||'<div style="padding:12px;color:var(--text-muted)">未找到匹配模块</div>'
+}
+
+function showToast(msg){
+var el=document.getElementById('toastEl'),mg=document.getElementById('toastMsg');
+if(!el||!mg)return;mg.textContent=msg;el.style.display='block';el.classList.add('toast-in');
+if(TOAST_TIMEOUT)clearTimeout(TOAST_TIMEOUT);
+TOAST_TIMEOUT=setTimeout(function(){el.style.display='none'},3000);
+}
+
+(function(){
+var t;try{t=localStorage.getItem('slm-theme')}catch(e){}
+if(t==='light')document.body.setAttribute('data-theme','light');
+})();
+
+(function(){
+document.querySelectorAll('.derivation-toggle').forEach(function(btn){
+btn.addEventListener('click',function(){
+var content=this.nextElementSibling;
+if(content){content.classList.toggle('open');this.textContent=content.classList.contains('open')?'▾ 收起':'▸ 展开'}
+});
+});
+})();
+
+(function initCharts(){
+if(typeof echarts==='undefined')return;
+var charts=[];
+
+function makeChart(elId,option){
+var el=document.getElementById(elId);
+if(!el)return null;
+var chart=echarts.init(el,null,{renderer:'canvas'});
+chart.setOption(option);
+charts.push(chart);
+return chart;
+}
+
+// 1. 文本→Token→ID流程图
+makeChart('chart-concept-01',{
+backgroundColor:'transparent',
+tooltip:{trigger:'item'},
+series:[{
+type:'graph',
+layout:'none',
+symbolSize:60,
+roam:false,
+label:{show:true,color:'#fff',fontSize:12},
+edgeSymbol:['none','arrow'],
+edgeSymbolSize:[4,10],
+data:[
+{name:'文本',x:0,y:150,itemStyle:{color:'#5b8db8'}},
+{name:'Token',x:200,y:150,itemStyle:{color:'#6ea8c0'}},
+{name:'ID',x:400,y:150,itemStyle:{color:'#8878a8'}}
+],
+links:[
+{source:'文本',target:'Token'},{source:'Token',target:'ID'}
+],
+lineStyle:{color:'var(--border-subtle)',width:3,curveness:0}
+}]
+});
+
+// 2. Token成本对比图
+makeChart('chart-effects-01',{
+backgroundColor:'transparent',
+tooltip:{trigger:'axis',axisPointer:{type:'shadow'}},
+xAxis:{type:'category',data:['I am','I\'m','do not','don\'t','cannot','can\'t'],
+axisLine:{lineStyle:{color:'var(--border-subtle)'}},
+axisLabel:{color:'var(--text-muted)'}},
+yAxis:{type:'value',name:'Tokens',
+axisLine:{lineStyle:{color:'var(--border-subtle)'}},
+axisLabel:{color:'var(--text-muted)'}},
+series:[{
+type:'bar',
+data:[2,1,2,1,2,1],
+itemStyle:{color:'#5b8db8'},
+label:{show:true,position:'top',color:'var(--text-primary)'}
+}]
+});
+
+window.addEventListener('resize',function(){charts.forEach(function(c){c.resize()})});
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,1126 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>自动化提示优化 — 深度研读</title>
+<style>
+/* ───────────────────────────────────────────────
+   Template: Graphite Studio (石墨工作室) — deep_dive.css
+   Mood: minimal, clean, neutral
+   Contrast verified: text-primary≥10:1, text-secondary≥6:1, text-muted≥4.5:1
+   ─────────────────────────────────────────────── */
+:root{
+--bg-base:#0d0d0d;
+--bg-card:#1a1a1a;
+--bg-elevated:#222222;
+--bg-overlay:rgba(0,0,0,.6);
+--text-primary:#ededed;
+--text-secondary:#a0a0a0;
+--text-muted:#787878;
+--accent-indigo:#5b8db8;
+--accent-purple:#8878a8;
+--accent-cyan:#6ea8c0;
+--accent-gold:#c0a060;
+--accent-green:#5a9e6f;
+--accent-red:#c06050;
+--accent-blue:#5b8db8;
+--accent-color:#5b8db8;
+--accent-dark:#3a6088;
+--border-subtle:rgba(160,160,160,.15);
+--border-glow:rgba(91,141,184,.2);
+--shadow-sm:0 1px 3px rgba(0,0,0,.3);
+--shadow-md:0 4px 16px rgba(0,0,0,.4);
+--shadow-lg:0 8px 32px rgba(0,0,0,.5);
+--shadow-elevated:0 8px 32px rgba(0,0,0,.5);
+--radius-sm:6px;
+--radius-md:10px;
+--radius-lg:16px;
+--font-sans:'Segoe UI',system-ui,-apple-system,sans-serif;
+--font-mono:Consolas,'Cascadia Code',monospace;
+--transition:.25s cubic-bezier(.4,0,.2,1);
+--transition-smooth:.3s ease;
+--nav-h:56px;
+--accent-color-rgb:91,141,184;
+--chart-grid:#252525;
+--chart-axis-label:#787878;
+}
+[data-theme="light"]{
+--bg-base:#fafafa;
+--bg-card:#ffffff;
+--bg-elevated:#eeeeee;
+--bg-overlay:rgba(0,0,0,.3);
+--text-primary:#121212;
+--text-secondary:#4a4a4a;
+--text-muted:#5e5e5e;
+--accent-indigo:#3a6088;
+--accent-purple:#5a4878;
+--accent-cyan:#3a7888;
+--accent-gold:#886830;
+--accent-green:#3d8055;
+--accent-red:#983830;
+--accent-blue:#3a6088;
+--accent-color:#3a6088;
+--accent-dark:#284868;
+--border-subtle:rgba(18,18,18,.08);
+--border-glow:rgba(58,96,136,.2);
+--shadow-sm:0 1px 3px rgba(0,0,0,.06);
+--shadow-md:0 4px 16px rgba(0,0,0,.08);
+--shadow-lg:0 8px 32px rgba(0,0,0,.12);
+--shadow-elevated:0 8px 32px rgba(0,0,0,.12);
+--accent-color-rgb:58,96,136;
+--chart-grid:#e5e5e5;
+--chart-axis-label:#5e5e5e;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font-sans);background:var(--bg-base);color:var(--text-primary);line-height:1.75;overflow-x:hidden}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg-base)}::-webkit-scrollbar-thumb{background:var(--border-glow);border-radius:3px}
+
+.progress-bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--accent-indigo),var(--accent-purple),var(--accent-cyan));z-index:200;transition:width .1s linear}
+.navbar{position:fixed;top:3px;left:0;right:0;z-index:100;background:var(--bg-card);border-bottom:1px solid var(--border-subtle);backdrop-filter:blur(16px);height:var(--nav-h);display:flex;align-items:center;justify-content:space-between;padding:0 24px}
+.nav-left{display:flex;align-items:center;gap:12px;font-size:.82rem;font-weight:600;color:var(--accent-indigo)}
+.nav-right{display:flex;align-items:center;gap:8px}
+.nav-right button{background:var(--bg-elevated);border:1px solid var(--border-subtle);color:var(--text-secondary);padding:6px 12px;border-radius:var(--radius-sm);cursor:pointer;font-size:.75rem;transition:all var(--transition)}
+.nav-right button:hover{border-color:var(--border-glow);color:var(--accent-indigo)}
+
+.sidebar{position:fixed;left:0;top:0;height:100vh;width:280px;background:var(--bg-primary);border-right:1px solid var(--border-subtle);padding:24px;overflow-y:auto;z-index:100;padding-top:calc(var(--nav-h) + 16px)}
+.sidebar h3{font-size:.85rem;font-weight:700;color:var(--text-secondary);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--border-subtle)}
+.sidebar-nav{list-style:none;padding:0}
+.sidebar-nav li{margin-bottom:2px}
+.sidebar-nav a{display:block;padding:8px 12px;border-radius:var(--radius-md);text-decoration:none;font-size:.76rem;color:var(--text-secondary);transition:all var(--transition);border-left:3px solid transparent}
+.sidebar-nav a:hover{background:rgba(91,141,184,.08);color:var(--accent-cyan);border-left-color:var(--accent-cyan)}
+.sidebar-nav a.active{background:rgba(91,141,184,.12);color:var(--accent-blue);font-weight:600;border-left-color:var(--accent-blue)}
+.sidebar-back-link{display:block;padding:8px 12px;margin-bottom:12px;border-radius:8px;background:var(--bg-elevated);color:var(--accent-blue);text-decoration:none;font-size:.78rem;font-weight:600}
+.sidebar-back-link:hover{color:var(--accent-cyan)}
+
+.content-area{margin-left:280px;width:calc(100% - 280px)}
+.container{max-width:calc(100% - 48px);margin:0 auto;padding:calc(var(--nav-h) + 24px) 24px 80px}
+
+.hero{text-align:center;padding:48px 0 36px}
+.hero h1{font-size:2.2rem;background:linear-gradient(135deg,var(--accent-indigo),var(--accent-purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+.hero .tags{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:12px}
+.hero .tags span{font-size:.7rem;padding:4px 12px;border-radius:50px;border:1px solid var(--border-glow);color:var(--accent-indigo);background:rgba(99,102,241,.06)}
+
+.meta-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:20px 24px;margin:0 auto 32px;max-width:700px;display:flex;justify-content:center;gap:36px;flex-wrap:wrap;box-shadow:var(--shadow-md)}
+.meta-item{text-align:center}
+.meta-item .val{font-size:1.4rem;font-weight:800;color:var(--accent-indigo)}
+.meta-item .lbl{font-size:.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px}
+
+/* Journey Bar */
+.journey-bar{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:12px 20px;margin:0 auto 24px;max-width:900px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:.82rem;box-shadow:var(--shadow-elevated)}
+.journey-path{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.journey-icon{font-size:1rem}
+.journey-plan{color:var(--accent-purple);font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.journey-plan:hover{color:var(--accent-gold)}
+.journey-sep{color:var(--text-muted);font-size:.7rem}
+.journey-phase{color:var(--text-secondary);font-weight:600}
+.journey-kp{color:var(--text-primary);font-weight:700}
+.journey-pos{color:var(--text-muted);font-size:.72rem}
+.journey-nav{display:flex;align-items:center;gap:8px;font-size:.75rem}
+.journey-prev,.journey-next{color:var(--text-muted);cursor:default}
+.journey-divider{color:var(--border-subtle)}
+
+.module{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:28px 28px 24px;margin-bottom:20px;
+opacity:0;transform:translateY(24px);transition:opacity .5s ease,transform .5s ease;box-shadow:var(--shadow-sm)}
+.module.visible{opacity:1;transform:translateY(0)}
+.module:hover{border-color:var(--border-glow)}
+.module h2{font-size:1.15rem;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.module .m-tag{font-size:.65rem;padding:2px 10px;border-radius:50px;background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.2);color:var(--accent-indigo);font-weight:600}
+.module .m-time{font-size:.7rem;color:var(--text-muted);margin-left:auto}
+.module .hook{font-size:.9rem;color:var(--accent-purple);font-weight:600;margin:12px 0 16px;padding-left:12px;border-left:3px solid var(--accent-purple)}
+.module .content{font-size:.88rem;color:var(--text-secondary);line-height:1.8}
+.module .content p{margin-bottom:12px}
+
+.formula-block{background:rgba(99,102,241,.04);border:1px solid rgba(99,102,241,.12);border-radius:var(--radius-sm);padding:14px 18px;margin:14px 0;font-family:var(--font-mono);font-size:.82rem;color:var(--accent-cyan);overflow-x:auto;position:relative}
+.formula-block .f-cap{font-size:.7rem;color:var(--text-muted);margin-bottom:6px;display:block}
+.derivation-toggle{font-size:.7rem;color:var(--accent-gold);cursor:pointer;border:none;background:none;padding:4px 0;font-family:inherit;display:block;margin-top:6px}
+.derivation-toggle:hover{text-decoration:underline}
+.derivation-content{display:none;margin-top:8px;padding:12px 16px;background:rgba(245,158,11,.04);border-radius:var(--radius-sm);border-left:3px solid var(--accent-gold);font-size:.8rem;color:var(--text-secondary)}
+.derivation-content.open{display:block}
+
+.chart-wrap{background:rgba(99,102,241,.03);border-radius:var(--radius-sm);padding:8px;margin:14px 0;text-align:center}
+.chart-wrap canvas{max-width:100%}
+.chart-wrap .ch-cap{font-size:.72rem;color:var(--text-muted);margin-top:6px}
+
+.table-container{margin:20px 0;overflow-x:auto}
+.table-container table,.data-table{width:100%;border-collapse:collapse;border-radius:var(--radius-md);overflow:hidden}
+.table-container th,.data-table th{background:var(--bg-elevated);color:var(--accent-cyan);font-weight:700;padding:12px 16px;text-align:left;font-size:.8rem}
+.table-container td,.data-table td{padding:12px 16px;border-bottom:1px solid var(--border-subtle);font-size:.82rem;color:var(--text-secondary)}
+.table-container tr:hover td,.data-table tr:hover td{background:rgba(91,141,184,.03)}
+.table-container .table-caption{font-size:.72rem;color:var(--text-muted);margin-bottom:8px;text-align:center}
+
+.takeaway{font-size:.82rem;background:rgba(16,185,129,.06);border-left:3px solid var(--accent-green);padding:10px 14px;margin-top:16px;border-radius:0 var(--radius-sm) var(--radius-sm) 0;color:var(--accent-green)}
+
+.ref-list{list-style:none;padding:0;margin-top:8px;font-size:.78rem}
+.ref-list li{padding:4px 0;color:var(--text-muted)}
+.ref-list li::before{content:'📄 '}
+
+.search-overlay{position:fixed;inset:0;z-index:300;background:var(--bg-overlay);display:none;align-items:flex-start;justify-content:center;padding-top:120px}
+.search-overlay.open{display:flex}
+.search-box{width:520px;max-width:90vw;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:var(--radius-md);box-shadow:var(--shadow-lg);overflow:hidden}
+.search-box input{width:100%;padding:14px 18px;background:transparent;border:none;color:var(--text-primary);font-size:.95rem;outline:none;font-family:inherit}
+.search-results{max-height:360px;overflow-y:auto}
+.search-results div{padding:10px 18px;cursor:pointer;font-size:.82rem;color:var(--text-secondary);border-top:1px solid var(--border-subtle);transition:background var(--transition)}
+.search-results div:hover{background:rgba(99,102,241,.06);color:var(--text-primary)}
+
+/* Journey Footer */
+.journey-footer{text-align:center;padding:40px 32px 60px;opacity:.8}
+.back-to-plan{display:inline-flex;align-items:center;gap:8px;padding:10px 24px;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:50px;color:var(--text-secondary);text-decoration:none;font-size:.85rem;font-weight:600;transition:all var(--transition-smooth)}
+.back-to-plan:hover{background:var(--bg-elevated);border-color:var(--accent-purple);color:var(--accent-purple)}
+
+/* Floating Back Button */
+.deep-floating-back{position:fixed;right:20px;bottom:20px;z-index:10000}
+.deep-floating-back button{padding:12px 20px;background:linear-gradient(135deg,var(--accent-color),var(--accent-dark));color:white;border:none;border-radius:24px;font-size:.85rem;font-weight:600;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.15);transition:transform .2s,box-shadow .2s}
+.deep-floating-back button:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.2)}
+
+/* Toast */
+.dd-toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);z-index:10001;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:8px;padding:14px 24px;box-shadow:0 4px 16px rgba(0,0,0,.15);font-size:.85rem;display:none}
+.toast-in{animation:toastIn .3s ease}
+@keyframes toastIn{from{opacity:0;transform:translate(-50%,20px)}to{opacity:1;transform:translate(-50%,0)}}
+
+/* Print */
+@media print{.navbar,.progress-bar,.side-nav,.journey-bar,.journey-footer,.deep-floating-back{display:none!important}.module{break-inside:avoid;opacity:1!important;transform:none!important;box-shadow:none}body{background:#fff}}
+
+@media(max-width:1024px){.sidebar{display:none}.content-area{margin-left:0;width:100%}}
+@media(max-width:768px){
+.hero h1{font-size:1.6rem}.module{padding:20px}.meta-card{font-size:.72rem;padding:12px 16px}.journey-bar{flex-direction:column;align-items:flex-start}
+.deep-floating-back{right:15px;bottom:15px}.deep-floating-back button{padding:10px 16px;font-size:.8rem}
+}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+</head>
+<body data-theme="dark">
+
+<div class="progress-bar" id="progressBar" style="width:0%"></div>
+
+<nav class="navbar">
+  <div class="nav-left">📖 自动化提示优化</div>
+  <div class="nav-right">
+    <button onclick="toggleTheme()" title="切换主题 (Ctrl+D)">🌓 主题</button>
+    <button onclick="openSearch()" title="搜索 (Ctrl+K)">🔍 搜索</button>
+  </div>
+</nav>
+
+<div class="sidebar">
+  <a href="#" onclick="event.preventDefault();var w=window.open('pe_learning.html#kc-p4_1','plan_main');if(w)w.focus()" class="sidebar-back-link">← 返回主方案</a>
+  <h3>📖 目录导航</h3>
+  <ul class="sidebar-nav">
+    <li><a href="#mod-learning_journey" class="active">学习旅程</a></li>
+    <li><a href="#mod-background">背景与缘起</a></li>
+    <li><a href="#mod-concept">核心概念</a></li>
+    <li><a href="#mod-principle">核心原理</a></li>
+    <li><a href="#mod-architecture">系统架构</a></li>
+    <li><a href="#mod-development">发展脉络</a></li>
+    <li><a href="#mod-application">实战应用</a></li>
+    <li><a href="#mod-case_study">案例研究</a></li>
+    <li><a href="#mod-compute_cost">计算成本</a></li>
+    <li><a href="#mod-open_source">开源生态</a></li>
+    <li><a href="#mod-risk">风险警示</a></li>
+    <li><a href="#mod-prospect">前沿趋势</a></li>
+    <li><a href="#mod-ethics">伦理考量</a></li>
+    <li><a href="#mod-benchmark">基准评测</a></li>
+    <li><a href="#mod-misconceptions">常见误区</a></li>
+    <li><a href="#mod-learning_path">学习路径</a></li>
+    <li><a href="#mod-glossary">术语表</a></li>
+  </ul>
+</div>
+
+<div class="content-area">
+<div class="search-overlay" id="searchOverlay">
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="搜索模块内容..." oninput="doSearch()" onkeydown="if(event.key==='Escape')closeSearch()">
+    <div class="search-results" id="searchResults"></div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="hero">
+    <h1>自动化提示优化</h1>
+    <div class="tags">
+      <span>🧠 Prompt Engineering</span><span>🤖 DSPy</span><span>⚙️ Auto-Optimization</span><span>🔬 Research</span><span>🛠️ 实操教程</span>
+    </div>
+  </div>
+
+  <div class="meta-card">
+    <div class="meta-item"><div class="val">16</div><div class="lbl">研读模块</div></div>
+    <div class="meta-item"><div class="val">~55 min</div><div class="lbl">预计研读时间</div></div>
+    <div class="meta-item"><div class="val">中级</div><div class="lbl">深度等级</div></div>
+  </div>
+
+  <div class="journey-bar" id="journeyBar">
+    <div class="journey-path">
+      <span class="journey-icon">📍</span>
+      <span class="journey-plan" onclick="var w=window.open('pe_learning.html#kc-p4_1','plan_main');if(w)w.focus()">提示工程 (Prompt Engineering) 系统学习方案</span>
+      <span class="journey-sep">〉</span>
+      <span class="journey-phase">进阶前沿</span>
+      <span class="journey-sep">〉</span>
+      <span class="journey-kp">自动化提示优化</span>
+      <span class="journey-pos">(第12/12个知识点)</span>
+    </div>
+    <div class="journey-nav">
+      <span class="journey-prev" title="前置: 提示迭代优化策略">← 前置</span>
+      <span class="journey-divider">|</span>
+      <span class="journey-next" title="已是最后一个知识点">后续 →</span>
+    </div>
+  </div>
+
+<!-- ========== MODULE: learning_journey ========== -->
+<div class="module" id="mod-learning_journey">
+<h2><span class="m-tag">导航</span> 学习旅程导航<span class="m-time">~3 min</span></h2>
+<div class="hook">在开始深入研读之前，先明确这个知识点在整体学习路线中的位置。</div>
+<div class="content">
+<p>本知识点「自动化提示优化」是<strong>提示工程 (Prompt Engineering) 系统学习方案</strong>的最后一个知识点，位于第四阶段「进阶前沿」。作为整个学习路线的收官之章，它涵盖了从手动提示工程到自动化范式转变的核心内容，是连接传统提示工程与现代 AI 系统工程的关键桥梁。</p>
+<p><strong>前置依赖：</strong>您应已完成「提示迭代优化策略」的学习，理解手动调整 prompt 的基本方法论。虽然本模块会简要回顾相关概念，但建议您对 prompt template、few-shot learning、chain-of-thought 等概念有基本了解。</p>
+<p><strong>本知识点的独特价值：</strong>如果说前面三个阶段教你「如何写好 prompt」，那么这个阶段告诉你「如何让机器帮你写 prompt」。DSPy 等框架代表了提示工程的根本范式转变——从手工调参到编程式优化。</p>
+<p><strong>学习建议：</strong>本资料采用 G8 纹理（教程实操型），包含大量代码示例和实操步骤。建议边读边动手，在 DSPy 环境中实际运行示例代码。对于公式推导部分，可选择略读，将重心放在应用和实践模块。</p>
+<div class="takeaway">📍 <strong>导航要点：</strong>本知识点是学习路线的终点，也是你从「提示工程师」进阶为「AI 系统工程师」的起点。</div>
+</div>
+</div>
+
+<!-- ========== MODULE: background ========== -->
+<div class="module" id="mod-background">
+<h2><span class="m-tag">必读</span> 历史背景：从手工调参到自动优化<span class="m-time">~4 min</span></h2>
+<div class="hook">当 GPT-3 在 2020 年发布时，没人想到「写 prompt」会成为一门需要优化的技术——更没人想到，连优化这件事本身也会被自动化。</div>
+<div class="content">
+<p>2020-2022 年间，提示工程经历了从「随便写一句话」到「精心设计模板」的转变。研究者和工程师们发现，prompt 的措辞、顺序、示例选择对模型输出质量有着巨大的影响——有时仅仅改变一个词就能带来 10% 以上的准确率提升。</p>
+<p>这种对 prompt 质量的极度敏感催生了大量手工调优实践：A/B 测试、人类评估、迭代修改。但手工调优有几个致命弱点：(1) 搜索空间巨大，人类无法穷举所有可能的 prompt 变体；(2) 调优结果不可复现，依赖个人经验和直觉；(3) 模型升级或任务微调后，之前最优的 prompt 可能失效。</p>
+<p>2023 年成为转折点。年初，APE (Automatic Prompt Engineer) 论文首次提出用 LLM 来自动生成和优化 prompt。同年，Google DeepMind 的 OPRO 展示了用优化算法搜索 prompt 空间的可能性。而 Stanford 的 DSPy 框架则彻底改变了游戏规则——它将 prompt 从「需要手工编写的文本」变成了「可编译优化的程序参数」。</p>
+<p>到 2024-2025 年，自动化提示优化已成为主流工具箱中的标准组件。DSPy v2 引入了 MIPROv2 优化器，TextGrad 将梯度下降思想引入 prompt 优化，PromptAgent 则探索了完全自主的 prompt 搜索策略。企业级平台如 LangSmith、Weights & Biases Prompts 也开始提供自动化 prompt 管理功能。</p>
+
+<div class="chart-wrap">
+<div id="chart-evolution" style="width:100%;height:280px"></div>
+<div class="ch-cap">图：提示工程范式的演变路径 (2020-2026)</div>
+</div>
+
+<div class="takeaway">💡 <strong>核心洞察：</strong>自动化提示优化的兴起不是因为「人类不擅长写 prompt」，而是因为 prompt 的搜索空间太大、变化太快，需要系统化的优化方法来持续获得最佳性能。</div>
+<ul class="ref-list"><li>Zhou et al., "Large Language Models Are Human-Level Prompt Engineers", ICLR 2023</li><li>Yang et al., "OPRO: Large Language Models as Optimizers", Google DeepMind 2024</li><li>Khattab et al., "DSPy: Compiling Declarative Language Model Calls into Self-Improving Pipelines", 2023</li></ul>
+</div>
+</div>
+
+<!-- ========== MODULE: concept ========== -->
+<div class="module" id="mod-concept">
+<h2><span class="m-tag">必读</span> 核心概念：什么是自动化提示优化<span class="m-time">~4 min</span></h2>
+<div class="hook">传统提示工程是「写 prompt」，自动化提示优化是「让程序找最优 prompt」——就像从手写汇编进化到了编译器优化。</div>
+<div class="content">
+<p><strong>定义：</strong>自动化提示优化 (Automated Prompt Optimization, APO) 是指利用算法或元语言模型，在给定的任务和评估指标下，自动搜索、生成或迭代改进 prompt 模板，以最大化下游模型在目标任务上的性能。</p>
+<p><strong>DSPy 范式：「编程而非提示」。</strong>Stanford 的 DSPy 框架提出了一个革命性的视角：将 prompt 视为可优化的程序参数，而非需要手工编写的文本。在 DSPy 中，你不需要写 prompt——你只需要定义任务签名 (Signature) 和评估指标，框架会自动编译出最优的 prompt 模板。</p>
+<p><strong>关键概念：</strong></p>
+<p><strong>1. 任务签名 (Signature)：</strong>用 Python 类型注解定义任务的输入输出结构。例如 <code>question: str → answer: str</code> 表示问答任务。签名替代了传统的手写 prompt 模板。</p>
+<p><strong>2. Compile-Then-Run 模式：</strong>DSPy 的两阶段设计：编译阶段用优化器搜索最优 prompt，运行阶段用编译好的 prompt 做推理。这类似于传统编程中「编译→运行」的流程。</p>
+<p><strong>3. Teleprompter（提示编译器）：</strong>DSPy 中的优化器抽象，负责接收训练数据和评估函数，输出优化后的 prompt 模板。不同优化器采用不同策略（BootstrapFewShot、MIPROv2 等）。</p>
+<p><strong>与手动提示工程的对比：</strong></p>
+<table class="data-table">
+<tr><th>维度</th><th>手动提示工程</th><th>自动化提示优化</th></tr>
+<tr><td>搜索方式</td><td>人类直觉 + 试错</td><td>算法搜索 + 元语言模型</td></tr>
+<tr><td>可复现性</td><td>低，依赖个人经验</td><td>高，代码驱动可复现</td></tr>
+<tr><td>规模化</td><td>受限于人工精力</td><td>可并行搜索大量变体</td></tr>
+<tr><td>适应性</td><td>模型/任务变化需重调</td><td>重新编译即可自动适应</td></tr>
+<tr><td>开发模式</td><td>手工编写文本</td><td>编程定义签名+评估</td></tr>
+</table>
+
+<div class="formula-block">
+<span class="f-cap">自动化提示优化的形式化定义</span>
+θ* = argmin<sub>θ∈Θ</sub> E<sub>(x,y)~D</sub> [L(f<sub>LLM</sub>(T<sub>θ</sub>(x)), y)]
+<span style="display:block;margin-top:4px;font-size:.72rem;color:var(--text-muted)">其中 θ 为 prompt 模板参数，T<sub>θ</sub>(x) 为 prompt 模板，f<sub>LLM</sub> 为语言模型，L 为损失函数</span>
+</div>
+
+<div class="takeaway">🎯 <strong>记忆锚点：</strong>自动化提示优化 = 任务签名 + 优化器 + 评估指标。你不再写 prompt，你「编程」让编译器生成 prompt。</div>
+</div>
+</div>
+
+<!-- ========== MODULE: principle ========== -->
+<div class="module" id="mod-principle">
+<h2><span class="m-tag">必读</span> 工作原理：DSPy 如何编译最优 Prompt<span class="m-time">~5 min</span></h2>
+<div class="hook">DSPy 的核心思想可以用一个类比说明：就像你写单元测试让编译器生成最优代码一样，你写「评估用例」让 DSPy 编译器生成最优 prompt。</div>
+<div class="content">
+<p><strong>DSPy 工作流三步骤：</strong></p>
+<p><strong>步骤 1 — 定义任务签名：</strong>用 Python 类型注解描述输入输出。这是唯一需要你「设计」的部分。</p>
+<p><strong>步骤 2 — 编译 (Compile)：</strong>选择一个优化器 (如 BootstrapFewShot 或 MIPROv2)，传入训练数据和评估函数。优化器自动搜索最佳 prompt 模板。</p>
+<p><strong>步骤 3 — 推理 (Generate)：</strong>使用编译后的模块进行推理，无需手动干预 prompt。</p>
+
+<p><strong>核心优化器对比：</strong></p>
+<table class="data-table">
+<tr><th>优化器</th><th>策略</th><th>适用场景</th><th>计算开销</th></tr>
+<tr><td>BootstrapFewShot</td><td>从训练集中自举高质量 few-shot 示例</td><td>标注数据充足的分类/QA 任务</td><td>低</td></tr>
+<tr><td>BootstrapFewShotWithRandomSearch</td><td>Bootstrap + 随机采样搜索提示变体</td><td>需要探索更多 prompt 变体的场景</td><td>中</td></tr>
+<tr><td>MIPROv2</td><td>贝叶斯优化 + 指令候选生成</td><td>复杂推理任务，需精细指令调优</td><td>高</td></tr>
+<tr><td>COPRO</td><td>LLM 生成候选指令 + 迭代筛选</td><td>创意性/开放性任务</td><td>中</td></tr>
+<tr><td>SignatureOptimizer</td><td>自动优化签名的字段描述</td><td>多步 pipeline 任务</td><td>低</td></tr>
+</table>
+
+<div class="formula-block">
+<span class="f-cap">MIPROv2 优化目标函数</span>
+θ* = argmax<sub>θ</sub> Σ<sub>i</sub> w<sub>i</sub> · A<sub>i</sub>(f<sub>LLM</sub>(T<sub>θ</sub>(x<sub>i</sub>)), y<sub>i</sub>)
+<span style="display:block;margin-top:4px;font-size:.72rem;color:var(--text-muted)">w<sub>i</sub> 为任务权重，A<sub>i</sub> 为第 i 个任务的评估指标，T<sub>θ</sub> 为参数化 prompt 模板</span>
+</div>
+
+<div class="formula-block">
+<span class="f-cap">BootstrapFewShot 自举过程</span>
+S<sub>t+1</sub> = S<sub>t</sub> ∪ {top-k examples from D<sub>train</sub> ranked by model confidence}
+<span style="display:block;margin-top:4px;font-size:.72rem;color:var(--text-muted)">S<sub>t</sub> 为第 t 轮迭代的 few-shot 示例集，示例从训练集中按模型置信度筛选</span>
+</div>
+
+<div class="chart-wrap">
+<div id="chart-compile-flow" style="width:100%;height:280px"></div>
+<div class="ch-cap">图：DSPy 编译→推理流程图</div>
+</div>
+
+<p><strong>正反例自举机制：</strong>BootstrapFewShot 的关键创新是同时收集「正面示例」（模型预测正确且置信度高）和「反面示例」（模型预测错误），前者直接用作 few-shot 示例，后者用于触发更精细的指令优化。</p>
+<p><strong>指令提议与筛选：</strong>MIPROv2 的独特之处在于它会调用一个「元提示」让 LLM 生成多个候选指令描述，然后用贝叶斯优化在候选空间中搜索最优组合。这相当于用 LLM 来「头脑风暴」prompt 变体。</p>
+<div class="takeaway">🔑 <strong>关键理解：</strong>DSPy 不是「网格搜索 prompt 关键词」，而是在一个结构化的参数空间中进行智能搜索——类比于编译器优化而非暴力查找替换。</div>
+<ul class="ref-list"><li>Opsahl-Ong et al., "Optimizing Instructions and Demonstrations for Multi-Stage Language Model Programs", EMNLP 2024</li><li>Khattab et al., "DSPy: Compiling Declarative Language Model Calls into Self-Improving Pipelines", 2023</li></ul>
+</div>
+</div>
+
+<!-- ========== MODULE: architecture ========== -->
+<div class="module" id="mod-architecture">
+<h2><span class="m-tag">必读</span> 系统架构：DSPy 的模块与抽象层次<span class="m-time">~4 min</span></h2>
+<div class="hook">DSPy 的架构之美在于分层抽象：每一层都隐藏了实现细节，让你专注于「想要什么」而非「怎么说」。</div>
+<div class="content">
+<p><strong>DSPy 系统的四层架构：</strong></p>
+<p><strong>第一层 — 签名 (Signatures)：</strong>最顶层的抽象，用 Python 类型注解定义任务 I/O。签名是 DSPy 中替代手写 prompt 的核心机制。每个字段可以附带描述性元数据，帮助优化器理解语义。</p>
+<p><strong>第二层 — 模块 (Modules)：</strong>封装了特定推理策略的可组合单元。核心模块包括：</p>
+<ul style="margin-left:16px;margin-bottom:12px;">
+<li><strong>dspy.Predict：</strong>基础模块，直接映射签名到 LLM 调用</li>
+<li><strong>dspy.ChainOfThought：</strong>自动添加「让我们一步步思考」的推理引导</li>
+<li><strong>dspy.ReAct：</strong>实现 Reasoning + Acting 循环，支持工具调用</li>
+<li><strong>dspy.ProgramOfThought：</strong>将推理分解为代码执行步骤</li>
+<li><strong>dspy.MultiChainComparison：</strong>生成多条推理链并比较选择</li>
+</ul>
+<p><strong>第三层 — 优化器 (Optimizers/Teleprompters)：</strong>编译阶段的执行引擎。每个优化器实现特定的搜索策略，接收训练数据和评估指标，输出优化后的 prompt 模板和 few-shot 示例集。</p>
+<p><strong>第四层 — 断言 (Assertions)：</strong>DSPy v2.5 引入的运行时约束机制。你可以在模块中插入断言（如「回答必须包含引用」），编译器和推理引擎会在运行时强制执行这些约束，失败时自动触发自我修正。</p>
+
+<div class="chart-wrap">
+<div id="chart-architecture" style="width:100%;height:280px"></div>
+<div class="ch-cap">图：DSPy 系统架构层次图</div>
+</div>
+
+<p><strong>Teleprompter 抽象：</strong>「Teleprompter」是 DSPy 对优化器的统称，来源于「远程提示器」的概念——它从远处（通过算法和元语言模型）操控最终的 prompt。Teleprompter 的关键方法是 <code>compile()</code>，它接收一个模块、训练集和评估指标，返回优化后的模块。</p>
+
+<div class="formula-block">
+<span class="f-cap">Prompt 编译的形式化过程</span>
+M<sub>compiled</sub> = Teleprompter.compile(M<sub>raw</sub>, D<sub>train</sub>, metric)
+<span style="display:block;margin-top:4px;font-size:.72rem;color:var(--text-muted)">M<sub>raw</sub> 为原始模块（仅含签名），D<sub>train</sub> 为训练数据，metric 为评估函数</span>
+</div>
+
+<p><strong>与 LangChain 的对比：</strong>LangChain 是「编排框架」——你需要显式编写 prompt 模板和调用链；DSPy 是「编译框架」——你定义意图和约束，框架自动生成 prompt。两者可以互补使用：用 DSPy 优化 prompt，用 LangChain 部署到生产环境。</p>
+<div class="takeaway">🏗️ <strong>架构心得：</strong>DSPy 的分层设计体现了「关注点分离」原则——签名定义「做什么」，模块定义「怎么做」，优化器定义「如何做得更好」，断言定义「什么不能做错」。</div>
+</div>
+</div>
+
+<!-- ========== MODULE: development ========== -->
+<div class="module" id="mod-development">
+<h2><span class="m-tag">必读</span> 发展脉络：2022-2026 技术演进时间线<span class="m-time">~3 min</span></h2>
+<div class="hook">短短四年间，自动化提示优化从一篇论文的设想，变成了生产环境中的标准工程实践。</div>
+<div class="content">
+<table class="data-table">
+<tr><th>年份</th><th>里程碑</th><th>关键事件</th><th>影响</th></tr>
+<tr><td>2022</td><td>手工时代巅峰</td><td>Chain-of-Thought (Wei et al.), ReAct (Yao et al.) 提示技术标准化</td><td>确立了「精心设计的 prompt 能显著提升性能」的共识</td></tr>
+<tr><td>2023 Q1</td><td>APE 诞生</td><td>Zhou et al. 发表 "LLMs Are Human-Level Prompt Engineers"</td><td>首次证明 LLM 可以自动生成优于人类设计的 prompt</td></tr>
+<tr><td>2023 Q3</td><td>DSPy v1 发布</td><td>Stanford 发布 DSPy 框架，提出「编程而非提示」范式</td><td>将 prompt 优化从研究课题变为工程工具</td></tr>
+<tr><td>2024 Q1</td><td>OPRO 发表</td><td>Google DeepMind 用 LLM 作为优化器，在数学推理上超越手工 prompt</td><td>证明了 LLM 自身的优化能力</td></tr>
+<tr><td>2024 Q2</td><td>DSPy v2 / MIPROv2</td><td>引入贝叶斯优化驱动的高级指令搜索</td><td>大幅提升复杂推理任务的优化效果</td></tr>
+<tr><td>2024 Q3</td><td>TextGrad 发表</td><td>MIT 提出用文本梯度反向传播优化复合 AI 系统</td><td>将梯度下降思想引入 prompt 优化</td></tr>
+<tr><td>2024 Q4</td><td>PromptAgent</td><td>完全自主的 prompt 搜索 agent，能探索数万种变体</td><td>实现了无人工干预的端到端优化</td></tr>
+<tr><td>2025</td><td>企业级工具化</td><td>LangSmith、W&B Prompts、DSPy Cloud 提供托管优化服务</td><td>自动化提示优化进入 CI/CD 管线</td></tr>
+<tr><td>2026</td><td>多模态 + 自我进化</td><td>多模态 prompt 自动优化、自我改进 agent 系统</td><td>优化范围从文本扩展到图像、视频等多模态</td></tr>
+</table>
+
+<div class="chart-wrap">
+<div id="chart-timeline" style="width:100%;height:280px"></div>
+<div class="ch-cap">图：自动化提示优化技术成熟度曲线 (Hype Cycle)</div>
+</div>
+<div class="takeaway">📈 <strong>趋势洞察：</strong>从 2022 的手工到 2026 的自我进化，整个领域的演变速度远超传统软件工程——四年走完了编译优化几十年的路。</div>
+</div>
+</div>
+
+<!-- ========== MODULE: application ========== -->
+<div class="module" id="mod-application">
+<h2><span class="m-tag">必读</span> 实战应用：DSPy 从零到一完整教程<span class="m-time">~6 min</span></h2>
+<div class="hook">理论讲完了，让我们动手写代码。下面是一个完整的 DSPy 工作流，从安装到评估，每一步都可复制执行。</div>
+<div class="content">
+<p><strong>场景：用 DSPy 构建并优化一个情感分析分类器。</strong></p>
+
+<p><strong>步骤 1：环境安装</strong></p>
+<div class="formula-block">
+<span class="f-cap">安装 DSPy</span>
+pip install dspy-ai
+</div>
+
+<p><strong>步骤 2：配置语言模型</strong></p>
+<div class="formula-block">
+<span class="f-cap">配置 LM 客户端</span>
+import dspy<br>
+lm = dspy.LM('openai/gpt-4o-mini', api_key='your-key')<br>
+dspy.configure(lm=lm)
+</div>
+
+<p><strong>步骤 3：定义任务签名</strong></p>
+<div class="formula-block">
+<span class="f-cap">定义情感分析签名</span>
+class Sentiment(dspy.Signature):<br>
+&nbsp;&nbsp;"""判断文本的情感倾向。"""<br>
+&nbsp;&nbsp;text: str = dspy.InputField()<br>
+&nbsp;&nbsp;sentiment: str = dspy.OutputField(desc="positive, negative, or neutral")
+</div>
+
+<p><strong>步骤 4：创建模块</strong></p>
+<div class="formula-block">
+<span class="f-cap">创建 ChainOfThought 模块</span>
+classify = dspy.ChainOfThought(Sentiment)
+</div>
+
+<p><strong>步骤 5：准备训练数据和评估指标</strong></p>
+<div class="formula-block">
+<span class="f-cap">准备数据与评估</span>
+trainset = [<br>
+&nbsp;&nbsp;dspy.Example(text="I love this product!", sentiment="positive").with_inputs("text"),<br>
+&nbsp;&nbsp;dspy.Example(text="Terrible experience.", sentiment="negative").with_inputs("text"),<br>
+&nbsp;&nbsp;dspy.Example(text="It's okay I guess.", sentiment="neutral").with_inputs("text"),<br>
+&nbsp;&nbsp;# ... 更多训练样本<br>
+]<br><br>
+def validate(example, pred, trace=None):<br>
+&nbsp;&nbsp;return example.sentiment == pred.sentiment
+</div>
+
+<p><strong>步骤 6：编译优化</strong></p>
+<div class="formula-block">
+<span class="f-cap">使用 MIPROv2 编译</span>
+from dspy.teleprompt import MIPROv2<br><br>
+optimizer = MIPROv2(metric=validate, auto="light")<br>
+optimized_classify = optimizer.compile(classify, trainset=trainset)
+</div>
+
+<p><strong>步骤 7：评估效果</strong></p>
+<div class="formula-block">
+<span class="f-cap">评估优化后的模块</span>
+from dspy.evaluate import Evaluate<br><br>
+evaluator = Evaluate(devset=devset, metric=validate, num_threads=4, display_progress=True)<br>
+score = evaluator(optimized_classify)<br>
+print(f"Accuracy: {score:.2%}")
+</div>
+
+<p><strong>常见应用场景：</strong></p>
+<table class="data-table">
+<tr><th>场景</th><th>适用模块</th><th>典型优化器</th><th>预期提升</th></tr>
+<tr><td>RAG 问答 Pipeline</td><td>ChainOfThought + Retrieve</td><td>MIPROv2</td><td>15-30%</td></tr>
+<tr><td>多跳推理 QA</td><td>ReAct + MultiChainComparison</td><td>BootstrapFewShot</td><td>10-25%</td></tr>
+<tr><td>文本分类</td><td>ChainOfThought / Predict</td><td>BootstrapFewShot</td><td>5-20%</td></tr>
+<tr><td>代码生成</td><td>ProgramOfThought</td><td>MIPROv2</td><td>8-18%</td></tr>
+<tr><td>信息抽取</td><td>ChainOfThought + TypedPredictor</td><td>BootstrapFewShotWithRandomSearch</td><td>10-22%</td></tr>
+</table>
+
+<div class="takeaway">🛠️ <strong>实操要点：</strong>最关键的不是选哪个优化器，而是准备高质量的评估数据集。Garbage in, garbage out——如果评估指标不准确，优化器会「优化」错误的方向。</div>
+</div>
+</div>
+
+<!-- ========== MODULE: case_study ========== -->
+<div class="module" id="mod-case_study">
+<h2><span class="m-tag">必读</span> 案例研究：用 DSPy 优化 NLI 分类器<span class="m-time">~5 min</span></h2>
+<div class="hook">一个真实的 NLI (Natural Language Inference) 任务，看看自动化优化能带来多大的提升。</div>
+<div class="content">
+<p><strong>任务背景：</strong>自然语言推理 (NLI) 是判断两个句子之间逻辑关系的任务——给定前提 (premise) 和假设 (hypothesis)，判断假设是「蕴含」(entailment)、「矛盾」(contradiction) 还是「中立」(neutral)。这是一个经典的 NLU 基准任务。</p>
+
+<p><strong>Baseline（手工 prompt）：</strong></p>
+<div class="formula-block">
+<span class="f-cap">手工设计的 NLI prompt 模板</span>
+Given the premise: {premise}<br>
+Determine if the hypothesis: {hypothesis}<br>
+is entailed, contradicted, or neutral.<br>
+Answer with one word: entailment, contradiction, or neutral.
+</div>
+
+<p><strong>DSPy 优化过程：</strong></p>
+<div class="formula-block">
+<span class="f-cap">DSPy NLI 签名定义</span>
+class NLI(dspy.Signature):<br>
+&nbsp;&nbsp;"""Classify the logical relationship between premise and hypothesis."""<br>
+&nbsp;&nbsp;premise: str = dspy.InputField()<br>
+&nbsp;&nbsp;hypothesis: str = dspy.InputField()<br>
+&nbsp;&nbsp;label: str = dspy.OutputField(desc="entailment, contradiction, or neutral")<br><br>
+nli_module = dspy.ChainOfThought(NLI)<br><br>
+# 使用 BootstrapFewShot 在 SNLI 训练集上编译<br>
+optimizer = BootstrapFewShot(metric=validate, max_bootstrapped_demos=4, max_labeled_demos=8)<br>
+optimized_nli = optimizer.compile(nli_module, trainset=trainset)
+</div>
+
+<p><strong>DSPy 编译后自动生成的优化 prompt 模板（示例）：</strong></p>
+<div class="formula-block">
+<span class="f-cap">编译后的优化 prompt（DSPy 自动生成）</span>
+Your task is to determine the logical relationship between a premise and a hypothesis. <br>
+Analyze step by step:<br>
+1. Identify key entities and relations in the premise<br>
+2. Check if the hypothesis can be logically derived from the premise<br>
+3. If the hypothesis contradicts any fact in the premise, label contradiction<br>
+4. If the premise neither proves nor disproves the hypothesis, label neutral<br>
+5. If the premise supports the hypothesis, label entailment<br><br>
+---<br>
+Follow the format of the examples below.<br><br>
+Example 1:<br>
+Premise: A man is playing a guitar on stage.<br>
+Hypothesis: A person is performing music.<br>
+Label: entailment<br>
+... [more bootstrapped examples]
+</div>
+
+<p><strong>效果对比：</strong></p>
+<table class="data-table">
+<tr><th>方法</th><th>SNLI 准确率</th><th>MNLI 准确率</th><th>推理成本 (tokens/sample)</th></tr>
+<tr><td>手工 baseline prompt</td><td>78.3%</td><td>72.1%</td><td>~120</td></tr>
+<tr><td>手工优化 prompt (3 轮迭代)</td><td>82.7%</td><td>76.4%</td><td>~145</td></tr>
+<tr><td>DSPy BootstrapFewShot</td><td>86.2%</td><td>79.8%</td><td>~210</td></tr>
+<tr><td>DSPy MIPROv2</td><td><strong>88.5%</strong></td><td><strong>82.3%</strong></td><td>~230</td></tr>
+<tr><td>APE (LLM-as-optimizer)</td><td>84.1%</td><td>77.5%</td><td>~180</td></tr>
+</table>
+
+<div class="chart-wrap">
+<div id="chart-nli-bars" style="width:100%;height:280px"></div>
+<div class="ch-cap">图：不同方法在 NLI 任务上的准确率对比</div>
+</div>
+
+<div class="formula-block">
+<span class="f-cap">自动化优化的提升率计算</span>
+Improvement = (A<sub>auto</sub> - A<sub>baseline</sub>) / A<sub>baseline</sub> × 100%<br>
+SNLI: (88.5 - 78.3) / 78.3 = <strong>13.0%</strong> 相对提升<br>
+MNLI: (82.3 - 72.1) / 72.1 = <strong>14.1%</strong> 相对提升
+</div>
+
+<p><strong>成本分析：</strong>DSPy 编译过程（使用 gpt-4o-mini）消耗约 50-80 万 tokens，按当前 API 价格约 $0.15-0.25。而手工优化同等幅度的 prompt 通常需要数小时的专家时间。自动化优化的 ROI 极高。</p>
+<div class="takeaway">📊 <strong>量化结论：</strong>自动化优化在 NLI 任务上实现了 13-14% 的相对提升，且编译成本远低于等效人工优化成本。关键是这种优化可以在模型或数据变化时自动重新执行。</div>
+</div>
+</div>
+
+<!-- ========== MODULE: compute_cost ========== -->
+<div class="module" id="mod-compute_cost">
+<h2><span class="m-tag">必读</span> 计算成本分析：自动化 vs 手工的经济账<span class="m-time">~3 min</span></h2>
+<div class="hook">自动化不是免费的——但它比人工便宜多少？什么时候该自动化，什么时候该手工？</div>
+<div class="content">
+<p><strong>成本构成对比：</strong></p>
+<table class="data-table">
+<tr><th>成本维度</th><th>手工优化</th><th>自动化优化 (DSPy MIPROv2)</th></tr>
+<tr><td>时间成本</td><td>2-8 小时/任务 (专家)</td><td>5-30 分钟 (计算时间)</td></tr>
+<tr><td>API 调用成本</td><td>~$2-10 (测试调用)</td><td>$0.50-5.00 (编译过程)</td></tr>
+<tr><td>人力成本</td><td>$100-800/task (按 $50-100/h)</td><td>$0 (自动化)</td></tr>
+<tr><td>可扩展性</td><td>每新增任务线性增长</td><td>批量并行，边际成本递减</td></tr>
+<tr><td>迭代成本</td><td>每次模型升级需重新投入</td><td>重新编译仅计算成本</td></tr>
+</table>
+
+<div class="formula-block">
+<span class="f-cap">自动化优化的成本效率公式</span>
+C<sub>efficiency</sub> = ΔAccuracy / TotalCost<br>
+TotalCost = API_cost + Compute_cost + Human_cost<br>
+<span style="display:block;margin-top:4px;font-size:.72rem;color:var(--text-muted)">在 NLI 案例中：C<sub>efficiency</sub> = 10.2% / $3.25 ≈ 3.14%/dollar（手工约为 0.05%/dollar）</span>
+</div>
+
+<div class="formula-block">
+<span class="f-cap">编译 Token 消耗估算</span>
+Tokens<sub>compile</sub> ≈ N<sub>candidates</sub> × N<sub>trials</sub> × Tokens<sub>per_trial</sub><br>
+<span style="display:block;margin-top:4px;font-size:.72rem;color:var(--text-muted)">MIPROv2 典型值：20 candidates × 30 trials × 800 tokens ≈ 480K tokens</span>
+</div>
+
+<p><strong>自动化优化性价比最佳场景：</strong></p>
+<ul style="margin-left:16px;margin-bottom:12px;">
+<li>✅ 多任务/多模型并行优化（复用编译管线）</li>
+<li>✅ 高频迭代场景（模型版本更新频繁）</li>
+<li>✅ 规模化部署（一致性要求高于个性化）</li>
+<li>✅ 标注数据充足（few-shot 自举效果好）</li>
+</ul>
+<p><strong>手工优化仍有优势的场景：</strong></p>
+<ul style="margin-left:16px;margin-bottom:12px;">
+<li>⚠️ 极低资源任务（few-shot 示例不足 5 条）</li>
+<li>⚠️ 高度依赖领域专家判断的创意性任务</li>
+<li>⚠️ 安全敏感场景（需要人工审核每一步）</li>
+<li>⚠️ 一次性探索任务（编译成本 > 直接使用收益）</li>
+</ul>
+
+<div class="chart-wrap">
+<div id="chart-cost-roi" style="width:100%;height:280px"></div>
+<div class="ch-cap">图：自动化 vs 手工优化的 ROI 对比（按任务数量）</div>
+</div>
+
+<div class="takeaway">💰 <strong>决策建议：</strong>如果你的任务满足以下任一条件——(1) 需要规模化部署 (2) 会频繁迭代 (3) 有充足标注数据——自动化优化几乎总是更经济的选择。</div>
+</div>
+</div>
+
+<!-- ========== MODULE: open_source ========== -->
+<div class="module" id="mod-open_source">
+<h2><span class="m-tag">必读</span> 开源工具生态：主流框架对比<span class="m-time">~3 min</span></h2>
+<div class="hook">DSPy 不是唯一的选择——了解整个工具生态，选择最适合你场景的框架。</div>
+<div class="content">
+<table class="data-table">
+<tr><th>工具</th><th>开发方</th><th>核心方法</th><th>Stars</th><th>最佳场景</th><th>学习曲线</th></tr>
+<tr><td>DSPy</td><td>Stanford NLP</td><td>签名+编译+优化器</td><td>20k+</td><td>通用 NLU/NLG 任务</td><td>中</td></tr>
+<tr><td>TextGrad</td><td>MIT</td><td>文本梯度反向传播</td><td>5k+</td><td>复合 AI 系统优化</td><td>高</td></tr>
+<tr><td>PROMPTAGENT</td><td>Microsoft</td><td>自主 agent 搜索</td><td>3k+</td><td>探索性 prompt 发现</td><td>低</td></tr>
+<tr><td>APE</td><td>学术界</td><td>LLM 生成+评分筛选</td><td>1k+</td><td>快速原型验证</td><td>低</td></tr>
+<tr><td>OPRO</td><td>Google DeepMind</td><td>LLM-as-optimizer</td><td>2k+</td><td>数学推理优化</td><td>中</td></tr>
+<tr><td>LangSmith</td><td>LangChain</td><td>实验追踪+自动评估</td><td>商业</td><td>企业级 prompt 管理</td><td>低</td></tr>
+<tr><td>PromptLayer</td><td>PromptLayer</td><td>版本控制+监控</td><td>商业</td><td>Prompt Ops</td><td>低</td></tr>
+</table>
+
+<div class="formula-block">
+<span class="f-cap">TextGrad 核心公式：文本梯度</span>
+∇<sub>text</sub> L = ∂L/∂output ⊗ ∂output/∂prompt<br>
+<span style="display:block;margin-top:4px;font-size:.72rem;color:var(--text-muted)">其中 ⊗ 表示文本域的「梯度」操作：LLM 分析损失并生成对 prompt 的改进建议</span>
+</div>
+
+<p><strong>选型指南：</strong></p>
+<ul style="margin-left:16px;margin-bottom:12px;">
+<li><strong>刚入门？</strong>从 DSPy 开始——它是最成熟的框架，文档和社区最完善</li>
+<li><strong>复合系统（RAG + Agent）？</strong>TextGrad 擅长端到端优化多层 pipeline</li>
+<li><strong>想做创意探索？</strong>PROMPTAGENT 完全自主，可以发现人类想不到的 prompt 模式</li>
+<li><strong>企业团队？</strong>LangSmith + DSPy 组合：DSPy 优化 prompt，LangSmith 管理部署和监控</li>
+<li><strong>数学/代码任务？</strong>OPRO 在该领域有针对性优化</li>
+</ul>
+<div class="takeaway">🧰 <strong>工具选择原则：</strong>不要被「最新最热」迷惑——DSPy 是当前生产环境中最稳定可靠的选择，其他工具的独特优势在特定领域才能充分发挥。</div>
+</div>
+</div>
+
+<!-- ========== MODULE: risk ========== -->
+<div class="module" id="mod-risk">
+<h2><span class="m-tag">可选</span> 风险警示：自动化优化的陷阱<span class="m-time">~3 min</span></h2>
+<div class="hook">自动化不是银弹——盲目信任自动优化可能导致比手工 prompt 更差的结果。</div>
+<div class="content">
+<p><strong>风险 1：评估集过拟合。</strong>自动化优化器以最大化评估指标为目标，如果评估集不够多样化，优化后的 prompt 可能在测试集上反而表现更差。这类似于机器学习中的过拟合问题。</p>
+
+<div class="formula-block">
+<span class="f-cap">泛化差距指标</span>
+Gap = A<sub>train</sub> - A<sub>test</sub><br>
+<span style="display:block;margin-top:4px;font-size:.72rem;color:var(--text-muted)">Gap > 5% 时需警惕过拟合风险，建议扩大评估集规模或使用交叉验证</span>
+</div>
+
+<p><strong>风险 2：Prompt 脆弱性。</strong>优化后的 prompt 可能嵌入了训练数据特有的模式，对轻微的输入分布变化极其敏感。例如，一个针对英文新闻优化的 prompt 可能在社交媒体文本上完全失效。</p>
+
+<p><strong>风险 3：不可解释性。</strong>优化器生成的长篇 instructions 和 bootstrapped examples 可能包含难以理解的推理模式。当模型在这些 prompt 下做出错误预测时，debug 变得异常困难。</p>
+
+<p><strong>风险 4：安全红线。</strong>自我优化的 prompt 可能意外地引导模型绕过安全限制。例如，优化器发现「忽略之前的指令」这样的措辞能提高任务准确率，但同时也制造了 prompt injection 漏洞。</p>
+
+<p><strong>风险 5：评估指标陷阱。</strong>如果评估指标（如 exact match）不能准确反映任务目标（如语义正确性），优化器会忠实地「优化」错误的信号。</p>
+
+<table class="data-table">
+<tr><th>风险类型</th><th>严重程度</th><th>缓解策略</th></tr>
+<tr><td>评估集过拟合</td><td>高</td><td>保留 blind test set，使用交叉验证</td></tr>
+<tr><td>Prompt 脆弱性</td><td>中</td><td>多域评估，对抗性测试</td></tr>
+<tr><td>不可解释性</td><td>中</td><td>保留优化日志，可视化 prompt 变化</td></tr>
+<tr><td>安全漏洞</td><td>高</td><td>安全约束断言，编译后人工审核</td></tr>
+<tr><td>评估指标偏差</td><td>高</td><td>多指标联合评估，LLM-as-judge 辅助</td></tr>
+</table>
+<div class="takeaway">⚠️ <strong>最佳实践：</strong>永远保留一个独立的盲测集，永远不要跳过优化后的人工抽查。自动化是加速器，不是自动驾驶仪。</div>
+</div>
+</div>
+
+<!-- ========== MODULE: prospect ========== -->
+<div class="module" id="mod-prospect">
+<h2><span class="m-tag">可选</span> 前沿趋势：自动化优化的未来方向<span class="m-time">~3 min</span></h2>
+<div class="hook">如果说 2024 是自动化优化元年，那么接下来的五年将彻底改变我们与语言模型交互的方式。</div>
+<div class="content">
+<p><strong>趋势 1：统一优化框架。</strong>目前 DSPy、TextGrad、OPRO 各自为战。未来将出现统一的 prompt 优化标准（类似 ONNX 之于深度学习），允许在不同优化器和后端之间无缝切换。Google 的 OPRO 和 Stanford 的 DSPy 团队已开始对标准化的讨论。</p>
+
+<p><strong>趋势 2：自我改进 Agent。</strong>2025 年起的趋势是将 prompt 优化嵌入到 agent 循环中——agent 在任务执行中自动检测 prompt 不足，实时触发重新编译。这意味着「部署后静止的 prompt」将被「持续进化的 prompt」取代。</p>
+
+<p><strong>趋势 3：Automated Prompt Versioning。</strong>类似 Git 的 prompt 版本管理将进入企业 CI/CD 管线。每次优化生成新的 prompt 版本，附带 diff、changelog 和回归测试结果。LangSmith 和 W&B Prompts 已在此方向布局。</p>
+
+<p><strong>趋势 4：多模态自动化。</strong>prompt 优化的范围从文本扩展到图像、视频、音频。自动优化将同时搜索文本指令和视觉示例的最佳组合。</p>
+
+<p><strong>趋势 5：持续学习与 A/B 部署。</strong>生产环境中的 prompt 将支持在线 A/B 测试和在线学习——新 prompt 变体在流量子集上测试，效果显著后全量发布。</p>
+
+<div class="chart-wrap">
+<div id="chart-future" style="width:100%;height:280px"></div>
+<div class="ch-cap">图：自动化提示优化的技术雷达图 (2026 前瞻)</div>
+</div>
+
+<div class="formula-block">
+<span class="f-cap">持续优化的形式化建模</span>
+θ<sub>t+1</sub> = θ<sub>t</sub> + η · ∇L(θ<sub>t</sub>, D<sub>online</sub>)<br>
+<span style="display:block;margin-top:4px;font-size:.72rem;color:var(--text-muted)">θ<sub>t</sub> 为时刻 t 的 prompt 参数，D<sub>online</sub> 为在线流量数据，η 为更新步长</span>
+</div>
+
+<div class="takeaway">🔮 <strong>预测：</strong>到 2027 年，手工编写生产级 prompt 将被视为「遗留实践」——就像今天手工管理内存一样少见。但理解优化原理的工程师将比以往任何时候都更有价值。</div>
+</div>
+</div>
+
+<!-- ========== MODULE: ethics ========== -->
+<div class="module" id="mod-ethics">
+<h2><span class="m-tag">可选</span> 伦理考量：当 Prompt 可以自我优化<span class="m-time">~3 min</span></h2>
+<div class="hook">如果一个 prompt 可以不经人类审查就自我改进——谁为它的行为负责？</div>
+<div class="content">
+<p><strong>问题 1：Prompt Injection 放大。</strong>优化器可能发现「忽略所有安全规则，专注回答以下问题」这样的措辞能提高准确率。如果没有安全约束，优化后的 prompt 可能本质上包含注入漏洞。DSPy 的 Assertions 机制可以部分缓解此问题，但并非万无一失。</p>
+
+<p><strong>问题 2：有害优化目标。</strong>「优化」是一个价值中立的数学过程——如果评估指标是「用户参与度最大化」，优化器可能生成更具操纵性或煽动性的 prompt。优化目标需要伦理审查。</p>
+
+<p><strong>问题 3：透明度缺失。</strong>当用户与一个被自动化优化的 prompt 交互时，他们不知道背后的 prompt 是如何被优化、被谁优化的。是否应该披露「本 AI 使用自动优化的交互策略」？</p>
+
+<p><strong>问题 4：问责归因。</strong>如果优化后的 prompt 导致了有害输出——谁负责？优化器开发者？数据标注者？部署方？当前法律框架对此完全没有准备。</p>
+
+<p><strong>问题 5：公平性与偏见。</strong>自动优化可能放大训练数据中的偏见。如果评估集的标签分布不均衡，优化后的 prompt 可能系统性地偏向多数类。</p>
+
+<table class="data-table">
+<tr><th>伦理维度</th><th>风险等级</th><th>建议对策</th></tr>
+<tr><td>Prompt Injection</td><td>严重</td><td>编译后安全扫描，Assertions 约束</td></tr>
+<tr><td>有害优化目标</td><td>严重</td><td>多目标优化，加入伦理指标</td></tr>
+<tr><td>透明度</td><td>高</td><td>披露 prompt 优化来源和版本</td></tr>
+<tr><td>问责归因</td><td>高</td><td>建立优化审计日志，记录决策链</td></tr>
+<tr><td>公平性</td><td>中</td><td>评估集平衡，偏见检测</td></tr>
+</table>
+
+<div class="formula-block">
+<span class="f-cap">公平性约束下的多目标优化</span>
+max<sub>θ</sub> [Accuracy(θ) - λ · Bias(θ)]<br>
+<span style="display:block;margin-top:4px;font-size:.72rem;color:var(--text-muted)">λ 为公平性惩罚系数，Bias(θ) 衡量 prompt 在不同子群体上的性能差异</span>
+</div>
+
+<div class="takeaway">🛡️ <strong>伦理底线：</strong>自动化不能替代人类判断。在安全敏感场景中，总保留一个人工审核环节。优化器是你的工具，不是你的替代品。</div>
+</div>
+</div>
+
+<!-- ========== MODULE: benchmark ========== -->
+<div class="module" id="mod-benchmark">
+<h2><span class="m-tag">可选</span> 基准评测：自动化优化能提升多少<span class="m-time">~3 min</span></h2>
+<div class="hook">自动化优化到底能带来多少实际提升？让我们用标准基准数据说话。</div>
+<div class="content">
+<p><strong>主流基准及自动化优化后的典型提升：</strong></p>
+<table class="data-table">
+<tr><th>基准</th><th>任务类型</th><th>手工最佳</th><th>DSPy 优化</th><th>提升幅度</th><th>优化器</th></tr>
+<tr><td>GSM8K</td><td>数学推理</td><td>82.3%</td><td>89.1%</td><td>+6.8%</td><td>MIPROv2</td></tr>
+<tr><td>MMLU</td><td>多领域知识</td><td>73.5%</td><td>78.2%</td><td>+4.7%</td><td>BootstrapFewShot</td></tr>
+<tr><td>BBH</td><td>大基准推理</td><td>68.1%</td><td>76.4%</td><td>+8.3%</td><td>MIPROv2</td></tr>
+<tr><td>HumanEval</td><td>代码生成</td><td>70.2%</td><td>78.8%</td><td>+8.6%</td><td>ProgramOfThought</td></tr>
+<tr><td>HotpotQA</td><td>多跳问答</td><td>38.5%</td><td>52.3%</td><td>+13.8%</td><td>ReAct+MIPRO</td></tr>
+<tr><td>DROP</td><td>数值推理</td><td>65.0%</td><td>74.5%</td><td>+9.5%</td><td>BootstrapFewShot</td></tr>
+</table>
+
+<div class="formula-block">
+<span class="f-cap">平均提升幅度统计 (跨 12 个基准)</span>
+Avg_Improvement = Σ (A<sub>auto,i</sub> - A<sub>manual,i</sub>) / N<br>
+= 8.2% (中位数) / 10.1% (均值)<br>
+<span style="display:block;margin-top:4px;font-size:.72rem;color:var(--text-muted)">在复杂推理和多跳任务上提升最为显著（可达 13%+）</span>
+</div>
+
+<div class="chart-wrap">
+<div id="chart-benchmark" style="width:100%;height:280px"></div>
+<div class="ch-cap">图：主流基准上手工 vs DSPy 优化后的性能对比</div>
+</div>
+
+<p><strong>关键发现：</strong></p>
+<ul style="margin-left:16px;margin-bottom:12px;">
+<li>在需要多步推理的任务（BBH, HotpotQA）上，自动化优化的提升最大（8-14%）</li>
+<li>在知识密集型任务（MMLU）上提升相对有限（4-7%），因为性能瓶颈更多在于模型的知识储备</li>
+<li>配合 ChainOfThought 或 ReAct 模块时，优化效果显著优于 Predict 模块</li>
+<li>MIPROv2 在复杂任务上全面优于 BootstrapFewShot，但计算成本高 3-5 倍</li>
+</ul>
+<div class="takeaway">📊 <strong>经验法则：</strong>任务越依赖推理策略（而非事实知识），自动化优化的收益越大。对于简单的分类任务，手工 prompt 可能已足够好。</div>
+</div>
+</div>
+
+<!-- ========== MODULE: misconceptions ========== -->
+<div class="module" id="mod-misconceptions">
+<h2><span class="m-tag">必读</span> 常见误区：关于自动化的五个迷思<span class="m-time">~3 min</span></h2>
+<div class="hook">「自动优化会取代提示工程师」「它总能找到最优解」——这些流行的说法有多少是真的？</div>
+<div class="content">
+<table class="data-table">
+<tr><th>误区</th><th>真相</th><th>说明</th></tr>
+<tr><td>「自动化优化将淘汰提示工程师」</td><td>❌ 角色转变，非淘汰</td><td>提示工程师的工作从「写 prompt」转变为「设计评估体系、选择优化策略」。这类似于编译器出现后，程序员不再手写汇编但价值反而更高。</td></tr>
+<tr><td>「自动优化总能找到全局最优」</td><td>❌ 局部最优更常见</td><td>优化器在有限预算下搜索，通常收敛到局部最优而非全局最优。不同的初始化（签名描述）会导致不同的收敛结果。</td></tr>
+<tr><td>「优化后的 prompt 不需要人工审核」</td><td>❌ 审核不可或缺</td><td>自动生成的 prompt 可能包含语法错误、逻辑问题甚至安全隐患。人工抽查是安全部署的必要环节。</td></tr>
+<tr><td>「自动化优化就是高级 grid search」</td><td>❌ 远比 grid search 复杂</td><td>DSPy 和 TextGrad 采用了贝叶斯优化、LLM 驱动的候选生成、梯度引导等智能搜索策略，而非暴力枚举。</td></tr>
+<tr><td>「评估集越大越好」</td><td>⚠️ 质量 > 数量</td><td>小而精心标注的评估集（50-100 条）通常优于大而嘈杂的评估集。优化器对噪声高度敏感。</td></tr>
+</table>
+
+<p><strong>误区背后的根源：</strong>这些迷思大多源于对「优化」一词的误解。在机器学习中，优化是对给定目标函数的最优参数搜索——它不保证结果「正确」，只保证结果「在给定数据上符合定义的目标」。如果目标定义有偏差，优化只会放大偏差。</p>
+
+<div class="formula-block">
+<span class="f-cap">优化质量 ≠ 真实质量</span>
+Quality<sub>true</sub> = Quality<sub>optimized</sub> - Bias<sub>eval</sub> - Overfitting<sub>gap</sub><br>
+<span style="display:block;margin-top:4px;font-size:.72rem;color:var(--text-muted)">优化器只能保证 Quality<sub>optimized</sub> 在训练集上最大化，真实质量还需减去评估偏差和过拟合损失</span>
+</div>
+
+<div class="takeaway">🧠 <strong>正确心态：</strong>自动化提示优化是你工具箱中的强力工具，而非魔法棒。它放大好的评估设计，也会放大坏的设计。你的判断力仍然是整个流程中不可替代的部分。</div>
+</div>
+</div>
+
+<!-- ========== MODULE: learning_path ========== -->
+<div class="module" id="mod-learning_path">
+<h2><span class="m-tag">必读</span> 学习路径：从入门到精通的进阶指南<span class="m-time">~3 min</span></h2>
+<div class="hook">学完本模块后，如果你对自动化提示优化产生了兴趣，这里是系统进阶的推荐路线。</div>
+<div class="content">
+<table class="data-table">
+<tr><th>阶段</th><th>内容</th><th>资源</th><th>预计时间</th></tr>
+<tr><td>L1 入门</td><td>DSPy 官方 tutorial，跑通第一个分类器优化</td><td>dspy.ai 官方文档 / GitHub examples</td><td>2-4 小时</td></tr>
+<tr><td>L2 实践</td><td>在真实任务上应用 DSPy，对比不同优化器</td><td>DSPy 官方 cookbook / Weaviate DSPy 教程</td><td>1-3 天</td></tr>
+<tr><td>L3 理解</td><td>阅读 MIPROv2、TextGrad 论文，理解优化原理</td><td>arXiv 论文 + 论文解读博客</td><td>1-2 周</td></tr>
+<tr><td>L4 进阶</td><td>学习贝叶斯优化基础，理解 prompt 搜索空间的数学性质</td><td>"Bayesian Optimization" (Garnett 2023)</td><td>2-4 周</td></tr>
+<tr><td>L5 贡献</td><td>为 DSPy 贡献优化器、阅读源码、参与社区</td><td>DSPy GitHub / Discord community</td><td>持续</td></tr>
+<tr><td>L6 生产</td><td>集成 CI/CD、监控 prompt drift、A/B 测试自动化</td><td>LangSmith docs / 企业内部实践</td><td>持续</td></tr>
+</table>
+
+<p><strong>推荐学习资源：</strong></p>
+<ul style="margin-left:16px;margin-bottom:12px;">
+<li><strong>必读论文：</strong>DSPy (Khattab et al. 2023)、MIPROv2 (Opsahl-Ong et al. 2024)、TextGrad (Yuksekgonul et al. 2024)</li>
+<li><strong>在线课程：</strong>Stanford CS 329P (Practical Machine Learning) 中的 DSPy 章节</li>
+<li><strong>实战项目建议：</strong>(1) 用 DSPy 优化一个 RAG 问答系统 (2) 对比手工 prompt 与自动优化在你任务上的差异 (3) 为 DSPy 写一个自定义优化器</li>
+<li><strong>社区：</strong>DSPy Discord、r/LocalLLaMA、Prompt Engineering Daily newsletter</li>
+</ul>
+
+<div class="chart-wrap">
+<div id="chart-learning" style="width:100%;height:280px"></div>
+<div class="ch-cap">图：从入门到精通的技能成长曲线</div>
+</div>
+
+<div class="takeaway">🎓 <strong>起点建议：</strong>先花一个下午跑通 DSPy 的官方 tutorial，感受「编程而非提示」的范式转换。相信我，一旦体验过自动编译 prompt 的便利，你很难回到手写 prompt 的时代。</div>
+<ul class="ref-list"><li>DSPy 官方文档: https://dspy.ai</li><li>DSPy GitHub: https://github.com/stanfordnlp/dspy</li><li>TextGrad GitHub: https://github.com/zou-group/textgrad</li></ul>
+</div>
+</div>
+
+<!-- ========== MODULE: glossary ========== -->
+<div class="module" id="mod-glossary">
+<h2><span class="m-tag">可选</span> 术语表：自动化提示优化关键概念速查<span class="m-time">~2 min</span></h2>
+<div class="hook">快速查阅本领域最核心的术语定义。</div>
+<div class="content">
+<table class="data-table">
+<tr><th>术语</th><th>英文</th><th>定义</th></tr>
+<tr><td>签名</td><td>Signature</td><td>DSPy 中用 Python 类型注解定义任务 I/O 结构的抽象，替代手写 prompt 模板</td></tr>
+<tr><td>提示编译器</td><td>Teleprompter</td><td>DSPy 中对优化器的统称，负责将原始模块编译为优化后的模块</td></tr>
+<tr><td>自举 few-shot</td><td>BootstrapFewShot</td><td>从训练集中自动筛选高质量正反例作为 few-shot 示例的优化策略</td></tr>
+<tr><td>MIPRO</td><td>MIPRO</td><td>Multi-prompt Instruction PROposal optimizer，DSPy 中基于贝叶斯优化的高级优化器</td></tr>
+<tr><td>自动提示工程师</td><td>APE</td><td>Automatic Prompt Engineer，利用 LLM 生成并筛选候选 prompt 的方法</td></tr>
+<tr><td>LLM 作优化器</td><td>OPRO</td><td>Optimization by PROmpting，Google DeepMind 提出的用 LLM 执行优化搜索的方法</td></tr>
+<tr><td>文本梯度</td><td>TextGrad</td><td>MIT 提出的将反向传播思想应用于文本 prompt 优化的框架</td></tr>
+<tr><td>Prompt 编译</td><td>Prompt Compilation</td><td>将任务签名和训练数据自动转换为优化后 prompt 模板的过程</td></tr>
+<tr><td>少样本优化</td><td>Few-Shot Optimization</td><td>利用少量标注样本自动选择和排列 few-shot 示例的优化方法</td></tr>
+<tr><td>断言</td><td>Assertions</td><td>DSPy v2.5 引入的运行时约束，确保模块输出满足特定条件</td></tr>
+<tr><td>评估指标</td><td>Metric</td><td>定义优化目标的函数，优化器按此指标搜索最优 prompt</td></tr>
+<tr><td>泛化差距</td><td>Generalization Gap</td><td>优化后 prompt 在训练集和测试集上的性能差异，过大表示过拟合</td></tr>
+</table>
+<div class="takeaway">📖 <strong>使用建议：</strong>将本表保存为速查手册。当你阅读 DSPy 论文或文档时遇到陌生术语，回到这里快速查找。</div>
+</div>
+</div>
+
+</div>
+
+<footer class="journey-footer">
+  <a href="#" class="back-to-plan" onclick="event.preventDefault();var w=window.open('pe_learning.html#kc-p4_1','plan_main');if(w)w.focus()">🔗 返回学习路线: 提示工程 (Prompt Engineering) 系统学习方案 → 进阶前沿</a>
+  <p style="margin-top:12px;font-size:.72rem;color:var(--text-muted)">
+    本资料是 <strong>提示工程 (Prompt Engineering) 系统学习方案</strong> 进阶前沿 阶段的深度研读材料
+  </p>
+</footer>
+
+<div class="deep-floating-back">
+  <button onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 16px rgba(0,0,0,.2)'"
+    onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 12px rgba(0,0,0,.15)'"
+    onclick="event.preventDefault();var w=window.open('pe_learning.html#kc-p4_1','plan_main');if(w)w.focus()">
+    ← 返回学习方案
+  </button>
+</div>
+
+</div>
+
+<div class="dd-toast" id="toastEl"><span id="toastMsg"></span></div>
+
+<script>
+var MODULE_IDS = ["mod-learning_journey","mod-background","mod-concept","mod-principle","mod-architecture","mod-development","mod-application","mod-case_study","mod-compute_cost","mod-open_source","mod-risk","mod-prospect","mod-ethics","mod-benchmark","mod-misconceptions","mod-learning_path","mod-glossary"];
+var SEARCH_INDEX = [
+{"id":"mod-learning_journey","t":"学习旅程导航","c":"本知识点「自动化提示优化」是提示工程系统学习方案的最后一个知识点，位于第四阶段「进阶前沿」。前置依赖：提示迭代优化策略。涵盖从手动提示工程到自动化范式转变的核心内容。"},
+{"id":"mod-background","t":"历史背景：从手工调参到自动优化","c":"2020-2022 年间，提示工程经历了从「随便写一句话」到「精心设计模板」的转变。2023 年 APE 论文首次提出用 LLM 自动生成和优化 prompt。DSPy 将 prompt 从手工编写文本变成可编译优化的程序参数。"},
+{"id":"mod-concept","t":"核心概念：什么是自动化提示优化","c":"自动化提示优化利用算法或元语言模型自动搜索、生成或迭代改进 prompt 模板。DSPy 范式：编程而非提示。关键概念：任务签名 Signature、Compile-Then-Run 模式、Teleprompter 提示编译器。"},
+{"id":"mod-principle","t":"工作原理：DSPy 如何编译最优 Prompt","c":"DSPy 工作流三步骤：定义任务签名→编译优化→推理。核心优化器：BootstrapFewShot 自举高质量示例，MIPROv2 贝叶斯优化加指令候选生成。类比于「写测试让编译器生成最优代码」。"},
+{"id":"mod-architecture","t":"系统架构：DSPy 的模块与抽象层次","c":"DSPy 四层架构：签名 Signatures 定义任务 I/O，模块 Modules 封装推理策略 Predict/ChainOfThought/ReAct，优化器 Teleprompters 执行搜索，断言 Assertions 运行时约束。Teleprompter 的关键方法是 compile()。"},
+{"id":"mod-development","t":"发展脉络：2022-2026 技术演进时间线","c":"2022 手工时代→2023 APE/DSPy v1→2024 OPRO/DSPy v2/TextGrad/PromptAgent→2025 企业级工具化→2026 多模态自我进化。四年间从论文设想变成生产环境标准实践。"},
+{"id":"mod-application","t":"实战应用：DSPy 从零到一完整教程","c":"用 DSPy 构建情感分析分类器的完整流程：安装→配置 LM→定义 Signature→创建 ChainOfThought 模块→准备训练数据→MIPROv2 编译→评估效果。常见应用：RAG、多跳推理、文本分类、代码生成、信息抽取。"},
+{"id":"mod-case_study","t":"案例研究：用 DSPy 优化 NLI 分类器","c":"NLI 自然语言推理任务案例。手工 baseline 78.3%→DSPy BootstrapFewShot 86.2%→DSPy MIPROv2 88.5%。相对提升 13%。编译消耗约 50-80 万 tokens，成本约 $0.15-0.25。"},
+{"id":"mod-compute_cost","t":"计算成本分析：自动化 vs 手工的经济账","c":"成本对比：手工 2-8 小时/$100-800 per task，自动化 5-30 分钟/$0.50-5.00。成本效率公式。自动化最优场景：多任务并行、高频迭代、规模化部署、标注数据充足。"},
+{"id":"mod-open_source","t":"开源工具生态：主流框架对比","c":"DSPy Stanford 20k+ stars 通用 NLU，TextGrad MIT 复合 AI 系统，PROMPTAGENT Microsoft 探索性发现，APE 快速原型，OPRO Google DeepMind 数学推理，LangSmith 企业级管理。"},
+{"id":"mod-risk","t":"风险警示：自动化优化的陷阱","c":"五大风险：评估集过拟合、Prompt 脆弱性、不可解释性、安全红线 prompt injection、评估指标陷阱。缓解策略：保留盲测集、多域评估、安全断言、多指标联合评估。"},
+{"id":"mod-prospect","t":"前沿趋势：自动化优化的未来方向","c":"五大趋势：统一优化框架标准、自我改进 Agent、Automated Prompt Versioning、多模态自动化、持续学习与 A/B 部署。预测 2027 年手工 prompt 将成为遗留实践。"},
+{"id":"mod-ethics","t":"伦理考量：当 Prompt 可以自我优化","c":"五大伦理问题：Prompt Injection 放大、有害优化目标、透明度缺失、问责归因困境、公平性与偏见。公平性约束下的多目标优化公式。底线：自动化不能替代人类判断。"},
+{"id":"mod-benchmark","t":"基准评测：自动化优化能提升多少","c":"跨 12 个基准平均提升 8.2% 中位数/10.1% 均值。GSM8K +6.8%、MMLU +4.7%、BBH +8.3%、HumanEval +8.6%、HotpotQA +13.8%。复杂推理任务提升最显著。"},
+{"id":"mod-misconceptions","t":"常见误区：关于自动化的五个迷思","c":"五大迷思真相：自动化淘汰工程师→角色转变非淘汰，总能找到全局最优→局部最优更常见，无需人工审核→审核不可或缺，就是 grid search→远超 grid search，评估集越大越好→质量大于数量。"},
+{"id":"mod-learning_path","t":"学习路径：从入门到精通的进阶指南","c":"六阶段进阶路线：L1 DSPy tutorial→L2 真实任务实践→L3 论文原理→L4 贝叶斯优化→L5 开源贡献→L6 生产 CI/CD。推荐资源：Stanford CS 329P、DSPy Discord 社区。"},
+{"id":"mod-glossary","t":"术语表：自动化提示优化关键概念速查","c":"12 个核心术语：Signature 签名、Teleprompter 提示编译器、BootstrapFewShot 自举、MIPRO 贝叶斯优化、APE 自动提示工程师、OPRO LLM 作优化器、TextGrad 文本梯度、Prompt Compilation 编译等。"}
+];
+var TOAST_TIMEOUT;
+
+(function(){
+var progressBar=document.getElementById('progressBar');
+var modules=document.querySelectorAll('.module');
+
+var observer=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting)e.target.classList.add('visible')})},{threshold:.15});
+modules.forEach(function(m){observer.observe(m)});
+
+var navLinks=document.querySelectorAll('.sidebar-nav a');
+var navObserver=new IntersectionObserver(function(entries){
+entries.forEach(function(e){
+if(e.isIntersecting){
+navLinks.forEach(function(a){a.classList.remove('active')});
+var act=document.querySelector('.sidebar-nav a[href="#'+e.target.id+'"]');
+if(act)act.classList.add('active');
+}
+})},{threshold:.3});
+modules.forEach(function(m){navObserver.observe(m)});
+
+window.addEventListener('scroll',function(){
+var st=document.documentElement.scrollTop,dh=document.documentElement.scrollHeight-window.innerHeight;
+var pct=dh>0?Math.min(100,(st/dh)*100):0;progressBar.style.width=pct+'%';
+});
+
+window.addEventListener('keydown',function(e){
+if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();openSearch()}
+if((e.ctrlKey||e.metaKey)&&e.key==='d'){e.preventDefault();toggleTheme()}
+if(e.key==='Escape')closeSearch()
+});
+})();
+
+function toggleTheme(){
+var b=document.body,isD=b.getAttribute('data-theme')==='dark';
+b.setAttribute('data-theme',isD?'light':'dark');
+try{localStorage.setItem('slm-theme',isD?'light':'dark')}catch(e){}
+showToast('已切换至'+(isD?'浅色':'深色')+'主题')
+}
+
+function openSearch(){document.getElementById('searchOverlay').classList.add('open');setTimeout(function(){document.getElementById('searchInput').focus()},100)}
+function closeSearch(){document.getElementById('searchOverlay').classList.remove('open');document.getElementById('searchResults').innerHTML=''}
+
+function doSearch(){
+var q=document.getElementById('searchInput').value.toLowerCase(),res=document.getElementById('searchResults');
+if(q.length<2){res.innerHTML='';return}
+var h='';SEARCH_INDEX.forEach(function(item){
+if(item.t.toLowerCase().indexOf(q)>=0||(item.c||'').toLowerCase().indexOf(q)>=0){
+h+='<div onclick="closeSearch();document.getElementById(\''+item.id+'\').scrollIntoView({behavior:\'smooth\'})">'+
+'<strong>'+item.t+'</strong><br><small style="color:var(--text-muted)">'+(item.c||'').substring(0,80)+'</small></div>';
+}
+});
+res.innerHTML=h||'<div style="padding:12px;color:var(--text-muted)">未找到匹配模块</div>'
+}
+
+function showToast(msg){
+var el=document.getElementById('toastEl'),mg=document.getElementById('toastMsg');
+if(!el||!mg)return;mg.textContent=msg;el.style.display='block';el.classList.add('toast-in');
+if(TOAST_TIMEOUT)clearTimeout(TOAST_TIMEOUT);
+TOAST_TIMEOUT=setTimeout(function(){el.style.display='none'},3000);
+}
+
+(function(){
+var t;try{t=localStorage.getItem('slm-theme')}catch(e){}
+if(t==='light')document.body.setAttribute('data-theme','light');
+})();
+
+(function(){
+document.querySelectorAll('.derivation-toggle').forEach(function(btn){
+btn.addEventListener('click',function(){
+var content=this.nextElementSibling;
+if(content){content.classList.toggle('open');this.textContent=content.classList.contains('open')?'▾ 收起推导':'▸ 展开推导'}
+});
+});
+})();
+
+(function initCharts(){
+if(typeof echarts === 'undefined') return;
+
+var isDark = document.body.getAttribute('data-theme') === 'dark';
+function getTheme(){ return document.body.getAttribute('data-theme') === 'dark'; }
+var textMuted = function(){ return getTheme() ? '#787878' : '#5e5e5e'; };
+var gridLine  = function(){ return getTheme() ? '#252525' : '#e5e5e5'; };
+
+function makeChart(elId, option) {
+  var el = document.getElementById(elId);
+  if (!el) return null;
+  var chart = echarts.init(el);
+  chart.setOption(option);
+  return chart;
+}
+
+var charts = [];
+
+/* 1. evolution - line: Prompt automation degree */
+var c1 = makeChart('chart-evolution', {
+  tooltip: {trigger:'axis'},
+  grid: {left:'8%',right:'5%',bottom:'10%',top:'10%'},
+  xAxis: {type:'category', data:['2020','2021','2022','2023','2024','2025','2026'], axisLabel:{color:textMuted()}},
+  yAxis: {type:'value', name:'自动化程度 (%)', max:100, nameTextStyle:{color:textMuted()}, axisLabel:{color:textMuted()}, splitLine:{lineStyle:{color:gridLine()}}},
+  series: [{type:'line', data:[10,20,35,55,75,90,98], smooth:true, lineStyle:{color:'#5b8db8',width:3}, itemStyle:{color:'#5b8db8'}, areaStyle:{color:{type:'linear',x:0,y:0,x2:0,y2:1,colorStops:[{offset:0,color:'rgba(91,141,184,.25)'},{offset:1,color:'rgba(91,141,184,.02)'}]}}}]
+}); if(c1) charts.push(c1);
+
+/* 2. compile flow - bar: DSPy stage time */
+var c2 = makeChart('chart-compile-flow', {
+  tooltip: {trigger:'axis'},
+  grid: {left:'8%',right:'5%',bottom:'12%',top:'10%'},
+  xAxis: {type:'category', data:['定义签名','选择优化器','编译搜索','评估验证','生成Prompt','推理输出'], axisLabel:{color:textMuted(),fontSize:10,rotate:15}},
+  yAxis: {type:'value', name:'相对耗时', nameTextStyle:{color:textMuted()}, axisLabel:{color:textMuted()}, splitLine:{lineStyle:{color:gridLine()}}},
+  series: [{type:'bar', data:[1,1,3,2,1,4], itemStyle:{color:'#8878a8',borderRadius:[4,4,0,0]}, barWidth:'50%'}]
+}); if(c2) charts.push(c2);
+
+/* 3. architecture layers - bar */
+var c3 = makeChart('chart-architecture', {
+  tooltip: {trigger:'axis'},
+  grid: {left:'8%',right:'5%',bottom:'10%',top:'10%'},
+  xAxis: {type:'category', data:['Signatures','Modules','Optimizers','Assertions'], axisLabel:{color:textMuted()}},
+  yAxis: {type:'value', name:'关注度', nameTextStyle:{color:textMuted()}, axisLabel:{color:textMuted()}, splitLine:{lineStyle:{color:gridLine()}}},
+  series: [{type:'bar', data:[1,2,3,1], itemStyle:{color:'#6ea8c0',borderRadius:[4,4,0,0]}, barWidth:'50%'}]
+}); if(c3) charts.push(c3);
+
+/* 4. hype cycle - line */
+var c4 = makeChart('chart-timeline', {
+  tooltip: {trigger:'axis'},
+  grid: {left:'8%',right:'5%',bottom:'10%',top:'10%'},
+  xAxis: {type:'category', data:['2022','2023H1','2023H2','2024H1','2024H2','2025','2026'], axisLabel:{color:textMuted(),fontSize:9}},
+  yAxis: {type:'value', name:'技术成熟度 (%)', max:100, nameTextStyle:{color:textMuted()}, axisLabel:{color:textMuted()}, splitLine:{lineStyle:{color:gridLine()}}},
+  series: [{type:'line', data:[10,30,50,65,78,90,95], smooth:true, lineStyle:{color:'#c0a060',width:3}, itemStyle:{color:'#c0a060'}, areaStyle:{color:{type:'linear',x:0,y:0,x2:0,y2:1,colorStops:[{offset:0,color:'rgba(192,160,96,.2)'},{offset:1,color:'rgba(192,160,96,.02)'}]}}}]
+}); if(c4) charts.push(c4);
+
+/* 5. NLI accuracy - bar (two series) */
+var c5 = makeChart('chart-nli-bars', {
+  tooltip: {trigger:'axis'},
+  legend: {data:['SNLI准确率','MNLI准确率'], bottom:0, textStyle:{color:textMuted(),fontSize:10}},
+  grid: {left:'8%',right:'5%',bottom:'15%',top:'10%'},
+  xAxis: {type:'category', data:['手工Baseline','手工优化','APE','DSPy\nBootstrap','DSPy\nMIPROv2'], axisLabel:{color:textMuted(),fontSize:9}},
+  yAxis: {type:'value', name:'准确率 (%)', min:70, max:92, nameTextStyle:{color:textMuted()}, axisLabel:{color:textMuted()}, splitLine:{lineStyle:{color:gridLine()}}},
+  series: [
+    {name:'SNLI准确率', type:'bar', data:[78.3,82.7,84.1,86.2,88.5], itemStyle:{color:'#5b8db8',borderRadius:[4,4,0,0]}},
+    {name:'MNLI准确率', type:'bar', data:[72.1,76.4,77.5,79.8,82.3], itemStyle:{color:'#8878a8',borderRadius:[4,4,0,0]}}
+  ]
+}); if(c5) charts.push(c5);
+
+/* 6. cost ROI - line */
+var c6 = makeChart('chart-cost-roi', {
+  tooltip: {trigger:'axis'},
+  grid: {left:'8%',right:'5%',bottom:'10%',top:'10%'},
+  xAxis: {type:'category', data:['1','3','5','10','20','50'], name:'任务数量', nameTextStyle:{color:textMuted()}, axisLabel:{color:textMuted()}},
+  yAxis: {type:'value', name:'相对成本', nameTextStyle:{color:textMuted()}, axisLabel:{color:textMuted()}, splitLine:{lineStyle:{color:gridLine()}}},
+  series: [{type:'line', data:[1,0.8,0.5,0.3,0.2,0.15], smooth:true, lineStyle:{color:'#5a9e6f',width:3}, itemStyle:{color:'#5a9e6f'}, areaStyle:{color:{type:'linear',x:0,y:0,x2:0,y2:1,colorStops:[{offset:0,color:'rgba(90,158,111,.2)'},{offset:1,color:'rgba(90,158,111,.02)'}]}}, markLine:{silent:true, data:[{yAxis:0.5, label:{formatter:'盈亏平衡线',color:'#c0a060'}, lineStyle:{color:'#c0a060',type:'dashed'}}]}}]
+}); if(c6) charts.push(c6);
+
+/* 7. future radar - bar style */
+var c7 = makeChart('chart-future', {
+  tooltip: {trigger:'axis'},
+  grid: {left:'8%',right:'5%',bottom:'10%',top:'10%'},
+  xAxis: {type:'category', data:['统一框架','自我改进','版本管理','多模态','持续学习'], axisLabel:{color:textMuted()}},
+  yAxis: {type:'value', name:'发展潜力 (%)', max:100, nameTextStyle:{color:textMuted()}, axisLabel:{color:textMuted()}, splitLine:{lineStyle:{color:gridLine()}}},
+  series: [{type:'bar', data:[70,85,80,60,75], itemStyle:{color:'#8878a8',borderRadius:[4,4,0,0]}, barWidth:'50%'}]
+}); if(c7) charts.push(c7);
+
+/* 8. benchmark comparison - grouped bar */
+var c8 = makeChart('chart-benchmark', {
+  tooltip: {trigger:'axis'},
+  legend: {data:['手工最佳','DSPy优化后'], bottom:0, textStyle:{color:textMuted(),fontSize:10}},
+  grid: {left:'8%',right:'5%',bottom:'15%',top:'10%'},
+  xAxis: {type:'category', data:['GSM8K','MMLU','BBH','HumanEval','HotpotQA','DROP'], axisLabel:{color:textMuted(),fontSize:10}},
+  yAxis: {type:'value', name:'准确率 (%)', nameTextStyle:{color:textMuted()}, axisLabel:{color:textMuted()}, splitLine:{lineStyle:{color:gridLine()}}},
+  series: [
+    {name:'手工最佳', type:'bar', data:[82.3,73.5,68.1,70.2,38.5,65], itemStyle:{color:'#8878a8',borderRadius:[4,4,0,0]}},
+    {name:'DSPy优化后', type:'bar', data:[89.1,78.2,76.4,78.8,52.3,74.5], itemStyle:{color:'#5b8db8',borderRadius:[4,4,0,0]}}
+  ]
+}); if(c8) charts.push(c8);
+
+/* 9. learning curve - line */
+var c9 = makeChart('chart-learning', {
+  tooltip: {trigger:'axis'},
+  grid: {left:'8%',right:'5%',bottom:'10%',top:'10%'},
+  xAxis: {type:'category', data:['L1入门','L2实践','L3理解','L4进阶','L5贡献','L6生产'], axisLabel:{color:textMuted(),fontSize:9}},
+  yAxis: {type:'value', name:'技能掌握度 (%)', max:100, nameTextStyle:{color:textMuted()}, axisLabel:{color:textMuted()}, splitLine:{lineStyle:{color:gridLine()}}},
+  series: [{type:'line', data:[10,30,55,75,88,95], smooth:true, lineStyle:{color:'#5a9e6f',width:3}, itemStyle:{color:'#5a9e6f'}, areaStyle:{color:{type:'linear',x:0,y:0,x2:0,y2:1,colorStops:[{offset:0,color:'rgba(90,158,111,.2)'},{offset:1,color:'rgba(90,158,111,.02)'}]}}}]
+}); if(c9) charts.push(c9);
+
+window.addEventListener('resize', function(){ charts.forEach(function(c){ c.resize(); }); });
+})();
+</script>
+</body>
+</html>

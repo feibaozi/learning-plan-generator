@@ -9,7 +9,21 @@ v3.3: 视觉模板继承 — 从 context_plan.template_id 或 manifest 自动获
 v3.4: JS数据层防御性规则 — 杜绝深度资料白屏（引号冲突、`</script>`截断、外部JS CORS、语法自检）。
 v3.4.1: 表格数据 Schema 约束 — 在 module-mapping.json 中定义 tables 字段结构规范，Step 5.0 增强表格结构校验。
 v3.5: 流体布局 — 内容区从固定宽度居中改为流体铺满，窗口缩放时文字自动重排、图表自适应，无右侧留白。
-version: "3.5"
+v3.6.0: 深度资料命名标准化 + 路径约定明确化
+  - 新增 Deep Dive File Naming Convention: [kp_id]_[topic-slug]_[depth].html
+  - 新增 depth 后缀标准化映射表 (overview/intermediate/deep)
+  - Step 5.0 新增 3 项命名验证检查 (html_file 格式/kp_id 一致性/depth 后缀)
+  - context_plan.plan_file 语义明确化：纯文件名，不含路径
+  - 与 learning-plan-generator v3.9.0 文件夹约定对齐
+v3.7.0: 侧边栏目录导航 + ECharts 动态图表 + 表格样式统一
+  - 左侧固定侧边栏替代右侧圆点导航：280px 宽，模块名全量显示，IntersectionObserver 自动追踪高亮
+  - ECharts 5.x CDN 动态图表替代 Canvas 静态绘制：tooltip/图例切换/响应式 resize/主题联动
+  - 图表容器从 <canvas> 改为 <div> 流式宽度，随容器自适应
+  - 表格样式从 .data-table 统一为 .table-container 模式（深色卡片风表头 + 青色标题 + hover 行高亮）
+  - 新增 %SIDEBAR_NAV_HTML% 和 %ECHARTS_INIT_CODE% 占位符
+  - content-area 布局层：margin-left:280px 偏移，≤1024px 隐藏侧边栏恢复全宽
+  - 打印样式补充 .sidebar 隐藏 + .content-area 恢复全宽
+version: "3.7.0"
 ---
 
 # Smart Learning Materials Generator v3.5
@@ -27,17 +41,18 @@ version: "3.5"
 
 ### 版本改进总览
 
-| 维度    | v2.0     | v3.0                           | v3.1                 | v3.2                                              | v3.3                                    | v3.4                                    | v3.4.1 | v3.5 |
-| ----- | -------- | ------------------------------ | -------------------- | ------------------------------------------ | --------------------------------------- | --------------------------------------- | ------ | ---- |
-| 上下文感知 | 独立生成     | 支持 context\_plan — 感知学习路线位置    | —                    | prompt嵌入标记优先 + manifest fallback             | —                                         | — | — | — |
-| 模块系统  | 固定 28 模块 | 新增 learning\_journey 条件模块      | —                    | —                                              | —                                         | — | — | — |
-| 文件清单  | 无        | 自动注册到 manifest.json            | —                    | —                                              | —                                         | — | — | — |
-| 导航    | 独立页面     | 顶部路线位置导航条 + 底部返回链接             | 返回链接 hash导航 + 命名窗口复用 | 返回链接 + 悬浮返回按钮，任何位置都可一键返回             | —                                         | — | — | — |
-| 深度联动  | 无        | 与 learning-plan-generator 双向链接 | 返回时精准展开目标知识点         | prompt标记使上下文传递零失败，双向联动完全可靠             | —                                         | — | — | — |
-| 外观模板  | 无        | —                              | —                    | —                                              | 从 context\_plan 继承，与主方案外观统一 | — | — | — |
-| 防御性规则 | 无        | —                              | —                    | —                                              | — | ASCII引号/`</script>`/外部JS禁止/语法自检 | — | — |
-| 表格数据校验 | 无        | —                              | —                    | —                                              | — | — | 表格Schema+`caption`位置+`rows`维度校验 | — |
-| 布局策略  | 固定宽度居中   | —                              | —                    | —                                              | —                                         | — | — | 流体铺满：内容区随窗口动态伸缩，无留白 |
+| 维度    | v2.0     | v3.0                           | v3.1                 | v3.2                                              | v3.3                                    | v3.4                                    | v3.4.1 | v3.5 | v3.7 |
+| ----- | -------- | ------------------------------ | -------------------- | ------------------------------------------ | --------------------------------------- | --------------------------------------- | ------ | ---- | ---- |
+| 上下文感知 | 独立生成     | 支持 context\_plan — 感知学习路线位置    | —                    | prompt嵌入标记优先 + manifest fallback             | —                                         | — | — | — | — |
+| 模块系统  | 固定 28 模块 | 新增 learning\_journey 条件模块      | —                    | —                                              | —                                         | — | — | — | — |
+| 文件清单  | 无        | 自动注册到 manifest.json            | —                    | —                                              | —                                         | — | — | — | — |
+| 导航    | 独立页面     | 顶部路线位置导航条 + 底部返回链接             | 返回链接 hash导航 + 命名窗口复用 | 返回链接 + 悬浮返回按钮，任何位置都可一键返回             | —                                         | — | — | — | 左侧固定侧边栏目录导航 + IntersectionObserver 自动追踪 |
+| 深度联动  | 无        | 与 learning-plan-generator 双向链接 | 返回时精准展开目标知识点         | prompt标记使上下文传递零失败，双向联动完全可靠             | —                                         | — | — | — | — |
+| 外观模板  | 无        | —                              | —                    | —                                              | 从 context\_plan 继承，与主方案外观统一 | — | — | — | — |
+| 防御性规则 | 无        | —                              | —                    | —                                              | — | ASCII引号/`</script>`/外部JS禁止/语法自检 | — | — | — |
+| 表格数据校验 | 无        | —                              | —                    | —                                              | — | — | 表格Schema+`caption`位置+`rows`维度校验 | — | — |
+| 布局策略  | 固定宽度居中   | —                              | —                    | —                                              | —                                         | — | — | 流体铺满：内容区随窗口动态伸缩，无留白 | 侧边栏+流体铺满+ECharts动态图表+table-container |
+| 图表引擎  | 无        | —                              | —                    | —                                              | —                                         | — | — | — | ECharts 5.x CDN + makeChart() 工厂函数 |
 
 | 维度    | v1.0                    | v2.0                                            |
 | ----- | ----------------------- | ----------------------------------------------- |
@@ -173,7 +188,7 @@ If the field is absent (older plan generated before v3.8), fall back to priority
   "enabled": true,
   "plan_name": "量化交易系统学习方案",
   "plan_id": "quant-trading-learning",
-  "plan_file": "quant_learning.html",
+  "plan_file": "quant_learning.html",  // 纯文件名 — 主方案与深度资料在同一文件夹内，相对路径 = 纯文件名
   "phase_id": "p3",
   "phase_name": "核心策略",
   "kp_id": "p3_1",
@@ -329,6 +344,45 @@ ESTIMATED_MINUTES = CEIL(
 ```
 
 在 Phase 3 生成完成后使用实际数据重新计算。
+
+### Deep Dive File Naming Convention (v3.6.0)
+
+All generated deep-dive HTML files **MUST** follow this convention. This ensures every file is self-documenting about its origin — which phase and which KP it belongs to.
+
+**Format**: `[kp_id]_[topic-slug]_[depth].html`
+
+| Component | Rule | Example |
+|-----------|------|---------|
+| kp_id | KP 唯一标识，与主方案 KPS 数组中的 `id` 字段完全一致 | `p1_2`, `p2_3`, `p4_1` |
+| topic-slug | 小写 kebab-case，从 topic_id 或 kp_name 派生，连字符分隔 | `zero-shot-prompting`, `ols-estimator-derivation` |
+| depth | 标准化 depth 后缀（见下表） | `overview`, `intermediate`, `deep` |
+
+**Depth suffix mapping** (standardized across both skills):
+
+| Content Depth | Suffix |
+|---------------|--------|
+| 概览 / beginner | `overview` |
+| 理解 / intermediate | `intermediate` |
+| 精通 / expert | `deep` |
+
+**命名优势**:
+- 文件名即文档：`p3_1` → 直接看出来自第三阶段第一个知识点
+- 与主方案 KP ID 直接对应，无需额外映射表
+- 增删 KP 时不影响其他文件的命名
+- `context_plan.kp_id` 可直接用于构造文件名
+
+**完整示例**（提示工程方案）:
+```
+p1_1_zero-shot-few-shot_intermediate.html    ← 第1阶段第1个知识点
+p1_2_chain-of-thought_intermediate.html      ← 第1阶段第2个知识点
+p2_1_structured-output_intermediate.html     ← 第2阶段第1个知识点
+p3_1_llm-overview_overview.html             ← 第3阶段第1个知识点
+p4_2_multimodal-prompting_deep.html          ← 第4阶段第2个知识点
+```
+
+**Migration note**: 已有文件使用的旧后缀（`_deep`, `_intermediate`）仍有效。manifest.json 的 `html_file` 字段是文件查找的权威来源。新生成的资料**必须**使用标准化格式。
+
+---
 
 ### Phase 3: 逐模块内容生成规则
 
@@ -530,7 +584,9 @@ chart_count = CEIL(
 
 **图表规范**:
 
-- 使用 ECharts 完整 option JSON 配置
+- 使用 ECharts 5.x 完整 option JSON 配置（CDN 加载）
+- 图表容器使用 `<div>` 元素（`width:100%; height:280px`），不用 `<canvas>`
+- 初始化使用模板内置的 `makeChart(elId, option)` 工厂函数
 - 图表配色使用 CSS 变量引用（确保深浅主题一致切换）
 - 浅色主题色板: `['#6366f1','#8b5cf6','#a78bfa','#22d3ee','#f59e0b','#10b981','#ef4444']`
 - 深色主题色板: `['#818cf8','#a78bfa','#c4b5fd','#67e8f9','#fbbf24','#34d399','#f87171']`
@@ -669,6 +725,8 @@ WORKFLOW:
 | `%MODULES_HTML%` | Generated module blocks | ✅ |
 | `%MODULE_IDS_JSON%` | JSON array of module element IDs | ✅ |
 | `%SEARCH_INDEX_JSON%` | JSON array of {id, t(title), c(content)} | ✅ |
+| `%SIDEBAR_NAV_HTML%` | Sidebar navigation `<li><a href="#mod-xxx">模块标题</a></li>` list | ✅ |
+| `%ECHARTS_INIT_CODE%` | ECharts initialization code using `makeChart()` factory function | ✅ |
 
 **Conditional Block Handling**:
 - If `HAS_CONTEXT_PLAN = true`: Keep `<!-- CONDITIONAL: HAS_CONTEXT_PLAN -->` blocks (journey-bar, journey-footer, deep-floating-back)
@@ -701,23 +759,24 @@ WORKFLOW:
   <!-- 主题切换按钮 -->
   <!-- [v3.0] 学习路线位置导航条 (仅 context_plan 启用时) -->
   <!-- 元信息Hero卡片 -->
-  <!-- 侧边栏导航 -->
+  <!-- [v3.7] 左侧固定侧边栏目录导航 -->
+  <!-- [v3.7] content-area 偏移层 (margin-left: 280px) -->
   <!-- 模块内容区 (每个模块一个 <section>) -->
   <!-- [v3.0] 页脚返回学习路线链接 (仅 context_plan 启用时) -->
   <!-- [v3.2] 悬浮返回按钮 (仅 context_plan 启用时) — 固定在右下角，任何滚动位置可见 -->
   <!-- 页脚导出按钮 -->
-  <script>/* 轻量交互 JS: 主题切换/导航高亮/滚动动画/搜索 */</script>
+  <script>/* 轻量交互 JS: 主题切换/侧边栏导航高亮/滚动动画/搜索/ECharts初始化 */</script>
 </body>
 </html>
 ```
 
-**CDN 增强层 (可选)**:
+**CDN 增强层 (已内置)**:
 
-如果用户需要交互图表和精美公式渲染，在基线 HTML 基础上注入 CDN 标签：
+模板已内置 ECharts CDN。如需 KaTeX 公式渲染，在基线 HTML 基础上注入 CDN 标签：
 
 ```html
-<!-- 在 <head> 中添加 -->
-<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<!-- ECharts 已内置在模板 <head> 中，无需手动添加 -->
+<!-- 在 <head> 中添加 KaTeX -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
 <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
@@ -906,7 +965,9 @@ HTML 解析器在**任何位置**（包括 JS 字符串内、注释内）遇到 
 - 顶部固定导航栏，`backdrop-filter: blur(20px)` 毛玻璃效果
 - 滚动进度条：navbar 下方 2-3px 渐变色条
 - 每个模块标题旁显示 "⏱ 约 X 分钟" 阅读时间
-- 桌面端右侧固定圆点导航，hover 显示模块名
+- 左侧固定侧边栏目录导航（280px 宽），模块名全量显示，IntersectionObserver 自动追踪高亮（threshold=0.3）
+- 侧边栏顶部「← 返回主方案」链接（context_plan 启用时）
+- ≤1024px 隐藏侧边栏，内容区恢复全宽
 
 **元信息卡片** (页面顶部):
 
@@ -1035,9 +1096,10 @@ CSS 要求:
 **响应式设计**:
 
 - 3断点: 桌面(>1024px) / 平板(768-1024px) / 手机(<768px)
-- 内容区流体布局：`max-width: calc(100% - var(--sidebar-width) - 40px)`，铺满侧边栏右侧全部可用空间，窗口缩放时文字自动重排、图表随容器自适应，无右侧留白
-- 手机端侧边栏隐藏，内容区铺满全宽(`max-width: 100%`)，底部导航替代
-- 图表容器 ResizeObserver 自适应
+- 侧边栏在 ≤1024px 隐藏，内容区铺满全宽
+- 内容区流体布局：`max-width: calc(100% - 48px)`，铺满侧边栏右侧全部可用空间，窗口缩放时文字自动重排、图表随容器自适应，无右侧留白
+- 手机端侧边栏隐藏，内容区铺满全宽(`max-width: 100%`)
+- 图表容器 ECharts 自适应 resize
 
 **导出功能**:
 
@@ -1113,6 +1175,9 @@ while ((match = tableRegex.exec(scriptContent)) !== null) {
 - [ ] 【v3.4.1 new】所有 `tables` 对象包含 `headers`/`rows`/`caption` 三个字段
 - [ ] 【v3.4.1 new】`rows` 为二维数组，每行元素数量 = headers 长度
 - [ ] 【v3.4.1 new】`caption` 字段在对象内部，不在数组外层
+- [ ] 【v3.6.0 new】`html_file` 遵循 `[kp_id]_[topic-slug]_[depth].html` 格式
+- [ ] 【v3.6.0 new】`kp_id` 段与 `context_plan.kp_id` 一致
+- [ ] 【v3.6.0 new】`depth` 后缀使用标准化词汇 (`overview`/`intermediate`/`deep`)
 
 **为什么必须 node --check**：浏览器只在运行时抛错，且 file:// 协议下 console 可能不可见。Node.js 语法检查是唯一的离线静默验证方式。
 
@@ -1131,7 +1196,7 @@ while ((match = tableRegex.exec(scriptContent)) !== null) {
   "depth": "理解",
   "breadth": "标准",
   "texture": "G1",
-  "html_file": "option_pricing_deep.html",
+  "html_file": "p2_2_black-scholes-model_intermediate.html",  // [kp_id]_[topic-slug]_[depth].html 格式，纯文件名
   "generated_at": "<ISO date>",
   "template_id": "<indigo-night|cedar-dawn|...>",
   "belongs_to_plan": "[plan_id, if context_plan]",
@@ -1251,6 +1316,8 @@ deep_dive:{query:'Black-Scholes',topic_id:'black-scholes',prompt:'深度研读',
 16. **🔴 v3.4 白屏防御三步验证**: 交付前必须确认 (a) `<meta charset="UTF-8">` 是 `<head>` 第一个子元素 (b) `<body class="loading">` 存在 (c) `init()` 末尾有 `body.classList.remove('loading')`。三项缺一不可，遗漏任一项 = 白屏。
 
 17. **🔴 v3.4.1 表格数据结构约束**: 每个 `tables` 数组元素必须是包含 `headers`、`rows`、`caption` 三个字段的完整对象。`caption` 必须在对象内部不可在数组外层。`rows` 必须是二维数组（`string[][]`），每行元素数量必须等于 `headers.length`。生成后必须在 Step 5.0 中执行表格结构校验。
+
+18. **🔴 v3.6.0 深度资料命名强制**: 生成的 HTML 文件名**必须**遵循 `[kp_id]_[topic-slug]_[depth].html` 格式。`kp_id` 段必须与 `context_plan.kp_id` 一致，`depth` 后缀必须使用标准化词汇 `overview`/`intermediate`/`deep`。示例: `p2_3_multi-step-reasoning_intermediate.html`。此约定确保文件名自文档化（直接看出属于哪个阶段的哪个知识点），与 learning-plan-generator v3.9.0 对齐。
 
 ## 示例
 

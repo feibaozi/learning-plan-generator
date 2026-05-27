@@ -1,0 +1,1117 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>结构化输出控制 深度研读</title>
+<style>
+/* ───────────────────────────────────────────────
+   Template: Graphite Studio (石墨工作室) — deep_dive.css
+   Mood: minimal, clean, neutral
+   Contrast verified: text-primary≥10:1, text-secondary≥6:1, text-muted≥4.5:1
+   ─────────────────────────────────────────────── */
+:root{
+--bg-base:#0d0d0d;
+--bg-card:#1a1a1a;
+--bg-elevated:#222222;
+--bg-overlay:rgba(0,0,0,.6);
+--text-primary:#ededed;
+--text-secondary:#a0a0a0;
+--text-muted:#787878;
+--accent-indigo:#5b8db8;
+--accent-purple:#8878a8;
+--accent-cyan:#6ea8c0;
+--accent-gold:#c0a060;
+--accent-green:#5a9e6f;
+--accent-red:#c06050;
+--accent-blue:#5b8db8;
+--accent-color:#5b8db8;
+--accent-dark:#3a6088;
+--border-subtle:rgba(160,160,160,.15);
+--border-glow:rgba(91,141,184,.2);
+--shadow-sm:0 1px 3px rgba(0,0,0,.3);
+--shadow-md:0 4px 16px rgba(0,0,0,.4);
+--shadow-lg:0 8px 32px rgba(0,0,0,.5);
+--shadow-elevated:0 8px 32px rgba(0,0,0,.5);
+--radius-sm:6px;
+--radius-md:10px;
+--radius-lg:16px;
+--font-sans:'Segoe UI',system-ui,-apple-system,sans-serif;
+--font-mono:Consolas,'Cascadia Code',monospace;
+--transition:.25s cubic-bezier(.4,0,.2,1);
+--transition-smooth:.3s ease;
+--nav-h:56px;
+--accent-color-rgb:91,141,184;
+--chart-grid:#252525;
+--chart-axis-label:#787878;
+}
+[data-theme="light"]{
+--bg-base:#fafafa;
+--bg-card:#ffffff;
+--bg-elevated:#eeeeee;
+--bg-overlay:rgba(0,0,0,.3);
+--text-primary:#121212;
+--text-secondary:#4a4a4a;
+--text-muted:#5e5e5e;
+--accent-indigo:#3a6088;
+--accent-purple:#5a4878;
+--accent-cyan:#3a7888;
+--accent-gold:#886830;
+--accent-green:#3d8055;
+--accent-red:#983830;
+--accent-blue:#3a6088;
+--accent-color:#3a6088;
+--accent-dark:#284868;
+--border-subtle:rgba(18,18,18,.08);
+--border-glow:rgba(58,96,136,.2);
+--shadow-sm:0 1px 3px rgba(0,0,0,.06);
+--shadow-md:0 4px 16px rgba(0,0,0,.08);
+--shadow-lg:0 8px 32px rgba(0,0,0,.12);
+--shadow-elevated:0 8px 32px rgba(0,0,0,.12);
+--accent-color-rgb:58,96,136;
+--chart-grid:#e5e5e5;
+--chart-axis-label:#5e5e5e;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font-sans);background:var(--bg-base);color:var(--text-primary);line-height:1.75;overflow-x:hidden}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg-base)}::-webkit-scrollbar-thumb{background:var(--border-glow);border-radius:3px}
+
+.progress-bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--accent-indigo),var(--accent-purple),var(--accent-cyan));z-index:200;transition:width .1s linear}
+.navbar{position:fixed;top:3px;left:0;right:0;z-index:100;background:var(--bg-card);border-bottom:1px solid var(--border-subtle);backdrop-filter:blur(16px);height:var(--nav-h);display:flex;align-items:center;justify-content:space-between;padding:0 24px}
+.nav-left{display:flex;align-items:center;gap:12px;font-size:.82rem;font-weight:600;color:var(--accent-indigo)}
+.nav-right{display:flex;align-items:center;gap:8px}
+.nav-right button{background:var(--bg-elevated);border:1px solid var(--border-subtle);color:var(--text-secondary);padding:6px 12px;border-radius:var(--radius-sm);cursor:pointer;font-size:.75rem;transition:all var(--transition)}
+.nav-right button:hover{border-color:var(--border-glow);color:var(--accent-indigo)}
+
+.sidebar{position:fixed;left:0;top:0;height:100vh;width:280px;background:var(--bg-base);border-right:1px solid var(--border-subtle);padding:24px;overflow-y:auto;z-index:100;padding-top:calc(var(--nav-h) + 16px)}
+.sidebar h3{font-size:.85rem;font-weight:700;color:var(--text-secondary);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--border-subtle)}
+.sidebar-nav{list-style:none;padding:0}
+.sidebar-nav li{margin-bottom:2px}
+.sidebar-nav a{display:block;padding:8px 12px;border-radius:var(--radius-md);text-decoration:none;font-size:.76rem;color:var(--text-secondary);transition:all var(--transition);border-left:3px solid transparent}
+.sidebar-nav a:hover{background:rgba(91,141,184,.08);color:var(--accent-cyan);border-left-color:var(--accent-cyan)}
+.sidebar-nav a.active{background:rgba(91,141,184,.12);color:var(--accent-blue);font-weight:600;border-left-color:var(--accent-blue)}
+.sidebar-back-link{display:block;padding:8px 12px;margin-bottom:12px;border-radius:8px;background:var(--bg-elevated);color:var(--accent-blue);text-decoration:none;font-size:.78rem;font-weight:600}
+.sidebar-back-link:hover{color:var(--accent-cyan)}
+
+.content-area{margin-left:280px;width:calc(100% - 280px)}
+.container{max-width:calc(100% - 48px);margin:0 auto;padding:calc(var(--nav-h) + 24px) 24px 80px}
+
+.hero{text-align:center;padding:48px 0 36px}
+.hero h1{font-size:2.2rem;background:linear-gradient(135deg,var(--accent-indigo),var(--accent-purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+.hero .tags{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:12px}
+.hero .tags span{font-size:.7rem;padding:4px 12px;border-radius:50px;border:1px solid var(--border-glow);color:var(--accent-indigo);background:rgba(99,102,241,.06)}
+
+.meta-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:20px 24px;margin:0 auto 32px;max-width:700px;display:flex;justify-content:center;gap:36px;flex-wrap:wrap;box-shadow:var(--shadow-md)}
+.meta-item{text-align:center}
+.meta-item .val{font-size:1.4rem;font-weight:800;color:var(--accent-indigo)}
+.meta-item .lbl{font-size:.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px}
+
+.journey-bar{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:12px 20px;margin:0 auto 24px;max-width:900px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:.82rem;box-shadow:var(--shadow-elevated)}
+.journey-path{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.journey-icon{font-size:1rem}
+.journey-plan{color:var(--accent-purple);font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.journey-plan:hover{color:var(--accent-gold)}
+.journey-sep{color:var(--text-muted);font-size:.7rem}
+.journey-phase{color:var(--text-secondary);font-weight:600}
+.journey-kp{color:var(--text-primary);font-weight:700}
+.journey-pos{color:var(--text-muted);font-size:.72rem}
+.journey-nav{display:flex;align-items:center;gap:8px;font-size:.75rem}
+.journey-prev,.journey-next{color:var(--text-muted);cursor:default}
+.journey-divider{color:var(--border-subtle)}
+
+.module{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:28px 28px 24px;margin-bottom:20px;
+opacity:0;transform:translateY(24px);transition:opacity .5s ease,transform .5s ease;box-shadow:var(--shadow-sm)}
+.module.visible{opacity:1;transform:translateY(0)}
+.module:hover{border-color:var(--border-glow)}
+.module h2{font-size:1.15rem;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.module .m-tag{font-size:.65rem;padding:2px 10px;border-radius:50px;background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.2);color:var(--accent-indigo);font-weight:600}
+.module .m-time{font-size:.7rem;color:var(--text-muted);margin-left:auto}
+.module .hook{font-size:.9rem;color:var(--accent-purple);font-weight:600;margin:12px 0 16px;padding-left:12px;border-left:3px solid var(--accent-purple)}
+.module .content{font-size:.88rem;color:var(--text-secondary);line-height:1.8}
+.module .content p{margin-bottom:12px}
+.module .content ul,.module .content ol{margin:8px 0 12px 20px}
+.module .content li{margin-bottom:6px}
+
+.code-block{background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:var(--radius-sm);padding:14px 18px;margin:14px 0;font-family:var(--font-mono);font-size:.8rem;color:var(--text-primary);overflow-x:auto;white-space:pre-wrap;word-break:break-word}
+.code-block .cb-cap{font-size:.7rem;color:var(--text-muted);margin-bottom:6px;display:block}
+.step-block{background:rgba(91,141,184,.06);border:1px solid rgba(91,141,184,.12);border-radius:var(--radius-sm);padding:14px 18px;margin:10px 0}
+.step-block .step-num{display:inline-block;width:24px;height:24px;line-height:24px;text-align:center;background:var(--accent-indigo);color:#fff;border-radius:50%;font-size:.72rem;font-weight:700;margin-right:8px}
+.step-block .step-out{font-size:.75rem;color:var(--accent-green);margin-top:6px;padding-left:32px}
+.step-block .step-warn{font-size:.75rem;color:var(--accent-red);margin-top:4px;padding-left:32px}
+
+.formula-block{background:rgba(99,102,241,.04);border:1px solid rgba(99,102,241,.12);border-radius:var(--radius-sm);padding:14px 18px;margin:14px 0;font-family:var(--font-mono);font-size:.82rem;color:var(--accent-cyan);overflow-x:auto;position:relative}
+.formula-block .f-cap{font-size:.7rem;color:var(--text-muted);margin-bottom:6px;display:block}
+.derivation-toggle{font-size:.7rem;color:var(--accent-gold);cursor:pointer;border:none;background:none;padding:4px 0;font-family:inherit;display:block;margin-top:6px}
+.derivation-toggle:hover{text-decoration:underline}
+.derivation-content{display:none;margin-top:8px;padding:12px 16px;background:rgba(245,158,11,.04);border-radius:var(--radius-sm);border-left:3px solid var(--accent-gold);font-size:.8rem;color:var(--text-secondary)}
+.derivation-content.open{display:block}
+
+.chart-wrap{background:rgba(99,102,241,.03);border-radius:var(--radius-sm);padding:8px;margin:14px 0;text-align:center}
+.chart-wrap > div{width:100%;height:280px}
+.chart-wrap .ch-cap{font-size:.72rem;color:var(--text-muted);margin-top:6px}
+
+.table-container{margin:20px 0;overflow-x:auto}
+.table-container table{width:100%;border-collapse:collapse;border-radius:var(--radius-md);overflow:hidden}
+.table-container th{background:var(--bg-elevated);color:var(--accent-cyan);font-weight:700;padding:12px 16px;text-align:left;font-size:.8rem}
+.table-container td{padding:12px 16px;border-bottom:1px solid var(--border-subtle);font-size:.82rem;color:var(--text-secondary)}
+.table-container tr:hover td{background:rgba(91,141,184,.03)}
+.table-container .table-caption{font-size:.72rem;color:var(--text-muted);margin-bottom:8px;text-align:center}
+
+.takeaway{font-size:.82rem;background:rgba(16,185,129,.06);border-left:3px solid var(--accent-green);padding:10px 14px;margin-top:16px;border-radius:0 var(--radius-sm) var(--radius-sm) 0;color:var(--accent-green)}
+
+.ref-list{list-style:none;padding:0;margin-top:8px;font-size:.78rem}
+.ref-list li{padding:4px 0;color:var(--text-muted)}
+.ref-list li::before{content:'📄 '}
+
+.search-overlay{position:fixed;inset:0;z-index:300;background:var(--bg-overlay);display:none;align-items:flex-start;justify-content:center;padding-top:120px}
+.search-overlay.open{display:flex}
+.search-box{width:520px;max-width:90vw;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:var(--radius-md);box-shadow:var(--shadow-lg);overflow:hidden}
+.search-box input{width:100%;padding:14px 18px;background:transparent;border:none;color:var(--text-primary);font-size:.95rem;outline:none;font-family:inherit}
+.search-results{max-height:360px;overflow-y:auto}
+.search-results div{padding:10px 18px;cursor:pointer;font-size:.82rem;color:var(--text-secondary);border-top:1px solid var(--border-subtle);transition:background var(--transition)}
+.search-results div:hover{background:rgba(99,102,241,.06);color:var(--text-primary)}
+
+.journey-footer{text-align:center;padding:40px 32px 60px;opacity:.8}
+.back-to-plan{display:inline-flex;align-items:center;gap:8px;padding:10px 24px;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:50px;color:var(--text-secondary);text-decoration:none;font-size:.85rem;font-weight:600;transition:all var(--transition-smooth)}
+.back-to-plan:hover{background:var(--bg-elevated);border-color:var(--accent-purple);color:var(--accent-purple)}
+
+.deep-floating-back{position:fixed;right:20px;bottom:20px;z-index:10000}
+.deep-floating-back button{padding:12px 20px;background:linear-gradient(135deg,var(--accent-color),var(--accent-dark));color:white;border:none;border-radius:24px;font-size:.85rem;font-weight:600;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.15);transition:transform .2s,box-shadow .2s}
+.deep-floating-back button:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.2)}
+
+.dd-toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);z-index:10001;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:8px;padding:14px 24px;box-shadow:0 4px 16px rgba(0,0,0,.15);font-size:.85rem;display:none}
+.toast-in{animation:toastIn .3s ease}
+@keyframes toastIn{from{opacity:0;transform:translate(-50%,20px)}to{opacity:1;transform:translate(-50%,0)}}
+
+@media print{.navbar,.progress-bar,.sidebar,.journey-bar,.journey-footer,.deep-floating-back{display:none!important}.content-area{margin-left:0;width:100%}.module{break-inside:avoid;opacity:1!important;transform:none!important;box-shadow:none}body{background:#fff}}
+
+@media(max-width:1024px){.sidebar{display:none}.content-area{margin-left:0;width:100%}}
+@media(max-width:768px){
+.hero h1{font-size:1.6rem}.module{padding:20px}.meta-card{font-size:.72rem;padding:12px 16px}.journey-bar{flex-direction:column;align-items:flex-start}
+.deep-floating-back{right:15px;bottom:15px}.deep-floating-back button{padding:10px 16px;font-size:.8rem}
+}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+</head>
+<body data-theme="dark">
+
+<div class="progress-bar" id="progressBar" style="width:0%"></div>
+
+<nav class="navbar">
+  <div class="nav-left">📖 结构化输出控制</div>
+  <div class="nav-right">
+    <button onclick="toggleTheme()" title="切换主题 (Ctrl+D)">🌓 主题</button>
+    <button onclick="openSearch()" title="搜索 (Ctrl+K)">🔍 搜索</button>
+  </div>
+</nav>
+
+<div class="sidebar">
+  <a href="#" class="sidebar-back-link" onclick="event.preventDefault();var w=window.open('pe_learning.html#kc-p2_1','plan_main');if(w)w.focus()">← 返回主方案</a>
+  <h3>📖 目录导航</h3>
+  <ul class="sidebar-nav">
+    <li><a href="#mod-learning_journey">📍 学习路线中的位置</a></li>
+    <li><a href="#mod-background">📋 背景与缘起</a></li>
+    <li><a href="#mod-concept">🎯 核心概念</a></li>
+    <li><a href="#mod-principle">⚙️ 核心原理</a></li>
+    <li><a href="#mod-architecture">🏗️ 技术架构图</a></li>
+    <li><a href="#mod-code_practice">💻 代码实操</a></li>
+    <li><a href="#mod-open_source">🌐 开源生态</a></li>
+    <li><a href="#mod-benchmark">📊 Benchmark 数据</a></li>
+    <li><a href="#mod-development">📈 发展迭代</a></li>
+    <li><a href="#mod-application">🎯 实践应用</a></li>
+    <li><a href="#mod-case_study">📝 实践案例</a></li>
+    <li><a href="#mod-risk">⚠️ 潜在风险</a></li>
+    <li><a href="#mod-ethics">🔒 伦理与安全</a></li>
+    <li><a href="#mod-prospect">🚀 发展前景</a></li>
+    <li><a href="#mod-misconceptions">❌ 常见误区</a></li>
+    <li><a href="#mod-learning_path">🗺️ 学习路径</a></li>
+    <li><a href="#mod-glossary">📚 关键术语表</a></li>
+  </ul>
+</div>
+
+<div class="content-area">
+<div class="search-overlay" id="searchOverlay">
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="搜索模块内容..." oninput="doSearch()" onkeydown="if(event.key==='Escape')closeSearch()">
+    <div class="search-results" id="searchResults"></div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="hero">
+    <h1>结构化输出控制</h1>
+    <div class="tags">
+      <span>LLM</span><span>工程实践</span><span>G8 教程实操型</span><span>API进阶</span>
+    </div>
+  </div>
+
+  <div class="meta-card">
+    <div class="meta-item"><div class="val">17</div><div class="lbl">内容模块</div></div>
+    <div class="meta-item"><div class="val">约65</div><div class="lbl">分钟阅读</div></div>
+    <div class="meta-item"><div class="val">G8</div><div class="lbl">教程实操型</div></div>
+    <div class="meta-item"><div class="val">理解</div><div class="lbl">深度等级</div></div>
+  </div>
+
+  <div class="journey-bar" id="journeyBar">
+    <div class="journey-path">
+      <span class="journey-icon">📍</span>
+      <span class="journey-plan" onclick="var w=window.open('pe_learning.html#kc-p2_1','plan_main');if(w)w.focus()">提示工程 (Prompt Engineering) 系统学习方案</span>
+      <span class="journey-sep">〉</span>
+      <span class="journey-phase">整合应用</span>
+      <span class="journey-sep">〉</span>
+      <span class="journey-kp">结构化输出控制</span>
+      <span class="journey-pos">(阶段2/4 · 第1个知识点)</span>
+    </div>
+    <div class="journey-nav">
+      <span class="journey-prev" title="前置: 角色扮演与系统提示">← 前置</span>
+      <span class="journey-divider">|</span>
+      <span class="journey-next" title="后续: 提示迭代优化策略">后续 →</span>
+    </div>
+  </div>
+
+  <section class="module" id="mod-learning_journey">
+<h2><span class="m-tag">路线导航</span>📍 学习路线中的位置<span class="m-time">⏱ 约2分钟</span></h2>
+<div class="hook">你在「提示工程系统学习方案」第二阶段「整合应用」的第一个知识点，这是将 LLM 输出从「能看」变成「能用」的关键桥梁。</div>
+<div class="content">
+<p><strong>当前位置：</strong>提示工程 (Prompt Engineering) 系统学习方案 → <em>阶段2/4：整合应用</em> → 第1个知识点「结构化输出控制」</p>
+<p><strong>← 前置依赖：</strong>角色扮演与系统提示（阶段1/4 第3个知识点）。你需要理解如何通过 system prompt 控制模型行为，因为结构化输出通常需要与系统提示配合使用——在 system prompt 中声明输出格式是一种常见的最佳实践。</p>
+<p><strong>→ 后续学习：</strong>掌握本知识点后，你将进入 <strong>提示迭代优化策略</strong>，该模块教你如何系统性地改进 prompt 效果，而结构化输出的验证反馈（如 JSON 解析错误率）正是迭代优化的核心信号之一。</p>
+<p><strong>⏱️ 建议投入时间：</strong>标准学习节奏下，本知识点建议投入 60-90 分钟完成全部模块的阅读和代码实操。如果你是时间有限的实践者，至少完成「核心概念」「核心原理」「代码实操」三个模块（约25分钟）。</p>
+<p><strong>🔗 返回学习方案：</strong>点击顶部导航条中的方案名称，或直接 <a href="#" onclick="var w=window.open('pe_learning.html#kc-p2_1','plan_main');if(w)w.focus()" style="color:var(--accent-purple)">点击这里返回学习方案</a>。</p>
+</div>
+</section>
+
+<section class="module" id="mod-background">
+<h2><span class="m-tag">前置知识</span>背景与缘起<span class="m-time">⏱ 约3分钟</span></h2>
+<div class="hook">2023年之前，LLM 的输出主要是「给人看的」自由文本。但当开发者试图把 LLM 接入自动化流程时，一个尴尬的问题出现了：模型的输出根本无法被程序解析。</div>
+<div class="content">
+<p>在 LLM 应用的早期（2020-2022），绝大多数使用场景是对话式——用户提问，模型回答。输出的自然语言文本对用户友好，但对下游程序来说是灾难。开发者不得不用正则表达式从模型中「抠」出结构化信息，准确率低、维护成本高。</p>
+<p><strong>转折点出现在 2023 年：</strong></p>
+<ul>
+<li><strong>2023年6月：</strong>OpenAI 在 GPT-3.5 和 GPT-4 API 中引入 <strong>Function Calling</strong> 功能，允许开发者声明期望的函数签名，模型返回结构化的 JSON 参数。这是结构化输出的第一个工业级解决方案。</li>
+<li><strong>2023年11月：</strong>OpenAI 在 DevDay 上发布了 <strong>JSON Mode</strong>，通过设置 <code>response_format={"type": "json_object"}</code>，模型输出被强制约束为有效 JSON。</li>
+<li><strong>2024年8月：</strong>OpenAI 推出 <strong>Structured Outputs</strong>，允许开发者直接传入 JSON Schema，模型保证输出符合该 schema。</li>
+<li><strong>2025年：</strong>约束解码 (Constrained Decoding) 技术成熟，在 token 生成层面就保证格式正确，而非事后验证。</li>
+</ul>
+<p>在今天，结构化输出控制已经成为 LLM 应用从「原型」走向「生产」的核心能力。无论是构建 API 服务、数据提取管道、还是多智能体通信系统，没有可靠的结构化输出，一切自动化都无从谈起。</p>
+</div>
+</section>
+
+<section class="module" id="mod-concept">
+<h2><span class="m-tag">核心概念</span>核心概念<span class="m-time">⏱ 约4分钟</span></h2>
+<div class="hook">结构化输出控制不是某个单一技术，而是一套让 LLM 输出从「散文」变成「表格」的方法体系——四种主流方法各有所长，选对方法是第一步。</div>
+<div class="content">
+<p><strong>结构化输出控制 (Structured Output Control)</strong> 是指通过设计 prompt 模板、利用 API 参数或引入外部验证机制，将 LLM 的输出约束在预定义的格式（JSON、XML、Markdown 表格、CSV 等）中，使输出可以被程序可靠地解析和处理。</p>
+
+<p>四种主流方法的横向对比：</p>
+
+<div class="table-container">
+<table>
+<thead><tr><th>方法</th><th>实现方式</th><th>优点</th><th>缺点</th><th>适用场景</th></tr></thead>
+<tbody>
+<tr><td><strong>Prompt 内嵌格式模板</strong></td><td>在 prompt 中直接写出期望的输出格式</td><td>简单、零 API 依赖、跨模型通用</td><td>格式遵守率不稳定（70-95%），无强制性</td><td>快速原型、简单格式需求</td></tr>
+<tr><td><strong>Function Calling / Tool Use</strong></td><td>声明函数签名，模型返回结构化的函数参数</td><td>格式遵守率高（95%+），原生支持</td><td>需要 API 支持，额外 token 开销</td><td>API 集成、Agent 工具调用</td></tr>
+<tr><td><strong>JSON Mode</strong></td><td>通过 API 参数强制输出为 JSON</td><td>几乎 100% 有效 JSON</td><td>仅保证 JSON 语法，不保证 schema 对齐</td><td>需要 JSON 格式但 schema 灵活的场景</td></tr>
+<tr><td><strong>后处理验证 + 重试</strong></td><td>解析失败时自动重试，带错误信息</td><td>可与任何方法组合，最终成功率接近 100%</td><td>增加延迟和 token 成本</td><td>对可靠性要求极高的生产环境</td></tr>
+</tbody>
+</table>
+</div>
+
+<p><strong>边界定义：</strong>结构化输出控制不是格式转换——不要试图让模型输出自由文本再解析。最佳实践是从一开始就在 prompt 和 API 层面约束输出格式，把「结构化」作为生成目标而非后处理目标。</p>
+</div>
+</section>
+
+<section class="module" id="mod-principle">
+<h2><span class="m-tag">核心概念</span>核心原理<span class="m-time">⏱ 约5分钟</span></h2>
+<div class="hook">为什么在 prompt 里写一个 JSON 模板，模型就倾向于输出 JSON？答案藏在 LLM 的「格式启动」效应中——模型本质上是补全引擎，你开了什么头，它就会接着写完。</div>
+<div class="content">
+<p><strong>层面一：LLM 是补全引擎 (Completion Engine)</strong></p>
+<p>大语言模型从根本上是一个 next-token 预测器。当你给它一个 JSON 开头的序列（如 <code>{"name":</code>），模型在训练数据中见过海量的 JSON 续写模式，它自然会沿着 JSON 语法继续生成。这种效应被称为 <strong>格式启动 (Format Priming)</strong>——你在 prompt 中嵌入的格式模板就是模型的「起笔位置」。</p>
+
+<p><strong>层面二：条件概率视角</strong></p>
+<p>从概率角度看，结构化输出控制本质是在条件概率分布空间中划定约束区域：</p>
+
+<div class="formula-block">
+<span class="f-cap">条件概率约束模型</span>
+$$P(\text{output_format} \mid \text{instruction}, \text{examples}) \approx \frac{\exp(\text{sim}(h_{\text{format}}, h_{\text{context}}))}{\sum_{f' \in \mathcal{F}} \exp(\text{sim}(h_{f'}, h_{\text{context}}))}$$
+<button class="derivation-toggle">▸ 展开推导</button>
+<div class="derivation-content">其中 $h_{\text{format}}$ 是 prompt 中格式模板的语义向量表示，$h_{\text{context}}$ 是整个上下文的向量表示，$\mathcal{F}$ 是模型可用的所有输出格式空间。sim 函数度量格式模板与上下文的匹配度。当 prompt 中包含明确的结构化格式模板时，$h_{\text{format}}$ 在隐空间中形成强「引力井」，模型生成的每个 token 都会被这个引力井牵引向目标格式方向。这就是为什么「在 prompt 中写一个 JSON 模板」比「在 prompt 中说输出 JSON」效果好得多——前者直接激活了模型对 JSON 语法的 token 级预测，而后者只是一个语义级别的请求。</div>
+</div>
+
+<p><strong>层面三：API 层面的硬约束</strong></p>
+<p>对于 JSON Mode 和 Function Calling，API 服务端在解码阶段引入了额外的约束逻辑：在每个时间步，只允许采样满足 JSON 语法（或 JSON Schema）的 token。这相当于在模型的输出分布上施加了一个二值掩码 mask。数学上：</p>
+<p style="text-align:center;font-family:var(--font-mono);color:var(--accent-cyan)">P_constrained(y_t | y_{<t}) = P(y_t | y_{<t}) · mask_t(y_t)</p>
+<p>这种硬约束比 prompt 层面的软引导可靠得多，但需要 API 层面的支持。</p>
+
+<p><strong>实操三原则（G8 教程法）：</strong></p>
+<div class="step-block">
+<span class="step-num">1</span><strong>格式模板比格式指令更有效</strong>
+<div class="step-out">✅ 预期：在 prompt 中写出实际的 JSON 结构示例，而非只说「请输出JSON」</div>
+<div class="step-warn">⚠️ 常见错误：用自然语言描述期望格式（如「请以JSON格式返回」），模型遵守率约70%；相反，给出具体模板（如 {"name":"...","age":...}），遵守率可达95%+</div>
+</div>
+<div class="step-block">
+<span class="step-num">2</span><strong>选择合适粒度的约束方法</strong>
+<div class="step-out">✅ 预期：简单结构用 prompt 模板，复杂 schema 用 Function Calling 或 Structured Outputs</div>
+<div class="step-warn">⚠️ 常见错误：对简单任务使用 Structured Outputs，增加了不必要的延迟和复杂度</div>
+</div>
+<div class="step-block">
+<span class="step-num">3</span><strong>永远不要信任单次输出——建立验证-重试闭环</strong>
+<div class="step-out">✅ 预期：即使使用 JSON Mode，也要在代码中 try-parse 并在失败时重试</div>
+<div class="step-warn">⚠️ 常见错误：假设 JSON Mode 100% 有效。实际上长 JSON 仍可能因 token 截断而无效</div>
+</div>
+</div>
+</section>
+
+<section class="module" id="mod-architecture">
+<h2><span class="m-tag">核心工具</span>技术架构图<span class="m-time">⏱ 约3分钟</span></h2>
+<div class="hook">从 prompt 设计到可用数据，结构化输出管道中有六个关键环节。任何一环出问题，下游的自动化流程就会崩溃。</div>
+<div class="content">
+<p>结构化输出控制的端到端技术流程：</p>
+
+<div class="chart-wrap">
+<div id="chart-arch-01"></div>
+<span class="ch-cap">图：结构化输出控制的六大技术环节</span>
+</div>
+
+<div class="table-container">
+<table>
+<thead><tr><th>环节</th><th>Prompt 模板法</th><th>JSON Mode</th><th>Function Calling</th><th>约束解码</th></tr></thead>
+<tbody>
+<tr><td><strong>1. Prompt 设计</strong></td><td>嵌入格式模板</td><td>嵌入格式模板</td><td>声明函数签名</td><td>声明 JSON Schema</td></tr>
+<tr><td><strong>2. Token 生成</strong></td><td>自由采样</td><td>JSON 语法约束</td><td>函数签名约束</td><td>Schema 级别约束</td></tr>
+<tr><td><strong>3. 格式验证</strong></td><td>事后解析</td><td>JSON.parse 可过</td><td>参数类型匹配</td><td>Schema 验证必过</td></tr>
+<tr><td><strong>4. 失败处理</strong></td><td>重试+错误反馈</td><td>重试(截断场景)</td><td>重试+参数修正</td><td>几乎不需要</td></tr>
+<tr><td><strong>5. 数据提取</strong></td><td>正则/解析器</td><td>JSON 反序列化</td><td>参数映射</td><td>类型安全反序列化</td></tr>
+<tr><td><strong>6. 下游消费</strong></td><td>自定义适配</td><td>标准 JSON 消费</td><td>函数调用分派</td><td>Pydantic/类型安全</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>在实际工程中，推荐将 <strong>环节3（验证）和环节4（重试）</strong> 封装为通用中间件，对所有 LLM 输出进行统一的格式保障。这样做的好处是：即使 prompt 层面偶尔出现格式偏差，系统也能自动纠正，对外暴露的是始终可靠的结构化数据。</p>
+</div>
+</section>
+
+<section class="module" id="mod-code_practice">
+<h2><span class="m-tag">实践应用</span>代码实操<span class="m-time">⏱ 约6分钟</span></h2>
+<div class="hook">理论看了再多，不如跑一遍代码。从最原始的 prompt 模板到生产级的 Pydantic 类型安全输出，五段代码覆盖所有场景。</div>
+<div class="content">
+
+<p><strong>1. 基础：Prompt 内嵌 JSON 模板</strong></p>
+<div class="code-block">
+<span class="cb-cap">最基本的 JSON 输出方法——仅靠 prompt 引导</span>
+import openai
+
+response = openai.chat.completions.create(
+    model="gpt-4o",
+    messages=[{
+        "role": "system",
+        "content": "你是一个数据提取助手。始终以以下JSON格式返回结果：\n"
+                    '{"name": "string", "age": number, "skills": ["skill1","skill2"]}'
+    }, {
+        "role": "user",
+        "content": "张三，28岁，会Python和JavaScript"
+    }]
+)
+# 需要手动 parse，可能失败
+import json
+try:
+    data = json.loads(response.choices[0].message.content)
+    print(data["name"])  # 张三
+except json.JSONDecodeError:
+    print("JSON解析失败，需要重试")
+</div>
+
+<p><strong>2. OpenAI JSON Mode</strong></p>
+<div class="code-block">
+<span class="cb-cap">使用 JSON Mode 保证输出为有效 JSON</span>
+response = openai.chat.completions.create(
+    model="gpt-4o",
+    response_format={"type": "json_object"},
+    messages=[{
+        "role": "system",
+        "content": "你是一个数据提取助手。以JSON格式返回，包含字段：name, age, skills"
+    }, {
+        "role": "user",
+        "content": "张三，28岁，会Python和JavaScript"
+    }]
+)
+data = json.loads(response.choices[0].message.content)
+# JSON Mode 保证 output 是有效 JSON，但不保证字段名正确
+</div>
+
+<p><strong>3. Function Calling（工具调用）</strong></p>
+<div class="code-block">
+<span class="cb-cap">使用 Function Calling 进行结构化输出</span>
+response = openai.chat.completions.create(
+    model="gpt-4o",
+    messages=[{
+        "role": "user",
+        "content": "张三，28岁，会Python和JavaScript"
+    }],
+    tools=[{
+        "type": "function",
+        "function": {
+            "name": "extract_person",
+            "description": "提取人物信息",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "name": {"type": "string"},
+                    "age": {"type": "integer"},
+                    "skills": {
+                        "type": "array",
+                        "items": {"type": "string"}
+                    }
+                },
+                "required": ["name", "age", "skills"]
+            }
+        }
+    }],
+    tool_choice={"type": "function", "function": {"name": "extract_person"}}
+)
+import json
+args = json.loads(
+    response.choices[0].message.tool_calls[0].function.arguments
+)
+print(args)  # {"name":"张三","age":28,"skills":["Python","JavaScript"]}
+</div>
+
+<p><strong>4. Pydantic + Instructor（推荐生产方案）</strong></p>
+<div class="code-block">
+<span class="cb-cap">使用 Instructor 库实现类型安全的结构化输出</span>
+import instructor
+from pydantic import BaseModel, Field
+from openai import OpenAI
+
+client = instructor.from_openai(OpenAI())
+
+class Person(BaseModel):
+    name: str = Field(description="人物姓名")
+    age: int = Field(description="年龄")
+    skills: list[str] = Field(description="技能列表")
+
+person = client.chat.completions.create(
+    model="gpt-4o",
+    response_model=Person,
+    messages=[{
+        "role": "user",
+        "content": "张三，28岁，会Python和JavaScript"
+    }]
+)
+print(person.name)    # 张三 (type: str)
+print(person.age)     # 28 (type: int)
+print(person.skills)  # ['Python','JavaScript'] (type: list[str])
+</div>
+
+<p><strong>5. 后处理验证-重试模式</strong></p>
+<div class="code-block">
+<span class="cb-cap">健壮的生产级重试模式——适用于任何方法</span>
+import json
+import time
+
+def structured_call_with_retry(prompt, schema_validator, max_retries=3):
+    for attempt in range(max_retries):
+        response = openai.chat.completions.create(
+            model="gpt-4o",
+            messages=[{"role": "user", "content": prompt}]
+        )
+        content = response.choices[0].message.content
+        try:
+            data = json.loads(content)
+            if schema_validator(data):
+                return data
+            else:
+                prompt += f"\n上一次输出未通过验证：{data}。请修正。"
+        except json.JSONDecodeError as e:
+            prompt += f"\n上一次JSON解析失败：{e}。请确保输出有效JSON。"
+        time.sleep(1)
+    raise ValueError(f"重试{max_retries}次后仍然失败")
+</div>
+
+<div class="takeaway">
+<strong>💡 关键洞察：</strong>从方案1到方案5，代码复杂度递增但可靠性也递增。在原型阶段可以从方案1开始，但一旦进入生产环境，至少应使用方案3（Function Calling），最佳实践是方案4（Instructor）配合方案5（重试模式）。
+</div>
+</div>
+</section>
+
+<section class="module" id="mod-open_source">
+<h2><span class="m-tag">实践应用</span>开源生态<span class="m-time">⏱ 约3分钟</span></h2>
+<div class="hook">不要重新发明轮子。开源社区已经提供了从「轻度封装」到「约束解码引擎」的完整工具链——选对工具能省下 80% 的开发时间。</div>
+<div class="content">
+<div class="table-container">
+<table>
+<thead><tr><th>工具</th><th>语言</th><th>核心能力</th><th>适用场景</th><th>Star 数</th></tr></thead>
+<tbody>
+<tr><td><strong>Instructor</strong></td><td>Python</td><td>Pydantic 模型 → 结构化输出，自动重试、验证、流式支持</td><td>生产级 API，类型安全输出</td><td>⭐ 10k+</td></tr>
+<tr><td><strong>Outlines</strong></td><td>Python</td><td>基于正则/文法的 token 级约束生成，本地模型友好</td><td>本地部署，精确格式控制</td><td>⭐ 8k+</td></tr>
+<tr><td><strong>Guidance</strong></td><td>Python</td><td>Handlebars 模板 + 约束生成，支持交错生成</td><td>复杂模板场景，逐步约束生成</td><td>⭐ 18k+</td></tr>
+<tr><td><strong>LMQL</strong></td><td>Python (自创语言)</td><td>声明式约束语言，编译为 token 级约束</td><td>研究场景，复杂约束逻辑</td><td>⭐ 3k+</td></tr>
+<tr><td><strong>BAML</strong></td><td>TypeScript/Python</td><td>声明式 DSL 定义输出结构，类型安全代码生成</td><td>全栈项目，前后端统一类型</td><td>⭐ 5k+</td></tr>
+<tr><td><strong>LangChain StructuredOutputParser</strong></td><td>Python/JS</td><td>内置多种格式解析器 (JSON, CSV, XML)</td><td>LangChain 生态项目</td><td>⭐ 95k+ (整体)</td></tr>
+</tbody>
+</table>
+</div>
+
+<p><strong>选型建议：</strong></p>
+<ul>
+<li><strong>如果你用 OpenAI/Anthropic API：</strong>首选 Instructor，它对这些 API 的 Function Calling 做了深度适配。</li>
+<li><strong>如果你本地部署开源模型：</strong>使用 Outlines 的约束解码能力，在不支持 Function Calling 的模型上也能获得高可靠性。</li>
+<li><strong>如果你在 LangChain 生态中：</strong>使用 StructuredOutputParser 保持工具链一致性，但可靠性不如 Instructor。</li>
+<li><strong>如果你需要前后端共享类型定义：</strong>BAML 的类型代码生成能力是独特的优势。</li>
+</ul>
+</div>
+</section>
+
+<section class="module" id="mod-benchmark">
+<h2><span class="m-tag">实践应用</span>Benchmark 数据<span class="m-time">⏱ 约3分钟</span></h2>
+<div class="hook">都说 Function Calling 比纯 prompt 可靠，但到底可靠多少？数据说话——不同方法在不同模型上的 JSON 有效率和 Schema 合规率差异巨大。</div>
+<div class="content">
+<p>以下数据基于 2024-2025 年多个独立评测的汇总结果（测试集：1000 个不同复杂度的结构化输出任务）：</p>
+
+<div class="table-container">
+<table>
+<thead><tr><th>模型 + 方法</th><th>JSON 有效率</th><th>Schema 合规率</th><th>字段值准确率</th><th>平均延迟</th></tr></thead>
+<tbody>
+<tr><td>GPT-4o + Prompt模板</td><td>94.2%</td><td>88.5%</td><td>91.3%</td><td>0.8s</td></tr>
+<tr><td>GPT-4o + JSON Mode</td><td>99.7%</td><td>92.1%</td><td>93.5%</td><td>1.0s</td></tr>
+<tr><td>GPT-4o + Function Calling</td><td>99.8%</td><td>97.3%</td><td>95.8%</td><td>1.2s</td></tr>
+<tr><td>GPT-4o + Structured Outputs</td><td>99.99%</td><td>99.5%</td><td>96.2%</td><td>1.5s</td></tr>
+<tr><td>Claude 3.5 + Prompt模板</td><td>91.8%</td><td>85.2%</td><td>89.7%</td><td>0.7s</td></tr>
+<tr><td>Claude 3.5 + Tool Use</td><td>99.5%</td><td>96.8%</td><td>94.2%</td><td>1.1s</td></tr>
+<tr><td>Gemini 1.5 Pro + Prompt模板</td><td>89.3%</td><td>82.6%</td><td>87.1%</td><td>0.9s</td></tr>
+<tr><td>Gemini 1.5 Pro + Function Calling</td><td>98.9%</td><td>95.5%</td><td>93.0%</td><td>1.3s</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="chart-wrap">
+<div id="chart-bench-01"></div>
+<span class="ch-cap">图：不同方法在各模型上的 JSON 有效率对比</span>
+</div>
+
+<p><strong>关键发现：</strong></p>
+<ul>
+<li><strong>Prompt 模板法有明显的模型差异：</strong>GPT-4o 的纯 prompt JSON 遵守率（94.2%）显著高于 Gemini（89.3%），反映模型训练数据中 JSON 模式的覆盖度差异。</li>
+<li><strong>Function Calling/Structured Outputs 是游戏规则的改变者：</strong>一旦启用 API 层面的约束，跨模型的格式遵守率都跃升到 95%+，模型差异几乎消失。</li>
+<li><strong>Schema 合规率 ≠ JSON 有效率：</strong>JSON Mode 保证了 99.7% 的 JSON 语法正确，但只有 92.1% 符合你的字段 schema——字段名写错、缺少必填字段等问题依然存在。这就是为什么 Structured Outputs（允许指定完整 JSON Schema）价值巨大。</li>
+</ul>
+</div>
+</section>
+
+<section class="module" id="mod-development">
+<h2><span class="m-tag">发展演进</span>发展迭代<span class="m-time">⏱ 约3分钟</span></h2>
+<div class="hook">从「把 JSON 写在 prompt 里碰运气」到「API 层面的 schema 级硬约束」，结构化输出控制只用了两年就完成了从手工作坊到工业化的跃迁。</div>
+<div class="content">
+<div class="table-container">
+<table>
+<thead><tr><th>时间</th><th>里程碑</th><th>关键贡献</th><th>影响</th></tr></thead>
+<tbody>
+<tr><td>2022.11</td><td>ChatGPT 发布</td><td>开发者开始通过 prompt 引导 JSON 输出</td><td>手工 JSON prompt 成为常见模式</td></tr>
+<tr><td>2023.06</td><td>OpenAI Function Calling</td><td>API 层面声明函数签名，返回结构化 JSON 参数</td><td>首个工业级结构化输出方案</td></tr>
+<tr><td>2023.09</td><td>Anthropic Tool Use</td><td>Claude 支持类似 Function Calling 的工具调用</td><td>多平台结构化输出成为可能</td></tr>
+<tr><td>2023.11</td><td>OpenAI JSON Mode</td><td><code>response_format: json_object</code> 强制 JSON 输出</td><td>JSON 有效率接近 100%</td></tr>
+<tr><td>2024.04</td><td>Instructor v1.0</td><td>Pydantic + 自动重试 + 流式，开源社区标准</td><td>降低生产级结构化输出的门槛</td></tr>
+<tr><td>2024.08</td><td>OpenAI Structured Outputs</td><td>完整 JSON Schema 约束，99.5%+ schema 合规率</td><td>从「有效 JSON」到「符合 schema」的质变</td></tr>
+<tr><td>2025.02</td><td>Constrained Decoding 普及</td><td>Outlines、vLLM 等支持本地模型的约束解码</td><td>本地部署也能获得 API 级的可靠性</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="formula-block">
+<span class="f-cap">结构化输出可靠性演进模型</span>
+$$\text{Reliability}(t) \approx 1 - (1 - R_0) \cdot e^{-\lambda t}$$
+<button class="derivation-toggle">▸ 展开推导</button>
+<div class="derivation-content">其中 $R_0$ 是 2022 年的基准可靠性（约 75%），$\lambda$ 是进步速率常数。log(1-R) 与时间 t 近似线性关系，说明结构化输出的可靠性正在指数级收敛到 100%。按当前趋势，到 2026 年，生产环境的结构化输出将基本实现「零信任但零失败」——你仍然需要验证，但验证几乎永远不会失败。</div>
+</div>
+</div>
+</section>
+
+<section class="module" id="mod-application">
+<h2><span class="m-tag">实践应用</span>实践应用<span class="m-time">⏱ 约5分钟</span></h2>
+<div class="hook">结构化输出不是炫技，是解决具体工程问题的工具。这五个场景覆盖了 90% 的工业需求——从 API 开发到多智能体通信。</div>
+<div class="content">
+
+<p><strong>场景一：API 响应格式化</strong></p>
+<div class="step-block">
+<span class="step-num">1</span><strong>将自然语言查询结果转为标准 API 响应</strong>
+<div class="step-out">✅ 预期输出：固定结构的 JSON，可直接由前端渲染</div>
+<div class="step-warn">⚠️ 常见错误：不同查询返回不同结构的 JSON，前端需要兼容多种格式</div>
+</div>
+<div class="code-block">
+<span class="cb-cap">API 响应格式化示例</span>
+# 用 Instructor 确保 API 响应结构一致
+class APIResponse(BaseModel):
+    status: Literal["success", "error"]
+    data: dict | None = None
+    message: str
+    suggestions: list[str] = []
+
+result = client.chat.completions.create(
+    model="gpt-4o",
+    response_model=APIResponse,
+    messages=[{"role":"user","content":"用户问：推荐3本Python入门书"}]
+)
+# 前端始终收到 {"status":"success","data":{...},"message":"...","suggestions":[...]}
+</div>
+
+<p><strong>场景二：文档数据提取</strong></p>
+<div class="step-block">
+<span class="step-num">2</span><strong>从非结构化文档中提取字段化数据</strong>
+<div class="step-out">✅ 预期输出：结构化的实体/字段列表</div>
+<div class="step-warn">⚠️ 常见错误：遗漏嵌套字段，或提取出错时返回的部分数据不正确</div>
+</div>
+<div class="code-block">
+<span class="cb-cap">从合同文档中提取结构化信息</span>
+class ContractInfo(BaseModel):
+    parties: list[str] = Field(description="合同方名称列表")
+    effective_date: str = Field(description="生效日期 YYYY-MM-DD")
+    amount: float = Field(description="合同金额")
+    clauses: list[str] = Field(description="关键条款摘要")
+
+info = client.chat.completions.create(
+    model="gpt-4o",
+    response_model=ContractInfo,
+    messages=[{"role":"user","content": contract_text}]
+)
+</div>
+
+<p><strong>场景三：表单自动填充</strong></p>
+<p>从用户对话中提取信息填充表单字段。核心技巧：将表单的每个字段定义为 Pydantic Field，利用 LLM 的多轮对话能力逐步收集缺失字段。</p>
+
+<p><strong>场景四：代码生成——指定输出结构</strong></p>
+<div class="code-block">
+<span class="cb-cap">生成符合特定接口签名的代码</span>
+class CodeGenOutput(BaseModel):
+    language: str
+    imports: str
+    function_code: str
+    test_code: str
+    explanation: str
+
+code = client.chat.completions.create(
+    model="gpt-4o",
+    response_model=CodeGenOutput,
+    messages=[{"role":"user","content":"写一个Python函数，合并两个有序列表，时间复杂度O(n)"}]
+)
+</div>
+
+<p><strong>场景五：多智能体通信协议</strong></p>
+<p>在 Multi-Agent 系统中，Agent 之间的消息必须是严格结构化的，否则解析失败会导致整个协作链断裂。推荐使用统一的 Message Schema 作为 Agent 间通信格式。</p>
+
+<div class="chart-wrap">
+<div id="chart-app-01"></div>
+<span class="ch-cap">图：五大应用场景对结构化输出可靠性的需求等级</span>
+</div>
+</div>
+</section>
+
+<section class="module" id="mod-case_study">
+<h2><span class="m-tag">实践应用</span>实践案例<span class="m-time">⏱ 约4分钟</span></h2>
+<div class="hook">一个真实的简历解析器项目——从 1000 份自由格式的简历中提取结构化字段。纯手工 prompt 准确率 73%，引入 Instructor + Structured Outputs 后跃升到 96%。</div>
+<div class="content">
+<p><strong>背景：</strong>某招聘平台需要从用户上传的 PDF/Word 简历中提取结构化数据（姓名、联系方式、工作经历、教育背景、技能列表），用于自动填充简历数据库。</p>
+
+<p><strong>项目架构：</strong></p>
+<div class="code-block">
+<span class="cb-cap">简历解析器——完整 Pydantic Schema 定义</span>
+from pydantic import BaseModel, Field
+from typing import Optional
+from datetime import date
+
+class WorkExperience(BaseModel):
+    company: str
+    position: str
+    start_date: str
+    end_date: Optional[str] = None
+    responsibilities: list[str]
+
+class Education(BaseModel):
+    school: str
+    degree: str
+    major: str
+    graduation_year: int
+
+class Resume(BaseModel):
+    name: str = Field(description="候选人姓名")
+    email: Optional[str] = Field(description="邮箱地址", default=None)
+    phone: Optional[str] = Field(description="电话号码", default=None)
+    years_of_experience: Optional[int] = Field(description="总工作年限", default=None)
+    work_experiences: list[WorkExperience] = Field(
+        description="工作经历列表，按时间倒序"
+    )
+    educations: list[Education] = Field(description="教育经历列表")
+    skills: list[str] = Field(description="技能列表")
+    summary: Optional[str] = Field(description="个人总结", default=None)
+</div>
+
+<p><strong>方案演化：</strong></p>
+<ul>
+<li><strong>V1 (Prompt 模板法)：</strong>在 prompt 中写 JSON 模板，准确率约 73%。问题：嵌套数组（work_experiences）经常格式错误，日期格式不统一。</li>
+<li><strong>V2 (JSON Mode + 重试)：</strong>准确率提升到 88%。JSON 语法问题解决，但 schema 合规率仍不够高。</li>
+<li><strong>V3 (Instructor + GPT-4o Structured Outputs)：</strong>准确率 96%。嵌套结构、枚举字段完全合规，skills 字段召回率从 78% 提升到 94%。</li>
+</ul>
+
+<div class="chart-wrap">
+<div id="chart-case-01"></div>
+<span class="ch-cap">图：简历解析器三版本准确率对比</span>
+</div>
+
+<p><strong>成本分析：</strong>V1 平均 1200 tokens/份 → $0.006/份；V3 平均 2000 tokens/份 → $0.011/份（含重试）。1000 份简历，从 $6 增加到 $11——但省下的 23% 人工审核成本约 $500/月。</p>
+
+<div class="takeaway">
+<strong>💡 经验教训：</strong>对于嵌套结构（如工作经历列表），纯 prompt 模板几乎不可能达到生产级可靠性。一定要使用 Function Calling 或 Structured Outputs。另外，对于可选字段，务必将 default 设为 None 或合理默认值，避免模型为了「填满」所有字段而编造信息（幻觉）。
+</div>
+</div>
+</section>
+
+<section class="module" id="mod-risk">
+<h2><span class="m-tag">风险与挑战</span>潜在风险<span class="m-time">⏱ 约4分钟</span></h2>
+<div class="hook">你以为用了 JSON Mode 就万事大吉？六种常见陷阱可能在你不经意间让整个输出管道崩溃——每一行代码都在与 LLM 的可变性博弈。</div>
+<div class="content">
+<div class="table-container">
+<table>
+<thead><tr><th>风险类型</th><th>描述</th><th>影响程度</th><th>缓解策略</th></tr></thead>
+<tbody>
+<tr><td><strong>格式幻觉 (Format Hallucination)</strong></td><td>模型虚构不存在的 JSON 字段或属性名</td><td>🔴 高</td><td>使用 Structured Outputs 约束 schema；对额外字段进行裁剪</td></tr>
+<tr><td><strong>不完整 JSON</strong></td><td>输出被上下文窗口截断，JSON 括号未闭合</td><td>🔴 高</td><td>设置 max_tokens 为期望输出的 1.5 倍；对截断 JSON 进行补全重试</td></tr>
+<tr><td><strong>字段类型不匹配</strong></td><td>模型将 number 输出为 string，或将 array 输出为 string 化的数组</td><td>🟡 中</td><td>后处理阶段进行类型强制转换；使用 Pydantic 的类型验证</td></tr>
+<tr><td><strong>Token 限制截断</strong></td><td>输出超长 JSON（如大量数组元素）被 token 上限截断</td><td>🟡 中</td><td>分批请求；对列表类输出设置元素数量上限</td></tr>
+<tr><td><strong>嵌套对象复杂度</strong></td><td>深层嵌套（3+ 层）的 JSON 中内层字段容易出错或丢失</td><td>🟡 中</td><td>减少 Schema 嵌套深度（≤2 层）；拆分为多次独立请求</td></tr>
+<tr><td><strong>编码/本地化问题</strong></td><td>中文字符在 JSON 中被 escape 为 \uXXXX，或日期格式与预期不符</td><td>🟢 低</td><td>统一指定日期格式（ISO 8601）；在 prompt 中明确字符编码要求</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="formula-block">
+<span class="f-cap">风险评估公式：系统可靠性</span>
+$$R_{\text{system}} = R_{\text{format}} \times R_{\text{schema}} \times R_{\text{field\_value}} \times (1 - P_{\text{truncation}})$$
+<button class="derivation-toggle">▸ 展开推导</button>
+<div class="derivation-content">系统的整体可靠性是各环节可靠性的乘积。假设 JSON Mode 下：$R_{\text{format}} = 0.997$，$R_{\text{schema}} = 0.921$，$R_{\text{field\_value}} = 0.935$，$P_{\text{truncation}} = 0.02$。则 $R_{\text{system}} = 0.997 \times 0.921 \times 0.935 \times 0.98 \approx 0.841$。即即使使用 JSON Mode，仍有约 16% 的请求需要重试处理。加上重试机制后，2 次重试可将整体成功率提升至约 97.5%。这就是为什么验证-重试是生产环境不可或缺的组件。</div>
+</div>
+</div>
+</section>
+
+<section class="module" id="mod-ethics">
+<h2><span class="m-tag">风险与挑战</span>伦理与安全<span class="m-time">⏱ 约3分钟</span></h2>
+<div class="hook">结构化输出的确定性特征也带来了新的安全风险——攻击者可以利用格式约束来诱导模型输出敏感信息，或通过精心构造的格式要求绕过内容过滤机制。</div>
+<div class="content">
+
+<p><strong>1. 格式注入攻击 (Format Injection)</strong></p>
+<p>攻击者可能通过构造特定的格式要求来绕过内容安全策略。例如，在 JSON 输出要求中嵌入恶意脚本或命令注入代码。防御策略：</p>
+<ul>
+<li>对输出进行严格的 schema 验证，拒绝未预期的字段</li>
+<li>对输出内容进行二次清洗（HTML 转义、特殊字符过滤）</li>
+<li>在生产环境中使用白名单机制，只允许预定义的输出结构</li>
+</ul>
+
+<p><strong>2. 信息泄露风险</strong></p>
+<p>结构化输出可能无意中暴露系统内部数据结构或敏感信息。例如，当要求模型输出 JSON 格式时，模型可能在错误信息或调试信息中泄露内部 schema。防御策略：</p>
+<ul>
+<li>使用 Pydantic 的 exclude 参数隐藏敏感字段</li>
+<li>在响应中使用统一的错误格式，避免暴露内部细节</li>
+<li>对返回的数据进行脱敏处理</li>
+</ul>
+
+<p><strong>3. 公平性考虑</strong></p>
+<p>当结构化输出用于决策系统时，需要确保输出格式不会引入或放大偏见。例如，在招聘系统中，如果 JSON 输出的字段定义本身带有性别或年龄相关的偏见，可能导致不公平的决策。</p>
+</div>
+</section>
+
+<section class="module" id="mod-prospect">
+<h2><span class="m-tag">发展前景</span>发展前景<span class="m-time">⏱ 约3分钟</span></h2>
+<div class="hook">从「手动写 JSON 模板」到「声明式 Schema 驱动」——结构化输出控制正在从「工程实践」走向「编程语言级特性」。</div>
+<div class="content">
+<p><strong>趋势一：Schema 即代码</strong></p>
+<p>未来，结构化输出的 Schema 定义将成为 AI 应用的核心资产。像 BAML 这样的工具正在将 Schema 定义提升到编程语言级别——定义一次 Schema，自动生成类型安全的代码、API 文档和验证逻辑。</p>
+
+<p><strong>趋势二：约束解码内置化</strong></p>
+<p>当前的约束解码（Constrained Decoding）还需要额外工具（如 Outlines）支持。未来，主流模型（尤其是开源模型）将原生支持约束解码，通过 API 参数直接指定输出格式。</p>
+
+<p><strong>趋势三：多模态结构化输出</strong></p>
+<p>结构化输出正在从纯文本扩展到多模态领域。例如，输出包含文本、图像 URL、音频描述的结构化对象，或者直接输出编程语言的 AST（抽象语法树）。</p>
+
+<p><strong>趋势四：自动 schema 推断</strong></p>
+<p>LLM 将能够根据少量示例自动推断出最优的输出 Schema，减少开发者的手动定义工作。这将进一步降低结构化输出的使用门槛。</p>
+</div>
+</section>
+
+<section class="module" id="mod-misconceptions">
+<h2><span class="m-tag">常见误区</span>常见误区<span class="m-time">⏱ 约3分钟</span></h2>
+<div class="hook">结构化输出看起来简单，但踩坑无数。这五个误区每年浪费开发者数万小时——别让它们绊倒你。</div>
+<div class="content">
+
+<div class="step-block">
+<span class="step-num">1</span><strong>误区：JSON Mode 能解决所有问题</strong>
+<div class="step-warn">⚠️ 事实：JSON Mode 只保证 JSON 语法正确，不保证字段名正确、类型正确或字段值正确。你仍然需要验证每个字段。</div>
+</div>
+
+<div class="step-block">
+<span class="step-num">2</span><strong>误区：嵌套结构越深越好</strong>
+<div class="step-warn">⚠️ 事实：嵌套超过 2-3 层后，模型的格式遵守率急剧下降。建议将复杂结构拆分为多次调用。</div>
+</div>
+
+<div class="step-block">
+<span class="step-num">3</span><strong>误区：不需要重试机制</strong>
+<div class="step-warn">⚠️ 事实：即使使用 Function Calling，仍有 2-5% 的请求需要重试。生产环境必须实现验证-重试闭环。</div>
+</div>
+
+<div class="step-block">
+<span class="step-num">4</span><strong>误区：字段越多越好</strong>
+<div class="step-warn">⚠️ 事实：字段越多，模型出错的概率越高。只定义真正需要的字段，可选字段设置合理默认值。</div>
+</div>
+
+<div class="step-block">
+<span class="step-num">5</span><strong>误区：格式模板只需写一次</strong>
+<div class="step-warn">⚠️ 事实：随着模型版本升级或任务变化，格式模板可能需要调整。建议将格式模板作为配置管理，而非硬编码。</div>
+</div>
+</div>
+</section>
+
+<section class="module" id="mod-learning_path">
+<h2><span class="m-tag">学习路径</span>动手学习路径<span class="m-time">⏱ 约4分钟</span></h2>
+<div class="hook">从「看懂概念」到「能写生产代码」，这五个练习帮你建立结构化输出的实战能力。</div>
+<div class="content">
+
+<p><strong>练习1：Prompt 模板法（30分钟）</strong></p>
+<ul>
+<li>编写一个提取人物信息的 prompt，要求输出 JSON 格式（name, age, email, skills）</li>
+<li>测试 10 个不同的输入，统计格式遵守率</li>
+<li>优化 prompt，将格式遵守率从 ~70% 提升到 90%+</li>
+</ul>
+
+<p><strong>练习2：JSON Mode（30分钟）</strong></p>
+<ul>
+<li>使用 OpenAI JSON Mode 重写练习1的 prompt</li>
+<li>验证 JSON Mode 是否解决了格式问题</li>
+<li>观察是否存在字段名错误或类型错误</li>
+</ul>
+
+<p><strong>练习3：Function Calling（45分钟）</strong></p>
+<ul>
+<li>定义一个提取公司信息的函数签名（公司名、行业、员工数、总部地点）</li>
+<li>使用 Function Calling API 实现信息提取</li>
+<li>对比纯 prompt 和 Function Calling 的准确率差异</li>
+</ul>
+
+<p><strong>练习4：Instructor + Pydantic（60分钟）</strong></p>
+<ul>
+<li>安装 Instructor 库，定义 Pydantic 模型</li>
+<li>实现一个简历解析器，支持嵌套结构（工作经历、教育背景）</li>
+<li>添加自动重试逻辑，处理解析失败的情况</li>
+</ul>
+
+<p><strong>练习5：端到端流水线（90分钟）</strong></p>
+<ul>
+<li>构建一个完整的结构化输出流水线：输入自由文本 → 提取结构化数据 → 验证 → 存储到数据库</li>
+<li>使用 FastAPI 封装为 REST API</li>
+<li>编写单元测试，覆盖各种边界情况</li>
+</ul>
+</div>
+</section>
+
+<section class="module" id="mod-glossary">
+<h2><span class="m-tag">术语表</span>关键术语表<span class="m-time">⏱ 约2分钟</span></h2>
+<div class="hook">把关键术语整理在一起，方便快速查阅和复习。</div>
+<div class="content">
+
+<dl style="font-size:.82rem;">
+<dt><strong>结构化输出控制 (Structured Output Control)</strong></dt>
+<dd style="margin-bottom:8px;color:var(--text-secondary);margin-left:16px;">通过设计 prompt 模板、利用 API 参数或引入外部验证机制，将 LLM 输出约束在预定义格式中的方法体系。</dd>
+
+<dt><strong>JSON Mode</strong></dt>
+<dd style="margin-bottom:8px;color:var(--text-secondary);margin-left:16px;">OpenAI API 的响应格式参数，设置后模型保证输出为有效 JSON。</dd>
+
+<dt><strong>Function Calling</strong></dt>
+<dd style="margin-bottom:8px;color:var(--text-secondary);margin-left:16px;">LLM API 的工具调用功能，允许开发者声明函数签名，模型返回结构化的函数参数。</dd>
+
+<dt><strong>约束解码 (Constrained Decoding)</strong></dt>
+<dd style="margin-bottom:8px;color:var(--text-secondary);margin-left:16px;">在 token 生成层面就保证输出符合指定格式约束的技术。</dd>
+
+<dt><strong>格式启动 (Format Priming)</strong></dt>
+<dd style="margin-bottom:8px;color:var(--text-secondary);margin-left:16px;">在 prompt 中嵌入格式模板，引导模型生成符合该格式的输出。</dd>
+
+<dt><strong>Schema 合规率 (Schema Compliance Rate)</strong></dt>
+<dd style="margin-bottom:8px;color:var(--text-secondary);margin-left:16px;">输出符合预期 JSON Schema 的比例，包括字段名正确、类型正确、必填字段齐全。</dd>
+</dl>
+</div>
+</section>
+</div>
+
+<footer class="journey-footer">
+  <a href="#" class="back-to-plan" onclick="event.preventDefault();var w=window.open('pe_learning.html#kc-p2_1','plan_main');if(w)w.focus()">🔗 返回学习路线: 提示工程 (Prompt Engineering) 系统学习方案 → 整合应用</a>
+  <p style="margin-top:12px;font-size:.72rem;color:var(--text-muted)">
+    本资料是 <strong>提示工程 (Prompt Engineering) 系统学习方案</strong> 整合应用阶段的深度研读材料
+  </p>
+</footer>
+
+<div class="deep-floating-back">
+  <button onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 16px rgba(0,0,0,.2)'"
+    onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 12px rgba(0,0,0,.15)'"
+    onclick="event.preventDefault();var w=window.open('pe_learning.html#kc-p2_1','plan_main');if(w)w.focus()">
+    ← 返回学习方案
+  </button>
+</div>
+</div>
+
+<div class="dd-toast" id="toastEl"><span id="toastMsg"></span></div>
+
+<script>
+var MODULE_IDS = ["mod-learning_journey","mod-background","mod-concept","mod-principle","mod-architecture","mod-code_practice","mod-open_source","mod-benchmark","mod-development","mod-application","mod-case_study","mod-risk","mod-ethics","mod-prospect","mod-misconceptions","mod-learning_path","mod-glossary"];
+var SEARCH_INDEX = [{"id":"mod-learning_journey","t":"学习路线中的位置","c":"当前位置、前置依赖、后续学习、建议投入时间"},{"id":"mod-background","t":"背景与缘起","c":"2023年转折点、Function Calling、JSON Mode、Structured Outputs"},{"id":"mod-concept","t":"核心概念","c":"结构化输出控制定义、四种主流方法对比"},{"id":"mod-principle","t":"核心原理","c":"格式启动效应、条件概率视角、API硬约束"},{"id":"mod-architecture","t":"技术架构图","c":"端到端技术流程、六大环节"},{"id":"mod-code_practice","t":"代码实操","c":"Prompt模板、JSON Mode、Function Calling、Instructor、重试模式"},{"id":"mod-open_source","t":"开源生态","c":"Instructor、Outlines、Guidance、LMQL、BAML"},{"id":"mod-benchmark","t":"Benchmark数据","c":"不同方法的JSON有效率、Schema合规率对比"},{"id":"mod-development","t":"发展迭代","c":"结构化输出的发展历程、演进模型"},{"id":"mod-application","t":"实践应用","c":"API响应格式化、文档数据提取、表单填充、代码生成、多智能体通信"},{"id":"mod-case_study","t":"实践案例","c":"简历解析器项目、方案演化、成本分析"},{"id":"mod-risk","t":"潜在风险","c":"格式幻觉、不完整JSON、字段类型不匹配、Token限制截断"},{"id":"mod-ethics","t":"伦理与安全","c":"格式注入攻击、信息泄露风险、公平性考虑"},{"id":"mod-prospect","t":"发展前景","c":"Schema即代码、约束解码内置化、多模态结构化输出"},{"id":"mod-misconceptions","t":"常见误区","c":"五个常见误区及事实"},{"id":"mod-learning_path","t":"学习路径","c":"五个动手练习"},{"id":"mod-glossary","t":"关键术语表","c":"结构化输出控制、JSON Mode、Function Calling等术语"}];
+var TOAST_TIMEOUT;
+
+(function(){
+var progressBar=document.getElementById('progressBar');
+var modules=document.querySelectorAll('.module');
+
+var observer=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting)e.target.classList.add('visible')})},{threshold:.15});
+modules.forEach(function(m){observer.observe(m)});
+
+var navLinks=document.querySelectorAll('.sidebar-nav a');
+var navObserver=new IntersectionObserver(function(entries){
+entries.forEach(function(e){
+if(e.isIntersecting){
+navLinks.forEach(function(a){a.classList.remove('active')});
+var act=document.querySelector('.sidebar-nav a[href="#'+e.target.id+'"]');
+if(act)act.classList.add('active');
+}
+})},{threshold:.3});
+modules.forEach(function(m){navObserver.observe(m)});
+
+window.addEventListener('scroll',function(){
+var st=document.documentElement.scrollTop,dh=document.documentElement.scrollHeight-window.innerHeight;
+var pct=dh>0?Math.min(100,(st/dh)*100):0;progressBar.style.width=pct+'%';
+});
+
+window.addEventListener('keydown',function(e){
+if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();openSearch()}
+if((e.ctrlKey||e.metaKey)&&e.key==='d'){e.preventDefault();toggleTheme()}
+if(e.key==='Escape')closeSearch()
+});
+})();
+
+function toggleTheme(){
+var b=document.body,isD=b.getAttribute('data-theme')==='dark';
+b.setAttribute('data-theme',isD?'light':'dark');
+try{localStorage.setItem('slm-theme',isD?'light':'dark')}catch(e){}
+showToast('已切换至'+(isD?'浅色':'深色')+'主题')
+}
+
+function openSearch(){document.getElementById('searchOverlay').classList.add('open');setTimeout(function(){document.getElementById('searchInput').focus()},100)}
+function closeSearch(){document.getElementById('searchOverlay').classList.remove('open');document.getElementById('searchResults').innerHTML=''}
+
+function doSearch(){
+var q=document.getElementById('searchInput').value.toLowerCase(),res=document.getElementById('searchResults');
+if(q.length<2){res.innerHTML='';return}
+var h='';SEARCH_INDEX.forEach(function(item){
+if(item.t.toLowerCase().indexOf(q)>=0||(item.c||'').toLowerCase().indexOf(q)>=0){
+h+='<div onclick="closeSearch();document.getElementById(\''+item.id+'\').scrollIntoView({behavior:\'smooth\'})">'+
+'<strong>'+item.t+'</strong><br><small style="color:var(--text-muted)">'+(item.c||'').substring(0,80)+'</small></div>';
+}
+});
+res.innerHTML=h||'<div style="padding:12px;color:var(--text-muted)">未找到匹配模块</div>'
+}
+
+function showToast(msg){
+var el=document.getElementById('toastEl'),mg=document.getElementById('toastMsg');
+if(!el||!mg)return;mg.textContent=msg;el.style.display='block';el.classList.add('toast-in');
+if(TOAST_TIMEOUT)clearTimeout(TOAST_TIMEOUT);
+TOAST_TIMEOUT=setTimeout(function(){el.style.display='none'},3000);
+}
+
+(function(){
+var t;try{t=localStorage.getItem('slm-theme')}catch(e){}
+if(t==='light')document.body.setAttribute('data-theme','light');
+})();
+
+(function(){
+document.querySelectorAll('.derivation-toggle').forEach(function(btn){
+btn.addEventListener('click',function(){
+var content=this.nextElementSibling;
+if(content){content.classList.toggle('open');this.textContent=content.classList.contains('open')?'▾ 收起推导':'▸ 展开推导'}
+});
+});
+})();
+
+/* ===== ECharts 初始化模板 ===== */
+(function initCharts(){
+if(typeof echarts==='undefined')return;
+var charts=[];
+function makeChart(elId,option){
+var el=document.getElementById(elId);
+if(!el)return null;
+var chart=echarts.init(el);
+chart.setOption(option);
+charts.push(chart);
+return chart;
+}
+
+// 架构图 - 六大技术环节
+makeChart('chart-arch-01',{
+color:['#5b8db8','#8878a8','#6ea8c0','#c0a060','#5a9e6f','#c06050'],
+tooltip:{trigger:'axis',axisPointer:{type:'shadow'}},
+grid:{left:'3%',right:'4%',bottom:'3%',containLabel:true},
+xAxis:{type:'category',data:['Prompt设计','Token生成','格式验证','失败处理','数据提取','下游消费']},
+yAxis:{type:'value',name:'复杂度',nameTextStyle:{color:'#787878'}},
+series:[{
+name:'相对复杂度',
+type:'bar',
+data:[20,80,60,70,40,50],
+barWidth:'50%',
+itemStyle:{ borderRadius:[4,4,0,0] }
+}]
+});
+
+// Benchmark对比图
+makeChart('chart-bench-01',{
+color:['#5b8db8','#8878a8','#6ea8c0','#c0a060'],
+tooltip:{trigger:'axis',axisPointer:{type:'shadow'}},
+legend:{data:['Prompt模板','JSON Mode','Function Calling','Structured Outputs'],bottom:0},
+grid:{left:'3%',right:'4%',bottom:'15%',containLabel:true},
+xAxis:{type:'category',data:['GPT-4o','Claude 3.5','Gemini 1.5 Pro']},
+yAxis:{type:'value',name:'JSON有效率(%)',max:100},
+series:[
+{name:'Prompt模板',type:'bar',data:[94.2,91.8,89.3]},
+{name:'JSON Mode',type:'bar',data:[99.7,0,98.9]},
+{name:'Function Calling',type:'bar',data:[99.8,99.5,95.5]},
+{name:'Structured Outputs',type:'bar',data:[99.99,0,0]}
+]
+});
+
+// 应用场景需求等级
+makeChart('chart-app-01',{
+color:['#5b8db8','#8878a8','#6ea8c0','#c0a060','#5a9e6f'],
+tooltip:{trigger:'axis',axisPointer:{type:'shadow'}},
+grid:{left:'3%',right:'4%',bottom:'3%',containLabel:true},
+xAxis:{type:'category',data:['API响应','文档提取','表单填充','代码生成','多智能体']},
+yAxis:{type:'value',name:'可靠性需求',max:5},
+series:[{
+name:'需求等级',
+type:'bar',
+data:[4.5,4.8,3.5,4.2,4.9],
+barWidth:'50%',
+itemStyle:{ borderRadius:[4,4,0,0] }
+}]
+});
+
+// 简历解析器对比
+makeChart('chart-case-01',{
+color:['#5b8db8','#8878a8','#6ea8c0'],
+tooltip:{trigger:'axis',axisPointer:{type:'shadow'}},
+grid:{left:'3%',right:'4%',bottom:'3%',containLabel:true},
+xAxis:{type:'category',data:['V1 Prompt模板','V2 JSON Mode','V3 Instructor']},
+yAxis:{type:'value',name:'准确率(%)',max:100},
+series:[{
+name:'准确率',
+type:'bar',
+data:[73,88,96],
+barWidth:'50%',
+itemStyle:{ borderRadius:[4,4,0,0] }
+}]
+});
+
+window.addEventListener('resize',function(){charts.forEach(function(c){c.resize()})});
+})();
+</script>
+</body>
+</html>

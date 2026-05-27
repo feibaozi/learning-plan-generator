@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>推理参数调优 深度研读</title>
+<style>
+/* ───────────────────────────────────────────────
+   Template: Graphite Studio (石墨工作室) — deep_dive.css
+   Mood: minimal, clean, neutral
+   Contrast verified: text-primary≥10:1, text-secondary≥6:1, text-muted≥4.5:1
+   ─────────────────────────────────────────────── */
+:root{
+--bg-base:#0d0d0d;
+--bg-card:#1a1a1a;
+--bg-elevated:#222222;
+--bg-overlay:rgba(0,0,0,.6);
+--text-primary:#ededed;
+--text-secondary:#a0a0a0;
+--text-muted:#787878;
+--accent-indigo:#5b8db8;
+--accent-purple:#8878a8;
+--accent-cyan:#6ea8c0;
+--accent-gold:#c0a060;
+--accent-green:#5a9e6f;
+--accent-red:#c06050;
+--accent-blue:#5b8db8;
+--accent-color:#5b8db8;
+--accent-dark:#3a6088;
+--border-subtle:rgba(160,160,160,.15);
+--border-glow:rgba(91,141,184,.2);
+--shadow-sm:0 1px 3px rgba(0,0,0,.3);
+--shadow-md:0 4px 16px rgba(0,0,0,.4);
+--shadow-lg:0 8px 32px rgba(0,0,0,.5);
+--shadow-elevated:0 8px 32px rgba(0,0,0,.5);
+--radius-sm:6px;
+--radius-md:10px;
+--radius-lg:16px;
+--font-sans:'Segoe UI',system-ui,-apple-system,sans-serif;
+--font-mono:Consolas,'Cascadia Code',monospace;
+--transition:.25s cubic-bezier(.4,0,.2,1);
+--transition-smooth:.3s ease;
+--nav-h:56px;
+--accent-color-rgb:91,141,184;
+--chart-grid:#252525;
+--chart-axis-label:#787878;
+}
+[data-theme="light"]{
+--bg-base:#fafafa;
+--bg-card:#ffffff;
+--bg-elevated:#eeeeee;
+--bg-overlay:rgba(0,0,0,.3);
+--text-primary:#121212;
+--text-secondary:#4a4a4a;
+--text-muted:#5e5e5e;
+--accent-indigo:#3a6088;
+--accent-purple:#5a4878;
+--accent-cyan:#3a7888;
+--accent-gold:#886830;
+--accent-green:#3d8055;
+--accent-red:#983830;
+--accent-blue:#3a6088;
+--accent-color:#3a6088;
+--accent-dark:#284868;
+--border-subtle:rgba(18,18,18,.08);
+--border-glow:rgba(58,96,136,.2);
+--shadow-sm:0 1px 3px rgba(0,0,0,.06);
+--shadow-md:0 4px 16px rgba(0,0,0,.08);
+--shadow-lg:0 8px 32px rgba(0,0,0,.12);
+--shadow-elevated:0 8px 32px rgba(0,0,0,.12);
+--accent-color-rgb:58,96,136;
+--chart-grid:#e5e5e5;
+--chart-axis-label:#5e5e5e;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font-sans);background:var(--bg-base);color:var(--text-primary);line-height:1.75;overflow-x:hidden}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg-base)}::-webkit-scrollbar-thumb{background:var(--border-glow);border-radius:3px}
+
+.progress-bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--accent-indigo),var(--accent-purple),var(--accent-cyan));z-index:200;transition:width .1s linear}
+.navbar{position:fixed;top:3px;left:0;right:0;z-index:100;background:var(--bg-card);border-bottom:1px solid var(--border-subtle);backdrop-filter:blur(16px);height:var(--nav-h);display:flex;align-items:center;justify-content:space-between;padding:0 24px}
+.nav-left{display:flex;align-items:center;gap:12px;font-size:.82rem;font-weight:600;color:var(--accent-indigo)}
+.nav-right{display:flex;align-items:center;gap:8px}
+.nav-right button{background:var(--bg-elevated);border:1px solid var(--border-subtle);color:var(--text-secondary);padding:6px 12px;border-radius:var(--radius-sm);cursor:pointer;font-size:.75rem;transition:all var(--transition)}
+.nav-right button:hover{border-color:var(--border-glow);color:var(--accent-indigo)}
+
+.sidebar{position:fixed;left:0;top:0;height:100vh;width:280px;background:var(--bg-base);border-right:1px solid var(--border-subtle);padding:24px;overflow-y:auto;z-index:100;padding-top:calc(var(--nav-h) + 16px)}
+.sidebar h3{font-size:.85rem;font-weight:700;color:var(--text-secondary);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--border-subtle)}
+.sidebar-nav{list-style:none;padding:0}
+.sidebar-nav li{margin-bottom:2px}
+.sidebar-nav a{display:block;padding:8px 12px;border-radius:var(--radius-md);text-decoration:none;font-size:.76rem;color:var(--text-secondary);transition:all var(--transition);border-left:3px solid transparent}
+.sidebar-nav a:hover{background:rgba(91,141,184,.08);color:var(--accent-cyan);border-left-color:var(--accent-cyan)}
+.sidebar-nav a.active{background:rgba(91,141,184,.12);color:var(--accent-blue);font-weight:600;border-left-color:var(--accent-blue)}
+.sidebar-back-link{display:block;padding:8px 12px;margin-bottom:12px;border-radius:8px;background:var(--bg-elevated);color:var(--accent-blue);text-decoration:none;font-size:.78rem;font-weight:600}
+.sidebar-back-link:hover{color:var(--accent-cyan)}
+
+.content-area{margin-left:280px;width:calc(100% - 280px)}
+.container{max-width:calc(100% - 48px);margin:0 auto;padding:calc(var(--nav-h) + 24px) 24px 80px}
+
+.hero{text-align:center;padding:48px 0 36px}
+.hero h1{font-size:2.2rem;background:linear-gradient(135deg,var(--accent-indigo),var(--accent-purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+.hero .tags{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:12px}
+.hero .tags span{font-size:.7rem;padding:4px 12px;border-radius:50px;border:1px solid var(--border-glow);color:var(--accent-indigo);background:rgba(99,102,241,.06)}
+
+.meta-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:20px 24px;margin:0 auto 32px;max-width:700px;display:flex;justify-content:center;gap:36px;flex-wrap:wrap;box-shadow:var(--shadow-md)}
+.meta-item{text-align:center}
+.meta-item .val{font-size:1.4rem;font-weight:800;color:var(--accent-indigo)}
+.meta-item .lbl{font-size:.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px}
+
+.journey-bar{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:12px 20px;margin:0 auto 24px;max-width:900px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:.82rem;box-shadow:var(--shadow-elevated)}
+.journey-path{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.journey-icon{font-size:1rem}
+.journey-plan{color:var(--accent-purple);font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.journey-plan:hover{color:var(--accent-gold)}
+.journey-sep{color:var(--text-muted);font-size:.7rem}
+.journey-phase{color:var(--text-secondary);font-weight:600}
+.journey-kp{color:var(--text-primary);font-weight:700}
+.journey-pos{color:var(--text-muted);font-size:.72rem}
+.journey-nav{display:flex;align-items:center;gap:8px;font-size:.75rem}
+.journey-prev,.journey-next{color:var(--text-muted);cursor:default}
+.journey-divider{color:var(--border-subtle)}
+
+.module{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:28px 28px 24px;margin-bottom:20px;opacity:0;transform:translateY(24px);transition:opacity .5s ease,transform .5s ease;box-shadow:var(--shadow-sm)}
+.module.visible{opacity:1;transform:translateY(0)}
+.module:hover{border-color:var(--border-glow)}
+.module h2{font-size:1.15rem;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.module .m-tag{font-size:.65rem;padding:2px 10px;border-radius:50px;background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.2);color:var(--accent-indigo);font-weight:600}
+.module .m-time{font-size:.7rem;color:var(--text-muted);margin-left:auto}
+.module .hook{font-size:.9rem;color:var(--accent-purple);font-weight:600;margin:12px 0 16px;padding-left:12px;border-left:3px solid var(--accent-purple)}
+.module .content{font-size:.88rem;color:var(--text-secondary);line-height:1.8}
+.module .content p{margin-bottom:12px}
+.module .content ul,.module .content ol{margin:8px 0 12px 20px}
+.module .content li{margin-bottom:6px}
+
+.code-block{background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:var(--radius-sm);padding:14px 18px;margin:14px 0;font-family:var(--font-mono);font-size:.8rem;color:var(--text-primary);overflow-x:auto;white-space:pre-wrap;word-break:break-word}
+.code-block .cb-cap{font-size:.7rem;color:var(--text-muted);margin-bottom:6px;display:block}
+.step-block{background:rgba(91,141,184,.06);border:1px solid rgba(91,141,184,.12);border-radius:var(--radius-sm);padding:14px 18px;margin:10px 0}
+.step-block .step-num{display:inline-block;width:24px;height:24px;line-height:24px;text-align:center;background:var(--accent-indigo);color:#fff;border-radius:50%;font-size:.72rem;font-weight:700;margin-right:8px}
+.step-block .step-out{font-size:.75rem;color:var(--accent-green);margin-top:6px;padding-left:32px}
+.step-block .step-warn{font-size:.75rem;color:var(--accent-red);margin-top:4px;padding-left:32px}
+
+.formula-block{background:rgba(99,102,241,.04);border:1px solid rgba(99,102,241,.12);border-radius:var(--radius-sm);padding:14px 18px;margin:14px 0;font-family:var(--font-mono);font-size:.82rem;color:var(--accent-cyan);overflow-x:auto;position:relative}
+.formula-block .f-cap{font-size:.7rem;color:var(--text-muted);margin-bottom:6px;display:block}
+.derivation-toggle{font-size:.7rem;color:var(--accent-gold);cursor:pointer;border:none;background:none;padding:4px 0;font-family:inherit;display:block;margin-top:6px}
+.derivation-toggle:hover{text-decoration:underline}
+.derivation-content{display:none;margin-top:8px;padding:12px 16px;background:rgba(245,158,11,.04);border-radius:var(--radius-sm);border-left:3px solid var(--accent-gold);font-size:.8rem;color:var(--text-secondary)}
+.derivation-content.open{display:block}
+
+.chart-wrap{background:rgba(99,102,241,.03);border-radius:var(--radius-sm);padding:8px;margin:14px 0;text-align:center}
+.chart-wrap > div{width:100%;height:280px}
+.chart-wrap .ch-cap{font-size:.72rem;color:var(--text-muted);margin-top:6px}
+
+.table-container{margin:20px 0;overflow-x:auto}
+.table-container table{width:100%;border-collapse:collapse;border-radius:var(--radius-md);overflow:hidden}
+.table-container th{background:var(--bg-elevated);color:var(--accent-cyan);font-weight:700;padding:12px 16px;text-align:left;font-size:.8rem}
+.table-container td{padding:12px 16px;border-bottom:1px solid var(--border-subtle);font-size:.82rem;color:var(--text-secondary)}
+.table-container tr:hover td{background:rgba(91,141,184,.03)}
+.table-container .table-caption{font-size:.72rem;color:var(--text-muted);margin-bottom:8px;text-align:center}
+
+.takeaway{font-size:.82rem;background:rgba(16,185,129,.06);border-left:3px solid var(--accent-green);padding:10px 14px;margin-top:16px;border-radius:0 var(--radius-sm) var(--radius-sm) 0;color:var(--accent-green)}
+
+.ref-list{list-style:none;padding:0;margin-top:8px;font-size:.78rem}
+.ref-list li{padding:4px 0;color:var(--text-muted)}
+.ref-list li::before{content:'📄 '}
+
+.search-overlay{position:fixed;inset:0;z-index:300;background:var(--bg-overlay);display:none;align-items:flex-start;justify-content:center;padding-top:120px}
+.search-overlay.open{display:flex}
+.search-box{width:520px;max-width:90vw;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:var(--radius-md);box-shadow:var(--shadow-lg);overflow:hidden}
+.search-box input{width:100%;padding:14px 18px;background:transparent;border:none;color:var(--text-primary);font-size:.95rem;outline:none;font-family:inherit}
+.search-results{max-height:360px;overflow-y:auto}
+.search-results div{padding:10px 18px;cursor:pointer;font-size:.82rem;color:var(--text-secondary);border-top:1px solid var(--border-subtle);transition:background var(--transition)}
+.search-results div:hover{background:rgba(99,102,241,.06);color:var(--text-primary)}
+
+.journey-footer{text-align:center;padding:40px 32px 60px;opacity:.8}
+.back-to-plan{display:inline-flex;align-items:center;gap:8px;padding:10px 24px;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:50px;color:var(--text-secondary);text-decoration:none;font-size:.85rem;font-weight:600;transition:all var(--transition-smooth)}
+.back-to-plan:hover{background:var(--bg-elevated);border-color:var(--accent-purple);color:var(--accent-purple)}
+
+.deep-floating-back{position:fixed;right:20px;bottom:20px;z-index:10000}
+.deep-floating-back button{padding:12px 20px;background:linear-gradient(135deg,var(--accent-color),var(--accent-dark));color:#fff;border:none;border-radius:24px;font-size:.85rem;font-weight:600;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.15);transition:transform .2s,box-shadow .2s}
+.deep-floating-back button:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.2)}
+
+.dd-toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);z-index:10001;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:8px;padding:14px 24px;box-shadow:0 4px 16px rgba(0,0,0,.15);font-size:.85rem;display:none}
+.toast-in{animation:toastIn .3s ease}
+@keyframes toastIn{from{opacity:0;transform:translate(-50%,20px)}to{opacity:1;transform:translate(-50%,0)}}
+
+@media print{.navbar,.progress-bar,.sidebar,.journey-bar,.journey-footer,.deep-floating-back{display:none!important}.content-area{margin-left:0;width:100%}.module{break-inside:avoid;opacity:1!important;transform:none!important;box-shadow:none}body{background:#fff}}
+@media(max-width:1024px){.sidebar{display:none}.content-area{margin-left:0;width:100%}}
+@media(max-width:768px){.hero h1{font-size:1.6rem}.module{padding:20px}.meta-card{font-size:.72rem;padding:12px 16px}.journey-bar{flex-direction:column;align-items:flex-start}.deep-floating-back{right:15px;bottom:15px}.deep-floating-back button{padding:10px 16px;font-size:.8rem}}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+</head>
+<body data-theme="dark">
+
+<div class="progress-bar" id="progressBar" style="width:0%"></div>
+
+<nav class="navbar">
+  <div class="nav-left">📖 推理参数调优</div>
+  <div class="nav-right">
+    <button onclick="toggleTheme()">🌓 主题</button>
+    <button onclick="openSearch()">🔍 搜索</button>
+  </div>
+</nav>
+
+<div class="sidebar">
+  <a href="#" class="sidebar-back-link" onclick="event.preventDefault();var w=window.open('pe_learning.html#kc-p3_3','plan_main');if(w)w.focus()">← 返回主方案</a>
+  <h3>📖 目录导航</h3>
+  <ul class="sidebar-nav">
+    <li><a href="#mod-learning_journey">📍 学习路线中的位置</a></li>
+    <li><a href="#mod-background">📋 背景与缘起</a></li>
+    <li><a href="#mod-temperature">🌡️ Temperature 参数</a></li>
+    <li><a href="#mod-topp">🎯 Top-p (Nucleus) 采样</a></li>
+    <li><a href="#mod-topk">🔢 Top-k 采样</a></li>
+    <li><a href="#mod-penalties">⚖️ 频率与存在惩罚</a></li>
+    <li><a href="#mod-maxlen">📏 Max Tokens 与长度控制</a></li>
+    <li><a href="#mod-recipe">📝 场景化配置配方</a></li>
+    <li><a href="#mod-tools">🛠️ 实用工具与示例</a></li>
+    <li><a href="#mod-glossary">📚 关键术语表</a></li>
+  </ul>
+</div>
+
+<div class="content-area">
+<div class="search-overlay" id="searchOverlay">
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="搜索模块内容..." oninput="doSearch()" onkeydown="if(event.key==='Escape')closeSearch()">
+    <div class="search-results" id="searchResults"></div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="hero">
+    <h1>推理参数调优</h1>
+    <div class="tags">
+      <span>LLM</span><span>Temperature</span><span>Top-p</span><span>Top-k</span><span>Sampling</span>
+    </div>
+  </div>
+
+  <div class="meta-card">
+    <div class="meta-item"><div class="val">10</div><div class="lbl">内容模块</div></div>
+    <div class="meta-item"><div class="val">约55</div><div class="lbl">分钟阅读</div></div>
+    <div class="meta-item"><div class="val">G8</div><div class="lbl">教程实操型</div></div>
+    <div class="meta-item"><div class="val">理解</div><div class="lbl">深度等级</div></div>
+  </div>
+
+  <div class="journey-bar" id="journeyBar">
+    <div class="journey-path">
+      <span class="journey-icon">📍</span>
+      <span class="journey-plan" onclick="var w=window.open('pe_learning.html#kc-p3_3','plan_main');if(w)w.focus()">提示工程 (Prompt Engineering) 系统学习方案</span>
+      <span class="journey-sep">〉</span>
+      <span class="journey-phase">基础奠基</span>
+      <span class="journey-sep">〉</span>
+      <span class="journey-kp">推理参数调优</span>
+      <span class="journey-pos">(阶段3/4 · 第3个知识点)</span>
+    </div>
+    <div class="journey-nav">
+      <span class="journey-prev" title="前置: Token化与分词原理">← 前置</span>
+      <span class="journey-divider">|</span>
+      <span class="journey-next" title="后续: 自动化提示优化">后续 →</span>
+    </div>
+  </div>
+
+  <section class="module" id="mod-learning_journey">
+<h2><span class="m-tag">路线导航</span>📍 学习路线中的位置<span class="m-time">⏱ 约2分钟</span></h2>
+<div class="hook">推理参数是控制 LLM 输出的"旋钮"——调整它们可以让输出从精确保守到创意奔放。理解这些参数能让你精准控制模型的行为。</div>
+<div class="content">
+<p><strong>当前位置：</strong>提示工程系统学习方案 → 阶段3/4（基础奠基）→ 第3个知识点「推理参数调优」</p>
+<p><strong>前置依赖：</strong>LLM工作原理概述和Token化与分词原理。你需要理解自回归生成和概率分布的基本概念。</p>
+<p><strong>后续学习：</strong>掌握本知识点后，你将进入阶段4（进阶前沿），学习自动化提示优化和多模态提示工程。</p>
+<p><strong>建议投入时间：</strong>标准学习节奏下，建议投入55分钟完成阅读和实操实验——不同参数组合的效果最好通过实际测试来理解。</p>
+</div>
+</section>
+
+<section class="module" id="mod-background">
+<h2><span class="m-tag">前置知识</span>背景与缘起<span class="m-time">⏱ 约3分钟</span></h2>
+<div class="hook">为什么需要这些参数？因为 LLM 输出的是概率分布——我们需要从这个分布中选择 token，不同的选择策略会产生完全不同的结果。</div>
+<div class="content">
+<p><strong>推理过程的本质：</strong></p>
+<p>在每一个时间步，模型会为词表中的每一个 token 计算一个概率（logits → softmax → 概率）。然后我们需要：</p>
+<ol>
+<li>从这个概率分布中选择下一个 token</li>
+<li>将选中的 token 添加到输入序列末尾</li>
+<li>重复直到生成结束</li>
+</ol>
+
+<div class="chart-wrap">
+<div id="chart-background-01"></div>
+<span class="ch-cap">图：从概率分布到token选择</span>
+</div>
+
+<p><strong>采样策略的演进：</strong></p>
+<div class="table-container">
+<table>
+<thead><tr><th>策略</th><th>描述</th><th>特点</th></tr></thead>
+<tbody>
+<tr><td><strong>Greedy (贪婪)</strong></td><td>总是选择概率最高的 token</td><td>确定但容易重复</td></tr>
+<tr><td><strong>Random (随机)</strong></td><td>从分布中完全随机采样</td><td>创意但不一致</td></tr>
+<tr><td><strong>Temperature</strong></td><td>调整分布的"平坦度"</td><td>控制随机性的简单方法</td></tr>
+<tr><td><strong>Top-k</strong></td><td>只从概率最高的 k 个 token 中选择</td><td>限制选择范围</td></tr>
+<tr><td><strong>Top-p (Nucleus)</strong></td><td>从累积概率达到 p 的最小集合中选择</td><td>动态适应分布</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="takeaway">
+<strong>💡 核心洞察：</strong> 这些参数不是孤立的——它们共同作用来控制"模型应该有多确定地选择最可能的 token"。
+</div>
+</div>
+</section>
+
+<section class="module" id="mod-temperature">
+<h2><span class="m-tag">核心参数</span>🌡️ Temperature 参数<span class="m-time">⏱ 约6分钟</span></h2>
+<div class="hook">Temperature 是最常用的参数——它控制概率分布的"温度"，也就是分布的平坦程度。</div>
+<div class="content">
+<p><strong>工作原理：</strong></p>
+<div class="formula-block">
+<span class="f-cap">Temperature 缩放公式</span>
+$$ P'(token_i) = \text{softmax}\left(\frac{\text{logits}_i}{T}\right) $$
+<button class="derivation-toggle">▸ 展开解释</button>
+<div class="derivation-content">当 T→0 时，softmax 会变得越来越尖锐，最终相当于 argmax（贪婪选择）。当 T→∞ 时，分布会变得越来越平坦，趋近于均匀分布。T=1 时保持原始分布不变。</div>
+</div>
+
+<div class="chart-wrap">
+<div id="chart-temperature-01"></div>
+<span class="ch-cap">图：不同 Temperature 下的概率分布</span>
+</div>
+
+<p><strong>Temperature 效果参考：</strong></p>
+<div class="table-container">
+<table>
+<thead><tr><th>值</th><th>效果</th><th>适用场景</th></tr></thead>
+<tbody>
+<tr><td><strong>0.0 - 0.3</strong></td><td>非常保守、确定，重复率高</td><td>代码生成、事实问答、数学计算</td></tr>
+<tr><td><strong>0.3 - 0.7</strong></td><td>平衡，有一定随机性但稳定</td><td>日常对话、总结、解释</td></tr>
+<tr><td><strong>0.7 - 1.2</strong></td><td>创意，多样性好</td><td>写作、头脑风暴、创意生成</td></tr>
+<tr><td><strong>1.2 - 2.0</strong></td><td>非常随机，可能不连贯</td><td>实验性创作、寻找意外发现</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="code-block">
+<span class="cb-cap">Temperature 效果对比示例</span>
+# 同一个提示，不同 temperature
+prompt = "给咖啡店起一个名字："
+
+# Temperature=0.0 → 输出总是相同的
+output: " Brew & Bean"
+
+# Temperature=0.7 → 每次略有不同但合理
+output: "Steam & Stories"
+output: "Café Crescendo"
+
+# Temperature=1.5 → 变化很大，可能奇怪
+output: "Zap-Zap Coffee Cloud"
+output: "Cosmic Croissant & Quasar"
+</div>
+
+<div class="takeaway">
+<strong>💡 提示工程师经验：</strong> 大多数场景下 0.7 是不错的起点。对于需要精确性的任务，0.2-0.3 更好；对于创意写作，0.8-1.0 合适。
+</div>
+</div>
+</section>
+
+<section class="module" id="mod-topp">
+<h2><span class="m-tag">核心参数</span>🎯 Top-p (Nucleus) 采样<span class="m-time">⏱ 约6分钟</span></h2>
+<div class="hook">Top-p 是一个更智能的截断策略——它不固定选择数量，而是选择累积概率达到 p 的最小 token 集合。</div>
+<div class="content">
+<p><strong>工作原理：</strong></p>
+<ol>
+<li>将 token 按概率从高到低排序</li>
+<li>从最高概率开始累加，直到累积概率 ≥ p</li>
+<li>只从这个最小的 token 集合中采样</li>
+</ol>
+
+<div class="chart-wrap">
+<div id="chart-topp-01"></div>
+<span class="ch-cap">图：Top-p=0.9 时的 Nucleus 采样</span>
+</div>
+
+<p><strong>Top-p 效果参考：</strong></p>
+<div class="table-container">
+<table>
+<thead><tr><th>p 值</th><th>效果</th><th>适用场景</th></tr></thead>
+<tbody>
+<tr><td><strong>0.5 - 0.7</strong></td><td>非常严格，只选最可能的几个</td><td>精确任务、代码生成</td></tr>
+<tr><td><strong>0.8 - 0.9</strong></td><td>平衡，多样性和质量兼顾</td><td>一般对话、写作</td></tr>
+<tr><td><strong>0.9 - 1.0</strong></td><td>宽松，考虑更多可能</td><td>创意写作、多样化生成</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="step-block">
+<span class="step-num">💡</span><strong>为什么 Top-p 通常比 Top-k 好？</strong>
+<div class="step-out">因为概率分布的形状是变化的——有时概率集中在少数几个 token，有时分布很平坦。Top-p 能自适应调整，而 Top-k 总是固定数量。</div>
+</div>
+
+<p><strong>Temperature + Top-p 组合使用：</strong></p>
+<p>这两个参数通常一起使用：先用 temperature 调整分布的形状，再用 top-p 截断。大多数 API 会先应用 temperature，再应用 top-p/top-k。</p>
+
+<div class="takeaway">
+<strong>💡 黄金组合：</strong> temperature=0.7 + top-p=0.9 是很多场景下的安全起始点。
+</div>
+</div>
+</section>
+
+<section class="module" id="mod-topk">
+<h2><span class="m-tag">核心参数</span>🔢 Top-k 采样<span class="m-time">⏱ 约4分钟</span></h2>
+<div class="hook">Top-k 是一个更简单的策略——只从概率最高的 k 个 token 中选择。</div>
+<div class="content">
+<p><strong>工作原理：</strong></p>
+<ol>
+<li>选择概率最高的 k 个 token</li>
+<li>将其他 token 的概率置为 0</li>
+<li>重新归一化剩余概率</li>
+<li>从中采样</li>
+</ol>
+
+<p><strong>Top-k 效果参考：</strong></p>
+<div class="table-container">
+<table>
+<thead><tr><th>k 值</th><th>效果</th><th>适用场景</th></tr></thead>
+<tbody>
+<tr><td><strong>1</strong></td><td>贪婪选择（总是选最可能的）</td><td>需要绝对确定性</td></tr>
+<tr><td><strong>10 - 30</strong></td><td>有限选择范围</td><td>平衡质量和多样性</td></tr>
+<tr><td><strong>50 - 100</strong></td><td>较大选择范围</td><td>创意写作</td></tr>
+<tr><td><strong>≥ 词表大小</strong></td><td>不截断（等效于不设置）</td><td>不推荐使用</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="step-block">
+<span class="step-num">⚠️</span><strong>Top-k 的问题</strong>
+<div class="step-warn">固定 k 可能不合适——当分布很平坦时，k=50 可能不够；当分布很集中时，k=50 又可能包括一些低概率的奇怪 token。</div>
+</div>
+
+<p><strong>何时使用 Top-k 而非 Top-p：</strong></p>
+<ul>
+<li>需要严格限制选择范围时</li>
+<li>某些特定模型的推荐配置</li>
+<li>需要可预测的计算成本时</li>
+</ul>
+</div>
+</section>
+
+<section class="module" id="mod-penalties">
+<h2><span class="m-tag">核心参数</span>⚖️ 频率与存在惩罚<span class="m-time">⏱ 约5分钟</span></h2>
+<div class="hook">这两个参数用于减少重复——它们通过降低已出现 token 的概率来鼓励多样性。</div>
+<div class="content">
+<p><strong>Frequency Penalty（频率惩罚）：</strong></p>
+<p>根据 token 在文本中已出现的次数来惩罚——出现次数越多，惩罚越大。</p>
+<div class="formula-block">
+<span class="f-cap">频率惩罚公式</span>
+$$ \text{logits}_i' = \text{logits}_i - \text{frequency_penalty} \times \text{count}_i $$
+</div>
+
+<p><strong>Presence Penalty（存在惩罚）：</strong></p>
+<p>只要 token 出现过就惩罚一次——不管出现多少次。</p>
+<div class="formula-block">
+<span class="f-cap">存在惩罚公式</span>
+$$ \text{logits}_i' = \text{logits}_i - \text{presence_penalty} \times (1 \text{ if } \text{count}_i > 0 \text{ else } 0) $$
+</div>
+
+<div class="table-container">
+<table>
+<thead><tr><th>参数</th><th>范围</th><th>效果</th><th>适用场景</th></tr></thead>
+<tbody>
+<tr><td><strong>frequency_penalty</strong></td><td>-2.0 到 2.0</td><td>惩罚频繁出现的词</td><td>列表生成、多样化内容</td></tr>
+<tr><td><strong>presence_penalty</strong></td><td>-2.0 到 2.0</td><td>鼓励使用新词</td><td>头脑风暴、创意写作</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="code-block">
+<span class="cb-cap">惩罚参数效果示例</span>
+# 没有惩罚时可能会重复
+output: "咖啡很好喝，咖啡很香，咖啡很提神..."
+
+# frequency_penalty=1.0 时
+output: "咖啡很好喝，香气浓郁，提神醒脑..."
+
+# presence_penalty=1.0 时
+output: "咖啡很好喝，拿铁很香，浓缩咖啡提神..."
+</div>
+
+<div class="takeaway">
+<strong>💡 使用建议：</strong> 0.1-0.3 是温和的惩罚，适合大多数场景。不要使用过高的值（>1.0），否则输出会变得不自然甚至胡言乱语。
+</div>
+</div>
+</section>
+
+<section class="module" id="mod-maxlen">
+<h2><span class="m-tag">核心参数</span>📏 Max Tokens 与长度控制<span class="m-time">⏱ 约4分钟</span></h2>
+<div class="hook">控制输出长度——虽然简单，但这是避免过长或过短输出的关键参数。</div>
+<div class="content">
+<p><strong>常用的长度参数：</strong></p>
+<div class="table-container">
+<table>
+<thead><tr><th>参数</th><th>描述</th><th>注意事项</th></tr></thead>
+<tbody>
+<tr><td><strong>max_tokens / max_new_tokens</strong></td><td>最大生成 token 数</td><td>记住输入 + 输出 ≤ 模型上下文窗口</td></tr>
+<tr><td><strong>min_tokens</strong></td><td>最小生成 token 数</td><td>强制模型至少生成一定长度</td></tr>
+<tr><td><strong>stop / stop_sequences</strong></td><td>停止序列</td><td>遇到这些 token 时停止生成</td></tr>
+<tr><td><strong>logit_bias</strong></td><td>调整特定 token 的 logits</td><td>可以强制或禁止某些词</td></tr>
+</tbody>
+</table>
+</div>
+
+<p><strong>使用 stop 序列的技巧：</strong></p>
+<div class="code-block">
+<span class="cb-cap">使用 stop 序列控制输出格式</span>
+# 生成 JSON 时，遇到 "}" 就停止
+stop=[ "}" ]
+
+# 生成列表时，遇到空行就停止
+stop=[ "\n\n" ]
+
+# 多轮对话时，遇到 "用户：" 就停止
+stop=[ "用户：", "Human:", "###" ]
+</div>
+
+<p><strong>logit_bias 的妙用：</strong></p>
+<div class="code-block">
+<span class="cb-cap">使用 logit_bias 控制特定 token</span>
+# 完全禁止某些词（设为 -100）
+logit_bias={ tokenize("抱歉"): -100, tokenize("对不起"): -100 }
+
+# 强烈鼓励某些词（设为 10-100）
+logit_bias={ tokenize("JavaScript"): 20, tokenize("Python"): 20 }
+</div>
+</div>
+</section>
+
+<section class="module" id="mod-recipe">
+<h2><span class="m-tag">实践应用</span>📝 场景化配置配方<span class="m-time">⏱ 约7分钟</span></h2>
+<div class="hook">这里有一些常见场景的推荐配置——这些都是从实践中总结的经验之谈。</div>
+<div class="content">
+<div class="table-container">
+<table>
+<thead><tr><th>场景</th><th>Temperature</th><th>Top-p</th><th>Top-k</th><th>Freq Pen</th><th>Pres Pen</th></tr></thead>
+<tbody>
+<tr><td><strong>代码生成</strong></td><td>0.1-0.3</td><td>0.5-0.7</td><td>不设置</td><td>0.0</td><td>0.0</td></tr>
+<tr><td><strong>事实问答</strong></td><td>0.2-0.4</td><td>0.8-0.9</td><td>不设置</td><td>0.0</td><td>0.0</td></tr>
+<tr><td><strong>数学计算</strong></td><td>0.0-0.2</td><td>0.5-0.6</td><td>1</td><td>0.0</td><td>0.0</td></tr>
+<tr><td><strong>日常对话</strong></td><td>0.6-0.8</td><td>0.9</td><td>不设置</td><td>0.1</td><td>0.1</td></tr>
+<tr><td><strong>内容总结</strong></td><td>0.5-0.7</td><td>0.85-0.9</td><td>不设置</td><td>0.1</td><td>0.0</td></tr>
+<tr><td><strong>创意写作</strong></td><td>0.8-1.2</td><td>0.9-0.95</td><td>不设置</td><td>0.2-0.4</td><td>0.1-0.3</td></tr>
+<tr><td><strong>头脑风暴</strong></td><td>0.9-1.2</td><td>0.95</td><td>不设置</td><td>0.4-0.7</td><td>0.4-0.7</td></tr>
+<tr><td><strong>翻译</strong></td><td>0.2-0.4</td><td>0.8</td><td>不设置</td><td>0.0</td><td>0.0</td></tr>
+<tr><td><strong>JSON/结构化输出</strong></td><td>0.1-0.3</td><td>0.6-0.8</td><td>不设置</td><td>0.0</td><td>0.0</td></tr>
+</tbody>
+</table>
+</div>
+
+<p><strong>参数调优的迭代方法：</strong></p>
+<div class="step-block">
+<span class="step-num">1</span><strong>从推荐配置开始</strong>
+<div class="step-out">使用上面表格中对应场景的配置作为起点</div>
+</div>
+
+<div class="step-block">
+<span class="step-num">2</span><strong>微调 temperature</strong>
+<div class="step-out">如果输出太随机，降低 temperature；如果太重复，提高 temperature</div>
+</div>
+
+<div class="step-block">
+<span class="step-num">3</span><strong>调整惩罚参数</strong>
+<div class="step-out">如果仍有重复，增加 frequency_penalty 和/或 presence_penalty</div>
+</div>
+
+<div class="step-block">
+<span class="step-num">4</span><strong>用 stop 序列精确控制</strong>
+<div class="step-out">如果输出格式需要严格控制，使用 stop 参数</div>
+</div>
+
+<div class="takeaway">
+<strong>💡 迭代法则：</strong> 一次只调整一个参数！这样你能清楚地知道每个参数的效果。
+</div>
+</div>
+</section>
+
+<section class="module" id="mod-tools">
+<h2><span class="m-tag">实践应用</span>🛠️ 实用工具与示例<span class="m-time">⏱ 约5分钟</span></h2>
+<div class="hook">这里有一些代码示例，展示如何在常见平台上设置这些参数。</div>
+<div class="content">
+<div class="code-block">
+<span class="cb-cap">OpenAI API 参数配置示例</span>
+import openai
+
+response = openai.chat.completions.create(
+    model="gpt-4",
+    messages=[
+        {"role": "system", "content": "你是一个创意写作助手"},
+        {"role": "user", "content": "写一个关于咖啡的短故事"}
+    ],
+    temperature=0.9,      # 高创意
+    top_p=0.95,           # 宽松的 nucleus 采样
+    max_tokens=500,       # 最多 500 token
+    frequency_penalty=0.4,  # 减少重复
+    presence_penalty=0.3,   # 鼓励新词
+    stop=["###"]           # 遇到 ### 就停止
+)
+</div>
+
+<div class="code-block">
+<span class="cb-cap">Anthropic Claude 参数配置示例</span>
+import anthropic
+
+client = anthropic.Anthropic()
+response = client.messages.create(
+    model="claude-3-opus-20240229",
+    max_tokens=500,
+    temperature=0.7,
+    top_p=0.9,
+    system="你是一个专业的代码助手",
+    messages=[{"role": "user", "content": "写一个快速排序函数"}]
+)
+</div>
+
+<div class="code-block">
+<span class="cb-cap">HuggingFace Transformers 参数配置示例</span>
+from transformers import AutoTokenizer, AutoModelForCausalLM
+
+tokenizer = AutoTokenizer.from_pretrained("gpt2")
+model = AutoModelForCausalLM.from_pretrained("gpt2")
+
+inputs = tokenizer("给咖啡店起名字：", return_tensors="pt")
+outputs = model.generate(
+    **inputs,
+    max_new_tokens=50,
+    temperature=0.8,
+    top_p=0.9,
+    do_sample=True,  # 采样，不是贪婪
+    repetition_penalty=1.2,  # 类似 frequency penalty
+    num_return_sequences=3  # 一次生成 3 个结果
+)
+</div>
+
+<div class="takeaway">
+<strong>💡 测试工具：</strong> 大多数模型的 Playground（如 OpenAI Playground、Claude Console）都有可视化的参数调整界面——这是快速实验的最佳方式！
+</div>
+</div>
+</section>
+
+<section class="module" id="mod-glossary">
+<h2><span class="m-tag">参考资料</span>📚 关键术语表<span class="m-time">⏱ 约3分钟</span></h2>
+<div class="hook">这些术语会在文档和 API 中频繁出现，掌握它们能帮助你更好地理解参数文档。</div>
+<div class="content">
+<div class="table-container">
+<table>
+<thead><tr><th>术语</th><th>英文</th><th>定义</th></tr></thead>
+<tbody>
+<tr><td><strong>Logits</strong></td><td>Logits</td><td>模型输出的原始分数，经过 softmax 后变成概率</td></tr>
+<tr><td><strong>Softmax</strong></td><td>Softmax</td><td>将 logits 转换为概率分布的函数</td></tr>
+<tr><td><strong>贪婪采样</strong></td><td>Greedy Sampling</td><td>总是选择概率最高的 token</td></tr>
+<tr><td><strong>束搜索</strong></td><td>Beam Search</td><td>同时维护多个候选序列的搜索方法</td></tr>
+<tr><td><strong>核采样</strong></td><td>Nucleus Sampling</td><td>Top-p 采样的另一种说法</td></tr>
+<tr><td><strong>温度</strong></td><td>Temperature</td><td>控制概率分布平坦度的参数</td></tr>
+<tr><td><strong>频率惩罚</strong></td><td>Frequency Penalty</td><td>根据出现次数惩罚 token</td></tr>
+<tr><td><strong>存在惩罚</strong></td><td>Presence Penalty</td><td>对出现过的 token 一次性惩罚</td></tr>
+<tr><td><strong>停止序列</strong></td><td>Stop Sequence</td><td>遇到时停止生成的 token 序列</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="ref-list">
+<li><strong>推荐阅读：</strong>《The Curious Case of Neural Text Degeneration》(2019) - 介绍 nucleus sampling 的论文</li>
+<li><strong>资源：</strong>各模型的 API 文档是参数的最佳参考</li>
+</div>
+</div>
+</section>
+
+</div>
+
+<footer class="journey-footer">
+<a href="#" class="back-to-plan" onclick="event.preventDefault();var w=window.open('pe_learning.html#kc-p3_3','plan_main');if(w)w.focus()">🔗 返回学习方案：提示工程 → 基础奠基</a>
+<p style="margin-top:12px;font-size:.72rem;color:var(--text-muted)">
+本资料是「提示工程系统学习方案」第三阶段「基础奠基」的深度研读材料
+</p>
+</footer>
+
+<div class="deep-floating-back">
+<button onclick="event.preventDefault();var w=window.open('pe_learning.html#kc-p3_3','plan_main');if(w)w.focus()">← 返回学习方案</button>
+</div>
+</div>
+
+<div class="dd-toast" id="toastEl"><span id="toastMsg"></span></div>
+
+<script>
+var MODULE_IDS = ["mod-learning_journey","mod-background","mod-temperature","mod-topp","mod-topk","mod-penalties","mod-maxlen","mod-recipe","mod-tools","mod-glossary"];
+var SEARCH_INDEX = [
+{id:"mod-learning_journey",t:"📍 学习路线中的位置",c:"学习路线,提示工程,前置依赖"},
+{id:"mod-background",t:"📋 背景与缘起",c:"采样策略,概率分布,greedy,temperature"},
+{id:"mod-temperature",t:"🌡️ Temperature 参数",c:"temperature,温度,随机性,概率分布"},
+{id:"mod-topp",t:"🎯 Top-p (Nucleus) 采样",c:"top-p,nucleus sampling,核采样"},
+{id:"mod-topk",t:"🔢 Top-k 采样",c:"top-k,采样策略,截断"},
+{id:"mod-penalties",t:"⚖️ 频率与存在惩罚",c:"frequency penalty,presence penalty,重复"},
+{id:"mod-maxlen",t:"📏 Max Tokens 与长度控制",c:"max tokens,stop sequences,logit bias"},
+{id:"mod-recipe",t:"📝 场景化配置配方",c:"配置推荐,场景,参数组合"},
+{id:"mod-tools",t:"🛠️ 实用工具与示例",c:"代码示例,OpenAI,Anthropic,HuggingFace"},
+{id:"mod-glossary",t:"📚 关键术语表",c:"术语表,logits,softmax,beam search"}
+];
+var TOAST_TIMEOUT;
+
+(function(){
+var progressBar=document.getElementById('progressBar');
+var modules=document.querySelectorAll('.module');
+
+var observer=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting)e.target.classList.add('visible')})},{threshold:.15});
+modules.forEach(function(m){observer.observe(m)});
+
+var navLinks=document.querySelectorAll('.sidebar-nav a');
+var navObserver=new IntersectionObserver(function(entries){
+entries.forEach(function(e){
+if(e.isIntersecting){
+navLinks.forEach(function(a){a.classList.remove('active')});
+var act=document.querySelector('.sidebar-nav a[href="#'+e.target.id+'"]');
+if(act)act.classList.add('active');
+}
+})},{threshold:.3});
+modules.forEach(function(m){navObserver.observe(m)});
+
+window.addEventListener('scroll',function(){
+var st=document.documentElement.scrollTop,dh=document.documentElement.scrollHeight-window.innerHeight;
+var pct=dh>0?Math.min(100,(st/dh)*100):0;progressBar.style.width=pct+'%';
+});
+
+window.addEventListener('keydown',function(e){
+if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();openSearch()}
+if((e.ctrlKey||e.metaKey)&&e.key==='d'){e.preventDefault();toggleTheme()}
+if(e.key==='Escape')closeSearch()
+});
+})();
+
+function toggleTheme(){
+var b=document.body,isD=b.getAttribute('data-theme')==='dark';
+b.setAttribute('data-theme',isD?'light':'dark');
+try{localStorage.setItem('slm-theme',isD?'light':'dark')}catch(e){}
+showToast('已切换至'+(isD?'浅色':'深色')+'主题')
+}
+
+function openSearch(){document.getElementById('searchOverlay').classList.add('open');setTimeout(function(){document.getElementById('searchInput').focus()},100)}
+function closeSearch(){document.getElementById('searchOverlay').classList.remove('open');document.getElementById('searchResults').innerHTML=''}
+
+function doSearch(){
+var q=document.getElementById('searchInput').value.toLowerCase(),res=document.getElementById('searchResults');
+if(q.length<2){res.innerHTML='';return}
+var h='';SEARCH_INDEX.forEach(function(item){
+if(item.t.toLowerCase().indexOf(q)>=0||(item.c||'').toLowerCase().indexOf(q)>=0){
+h+='<div onclick="closeSearch();document.getElementById(\''+item.id+'\').scrollIntoView({behavior:\'smooth\'})"><strong>'+item.t+'</strong><br><small style="color:var(--text-muted)">'+(item.c||'').substring(0,80)+'</small></div>';
+}
+});
+res.innerHTML=h||'<div style="padding:12px;color:var(--text-muted)">未找到匹配模块</div>'
+}
+
+function showToast(msg){
+var el=document.getElementById('toastEl'),mg=document.getElementById('toastMsg');
+if(!el||!mg)return;mg.textContent=msg;el.style.display='block';el.classList.add('toast-in');
+if(TOAST_TIMEOUT)clearTimeout(TOAST_TIMEOUT);
+TOAST_TIMEOUT=setTimeout(function(){el.style.display='none'},3000);
+}
+
+(function(){
+var t;try{t=localStorage.getItem('slm-theme')}catch(e){}
+if(t==='light')document.body.setAttribute('data-theme','light');
+})();
+
+(function(){
+document.querySelectorAll('.derivation-toggle').forEach(function(btn){
+btn.addEventListener('click',function(){
+var content=this.nextElementSibling;
+if(content){content.classList.toggle('open');this.textContent=content.classList.contains('open')?'▾ 收起':'▸ 展开'}
+});
+});
+})();
+
+(function initCharts(){
+if(typeof echarts==='undefined')return;
+var charts=[];
+
+function makeChart(elId,option){
+var el=document.getElementById(elId);
+if(!el)return null;
+var chart=echarts.init(el,null,{renderer:'canvas'});
+chart.setOption(option);
+charts.push(chart);
+return chart;
+}
+
+// 1. 背景：概率分布
+makeChart('chart-background-01',{
+backgroundColor:'transparent',
+tooltip:{trigger:'axis'},
+xAxis:{type:'category',data:['Token 1','Token 2','Token 3','Token 4','Token 5','Token 6','Token 7','Token 8'],
+axisLine:{lineStyle:{color:'var(--border-subtle)'}},
+axisLabel:{color:'var(--text-muted)'}},
+yAxis:{type:'value',name:'概率',
+axisLine:{lineStyle:{color:'var(--border-subtle)'}},
+axisLabel:{color:'var(--text-muted)'}},
+series:[{
+type:'bar',
+data:[0.45,0.25,0.15,0.08,0.04,0.02,0.01,0.00],
+itemStyle:{color:'#5b8db8'}
+}]
+});
+
+// 2. Temperature 分布对比
+makeChart('chart-temperature-01',{
+backgroundColor:'transparent',
+tooltip:{trigger:'axis'},
+xAxis:{type:'category',data:['Token 1','Token 2','Token 3','Token 4','Token 5','Token 6','Token 7','Token 8'],
+axisLine:{lineStyle:{color:'var(--border-subtle)'}},
+axisLabel:{color:'var(--text-muted)'}},
+yAxis:{type:'value',name:'概率',
+axisLine:{lineStyle:{color:'var(--border-subtle)'}},
+axisLabel:{color:'var(--text-muted)'}},
+series:[
+{name:'T=0.1',type:'bar',data:[0.9,0.08,0.02,0,0,0,0,0],itemStyle:{color:'#c06050'}},
+{name:'T=0.7',type:'bar',data:[0.45,0.25,0.15,0.08,0.04,0.02,0.01,0.00],itemStyle:{color:'#5b8db8'}},
+{name:'T=2.0',type:'bar',data:[0.2,0.18,0.15,0.12,0.1,0.1,0.08,0.07],itemStyle:{color:'#5a9e6f'}}
+]
+});
+
+// 3. Top-p 可视化
+makeChart('chart-topp-01',{
+backgroundColor:'transparent',
+tooltip:{trigger:'axis'},
+xAxis:{type:'category',data:['Token 1','Token 2','Token 3','Token 4','Token 5','Token 6','Token 7','Token 8'],
+axisLine:{lineStyle:{color:'var(--border-subtle)'}},
+axisLabel:{color:'var(--text-muted)'}},
+yAxis:{type:'value',name:'概率',
+axisLine:{lineStyle:{color:'var(--border-subtle)'}},
+axisLabel:{color:'var(--text-muted)'}},
+series:[{
+type:'bar',
+data:[
+{value:0.45,itemStyle:{color:'#5a9e6f'}},
+{value:0.25,itemStyle:{color:'#5a9e6f'}},
+{value:0.15,itemStyle:{color:'#5a9e6f'}},
+{value:0.08,itemStyle:{color:'#c0a060'}},
+{value:0.04,itemStyle:{color:'#787878'}},
+{value:0.02,itemStyle:{color:'#787878'}},
+{value:0.01,itemStyle:{color:'#787878'}},
+{value:0.00,itemStyle:{color:'#787878'}}
+],
+markArea:{
+silent:true,
+itemStyle:{color:'rgba(91,141,184,0.15)'},
+data:[[{xAxis:0},{xAxis:3}]]
+}
+}]
+});
+
+window.addEventListener('resize',function(){charts.forEach(function(c){c.resize()})});
+})();
+</script>
+</body>
+</html>

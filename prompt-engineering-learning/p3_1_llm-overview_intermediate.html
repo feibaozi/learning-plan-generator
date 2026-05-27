@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>LLM工作原理概述 深度研读</title>
+<style>
+/* ───────────────────────────────────────────────
+   Template: Graphite Studio (石墨工作室) — deep_dive.css
+   Mood: minimal, clean, neutral
+   Contrast verified: text-primary≥10:1, text-secondary≥6:1, text-muted≥4.5:1
+   ─────────────────────────────────────────────── */
+:root{
+--bg-base:#0d0d0d;
+--bg-card:#1a1a1a;
+--bg-elevated:#222222;
+--bg-overlay:rgba(0,0,0,.6);
+--text-primary:#ededed;
+--text-secondary:#a0a0a0;
+--text-muted:#787878;
+--accent-indigo:#5b8db8;
+--accent-purple:#8878a8;
+--accent-cyan:#6ea8c0;
+--accent-gold:#c0a060;
+--accent-green:#5a9e6f;
+--accent-red:#c06050;
+--accent-blue:#5b8db8;
+--accent-color:#5b8db8;
+--accent-dark:#3a6088;
+--border-subtle:rgba(160,160,160,.15);
+--border-glow:rgba(91,141,184,.2);
+--shadow-sm:0 1px 3px rgba(0,0,0,.3);
+--shadow-md:0 4px 16px rgba(0,0,0,.4);
+--shadow-lg:0 8px 32px rgba(0,0,0,.5);
+--shadow-elevated:0 8px 32px rgba(0,0,0,.5);
+--radius-sm:6px;
+--radius-md:10px;
+--radius-lg:16px;
+--font-sans:'Segoe UI',system-ui,-apple-system,sans-serif;
+--font-mono:Consolas,'Cascadia Code',monospace;
+--transition:.25s cubic-bezier(.4,0,.2,1);
+--transition-smooth:.3s ease;
+--nav-h:56px;
+--accent-color-rgb:91,141,184;
+--chart-grid:#252525;
+--chart-axis-label:#787878;
+}
+[data-theme="light"]{
+--bg-base:#fafafa;
+--bg-card:#ffffff;
+--bg-elevated:#eeeeee;
+--bg-overlay:rgba(0,0,0,.3);
+--text-primary:#121212;
+--text-secondary:#4a4a4a;
+--text-muted:#5e5e5e;
+--accent-indigo:#3a6088;
+--accent-purple:#5a4878;
+--accent-cyan:#3a7888;
+--accent-gold:#886830;
+--accent-green:#3d8055;
+--accent-red:#983830;
+--accent-blue:#3a6088;
+--accent-color:#3a6088;
+--accent-dark:#284868;
+--border-subtle:rgba(18,18,18,.08);
+--border-glow:rgba(58,96,136,.2);
+--shadow-sm:0 1px 3px rgba(0,0,0,.06);
+--shadow-md:0 4px 16px rgba(0,0,0,.08);
+--shadow-lg:0 8px 32px rgba(0,0,0,.12);
+--shadow-elevated:0 8px 32px rgba(0,0,0,.12);
+--accent-color-rgb:58,96,136;
+--chart-grid:#e5e5e5;
+--chart-axis-label:#5e5e5e;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font-sans);background:var(--bg-base);color:var(--text-primary);line-height:1.75;overflow-x:hidden}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg-base)}::-webkit-scrollbar-thumb{background:var(--border-glow);border-radius:3px}
+
+.progress-bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--accent-indigo),var(--accent-purple),var(--accent-cyan));z-index:200;transition:width .1s linear}
+.navbar{position:fixed;top:3px;left:0;right:0;z-index:100;background:var(--bg-card);border-bottom:1px solid var(--border-subtle);backdrop-filter:blur(16px);height:var(--nav-h);display:flex;align-items:center;justify-content:space-between;padding:0 24px}
+.nav-left{display:flex;align-items:center;gap:12px;font-size:.82rem;font-weight:600;color:var(--accent-indigo)}
+.nav-right{display:flex;align-items:center;gap:8px}
+.nav-right button{background:var(--bg-elevated);border:1px solid var(--border-subtle);color:var(--text-secondary);padding:6px 12px;border-radius:var(--radius-sm);cursor:pointer;font-size:.75rem;transition:all var(--transition)}
+.nav-right button:hover{border-color:var(--border-glow);color:var(--accent-indigo)}
+
+.sidebar{position:fixed;left:0;top:0;height:100vh;width:280px;background:var(--bg-base);border-right:1px solid var(--border-subtle);padding:24px;overflow-y:auto;z-index:100;padding-top:calc(var(--nav-h) + 16px)}
+.sidebar h3{font-size:.85rem;font-weight:700;color:var(--text-secondary);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--border-subtle)}
+.sidebar-nav{list-style:none;padding:0}
+.sidebar-nav li{margin-bottom:2px}
+.sidebar-nav a{display:block;padding:8px 12px;border-radius:var(--radius-md);text-decoration:none;font-size:.76rem;color:var(--text-secondary);transition:all var(--transition);border-left:3px solid transparent}
+.sidebar-nav a:hover{background:rgba(91,141,184,.08);color:var(--accent-cyan);border-left-color:var(--accent-cyan)}
+.sidebar-nav a.active{background:rgba(91,141,184,.12);color:var(--accent-blue);font-weight:600;border-left-color:var(--accent-blue)}
+.sidebar-back-link{display:block;padding:8px 12px;margin-bottom:12px;border-radius:8px;background:var(--bg-elevated);color:var(--accent-blue);text-decoration:none;font-size:.78rem;font-weight:600}
+.sidebar-back-link:hover{color:var(--accent-cyan)}
+
+.content-area{margin-left:280px;width:calc(100% - 280px)}
+.container{max-width:calc(100% - 48px);margin:0 auto;padding:calc(var(--nav-h) + 24px) 24px 80px}
+
+.hero{text-align:center;padding:48px 0 36px}
+.hero h1{font-size:2.2rem;background:linear-gradient(135deg,var(--accent-indigo),var(--accent-purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+.hero .tags{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:12px}
+.hero .tags span{font-size:.7rem;padding:4px 12px;border-radius:50px;border:1px solid var(--border-glow);color:var(--accent-indigo);background:rgba(99,102,241,.06)}
+
+.meta-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:20px 24px;margin:0 auto 32px;max-width:700px;display:flex;justify-content:center;gap:36px;flex-wrap:wrap;box-shadow:var(--shadow-md)}
+.meta-item{text-align:center}
+.meta-item .val{font-size:1.4rem;font-weight:800;color:var(--accent-indigo)}
+.meta-item .lbl{font-size:.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px}
+
+.journey-bar{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:12px 20px;margin:0 auto 24px;max-width:900px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:.82rem;box-shadow:var(--shadow-elevated)}
+.journey-path{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.journey-icon{font-size:1rem}
+.journey-plan{color:var(--accent-purple);font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.journey-plan:hover{color:var(--accent-gold)}
+.journey-sep{color:var(--text-muted);font-size:.7rem}
+.journey-phase{color:var(--text-secondary);font-weight:600}
+.journey-kp{color:var(--text-primary);font-weight:700}
+.journey-pos{color:var(--text-muted);font-size:.72rem}
+.journey-nav{display:flex;align-items:center;gap:8px;font-size:.75rem}
+.journey-prev,.journey-next{color:var(--text-muted);cursor:default}
+.journey-divider{color:var(--border-subtle)}
+
+.module{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:28px 28px 24px;margin-bottom:20px;
+opacity:0;transform:translateY(24px);transition:opacity .5s ease,transform .5s ease;box-shadow:var(--shadow-sm)}
+.module.visible{opacity:1;transform:translateY(0)}
+.module:hover{border-color:var(--border-glow)}
+.module h2{font-size:1.15rem;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.module .m-tag{font-size:.65rem;padding:2px 10px;border-radius:50px;background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.2);color:var(--accent-indigo);font-weight:600}
+.module .m-time{font-size:.7rem;color:var(--text-muted);margin-left:auto}
+.module .hook{font-size:.9rem;color:var(--accent-purple);font-weight:600;margin:12px 0 16px;padding-left:12px;border-left:3px solid var(--accent-purple)}
+.module .content{font-size:.88rem;color:var(--text-secondary);line-height:1.8}
+.module .content p{margin-bottom:12px}
+.module .content ul,.module .content ol{margin:8px 0 12px 20px}
+.module .content li{margin-bottom:6px}
+
+.code-block{background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:var(--radius-sm);padding:14px 18px;margin:14px 0;font-family:var(--font-mono);font-size:.8rem;color:var(--text-primary);overflow-x:auto;white-space:pre-wrap;word-break:break-word}
+.code-block .cb-cap{font-size:.7rem;color:var(--text-muted);margin-bottom:6px;display:block}
+.step-block{background:rgba(91,141,184,.06);border:1px solid rgba(91,141,184,.12);border-radius:var(--radius-sm);padding:14px 18px;margin:10px 0}
+.step-block .step-num{display:inline-block;width:24px;height:24px;line-height:24px;text-align:center;background:var(--accent-indigo);color:#fff;border-radius:50%;font-size:.72rem;font-weight:700;margin-right:8px}
+.step-block .step-out{font-size:.75rem;color:var(--accent-green);margin-top:6px;padding-left:32px}
+.step-block .step-warn{font-size:.75rem;color:var(--accent-red);margin-top:4px;padding-left:32px}
+
+.formula-block{background:rgba(99,102,241,.04);border:1px solid rgba(99,102,241,.12);border-radius:var(--radius-sm);padding:14px 18px;margin:14px 0;font-family:var(--font-mono);font-size:.82rem;color:var(--accent-cyan);overflow-x:auto;position:relative}
+.formula-block .f-cap{font-size:.7rem;color:var(--text-muted);margin-bottom:6px;display:block}
+.derivation-toggle{font-size:.7rem;color:var(--accent-gold);cursor:pointer;border:none;background:none;padding:4px 0;font-family:inherit;display:block;margin-top:6px}
+.derivation-toggle:hover{text-decoration:underline}
+.derivation-content{display:none;margin-top:8px;padding:12px 16px;background:rgba(245,158,11,.04);border-radius:var(--radius-sm);border-left:3px solid var(--accent-gold);font-size:.8rem;color:var(--text-secondary)}
+.derivation-content.open{display:block}
+
+.chart-wrap{background:rgba(99,102,241,.03);border-radius:var(--radius-sm);padding:8px;margin:14px 0;text-align:center}
+.chart-wrap > div{width:100%;height:280px}
+.chart-wrap .ch-cap{font-size:.72rem;color:var(--text-muted);margin-top:6px}
+
+.table-container{margin:20px 0;overflow-x:auto}
+.table-container table{width:100%;border-collapse:collapse;border-radius:var(--radius-md);overflow:hidden}
+.table-container th{background:var(--bg-elevated);color:var(--accent-cyan);font-weight:700;padding:12px 16px;text-align:left;font-size:.8rem}
+.table-container td{padding:12px 16px;border-bottom:1px solid var(--border-subtle);font-size:.82rem;color:var(--text-secondary)}
+.table-container tr:hover td{background:rgba(91,141,184,.03)}
+.table-container .table-caption{font-size:.72rem;color:var(--text-muted);margin-bottom:8px;text-align:center}
+
+.takeaway{font-size:.82rem;background:rgba(16,185,129,.06);border-left:3px solid var(--accent-green);padding:10px 14px;margin-top:16px;border-radius:0 var(--radius-sm) var(--radius-sm) 0;color:var(--accent-green)}
+
+.ref-list{list-style:none;padding:0;margin-top:8px;font-size:.78rem}
+.ref-list li{padding:4px 0;color:var(--text-muted)}
+.ref-list li::before{content:'📄 '}
+
+.search-overlay{position:fixed;inset:0;z-index:300;background:var(--bg-overlay);display:none;align-items:flex-start;justify-content:center;padding-top:120px}
+.search-overlay.open{display:flex}
+.search-box{width:520px;max-width:90vw;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:var(--radius-md);box-shadow:var(--shadow-lg);overflow:hidden}
+.search-box input{width:100%;padding:14px 18px;background:transparent;border:none;color:var(--text-primary);font-size:.95rem;outline:none;font-family:inherit}
+.search-results{max-height:360px;overflow-y:auto}
+.search-results div{padding:10px 18px;cursor:pointer;font-size:.82rem;color:var(--text-secondary);border-top:1px solid var(--border-subtle);transition:background var(--transition)}
+.search-results div:hover{background:rgba(99,102,241,.06);color:var(--text-primary)}
+
+.journey-footer{text-align:center;padding:40px 32px 60px;opacity:.8}
+.back-to-plan{display:inline-flex;align-items:center;gap:8px;padding:10px 24px;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:50px;color:var(--text-secondary);text-decoration:none;font-size:.85rem;font-weight:600;transition:all var(--transition-smooth)}
+.back-to-plan:hover{background:var(--bg-elevated);border-color:var(--accent-purple);color:var(--accent-purple)}
+
+.deep-floating-back{position:fixed;right:20px;bottom:20px;z-index:10000}
+.deep-floating-back button{padding:12px 20px;background:linear-gradient(135deg,var(--accent-color),var(--accent-dark));color:#fff;border:none;border-radius:24px;font-size:.85rem;font-weight:600;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.15);transition:transform .2s,box-shadow .2s}
+.deep-floating-back button:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.2)}
+
+.dd-toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);z-index:10001;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:8px;padding:14px 24px;box-shadow:0 4px 16px rgba(0,0,0,.15);font-size:.85rem;display:none}
+.toast-in{animation:toastIn .3s ease}
+@keyframes toastIn{from{opacity:0;transform:translate(-50%,20px)}to{opacity:1;transform:translate(-50%,0)}}
+
+@media print{.navbar,.progress-bar,.sidebar,.journey-bar,.journey-footer,.deep-floating-back{display:none!important}.content-area{margin-left:0;width:100%}.module{break-inside:avoid;opacity:1!important;transform:none!important;box-shadow:none}body{background:#fff}}
+
+@media(max-width:1024px){.sidebar{display:none}.content-area{margin-left:0;width:100%}}
+@media(max-width:768px){
+.hero h1{font-size:1.6rem}.module{padding:20px}.meta-card{font-size:.72rem;padding:12px 16px}.journey-bar{flex-direction:column;align-items:flex-start}
+.deep-floating-back{right:15px;bottom:15px}.deep-floating-back button{padding:10px 16px;font-size:.8rem}
+}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+</head>
+<body data-theme="dark">
+
+<div class="progress-bar" id="progressBar" style="width:0%"></div>
+
+<nav class="navbar">
+  <div class="nav-left">📖 LLM工作原理概述</div>
+  <div class="nav-right">
+    <button onclick="toggleTheme()" title="切换主题 (Ctrl+D)">🌓 主题</button>
+    <button onclick="openSearch()" title="搜索 (Ctrl+K)">🔍 搜索</button>
+  </div>
+</nav>
+
+<div class="sidebar">
+  <a href="#" class="sidebar-back-link" onclick="event.preventDefault();var w=window.open('pe_learning.html#kc-p3_1','plan_main');if(w)w.focus()">← 返回主方案</a>
+  <h3>📖 目录导航</h3>
+  <ul class="sidebar-nav">
+    <li><a href="#mod-learning_journey">📍 学习路线中的位置</a></li>
+    <li><a href="#mod-background">📋 背景与缘起</a></li>
+    <li><a href="#mod-concept">🎯 核心概念</a></li>
+    <li><a href="#mod-principle">⚙️ 核心原理：三层结构</a></li>
+    <li><a href="#mod-architecture">🏗️ Transformer架构</a></li>
+    <li><a href="#mod-autoregressive">📚 自回归生成</a></li>
+    <li><a href="#mod-training">🔬 训练管线</a></li>
+    <li><a href="#mod-case_study">📝 实践案例</a></li>
+    <li><a href="#mod-learning_path">🗺️ 学习路径</a></li>
+    <li><a href="#mod-glossary">📚 关键术语表</a></li>
+  </ul>
+</div>
+
+<div class="content-area">
+<div class="search-overlay" id="searchOverlay">
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="搜索模块内容..." oninput="doSearch()" onkeydown="if(event.key==='Escape')closeSearch()">
+    <div class="search-results" id="searchResults"></div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="hero">
+    <h1>LLM工作原理概述</h1>
+    <div class="tags">
+      <span>LLM原理</span><span>Transformer</span><span>自回归生成</span><span>训练管线</span><span>提示工程</span>
+    </div>
+  </div>
+
+  <div class="meta-card">
+    <div class="meta-item"><div class="val">10</div><div class="lbl">内容模块</div></div>
+    <div class="meta-item"><div class="val">约45</div><div class="lbl">分钟阅读</div></div>
+    <div class="meta-item"><div class="val">G8</div><div class="lbl">教程实操型</div></div>
+    <div class="meta-item"><div class="val">理解</div><div class="lbl">深度等级</div></div>
+  </div>
+
+  <div class="journey-bar" id="journeyBar">
+    <div class="journey-path">
+      <span class="journey-icon">📍</span>
+      <span class="journey-plan" onclick="var w=window.open('pe_learning.html#kc-p3_1','plan_main');if(w)w.focus()">提示工程 (Prompt Engineering) 系统学习方案</span>
+      <span class="journey-sep">〉</span>
+      <span class="journey-phase">基础奠基</span>
+      <span class="journey-sep">〉</span>
+      <span class="journey-kp">LLM工作原理概述</span>
+      <span class="journey-pos">(阶段3/4 · 第1个知识点)</span>
+    </div>
+    <div class="journey-nav">
+      <span class="journey-prev" title="前置：多步推理与任务分解">← 前置</span>
+      <span class="journey-divider">|</span>
+      <span class="journey-next" title="后续：Token化与分词原理">后续 →</span>
+    </div>
+  </div>
+
+  <section class="module" id="mod-learning_journey">
+<h2><span class="m-tag">路线导航</span>📍 学习路线中的位置<span class="m-time">⏱ 约2分钟</span></h2>
+<div class="hook">你在「提示工程系统学习方案」第三阶段「基础奠基」的第一个知识点。理解LLM的工作原理，能让你的提示技巧从「经验主义」升级为「科学指导」。</div>
+<div class="content">
+<p><strong>当前位置：</strong>提示工程 (Prompt Engineering) 系统学习方案 → <em>阶段3/4：基础奠基</em> → 第1个知识点「LLM工作原理概述」</p>
+<p><strong>← 前置依赖：</strong>多步推理与任务分解（阶段2/4 第3个知识点）。你需要理解如何通过提示引导模型进行复杂推理。</p>
+<p><strong>→ 后续学习：</strong>掌握本知识点后，你将进入 <strong>Token化与分词原理</strong> 和 <strong>推理参数调优</strong>，这两个模块将帮助你在更细粒度上控制LLM的行为。</p>
+<p><strong>⏱️ 建议投入时间：</strong>建议投入 45 分钟完成全部模块的阅读。即使不准备深入研究模型训练，理解这些原理也会显著提升你的提示工程水平。</p>
+<p><strong>🔗 返回学习方案：</strong>点击顶部导航条中的方案名称，或直接 <a href="#" onclick="var w=window.open('pe_learning.html#kc-p3_1','plan_main');if(w)w.focus()" style="color:var(--accent-purple)">点击这里返回学习方案</a>。</p>
+</div>
+</section>
+
+<section class="module" id="mod-background">
+<h2><span class="m-tag">前置知识</span>背景与缘起<span class="m-time">⏱ 约3分钟</span></h2>
+<div class="hook">从统计语言模型到Transformer再到GPT系列，大语言模型的发展路径清晰可见。了解这段历史，能帮你理解为什么LLM是现在这个样子。</div>
+<div class="content">
+<p><strong>语言模型的演进：</strong></p>
+<ul>
+<li><strong>早期（1990s-2010s）：</strong> n-gram模型、统计语言模型 —— 基于频率统计预测下一个词</li>
+<li><strong>深度学习时代（2013-2017）：</strong> Word2Vec、RNN、LSTM —— 首次用神经网络学习词向量和序列依赖</li>
+<li><strong>革命（2017）：</strong> Transformer架构发表 —— 自注意力机制突破序列长度限制</li>
+<li><strong>GPT时代（2018-至今）：</strong> GPT-1→GPT-2→GPT-3→GPT-4 —— 规模与能力的指数级增长</li>
+</ul>
+
+<div class="table-container">
+<table>
+<thead><tr><th>年份</th><th>里程碑</th><th>关键创新</th><th>能力等级</th></tr></thead>
+<tbody>
+<tr><td>2017</td><td>Transformer论文</td><td>自注意力机制</td><td>基础架构</td></tr>
+<tr><td>2018</td><td>GPT-1</td><td>生成式预训练</td><td>文本补全</td></tr>
+<tr><td>2019</td><td>GPT-2</td><td>无监督多任务</td><td>故事生成</td></tr>
+<tr><td>2020</td><td>GPT-3</td><td>规模突破(175B)</td><td>少样本学习</td></tr>
+<tr><td>2022</td><td>ChatGPT</td><td>RLHF对齐</td><td>对话能力</td></tr>
+<tr><td>2023</td><td>GPT-4</td><td>多模态+高级推理</td><td>专家级任务</td></tr>
+</tbody>
+</table>
+</div>
+
+<p><strong>为什么这些对提示工程师重要？</strong>知道模型如何学习、如何生成，你就能理解：</p>
+<ul>
+<li>为什么提示的顺序很重要（自回归生成）</li>
+<li>为什么模型会"幻觉"（训练数据与生成目标的差异）</li>
+<li>为什么角色扮演有效（系统提示改变上下文分布）</li>
+<li>为什么思维链提示能提升推理（逐步生成激活正确的注意力模式）</li>
+</ul>
+</div>
+</section>
+
+<section class="module" id="mod-concept">
+<h2><span class="m-tag">核心概念</span>核心概念<span class="m-time">⏱ 约4分钟</span></h2>
+<div class="hook">LLM的核心机制是一个三层结构：Transformer架构处理输入，自回归模式逐词生成，训练管线决定了模型知道什么和如何响应。</div>
+<div class="content">
+
+<div class="chart-wrap">
+<div id="chart-concept-01"></div>
+<span class="ch-cap">图：LLM核心机制三层结构</span>
+</div>
+
+<p><strong>第一层：Transformer架构</strong></p>
+<p>Transformer是LLM的"大脑"，由多个相同的层堆叠而成。每个层包含两个核心组件：</p>
+<ul>
+<li><strong>自注意力机制：</strong>让模型能"看到"输入中所有位置的信息，并根据相关性加权</li>
+<li><strong>前馈神经网络：</strong>对每个位置的信息进行独立处理和变换</li>
+</ul>
+
+<p><strong>第二层：自回归生成</strong></p>
+<p>LLM生成文本的方式是逐token预测：</p>
+<ul>
+<li>每次只生成一个token</li>
+<li>生成下一个token时，基于前面所有已生成的内容</li>
+<li>从概率分布中采样选择下一个token</li>
+</ul>
+
+<div class="formula-block">
+<span class="f-cap">自回归生成概率公式</span>
+$$P(w_1, w_2, ..., w_n) = \prod_{i=1}^{n} P(w_i | w_1, w_2, ..., w_{i-1})$$
+<button class="derivation-toggle">▸ 展开解释</button>
+<div class="derivation-content">这个公式表示：生成整句文本的概率等于逐词生成概率的乘积。每个词的生成概率都依赖于前面已经生成的所有词。这就是为什么提示中前面的内容会对后面的生成产生巨大影响——每一步都在条件化后续的生成分布。</div>
+</div>
+
+<p><strong>第三层：训练管线</strong></p>
+<p>现代LLM的训练通常包含三个阶段：</p>
+<ol>
+<li><strong>预训练：</strong>在海量文本上学习预测下一个token</li>
+<li><strong>指令微调：</strong>用指令-响应对教模型遵循人类指令</li>
+<li><strong>RLHF：</strong>用人类反馈强化学习对齐人类偏好</li>
+</ol>
+
+<div class="takeaway">
+<strong>💡 核心洞察：</strong>理解这三层结构，你就掌握了LLM的90%。提示工程本质上是在第二层（自回归生成）中通过精心设计的输入条件，引导模型从第一层（Transformer）中激活正确的知识，而第三层（训练）则决定了模型有哪些知识可以被激活。
+</div>
+</div>
+</section>
+
+<section class="module" id="mod-principle">
+<h2><span class="m-tag">核心原理</span>核心原理：三层结构<span class="m-time">⏱ 约5分钟</span></h2>
+<div class="hook">现在让我们深入这三层结构的工作原理，以及它们如何共同作用产生你看到的输出。</div>
+<div class="content">
+
+<p><strong>一、Transformer：理解上下文的引擎</strong></p>
+<div class="step-block">
+<span class="step-num">1</span><strong>输入嵌入：</strong>将文本token转换为高维向量
+<div class="step-out">每个token对应一个d维向量（如GPT-3是12288维）</div>
+</div>
+
+<div class="step-block">
+<span class="step-num">2</span><strong>位置编码：</strong>给向量添加位置信息
+<div class="step-out">Transformer不知道顺序，需要显式编码位置</div>
+</div>
+
+<div class="step-block">
+<span class="step-num">3</span><strong>自注意力层：</strong>计算每个位置对其他位置的关注度
+<div class="step-out">多头注意力让模型同时关注不同类型的关系</div>
+</div>
+
+<div class="step-block">
+<span class="step-num">4</span><strong>前馈层：</strong>对每个位置独立进行非线性变换
+<div class="step-out">这是模型"思考"和应用知识的地方</div>
+</div>
+
+<p><strong>二、自回归生成：逐词构建的艺术</strong></p>
+<p>想象你在玩"词语接龙"游戏，每次只能说一个词，但必须让整句话连贯——这就是LLM在做的事。关键区别是：</p>
+<ul>
+<li>LLM知道所有可能的"下一个词"的概率</li>
+<li>它不是随便选一个，而是根据参数（temperature、top-p等）从分布中采样</li>
+<li>选好一个词后，把它加到上下文里，再猜下一个</li>
+</ul>
+
+<div class="code-block">
+<span class="cb-cap">自回归生成的简化伪代码</span>
+def generate(prompt, max_new_tokens=50):
+    tokens = tokenize(prompt)
+    for _ in range(max_new_tokens):
+        # 预测下一个token的概率分布
+        logits = model(tokens)
+        # 根据temperature等参数采样
+        next_token = sample(logits, temperature=0.7)
+        # 添加到序列中
+        tokens = tokens + [next_token]
+        # 如果是结束符就停止
+        if next_token == EOS_TOKEN:
+            break
+    return detokenize(tokens)
+</div>
+
+<p><strong>三、训练管线：三个阶段的旅程</strong></p>
+
+<div class="table-container">
+<table>
+<thead><tr><th>阶段</th><th>目标</th><th>数据</th><th>对提示工程的影响</th></tr></thead>
+<tbody>
+<tr><td><strong>预训练</strong></td><td>学习世界知识</td><td>万亿token的互联网文本</td><td>模型知道什么事实、语言模式</td></tr>
+<tr><td><strong>指令微调</strong></td><td>学会遵循指令</td><td>百万级指令-响应对</td><td>模型理解"请帮我..."这类请求</td></tr>
+<tr><td><strong>RLHF</strong></td><td>对齐人类偏好</td><td>人类偏好标注</td><td>模型输出更有帮助、更安全</td></tr>
+</tbody>
+</table>
+</div>
+
+</div>
+</section>
+
+<section class="module" id="mod-architecture">
+<h2><span class="m-tag">核心原理</span>Transformer架构<span class="m-time">⏱ 约5分钟</span></h2>
+<div class="hook">自注意力机制是Transformer的核心。理解它如何工作，你就能明白为什么提示中的某些部分比其他部分更有影响力。</div>
+<div class="content">
+
+<div class="chart-wrap">
+<div id="chart-arch-01"></div>
+<span class="ch-cap">图：Transformer编码器-解码器架构（简化版）</span>
+</div>
+
+<p><strong>自注意力机制详解：</strong></p>
+<p>自注意力计算三个向量：Query（查询）、Key（键）、Value（值）</p>
+
+<div class="formula-block">
+<span class="f-cap">缩放点积注意力公式</span>
+$$\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V$$
+<button class="derivation-toggle">▸ 展开解释</button>
+<div class="derivation-content">直观理解：Q是"我在找什么"，K是"这里有什么"，V是"这里的内容是什么"。计算Q和所有K的相似度，用softmax归一化得到权重，然后用权重对V加权求和。$\sqrt{d_k}$是缩放因子，防止点积值过大导致softmax饱和。</div>
+</div>
+
+<p><strong>多头注意力：</strong></p>
+<p>Transformer不是只用一组注意力，而是用多组（"头"），每组学习不同类型的关系：</p>
+<ul>
+<li>有的头关注语法关系（主谓一致）</li>
+<li>有的头关注指代关系（"它"指什么）</li>
+<li>有的头关注语义相似性</li>
+</ul>
+
+<p><strong>对提示工程的启示：</strong></p>
+<div class="step-block">
+<span class="step-num">💡</span><strong>关键信息放前面或后面</strong>
+<div class="step-out">注意力机制有"近期偏见"和"开头偏见"，重要提示放在这两个位置效果更好</div>
+</div>
+<div class="step-block">
+<span class="step-num">💡</span><strong>用分隔符区分不同部分</strong>
+<div class="step-out">用---或###等分隔符帮助模型正确分段注意力</div>
+</div>
+<div class="step-block">
+<span class="step-num">💡</span><strong>重复重要指令</strong>
+<div class="step-out">在提示开头和结尾各说一次，增加被注意到的概率</div>
+</div>
+
+</div>
+</section>
+
+<section class="module" id="mod-autoregressive">
+<h2><span class="m-tag">核心原理</span>自回归生成<span class="m-time">⏱ 约5分钟</span></h2>
+<div class="hook">自回归生成是LLM最基本的行为模式。理解这个过程，你就能解释很多看似神秘的模型行为。</div>
+<div class="content">
+
+<div class="chart-wrap">
+<div id="chart-auto-01"></div>
+<span class="ch-cap">图：自回归生成过程可视化</span>
+</div>
+
+<p><strong>生成的每一步都在做什么？</strong></p>
+<ol>
+<li>输入当前所有token到Transformer</li>
+<li>Transformer输出下一个位置每个可能token的logits</li>
+<li>对logits应用softmax得到概率分布</li>
+<li>根据采样策略（temperature、top-p等）选择一个token</li>
+<li>将这个token加到输入序列末尾</li>
+<li>重复直到生成结束符或达到最大长度</li>
+</ol>
+
+<p><strong>三个有趣的观察及其提示工程应用：</strong></p>
+
+<div class="table-container">
+<table>
+<thead><tr><th>观察</th><th>解释</th><th>提示技巧</th></tr></thead>
+<tbody>
+<tr><td>模型很难"反悔"</td><td>一旦生成了某个内容，后续生成都会基于它</td><td>生成前让模型"先思考再回答"，把推理过程写在前面</td></tr>
+<tr><td>输出的开头至关重要</td><td>前几个token定下了整个生成的基调</td><td>在提示中给出理想输出的前几个词或模板</td></tr>
+<tr><td>模型会"补全"模式</td><td>它在训练中见过太多文本模式，会自动延续</td><td>用few-shot示例建立你想要的模式</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="takeaway">
+<strong>💡 思维链为什么有效？</strong> 因为当模型逐token生成推理步骤时，每一步的推理都会改变后续的注意力分布，引导模型激活正确的知识路径。这就像你在做数学题时把中间步骤写下来——写的过程帮助你思考。
+</div>
+
+</div>
+</section>
+
+<section class="module" id="mod-training">
+<h2><span class="m-tag">核心原理</span>训练管线<span class="m-time">⏱ 约5分钟</span></h2>
+<div class="hook">训练决定了模型的"本性"。知道模型是怎么训练出来的，你就能理解它的优势和局限性。</div>
+<div class="content">
+
+<p><strong>第一阶段：预训练 —— 学习预测下一个token</strong></p>
+<p>预训练是LLM学习的主要阶段，目标很简单：给定前文，预测下一个token。</p>
+
+<div class="formula-block">
+<span class="f-cap">预训练目标函数</span>
+$$\mathcal{L} = -\sum_{t=1}^{T} \log P(w_t | w_1, ..., w_{t-1}; \theta)$$
+<button class="derivation-toggle">▸ 展开解释</button>
+<div class="derivation-content">这是负对数似然损失。模型要最大化正确下一个token的对数概率，等价于最小化这个损失。关键洞察：模型学的不是"真相"，而是"文本中什么最可能接着出现"。这解释了为什么模型会产生幻觉——有些内容虽然不真实，但在训练数据的模式下很"合理"。</div>
+</div>
+
+<p><strong>第二阶段：指令微调 —— 学会"听从指令"</strong></p>
+<p>预训练模型是个"补全机器"，但不知道如何响应用户请求。指令微调就是用大量（指令，响应）对来教它：</p>
+<ul>
+<li>"把这封信翻译成法语" → 法语翻译</li>
+<li>"总结这篇文章" → 摘要</li>
+<li>"帮我写一个Python函数" → 代码</li>
+</ul>
+
+<p><strong>第三阶段：RLHF —— 对齐人类偏好</strong></p>
+<p>即使经过指令微调，模型的输出也不一定符合人类偏好。RLHF通过三个步骤解决这个问题：</p>
+<ol>
+<li>收集人类对模型输出的偏好排序</li>
+<li>训练一个奖励模型预测人类偏好</li>
+<li>用强化学习训练LLM最大化奖励</li>
+</ol>
+
+<div class="chart-wrap">
+<div id="chart-train-01"></div>
+<span class="ch-cap">图：RLHF三阶段流程</span>
+</div>
+
+<p><strong>对提示工程的关键启示：</strong></p>
+<div class="step-block">
+<span class="step-num">1</span><strong>模型会模仿训练数据中的模式</strong>
+<div class="step-out">如果你的提示像论文，它的输出也会像论文</div>
+</div>
+<div class="step-block">
+<span class="step-num">2</span><strong>系统提示特别有效</strong>
+<div class="step-out">因为指令微调阶段看到了大量系统-用户-助理的对话格式</div>
+</div>
+<div class="step-block">
+<span class="step-num">3</span><strong>模型倾向于"有帮助"但不一定"准确"</strong>
+<div class="step-out">这是RLHF优化的结果——"承认不知道"可能得分更低</div>
+</div>
+
+</div>
+</section>
+
+<section class="module" id="mod-case_study">
+<h2><span class="m-tag">实践应用</span>实践案例<span class="m-time">⏱ 约4分钟</span></h2>
+<div class="hook">让我们用这些原理来分析几个经典提示技巧为什么有效——知其然，更知其所以然。</div>
+<div class="content">
+
+<p><strong>案例一：为什么思维链提示有效？</strong></p>
+<div class="code-block">
+<span class="cb-cap">普通提示 vs 思维链提示</span>
+# 普通提示
+用户：一个球从10米高处落下，每次反弹高度是前一次的一半，第3次落地时共经过多少米？
+模型：10 + 5 + 2.5 + 1.25 = 18.75米（错误）
+
+# 思维链提示
+用户：一个球从10米高处落下，每次反弹高度是前一次的一半，第3次落地时共经过多少米？让我们一步步思考。
+模型：
+1. 第一次落下：10米
+2. 第一次反弹：5米上去，5米下来 = 10米
+3. 第二次反弹：2.5米上去，2.5米下来 = 5米
+4. 第三次落地：到达地面停止
+总计：10 + 10 + 5 = 25米（正确）
+</div>
+
+<p><strong>原理分析：</strong></p>
+<ul>
+<li>自回归生成让模型"先想再做"——每一步推理都改变后续的注意力分布</li>
+<li>Transformer的注意力机制在逐步推理中能更好地追踪中间结果</li>
+<li>训练数据中有很多"推理→结论"的模式，模型学会了延续这种模式</li>
+</ul>
+
+<p><strong>案例二：为什么角色扮演（系统提示）有效？</strong></p>
+<div class="code-block">
+<span class="cb-cap">系统提示的魔力</span>
+# 无系统提示
+用户：解释量子纠缠
+模型：量子纠缠是一种量子力学现象...（学术解释）
+
+# 系统提示
+系统：你是一位给5岁孩子解释科学的老师，用简单的语言和比喻。
+用户：解释量子纠缠
+模型：想象你有两个魔法箱子...
+</div>
+
+<p><strong>原理分析：</strong></p>
+<ul>
+<li>系统提示放在对话开头，利用了Transformer的"开头偏见"</li>
+<li>它设定了整个生成的上下文分布——模型在训练中见过很多"角色→响应"的模式</li>
+<li>RLHF让模型特别重视系统级的指令</li>
+</ul>
+
+<div class="takeaway">
+<strong>💡 从原理到实践：</strong> 每个有效的提示技巧背后都有LLM工作原理的支撑。当你理解了这些原理，你就不再是死记硬背技巧，而是能根据原理创造新技巧。
+</div>
+
+</div>
+</section>
+
+<section class="module" id="mod-learning_path">
+<h2><span class="m-tag">学习指南</span>学习路径<span class="m-time">⏱ 约3分钟</span></h2>
+<div class="hook">如果你想深入学习LLM原理，这里有一条渐进的路径。但即使只理解了本文的内容，也足够让你的提示工程提升一个层次。</div>
+<div class="content">
+
+<div class="table-container">
+<table>
+<thead><tr><th>阶段</th><th>学习目标</th><th>推荐资源</th><th>对提示工程的帮助</th></tr></thead>
+<tbody>
+<tr><td><strong>入门（本文水平）</strong></td><td>理解三层结构和基本原理</td><td>本文、3Blue1Brown视频</td><td>⭐⭐⭐ 能解释技巧为什么有效</td></tr>
+<tr><td><strong>进阶</strong></td><td>理解注意力机制和Transformer细节</td><td>《Attention Is All You Need》论文、The Illustrated Transformer</td><td>⭐⭐⭐⭐ 能创造新的提示技巧</td></tr>
+<tr><td><strong>深入</strong></td><td>理解训练和RLHF</td><td>学习PyTorch、动手实现小Transformer</td><td>⭐⭐⭐⭐⭐ 能从根本上优化提示</td></tr>
+<tr><td><strong>研究</strong></td><td>跟进前沿进展</td><td>阅读最新论文、参与开源项目</td><td>⭐⭐⭐⭐⭐ 能开发新的提示范式</td></tr>
+</tbody>
+</table>
+</div>
+
+<p><strong>快速测验（检验你的理解）：</strong></p>
+<ol>
+<li>为什么提示的顺序很重要？</li>
+<li>为什么模型会产生幻觉？</li>
+<li>思维链提示在哪个层面起作用？</li>
+<li>系统提示为什么特别有效？</li>
+</ol>
+
+</div>
+</section>
+
+<section class="module" id="mod-glossary">
+<h2><span class="m-tag">参考资料</span>关键术语表<span class="m-time">⏱ 约2分钟</span></h2>
+<div class="hook">这些术语会在你深入学习时反复出现，理解它们是继续前进的基础。</div>
+<div class="content">
+
+<div class="table-container">
+<table>
+<thead><tr><th>术语</th><th>英文</th><th>定义</th></tr></thead>
+<tbody>
+<tr><td><strong>Transformer</strong></td><td>Transformer</td><td>2017年提出的神经网络架构，基于自注意力机制</td></tr>
+<tr><td><strong>自注意力</strong></td><td>Self-Attention</td><td>让序列中每个位置能关注所有其他位置的机制</td></tr>
+<tr><td><strong>自回归生成</strong></td><td>Autoregressive Generation</td><td>逐token生成，每步都依赖前面所有内容</td></tr>
+<tr><td><strong>预训练</strong></td><td>Pre-training</td><td>在大规模文本上学习通用语言表示的阶段</td></tr>
+<tr><td><strong>指令微调</strong></td><td>Instruction Tuning</td><td>用指令-响应对教模型遵循人类指令</td></tr>
+<tr><td><strong>RLHF</strong></td><td>RLHF (Reinforcement Learning from Human Feedback)</td><td>用人类反馈进行强化学习，对齐人类偏好</td></tr>
+<tr><td><strong>Token</strong></td><td>Token</td><td>LLM处理的基本单位，可能是词、词片断或字符</td></tr>
+<tr><td><strong>Embedding</strong></td><td>Embedding</td><td>表示token或文本的高维向量</td></tr>
+<tr><td><strong>Logits</strong></td><td>Logits</td><td>模型输出的原始分数，经softmax转为概率</td></tr>
+<tr><td><strong>温度系数</strong></td><td>Temperature</td><td>控制采样随机性的参数</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="ref-list">
+<li><strong>必读论文：</strong>《Attention Is All You Need》(2017) - Transformer开山之作</li>
+<li><strong>推荐博客：</strong>Jay Alammar的《The Illustrated Transformer》</li>
+<li><strong>视频资源：</strong>3Blue1Brown的神经网络视频系列</li>
+<li><strong>实践项目：</strong>Andrej Karpathy的nanoGPT</li>
+</div>
+
+</div>
+</section>
+
+</div>
+
+<footer class="journey-footer">
+<a href="#" class="back-to-plan" onclick="event.preventDefault();var w=window.open('pe_learning.html#kc-p3_1','plan_main');if(w)w.focus()">🔗 返回学习方案：提示工程 → 基础奠基</a>
+<p style="margin-top:12px;font-size:.72rem;color:var(--text-muted)">
+本资料是「提示工程系统学习方案」第三阶段「基础奠基」的深度研读材料
+</p>
+</footer>
+
+<div class="deep-floating-back">
+<button onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 16px rgba(0,0,0,.2)'"
+onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 12px rgba(0,0,0,.15)'"
+onclick="event.preventDefault();var w=window.open('pe_learning.html#kc-p3_1','plan_main');if(w)w.focus()">
+← 返回学习方案
+</button>
+</div>
+</div>
+
+<div class="dd-toast" id="toastEl"><span id="toastMsg"></span></div>
+
+<script>
+var MODULE_IDS = ["mod-learning_journey","mod-background","mod-concept","mod-principle","mod-architecture","mod-autoregressive","mod-training","mod-case_study","mod-learning_path","mod-glossary"];
+var SEARCH_INDEX = [
+{id:"mod-learning_journey",t:"📍 学习路线中的位置",c:"学习路线中的位置,提示工程,前置依赖,后续学习"},
+{id:"mod-background",t:"📋 背景与缘起",c:"LLM发展史,Transformer,GPT,语言模型演进"},
+{id:"mod-concept",t:"🎯 核心概念",c:"三层结构,Transformer,自回归生成,训练管线"},
+{id:"mod-principle",t:"⚙️ 核心原理：三层结构",c:"工作原理,输入嵌入,位置编码,自注意力"},
+{id:"mod-architecture",t:"🏗️ Transformer架构",c:"自注意力,Query,Key,Value,多头注意力,提示技巧"},
+{id:"mod-autoregressive",t:"📚 自回归生成",c:"自回归,逐词生成,采样,思维链"},
+{id:"mod-training",t:"🔬 训练管线",c:"预训练,指令微调,RLHF,训练目标"},
+{id:"mod-case_study",t:"📝 实践案例",c:"思维链,角色扮演,系统提示,案例分析"},
+{id:"mod-learning_path",t:"🗺️ 学习路径",c:"学习路径,深入学习,推荐资源"},
+{id:"mod-glossary",t:"📚 关键术语表",c:"术语表,Transformer,自注意力,RLHF"}
+];
+var TOAST_TIMEOUT;
+
+(function(){
+var progressBar=document.getElementById('progressBar');
+var modules=document.querySelectorAll('.module');
+
+var observer=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting)e.target.classList.add('visible')})},{threshold:.15});
+modules.forEach(function(m){observer.observe(m)});
+
+var navLinks=document.querySelectorAll('.sidebar-nav a');
+var navObserver=new IntersectionObserver(function(entries){
+entries.forEach(function(e){
+if(e.isIntersecting){
+navLinks.forEach(function(a){a.classList.remove('active')});
+var act=document.querySelector('.sidebar-nav a[href="#'+e.target.id+'"]');
+if(act)act.classList.add('active');
+}
+})},{threshold:.3});
+modules.forEach(function(m){navObserver.observe(m)});
+
+window.addEventListener('scroll',function(){
+var st=document.documentElement.scrollTop,dh=document.documentElement.scrollHeight-window.innerHeight;
+var pct=dh>0?Math.min(100,(st/dh)*100):0;progressBar.style.width=pct+'%';
+});
+
+window.addEventListener('keydown',function(e){
+if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();openSearch()}
+if((e.ctrlKey||e.metaKey)&&e.key==='d'){e.preventDefault();toggleTheme()}
+if(e.key==='Escape')closeSearch()
+});
+})();
+
+function toggleTheme(){
+var b=document.body,isD=b.getAttribute('data-theme')==='dark';
+b.setAttribute('data-theme',isD?'light':'dark');
+try{localStorage.setItem('slm-theme',isD?'light':'dark')}catch(e){}
+showToast('已切换至'+(isD?'浅色':'深色')+'主题')
+}
+
+function openSearch(){document.getElementById('searchOverlay').classList.add('open');setTimeout(function(){document.getElementById('searchInput').focus()},100)}
+function closeSearch(){document.getElementById('searchOverlay').classList.remove('open');document.getElementById('searchResults').innerHTML=''}
+
+function doSearch(){
+var q=document.getElementById('searchInput').value.toLowerCase(),res=document.getElementById('searchResults');
+if(q.length<2){res.innerHTML='';return}
+var h='';SEARCH_INDEX.forEach(function(item){
+if(item.t.toLowerCase().indexOf(q)>=0||(item.c||'').toLowerCase().indexOf(q)>=0){
+h+='<div onclick="closeSearch();document.getElementById(\''+item.id+'\').scrollIntoView({behavior:\'smooth\'})">'+
+'<strong>'+item.t+'</strong><br><small style="color:var(--text-muted)">'+(item.c||'').substring(0,80)+'</small></div>';
+}
+});
+res.innerHTML=h||'<div style="padding:12px;color:var(--text-muted)">未找到匹配模块</div>'
+}
+
+function showToast(msg){
+var el=document.getElementById('toastEl'),mg=document.getElementById('toastMsg');
+if(!el||!mg)return;mg.textContent=msg;el.style.display='block';el.classList.add('toast-in');
+if(TOAST_TIMEOUT)clearTimeout(TOAST_TIMEOUT);
+TOAST_TIMEOUT=setTimeout(function(){el.style.display='none'},3000);
+}
+
+(function(){
+var t;try{t=localStorage.getItem('slm-theme')}catch(e){}
+if(t==='light')document.body.setAttribute('data-theme','light');
+})();
+
+(function(){
+document.querySelectorAll('.derivation-toggle').forEach(function(btn){
+btn.addEventListener('click',function(){
+var content=this.nextElementSibling;
+if(content){content.classList.toggle('open');this.textContent=content.classList.contains('open')?'▾ 收起解释':'▸ 展开解释'}
+});
+});
+})();
+
+/* ───── ECharts 初始化 ───── */
+(function initCharts(){
+if(typeof echarts==='undefined')return;
+var charts=[];
+
+function makeChart(elId,option){
+var el=document.getElementById(elId);
+if(!el)return null;
+var chart=echarts.init(el,null,{renderer:'canvas'});
+chart.setOption(option);
+charts.push(chart);
+return chart;
+}
+
+// 1. 概念三层结构
+makeChart('chart-concept-01',{
+backgroundColor:'transparent',
+tooltip:{trigger:'item',formatter:'{b}'},
+series:[{type:'sankey',layout:'none',emphasis:{focus:'adjacency'},
+data:[
+{name:'Transformer架构',itemStyle:{color:'#5b8db8'}},
+{name:'自注意力机制',itemStyle:{color:'#6ea8c0'}},
+{name:'前馈网络',itemStyle:{color:'#6ea8c0'}},
+{name:'自回归生成',itemStyle:{color:'#5b8db8'}},
+{name:'逐token预测',itemStyle:{color:'#8878a8'}},
+{name:'训练管线',itemStyle:{color:'#5b8db8'}},
+{name:'预训练',itemStyle:{color:'#5a9e6f'}},
+{name:'指令微调',itemStyle:{color:'#5a9e6f'}},
+{name:'RLHF',itemStyle:{color:'#5a9e6f'}}
+],
+links:[
+{source:'Transformer架构',target:'自注意力机制',value:1},
+{source:'Transformer架构',target:'前馈网络',value:1},
+{source:'自回归生成',target:'逐token预测',value:1},
+{source:'训练管线',target:'预训练',value:1},
+{source:'训练管线',target:'指令微调',value:1},
+{source:'训练管线',target:'RLHF',value:1}
+],
+lineStyle:{color:'gradient',curveness:0.5},
+label:{color:'var(--text-primary)',fontSize:12}
+}]
+});
+
+// 2. Transformer架构图
+makeChart('chart-arch-01',{
+backgroundColor:'transparent',
+tooltip:{trigger:'axis'},
+xAxis:{type:'category',data:['输入Token','嵌入层','自注意力','前馈网络','输出概率'],
+axisLine:{lineStyle:{color:'var(--border-subtle)'}},
+axisLabel:{color:'var(--text-muted)'}},
+yAxis:{type:'value',show:false},
+series:[{
+type:'graph',
+layout:'none',
+symbolSize:50,
+roam:false,
+label:{show:true,color:'#fff',fontSize:11},
+edgeSymbol:['none','arrow'],
+edgeSymbolSize:[4,10],
+data:[
+{name:'Token1',x:0,y:100,itemStyle:{color:'#5b8db8'}},
+{name:'Token2',x:0,y:200,itemStyle:{color:'#5b8db8'}},
+{name:'Emb1',x:100,y:100,itemStyle:{color:'#6ea8c0'}},
+{name:'Emb2',x:100,y:200,itemStyle:{color:'#6ea8c0'}},
+{name:'Attn1',x:200,y:100,itemStyle:{color:'#8878a8'}},
+{name:'Attn2',x:200,y:200,itemStyle:{color:'#8878a8'}},
+{name:'FFN1',x:300,y:100,itemStyle:{color:'#c0a060'}},
+{name:'FFN2',x:300,y:200,itemStyle:{color:'#c0a060'}},
+{name:'输出',x:400,y:150,itemStyle:{color:'#5a9e6f'}}
+],
+links:[
+{source:'Token1',target:'Emb1'},{source:'Token2',target:'Emb2'},
+{source:'Emb1',target:'Attn1'},{source:'Emb2',target:'Attn2'},
+{source:'Emb1',target:'Attn2'},{source:'Emb2',target:'Attn1'},
+{source:'Attn1',target:'FFN1'},{source:'Attn2',target:'FFN2'},
+{source:'FFN1',target:'输出'},{source:'FFN2',target:'输出'}
+],
+lineStyle:{color:'var(--border-subtle)',width:2,curveness:0.2}
+}]
+});
+
+// 3. 自回归生成过程
+makeChart('chart-auto-01',{
+backgroundColor:'transparent',
+tooltip:{trigger:'item'},
+xAxis:{type:'category',data:['Step1','Step2','Step3','Step4','Step5'],
+axisLine:{lineStyle:{color:'var(--border-subtle)'}},
+axisLabel:{color:'var(--text-muted)'}},
+yAxis:{type:'value',show:false},
+series:[{
+type:'custom',
+render:function(params,api){
+var xValue=api.value(0);
+var yValue=api.value(1);
+var points=[];
+var colors=['#5b8db8','#6ea8c0','#8878a8','#c0a060','#5a9e6f'];
+var texts=['今天','天气','真','不错','！'];
+var result=[];
+for(var i=0;i<=xValue;i++){
+var x=api.coord([i,0.5])[0];
+var y=api.coord([i,0.5])[1];
+result.push({
+type:'rect',
+shape:{x:x-25,y:y-20,width:50,height:40},
+style:{fill:colors[i],stroke:'var(--border-subtle)'},
+transition:['shape']
+});
+result.push({
+type:'text',
+style:{text:texts[i],x:x,y:y+5,fill:'#fff',fontSize:14,textAlign:'center'},
+transition:['style']
+});
+}
+if(xValue<4){
+var nextX=api.coord([xValue+1,0.5])[0];
+result.push({
+type:'text',
+style:{text:'?',x:nextX,y:y+5,fill:'var(--text-muted)',fontSize:20,textAlign:'center'}
+});
+}
+return result;
+},
+data:[[0,1],[1,1],[2,1],[3,1],[4,1]],
+animationDuration:1000
+}]}
+);
+
+// 4. RLHF三阶段
+makeChart('chart-train-01',{
+backgroundColor:'transparent',
+tooltip:{trigger:'item',formatter:'{b}'},
+series:[{
+type:'tree',data:[{name:'RLHF',children:[
+{name:'1. 人类偏好标注',children:[{name:'收集排序数据'}]},
+{name:'2. 训练奖励模型',children:[{name:'预测人类偏好'}]},
+{name:'3. RL训练',children:[{name:'PPO优化'}]}
+]}],
+top:'10%',bottom:'10%',layout:'orthogonal',orient:'TB',symbol:'roundRect',symbolSize:15,
+label:{position:'top',rotate:0,verticalAlign:'middle',align:'center',fontSize:12,color:'var(--text-primary)'},
+leaves:{label:{position:'bottom',rotate:0,verticalAlign:'middle',align:'center'}},
+expandAndCollapse:false,animationDuration:550,
+lineStyle:{color:'var(--border-subtle)',width:2},
+itemStyle:{color:'#5b8db8',borderColor:'var(--border-subtle)'}
+}]
+});
+
+window.addEventListener('resize',function(){charts.forEach(function(c){c.resize()})});
+})();
+</script>
+</body>
+</html>

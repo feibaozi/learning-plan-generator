@@ -9,7 +9,7 @@
 | Skill | 定位 | 输入 | 输出 |
 |-------|------|------|------|
 | **learning-plan-generator** | 学习方案生成器 | 任意学习主题 | Markdown 方案 + 交互式 HTML 页面 |
-| **smart-learning-materials** | 知识深度加工引擎 | 单个知识点/概念 | 结构化深度研读 HTML 页面 |
+| **smart-learning-materials** | 知识深度加工引擎 | 单个知识点/概念 | 结构化深度研读 HTML 页面（侧边栏导航+ECharts动态图表） |
 
 两个 Skill 通过 **context_plan 标记** + **manifest.json** 实现深度联动——从学习方案的任意知识点可一键生成深度资料，深度资料可精准跳回学习方案对应位置。
 
@@ -35,10 +35,12 @@
            ▼
 ┌─────────────────────────────────────┐
 │  smart-learning-materials            │
-│  (.claude v3.4.1 / .trae v1.1.0)    │
+│  (v3.7.0)                            │
 │  · 接收 context_plan 上下文标记       │
 │  · 模块评分 → 编排 (16核心+8可选)     │
 │  · 纹理感知内容生成 (G1-G8风格)       │
+│  · 左侧侧边栏目录导航 (280px)        │
+│  · ECharts 5.x 动态图表              │
 │  · 图表/公式/案例/文献 多模态输出     │
 │  · 生成深度研读 HTML + 回写 manifest  │
 └──────────┬──────────────────────────┘
@@ -97,7 +99,7 @@
 
 ---
 
-## Skill 2: smart-learning-materials (.claude v3.4.1 / .trae v1.1.0)
+## Skill 2: smart-learning-materials (v3.7.0)
 
 **针对单个知识点/概念/术语，生成结构化、多层级、多模态的高质量深度研读资料。**
 
@@ -107,10 +109,13 @@
 - **3×3 深度×广度矩阵**：概览/理解/精通 × 核心/标准/全景，共 9 档
 - **模块智能编排**：28 个预定义模块，按相关度评分自动筛选和排序（必选≥0.80，可选0.40-0.80）
 - **纹理感知写作**：根据 G1-G8 纹理自动调整每个模块的内容比例（公式/图表/案例/代码）
-- **CDN 增强层**：ECharts 交互图表 + KaTeX 公式渲染
+- **左侧侧边栏目录导航 (v3.7)**：280px 固定宽度，模块名全量显示，IntersectionObserver 自动追踪高亮，≤1024px 隐藏
+- **ECharts 5.x 动态图表 (v3.7)**：CDN 加载，tooltip/图例切换/响应式 resize/深浅主题联动，替代 Canvas 静态绘制
+- **表格样式统一 (v3.7)**：`.table-container` 模式，深色卡片风表头 + 青色标题 + hover 行高亮
+- **流体铺满布局 (v3.5)**：`max-width: calc(100% - 48px)` 流式布局，窗口缩放时无留白
+- **CDN 增强层**：ECharts（已内置）+ KaTeX 公式渲染（可选）
 - **学习路线感知**：通过 context_plan 标记感知当前知识点在完整学习方案中的位置
 - **表格数据结构校验 (v3.4.1)**：生成后自动校验 tables 字段的 JSON 结构（caption 位置、rows 维度、行列一致性），从源头杜绝白屏
-- **Web 模板稳健性加固 (.trae v1.1.0)**：CDN 脚本异步加载（`defer`）、`body.loading` 安全超时兜底、初始化双路径、ECharts 重试机制、全局初始化时序约束，杜绝 CDN 不可达/延迟导致的永久白屏和 TypeError
 
 ### 触发方式
 
@@ -311,6 +316,7 @@ Claude Code 自动调用 smart-learning-materials：
 
 | 版本 | 日期 | 关键变更 |
 |------|------|----------|
+| smart-learning-materials v3.7.0 | 2026-05-26 | 侧边栏目录导航+ECharts 5.x 动态图表+表格样式统一+流体铺满布局模板化 |
 | smart-learning-materials .trae v1.1.0 / .claude v3.4.1 | 2026-05-25 | Web模板稳健性加固：CDN脚本异步(`defer`)、`body.loading`安全超时兜底、初始化双路径(`readyState`+`DOMContentLoaded`)、ECharts重试机制(10次×500ms)、全局初始化时序约束、主题闪烁消除；修复`applyTheme()` TypeError；两个环境模板与文档完全同步 |
 | smart-learning-materials v3.4.1 | 2026-05-25 | 表格数据结构约束：table_schema定义 + Step 5.0表格校验 + SKILL.md规范章节 |
 | smart-learning-materials v3.4.0 | 2026-05-25 | JS数据层防御性规则：引号冲突、`</script>`转义、外部JS禁止、语法自检 |
