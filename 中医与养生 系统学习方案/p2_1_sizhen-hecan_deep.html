@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>四诊合参：望闻问切 — 深度研读</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+<style>
+/* ───────────────────────────────────────────────
+   Template: Cedar Dawn (雪松晨曦) — deep_dive.css
+   Mood: warm, natural, organic
+   Contrast verified: text-primary≥10:1, text-secondary≥6:1, text-muted≥4.5:1
+   ─────────────────────────────────────────────── */
+:root{
+--bg-base:#1a1814;
+--bg-card:#282520;
+--bg-elevated:#312d27;
+--bg-overlay:rgba(0,0,0,.6);
+--text-primary:#ede6d8;
+--text-secondary:#b8ad98;
+--text-muted:#8a8070;
+--accent-indigo:#5ea87a;
+--accent-purple:#b898a0;
+--accent-cyan:#7ec8a0;
+--accent-gold:#e6b95a;
+--accent-green:#6ebf8a;
+--accent-red:#d47860;
+--accent-blue:#5ea87a;
+--accent-color:#5ea87a;
+--accent-dark:#3d6b50;
+--border-subtle:rgba(184,173,152,.15);
+--border-glow:rgba(94,168,122,.25);
+--shadow-sm:0 1px 3px rgba(0,0,0,.3);
+--shadow-md:0 4px 16px rgba(0,0,0,.4);
+--shadow-lg:0 8px 32px rgba(0,0,0,.5);
+--shadow-elevated:0 8px 32px rgba(0,0,0,.5);
+--radius-sm:6px;
+--radius-md:10px;
+--radius-lg:16px;
+--font-sans:'Segoe UI',system-ui,-apple-system,sans-serif;
+--font-mono:Consolas,'Cascadia Code',monospace;
+--transition:.25s cubic-bezier(.4,0,.2,1);
+--transition-smooth:.3s ease;
+--nav-h:56px;
+--accent-color-rgb:94,168,122;
+--chart-grid:#2d2924;
+--chart-axis-label:#8a8070;
+}
+[data-theme="light"]{
+--bg-base:#fdfaf3;
+--bg-card:#fffdf7;
+--bg-elevated:#f3efe3;
+--bg-overlay:rgba(0,0,0,.3);
+--text-primary:#1f1a12;
+--text-secondary:#4a4035;
+--text-muted:#5c5042;
+--accent-indigo:#3d6b50;
+--accent-purple:#7a5a6a;
+--accent-cyan:#4a8e6a;
+--accent-gold:#a07828;
+--accent-green:#4a9e66;
+--accent-red:#b05038;
+--accent-blue:#3d6b50;
+--accent-color:#3d6b50;
+--accent-dark:#2a4835;
+--border-subtle:rgba(31,26,18,.08);
+--border-glow:rgba(61,107,80,.25);
+--shadow-sm:0 1px 3px rgba(0,0,0,.06);
+--shadow-md:0 4px 16px rgba(0,0,0,.08);
+--shadow-lg:0 8px 32px rgba(0,0,0,.12);
+--shadow-elevated:0 8px 32px rgba(0,0,0,.12);
+--accent-color-rgb:61,107,80;
+--chart-grid:#ebe5d6;
+--chart-axis-label:#5c5042;
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Inter','Noto Sans SC',-apple-system,sans-serif;background:var(--bg-base);color:var(--text-primary);line-height:1.7;overflow-x:hidden}
+body.loading{opacity:0}body.loaded{opacity:1;transition:opacity 0.4s ease}
+
+/* navbar */
+.navbar{position:fixed;top:0;left:0;right:0;z-index:100;height:var(--nav-h);background:rgba(26,24,20,.9);backdrop-filter:blur(12px);border-bottom:1px solid var(--border-subtle);display:flex;align-items:center;padding:0 20px;gap:12px}
+[data-theme="light"] .navbar{background:rgba(253,250,243,.9)}
+.nav-title{font-weight:700;font-size:.88rem;color:var(--accent-indigo);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1}
+.nav-title span{color:var(--text-muted);font-weight:400;font-size:.72rem}
+.nav-actions{display:flex;gap:8px;align-items:center}
+.nav-btn{background:var(--bg-elevated);border:1px solid var(--border-subtle);color:var(--text-secondary);font-size:.75rem;padding:6px 14px;border-radius:50px;cursor:pointer;font-family:inherit;font-weight:600;transition:all var(--transition)}
+.nav-btn:hover{color:var(--accent-cyan);border-color:var(--border-glow)}
+
+/* progress */
+.progress-wrap{position:fixed;top:var(--nav-h);left:0;right:0;z-index:99;height:3px;background:transparent}
+.progress-bar{height:100%;background:linear-gradient(90deg,var(--accent-indigo),var(--accent-cyan));transition:width .15s ease;width:0}
+
+/* sidebar */
+.sidebar{position:fixed;top:var(--nav-h);left:0;width:280px;height:calc(100vh - var(--nav-h));overflow-y:auto;overflow-x:hidden;background:var(--bg-card);border-right:1px solid var(--border-subtle);z-index:50;padding:16px 0}
+.sidebar::-webkit-scrollbar{width:4px}
+.sidebar::-webkit-scrollbar-thumb{background:var(--border-subtle);border-radius:2px}
+.sidebar-title{padding:0 20px 12px;font-size:.7rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em}
+.sidebar-link{display:flex;align-items:center;gap:10px;padding:9px 20px;font-size:.78rem;color:var(--text-secondary);text-decoration:none;transition:all var(--transition);border-left:3px solid transparent;cursor:pointer}
+.sidebar-link:hover{color:var(--text-primary);background:rgba(94,168,122,.05);border-left-color:var(--border-subtle)}
+.sidebar-link.active{color:var(--accent-indigo);background:rgba(94,168,122,.08);border-left-color:var(--accent-indigo);font-weight:600}
+.sidebar-link .sln{font-size:.68rem;font-family:'JetBrains Mono',monospace;color:var(--text-muted);min-width:28px}
+
+/* main */
+.main{max-width:860px;margin-left:280px;padding:40px 48px 80px}
+
+/* hero */
+.hero{text-align:center;padding:60px 0 50px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;
+  background:radial-gradient(ellipse at 50% 0%,var(--accent-indigo) 0%,transparent 50%),radial-gradient(ellipse at 80% 50%,var(--accent-cyan) 0%,transparent 40%);
+  opacity:.12;z-index:0}
+.hero>*{position:relative;z-index:1}
+.hero h1{font-size:2.4rem;font-weight:900;letter-spacing:-.02em;margin-bottom:12px;background:linear-gradient(135deg,var(--accent-indigo),var(--accent-cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero .subtitle{font-size:.95rem;color:var(--text-secondary);max-width:600px;margin:0 auto 20px}
+.hero-tags{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:28px}
+.hero-tags span{font-size:.68rem;padding:4px 14px;border-radius:50px;border:1px solid var(--border-subtle);color:var(--text-muted);background:var(--bg-elevated)}
+
+.meta-card{display:flex;gap:24px;justify-content:center;flex-wrap:wrap;margin-bottom:12px}
+.meta-item{background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:14px 24px;text-align:center;min-width:90px}
+.meta-item .mn{font-size:1.6rem;font-weight:800;color:var(--accent-indigo)}
+.meta-item .ml{font-size:.68rem;color:var(--text-muted);margin-top:2px}
+
+/* journey bar */
+.journey-bar{display:flex;align-items:center;gap:10px;padding:14px 20px;margin-bottom:36px;background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);font-size:.78rem;color:var(--text-secondary)}
+.journey-bar a{color:var(--accent-cyan);text-decoration:none;font-weight:600;cursor:pointer}
+.journey-bar a:hover{text-decoration:underline}
+.journey-bar .jb-sep{color:var(--text-muted)}
+.journey-bar .jb-current{color:var(--accent-indigo);font-weight:700}
+
+/* module */
+.module{margin-bottom:48px;scroll-margin-top:72px}
+.module-header{border-bottom:2px solid var(--border-glow);padding-bottom:14px;margin-bottom:22px}
+.module-num{font-size:.7rem;font-weight:700;color:var(--accent-cyan);font-family:'JetBrains Mono',monospace;letter-spacing:.06em;margin-bottom:4px}
+.module-title{font-size:1.5rem;font-weight:800}
+.module-hook{font-size:.85rem;color:var(--accent-purple);font-style:italic;margin-top:6px;padding-left:14px;border-left:3px solid var(--accent-purple)}
+.module-body{font-size:.88rem;color:var(--text-secondary);line-height:1.85}
+.module-body p{margin-bottom:14px}
+.module-body strong{color:var(--text-primary);font-weight:600}
+.module-body em{color:var(--accent-gold);font-style:normal}
+
+/* info callout */
+.callout{padding:14px 18px;border-radius:var(--radius-md);margin:16px 0;font-size:.82rem}
+.callout-info{background:rgba(94,168,122,.06);border-left:3px solid var(--accent-indigo);color:var(--text-secondary)}
+.callout-warn{background:rgba(230,185,90,.06);border-left:3px solid var(--accent-gold);color:var(--text-secondary)}
+.callout-tip{background:rgba(184,152,160,.06);border-left:3px solid var(--accent-purple);color:var(--text-secondary)}
+.callout strong{color:var(--text-primary)}
+
+/* formula block */
+.formula-block{background:var(--bg-elevated);border:1px solid var(--border-glow);border-radius:var(--radius-md);padding:18px 22px;margin:16px 0;text-align:center;font-size:.95rem;color:var(--accent-indigo);font-weight:600;font-family:'JetBrains Mono','Noto Sans SC',monospace}
+.formula-block .fl{display:block;font-size:.72rem;color:var(--text-muted);font-weight:400;margin-top:6px}
+
+/* table */
+.data-table{width:100%;border-collapse:collapse;font-size:.8rem;margin:16px 0}
+.data-table th{text-align:left;padding:10px 14px;background:var(--bg-elevated);color:var(--accent-cyan);font-weight:700;border-bottom:2px solid var(--border-glow)}
+.data-table td{padding:9px 14px;border-bottom:1px solid var(--border-subtle);color:var(--text-secondary)}
+.data-table tr:hover td{background:rgba(94,168,122,.04)}
+.data-table td:first-child{font-weight:600;color:var(--accent-indigo);white-space:nowrap}
+
+/* chart init */
+.chart-init{width:100%;height:420px;margin:20px 0;background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md)}
+
+/* quadrant / comparison */
+.compare-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin:16px 0}
+@media(max-width:700px){.compare-grid{grid-template-columns:1fr}}
+.compare-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:18px 20px}
+.compare-card h4{font-size:.85rem;color:var(--accent-indigo);margin-bottom:8px}
+.compare-card p{font-size:.78rem;color:var(--text-muted);line-height:1.7}
+
+/* term grid */
+.term-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;margin:16px 0}
+.term-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-sm);padding:12px 16px;transition:all var(--transition)}
+.term-card:hover{border-color:var(--border-glow)}
+.term-card .tn{font-size:.8rem;font-weight:700;color:var(--accent-indigo)}
+.term-card .td{font-size:.72rem;color:var(--text-muted);margin-top:4px;line-height:1.6}
+
+/* case study */
+.case-block{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:20px 22px;margin:16px 0}
+.case-block h4{font-size:.85rem;color:var(--accent-cyan);margin-bottom:10px}
+.case-step{display:flex;gap:12px;margin-bottom:8px;font-size:.78rem}
+.case-step .csn{font-weight:700;color:var(--accent-gold);min-width:50px}
+.case-step .csv{color:var(--text-secondary)}
+
+/* search overlay */
+.search-overlay{display:none;position:fixed;inset:0;z-index:200;background:var(--bg-overlay);backdrop-filter:blur(8px)}
+.search-overlay.show{display:flex;align-items:flex-start;justify-content:center;padding-top:120px}
+.search-box{background:var(--bg-card);border:1px solid var(--border-glow);border-radius:var(--radius-md);padding:20px;width:90%;max-width:560px;box-shadow:var(--shadow-elevated)}
+.search-box input{width:100%;background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:var(--radius-sm);padding:12px 16px;color:var(--text-primary);font-size:.92rem;font-family:inherit;outline:none}
+.search-box input:focus{border-color:var(--accent-cyan)}
+.search-results{margin-top:12px;max-height:300px;overflow-y:auto}
+.search-result{padding:10px 14px;border-radius:var(--radius-sm);cursor:pointer;font-size:.8rem;transition:background var(--transition)}
+.search-result:hover{background:rgba(94,168,122,.08)}
+.search-result .srt{font-weight:700;color:var(--accent-cyan)}
+.search-result .srd{color:var(--text-muted);font-size:.68rem;margin-top:2px}
+
+/* floating back */
+.float-back{position:fixed;bottom:30px;right:30px;z-index:90;width:44px;height:44px;border-radius:50%;background:var(--bg-elevated);border:1px solid var(--border-glow);color:var(--accent-indigo);font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-md);transition:all var(--transition)}
+.float-back:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg);border-color:var(--accent-cyan);color:var(--accent-cyan)}
+
+/* journey footer */
+.journey-footer{border-top:1px solid var(--border-subtle);margin-top:60px;padding-top:30px;text-align:center}
+.journey-footer a{display:inline-block;padding:10px 28px;background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:50px;color:var(--accent-indigo);font-weight:600;font-size:.82rem;cursor:pointer;text-decoration:none;transition:all var(--transition)}
+.journey-footer a:hover{border-color:var(--border-glow);background:rgba(94,168,122,.08)}
+.journey-footer .jf-note{font-size:.7rem;color:var(--text-muted);margin-top:12px}
+
+/* process flow */
+.process-flow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:20px 0;justify-content:center}
+.process-step{background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:12px 18px;text-align:center;font-size:.76rem;min-width:80px}
+.process-step .psn{font-weight:800;color:var(--accent-indigo);font-size:.9rem;margin-bottom:4px}
+.process-step .psl{color:var(--text-muted);font-size:.68rem}
+.process-arrow{color:var(--accent-cyan);font-size:1.1rem;font-weight:700}
+
+/* responsive */
+@media(max-width:900px){.sidebar{display:none}.main{margin-left:0;padding:32px 20px}.hero h1{font-size:1.8rem}.module-title{font-size:1.25rem}}
+@media(min-width:901px){.sidebar-toggle{display:none}}
+
+/* code-like terms */
+.tcm-term{font-family:'JetBrains Mono','Noto Sans SC',monospace;font-size:.8rem;background:var(--bg-elevated);padding:2px 8px;border-radius:4px;color:var(--accent-cyan)}
+</style>
+</head>
+<body class="loading dark" data-theme="dark">
+
+<div class="navbar">
+  <div class="nav-title">四诊合参：望闻问切 <span>· 深度研读</span></div>
+  <div class="nav-actions">
+    <button class="nav-btn" onclick="toggleTheme()" title="切换主题">🌓</button>
+    <button class="nav-btn" onclick="searchOpen()" title="搜索 (Ctrl+K)">🔍</button>
+  </div>
+</div>
+
+<div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
+
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-title">模块导航</div>
+  <a class="sidebar-link" data-target="mod-00"><span class="sln">00</span> 总览</a>
+  <a class="sidebar-link" data-target="mod-01"><span class="sln">01</span> 历史背景</a>
+  <a class="sidebar-link" data-target="mod-02"><span class="sln">02</span> 核心概念</a>
+  <a class="sidebar-link" data-target="mod-03"><span class="sln">03</span> 望诊详解</a>
+  <a class="sidebar-link" data-target="mod-04"><span class="sln">04</span> 闻诊详解</a>
+  <a class="sidebar-link" data-target="mod-05"><span class="sln">05</span> 问诊详解</a>
+  <a class="sidebar-link" data-target="mod-06"><span class="sln">06</span> 切诊详解</a>
+  <a class="sidebar-link" data-target="mod-07"><span class="sln">07</span> 四诊合参的整合逻辑</a>
+  <a class="sidebar-link" data-target="mod-08"><span class="sln">08</span> 临床应用</a>
+  <a class="sidebar-link" data-target="mod-09"><span class="sln">09</span> 案例分析</a>
+  <a class="sidebar-link" data-target="mod-10"><span class="sln">10</span> 现代研究</a>
+  <a class="sidebar-link" data-target="mod-11"><span class="sln">11</span> 常见误区</a>
+  <a class="sidebar-link" data-target="mod-12"><span class="sln">12</span> 学习路径</a>
+  <a class="sidebar-link" data-target="mod-13"><span class="sln">13</span> 术语表</a>
+  <a class="sidebar-link" data-target="mod-14"><span class="sln">14</span> 开放讨论</a>
+</nav>
+
+<div class="main">
+
+<div class="hero">
+  <h1>四诊合参：望闻问切</h1>
+  <p class="subtitle">中医临床数据采集的四大支柱——望以目察、闻以耳鼻、问以言语、切以手触，四诊互补合一，方能辨证精准</p>
+  <div class="hero-tags">
+    <span>🌿 中医诊断</span><span>🔧 方法</span><span>👁️ 四诊</span><span>🩺 临床技能</span>
+  </div>
+  <div class="meta-card">
+    <div class="meta-item"><div class="mn">15</div><div class="ml">学习模块</div></div>
+    <div class="meta-item"><div class="mn">~30min</div><div class="ml">阅读时间</div></div>
+    <div class="meta-item"><div class="mn">4</div><div class="ml">交互图表</div></div>
+    <div class="meta-item"><div class="mn">5</div><div class="ml">核心公式</div></div>
+  </div>
+</div>
+
+<div class="journey-bar">
+  <a onclick="goBack()">📋 学习方案</a>
+  <span class="jb-sep">→</span>
+  <span>Phase 2: 诊法与方技核心</span>
+  <span class="jb-sep">→</span>
+  <span class="jb-current">四诊合参：望闻问切 (1/4)</span>
+</div>
+
+<!-- MODULE 00 -->
+<section class="module" id="mod-00">
+  <div class="module-header">
+    <div class="module-num">MODULE 00</div>
+    <div class="module-title">总览：四诊合参的知识地图</div>
+    <div class="module-hook">"望而知之谓之神，闻而知之谓之圣，问而知之谓之工，切而知之谓之巧" ——《难经·六十一难》</div>
+  </div>
+  <div class="module-body">
+    <p>四诊——<strong>望诊</strong>、<strong>闻诊</strong>、<strong>问诊</strong>、<strong>切诊</strong>——是中医收集临床信息的四种基本方法。这四种方法各有侧重、互为补充，共同构建起中医"辨证"的信息基础。理解四诊的关键不在于记忆，而在于建立<em>系统整合</em>的思维框架。</p>
+    <p>本深度研读将从<strong>历史背景</strong>出发，逐一详解四诊的原理与实践，最后聚焦于"四诊合参"这一核心理念——即如何将四种诊断信息整合为完整的证候判断。</p>
+    <div class="chart-init" id="chart-radar" data-option='{"radar":{"center":["50%","55%"],"radius":"70%","axisName":{"color":"var(--chart-axis-label)","fontSize":12}},"series":[{"type":"radar","data":[{"value":[90,70,85,80],"name":"四诊能力分布","areaStyle":{"color":"rgba(94,168,122,.15)"},"lineStyle":{"color":"#5ea87a","width":2},"itemStyle":{"color":"#5ea87a"}}],"indicator":[{"name":"望诊 (Visual)","max":100},{"name":"闻诊 (Audio/Olfactory)","max":100},{"name":"问诊 (Inquiry)","max":100},{"name":"切诊 (Palpation)","max":100}]}]}'></div>
+    <div class="callout callout-info">
+      <strong>💡 学习建议：</strong>四诊的学习需要"先分后合"——先分别掌握每种诊法的独立技术，再通过案例实践将它们整合为一个有机的诊断系统。建议每学完一诊后立即进行小规模实践。
+    </div>
+  </div>
+</section>
+
+<!-- MODULE 01 -->
+<section class="module" id="mod-01">
+  <div class="module-header">
+    <div class="module-num">MODULE 01</div>
+    <div class="module-title">历史背景：四诊体系的形成与演进</div>
+    <div class="module-hook">"善诊者，察色按脉，先别阴阳" ——《素问·阴阳应象大论》</div>
+  </div>
+  <div class="module-body">
+    <p>四诊并非一朝一夕形成的体系，而是经历了<strong>两千余年</strong>的临床积累与理论沉淀。</p>
+    <p><strong>先秦奠基期：</strong>《黄帝内经》（约战国至汉代）已系统论述望色、闻声、问病、切脉的基本方法。《素问》中提出"<em>切脉动静而视精明，察五色，观五脏有余不足，六府强弱，形之盛衰</em>"，勾勒出四诊的基本框架。《难经》进一步将诊法总结为"望闻问切"四字，并提出<em>"望而知之谓之神"</em>的层次划分。</p>
+    <p><strong>汉代体系化：</strong>张仲景《伤寒杂病论》（约200年）将四诊发展为<strong>辨证论治</strong>的实践工具。他在序言中批评当时医者"<em>按寸不及尺，握手不及足</em>"，强调全面诊察的重要性。其六经辨证体系中，脉证并重，四诊合参成为临床规范。</p>
+    <p><strong>晋唐细化期：</strong>王叔和《脉经》（约280年）对脉诊进行了系统分类，确立了<strong>24种脉象</strong>的规范描述。巢元方《诸病源候论》丰富了问诊在病因病机分析中的应用。</p>
+    <p><strong>宋元明清成熟期：</strong>舌诊专著大量涌现，形成了系统的舌诊理论。李时珍《濒湖脉学》以歌诀形式普及脉诊知识。清代《医宗金鉴》将四诊列为官方医学教育的核心内容。</p>
+    <p><strong>现代发展：</strong>20世纪以来，中医诊断学作为独立学科建立。舌诊仪、脉诊仪等客观化设备出现。WHO ICD-11将中医诊断纳入传统医学编码体系，四诊的标准化研究成为国际热点。</p>
+    <div class="formula-block">
+      四诊演进脉络
+      <span class="fl">先秦《内经》《难经》 → 汉代《伤寒论》 → 晋唐《脉经》 → 宋元明清舌诊专著 → 现代诊断学 + 客观化研究</span>
+    </div>
+  </div>
+</section>
+
+<!-- MODULE 02 -->
+<section class="module" id="mod-02">
+  <div class="module-header">
+    <div class="module-num">MODULE 02</div>
+    <div class="module-title">核心概念：四诊的定义、范围与合参原则</div>
+    <div class="module-hook">"有诸内者，必形诸外" ——《灵枢·外揣》</div>
+  </div>
+  <div class="module-body">
+    <p><strong>四诊定义：</strong>四诊是中医通过<em>视觉、听觉、嗅觉、触觉及语言交流</em>等感官途径，系统收集患者生理、病理信息的方法论体系。其理论基础是"<strong>司外揣内</strong>"——通过外在表现推导内在病变。</p>
+    <div class="compare-grid">
+      <div class="compare-card">
+        <h4>👁️ 望诊</h4>
+        <p>以目观察患者的神、色、形、态及舌象、分泌物、排泄物等外在特征。</p>
+        <p style="color:var(--accent-indigo);font-size:.72rem">诊断层级：神 → 圣</p>
+      </div>
+      <div class="compare-card">
+        <h4>👂👃 闻诊</h4>
+        <p>以耳听患者的声音（语声、呼吸、咳嗽等），以鼻嗅患者的气味（体气、口臭、分泌物等）。</p>
+        <p style="color:var(--accent-indigo);font-size:.72rem">诊断层级：圣</p>
+      </div>
+      <div class="compare-card">
+        <h4>🗣️ 问诊</h4>
+        <p>通过系统询问，了解患者的自觉症状、病史、生活习惯等信息。核心方法是"十问歌"。</p>
+        <p style="color:var(--accent-indigo);font-size:.72rem">诊断层级：工</p>
+      </div>
+      <div class="compare-card">
+        <h4>🖐️ 切诊</h4>
+        <p>以手指触按患者的脉搏（脉诊）及身体特定部位（按诊），感知客观体征。</p>
+        <p style="color:var(--accent-indigo);font-size:.72rem">诊断层级：巧</p>
+      </div>
+    </div>
+    <p><strong>四诊合参</strong>是四诊使用的核心原则，包含三层含义：</p>
+    <p>① <em>信息互补</em>——望诊提供视觉信息（客观体征），问诊提供患者主观感受，切诊获取脉象等客观指标，闻诊补充声音与气味信息。任一诊法单独使用都不完整。</p>
+    <p>② <em>交叉验证</em>——当不同诊法获得的信息一致时，诊断可信度提高；当信息矛盾时（如"<strong>真热假寒</strong>"表现为局部体征与整体病机不符），需要四诊合参才能去伪存真。</p>
+    <p>③ <em>权重动态</em>——不同疾病中四诊的参考权重不同。如外感病以问诊（恶寒发热）和切诊（脉象浮沉）为重；内伤病以望诊（舌象变化）和问诊（病史演变）为重。</p>
+    <div class="callout callout-tip">
+      <strong>🔑 关键认知：</strong>四诊不是四个独立步骤的机械叠加，而是一个<em>并行采集、交叉验证、动态整合</em>的信息处理系统。优秀的中医师能在患者进入诊室的几秒钟内同时启动望诊和闻诊的信息采集。
+    </div>
+  </div>
+</section>
+
+<!-- MODULE 03 -->
+<section class="module" id="mod-03">
+  <div class="module-header">
+    <div class="module-num">MODULE 03</div>
+    <div class="module-title">望诊详解：望神、望色、望形、望态与舌诊</div>
+    <div class="module-hook">"夫精明五色者，气之华也" ——《素问·脉要精微论》</div>
+  </div>
+  <div class="module-body">
+    <p>望诊居四诊之首，<em>患者进入诊室的第一眼，望诊已经开始</em>。望诊分为五大维度：</p>
+
+    <p><strong>一、望神</strong></p>
+    <p>神是生命活动的外在综合表现，通过目光、表情、面色、体态等反映。望神是望诊的最高层次，也是判断预后最关键的指标。</p>
+    <table class="data-table">
+      <tr><th>类型</th><th>表现</th><th>临床意义</th></tr>
+      <tr><td>得神</td><td>目光明亮、表情自然、面色润泽、反应灵敏</td><td>正气充足，预后良好</td></tr>
+      <tr><td>失神</td><td>目光呆滞、表情淡漠、面色晦暗、反应迟钝</td><td>正气大伤，病情危重</td></tr>
+      <tr><td>假神</td><td>危重期突然精神转佳（回光返照）</td><td>阴阳离决，临终征兆</td></tr>
+      <tr><td>少神</td><td>精神不振、目光少神、面色少华</td><td>正气不足，功能减退</td></tr>
+    </table>
+
+    <p><strong>二、望色（五色诊）</strong></p>
+    <p>面部色泽反映脏腑气血盛衰，五种病色与五脏有对应关系：</p>
+    <table class="data-table">
+      <tr><th>颜色</th><th>对应脏腑</th><th>主病</th></tr>
+      <tr><td>青</td><td>肝</td><td>寒证、痛证、瘀血、惊风</td></tr>
+      <tr><td>赤</td><td>心</td><td>热证（实热面赤、虚热颧红）</td></tr>
+      <tr><td>黄</td><td>脾</td><td>湿证、虚证（萎黄、黄胖、黄疸）</td></tr>
+      <tr><td>白</td><td>肺</td><td>虚证（气虚、血虚）、寒证、失血</td></tr>
+      <tr><td>黑</td><td>肾</td><td>肾虚、寒证、水饮、瘀血</td></tr>
+    </table>
+
+    <p><strong>三、望形</strong></p>
+    <p>观察体质的强弱胖瘦。形体强壮者脏腑坚实，正气充盛；形体瘦弱者多阴虚或气血不足；形体肥胖者多痰湿内盛。"<em>肥人多痰，瘦人多火</em>"是概括性原则。</p>
+
+    <p><strong>四、望态</strong></p>
+    <p>观察患者的姿势与动态。阳证、实证、热证多动（躁动不安、辗转反侧）；阴证、虚证、寒证多静（蜷卧不语、精神萎靡）。特殊姿态如："<em>护腹俯身者多为腹痛</em>""<em>以手护胸者多为胸痹</em>"。</p>
+
+    <p><strong>五、舌诊（望诊核心）</strong></p>
+    <p>舌诊是望诊中信息量最大、最系统化的分支。舌通过经络与五脏六腑直接相连，<em>舌象变化灵敏、客观，是判断正气盛衰、病邪性质、病势进退的重要依据</em>。</p>
+    <p><strong>舌诊两大维度：舌质与舌苔</strong></p>
+    <table class="data-table">
+      <tr><th>维度</th><th>观察内容</th><th>反映</th></tr>
+      <tr><td>舌质（舌体）</td><td>颜色、形态、荣枯、动态</td><td>脏腑虚实、气血盛衰</td></tr>
+      <tr><td>舌苔</td><td>苔色、厚薄、润燥、腻腐、有无</td><td>病邪性质、病位深浅、胃气存亡</td></tr>
+    </table>
+    <p><strong>舌质颜色分类：</strong></p>
+    <table class="data-table">
+      <tr><th>舌色</th><th>特征</th><th>主病</th></tr>
+      <tr><td>淡红舌</td><td>舌色淡红润泽</td><td>正常舌象，或病情轻浅</td></tr>
+      <tr><td>淡白舌</td><td>舌色浅淡，血色不足</td><td>气血两虚、阳虚</td></tr>
+      <tr><td>红舌</td><td>舌色鲜红</td><td>实热证（舌红苔黄）或阴虚内热（舌红少苔）</td></tr>
+      <tr><td>绛舌</td><td>舌色深红</td><td>热入营血、阴虚火旺</td></tr>
+      <tr><td>紫舌</td><td>舌色青紫或有瘀斑</td><td>瘀血（青紫）、寒凝（淡紫）、热极（绛紫）</td></tr>
+    </table>
+    <p><strong>舌苔分类：</strong></p>
+    <table class="data-table">
+      <tr><th>苔质</th><th>特征</th><th>临床意义</th></tr>
+      <tr><td>薄苔</td><td>苔薄能见舌质</td><td>正常或病邪在表</td></tr>
+      <tr><td>厚苔</td><td>苔厚不见舌质</td><td>病邪深入，或食积痰湿</td></tr>
+      <tr><td>腻苔</td><td>苔质细腻致密，刮之不去</td><td>湿浊内盛、痰饮、食积</td></tr>
+      <tr><td>腐苔</td><td>苔质疏松如豆渣，易刮去</td><td>食积化腐、痰浊内蕴</td></tr>
+      <tr><td>剥苔</td><td>舌苔片状剥落，舌质暴露</td><td>胃气大伤、胃阴枯竭</td></tr>
+      <tr><td>润苔</td><td>舌面润泽有津</td><td>正常，或津液未伤</td></tr>
+      <tr><td>燥苔</td><td>舌面干燥乏津</td><td>热盛伤津、阴虚液亏</td></tr>
+    </table>
+
+    <div class="chart-init" id="chart-tongue" data-option='{"tooltip":{"trigger":"item"},"series":[{"type":"treemap","data":[{"name":"舌诊体系","children":[{"name":"舌质","children":[{"name":"淡红舌","value":15},{"name":"淡白舌","value":10},{"name":"红舌","value":12},{"name":"绛舌","value":8},{"name":"紫舌","value":7}]},{"name":"舌苔","children":[{"name":"薄苔","value":18},{"name":"厚苔","value":14},{"name":"腻苔","value":12},{"name":"腐苔","value":6},{"name":"剥苔","value":4}]},{"name":"舌形","children":[{"name":"胖大舌","value":8},{"name":"瘦薄舌","value":6},{"name":"裂纹舌","value":5},{"name":"齿痕舌","value":7}]}]}],"label":{"fontSize":11},"itemStyle":{"borderColor":"var(--bg-card)"},"levels":[{"itemStyle":{"borderWidth":0,"gapWidth":3},"color":["#5ea87a","#7ec8a0","#6ebf8a","#b898a0","#e6b95a"]}]}]}'></div>
+
+    <div class="formula-block">
+      舌诊辨证要点
+      <span class="fl">舌质主脏腑虚实 + 舌苔主邪气浅深 → 舌质舌苔互参 → 判断正邪消长</span>
+    </div>
+  </div>
+</section>
+
+<!-- MODULE 04 -->
+<section class="module" id="mod-04">
+  <div class="module-header">
+    <div class="module-num">MODULE 04</div>
+    <div class="module-title">闻诊详解：听声音与嗅气味</div>
+    <div class="module-hook">"凡声音之诊，亦须辨其虚实寒热" ——《医宗金鉴》</div>
+  </div>
+  <div class="module-body">
+    <p>闻诊包括<strong>听声音</strong>和<strong>嗅气味</strong>两个方面。虽然现代临床中嗅诊的使用频率相对降低，但听声音仍然是不可替代的诊察手段。</p>
+
+    <p><strong>一、听声音</strong></p>
+    <table class="data-table">
+      <tr><th>项目</th><th>特征</th><th>辨证意义</th></tr>
+      <tr><td>语声</td><td>高亢有力 / 低微无力</td><td>实证、热证 / 虚证、寒证</td></tr>
+      <tr><td>呼吸</td><td>气粗声高 / 气微声低</td><td>实喘（邪实） / 虚喘（肺肾气虚）</td></tr>
+      <tr><td>咳嗽</td><td>咳声重浊 / 咳声无力 / 干咳无痰 / 咳声如犬吠</td><td>外感（实证） / 肺气虚 / 燥咳（阴虚） / 白喉（喉风）</td></tr>
+      <tr><td>呃逆</td><td>呃声高亢有力 / 呃声低微无力</td><td>胃火上逆 / 脾胃虚寒</td></tr>
+      <tr><td>嗳气</td><td>嗳气酸腐 / 嗳气低沉</td><td>食滞胃脘 / 肝气犯胃（无酸腐味）</td></tr>
+      <tr><td>太息</td><td>长叹气后觉舒</td><td>肝气郁结</td></tr>
+      <tr><td>谵语</td><td>神志不清、语无伦次、声高有力</td><td>热扰心神（阳明腑实）</td></tr>
+      <tr><td>郑声</td><td>神志不清、语言重复、声低无力</td><td>心气大伤（亡阳）</td></tr>
+    </table>
+
+    <p><strong>二、嗅气味</strong></p>
+    <table class="data-table">
+      <tr><th>气味类型</th><th>特征</th><th>辨证意义</th></tr>
+      <tr><td>口臭</td><td>口中出气臭秽</td><td>胃热、食积、龋齿</td></tr>
+      <tr><td>汗气</td><td>汗出腥膻或酸臭</td><td>湿热蒸蒸（狐臭）、实热</td></tr>
+      <tr><td>痰涕</td><td>痰涕腥臭</td><td>肺痈（肺脓肿）、鼻渊（鼻窦炎）</td></tr>
+      <tr><td>大便</td><td>大便酸臭或腐臭</td><td>食积化热 / 大肠湿热</td></tr>
+      <tr><td>小便</td><td>小便臊臭</td><td>膀胱湿热</td></tr>
+      <tr><td>经带</td><td>带下腥臭</td><td>湿热带下</td></tr>
+    </table>
+
+    <div class="callout callout-warn">
+      <strong>⚠️ 临床提示：</strong>闻诊是四诊中唯一同时使用<em>听觉和嗅觉</em>两个感官的诊法，信息采集效率极高。听声辨虚实（高亢有力为实，低微无力为虚）是最快速的基本定性方法。尤其在儿科中，闻哭声和小儿咳声具有特殊诊断价值。
+    </div>
+
+    <div class="formula-block">
+      闻诊核心逻辑
+      <span class="fl">声高气粗有力 = 实证/热证 ⬝ 声低气微无力 = 虚证/寒证 ⬝ 气味腥 = 寒 ⬝ 气味臭秽 = 热</span>
+    </div>
+  </div>
+</section>
+
+<!-- MODULE 05 -->
+<section class="module" id="mod-05">
+  <div class="module-header">
+    <div class="module-num">MODULE 05</div>
+    <div class="module-title">问诊详解：十问歌与系统问诊法</div>
+    <div class="module-hook">"一问寒热二问汗，三问头身四问便" ——《十问歌》</div>
+  </div>
+  <div class="module-body">
+    <p>问诊是四诊中<strong>信息量最大</strong>的诊法。《素问》云："<em>诊病不问其始，忧患饮食之失节，起居之过度，或伤于毒，不先言此，卒持寸口，何病能中？</em>"——批评不详细问诊就匆匆诊脉的做法。</p>
+
+    <p><strong>十问歌（张景岳原版）：</strong></p>
+    <div class="formula-block">
+      一问寒热二问汗，三问头身四问便<br>
+      五问饮食六胸腹，七聋八渴俱当辨<br>
+      九问旧病十问因，再兼服药参机变<br>
+      妇女尤必问经期，迟速闭崩皆可见<br>
+      再添片语告儿科，天花麻疹全占验
+    </div>
+
+    <table class="data-table">
+      <tr><th>问诊条目</th><th>核心问法</th><th>辨证要点</th></tr>
+      <tr><td>寒热</td><td>怕冷还是怕热？发热时间？</td><td>恶寒发热=表证；寒热往来=半表半里；但热不寒=里热；但寒不热=里寒</td></tr>
+      <tr><td>汗</td><td>是否出汗？何时出汗？汗量？</td><td>无汗=表寒实证；自汗=气虚/阳虚；盗汗=阴虚；大汗=里热或亡阳</td></tr>
+      <tr><td>头身</td><td>头痛部位？性质？全身酸痛？</td><td>前额痛=阳明经；两侧痛=少阳经；巅顶痛=厥阴经；后头痛=太阳经</td></tr>
+      <tr><td>便</td><td>大便次数/性状？小便颜色/量？</td><td>便秘=实热/阴虚/气虚；便溏=脾虚/寒湿；小便黄少=热；清长=寒</td></tr>
+      <tr><td>饮食</td><td>食欲如何？口渴与否？口味？</td><td>消谷善饥=胃火；饥不欲食=胃阴虚；口苦=肝胆火；口淡=脾胃虚</td></tr>
+      <tr><td>胸腹</td><td>胸腹有无疼痛、胀满？</td><td>胀痛走窜=气滞；刺痛固定=血瘀；隐痛喜按=虚证；剧痛拒按=实证</td></tr>
+      <tr><td>聋/听觉</td><td>有无耳鸣、听力减退？</td><td>耳鸣如潮=肝火上炎；耳鸣如蝉=肾精亏虚</td></tr>
+      <tr><td>渴</td><td>是否口渴？喜冷饮热饮？</td><td>大渴喜冷=里实热；渴不欲饮=湿阻；口不渴=寒证</td></tr>
+      <tr><td>旧病</td><td>既往病史、用药史</td><td>了解体质基础、药物反应史</td></tr>
+      <tr><td>因</td><td>发病诱因</td><td>帮助判断外感/内伤、七情/饮食/劳倦</td></tr>
+    </table>
+
+    <p><strong>妇女问诊补充：</strong>需加问<em>月经</em>（周期、量、色、质、有无痛经）、<em>带下</em>（量、色、质、气味）、<em>胎产</em>（孕产次数、小产、产后恢复）情况。</p>
+
+    <div class="callout callout-tip">
+      <strong>🔑 问诊技巧：</strong>问诊不是审问，而是<em>引导式对话</em>。遵循"先主诉、后伴随、再一般"的顺序，避免诱导式提问（如"你是不是头疼？"应为"你有什么不舒服？"）。开放式问题获取全景，封闭式问题确认细节。
+    </div>
+  </div>
+</section>
+
+<!-- MODULE 06 -->
+<section class="module" id="mod-06">
+  <div class="module-header">
+    <div class="module-num">MODULE 06</div>
+    <div class="module-title">切诊详解：脉诊与按诊</div>
+    <div class="module-hook">"脉者，血之府也" ——《素问·脉要精微论》</div>
+  </div>
+  <div class="module-body">
+    <p>切诊分为<strong>脉诊</strong>（切脉）和<strong>按诊</strong>（触按身体部位）。脉诊是中医最具特色的诊断技术，也是学习难度最大的一项。</p>
+
+    <p><strong>一、脉诊基础</strong></p>
+    <p><strong>诊脉部位：</strong>寸口脉法——腕后桡动脉搏动处，分为<em>寸、关、尺</em>三部。左右手寸关尺各候不同脏腑：</p>
+    <table class="data-table">
+      <tr><th></th><th>寸</th><th>关</th><th>尺</th></tr>
+      <tr><td>左手</td><td>心、小肠</td><td>肝、胆</td><td>肾、膀胱</td></tr>
+      <tr><td>右手</td><td>肺、大肠</td><td>脾、胃</td><td>命门、肾</td></tr>
+    </table>
+    <p><strong>诊脉方法：</strong>医生用食指、中指、无名指分别对应寸关尺。三指平布，用<em>浮取（轻按）、中取（中等力度）、沉取（重按）</em>三种力度交替感知脉象，称为<em>"三部九候"</em>。</p>
+
+    <p><strong>二、28种脉象分类（六纲分类法）</strong></p>
+    <p>28种脉象可按<strong>浮、沉、迟、数、虚、实</strong>六大纲领进行归类：</p>
+    <table class="data-table">
+      <tr><th>纲</th><th>脉象名</th><th>特征</th><th>主病</th></tr>
+      <tr><td>浮</td><td>浮、洪、濡、散、芤、革</td><td>轻取即得</td><td>表证（浮）、热盛（洪）、虚证（濡）</td></tr>
+      <tr><td>沉</td><td>沉、伏、牢、弱</td><td>重按始得</td><td>里证（沉）、邪闭（伏）、虚寒（弱）</td></tr>
+      <tr><td>迟</td><td>迟、缓、涩、结</td><td>一息不足四至</td><td>寒证（迟）、脾虚湿盛（缓）、血瘀（涩）</td></tr>
+      <tr><td>数</td><td>数、促、疾、动</td><td>一息五至以上</td><td>热证（数）、实热瘀滞（促）、痛惊（动）</td></tr>
+      <tr><td>虚</td><td>虚、微、细、代、短</td><td>脉来无力</td><td>气血两虚（虚）、阳气衰微（微）</td></tr>
+      <tr><td>实</td><td>实、滑、紧、弦、长</td><td>脉来有力</td><td>实证（实）、痰饮（滑）、寒痛（紧）、肝胆病（弦）</td></tr>
+    </table>
+
+    <p><strong>三、按诊</strong></p>
+    <p>按诊通过直接触按身体部位获取客观体征：</p>
+    <table class="data-table">
+      <tr><th>按诊部位</th><th>观察内容</th><th>辨证意义</th></tr>
+      <tr><td>肌肤</td><td>冷、热、润、燥、肿胀</td><td>寒证 (肌肤冷) / 热证 (肌肤灼热)；津液盈亏</td></tr>
+      <tr><td>手足</td><td>四肢冷热</td><td>阳虚肢冷 / 热深厥亦深</td></tr>
+      <tr><td>脘腹</td><td>压痛、胀满、肿块</td><td>喜按=虚证；拒按=实证；胀满叩之如鼓=气滞</td></tr>
+      <tr><td>腧穴</td><td>特定穴位是否有压痛</td><td>脏腑病变可在相应背俞穴出现压痛</td></tr>
+    </table>
+
+    <div class="callout callout-warn">
+      <strong>⚠️ 脉诊学习难点：</strong>"<em>心中了了，指下难明</em>"——脉诊的理论与手感之间存在巨大差距。28种脉象不能只靠记忆定义，必须通过<strong>大量临床实践</strong>和<strong>师徒相传</strong>才能真正掌握。"弦脉如按琴弦""滑脉如珠走盘"这些比喻需要在反复操练中体会。
+    </div>
+
+    <div class="chart-init" id="chart-pulse" data-option='{"tooltip":{"trigger":"axis","axisPointer":{"type":"shadow"}},"grid":{"left":"3%","right":"4%","bottom":"3%","containLabel":true},"xAxis":{"type":"category","data":["浮脉","沉脉","迟脉","数脉","虚脉","实脉"],"axisLabel":{"color":"var(--chart-axis-label)"}},"yAxis":{"type":"value","axisLabel":{"color":"var(--chart-axis-label)"},"splitLine":{"lineStyle":{"color":"var(--chart-grid)"}}},"series":[{"type":"bar","data":[{"value":6,"itemStyle":{"color":"#5ea87a"},"name":"浮纲"},{"value":4,"itemStyle":{"color":"#6ebf8a"},"name":"沉纲"},{"value":4,"itemStyle":{"color":"#7ec8a0"},"name":"迟纲"},{"value":4,"itemStyle":{"color":"#b898a0"},"name":"数纲"},{"value":5,"itemStyle":{"color":"#e6b95a"},"name":"虚纲"},{"value":5,"itemStyle":{"color":"#d47860"},"name":"实纲"}],"barWidth":"50%","label":{"show":true,"position":"top","color":"var(--text-secondary)","formatter":"{c} 种"}}]}'>
+
+    </div>
+
+    <div class="formula-block">
+      脉象六纲口诀
+      <span class="fl">浮沉分表里 · 迟数辨寒热 · 虚实定盛衰 → 六纲交错 → 28脉细分</span>
+    </div>
+  </div>
+</section>
+
+<!-- MODULE 07 -->
+<section class="module" id="mod-07">
+  <div class="module-header">
+    <div class="module-num">MODULE 07</div>
+    <div class="module-title">四诊合参的整合逻辑</div>
+    <div class="module-hook">"能合色脉，可以万全" ——《素问·五脏生成篇》</div>
+  </div>
+  <div class="module-body">
+    <p>四诊分开来看是四种独立的方法，但<strong>四诊合参</strong>才是中医诊断的灵魂。合参不仅仅是"四诊信息汇总"，而是一个<em>多维度交叉验证与整合推理</em>的认知过程。</p>
+
+    <p><strong>整合的四个层次：</strong></p>
+
+    <p><strong>第一层：信息对齐</strong>——确保四诊采集的信息在同一时间窗口内，且指向同一患者状态。例如：急性外感时，舌象变化滞后于症状变化（舌象尚未出现黄苔时，患者已发热），需要优先以问诊（寒热）和脉诊（浮数）判断。</p>
+
+    <p><strong>第二层：一致性检验</strong>——检查四诊信息是否符合疾病规律。四诊信息高度一致时，诊断信心增强；存在矛盾时，需要排查"假象"。</p>
+
+    <p><strong>第三层：权重分配</strong>——根据疾病特点决定各诊法的参考分量。一般原则：</p>
+    <table class="data-table">
+      <tr><th>疾病类型</th><th>首要参考</th><th>次要参考</th></tr>
+      <tr><td>外感表证</td><td>问诊（寒热）+ 脉诊（浮沉）</td><td>望诊（咽喉、舌苔）</td></tr>
+      <tr><td>内伤杂病</td><td>问诊（病史）+ 舌诊</td><td>脉诊 + 闻诊</td></tr>
+      <tr><td>急症危症</td><td>望诊（神、色）+ 脉诊</td><td>问诊（家属代述）</td></tr>
+      <tr><td>妇科病</td><td>问诊（经带胎产）</td><td>舌诊 + 脉诊</td></tr>
+      <tr><td>儿科病</td><td>望诊（指纹、面色）+ 闻诊</td><td>问诊（家长代述）</td></tr>
+    </table>
+
+    <p><strong>第四层：综合判断</strong>——将四诊信息整合为一个统一的"证候"诊断。证候不是四诊信息的简单罗列，而是<em>病因、病位、病性、病势</em>的综合定性。例如：</p>
+    <div class="formula-block">
+      四诊 → 证候 转化示例
+      <span class="fl">
+        望：舌红苔黄腻  +  闻：语声高亢  +  问：发热口渴、大便黏滞  +  切：脉滑数<br>
+        → 综合判断：湿热内蕴证（病性：湿热；病位：中焦）
+      </span>
+    </div>
+
+    <div class="callout callout-info">
+      <strong>💡 合参的心法：</strong>把四诊想象为<em>"拼图的四块"</em>，每一块单独看都是不完整的，但拼在一起才能看到全貌。初学时可以先用表格列出四诊发现，然后逐条对照、寻找模式——这个过程反复练习后会成为直觉。
+    </div>
+  </div>
+</section>
+
+<!-- MODULE 08 -->
+<section class="module" id="mod-08">
+  <div class="module-header">
+    <div class="module-num">MODULE 08</div>
+    <div class="module-title">临床应用：从接诊到诊断的完整流程</div>
+    <div class="module-hook">"临病人，观死生，决嫌疑，欲知其要，如日月光" ——《素问·移精变气论》</div>
+  </div>
+  <div class="module-body">
+    <p>四诊在临床中并非按"望→闻→问→切"的固定顺序执行。实际诊疗中，四诊是<strong>交互并行</strong>的过程。以下是一个典型的临床工作流：</p>
+
+    <div class="process-flow">
+      <div class="process-step"><div class="psn">①</div><div class="psl">患者进入</div></div>
+      <div class="process-arrow">→</div>
+      <div class="process-step"><div class="psn">②</div><div class="psl">望诊启动<br>望神/色/形/态</div></div>
+      <div class="process-arrow">→</div>
+      <div class="process-step"><div class="psn">③</div><div class="psl">闻诊并行<br>听声/呼吸</div></div>
+      <div class="process-arrow">→</div>
+      <div class="process-step"><div class="psn">④</div><div class="psl">问诊深入<br>主诉→十问</div></div>
+      <div class="process-arrow">→</div>
+      <div class="process-step"><div class="psn">⑤</div><div class="psl">切诊验证<br>脉诊+舌诊</div></div>
+      <div class="process-arrow">→</div>
+      <div class="process-step"><div class="psn">⑥</div><div class="psl">合参判断<br>辨证→治则</div></div>
+    </div>
+
+    <p><strong>阶段一：快速初筛（0-10秒）</strong></p>
+    <p>患者入座的同时，望诊和闻诊已经启动。观察<em>面色、体态、步态、呼吸声</em>，快速形成对病情轻重缓急的第一印象。危急重症（如面色苍白、大汗淋漓、呼吸困难）应立即优先处理。</p>
+
+    <p><strong>阶段二：主诉引导问诊（1-3分钟）</strong></p>
+    <p>以开放式问题开始："<em>你哪里不舒服？多长时间了？</em>"——确定主诉后，围绕主诉展开十问。从寒热、汗出、头身、二便等逐步深入。</p>
+
+    <p><strong>阶段三：体征采集（2-5分钟）</strong></p>
+    <p>进行<strong>舌诊</strong>（让患者伸舌，观察舌质、舌苔）、<strong>脉诊</strong>（以寸口脉法诊察左右手）、必要时进行<strong>按诊</strong>（如腹部触诊）。舌诊和脉诊为问诊提供客观验证。</p>
+
+    <p><strong>阶段四：综合辨证（1-2分钟）</strong></p>
+    <p>整合四诊信息，确定<em>病位、病性、病势</em>，给出证候诊断并制定治则治法。</p>
+
+    <div class="callout callout-tip">
+      <strong>🔑 实战经验：</strong>初诊患者用时较长（15-20分钟），复诊患者可缩短至5-8分钟。关键是<em>主诉明确、四诊到位、合参合理</em>，而非追求面面俱到地询问所有十问条目。
+    </div>
+  </div>
+</section>
+
+<!-- MODULE 09 -->
+<section class="module" id="mod-09">
+  <div class="module-header">
+    <div class="module-num">MODULE 09</div>
+    <div class="module-title">案例分析：四诊合参的实战推理</div>
+    <div class="module-hook">"观其脉证，知犯何逆，随证治之" ——《伤寒论》</div>
+  </div>
+  <div class="module-body">
+
+    <div class="case-block">
+      <h4>案例一：外感风寒表实证</h4>
+      <div class="case-step"><span class="csn">主诉</span><span class="csv">男性，32岁，昨日淋雨后出现恶寒发热，周身酸痛1天。</span></div>
+      <div class="case-step"><span class="csn">望诊</span><span class="csv">面色微红，舌淡红，苔薄白。</span></div>
+      <div class="case-step"><span class="csn">闻诊</span><span class="csv">语声略浊，鼻音重，偶有咳嗽。</span></div>
+      <div class="case-step"><span class="csn">问诊</span><span class="csv">恶寒重发热轻，无汗，头痛，身痛，鼻塞流清涕，口不渴。</span></div>
+      <div class="case-step"><span class="csn">切诊</span><span class="csv">脉浮紧。</span></div>
+      <div class="case-step"><span class="csn">合参</span><span class="csv">四诊一致指向外感风寒表实证：恶寒发热+无汗+脉浮紧=表寒实证；舌淡红苔薄白+口不渴=寒邪未化热。治宜辛温解表，麻黄汤主之。</span></div>
+    </div>
+
+    <div class="case-block">
+      <h4>案例二：脾胃湿热证</h4>
+      <div class="case-step"><span class="csn">主诉</span><span class="csv">女性，45岁，脘腹痞闷，食欲不振，大便黏滞不爽2月余。</span></div>
+      <div class="case-step"><span class="csn">望诊</span><span class="csv">面色萎黄，体形偏胖，舌红，苔黄腻。</span></div>
+      <div class="case-step"><span class="csn">闻诊</span><span class="csv">语声如常，口气略重。</span></div>
+      <div class="case-step"><span class="csn">问诊</span><span class="csv">脘腹痞闷胀满，口苦口黏，不欲饮水，大便黏滞，小便黄，喜食肥甘厚味，工作压力大。</span></div>
+      <div class="case-step"><span class="csn">切诊</span><span class="csv">脉滑数，脘腹按之胀满不适。</span></div>
+      <div class="case-step"><span class="csn">合参</span><span class="csv">舌红苔黄腻+脉滑数+脘痞口苦=湿热内蕴中焦。饮食不节+压力大=病因明确。四诊信息高度一致。治宜清热化湿，理气和中，连朴饮加减。</span></div>
+    </div>
+
+    <div class="case-block">
+      <h4>案例三：肝郁气滞证（真假辨析）</h4>
+      <div class="case-step"><span class="csn">主诉</span><span class="csv">女性，38岁，胸胁胀痛，情绪抑郁，失眠半年。</span></div>
+      <div class="case-step"><span class="csn">望诊</span><span class="csv">面色偏暗，面有黄褐斑，舌暗红，苔薄白，边有瘀点。</span></div>
+      <div class="case-step"><span class="csn">闻诊</span><span class="csv">善太息（频繁叹气），语声偏低。</span></div>
+      <div class="case-step"><span class="csn">问诊</span><span class="csv">胸胁胀痛走窜不定，情绪波动时加重，月经延期有血块，经前乳房胀痛。但奇怪的是，她同时说"经常感觉心里有火，口干想喝冰水"。</span></div>
+      <div class="case-step"><span class="csn">切诊</span><span class="csv">脉弦，但尺部沉细。</span></div>
+      <div class="case-step"><span class="csn">合参</span><span class="csv">口干喜冷表面上像"热"，但舌不红、苔不黄、脉不数——排除了实热。善太息+脉弦+胸胁胀痛+经前乳胀=典型的肝郁气滞。口干是气滞津不上承的表现，并非真热。舌暗红边瘀点+月经有血块=气滞致血瘀。治宜疏肝理气，兼活血化瘀。逍遥散合桃红四物汤加减。</span></div>
+    </div>
+
+    <div class="callout callout-warn">
+      <strong>⚠️ 案例三的关键教训：</strong>口干喜冷是"<em>假热</em>"信号。如果没有四诊合参（舌、脉、闻诊都提示气滞而非实热），仅凭问诊中的"口干想喝冰水"就很容易误判为热证而用寒凉药，犯"虚虚实实"之戒。
+    </div>
+  </div>
+</section>
+
+<!-- MODULE 10 -->
+<section class="module" id="mod-10">
+  <div class="module-header">
+    <div class="module-num">MODULE 10</div>
+    <div class="module-title">现代研究：AI舌诊、脉诊仪与标准化</div>
+    <div class="module-hook">"传统诊断方法正在与现代科技深度融合"</div>
+  </div>
+  <div class="module-body">
+    <p>四诊的现代化是中医发展的前沿方向，主要围绕<strong>客观化</strong>和<strong>标准化</strong>两个主题展开。</p>
+
+    <p><strong>一、AI舌诊</strong></p>
+    <p>计算机视觉技术已能实现舌象的自动采集与分析。通过深度学习模型对舌质颜色（RGB值转化为淡红/红/绛/紫）、舌苔厚薄（纹理分析）、裂纹和齿痕（边缘检测）进行自动分类。2020年后，多个研究团队报告的AI舌诊辨证准确率已达<em>85%-92%</em>（以专家诊断为金标准）。</p>
+    <p>主要技术路线：①图像采集标准化（恒温恒光环境）→②舌体分割（Mask R-CNN）→③多任务分类（舌色/苔色/苔质/舌形并行预测）→④与问诊信息融合输出辨证建议。</p>
+
+    <p><strong>二、脉诊仪</strong></p>
+    <p>脉诊的客观化研究已有50年历史。现代脉诊仪通过<strong>压力传感器</strong>记录寸口三部（寸关尺）在不同压力（浮中沉）下的脉搏波形，提取时域特征（脉率、脉幅、升支斜率、降支斜率等）和频域特征（功率谱密度）。</p>
+    <p>上海中医药大学、北京中医药大学等机构已开发出可以区分<em>浮、沉、迟、数、弦、滑、细、涩</em>等8-12种基本脉象的脉诊仪，但28种脉象的完全自动识别仍面临挑战。</p>
+
+    <p><strong>三、闻诊客观化</strong></p>
+    <p>电子鼻技术用于人体气味分析，语音分析技术用于咳嗽声、语声的客观化分析。但这些研究仍处于实验室阶段。</p>
+
+    <p><strong>四、四诊合参的标准化</strong></p>
+    <p>中医诊断量表化和积分制是国际推广的关键。例如：</p>
+    <div class="formula-block">
+      四诊量表化示例（肝郁气滞证诊断量表）
+      <span class="fl">
+        胸胁胀痛 (3分) + 善太息 (2分) + 脉弦 (3分) + 情绪抑郁 (2分) + 舌暗红 (2分)<br>
+        → 总分≥8分 → 诊断为肝郁气滞证（需满足≥3项主症）
+      </span>
+    </div>
+
+    <div class="callout callout-info">
+      <strong>💡 趋势洞察：</strong>传统四诊是"<em>三维信息采集</em>"体系，而现代诊断工具正在将中医四诊推向"<em>三维空间+N维数据</em>"（+时间维度波形分析+频谱分析+AI模式识别）。未来方向不是用机器取代人，而是<strong>人机协同</strong>——机器提供客观化初筛，医师进行综合判断。
+    </div>
+  </div>
+</section>
+
+<!-- MODULE 11 -->
+<section class="module" id="mod-11">
+  <div class="module-header">
+    <div class="module-num">MODULE 11</div>
+    <div class="module-title">常见误区与注意事项</div>
+    <div class="module-hook">"诊有大方，坐起有常，出入有行" ——《素问·方盛衰论》</div>
+  </div>
+  <div class="module-body">
+
+    <div class="compare-grid">
+      <div class="compare-card">
+        <h4>❌ 误区一：以脉代诊</h4>
+        <p>片面迷信脉诊，认为"高手只需切脉就能知百病"。实际上脉象反映的是气血运行的<strong>即时状态</strong>，不能替代问诊获取病史、也不能替代望诊获取形体信息。脉诊是四诊之一，不是四诊全部。</p>
+      </div>
+      <div class="compare-card">
+        <h4>❌ 误区二：忽略闻诊</h4>
+        <p>在现代诊室环境中，闻诊（尤其是嗅气味）容易被忽略。但<em>咳嗽声的虚实</em>、<em>语声的高低</em>、<em>叹息的频率</em>可以在几秒内得出关键信息，不应跳过。</p>
+      </div>
+      <div class="compare-card">
+        <h4>❌ 误区三：舌诊只看舌苔</h4>
+        <p>许多初学者只关注舌苔厚薄颜色，忽略了<strong>舌质</strong>的观察。舌质反映脏腑气血的<em>本质状态</em>，其重要性不亚于甚至高于舌苔。舌质淡白+厚苔和舌质红+厚苔，辨证完全不同。</p>
+      </div>
+      <div class="compare-card">
+        <h4>❌ 误区四：十问机械执行</h4>
+        <p>把十问歌当成"问卷清单"逐条念出，不仅效率低，还可能遗漏关键信息。正确的做法是<em>以主诉为线索</em>，将十问转化为自然的对话引导。</p>
+      </div>
+    </div>
+
+    <div class="compare-grid">
+      <div class="compare-card">
+        <h4>❌ 误区五：忽视假象</h4>
+        <p>临床表现中存在"<strong>真热假寒</strong>"、"<strong>真寒假热</strong>"、"<strong>真实假虚</strong>"、"<strong>真虚假实</strong>"等复杂情况。仅凭单一诊法可能被假象误导。四诊合参的核心价值正是<em>通过交叉验证识破假象</em>。</p>
+      </div>
+      <div class="compare-card">
+        <h4>❌ 误区六：诊前环境干扰</h4>
+        <p>患者刚进食（染苔）、刚运动（脉数）、情绪激动（面红脉弦）都会影响四诊结果的准确性。诊脉前应让患者<strong>休息5-10分钟</strong>，舌诊前确认是否饮过茶、咖啡或进食有色食物。</p>
+      </div>
+      <div class="compare-card">
+        <h4>❌ 误区七：望诊只看面部</h4>
+        <p>望诊应包括<em>全身望诊</em>：步态（跛行→筋骨病变）、姿势（护腹→腹痛）、手足（震颤→肝风内动）、皮肤（瘀斑→血瘀）等，不能只盯着脸和舌头。</p>
+      </div>
+      <div class="compare-card">
+        <h4>❌ 误区八：脉诊单凭右手</h4>
+        <p>只诊一侧（通常为右手）脉象而忽略另一侧，会漏掉重要的脏腑定位信息。左右手寸关尺分别对应不同脏腑，必须<strong>双手皆诊</strong>，且需对比左右差异。</p>
+      </div>
+    </div>
+
+    <div class="callout callout-warn">
+      <strong>⚠️ 立法提醒：</strong>根据中国《中医诊断技术规范》，四诊操作必须遵循标准流程。在实际临床中，脉诊应当由具备中医执业资格的医师完成。AI舌诊和脉诊仪的结果属于辅助诊断工具，不能替代医师的最终判断。
+    </div>
+  </div>
+</section>
+
+<!-- MODULE 12 -->
+<section class="module" id="mod-12">
+  <div class="module-header">
+    <div class="module-num">MODULE 12</div>
+    <div class="module-title">学习路径：分阶段掌握四诊合参</div>
+    <div class="module-hook">"学不贯今古，识不通天人，才不近仙，心不近佛者，断不可作医以误世" ——《医门法律》</div>
+  </div>
+  <div class="module-body">
+
+    <div class="process-flow">
+      <div class="process-step"><div class="psn">第一月</div><div class="psl">理论筑基<br>熟记舌诊·脉诊分类</div></div>
+      <div class="process-arrow">→</div>
+      <div class="process-step"><div class="psn">第二月</div><div class="psl">单项实践<br>每天观察10个舌象</div></div>
+      <div class="process-arrow">→</div>
+      <div class="process-step"><div class="psn">第三月</div><div class="psl">脉诊手感<br>在健康人身上反复练习</div></div>
+      <div class="process-arrow">→</div>
+      <div class="process-step"><div class="psn">第四月</div><div class="psl">四诊整合<br>完整病历+合参分析</div></div>
+    </div>
+
+    <p><strong>阶段一：理论筑基（第1月）</strong></p>
+    <p>①背熟舌诊舌色/苔质分类表 &nbsp; ②理解28种脉象的基本特征和比喻（弦如琴弦、滑如珠走盘） &nbsp; ③掌握十问歌并能默写 &nbsp; ④理解望神（得神/失神/假神）的区分标准。</p>
+    <p><strong>推荐练习：</strong>每天在镜子中观察自己的舌象，记录舌色、舌苔厚薄、有无齿痕。对比早晨和晚上、饭前饭后的变化。</p>
+
+    <p><strong>阶段二：单项实践（第2月）</strong></p>
+    <p>①收集朋友/家人的舌象照片至少50张，尝试分类标注（淡红/红/紫、薄苔/厚苔/腻苔）&nbsp; ②在健康人身上练习脉诊手感，区分"浮取"与"沉取"的力度差异 &nbsp; ③练习问诊对话技巧——先开放后封闭。</p>
+    <p><strong>推荐练习：</strong>与同学互相扮演患者，模拟十问流程。录下对话回听，检查是否有诱导式提问。</p>
+
+    <p><strong>阶段三：脉诊手感突破（第3月）</strong></p>
+    <p>①在至少20个不同年龄、不同体质的人身上练习脉诊 &nbsp; ②重点区分"数"vs"迟"（数节律）、"浮"vs"沉"（取位）、"弦"vs"滑"（流利度）这三对核心差异 &nbsp; ③练习左右手对比诊脉。</p>
+    <p><strong>推荐练习：</strong>运动后（脉率加快）、早晨醒来（脉象偏缓）、餐后（脉象偏滑）分别触摸对比，感受生理状态对脉象的影响。</p>
+
+    <p><strong>阶段四：四诊整合（第4月）</strong></p>
+    <p>①找机会到中医诊所见习，观察完整四诊流程 &nbsp; ②尝试独立完成3-5例完整四诊记录，包括望闻问切全部信息 &nbsp; ③用表格列出四诊发现，练习合参推理，与上级医师辨证结果对比。</p>
+
+    <div class="formula-block">
+      四诊学习金字塔
+      <span class="fl">
+        理论记忆（知识）→ 单项练习（技能）→ 手感体悟（经验）→ 合参实践（智慧）
+      </span>
+    </div>
+
+    <div class="callout callout-tip">
+      <strong>🔑 核心建议：</strong>不要同时学四诊的全部细节，那样容易混淆。<em>"一次只学一诊，学透后再学下一诊，最后合起来"</em>——这是历代中医师承教育的基本方法。此外，<strong>多看、多摸、多问、多想</strong>——四诊是高度经验性的技能，无法仅靠读书掌握。
+    </div>
+  </div>
+</section>
+
+<!-- MODULE 13 -->
+<section class="module" id="mod-13">
+  <div class="module-header">
+    <div class="module-num">MODULE 13</div>
+    <div class="module-title">术语表：四诊关键概念速查</div>
+    <div class="module-hook">"名不正则言不顺，言不顺则事不成" —— 术语准确是正确辨证的前提</div>
+  </div>
+  <div class="module-body">
+    <div class="term-grid">
+      <div class="term-card"><div class="tn">舌质</div><div class="td">舌的肌肉组织，观察颜色、形状、润泽度，反映脏腑气血虚实。</div></div>
+      <div class="term-card"><div class="tn">舌苔</div><div class="td">舌面上覆盖的苔状物，观察颜色、厚薄、润燥，反映邪气性质和胃气盛衰。</div></div>
+      <div class="term-card"><div class="tn">脉象</div><div class="td">脉搏跳动的形象特征，包括脉位（浮沉）、脉率（迟数）、脉力（虚实）、脉形（弦滑细涩）等。</div></div>
+      <div class="term-card"><div class="tn">浮脉</div><div class="td">轻取即得，重按反减。主表证（外邪在表），亦见于虚阳外越。</div></div>
+      <div class="term-card"><div class="tn">沉脉</div><div class="td">轻取不应，重按始得。主里证。有力为里实，无力为里虚。</div></div>
+      <div class="term-card"><div class="tn">迟脉</div><div class="td">脉率缓慢，一息不足四至（&lt;60次/分）。主寒证。有力为实寒，无力为虚寒。</div></div>
+      <div class="term-card"><div class="tn">数脉</div><div class="td">脉率快速，一息五至以上（&gt;90次/分）。主热证。有力为实热，无力为虚热。</div></div>
+      <div class="term-card"><div class="tn">弦脉</div><div class="td">脉管硬直，如按琴弦。主肝胆病、疼痛、痰饮。</div></div>
+      <div class="term-card"><div class="tn">滑脉</div><div class="td">脉来流利圆滑，如珠走盘。主痰饮、食积、实热，亦为妊娠脉。</div></div>
+      <div class="term-card"><div class="tn">细脉</div><div class="td">脉管细小如线，应指明显。主气血两虚、湿邪阻遏。</div></div>
+      <div class="term-card"><div class="tn">腻苔</div><div class="td">苔质细腻致密，刮之不去。主湿浊内蕴、痰饮、食积。</div></div>
+      <div class="term-card"><div class="tn">剥苔</div><div class="td">舌苔片状剥落，舌质暴露。主胃气大伤，胃阴枯竭。</div></div>
+      <div class="term-card"><div class="tn">得神</div><div class="td">目光明亮、面色润泽、反应灵敏。正气充足，预后良好。</div></div>
+      <div class="term-card"><div class="tn">假神</div><div class="td">危重患者突然精神转佳（回光返照）。阴阳离决临终征兆。</div></div>
+      <div class="term-card"><div class="tn">三部九候</div><div class="td">寸关尺三部，每部用浮中沉三种力度取脉，共九种取脉方法。</div></div>
+      <div class="term-card"><div class="tn">十问歌</div><div class="td">张景岳总结的问诊纲领，涵盖寒热、汗、头身、二便、饮食、胸腹、听觉、口渴、旧病、病因。</div></div>
+      <div class="term-card"><div class="tn">四诊合参</div><div class="td">将望闻问切四种诊察信息综合分析与相互印证，得出完整证候诊断的方法。</div></div>
+      <div class="term-card"><div class="tn">司外揣内</div><div class="td">通过观察人体外在表现推断内在脏腑病理变化的诊断思维模式。</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- MODULE 14 -->
+<section class="module" id="mod-14">
+  <div class="module-header">
+    <div class="module-num">MODULE 14</div>
+    <div class="module-title">开放讨论：四诊的未来与争议</div>
+    <div class="module-hook">"传统需要守护，但不需要固步自封"</div>
+  </div>
+  <div class="module-body">
+
+    <p><strong>讨论一：脉诊能否完全客观化？</strong></p>
+    <p>支持方认为：脉诊仪的波形采集精度已超过人手，可以捕捉到人手指无法分辨的细微频率成分。机器学习可以比人类更好地区分复杂模式。</p>
+    <p>质疑方认为：脉诊的本质不是"物理信号检测"，而是一种<em>身体直觉</em>。"如按琴弦""如珠走盘"这些描述本身就是主观体验，无法完全用波形参数替代。老中医的三指之下，感受到的不只是脉搏压力波形，还有血管壁的<em>柔韧性、温度、润泽感</em>等综合信息。</p>
+    <p>现状：业界共识是"<strong>脉诊仪作为辅助工具</strong>"，帮助初学者建立客观参照标准，但不能取代医师的脉诊判断。</p>
+
+    <p><strong>讨论二：四诊中谁的权重最大？</strong></p>
+    <p>不同学派有不同观点。经脉学派强调脉诊的客观性和灵敏性；舌诊学派认为舌象比脉象更稳定、更易标准化；临床流行病学派则强调问诊的信息量最大。实际上，<strong>没有普适的固定权重</strong>——权重应根据具体疾病动态调整。过于强调某一诊的绝对优先地位，本身就是违背"四诊合参"原则的。</p>
+
+    <p><strong>讨论三：AI能否取代中医的四诊？</strong></p>
+    <p>AI在单项诊断任务（舌象分类、脉象分类）上的表现已接近专家水平，但在<strong>四诊合参</strong>——即整合多维异构信息并进行综合推理的能力上，AI仍存在明显局限。四诊合参需要的不只是模式识别，还有<em>因果推理、常识判断、以及对患者心理状态的理解</em>——这些都是当前AI不擅长的领域。</p>
+    <p>未来最有可能的模式是<em>人机协同</em>：AI完成客观化四诊信息采集和初步分析，医师结合临床经验和同理心做出最终诊断。</p>
+
+    <p><strong>讨论四：四诊在社区医疗和公共卫生中的应用前景</strong></p>
+    <p>舌诊和脉诊作为非侵入性的健康筛查工具有巨大潜力。已有研究将AI舌诊用于糖尿病风险筛查和亚健康状态评估。在基层医疗资源匮乏的地区，便携式AI四诊设备可能成为<em>"数字中医助手"</em>，帮助基层医生提高诊断准确性。</p>
+
+    <div class="chart-init" id="chart-sunburst" data-option='{"series":[{"type":"sunburst","data":[{"name":"四诊体系","itemStyle":{"color":"#5ea87a"},"children":[{"name":"望诊","itemStyle":{"color":"#6ebf8a"},"children":[{"name":"望神","value":4,"itemStyle":{"color":"#5ea87a"}},{"name":"望色","value":5,"itemStyle":{"color":"#7ec8a0"}},{"name":"望形","value":3,"itemStyle":{"color":"#8ed8b0"}},{"name":"舌诊","value":8,"itemStyle":{"color":"#3d6b50"}}]},{"name":"闻诊","itemStyle":{"color":"#b898a0"},"children":[{"name":"听声音","value":5,"itemStyle":{"color":"#c8a8b0"}},{"name":"嗅气味","value":3,"itemStyle":{"color":"#a88890"}}]},{"name":"问诊","itemStyle":{"color":"#e6b95a"},"children":[{"name":"寒热","value":4},{"name":"汗","value":2},{"name":"头身","value":3},{"name":"二便","value":3}]},{"name":"切诊","itemStyle":{"color":"#d47860"},"children":[{"name":"脉诊","value":9,"itemStyle":{"color":"#e88870"}},{"name":"按诊","value":3,"itemStyle":{"color":"#c06850"}}]}]}],"radius":["15%","80%"],"label":{"fontSize":11,"color":"#ede6d8"},"itemStyle":{"borderColor":"var(--bg-card)","borderWidth":1}}]}'></div>
+
+  </div>
+</section>
+
+<div class="journey-footer">
+  <a onclick="goBack()">← 返回学习方案</a>
+  <div class="jf-note">四诊合参：望闻问切 · Phase 2 之 1/4 · 雪松晨曦模板 · 2026</div>
+</div>
+
+</div>
+
+<button class="float-back" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="回到顶部">↑</button>
+
+<div class="search-overlay" id="searchOverlay" onclick="event.target===this&&searchClose()">
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="搜索模块、术语、概念..." oninput="doSearch()" onkeydown="if(event.key==='Escape')searchClose()">
+    <div class="search-results" id="searchResults"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  document.body.classList.remove('loading');
+  document.body.classList.add('loaded');
+})();
+
+function toggleTheme(){
+  var body=document.body;
+  var current=body.getAttribute('data-theme');
+  var next=current==='dark'?'light':'dark';
+  body.setAttribute('data-theme',next);
+  try{localStorage.setItem('tcm_deep_theme',next);}catch(e){}
+  refreshCharts();
+}
+
+(function(){
+  try{
+    var saved=localStorage.getItem('tcm_deep_theme');
+    if(saved==='light'){document.body.setAttribute('data-theme','light');}
+  }catch(e){}
+})();
+
+function searchOpen(){
+  document.getElementById('searchOverlay').classList.add('show');
+  document.getElementById('searchInput').focus();
+}
+function searchClose(){
+  document.getElementById('searchOverlay').classList.remove('show');
+}
+document.addEventListener('keydown',function(e){
+  if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();searchOpen();}
+  if(e.key==='Escape')searchClose();
+});
+
+var searchIndex=[];
+(function buildIndex(){
+  var modules=document.querySelectorAll('.module');
+  modules.forEach(function(m){
+    var id=m.id;
+    var title=m.querySelector('.module-title');
+    var body=m.querySelector('.module-body');
+    var hook=m.querySelector('.module-hook');
+    var text='';
+    if(title)text+=title.textContent+' ';
+    if(hook)text+=hook.textContent+' ';
+    if(body)text+=body.textContent;
+    searchIndex.push({id:id,title:title?title.textContent:'',text:text.toLowerCase()});
+  });
+})();
+
+function doSearch(){
+  var q=document.getElementById('searchInput').value.toLowerCase().trim();
+  var container=document.getElementById('searchResults');
+  if(!q){container.innerHTML='';return;}
+  var results=[];
+  searchIndex.forEach(function(item){
+    var score=0;
+    if(item.title.toLowerCase().includes(q))score+=10;
+    var idx=item.text.indexOf(q);
+    if(idx>=0)score+=5;
+    if(score>0){
+      var ctx='';
+      if(idx>=0){
+        var start=Math.max(0,idx-30);
+        var end=Math.min(item.text.length,idx+q.length+50);
+        ctx=item.text.substring(start,end);
+        if(start>0)ctx='...'+ctx;
+        if(end<item.text.length)ctx=ctx+'...';
+      }
+      results.push({id:item.id,title:item.title,ctx:ctx,score:score});
+    }
+  });
+  results.sort(function(a,b){return b.score-a.score;});
+  results=results.slice(0,10);
+  var h='';
+  results.forEach(function(r){
+    h+='<div class="search-result" onclick="scrollToModule(\''+r.id+'\');searchClose()">'+
+      '<div class="srt">'+r.title+'</div>'+
+      '<div class="srd">'+r.ctx+'</div></div>';
+  });
+  if(!results.length)h='<div style="padding:12px;color:var(--text-muted);font-size:.78rem">未找到匹配结果</div>';
+  container.innerHTML=h;
+}
+
+function scrollToModule(id){
+  var el=document.getElementById(id);
+  if(el){el.scrollIntoView({behavior:'smooth',block:'start'});}
+}
+
+var observer=new IntersectionObserver(function(entries){
+  entries.forEach(function(entry){
+    var id=entry.target.id;
+    var link=document.querySelector('.sidebar-link[data-target="'+id+'"]');
+    if(link){
+      if(entry.isIntersecting)link.classList.add('active');
+      else link.classList.remove('active');
+    }
+  });
+},{rootMargin:'-60px 0px -70% 0px',threshold:0});
+
+var modules=document.querySelectorAll('.module');
+modules.forEach(function(m){observer.observe(m);});
+
+var sidebarLinks=document.querySelectorAll('.sidebar-link');
+sidebarLinks.forEach(function(link){
+  link.addEventListener('click',function(e){
+    e.preventDefault();
+    var targetId=this.getAttribute('data-target');
+    var el=document.getElementById(targetId);
+    if(el)el.scrollIntoView({behavior:'smooth',block:'start'});
+  });
+});
+
+window.addEventListener('scroll',function(){
+  var scrollTop=window.scrollY||document.documentElement.scrollTop;
+  var docHeight=document.documentElement.scrollHeight-window.innerHeight;
+  var progress=docHeight>0?Math.min(100,(scrollTop/docHeight)*100):0;
+  document.getElementById('progressBar').style.width=progress+'%';
+});
+
+function goBack(){
+  var planUrl='tcm_learning.html#kc-p2_1';
+  window.open(planUrl,'_self');
+}
+
+var chartInstances={};
+function initChart(container){
+  var id=container.id;
+  if(chartInstances[id]){chartInstances[id].dispose();}
+  if(typeof echarts==='undefined')return;
+  var raw=container.getAttribute('data-option');
+  if(!raw)return;
+  try{
+    var option=JSON.parse(raw);
+    var isDark=document.body.getAttribute('data-theme')!=='light';
+    option.backgroundColor='transparent';
+    if(!option.textStyle)option.textStyle={};
+    option.textStyle.color=isDark?'#b8ad98':'#4a4035';
+    if(option.tooltip===undefined)option.tooltip={};
+    var chart=echarts.init(container,isDark?'dark':undefined);
+    chart.setOption(option);
+    chartInstances[id]=chart;
+  }catch(e){}
+}
+
+function refreshCharts(){
+  var containers=document.querySelectorAll('.chart-init');
+  containers.forEach(function(c){initChart(c);});
+}
+
+window.addEventListener('load',function(){
+  refreshCharts();
+  window.addEventListener('resize',function(){
+    Object.keys(chartInstances).forEach(function(k){
+      chartInstances[k].resize();
+    });
+  });
+});
+</script>
+</body>
+</html>

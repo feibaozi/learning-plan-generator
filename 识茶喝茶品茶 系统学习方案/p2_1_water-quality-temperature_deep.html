@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>水质与水温科学 - 深度研读</title>
+<style>
+:root{
+--bg-base:#1a1814;
+--bg-card:#282520;
+--bg-elevated:#312d27;
+--bg-overlay:rgba(0,0,0,.6);
+--text-primary:#ede6d8;
+--text-secondary:#b8ad98;
+--text-muted:#8a8070;
+--accent-indigo:#5ea87a;
+--accent-purple:#b898a0;
+--accent-cyan:#7ec8a0;
+--accent-gold:#e6b95a;
+--accent-green:#6ebf8a;
+--accent-red:#d47860;
+--accent-blue:#5ea87a;
+--accent-color:#5ea87a;
+--accent-dark:#3d6b50;
+--border-subtle:rgba(184,173,152,.15);
+--border-glow:rgba(94,168,122,.25);
+--shadow-sm:0 1px 3px rgba(0,0,0,.3);
+--shadow-md:0 4px 16px rgba(0,0,0,.4);
+--shadow-lg:0 8px 32px rgba(0,0,0,.5);
+--shadow-elevated:0 8px 32px rgba(0,0,0,.5);
+--radius-sm:6px;
+--radius-md:10px;
+--radius-lg:16px;
+--font-sans:'Segoe UI',system-ui,-apple-system,sans-serif;
+--font-mono:Consolas,'Cascadia Code',monospace;
+--transition:.25s cubic-bezier(.4,0,.2,1);
+--transition-smooth:.3s ease;
+--nav-h:56px;
+--accent-color-rgb:94,168,122;
+--chart-grid:#2d2924;
+--chart-axis-label:#8a8070;
+}
+[data-theme="light"]{
+--bg-base:#fdfaf3;
+--bg-card:#fffdf7;
+--bg-elevated:#f3efe3;
+--bg-overlay:rgba(0,0,0,.3);
+--text-primary:#1f1a12;
+--text-secondary:#4a4035;
+--text-muted:#5c5042;
+--accent-indigo:#3d6b50;
+--accent-purple:#7a5a6a;
+--accent-cyan:#4a8e6a;
+--accent-gold:#a07828;
+--accent-green:#4a9e66;
+--accent-red:#b05038;
+--accent-blue:#3d6b50;
+--accent-color:#3d6b50;
+--accent-dark:#2a4835;
+--border-subtle:rgba(31,26,18,.08);
+--border-glow:rgba(61,107,80,.25);
+--shadow-sm:0 1px 3px rgba(0,0,0,.06);
+--shadow-md:0 4px 16px rgba(0,0,0,.08);
+--shadow-lg:0 8px 32px rgba(0,0,0,.12);
+--shadow-elevated:0 8px 32px rgba(0,0,0,.12);
+--accent-color-rgb:61,107,80;
+--chart-grid:#ebe5d6;
+--chart-axis-label:#5c5042;
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font-sans);background:var(--bg-base);color:var(--text-primary);line-height:1.75;overflow-x:hidden}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg-base)}::-webkit-scrollbar-thumb{background:var(--border-glow);border-radius:3px}
+
+.progress-bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--accent-indigo),var(--accent-purple),var(--accent-cyan));z-index:200;transition:width .1s linear}
+.navbar{position:fixed;top:3px;left:0;right:0;z-index:100;background:var(--bg-card);border-bottom:1px solid var(--border-subtle);backdrop-filter:blur(16px);height:var(--nav-h);display:flex;align-items:center;justify-content:space-between;padding:0 24px}
+.nav-left{display:flex;align-items:center;gap:12px;font-size:.82rem;font-weight:600;color:var(--accent-indigo)}
+.nav-right{display:flex;align-items:center;gap:8px}
+.nav-right button{background:var(--bg-elevated);border:1px solid var(--border-subtle);color:var(--text-secondary);padding:6px 12px;border-radius:var(--radius-sm);cursor:pointer;font-size:.75rem;transition:all var(--transition)}
+.nav-right button:hover{border-color:var(--border-glow);color:var(--accent-indigo)}
+
+.sidebar{position:fixed;left:0;top:0;height:100vh;width:280px;background:var(--bg-base);border-right:1px solid var(--border-subtle);padding:24px;overflow-y:auto;z-index:100;padding-top:calc(var(--nav-h) + 16px)}
+.sidebar h3{font-size:.85rem;font-weight:700;color:var(--text-secondary);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--border-subtle)}
+.sidebar-nav{list-style:none;padding:0}
+.sidebar-nav li{margin-bottom:2px}
+.sidebar-nav a{display:block;padding:8px 12px;border-radius:var(--radius-md);text-decoration:none;font-size:.76rem;color:var(--text-secondary);transition:all var(--transition);border-left:3px solid transparent}
+.sidebar-nav a:hover{background:rgba(91,141,184,.08);color:var(--accent-cyan);border-left-color:var(--accent-cyan)}
+.sidebar-nav a.active{background:rgba(91,141,184,.12);color:var(--accent-blue);font-weight:600;border-left-color:var(--accent-blue)}
+.sidebar-back-link{display:block;padding:8px 12px;margin-bottom:12px;border-radius:8px;background:var(--bg-elevated);color:var(--accent-blue);text-decoration:none;font-size:.78rem;font-weight:600}
+.sidebar-back-link:hover{color:var(--accent-cyan)}
+
+.content-area{margin-left:280px;width:calc(100% - 280px)}
+.container{max-width:calc(100% - 48px);margin:0 auto;padding:calc(var(--nav-h) + 24px) 24px 80px}
+
+.hero{text-align:center;padding:48px 0 36px}
+.hero h1{font-size:2.2rem;background:linear-gradient(135deg,var(--accent-indigo),var(--accent-purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+.hero .tags{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:12px}
+.hero .tags span{font-size:.7rem;padding:4px 12px;border-radius:50px;border:1px solid var(--border-glow);color:var(--accent-indigo);background:rgba(99,102,241,.06)}
+
+.meta-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:20px 24px;margin:0 auto 32px;max-width:700px;display:flex;justify-content:center;gap:36px;flex-wrap:wrap;box-shadow:var(--shadow-md)}
+.meta-item{text-align:center}
+.meta-item .val{font-size:1.4rem;font-weight:800;color:var(--accent-indigo)}
+.meta-item .lbl{font-size:.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px}
+
+.journey-bar{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:12px 20px;margin:0 auto 24px;max-width:900px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:.82rem;box-shadow:var(--shadow-elevated)}
+.journey-path{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.journey-icon{font-size:1rem}
+.journey-plan{color:var(--accent-purple);font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.journey-plan:hover{color:var(--accent-gold)}
+.journey-sep{color:var(--text-muted);font-size:.7rem}
+.journey-phase{color:var(--text-secondary);font-weight:600}
+.journey-kp{color:var(--text-primary);font-weight:700}
+.journey-pos{color:var(--text-muted);font-size:.72rem}
+.journey-nav{display:flex;align-items:center;gap:8px;font-size:.75rem}
+.journey-prev,.journey-next{color:var(--text-muted);cursor:default}
+.journey-divider{color:var(--border-subtle)}
+
+.module{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:28px 28px 24px;margin-bottom:20px;opacity:0;transform:translateY(24px);transition:opacity .5s ease,transform .5s ease;box-shadow:var(--shadow-sm)}
+.module.visible{opacity:1;transform:translateY(0)}
+.module:hover{border-color:var(--border-glow)}
+.module h2{font-size:1.15rem;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.module .m-tag{font-size:.65rem;padding:2px 10px;border-radius:50px;background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.2);color:var(--accent-indigo);font-weight:600}
+.module .m-time{font-size:.7rem;color:var(--text-muted);margin-left:auto}
+.module .hook{font-size:.9rem;color:var(--accent-purple);font-weight:600;margin:12px 0 16px;padding-left:12px;border-left:3px solid var(--accent-purple)}
+.module .content{font-size:.88rem;color:var(--text-secondary);line-height:1.8}
+.module .content p{margin-bottom:12px}
+.module .content strong{color:var(--text-primary);font-weight:600}
+.module .content em{color:var(--accent-gold);font-style:normal}
+
+.formula-block{background:rgba(99,102,241,.04);border:1px solid rgba(99,102,241,.12);border-radius:var(--radius-sm);padding:14px 18px;margin:14px 0;font-family:var(--font-mono);font-size:.82rem;color:var(--accent-cyan);overflow-x:auto;position:relative}
+.formula-block .f-cap{font-size:.7rem;color:var(--text-muted);margin-bottom:6px;display:block}
+.derivation-toggle{font-size:.7rem;color:var(--accent-gold);cursor:pointer;border:none;background:none;padding:4px 0;font-family:inherit;display:block;margin-top:6px}
+.derivation-toggle:hover{text-decoration:underline}
+.derivation-content{display:none;margin-top:8px;padding:12px 16px;background:rgba(245,158,11,.04);border-radius:var(--radius-sm);border-left:3px solid var(--accent-gold);font-size:.8rem;color:var(--text-secondary)}
+.derivation-content.open{display:block}
+
+.chart-wrap{background:rgba(99,102,241,.03);border-radius:var(--radius-sm);padding:8px;margin:14px 0;text-align:center}
+.chart-canvas{width:100%;height:280px}
+.chart-wrap .ch-cap{font-size:.72rem;color:var(--text-muted);margin-top:6px}
+
+.table-container{margin:20px 0;overflow-x:auto}
+.table-container table{width:100%;border-collapse:collapse;border-radius:var(--radius-md);overflow:hidden}
+.table-container th{background:var(--bg-elevated);color:var(--accent-cyan);font-weight:700;padding:12px 16px;text-align:left;font-size:.8rem}
+.table-container td{padding:12px 16px;border-bottom:1px solid var(--border-subtle);font-size:.82rem;color:var(--text-secondary)}
+.table-container tr:hover td{background:rgba(91,141,184,.03)}
+.table-container .table-caption{font-size:.72rem;color:var(--text-muted);margin-bottom:8px;text-align:center}
+
+.callout{padding:14px 18px;border-radius:var(--radius-md);margin:16px 0;font-size:.82rem}
+.callout-info{background:rgba(94,168,122,.06);border-left:3px solid var(--accent-indigo);color:var(--text-secondary)}
+.callout-warn{background:rgba(230,185,90,.06);border-left:3px solid var(--accent-gold);color:var(--text-secondary)}
+.callout-tip{background:rgba(184,152,160,.06);border-left:3px solid var(--accent-purple);color:var(--text-secondary)}
+.callout strong{color:var(--text-primary)}
+
+.compare-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin:16px 0}
+.compare-card{background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:18px 20px}
+.compare-card h4{font-size:.85rem;color:var(--accent-indigo);margin-bottom:8px}
+.compare-card p{font-size:.78rem;color:var(--text-muted);line-height:1.7}
+
+.timeline{position:relative;padding-left:30px;margin:16px 0}
+.timeline::before{content:'';position:absolute;left:8px;top:0;bottom:0;width:2px;background:var(--border-glow)}
+.timeline-item{position:relative;margin-bottom:18px;font-size:.82rem}
+.timeline-item::before{content:'';position:absolute;left:-26px;top:6px;width:10px;height:10px;border-radius:50%;background:var(--accent-indigo);border:2px solid var(--border-glow)}
+.timeline-year{font-weight:700;color:var(--accent-cyan);min-width:80px;display:inline-block}
+.timeline-text{color:var(--text-secondary)}
+
+.process-flow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:20px 0;justify-content:center}
+.process-step{background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:12px 18px;text-align:center;font-size:.76rem;min-width:80px}
+.process-step .psn{font-weight:800;color:var(--accent-indigo);font-size:.9rem;margin-bottom:4px}
+.process-step .psl{color:var(--text-muted);font-size:.68rem}
+.process-arrow{color:var(--accent-cyan);font-size:1.1rem;font-weight:700}
+
+.term-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;margin:16px 0}
+.term-card{background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:var(--radius-sm);padding:12px 16px;transition:all var(--transition)}
+.term-card:hover{border-color:var(--border-glow)}
+.term-card .tn{font-size:.8rem;font-weight:700;color:var(--accent-indigo)}
+.term-card .td{font-size:.72rem;color:var(--text-muted);margin-top:4px;line-height:1.6}
+
+.takeaway{font-size:.82rem;background:rgba(16,185,129,.06);border-left:3px solid var(--accent-green);padding:10px 14px;margin-top:16px;border-radius:0 var(--radius-sm) var(--radius-sm) 0;color:var(--accent-green)}
+
+.ref-list{list-style:none;padding:0;margin-top:8px;font-size:.78rem}
+.ref-list li{padding:4px 0;color:var(--text-muted)}
+.ref-list li::before{content:'📄 '}
+
+.search-overlay{position:fixed;inset:0;z-index:300;background:var(--bg-overlay);display:none;align-items:flex-start;justify-content:center;padding-top:120px}
+.search-overlay.open{display:flex}
+.search-box{width:520px;max-width:90vw;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:var(--radius-md);box-shadow:var(--shadow-lg);overflow:hidden}
+.search-box input{width:100%;padding:14px 18px;background:transparent;border:none;color:var(--text-primary);font-size:.95rem;outline:none;font-family:inherit}
+.search-results{max-height:360px;overflow-y:auto}
+.search-results div{padding:10px 18px;cursor:pointer;font-size:.82rem;color:var(--text-secondary);border-top:1px solid var(--border-subtle);transition:background var(--transition)}
+.search-results div:hover{background:rgba(99,102,241,.06);color:var(--text-primary)}
+
+.journey-footer{text-align:center;padding:40px 32px 60px;opacity:.8}
+.back-to-plan{display:inline-flex;align-items:center;gap:8px;padding:10px 24px;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:50px;color:var(--text-secondary);text-decoration:none;font-size:.85rem;font-weight:600;transition:all var(--transition-smooth)}
+.back-to-plan:hover{background:var(--bg-elevated);border-color:var(--accent-purple);color:var(--accent-purple)}
+
+.deep-floating-back{position:fixed;right:20px;bottom:20px;z-index:10000}
+.deep-floating-back button{padding:12px 20px;background:linear-gradient(135deg,var(--accent-color),var(--accent-dark));color:white;border:none;border-radius:24px;font-size:.85rem;font-weight:600;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.15);transition:transform .2s,box-shadow .2s}
+.deep-floating-back button:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.2)}
+
+.dd-toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);z-index:10001;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:8px;padding:14px 24px;box-shadow:0 4px 16px rgba(0,0,0,.15);font-size:.85rem;display:none}
+.toast-in{animation:toastIn .3s ease}
+@keyframes toastIn{from{opacity:0;transform:translate(-50%,20px)}to{opacity:1;transform:translate(-50%,0)}}
+
+@media print{.navbar,.progress-bar,.sidebar,.journey-bar,.journey-footer,.deep-floating-back{display:none!important}.content-area{margin-left:0;width:100%}.module{break-inside:avoid;opacity:1!important;transform:none!important;box-shadow:none}body{background:#fff!important}}
+
+@media(max-width:1024px){.sidebar{display:none}.content-area{margin-left:0;width:100%}}
+
+@media(max-width:768px){
+.hero h1{font-size:1.6rem}.module{padding:20px}.meta-card{font-size:.72rem;padding:12px 16px}.journey-bar{flex-direction:column;align-items:flex-start}
+.deep-floating-back{right:15px;bottom:15px}.deep-floating-back button{padding:10px 16px;font-size:.8rem}
+}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+</head>
+<body data-theme="dark">
+
+<div class="progress-bar" id="progressBar" style="width:0%"></div>
+
+<nav class="navbar">
+  <div class="nav-left">📖 水质与水温科学</div>
+  <div class="nav-right">
+    <button onclick="toggleTheme()" title="切换主题 (Ctrl+D)">🌓 主题</button>
+    <button onclick="openSearch()" title="搜索 (Ctrl+K)">🔍 搜索</button>
+  </div>
+</nav>
+
+<div class="sidebar">
+  <a href="#" class="sidebar-back-link" onclick="event.preventDefault();var w=window.open('tea_learning.html#kc-p2_1','plan_main');if(w)w.focus()">← 返回主方案</a>
+  <h3>📖 目录导航</h3>
+  <ul class="sidebar-nav">
+    <li><a href="#module-intro">水为茶之母——千年追求</a></li>
+    <li><a href="#module-science">硬度与pH——两个关键维度</a></li>
+    <li><a href="#module-hardness">硬水如何"杀死"一杯好茶</a></li>
+    <li><a href="#module-minerals">五种常见水源大比拼</a></li>
+    <li><a href="#module-temp-science">水温如何"唤醒"茶叶</a></li>
+    <li><a href="#module-temp-table">六大茶类最佳水温对照</a></li>
+    <li><a href="#module-water-source">烧水的讲究——蟹眼到鱼眼</a></li>
+    <li><a href="#module-glossary">水质水温核心术语</a></li>
+  </ul>
+</div>
+
+<div class="content-area">
+<div class="search-overlay" id="searchOverlay">
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="搜索模块内容..." oninput="doSearch()" onkeydown="if(event.key==='Escape')closeSearch()">
+    <div class="search-results" id="searchResults"></div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="hero">
+    <h1>水质与水温科学</h1>
+    <div class="tags">
+      <span>🏷️ 泡茶技艺</span><span>🎯 核心工具</span><span>💧 水质</span><span>🌡️ 水温</span>
+    </div>
+  </div>
+
+  <div class="meta-card">
+    <div class="meta-item"><div class="val">💧</div><div class="lbl">水质与水温</div></div><div class="meta-item"><div class="val">🫖</div><div class="lbl">泡茶技艺</div></div><div class="meta-item"><div class="val">🎯</div><div class="lbl">理解×标准</div></div><div class="meta-item"><div class="val">⏱️</div><div class="lbl">约25分钟</div></div><div class="meta-item"><div class="val">8</div><div class="lbl">模块</div></div>
+  </div>
+
+  <div class="journey-bar" id="journeyBar">
+    <div class="journey-path">
+      <span class="journey-icon">📍</span>
+      <span class="journey-plan" onclick="var w=window.open('tea_learning.html#kc-p2_1','plan_main');if(w)w.focus()">识茶·喝茶·品茶 系统学习方案</span>
+      <span class="journey-sep">〉</span>
+      <span class="journey-phase">泡茶技艺</span>
+      <span class="journey-sep">〉</span>
+      <span class="journey-kp">水质与水温科学</span>
+      <span class="journey-pos">(2/4)</span>
+    </div>
+    <div class="journey-nav">
+      <span class="journey-prev" title="前置: 无前置">← 前置</span>
+      <span class="journey-divider">|</span>
+      <span class="journey-next" title="后续: 茶具选择与搭配">后续 →</span>
+    </div>
+  </div>
+
+<!-- MODULE 1: 背景与缘起 -->
+<section id="module-intro" class="module">
+<h2><span class="m-tag">背景与缘起</span> 水为茶之母——中国茶人对水的千年追求</h2>
+<p class="hook">茶圣陆羽在《茶经》中把水分为三品："山水上，江水中，井水下"——一千多年前，中国人就认识到水是决定茶汤品质的命脉。</p>
+<div class="content">
+<p>在中国茶文化史上，对水的讲究几乎和对茶的钟爱同步展开。唐代茶圣<strong>陆羽</strong>（733-804年）在《茶经·五之煮》中系统论述了泡茶用水，将天下水源分为三等：<em>山水（山泉水）</em>为上品，其水质清冽甘甜；<em>江水</em>为中品，需取自远离人烟之处；<em>井水</em>为下品，因其滞而不流，水质偏硬。陆羽特别指出："其山水，拣乳泉、石池慢流者上"——流动的、经过砂石过滤的山泉才是极品。</p>
+
+<p>到了宋代，点茶之风鼎盛，对水的追求更加极致。宋徽宗赵佶在<strong>《大观茶论》</strong>中写道："水以清轻甘洁为美。轻甘乃水之自然，独为难得。"这里的"轻"指的是水中矿物质含量低，与今天我们所说的"软水"概念如出一辙。宋代茶人甚至发展出一套"斗水"的审美体系——品评天下名泉，以惠山石泉、虎跑泉、中泠泉等为佼佼者。</p>
+
+<p>明清时期，瀹茶（散茶冲泡）取代点茶成为主流，对水的考量也随之变化。明代<strong>张大复</strong>在<strong>《梅花草堂笔谈》</strong>中留下了一句传世名言：<em>"茶性必发于水，八分之茶，遇十分之水，茶亦十分矣；八分之水，试十分之茶，茶只八分耳。"</em>这句论断精准地揭示了水对茶汤品质的决定性作用——好水能让普通茶叶超常发挥，差水则让顶级茶叶黯然失色。</p>
+
+<p>清代<strong>乾隆皇帝</strong>更是中国历史上最爱"评水"的皇帝。他命人用特制的银斗称量天下名泉的重量（即比较水的密度，实为比较矿物质含量），评定<em>北京玉泉山泉水</em>为"天下第一泉"，因其"质轻味甘"。这一做法虽然朴素，但其背后的科学原理——矿物质含量越低则水越轻——与现代水质评价标准不谋而合。</p>
+
+<p>从现代科学的角度回望，古人的经验并非玄学。水中矿物质的种类和浓度、pH值、溶解气体含量等因素，确实深刻地影响着茶叶中数百种化合物的萃取行为，进而决定了茶汤的<strong>色、香、味</strong>三维品质。</p>
+</div>
+<div class="takeaway"><strong>核心要点：</strong>选对水，能让一款普通茶叶展现出超出其等级的风采；用错水，顶级好茶也会黯然失色。古人千年的经验，已被现代化学逐一验证。</div>
+</section>
+
+<!-- MODULE 2: 核心概念 -->
+<section id="module-science" class="module">
+<h2><span class="m-tag">核心概念</span> 水的硬度与pH——泡茶水的两个关键维度</h2>
+<p class="hook">同样是无色无味的液体，为什么有的水泡茶甘甜鲜爽，有的却苦涩寡淡？答案藏在两个化学指标中：硬度和pH值。</p>
+<div class="content">
+<p>水的<strong>硬度</strong>（Hardness）是指水中钙离子（Ca²⁺）和镁离子（Mg²⁺）的总浓度，通常以碳酸钙当量（mg/L CaCO₃）表示。根据世界卫生组织的分类标准：</p>
+
+<div class="callout callout-info">
+<strong>硬度分类：</strong>软水（＜60 mg/L）→ 中硬水（60-120 mg/L）→ 硬水（120-180 mg/L）→ 极硬水（＞180 mg/L）
+</div>
+
+<p>不同硬度的水冲泡茶叶，效果天差地别：<em>软水</em>冲泡的茶汤汤色明亮清透，滋味鲜爽甘醇；<em>中硬水</em>则汤色开始变深，苦涩感逐渐显现；<em>硬水</em>冲泡会令汤色暗褐浑浊，苦涩味明显加重，茶香被压制。这是因为钙镁离子会与茶多酚等活性物质发生化学反应，干扰正常的萃取出过程。</p>
+
+<p>水的<strong>pH值</strong>同样至关重要。茶叶中最重要的呈色物质——儿茶素类（Catechins）——在弱酸性环境中（pH 5.5-6.5）色泽明黄透亮，但在碱性环境中（pH＞7.5）会迅速氧化褐变，使茶汤变成暗红甚至棕褐色。泡茶用水的<strong>最佳pH范围为6.5-7.0</strong>（弱酸性至中性）。</p>
+
+<p><strong>TDS</strong>（Total Dissolved Solids，溶解性固体总量）是另一个实用指标，反映了水中所有溶解矿物质的总量。对于泡茶而言，TDS的理想范围是<strong>50-150 mg/L</strong>——太低则水"太空"，缺乏衬托茶味的矿物质骨架；太高则干扰萃取，使茶汤沉重浑浊。</p>
+
+<div class="formula-block">
+<span class="f-cap">茶汤品质的水质影响模型</span>
+茶汤品质 ∝ 1 / (Ca²⁺浓度) × pH中性度 × TDS适宜度
+</div>
+<div class="derivation-toggle">▸ 展开推导</div>
+<div class="derivation-content">
+<p><strong>推导说明：</strong>Ca²⁺浓度越低，茶多酚的可溶性越高，茶汤越清亮鲜爽（反比关系）。pH越接近中性（6.5-7.0），儿茶素的氧化速度越慢，汤色保持能力越强。TDS在50-150 mg/L范围内，矿物质既能提供口感骨架又不至于过量干扰萃取。三个因子的乘积共同决定了茶汤的综合品质。</p>
+<p>实际操作中，这三个因子并非完全独立——Ca²⁺升高同时会增加TDS和pH缓冲能力，因此硬水的综合表现必然较差。</p>
+</div>
+
+<div class="callout callout-warn">
+<strong>重要误区：</strong>泡茶用水并非越"纯"越好。纯蒸馏水（TDS≈0）冲泡的茶叶，虽然汤色清亮，但滋味单薄、缺少层次感。原因是适量矿物质有助于茶叶内含物质的溶出并参与风味的构建。硬度适中、含有微量矿物质的天然水，才是泡茶的"黄金之水"。
+</div>
+</div>
+<div class="takeaway"><strong>核心要点：</strong>硬度决定萃取效率和水色，pH决定汤色稳定性，TDS决定口感层次。泡茶用水的"黄金三角"——软水（＜60 mg/L）、弱酸性（pH 6.5-7.0）、适中TDS（50-150 mg/L）。</div>
+</section>
+
+<!-- MODULE 3: 深入原理 -->
+<section id="module-hardness" class="module">
+<h2><span class="m-tag">深入原理</span> 硬水如何"杀死"一杯好茶？</h2>
+<p class="hook">硬水中的钙离子就像一个捣乱的化学家，它和茶多酚结合形成不溶性沉淀物，让本该清亮的茶汤变成浑浊的"酱油汤"。</p>
+<div class="content">
+<p>要理解硬水对茶汤的"破坏力"，我们需要深入到化学反应的层面。以下几个关键机理共同作用，让硬水成为好茶的"杀手"：</p>
+
+<p><strong>1. 茶多酚钙沉淀——汤色浑浊的元凶</strong><br>
+茶多酚（Tea Polyphenols）中的儿茶素分子含有多个酚羟基（-OH），这些羟基的氧原子具有孤对电子，能够与Ca²⁺发生络合反应，生成难溶于水的茶多酚钙沉淀。这就是为什么硬水泡茶后，茶汤会呈现肉眼可见的<em>"冷后浑"</em>（Cooling Turbidity）现象——温度降低时沉淀更加显著。一杯本应清澈透亮的绿茶在硬水中会变成浑浊的黄褐色液体。</p>
+
+<p><strong>2. 草酸钙沉淀——鲜味物质的流失</strong><br>
+茶叶中含有一定量的草酸（Oxalic Acid），它会与Ca²⁺结合形成草酸钙沉淀。草酸本身在低浓度下对风味影响不大，但草酸钙的形成会"拖累"其他可溶性呈味物质一同沉淀，导致茶汤的鲜爽度和层次感明显下降。</p>
+
+<p><strong>3. 碳酸氢根的碱性催化——颜色发暗的推手</strong><br>
+硬水中通常伴随较高浓度的碳酸氢根离子（HCO₃⁻）。HCO₃⁻具有碱性缓冲作用，会将茶汤的pH推高至7.5以上。在碱性环境中，儿茶素分子中的邻苯二酚结构被迅速氧化为邻苯醌，醌类物质进一步聚合形成深色化合物——这一连串反应在视觉上就是<em>茶汤颜色从明黄到暗褐的渐变</em>。</p>
+
+<p><strong>4. 铁离子——最恶劣的"色彩杀手"</strong><br>
+在所有金属离子中，铁离子（Fe²⁺/Fe³⁺）对茶汤品质的危害最为严重。含量仅需＞0.1 mg/L，铁离子就能与茶多酚结合生成蓝黑色或紫黑色的络合物，使茶汤发黑发暗，并带有明显的金属涩口感。这也是为什么用老旧的铁壶或铁质水管输送的水泡茶，往往颜色和味道都极差。</p>
+
+<div class="chart-wrap">
+<div id="chart-hardness" class="chart-canvas"></div>
+<div class="ch-cap">图1：不同硬度水冲泡龙井绿茶的汤色亮度（L值）与滋味评分对比。L值越高汤色越明亮，硬度越高则汤色越暗、滋味越差。</div>
+</div>
+
+<div class="callout callout-tip">
+<strong>实验数据参考：</strong>中国农业科学院茶叶研究所的实验表明，用TDS=280 mg/L的硬水冲泡西湖龙井，茶汤的明度（L*值）比纯水冲泡下降约35%，茶多酚溶出率降低约22%，感官审评得分下降超过40%。
+</div>
+</div>
+<div class="takeaway"><strong>核心要点：</strong>如果你的自来水泡茶总是发涩发暗——问题不在茶叶，而在水里的钙镁离子。换上软水，同一款茶叶会给你完全不同的惊喜。</div>
+</section>
+
+<!-- MODULE 4: 五种水源大比拼 -->
+<section id="module-minerals" class="module">
+<h2><span class="m-tag">实践应用</span> 五种常见水源泡茶大比拼</h2>
+<p class="hook">自来水、矿泉水、纯净水、山泉水、过滤水——哪一个才是泡茶的"最优解"？我们用科学告诉你答案。</p>
+<div class="content">
+<p>日常生活中我们能获取的泡茶水源主要有五类，它们各自的水质特征和对茶汤的影响差异显著：</p>
+
+<div class="table-container">
+<div class="table-caption">表1：五种常见泡茶水源综合对比</div>
+<table>
+<thead><tr><th>水源</th><th>硬度(mg/L)</th><th>TDS(mg/L)</th><th>pH</th><th>汤色</th><th>香气</th><th>滋味</th><th>综合评分</th></tr></thead>
+<tbody>
+<tr><td><strong>自来水</strong></td><td>100-300</td><td>150-500</td><td>7.0-8.0</td><td>暗黄浑浊</td><td>余氯味重</td><td>苦涩粗糙</td><td>★★☆☆☆</td></tr>
+<tr><td><strong>纯净水</strong></td><td>≈0</td><td>0-5</td><td>6.5-7.0</td><td>清亮但浅薄</td><td>香气单薄</td><td>平淡缺层次</td><td>★★★☆☆</td></tr>
+<tr><td><strong>矿泉水</strong></td><td>30-80(低硬度款)</td><td>50-100</td><td>6.8-7.3</td><td>明亮清澈</td><td>花香果香突出</td><td>鲜爽醇厚</td><td>★★★★★</td></tr>
+<tr><td><strong>山泉水</strong></td><td>10-50</td><td>30-80</td><td>6.5-7.0</td><td>晶莹透亮</td><td>自然清雅</td><td>甘甜活润</td><td>★★★★★</td></tr>
+<tr><td><strong>过滤水(RO)</strong></td><td>≈0</td><td>0-10</td><td>6.5-7.0</td><td>非常清亮</td><td>偏淡</td><td>接近纯水感</td><td>★★★★☆</td></tr>
+</tbody>
+</table>
+</div>
+
+<p><strong>自来水：</strong>大多数城市自来水硬度偏高（尤其北方地区），且为防止管道细菌滋生而添加的余氯会带来异味。虽然烧开可以去除余氯，但硬度无法通过加热改变。除非你所在地区的自来水本身属于软水（如部分南方城市），否则不建议直接使用自来水泡茶。</p>
+
+<p><em>农夫山泉等低TDS天然水</em>是日常泡茶的"最优解"。以农夫山泉为例，其TDS约60-80 mg/L，硬度约30-50 mg/L，pH约7.0-7.3，各项指标恰好落在泡茶的"黄金区间"内。这也是为什么许多茶艺师和茶爱好者将其作为日常用水的首选。</p>
+
+<p><strong>山泉水</strong>在历史上被誉为泡茶的上上之选，<em>"龙井茶配虎跑水"</em>是杭州最经典的茶水搭配。优质山泉水质自然软、微含矿物质、溶氧量高，能让茶叶展现出最本真的风味。但需注意水源的安全性——未经检测的野泉可能存在微生物或重金属污染风险。</p>
+
+<div class="callout callout-info">
+<strong>日常推荐方案：</strong><br>
+· <strong>日常最优解：</strong>农夫山泉或其他低TDS（50-100 mg/L）的天然水/矿泉水<br>
+· <strong>进阶之选：</strong>寻觅当地优质山泉水（需确认水源安全）<br>
+· <strong>经济方案：</strong>RO反渗透过滤水 + 少量天然矿泉水混合调节TDS
+</div>
+</div>
+<div class="takeaway"><strong>核心要点：</strong>日常最优解——农夫山泉或其他低TDS（50-100mg/L）天然水；进阶之选——寻觅当地优质山泉水；绝对避免——用硬自来水直接冲泡名优绿茶。</div>
+</section>
+
+<!-- MODULE 5: 水温科学 -->
+<section id="module-temp-science" class="module">
+<h2><span class="m-tag">核心原理</span> 水温的科学——温度如何"唤醒"茶叶？</h2>
+<p class="hook">同一款茶叶，80°C和100°C的水冲泡，风味差异可能超过两款不同茶叶的差异。温度每变化5°C，就是一杯完全不同的茶。</p>
+<div class="content">
+<p>水温控制的本质不是"热一点冷一点"的简单选择，而是<strong>精确调控茶叶中数百种化合物的萃取比例</strong>。不同种类的化合物各有其最佳的溶出温度范围，了解这些规律，才能真正掌握"泡出一杯好茶"的钥匙。</p>
+
+<p><strong>氨基酸（呈鲜甜味）</strong>——茶叶中最"怕热"的呈味物质是茶氨酸（Theanine）等氨基酸。它们极易溶于水，在<em>50-60°C</em>时即开始快速溶出，且溶出速率对温度不敏感。这意味着<em>即使是较低的水温，也能充分萃取出茶叶的鲜甜滋味</em>。</p>
+
+<p><strong>茶多酚（呈苦涩味）</strong>——与氨基酸相反，茶多酚的溶出速率随温度升高呈<em>指数级增长</em>。在60°C时，茶多酚溶出缓慢；到80°C时，溶出速率翻倍；到100°C时，大量茶多酚在短时间内涌入茶汤，带来强烈的苦涩收敛感。</p>
+
+<p><strong>咖啡碱（呈苦味）</strong>——咖啡碱（Caffeine）的溶出行为介于氨基酸和茶多酚之间。它在<em>70°C</em>开始明显溶出，<em>90°C以上</em>则大量释放。高温长时间浸泡会导致咖啡碱过度萃取，茶汤苦味过重。</p>
+
+<p><strong>芳香物质</strong>——茶叶中含有数百种挥发性芳香化合物，各自具有不同的沸点：<em>低沸点花香物质</em>（如芳樟醇、苯乙醇）在70-100°C即可充分释放，带来清新的花香和果香；<em>高沸点醇香物质</em>（如β-紫罗兰酮、香叶醇）则需要100°C以上的温度才能充分激发，呈现沉稳的焙烤香和蜜甜香。</p>
+
+<div class="formula-block">
+<span class="f-cap">温度策略的核心逻辑</span>
+低温冲泡 = 高氨基酸 / 低茶多酚 → 鲜爽甘甜（适合嫩绿茶）<br>
+高温冲泡 = 茶多酚+咖啡碱大量溶出 → 浓烈苦涩（适合老茶/黑茶）
+</div>
+
+<div class="chart-wrap">
+<div id="chart-extraction" class="chart-canvas"></div>
+<div class="ch-cap">图2：不同水温下茶叶主要内含物的萃取速率对比。氨基酸低温即达平台，茶多酚高温飙升，咖啡碱居中。</div>
+</div>
+
+<div class="callout callout-tip">
+<strong>温度-时间互补原则：</strong>低水温可以通过延长浸泡时间来补偿萃取不足（如冷泡茶8-12小时）；高水温则需缩短浸泡时间以防止过度萃取（如功夫茶即冲即出）。温度和时间是两个可以互相调配的变量——温度高了就快出汤，温度低了就多泡一会儿。
+</div>
+</div>
+<div class="takeaway"><strong>核心要点：</strong>水温控制的本质是精确调控茶叶中数百种化合物的萃取比例。低温保"鲜"——保护氨基酸，控制茶多酚；高温激"香"——释放高沸点芳香物质。</div>
+</section>
+
+<!-- MODULE 6: 六大茶类水温对照 -->
+<section id="module-temp-table" class="module">
+<h2><span class="m-tag">实践应用</span> 六大茶类最佳水温对照表</h2>
+<p class="hook">没有万能的水温——龙井80°C、铁观音100°C、白毫银针85°C——记不住？这张表让你一目了然。</p>
+<div class="content">
+<p>不同茶类由于制作工艺和原料嫩度的差异，其内含物质的组成和比例各不相同，因此需要不同的冲泡水温来"因茶施温"。</p>
+
+<div class="table-container">
+<div class="table-caption">表2：六大茶类最佳冲泡水温对照</div>
+<table>
+<thead><tr><th>茶类</th><th>代表茶品</th><th>最佳水温</th><th>过高后果</th><th>过低后果</th></tr></thead>
+<tbody>
+<tr><td><strong>绿茶</strong></td><td>龙井、碧螺春、安吉白茶</td><td>细嫩名茶 75-80°C<br>大宗绿茶 80-85°C</td><td>烫熟茶叶，产生"熟汤味"，叶底发黄，鲜爽尽失</td><td>香气不扬，滋味偏淡</td></tr>
+<tr><td><strong>白茶</strong></td><td>白毫银针、白牡丹、老白茶</td><td>银针 85°C<br>白牡丹 90°C<br>老白茶 100°C（可煮）</td><td>新白茶冲泡过烫会破坏毫香和鲜灵度</td><td>老白茶温度不够则陈香枣香激发不足</td></tr>
+<tr><td><strong>黄茶</strong></td><td>君山银针、蒙顶黄芽</td><td>85°C</td><td>与绿茶同理，高温致熟汤味</td><td>闷黄工艺的特殊风味释放不充分</td></tr>
+<tr><td><strong>乌龙茶</strong></td><td>铁观音、大红袍、凤凰单丛</td><td>轻发酵 90°C<br>重发酵 95-100°C</td><td>几乎不怕高温——乌龙茶的"生命线"就是高温</td><td>香气释放不充分，"岩韵""音韵"无法展现</td></tr>
+<tr><td><strong>红茶</strong></td><td>金骏眉、正山小种、滇红</td><td>细嫩红茶 85-90°C<br>大叶种红茶 90-95°C</td><td>过烫产生酸涩味和"酵气味"</td><td>醇厚感和甜香无法充分浸出</td></tr>
+<tr><td><strong>黑茶/普洱</strong></td><td>熟普洱、安化黑茶、六堡茶</td><td>100°C 沸水</td><td>黑茶不怕高温，沸水是最佳萃取温度</td><td>紧压茶难以充分展开，滋味单薄</td></tr>
+</tbody>
+</table>
+</div>
+
+<p><strong>绿茶低温保鲜的原理：</strong>绿茶未经发酵，保留了大量的原始酶活性和鲜嫩成分。如果水温超过85°C，茶叶中的叶绿素会迅速脱镁褐变，维生素C被破坏，氨基酸与糖类发生美拉德反应产生"熟汤味"——这在专业审评中被称为<em>"闷熟"</em>，是不可逆的品质劣变。因此，名优绿茶务必<strong>降温至80°C以下再冲泡</strong>。</p>
+
+<p><strong>乌龙茶高温激香的原则：</strong>乌龙茶经过做青和烘焙，形成了丰富的芳香物质，其中许多高沸点成分（如果香、花香、烘焙香）只有在95°C以上的高温下才能充分释放。高温水注入的瞬间，茶叶中的芳香分子被"激活"，形成乌龙茶独特的<em>"香气喷薄而出"</em>的体验。这就是为什么潮汕功夫茶一定要用"蟹目水"（接近沸腾）冲泡。</p>
+
+<div class="callout callout-info">
+<strong>生普洱茶的特殊处理：</strong>生普洱（尤其是3年以内的新生普）建议将水温适当降至<strong>90-95°C</strong>。新生普的茶多酚含量极高，100°C沸水会萃取出过量的苦涩物质。经过存放转化的老生普则可用沸水。煮茶适用于老白茶、黑茶、熟普——直接沸水煮饮或先泡数道后再煮，别有醇厚风味。
+</div>
+</div>
+<div class="takeaway"><strong>核心要点：</strong>水温每偏差5°C，茶汤的风味就会发生可感知的变化——用温度计而不是"凭感觉"，是专业泡茶的第一步。绿茶怕烫，乌龙喜沸，黑茶要煮——记住这个简单口诀。</div>
+</section>
+
+<!-- MODULE 7: 烧水的讲究 -->
+<section id="module-water-source" class="module">
+<h2><span class="m-tag">实践技巧</span> 烧水的讲究——从"蟹眼"到"鱼眼"</h2>
+<p class="hook">你以为水烧开了就行？苏东坡说："蟹眼已过鱼眼生，飕飕欲作松风鸣"——古人将烧水过程分为三个阶段，每个阶段对应不同的泡茶需求。</p>
+<div class="content">
+<p>中国古人对于烧水的观察极其细致。宋代大文豪<strong>苏东坡</strong>在《试院煎茶》一诗中生动描述了烧水过程中气泡形态的变化，而陆羽在《茶经》中更是将烧水过程分为<strong>"三沸"</strong>，每一沸对应不同的泡茶场景：</p>
+
+<div class="process-flow">
+<div class="process-step"><div class="psn">一沸·蟹眼</div><div class="psl">75-85°C</div></div>
+<div class="process-arrow">→</div>
+<div class="process-step"><div class="psn">二沸·鱼眼</div><div class="psl">85-95°C</div></div>
+<div class="process-arrow">→</div>
+<div class="process-step"><div class="psn">三沸·腾波</div><div class="psl">100°C</div></div>
+<div class="process-arrow">→</div>
+<div class="process-step"><div class="psn">过沸·水老</div><div class="psl">⚠️不宜泡茶</div></div>
+</div>
+
+<p><strong>一沸·蟹眼（75-85°C）：</strong>水底开始冒出如螃蟹眼睛大小的细小气泡，伴有轻微的"嘶嘶"声。此阶段水温适合冲泡<em>名优绿茶</em>，能完美保护嫩芽的鲜灵之气。古人谓之"萌汤"。</p>
+
+<p><strong>二沸·鱼眼（85-95°C）：</strong>气泡逐渐变大如鱼眼，水声增大，边缘开始翻滚。此阶段适合<em>乌龙茶和红茶</em>，能充分激发茶叶的香气层次。古人谓之"中汤"。</p>
+
+<p><strong>三沸·腾波鼓浪（100°C）：</strong>水面完全沸腾翻滚，如波涛汹涌。此阶段适合<em>黑茶、普洱、老茶</em>，高温确保紧压茶充分舒展，内含物彻底释放。古人谓之"熟汤"。</p>
+
+<p>但<strong>过沸则"水老"</strong>——陆羽在《茶经》中警示："<em>不可过沸，过沸则水老，不宜泡茶</em>"。所谓"水老"，是指长时间沸腾后水中的溶解氧大量逸出，水质变得"死气沉沉"。溶氧量的降低会影响茶汤的鲜活感和回甘，这也是为什么反复加热的"千滚水"泡茶口感沉闷乏味的原因。</p>
+
+<p><strong>现代控温实用技巧：</strong></p>
+
+<div class="callout callout-tip">
+<strong>无温度计时的水温估算（从100°C沸水开始降温）：</strong><br>
+· 打开壶盖自然散热 <strong>30秒</strong> → 约 <strong>95°C</strong>（适合黑茶、老茶）<br>
+· 打开壶盖自然散热 <strong>1分钟</strong> → 约 <strong>90°C</strong>（适合乌龙茶、红茶）<br>
+· 倒入公道杯后再注入茶壶 → 再降温 <strong>约10°C</strong>（适合绿茶、白茶）<br>
+<strong>专业建议：</strong>入手一支电子水温计（几十元即可），告别"凭感觉"的不可靠操作。
+</div>
+
+<p><strong>冬季温杯预热：</strong>这是一个容易被忽略但至关重要的细节。冬季室温低，如果直接用热水注入冰冷的茶壶/盖碗，壶壁会迅速吸收大量热量，导致实际冲泡水温比预期低5-10°C。正确的做法是：<em>先用热水烫壶/烫杯（"温杯洁具"）</em>，让器皿预热后再进行正式冲泡。这既是茶道的礼仪，也是温度控制的关键步骤。</p>
+
+<div class="callout callout-warn">
+<strong>⚠️ "千滚水"的问题：</strong>反复煮沸的水溶氧量骤降，泡出的茶汤缺乏"活性"和"灵气"，口感沉闷，回甘不明显。每次泡茶建议使用新鲜煮沸的水。如果热水壶保温时间过长，建议重新烧开一壶新水。
+</div>
+</div>
+<div class="takeaway"><strong>核心要点：</strong>烧水不仅是一个物理加热过程，更是对水"性格"的塑造——新沸之水充满活力，千滚之水死气沉沉。蟹眼泡绿茶，鱼眼泡乌龙，腾波泡黑茶——三沸三用，因茶施温。</div>
+</section>
+
+<!-- MODULE 8: 关键术语表 -->
+<section id="module-glossary" class="module">
+<h2><span class="m-tag">关键术语表</span> 水质水温核心术语</h2>
+<p class="hook">掌握以下术语，你就能用专业的语言与茶友讨论水质水温——这是从"喝茶"到"懂茶"的重要一步。</p>
+<div class="content">
+<div class="table-container">
+<table>
+<thead><tr><th>术语</th><th>英文</th><th>定义</th></tr></thead>
+<tbody>
+<tr><td>硬度</td><td>Hardness</td><td>水中钙镁离子的总浓度，以 CaCO₃ mg/L 计。＜60 为软水，60-120 为中硬水，＞120 为硬水。是影响泡茶品质最核心的水质参数。</td></tr>
+<tr><td>TDS</td><td>Total Dissolved Solids</td><td>溶解性固体总量（mg/L），反映水中所有溶解矿物质的总量。泡茶理想范围 50-150 mg/L。</td></tr>
+<tr><td>pH值</td><td>pH Value</td><td>溶液酸碱度指标。泡茶最佳范围 6.5-7.0（弱酸性至中性）。碱性环境加速茶多酚氧化褐变。</td></tr>
+<tr><td>茶多酚</td><td>Tea Polyphenols</td><td>茶叶中最重要的呈味和呈色物质，占干重 18-36%。易与 Ca²⁺络合沉淀，高温大量溶出带苦涩。</td></tr>
+<tr><td>儿茶素</td><td>Catechins</td><td>茶多酚的主体成分（占 70-80%），具有酚羟基结构。在碱性条件下氧化褐变，是茶汤变色的化学根源。</td></tr>
+<tr><td>茶氨酸</td><td>Theanine</td><td>茶叶特有的游离氨基酸，呈鲜甜味。低温（50-60°C）即快速溶出，是茶汤"鲜爽感"的主要来源。</td></tr>
+<tr><td>咖啡碱</td><td>Caffeine</td><td>茶叶中的生物碱，呈苦味。70°C 开始明显溶出，高温大量释放。与茶多酚协同构成茶汤的苦底。</td></tr>
+<tr><td>冷后浑</td><td>Creaming Down</td><td>茶汤冷却后出现的浑浊沉淀现象。在硬水中因茶多酚钙沉淀而加剧，是水质不良的直观表现。</td></tr>
+<tr><td>蟹眼 / 鱼眼</td><td>Crab-eye / Fish-eye Bubble</td><td>古人描述烧水状态的术语。蟹眼≈75-85°C（小气泡），鱼眼≈85-95°C（大气泡），用于判断水温。</td></tr>
+<tr><td>水老</td><td>Overboiled Water</td><td>古人术语，指过度沸腾导致溶氧量下降的水。水质"死气沉沉"，泡茶缺乏鲜活感和回甘。</td></tr>
+<tr><td>千滚水</td><td>Repeatedly Boiled Water</td><td>反复煮沸的水。溶氧量极低，泡茶口感沉闷。建议每次泡茶使用新鲜烧开的水。</td></tr>
+<tr><td>温杯洁具</td><td>Preheating Teaware</td><td>正式冲泡前用热水烫壶烫杯，既是茶道礼仪，也是确保冲泡温度稳定的关键操作。</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="takeaway"><strong>核心要点：</strong>掌握这些术语，你就拥有了评价泡茶用水质量的科学语言体系——不再凭感觉，而是用数据和原理来理解"为什么这杯茶好喝"。</div>
+</section>
+
+</div>
+
+<footer class="journey-footer">
+  <a href="#" class="back-to-plan" onclick="event.preventDefault();var w=window.open('tea_learning.html#kc-p2_1','plan_main');if(w)w.focus()">🔗 返回学习路线: 识茶·喝茶·品茶 系统学习方案 → 泡茶技艺</a>
+  <p style="margin-top:12px;font-size:.72rem;color:var(--text-muted)">
+    本资料是 <strong>识茶·喝茶·品茶 系统学习方案</strong> 泡茶技艺 阶段的深度研读材料
+  </p>
+</footer>
+
+<div class="deep-floating-back">
+  <button onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 16px rgba(0,0,0,.2)'"
+    onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 12px rgba(0,0,0,.15)'"
+    onclick="event.preventDefault();var w=window.open('tea_learning.html#kc-p2_1','plan_main');if(w)w.focus()">
+    ← 返回学习方案
+  </button>
+</div>
+</div>
+
+<div class="dd-toast" id="toastEl"><span id="toastMsg"></span></div>
+
+<script>
+var MODULE_IDS = ["module-intro","module-science","module-hardness","module-minerals","module-temp-science","module-temp-table","module-water-source","module-glossary"];
+var SEARCH_INDEX = [
+{"id":"module-intro","t":"水为茶之母——中国茶人对水的千年追求","c":"从陆羽《茶经》论水讲起，历代茶人对水的追求，现代科学验证古人经验"},
+{"id":"module-science","t":"水的硬度与pH——泡茶水的两个关键维度","c":"硬度定义、pH值影响、TDS理想范围，茶汤品质与水质的三因子模型"},
+{"id":"module-hardness","t":"硬水如何杀死一杯好茶","c":"茶多酚钙沉淀、草酸钙沉淀、碳酸氢根碱性催化、铁离子危害的化学机理详解"},
+{"id":"module-minerals","t":"五种常见水源泡茶大比拼","c":"自来水、纯净水、矿泉水、山泉水、过滤水的对比评测与日常推荐方案"},
+{"id":"module-temp-science","t":"水温的科学——温度如何唤醒茶叶","c":"氨基酸、茶多酚、咖啡碱、芳香物质在不同温度下的萃取规律与策略"},
+{"id":"module-temp-table","t":"六大茶类最佳水温对照表","c":"绿茶、白茶、黄茶、乌龙茶、红茶、黑茶的最佳水温及过高过低后果"},
+{"id":"module-water-source","t":"烧水的讲究——从蟹眼到鱼眼","c":"三沸法详解、现代控温技巧、千滚水的危害、冬季温杯预热的重要性"},
+{"id":"module-glossary","t":"水质水温核心术语","c":"硬度、TDS、pH、茶多酚、茶氨酸、冷后浑、蟹眼鱼眼、水老等专业术语定义"}
+];
+var TOAST_TIMEOUT;
+
+(function(){
+var progressBar=document.getElementById('progressBar');
+var modules=document.querySelectorAll('.module');
+
+var observer=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting)e.target.classList.add('visible')})},{threshold:.15});
+modules.forEach(function(m){observer.observe(m)});
+
+var navLinks=document.querySelectorAll('.sidebar-nav a');
+var navObserver=new IntersectionObserver(function(entries){
+entries.forEach(function(e){
+if(e.isIntersecting){
+navLinks.forEach(function(a){a.classList.remove('active')});
+var act=document.querySelector('.sidebar-nav a[href="#'+e.target.id+'"]');
+if(act)act.classList.add('active');
+}
+})},{threshold:.3});
+modules.forEach(function(m){navObserver.observe(m)});
+
+window.addEventListener('scroll',function(){
+var st=document.documentElement.scrollTop,dh=document.documentElement.scrollHeight-window.innerHeight;
+var pct=dh>0?Math.min(100,(st/dh)*100):0;progressBar.style.width=pct+'%';
+});
+
+window.addEventListener('keydown',function(e){
+if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();openSearch()}
+if((e.ctrlKey||e.metaKey)&&e.key==='d'){e.preventDefault();toggleTheme()}
+if(e.key==='Escape')closeSearch()
+});
+})();
+
+function toggleTheme(){
+var b=document.body,isD=b.getAttribute('data-theme')==='dark';
+b.setAttribute('data-theme',isD?'light':'dark');
+try{localStorage.setItem('slm-theme',isD?'light':'dark')}catch(e){}
+showToast('已切换至'+(isD?'浅色':'深色')+'主题')
+}
+
+function openSearch(){document.getElementById('searchOverlay').classList.add('open');setTimeout(function(){document.getElementById('searchInput').focus()},100)}
+function closeSearch(){document.getElementById('searchOverlay').classList.remove('open');document.getElementById('searchResults').innerHTML=''}
+
+function doSearch(){
+var q=document.getElementById('searchInput').value.toLowerCase(),res=document.getElementById('searchResults');
+if(q.length<2){res.innerHTML='';return}
+var h='';SEARCH_INDEX.forEach(function(item){
+if(item.t.toLowerCase().indexOf(q)>=0||(item.c||'').toLowerCase().indexOf(q)>=0){
+h+='<div onclick="closeSearch();document.getElementById(\''+item.id+'\').scrollIntoView({behavior:\'smooth\'})">'+
+'<strong>'+item.t+'</strong><br><small style="color:var(--text-muted)">'+(item.c||'').substring(0,80)+'</small></div>';
+}
+});
+res.innerHTML=h||'<div style="padding:12px;color:var(--text-muted)">未找到匹配模块</div>'
+}
+
+function showToast(msg){
+var el=document.getElementById('toastEl'),mg=document.getElementById('toastMsg');
+if(!el||!mg)return;mg.textContent=msg;el.style.display='block';el.classList.add('toast-in');
+if(TOAST_TIMEOUT)clearTimeout(TOAST_TIMEOUT);
+TOAST_TIMEOUT=setTimeout(function(){el.style.display='none'},3000);
+}
+
+(function(){
+var t;try{t=localStorage.getItem('slm-theme')}catch(e){}
+if(t==='light')document.body.setAttribute('data-theme','light');
+})();
+
+(function(){
+document.querySelectorAll('.derivation-toggle').forEach(function(btn){
+btn.addEventListener('click',function(){
+var content=this.nextElementSibling;
+if(content){content.classList.toggle('open');this.textContent=content.classList.contains('open')?'▾ 收起推导':'▸ 展开推导'}
+});
+});
+})();
+
+(function initCharts(){
+if(typeof echarts==='undefined')return;
+var charts=[];
+var isLight=document.body.getAttribute('data-theme')==='light';
+var textColor=isLight?'#4a4035':'#b8ad98';
+var axisLabelColor=isLight?'#5c5042':'#8a8070';
+var gridColor=isLight?'#ebe5d6':'#2d2924';
+
+var hardnessEl=document.getElementById('chart-hardness');
+if(hardnessEl){
+var hc=echarts.init(hardnessEl);
+hc.setOption({
+tooltip:{trigger:'axis'},
+legend:{data:['汤色亮度(L值)','滋味评分'],bottom:0,textStyle:{color:textColor,fontSize:10}},
+grid:{left:50,right:50,top:20,bottom:45},
+xAxis:{type:'category',data:['纯水\n≈0','软水\n30','中硬\n60','硬水\n120','极硬\n200','超硬\n300'],axisLabel:{color:axisLabelColor,fontSize:10},axisLine:{lineStyle:{color:gridColor}}},
+yAxis:[
+{type:'value',name:'L值',min:0,max:100,axisLabel:{color:axisLabelColor},splitLine:{lineStyle:{color:gridColor}}},
+{type:'value',name:'评分',min:0,max:100,axisLabel:{color:axisLabelColor},splitLine:{lineStyle:{color:gridColor}}}
+],
+series:[
+{name:'汤色亮度(L值)',type:'bar',data:[92,88,82,72,58,38],itemStyle:{color:new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'#7ec8a0'},{offset:1,color:'#5ea87a'}])},barMaxWidth:36},
+{name:'滋味评分',type:'line',yAxisIndex:1,data:[75,95,88,70,48,28],itemStyle:{color:'#e6b95a'},lineStyle:{width:2},symbol:'circle',symbolSize:8}
+]
+});
+charts.push(hc);
+}
+
+var extractEl=document.getElementById('chart-extraction');
+if(extractEl){
+var ec=echarts.init(extractEl);
+ec.setOption({
+tooltip:{trigger:'axis'},
+legend:{data:['氨基酸(鲜甜)','茶多酚(苦涩)','咖啡碱(苦)'],bottom:0,textStyle:{color:textColor,fontSize:10}},
+grid:{left:50,right:30,top:20,bottom:45},
+xAxis:{type:'category',data:['60°C','70°C','80°C','90°C','100°C'],axisLabel:{color:axisLabelColor},axisLine:{lineStyle:{color:gridColor}}},
+yAxis:{type:'value',name:'相对溶出率(%)',min:0,max:100,axisLabel:{color:axisLabelColor},splitLine:{lineStyle:{color:gridColor}}},
+series:[
+{name:'氨基酸(鲜甜)',type:'line',data:[55,68,78,82,85],itemStyle:{color:'#6ebf8a'},lineStyle:{width:2},symbol:'circle',symbolSize:8,smooth:true},
+{name:'茶多酚(苦涩)',type:'line',data:[12,25,42,68,92],itemStyle:{color:'#d47860'},lineStyle:{width:2},symbol:'circle',symbolSize:8,smooth:true},
+{name:'咖啡碱(苦)',type:'line',data:[18,35,52,70,88],itemStyle:{color:'#b898a0'},lineStyle:{width:2},symbol:'circle',symbolSize:8,smooth:true}
+]
+});
+charts.push(ec);
+}
+
+window.addEventListener('resize',function(){charts.forEach(function(c){c.resize()})});
+})();
+</script>
+</body>
+</html>

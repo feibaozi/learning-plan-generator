@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>八纲辨证与脏腑辨证 — 深度研读</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+<style>
+:root{
+--bg-base:#1a1814;--bg-card:#282520;--bg-elevated:#312d27;--bg-overlay:rgba(0,0,0,.6);
+--text-primary:#ede6d8;--text-secondary:#b8ad98;--text-muted:#8a8070;
+--accent-indigo:#5ea87a;--accent-purple:#b898a0;--accent-cyan:#7ec8a0;
+--accent-gold:#e6b95a;--accent-green:#6ebf8a;--accent-red:#d47860;--accent-blue:#5ea87a;
+--accent-color:#5ea87a;--accent-dark:#3d6b50;
+--border-subtle:rgba(184,173,152,.15);--border-glow:rgba(94,168,122,.25);
+--shadow-sm:0 1px 3px rgba(0,0,0,.3);--shadow-md:0 4px 16px rgba(0,0,0,.4);
+--shadow-lg:0 8px 32px rgba(0,0,0,.5);--shadow-elevated:0 8px 32px rgba(0,0,0,.5);
+--radius-sm:6px;--radius-md:10px;--radius-lg:16px;
+--font-sans:'Segoe UI',system-ui,-apple-system,sans-serif;
+--font-mono:Consolas,'Cascadia Code',monospace;
+--transition:.25s cubic-bezier(.4,0,.2,1);--transition-smooth:.3s ease;--nav-h:56px;
+--accent-color-rgb:94,168,122;--chart-grid:#2d2924;--chart-axis-label:#8a8070;
+}
+[data-theme="light"]{
+--bg-base:#fdfaf3;--bg-card:#fffdf7;--bg-elevated:#f3efe3;--bg-overlay:rgba(0,0,0,.3);
+--text-primary:#1f1a12;--text-secondary:#4a4035;--text-muted:#5c5042;
+--accent-indigo:#3d6b50;--accent-purple:#7a5a6a;--accent-cyan:#4a8e6a;
+--accent-gold:#a07828;--accent-green:#4a9e66;--accent-red:#b05038;--accent-blue:#3d6b50;
+--accent-color:#3d6b50;--accent-dark:#2a4835;
+--border-subtle:rgba(31,26,18,.08);--border-glow:rgba(61,107,80,.25);
+--shadow-sm:0 1px 3px rgba(0,0,0,.06);--shadow-md:0 4px 16px rgba(0,0,0,.08);
+--shadow-lg:0 8px 32px rgba(0,0,0,.12);--shadow-elevated:0 8px 32px rgba(0,0,0,.12);
+--accent-color-rgb:61,107,80;--chart-grid:#ebe5d6;--chart-axis-label:#5c5042;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter','Noto Sans SC',-apple-system,sans-serif;background:var(--bg-base);color:var(--text-primary);line-height:1.75;overflow-x:hidden}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg-base)}::-webkit-scrollbar-thumb{background:var(--border-glow);border-radius:3px}
+.progress-bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--accent-indigo),var(--accent-purple),var(--accent-cyan));z-index:200;transition:width .1s linear}
+.navbar{position:fixed;top:3px;left:0;right:0;z-index:100;background:var(--bg-card);border-bottom:1px solid var(--border-subtle);backdrop-filter:blur(16px);height:var(--nav-h);display:flex;align-items:center;justify-content:space-between;padding:0 24px}
+.nav-left{display:flex;align-items:center;gap:12px;font-size:.82rem;font-weight:600;color:var(--accent-indigo)}
+.nav-right{display:flex;align-items:center;gap:8px}
+.nav-right button{background:var(--bg-elevated);border:1px solid var(--border-subtle);color:var(--text-secondary);padding:6px 12px;border-radius:var(--radius-sm);cursor:pointer;font-size:.75rem;transition:all var(--transition)}
+.nav-right button:hover{border-color:var(--border-glow);color:var(--accent-indigo)}
+.sidebar{position:fixed;left:0;top:0;height:100vh;width:280px;background:var(--bg-base);border-right:1px solid var(--border-subtle);padding:24px;overflow-y:auto;z-index:100;padding-top:calc(var(--nav-h) + 16px)}
+.sidebar h3{font-size:.85rem;font-weight:700;color:var(--text-secondary);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--border-subtle)}
+.sidebar-nav{list-style:none;padding:0}
+.sidebar-nav li{margin-bottom:2px}
+.sidebar-nav a{display:block;padding:8px 12px;border-radius:var(--radius-md);text-decoration:none;font-size:.76rem;color:var(--text-secondary);transition:all var(--transition);border-left:3px solid transparent}
+.sidebar-nav a:hover{background:rgba(94,168,122,.08);color:var(--accent-cyan);border-left-color:var(--accent-cyan)}
+.sidebar-nav a.active{background:rgba(94,168,122,.12);color:var(--accent-blue);font-weight:600;border-left-color:var(--accent-blue)}
+.sidebar-back-link{display:block;padding:8px 12px;margin-bottom:12px;border-radius:8px;background:var(--bg-elevated);color:var(--accent-blue);text-decoration:none;font-size:.78rem;font-weight:600}
+.sidebar-back-link:hover{color:var(--accent-cyan)}
+.content-area{margin-left:280px;width:calc(100% - 280px)}
+.container{max-width:calc(100% - 48px);margin:0 auto;padding:calc(var(--nav-h) + 24px) 24px 80px}
+.hero{text-align:center;padding:48px 0 36px}
+.hero h1{font-size:2.2rem;background:linear-gradient(135deg,var(--accent-indigo),var(--accent-purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+.hero .tags{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:12px}
+.hero .tags span{font-size:.7rem;padding:4px 12px;border-radius:50px;border:1px solid var(--border-glow);color:var(--accent-indigo);background:rgba(94,168,122,.06)}
+.meta-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:20px 24px;margin:0 auto 32px;max-width:700px;display:flex;justify-content:center;gap:36px;flex-wrap:wrap;box-shadow:var(--shadow-md)}
+.meta-item{text-align:center}
+.meta-item .val{font-size:1.4rem;font-weight:800;color:var(--accent-indigo)}
+.meta-item .lbl{font-size:.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px}
+.journey-bar{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:12px 20px;margin:0 auto 24px;max-width:900px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:.82rem;box-shadow:var(--shadow-elevated)}
+.journey-path{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.journey-icon{font-size:1rem}
+.journey-plan{color:var(--accent-purple);font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.journey-plan:hover{color:var(--accent-gold)}
+.journey-sep{color:var(--text-muted);font-size:.7rem}
+.journey-phase{color:var(--text-secondary);font-weight:600}
+.journey-kp{color:var(--text-primary);font-weight:700}
+.journey-pos{color:var(--text-muted);font-size:.72rem}
+.journey-nav{display:flex;align-items:center;gap:8px;font-size:.75rem}
+.journey-prev,.journey-next{color:var(--text-muted);cursor:default}
+.journey-divider{color:var(--border-subtle)}
+.module{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:28px 28px 24px;margin-bottom:20px;opacity:0;transform:translateY(24px);transition:opacity .5s ease,transform .5s ease;box-shadow:var(--shadow-sm)}
+.module.visible{opacity:1;transform:translateY(0)}
+.module:hover{border-color:var(--border-glow)}
+.module h2{font-size:1.15rem;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.module .m-tag{font-size:.65rem;padding:2px 10px;border-radius:50px;background:rgba(94,168,122,.1);border:1px solid rgba(94,168,122,.2);color:var(--accent-indigo);font-weight:600}
+.module .m-time{font-size:.7rem;color:var(--text-muted);margin-left:auto}
+.module .hook{font-size:.9rem;color:var(--accent-purple);font-weight:600;margin:12px 0 16px;padding-left:12px;border-left:3px solid var(--accent-purple)}
+.module .content{font-size:.88rem;color:var(--text-secondary);line-height:1.8}
+.module .content p{margin-bottom:12px}
+.formula-block{background:rgba(94,168,122,.04);border:1px solid rgba(94,168,122,.12);border-radius:var(--radius-sm);padding:14px 18px;margin:14px 0;font-family:var(--font-mono);font-size:.82rem;color:var(--accent-cyan);overflow-x:auto;position:relative}
+.formula-block .f-cap{font-size:.7rem;color:var(--text-muted);margin-bottom:6px;display:block}
+.chart-wrap{background:rgba(94,168,122,.03);border-radius:var(--radius-sm);padding:8px;margin:14px 0;text-align:center}
+.chart-wrap>div{width:100%;height:280px}
+.chart-wrap .ch-cap{font-size:.72rem;color:var(--text-muted);margin-top:6px}
+.table-container{margin:20px 0;overflow-x:auto}
+.table-container table{width:100%;border-collapse:collapse;border-radius:var(--radius-md);overflow:hidden}
+.table-container th{background:var(--bg-elevated);color:var(--accent-cyan);font-weight:700;padding:12px 16px;text-align:left;font-size:.8rem}
+.table-container td{padding:12px 16px;border-bottom:1px solid var(--border-subtle);font-size:.82rem;color:var(--text-secondary)}
+.table-container tr:hover td{background:rgba(94,168,122,.03)}
+.table-container .table-caption{font-size:.72rem;color:var(--text-muted);margin-bottom:8px;text-align:center}
+.takeaway{font-size:.82rem;background:rgba(110,191,138,.06);border-left:3px solid var(--accent-green);padding:10px 14px;margin-top:16px;border-radius:0 var(--radius-sm) var(--radius-sm) 0;color:var(--accent-green)}
+.search-overlay{position:fixed;inset:0;z-index:300;background:var(--bg-overlay);display:none;align-items:flex-start;justify-content:center;padding-top:120px}
+.search-overlay.open{display:flex}
+.search-box{width:520px;max-width:90vw;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:var(--radius-md);box-shadow:var(--shadow-lg);overflow:hidden}
+.search-box input{width:100%;padding:14px 18px;background:transparent;border:none;color:var(--text-primary);font-size:.95rem;outline:none;font-family:inherit}
+.search-results{max-height:360px;overflow-y:auto}
+.search-results div{padding:10px 18px;cursor:pointer;font-size:.82rem;color:var(--text-secondary);border-top:1px solid var(--border-subtle);transition:background var(--transition)}
+.search-results div:hover{background:rgba(94,168,122,.06);color:var(--text-primary)}
+.journey-footer{text-align:center;padding:40px 32px 60px;opacity:.8}
+.back-to-plan{display:inline-flex;align-items:center;gap:8px;padding:10px 24px;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:50px;color:var(--text-secondary);text-decoration:none;font-size:.85rem;font-weight:600;transition:all var(--transition-smooth)}
+.back-to-plan:hover{background:var(--bg-elevated);border-color:var(--accent-purple);color:var(--accent-purple)}
+.deep-floating-back{position:fixed;right:20px;bottom:20px;z-index:10000}
+.deep-floating-back button{padding:12px 20px;background:linear-gradient(135deg,var(--accent-color),var(--accent-dark));color:white;border:none;border-radius:24px;font-size:.85rem;font-weight:600;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.15);transition:transform .2s,box-shadow .2s}
+.deep-floating-back button:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.2)}
+.dd-toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);z-index:10001;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:8px;padding:14px 24px;box-shadow:0 4px 16px rgba(0,0,0,.15);font-size:.85rem;display:none}
+.toast-in{animation:toastIn .3s ease}
+@keyframes toastIn{from{opacity:0;transform:translate(-50%,20px)}to{opacity:1;transform:translate(-50%,0)}}
+.thinking-box{background:rgba(230,185,90,.05);border:1px dashed rgba(230,185,90,.2);border-radius:var(--radius-sm);padding:14px 18px;margin:12px 0;font-size:.8rem;color:var(--accent-gold)}
+.thinking-box::before{content:'💡 辨证思维：';display:block;font-weight:700;margin-bottom:4px;color:var(--accent-gold)}
+.derivation-toggle{font-size:.7rem;color:var(--accent-gold);cursor:pointer;border:none;background:none;padding:4px 0;font-family:inherit;display:block;margin-top:6px}
+.derivation-toggle:hover{text-decoration:underline}
+.derivation-content{display:none;margin-top:8px;padding:12px 16px;background:rgba(230,185,90,.04);border-radius:var(--radius-sm);border-left:3px solid var(--accent-gold);font-size:.8rem;color:var(--text-secondary)}
+.derivation-content.open{display:block}
+.ref-list{list-style:none;padding:0;margin-top:8px;font-size:.78rem}
+.ref-list li{padding:4px 0;color:var(--text-muted)}
+.case-box{background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:var(--radius-sm);padding:16px 20px;margin:12px 0}
+.case-box h4{font-size:.85rem;color:var(--accent-gold);margin-bottom:8px}
+.case-box p{font-size:.82rem;margin-bottom:6px}
+.case-reasoning{padding:8px 14px;margin-top:8px;background:rgba(94,168,122,.06);border-left:3px solid var(--accent-cyan);font-size:.78rem;color:var(--accent-cyan);border-radius:0 var(--radius-sm) var(--radius-sm) 0}
+@media print{.navbar,.progress-bar,.sidebar,.journey-bar,.journey-footer,.deep-floating-back{display:none!important}.content-area{margin-left:0;width:100%}.module{break-inside:avoid;opacity:1!important;transform:none!important;box-shadow:none}body{background:#fff}}
+@media(max-width:1024px){.sidebar{display:none}.content-area{margin-left:0;width:100%}}
+@media(max-width:768px){
+.hero h1{font-size:1.6rem}.module{padding:20px}.meta-card{font-size:.72rem;padding:12px 16px}.journey-bar{flex-direction:column;align-items:flex-start}
+.deep-floating-back{right:15px;bottom:15px}.deep-floating-back button{padding:10px 16px;font-size:.8rem}
+}
+</style>
+</head>
+<body data-theme="dark">
+
+<div class="progress-bar" id="progressBar" style="width:0%"></div>
+
+<nav class="navbar">
+  <div class="nav-left">📖 八纲辨证与脏腑辨证</div>
+  <div class="nav-right">
+    <button onclick="toggleTheme()" title="切换主题 (Ctrl+D)">🌓 主题</button>
+    <button onclick="openSearch()" title="搜索 (Ctrl+K)">🔍 搜索</button>
+  </div>
+</nav>
+
+<div class="sidebar">
+  <a href="#" class="sidebar-back-link" onclick="event.preventDefault();var w=window.open('tcm_learning.html#kc-p2_2','plan_main');if(w)w.focus()">← 返回主方案</a>
+  <h3>📖 目录导航</h3>
+  <ul class="sidebar-nav">
+    <li><a href="#m00">00 总览：辨证体系全貌</a></li>
+    <li><a href="#m01">01 历史演进</a></li>
+    <li><a href="#m02">02 核心概念</a></li>
+    <li><a href="#m03">03 八纲总纲：阴阳统领</a></li>
+    <li><a href="#m04">04 表里辨证</a></li>
+    <li><a href="#m05">05 寒热辨证</a></li>
+    <li><a href="#m06">06 虚实辨证</a></li>
+    <li><a href="#m07">07 阴阳辨证</a></li>
+    <li><a href="#m08">08 脏腑辨证·心与小肠</a></li>
+    <li><a href="#m09">09 脏腑辨证·肝与胆</a></li>
+    <li><a href="#m10">10 脏腑辨证·脾与胃</a></li>
+    <li><a href="#m11">11 脏腑辨证·肺与大肠</a></li>
+    <li><a href="#m12">12 脏腑辨证·肾与膀胱</a></li>
+    <li><a href="#m13">13 临床应用：辨证路径</a></li>
+    <li><a href="#m14">14 案例分析</a></li>
+    <li><a href="#m15">15 常见误区与学习路径</a></li>
+    <li><a href="#m16">16 术语表与开放讨论</a></li>
+  </ul>
+</div>
+
+<div class="content-area">
+<div class="search-overlay" id="searchOverlay">
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="搜索模块内容..." oninput="doSearch()" onkeydown="if(event.key==='Escape')closeSearch()">
+    <div class="search-results" id="searchResults"></div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="hero">
+    <h1>八纲辨证与脏腑辨证</h1>
+    <div class="tags">
+      <span>📐 原理</span>
+      <span>🩺 辨证论治</span>
+      <span>🏥 中医诊断</span>
+      <span>🔬 临床思维</span>
+    </div>
+  </div>
+
+  <div class="meta-card">
+    <div class="meta-item"><div class="val">17</div><div class="lbl">模块</div></div>
+    <div class="meta-item"><div class="val">~32 min</div><div class="lbl">研读时间</div></div>
+    <div class="meta-item"><div class="val">5</div><div class="lbl">图表</div></div>
+    <div class="meta-item"><div class="val">4</div><div class="lbl">公式</div></div>
+  </div>
+
+  <div class="journey-bar" id="journeyBar">
+    <div class="journey-path">
+      <span class="journey-icon">📍</span>
+      <span class="journey-plan" onclick="var w=window.open('tcm_learning.html#kc-p2_2','plan_main');if(w)w.focus()">中医与养生 系统学习方案</span>
+      <span class="journey-sep">〉</span>
+      <span class="journey-phase">Phase 2: 诊法与方技核心</span>
+      <span class="journey-sep">〉</span>
+      <span class="journey-kp">八纲辨证与脏腑辨证</span>
+      <span class="journey-pos">(2/4)</span>
+    </div>
+    <div class="journey-nav">
+      <span class="journey-prev" title="前置: 四诊合参：望闻问切">← 前置</span>
+      <span class="journey-divider">|</span>
+      <span class="journey-next" title="后续: 中药基础与常用方剂">后续 →</span>
+    </div>
+  </div>
+
+<!-- MODULE 00 -->
+<section id="m00" class="module">
+<h2><span class="m-tag">总览</span> 辨证体系全貌<span class="m-time">~3 min</span></h2>
+<p class="hook">八纲定方向，脏腑定位置——中医临床诊断的"GPS导航系统"</p>
+<div class="content">
+<p>辨证论治是中医认识疾病和治疗疾病的基本原则。辨证是将四诊（望闻问切）所收集的症状和体征，通过综合分析，辨清疾病的<strong>病因、病位、病性、病势</strong>，概括为某种性质的证候的过程。</p>
+<p>八纲辨证和脏腑辨证是中医辨证体系的两大基石。八纲（阴阳、表里、寒热、虚实）是所有辨证方法的<strong>总纲</strong>，提供宏观的判断框架；脏腑辨证则是在八纲指导下，将病变定位到具体脏腑，实现<strong>精确定位</strong>。</p>
+<div class="formula-block">
+<span class="f-cap">辨证论治的基本路径</span>
+四诊信息 → 八纲分析(定方向) → 脏腑定位(定位置) → 证候命名 → 确立治法 → 选方用药
+</div>
+<div class="chart-wrap">
+<div id="chart_sunburst"></div>
+<div class="ch-cap">图1：八纲辨证分类体系 — 阴阳为总纲统领表里、寒热、虚实三对纲领</div>
+</div>
+<p>理解八纲与脏腑的关系是临床思维的核心：一架完整的辨证机器需要<strong>宏观框架（八纲）</strong>和<strong>精密定位（脏腑）</strong>两个部件的协同工作。</p>
+</div>
+<div class="takeaway"><strong>核心要点：</strong>八纲辨证是从疾病性质角度对证候的宏观分类，脏腑辨证是八纲的具体化——将宏观判断落实到具体脏腑。二者关系如同"雷达扫描+精确制导"。</div>
+</section>
+
+<!-- MODULE 01 -->
+<section id="m01" class="module">
+<h2><span class="m-tag">背景</span> 从伤寒论到现代辨证体系的历史演进<span class="m-time">~2 min</span></h2>
+<p class="hook">一部《伤寒论》，半部中医诊断史——辨证体系的演化跨越两千年</p>
+<div class="content">
+<p>中医辨证体系的形成经历了漫长的历史进程。东汉张仲景《伤寒论》（约公元200年）创立了<strong>六经辨证</strong>体系，首次将外感热病按照太阳→阳明→少阳→太阴→少阴→厥阴的传变规律进行分期辨证，奠定了辨证论治的基础。</p>
+<p>明清时期，叶天士创立<strong>卫气营血辨证</strong>，吴鞠通发展<strong>三焦辨证</strong>，主要用于温病的辨证。近代（20世纪50-60年代），中医教育规范化过程中，将八纲概念系统整理为<strong>阴阳、表里、寒热、虚实</strong>四对纲领，确立为所有辨证方法的总纲，完成了辨证体系的现代化整合。</p>
+<div class="table-container">
+<div class="table-caption">表1：中医辨证体系发展简史</div>
+<table>
+<thead><tr><th>时代</th><th>辨证体系</th><th>代表人物</th><th>适用范围</th><th>核心贡献</th></tr></thead>
+<tbody>
+<tr><td>东汉</td><td>六经辨证</td><td>张仲景</td><td>外感热病</td><td>首创辨证论治范式</td></tr>
+<tr><td>明清</td><td>卫气营血辨证</td><td>叶天士</td><td>温热病</td><td>温病层次辨证</td></tr>
+<tr><td>明清</td><td>三焦辨证</td><td>吴鞠通</td><td>湿热病</td><td>纵向传变路径</td></tr>
+<tr><td>现代</td><td>八纲辨证</td><td>统编教材</td><td>所有疾病</td><td>辨证总纲框架</td></tr>
+<tr><td>现代</td><td>脏腑辨证</td><td>统编教材</td><td>内伤杂病</td><td>病位精细定位</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="takeaway"><strong>核心要点：</strong>八纲辨证是现代中医诊断学的总纲，是对六经、卫气营血、三焦等历代辨证方法的抽象提炼。脏腑辨证则是将八纲判断落实到具体脏腑，使辨证更为精确。</div>
+</section>
+
+<!-- MODULE 02 -->
+<section id="m02" class="module">
+<h2><span class="m-tag">核心概念</span> 辨证论治的定义：症、证、病的区别<span class="m-time">~2 min</span></h2>
+<p class="hook">"对症下药"是经验，"辨证论治"是科学——症、证、病三个概念必须分清</p>
+<div class="content">
+<p>中医诊断学中最基础也最容易被混淆的三个概念是<strong>症、证、病</strong>。许多人将"辨证"等同于"辨症状"，这是根本性的误解。</p>
+<div class="table-container">
+<div class="table-caption">表2：症、证、病三者的区别</div>
+<table>
+<thead><tr><th>概念</th><th>定义</th><th>举例</th><th>层次</th></tr></thead>
+<tbody>
+<tr><td><strong>症（症状/体征）</strong></td><td>患者主观感受或客观检查发现的异常表现</td><td>头痛、发热、咳嗽、脉浮</td><td>现象层</td></tr>
+<tr><td><strong>证（证候）</strong></td><td>疾病在某一阶段的病因、病位、病性、病势的概括</td><td>风寒束肺证、肝气郁结证</td><td>本质层</td></tr>
+<tr><td><strong>病（疾病）</strong></td><td>具有特定病因、病机和演变规律的全过程</td><td>感冒、哮喘、消渴</td><td>全过程</td></tr>
+</tbody>
+</table>
+</div>
+<div class="formula-block">
+<span class="f-cap">辨证论治的核心公式</span>
+辨证 = 综合(四诊信息) → 归纳(八纲属性) → 定位(病变脏腑) → 定性(证候类型)
+</div>
+<p><strong>同病异治</strong>和<strong>异病同治</strong>是辨证论治精神的最佳体现：同一种病，证候不同则治法不同（如同一感冒，风寒证用辛温解表，风热证用辛凉解表）；不同疾病，证候相同则治法相通（如胃下垂和子宫脱垂同属中气下陷，均用补中益气汤）。</p>
+<div class="thinking-box">当你在临床中遇到一个发热患者，不要急于退热，而是思考：发热是表热还是里热？是实热还是虚热？病位在肺还是在胃？——这就是辨证思维的起点。</div>
+</div>
+<div class="takeaway"><strong>核心要点：</strong>"证"是辨证论治的核心对象，它比"症"更深入本质，比"病"更关注当前阶段的病理状态。"辨证"是从散在的症状中抽象出证候本质的思维过程，而非简单的症状罗列。</div>
+</section>
+
+<!-- MODULE 03 -->
+<section id="m03" class="module">
+<h2><span class="m-tag">八纲总纲</span> 阴阳为总纲统领表里寒热虚实<span class="m-time">~2 min</span></h2>
+<p class="hook">阴阳是八纲的统帅，表里寒热虚实是阴阳的具体展开——理解这层关系才能活学活用</p>
+<div class="content">
+<p>八纲中，阴阳是最根本的纲领。<strong>表、热、实属阳；里、寒、虚属阴</strong>。因此八纲并非八条平行的线索，而是以阴阳为总纲、以表里寒热虚实为纲领的<strong>层次结构</strong>。</p>
+<div class="chart-wrap">
+<div id="chart_treemap"></div>
+<div class="ch-cap">图2：八纲辨证层次结构 — 阴阳为总纲，表里辨病位，寒热辨病性，虚实辨病势</div>
+</div>
+<div class="table-container">
+<div class="table-caption">表3：八纲辨证四对纲领的功能分工</div>
+<table>
+<thead><tr><th>纲领</th><th>解决的问题</th><th>阳属性</th><th>阴属性</th><th>临床意义</th></tr></thead>
+<tbody>
+<tr><td><strong>表里</strong></td><td>病位深浅</td><td>表（在表）</td><td>里（在里）</td><td>决定治疗层次和汗下之法</td></tr>
+<tr><td><strong>寒热</strong></td><td>病性冷热</td><td>热（热证）</td><td>寒（寒证）</td><td>决定温清之法</td></tr>
+<tr><td><strong>虚实</strong></td><td>邪正盛衰</td><td>实（邪气盛）</td><td>虚（正气虚）</td><td>决定补泻之法</td></tr>
+<tr><td><strong>阴阳</strong></td><td>总类别归属</td><td>阳证</td><td>阴证</td><td>决定治疗总方向</td></tr>
+</tbody>
+</table>
+</div>
+<p>在临床实际中，一个证候往往是<strong>多纲组合</strong>的结果。例如"风寒表实证"同时包含了表（病位）、寒（病性）、实（病势）三纲的信息。</p>
+</div>
+<div class="takeaway"><strong>核心要点：</strong>八纲的"八"不是简单列举，而是阴阳统三对的层次结构。临床辨证时，每一步都在回答一个问题：表还是里？寒还是热？虚还是实？最终归属阴还是阳？</div>
+</section>
+
+<!-- MODULE 04 -->
+<section id="m04" class="module">
+<h2><span class="m-tag">表里辨证</span> 表证vs里证·半表半里·鉴别要点<span class="m-time">~2 min</span></h2>
+<p class="hook">"有一分恶寒，便有一分表证"——表里辨证是判断病邪深浅的第一关</p>
+<div class="content">
+<p>表里辨证用于判断<strong>病位的深浅</strong>和<strong>病势的趋向</strong>。表证是外邪经皮毛、口鼻侵入人体，正邪交争于肌表经络的证候；里证是病变部位在脏腑、气血、骨髓的证候。表里不仅是病位的概念，更反映疾病发展过程中<strong>病邪由浅入深的传变趋势</strong>。</p>
+<div class="table-container">
+<div class="table-caption">表4：表证与里证的鉴别对比</div>
+<table>
+<thead><tr><th>鉴别维度</th><th>表证</th><th>里证</th></tr></thead>
+<tbody>
+<tr><td><strong>病因</strong></td><td>六淫外邪（风寒暑湿燥火）</td><td>外邪入里、七情内伤、饮食劳倦</td></tr>
+<tr><td><strong>病位</strong></td><td>肌表、经络</td><td>脏腑、气血、骨髓</td></tr>
+<tr><td><strong>发热特点</strong></td><td>发热与恶寒并见（发热恶寒同时存在）</td><td>但热不寒或但寒不热（少有发热恶寒同见）</td></tr>
+<tr><td><strong>脉象</strong></td><td>脉浮</td><td>脉沉</td></tr>
+<tr><td><strong>舌象</strong></td><td>舌苔薄，舌质变化不明显</td><td>舌苔厚腻或剥脱，舌质变化明显</td></tr>
+<tr><td><strong>病程</strong></td><td>较短，起病急</td><td>较长，起病可急可缓</td></tr>
+<tr><td><strong>治法总则</strong></td><td>解表（汗法）</td><td>治里（清、下、温、补等）</td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>半表半里证</strong>是表里之间的过渡状态，病邪在少阳（半表半里）部位，表现为<strong>寒热往来、胸胁苦满、口苦咽干、目眩、脉弦</strong>。治疗以<strong>和解法</strong>为主（小柴胡汤为代表）。</p>
+<div class="thinking-box">"发热恶寒"与"但热不寒"的鉴别是判断表里的关键节点。发热恶寒同时存在→表证；但发热不恶寒→里热证；但恶寒不发热→里寒证。</div>
+</div>
+<div class="takeaway"><strong>核心要点：</strong>表证的标志是发热恶寒并见+脉浮；里证的标志是但热不寒或但寒不热+脉沉。"有一分恶寒，便有一分表证"是临床最实用的口诀。</div>
+</section>
+
+<!-- MODULE 05 -->
+<section id="m05" class="module">
+<h2><span class="m-tag">寒热辨证</span> 寒证vs热证·真寒假热与真热假寒<span class="m-time">~2 min</span></h2>
+<p class="hook">"寒者热之，热者寒之"——但真正的难点在于识别寒热的真假</p>
+<div class="content">
+<p>寒热辨证用于判断<strong>疾病的寒热属性</strong>。寒证是感受寒邪或阳虚阴盛导致的一类证候；热证是感受热邪或阳盛阴虚导致的一类证候。</p>
+<div class="table-container">
+<div class="table-caption">表5：寒证与热证的鉴别对比</div>
+<table>
+<thead><tr><th>鉴别维度</th><th>寒证</th><th>热证</th></tr></thead>
+<tbody>
+<tr><td><strong>对寒热喜恶</strong></td><td>恶寒喜暖</td><td>恶热喜凉</td></tr>
+<tr><td><strong>口渴</strong></td><td>不渴或喜热饮</td><td>口渴喜冷饮</td></tr>
+<tr><td><strong>面色</strong></td><td>苍白</td><td>潮红</td></tr>
+<tr><td><strong>四肢</strong></td><td>手足不温或厥冷</td><td>手足温热</td></tr>
+<tr><td><strong>二便</strong></td><td>大便溏稀、小便清长</td><td>大便秘结、小便短赤</td></tr>
+<tr><td><strong>舌象</strong></td><td>舌淡、苔白润</td><td>舌红、苔黄燥</td></tr>
+<tr><td><strong>脉象</strong></td><td>脉迟或紧</td><td>脉数</td></tr>
+<tr><td><strong>治法</strong></td><td>温法（寒者热之）</td><td>清法（热者寒之）</td></tr>
+</tbody>
+</table>
+</div>
+<p>临床上最具挑战性的是<strong>寒热真假</strong>的鉴别：</p>
+<p><strong>真热假寒（热深厥亦深）</strong>：内有真热，外现假寒。患者四肢厥冷、脉沉，但同时胸腹灼热、口渴喜冷饮、舌红苔黄燥、脉虽沉但有力。本质是热邪内盛、阳气被郁不能外达。</p>
+<p><strong>真寒假热（阴盛格阳）</strong>：内有真寒，外现假热。患者面红、发热、烦躁，但同时渴不欲饮或喜热饮、手足虽热但胸腹冷、舌淡苔白润、脉虽大但无力。本质是阴寒内盛、虚阳外浮。</p>
+<div class="formula-block">
+<span class="f-cap">鉴别寒热真假的要点</span>
+真热假寒 → 四肢虽冷，胸腹灼热，不欲近衣被
+真寒假热 → 面虽红，如妆非润泽；身虽热，欲近衣被
+</div>
+</div>
+<div class="takeaway"><strong>核心要点：</strong>寒热辨证不能只看表面。"真热假寒"和"真寒假热"的判断标准不在四肢而在胸腹，不在表面而在舌脉。</div>
+</section>
+
+<!-- MODULE 06 -->
+<section id="m06" class="module">
+<h2><span class="m-tag">虚实辨证</span> 虚证vs实证·虚实夹杂·虚实转化<span class="m-time">~2 min</span></h2>
+<p class="hook">"邪气盛则实，精气夺则虚"——《素问》奠定了虚实辨证两千年的理论基础</p>
+<div class="content">
+<p>虚实辨证用于判断<strong>邪正盛衰</strong>的状况。实指<strong>邪气盛</strong>，虚指<strong>正气虚</strong>。虚实是决定治疗用补法还是泻法的直接依据——<strong>虚则补之，实则泻之</strong>。</p>
+<div class="table-container">
+<div class="table-caption">表6：虚证与实证的鉴别对比</div>
+<table>
+<thead><tr><th>鉴别维度</th><th>虚证</th><th>实证</th></tr></thead>
+<tbody>
+<tr><td><strong>病因</strong></td><td>先天不足、后天失养、久病耗伤</td><td>外邪侵袭、痰饮瘀血、食积虫积</td></tr>
+<tr><td><strong>病程</strong></td><td>较长，多为慢性</td><td>较短，多为急性</td></tr>
+<tr><td><strong>体质</strong></td><td>素体虚弱</td><td>素体强壮</td></tr>
+<tr><td><strong>声音气息</strong></td><td>声低气怯、少气懒言</td><td>声高气粗</td></tr>
+<tr><td><strong>疼痛特点</strong></td><td>喜按（按之痛减）</td><td>拒按（按之痛剧）</td></tr>
+<tr><td><strong>脉象</strong></td><td>脉虚无力（细、弱、微）</td><td>脉实有力（弦、滑、洪）</td></tr>
+<tr><td><strong>舌象</strong></td><td>舌质淡嫩、苔少或无苔</td><td>舌质老、苔厚腻</td></tr>
+<tr><td><strong>治法</strong></td><td>补法（虚则补之）</td><td>泻法（实则泻之）</td></tr>
+</tbody>
+</table>
+</div>
+<p>临床上更重要的是<strong>虚实夹杂</strong>和<strong>虚实真假</strong>的识别：</p>
+<p><strong>虚实夹杂</strong>：同一患者正气虚和邪气实同时存在，如"气虚感冒"——正气不足（虚）+外邪侵袭（实），治疗需扶正与祛邪兼顾。</p>
+<p><strong>真实假虚（大实有羸状）</strong>：实邪内结，经络阻滞，气血不能外达，表面看似虚弱（神疲倦怠、脉细），实际上腹痛拒按、舌质老、脉沉实有力。</p>
+<p><strong>真虚假实（至虚有盛候）</strong>：正气极度虚弱，运化无力而产生气滞、腹胀等"假实"表现，但腹胀时作时止、喜按、脉虚无力。</p>
+</div>
+<div class="takeaway"><strong>核心要点：</strong>"至虚有盛候，大实有羸状"——虚实真假是辨证中最具迷惑性的环节。鉴别的关键：拒按还是喜按、脉有力还是无力。</div>
+</section>
+
+<!-- MODULE 07 -->
+<section id="m07" class="module">
+<h2><span class="m-tag">阴阳辨证</span> 阴虚阳虚·亡阴亡阳·八纲的最终归纳<span class="m-time">~2 min</span></h2>
+<p class="hook">阴阳是八纲的终点——表里寒热虚实最终都要回归到阴阳的评判</p>
+<div class="content">
+<p>阴阳辨证是八纲的总纲，可分为两个层面：一是对表里寒热虚实的归纳（广义），二是对<strong>阴虚、阳虚、亡阴、亡阳</strong>的具体辨证（狭义）。后者是临床辨证中直接运用的核心内容。</p>
+<div class="table-container">
+<div class="table-caption">表7：阴虚与阳虚的鉴别对比</div>
+<table>
+<thead><tr><th>鉴别维度</th><th>阴虚</th><th>阳虚</th></tr></thead>
+<tbody>
+<tr><td><strong>核心病机</strong></td><td>阴液不足，虚热内生</td><td>阳气不足，虚寒内生</td></tr>
+<tr><td><strong>寒热</strong></td><td>虚热：潮热、盗汗、五心烦热</td><td>虚寒：畏寒肢冷、自汗</td></tr>
+<tr><td><strong>面色</strong></td><td>颧红如妆</td><td>面色㿠白</td></tr>
+<tr><td><strong>口渴</strong></td><td>口干咽燥，喜冷饮不多</td><td>口淡不渴，喜热饮</td></tr>
+<tr><td><strong>舌象</strong></td><td>舌红少苔或无苔、少津</td><td>舌淡胖嫩、苔白滑</td></tr>
+<tr><td><strong>脉象</strong></td><td>脉细数</td><td>脉沉迟无力</td></tr>
+</tbody>
+</table>
+</div>
+<div class="table-container">
+<div class="table-caption">表8：亡阴与亡阳的鉴别对比（危重证）</div>
+<table>
+<thead><tr><th>鉴别维度</th><th>亡阴</th><th>亡阳</th></tr></thead>
+<tbody>
+<tr><td><strong>核心病机</strong></td><td>阴液极度耗竭</td><td>阳气极度衰微</td></tr>
+<tr><td><strong>汗出特点</strong></td><td>汗热而黏，味咸</td><td>汗冷而清稀，味淡</td></tr>
+<tr><td><strong>四肢</strong></td><td>手足尚温</td><td>四肢厥冷</td></tr>
+<tr><td><strong>呼吸</strong></td><td>喘息气粗</td><td>气息微弱</td></tr>
+<tr><td><strong>神态</strong></td><td>烦躁不安</td><td>神昏萎靡</td></tr>
+<tr><td><strong>舌脉</strong></td><td>舌红干，脉细数疾无力</td><td>舌淡白，脉微欲绝</td></tr>
+</tbody>
+</table>
+</div>
+<div class="formula-block">
+<span class="f-cap">八纲辨证的完整思维路径</span>
+四诊 → 辨表里(病位) → 辨寒热(病性) → 辨虚实(病势) → 归阴阳(总类)
+→ 表热实=阳证 | 里寒虚=阴证 | 表热虚=阳中之阴 | ...
+</div>
+</div>
+<div class="takeaway"><strong>核心要点：</strong>阴虚则热（虚热），阳虚则寒（虚寒），这是阴阳辨证的核心。"亡阴"与"亡阳"的鉴别关键在汗质——汗热而黏是亡阴，汗冷清稀是亡阳。</div>
+</section>
+
+<!-- MODULE 08 -->
+<section id="m08" class="module">
+<h2><span class="m-tag">脏腑辨证</span> 心与小肠：君主之官的辨证要点<span class="m-time">~2 min</span></h2>
+<p class="hook">"心者，君主之官，神明出焉"——心的病变以神志异常和血脉异常为核心</p>
+<div class="content">
+<p>心主血脉、主神志、开窍于舌，与小肠相表里。心的病变主要表现为<strong>心悸、失眠、神志异常、胸闷</strong>等。辨证重点关注虚实两端的典型证候。</p>
+<div class="table-container">
+<div class="table-caption">表9：心与小肠常见证候</div>
+<table>
+<thead><tr><th>证型</th><th>八纲属性</th><th>核心症状</th><th>舌脉</th><th>治法</th></tr></thead>
+<tbody>
+<tr><td><strong>心气虚</strong></td><td>虚证（气虚）</td><td>心悸、自汗、气短乏力</td><td>舌淡、脉弱</td><td>补益心气</td></tr>
+<tr><td><strong>心血虚</strong></td><td>虚证（血虚）</td><td>心悸失眠、健忘多梦、面白无华</td><td>舌淡白、脉细弱</td><td>养血安神</td></tr>
+<tr><td><strong>心火亢盛</strong></td><td>热证、实证</td><td>心烦失眠、口舌生疮、面赤口渴</td><td>舌尖红、脉数</td><td>清心泻火</td></tr>
+<tr><td><strong>痰蒙心窍</strong></td><td>实证、寒证</td><td>神志痴呆、意识模糊、喉中痰鸣</td><td>苔白腻、脉滑</td><td>豁痰开窍</td></tr>
+<tr><td><strong>心血瘀阻</strong></td><td>实证（血瘀）</td><td>心悸怔忡、心胸刺痛、痛引肩背</td><td>舌紫暗有瘀斑、脉涩</td><td>活血化瘀</td></tr>
+<tr><td><strong>小肠实热</strong></td><td>热证、实证</td><td>心烦口渴、口舌生疮、小便赤涩</td><td>舌红苔黄、脉数</td><td>清心导赤</td></tr>
+</tbody>
+</table>
+</div>
+<p>心与小肠的辨证特别要注意<strong>虚实鉴别</strong>：心悸既可以由心气虚引起（伴气短乏力），也可以由心火亢盛引起（伴心烦面赤）。"同一症状，不同病机"是脏腑辨证的核心思维方式。</p>
+<div class="thinking-box">心主神志，"神"的异常是心系病变最核心的指标。失眠多梦+舌淡=心血虚；失眠多梦+心烦舌红=心火亢盛。形同而质异，全在舌色脉象辨虚实。</div>
+</div>
+<div class="takeaway"><strong>核心要点：</strong>心的辨证围绕"神志"和"血脉"两条主线展开。心悸是最常见的核心症状，需从虚实两端分析——虚在气血（心气虚/心血虚），实在火瘀（心火亢盛/心血瘀阻）。</div>
+</section>
+
+<!-- MODULE 09 -->
+<section id="m09" class="module">
+<h2><span class="m-tag">脏腑辨证</span> 肝与胆：将军之官的辨证要点<span class="m-time">~2 min</span></h2>
+<p class="hook">"肝者，将军之官，谋虑出焉"——肝的病变以疏泄失常和气机紊乱为核心</p>
+<div class="content">
+<p>肝主疏泄、主藏血、主筋、开窍于目，与胆相表里。肝的病变主要表现为<strong>情志异常（烦躁易怒/抑郁寡欢）、胁肋胀痛、眩晕、目疾、月经不调</strong>等。肝为"刚脏"，体阴而用阳——肝血为体（阴），疏泄为用（阳），病机多偏阳亢。</p>
+<div class="table-container">
+<div class="table-caption">表10：肝与胆常见证候</div>
+<table>
+<thead><tr><th>证型</th><th>八纲属性</th><th>核心症状</th><th>舌脉</th><th>治法</th></tr></thead>
+<tbody>
+<tr><td><strong>肝气郁结</strong></td><td>实证（气滞）</td><td>情志抑郁、胸胁或少腹胀痛、善太息</td><td>苔薄白、脉弦</td><td>疏肝解郁</td></tr>
+<tr><td><strong>肝火上炎</strong></td><td>热证、实证</td><td>头痛眩晕、目赤肿痛、急躁易怒、口苦</td><td>舌红苔黄、脉弦数</td><td>清肝泻火</td></tr>
+<tr><td><strong>肝阳上亢</strong></td><td>虚实夹杂（阴虚阳亢）</td><td>眩晕耳鸣、头目胀痛、面红目赤、腰膝酸软</td><td>舌红少津、脉弦细数</td><td>平肝潜阳</td></tr>
+<tr><td><strong>肝风内动</strong></td><td>实证/虚实夹杂</td><td>眩晕欲仆、手足抽搐、肢体麻木、甚至卒然昏倒</td><td>舌红苔腻、脉弦</td><td>镇肝熄风</td></tr>
+<tr><td><strong>肝胆湿热</strong></td><td>热证、实证</td><td>胁肋胀痛、口苦纳呆、身目发黄、小便黄赤</td><td>舌红苔黄腻、脉弦滑数</td><td>清利肝胆</td></tr>
+<tr><td><strong>肝血虚</strong></td><td>虚证（血虚）</td><td>头晕目眩、视物模糊、肢体麻木、爪甲不荣</td><td>舌淡白、脉弦细</td><td>养血柔肝</td></tr>
+</tbody>
+</table>
+</div>
+<p>肝的辨证特别要注意"气→火→风"的<strong>递进演化关系</strong>：肝气郁结→郁而化火→肝火上炎→热极生风→肝风内动。这是一个完整的病理演化链，临床上常见3-4个阶段并存的情况。</p>
+<div class="thinking-box">肝气郁结和肝阳上亢的鉴别：二者都有胁痛、烦躁，但肝气郁结以"郁"为主（情绪低落、太息），肝阳上亢以"亢"为主（面红目赤、头胀痛、眩晕）。关键看有无"上冲"之感。</div>
+</div>
+<div class="takeaway"><strong>核心要点：</strong>肝系辨证的纲要是"疏泄"二字。疏泄太过则化火、生风（实证）；疏泄不及则气滞、血瘀（实证）；肝血不足则筋目失养（虚证）。肝气→肝火→肝风是最常见的病理递进。</div>
+</section>
+
+<!-- MODULE 10 -->
+<section id="m10" class="module">
+<h2><span class="m-tag">脏腑辨证</span> 脾与胃：仓廪之官的辨证要点<span class="m-time">~2 min</span></h2>
+<p class="hook">"脾胃为后天之本，气血生化之源"——脾的病变以运化失常为一切病机的起点</p>
+<div class="content">
+<p>脾主运化、主升清、主统血、主肌肉四肢，与胃相表里。脾的病变主要表现为<strong>食欲不振、腹胀便溏、倦怠乏力、面色萎黄</strong>等。脾胃被称为"后天之本"，其辨证需牢牢把握<strong>"脾宜升则健，胃宜降则和"</strong>的气机升降特点。</p>
+<div class="table-container">
+<div class="table-caption">表11：脾与胃常见证候</div>
+<table>
+<thead><tr><th>证型</th><th>八纲属性</th><th>核心症状</th><th>舌脉</th><th>治法</th></tr></thead>
+<tbody>
+<tr><td><strong>脾气虚</strong></td><td>虚证（气虚）</td><td>食欲不振、腹胀食后加重、便溏、倦怠乏力</td><td>舌淡胖有齿痕、苔白、脉缓弱</td><td>健脾益气</td></tr>
+<tr><td><strong>脾阳虚</strong></td><td>虚证、寒证</td><td>脾气虚证+畏寒肢冷、脘腹冷痛喜温喜按</td><td>舌淡胖嫩、苔白滑、脉沉迟无力</td><td>温中健脾</td></tr>
+<tr><td><strong>寒湿困脾</strong></td><td>寒证、实证</td><td>脘腹胀满、纳呆恶心、头身困重、大便溏泄</td><td>舌淡胖、苔白腻、脉濡缓</td><td>燥湿健脾</td></tr>
+<tr><td><strong>湿热蕴脾</strong></td><td>热证、实证</td><td>脘腹胀痞、口苦口黏、小便黄、身目发黄</td><td>舌红苔黄腻、脉濡数</td><td>清热化湿</td></tr>
+<tr><td><strong>胃热炽盛</strong></td><td>热证、实证</td><td>胃脘灼痛、消谷善饥、牙龈肿痛、口臭</td><td>舌红苔黄、脉滑数</td><td>清胃泻火</td></tr>
+<tr><td><strong>胃阴虚</strong></td><td>虚证、热证（虚热）</td><td>胃脘嘈杂隐痛、饥不欲食、口干咽燥</td><td>舌红少津、苔少或剥脱、脉细数</td><td>养阴益胃</td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>脾与胃的升降关系</strong>是理解脾胃辨证的关键：脾主升（将水谷精微上输至心肺），气陷则为病——中气下陷表现为内脏下垂、久泻脱肛；胃主降（将食物残渣下输至肠），气逆则为病——胃气上逆表现为恶心呕吐、嗳气呃逆。</p>
+<div class="thinking-box">脾气虚和脾阳虚的边界：二者共享食欲不振、腹胀、便溏，区分点在"寒象"的有无。加一个畏寒肢冷、脘腹冷痛，脾气虚就升级为脾阳虚。学习和记忆脏腑辨证时，找"加分项"是最高效的策略。</div>
+</div>
+<div class="takeaway"><strong>核心要点：</strong>脾辨证围绕"运化"展开——运化无力则气虚，寒化则阳虚，湿困则实证。胃辨证的要点是"降"和"润"——胃气不降则逆，胃阴不足则燥。脾胃互为表里，升降相因。</div>
+</section>
+
+<!-- MODULE 11 -->
+<section id="m11" class="module">
+<h2><span class="m-tag">脏腑辨证</span> 肺与大肠：相傅之官的辨证要点<span class="m-time">~2 min</span></h2>
+<p class="hook">"肺者，相傅之官，治节出焉"——肺的病变以宣发肃降失常为核心</p>
+<div class="content">
+<p>肺主气、司呼吸、主宣发肃降、通调水道、外合皮毛、开窍于鼻，与大肠相表里。肺的病变主要表现为<strong>咳嗽、气喘、胸闷、鼻塞流涕</strong>等。肺为"娇脏"，不耐寒热，最易受外邪侵犯，故有"温邪上受，首先犯肺"之说。</p>
+<div class="table-container">
+<div class="table-caption">表12：肺与大肠常见证候</div>
+<table>
+<thead><tr><th>证型</th><th>八纲属性</th><th>核心症状</th><th>舌脉</th><th>治法</th></tr></thead>
+<tbody>
+<tr><td><strong>肺气虚</strong></td><td>虚证（气虚）</td><td>咳喘无力、气短自汗、声音低怯、易感冒</td><td>舌淡苔白、脉虚弱</td><td>补益肺气</td></tr>
+<tr><td><strong>风寒束肺</strong></td><td>表证、寒证、实证</td><td>咳嗽痰稀白、鼻塞流清涕、恶寒发热无汗</td><td>苔薄白、脉浮紧</td><td>宣肺散寒</td></tr>
+<tr><td><strong>风热犯肺</strong></td><td>表证、热证、实证</td><td>咳嗽痰黄稠、咽喉肿痛、发热微恶风寒</td><td>舌尖红苔薄黄、脉浮数</td><td>疏风清热</td></tr>
+<tr><td><strong>痰热壅肺</strong></td><td>里证、热证、实证</td><td>咳喘气粗、痰黄稠量多、胸痛、发热口渴</td><td>舌红苔黄腻、脉滑数</td><td>清肺化痰</td></tr>
+<tr><td><strong>肺阴虚</strong></td><td>虚证、热证（虚热）</td><td>干咳无痰或少痰而黏、咽干口燥、潮热盗汗</td><td>舌红少津、脉细数</td><td>滋阴润肺</td></tr>
+<tr><td><strong>大肠湿热</strong></td><td>热证、实证</td><td>腹痛、里急后重、下痢赤白脓血、肛门灼热</td><td>舌红苔黄腻、脉滑数</td><td>清热燥湿</td></tr>
+</tbody>
+</table>
+</div>
+<p>肺的辨证需特别注意<strong>表里层次</strong>：风寒束肺和风热犯肺属表证，治疗以宣散为主；痰热壅肺属于里证，治疗以清化为主。肺脏的另一个特点是<strong>与皮毛相表里</strong>，外邪多从皮毛而入，首先犯肺——"肺主皮毛"理论解释了为什么感冒（表证）常见呼吸道症状。</p>
+</div>
+<div class="takeaway"><strong>核心要点：</strong>肺辨证的核心是"宣降"二字。外邪束肺则宣降失常→咳嗽气喘；痰热内壅则宣降失职→咳喘气粗；肺气虚则宣降无力→咳喘无力。区别表证和里证是肺系辨证的第一步，治法从宣散→清化→补益依次深入。</div>
+</section>
+
+<!-- MODULE 12 -->
+<section id="m12" class="module">
+<h2><span class="m-tag">脏腑辨证</span> 肾与膀胱：作强之官的辨证要点<span class="m-time">~2 min</span></h2>
+<p class="hook">"肾者，作强之官，伎巧出焉"——肾为先天之本，辨证要点是"多虚少实"</p>
+<div class="content">
+<p>肾藏精、主水、主纳气、主骨生髓、开窍于耳及二阴，与膀胱相表里。中医有"肾无实证"之说，意指肾的病理变化<strong>以虚证为主</strong>，主要分为肾阴虚、肾阳虚、肾精不足等。肾为"先天之本"，是真阴真阳之所在。</p>
+<div class="table-container">
+<div class="table-caption">表13：肾与膀胱常见证候</div>
+<table>
+<thead><tr><th>证型</th><th>八纲属性</th><th>核心症状</th><th>舌脉</th><th>治法</th></tr></thead>
+<tbody>
+<tr><td><strong>肾阳虚</strong></td><td>虚证、寒证</td><td>畏寒肢冷、腰膝酸冷、阳痿早泄、小便清长、水肿腰以下为甚</td><td>舌淡胖苔白滑、脉沉迟无力</td><td>温补肾阳</td></tr>
+<tr><td><strong>肾阴虚</strong></td><td>虚证、热证（虚热）</td><td>腰膝酸软、眩晕耳鸣、失眠多梦、潮热盗汗、五心烦热、遗精</td><td>舌红少苔、脉细数</td><td>滋补肾阴</td></tr>
+<tr><td><strong>肾精不足</strong></td><td>虚证</td><td>小儿发育迟缓、成人早衰、发枯齿摇、健忘、性功能减退</td><td>舌淡、脉细弱</td><td>补肾填精</td></tr>
+<tr><td><strong>肾不纳气</strong></td><td>虚证（气虚）</td><td>喘促日久、呼多吸少、动则喘甚、腰膝酸软</td><td>舌淡苔白、脉沉弱</td><td>补肾纳气</td></tr>
+<tr><td><strong>膀胱湿热</strong></td><td>热证、实证</td><td>尿频尿急尿痛、小便黄赤短少、甚至尿血</td><td>舌红苔黄腻、脉滑数</td><td>清热利湿</td></tr>
+</tbody>
+</table>
+</div>
+<p>肾与其他四脏的关系是脏腑辨证的高级阶段：<strong>"五脏之伤，穷必及肾"</strong>——任何脏器的慢性病变最终都有可能伤及肾，体现了肾为"五脏之根本"的地位。例如，肺气虚久咳可引起肾不纳气；脾阳虚久泄可发展为脾肾阳虚。</p>
+<div class="thinking-box">"肾无实证"不是绝对的，而是强调补肾法在肾病治疗中的核心地位——膀胱湿热虽是实证，但其根源往往也与肾的气化功能失调有关。</div>
+</div>
+<div class="takeaway"><strong>核心要点：</strong>肾的辨证以虚证为主体——阴虚则热（虚热）、阳虚则寒（虚寒）、精不足则生长发育障碍。肾与其他四脏的关系是："五脏之伤，穷必及肾"，任何慢性虚损性疾病的终末阶段都可能涉及肾。</div>
+</section>
+
+<!-- MODULE 13 -->
+<section id="m13" class="module">
+<h2><span class="m-tag">临床应用</span> 八纲→脏腑的辨证路径·决策树思维<span class="m-time">~2 min</span></h2>
+<p class="hook">辨证不是凭感觉"对号入座"，而是有逻辑层次的系统推理——三层递进法</p>
+<div class="content">
+<p>将八纲和脏腑辨证整合为一个完整的临床思维流程，可以概括为<strong>三层递进辨证法</strong>：</p>
+<div class="chart-wrap">
+<div id="chart_flow"></div>
+<div class="ch-cap">图3：辨证决策流程图 — 从四诊信息到选方用药的完整路径</div>
+</div>
+<div class="formula-block">
+<span class="f-cap">三层递进辨证法</span>
+第一层(八纲定位)：辨表里 → 辨寒热 → 辨虚实 → 归阴阳
+第二层(脏腑定位)：根据核心症状定位至具体脏腑
+第三层(证候综合)：八纲×脏腑 → 完整证候命名 → 确立治法
+</div>
+<p><strong>决策树思维</strong>在临床辨证中的应用示例：</p>
+<p>以"咳嗽"为主诉的辨证路径：</p>
+<p>第一步（辨表里）：是否伴恶寒发热？→ 是→表证（风寒束肺/风热犯肺）；否→里证→进入第二步</p>
+<p>第二步（辨寒热）：痰白稀→寒/痰黄稠→热；是否伴潮热盗汗→虚热</p>
+<p>第三步（辨虚实）：病程短、体质壮实→实证；病程长、体质虚弱→虚证</p>
+<p>第四步（脏腑定位）：咳嗽定位在肺，如有纳差腹胀→兼及脾</p>
+<p>最终证候：风寒束肺证 / 痰热壅肺证 / 肺气虚证 / 肺阴虚证等</p>
+<div class="chart-wrap">
+<div id="chart_compare"></div>
+<div class="ch-cap">图4：五脏虚实证数量对比 — 肾多虚证，肝多实证</div>
+</div>
+<p>从图中可见，各个脏腑的虚实证分布有其规律性：<strong>心、肾以虚证为主</strong>（心多气虚血虚，肾多阴虚阳虚）；<strong>肝以实证为主</strong>（多气滞、火、风证）；<strong>脾、肺虚实各半</strong>。</p>
+</div>
+<div class="takeaway"><strong>核心要点：</strong>临床辨证是分层递进而非一步到位。熟练后将三层合并，形成"直觉式辨证"——这需要反复的案例训练。决策树思维可以帮助初学者建立逻辑框架，但最终目标是内化为临床直觉。</div>
+</section>
+
+<!-- MODULE 14 -->
+<section id="m14" class="module">
+<h2><span class="m-tag">案例分析</span> 完整辨证推理：3个典型案例<span class="m-time">~3 min</span></h2>
+<p class="hook">纸上得来终觉浅——通过三个真实案例，演练辨证思维的全流程</p>
+<div class="content">
+<div class="case-box">
+<h4>📋 案例一：风寒感冒</h4>
+<p><strong>症状：</strong>患者男，25岁，昨日受凉后出现恶寒发热（体温38.2°C）、无汗、头痛身痛、鼻塞流清涕、咳嗽痰白稀。舌淡红、苔薄白，脉浮紧。</p>
+<div class="case-reasoning">
+<strong>辨证推理：</strong><br>
+① 恶寒发热并见+脉浮→表证 ✔<br>
+② 痰白稀+舌不红+苔薄白→寒证 ✔<br>
+③ 体质壮实+无汗+脉紧→实证 ✔<br>
+④ 咳嗽鼻塞+流清涕→病位在肺 ✔<br>
+<strong>证候诊断：风寒束肺证（表寒实证·阳证）</strong><br>
+<strong>治法：</strong>辛温解表，宣肺散寒 → <strong>方药参考：</strong>麻黄汤加减
+</div>
+</div>
+<div class="case-box">
+<h4>📋 案例二：肝胃不和</h4>
+<p><strong>症状：</strong>患者女，42岁，因工作压力大近一月出现胸闷胁胀、烦躁易怒、胃脘胀痛、嗳气频繁、食欲不振。舌淡红苔薄白，脉弦。</p>
+<div class="case-reasoning">
+<strong>辨证推理：</strong><br>
+① 不伴恶寒发热→里证 ✔<br>
+② 无明显寒热偏性→寒热不显 ✔<br>
+③ 胸闷胁胀+烦躁易怒+脉弦→气滞证（实） ✔<br>
+④ 胁胀+烦躁→病位在肝；胃脘胀痛+嗳气+纳差→病位在胃 ✔<br>
+<strong>证候诊断：肝气犯胃证（肝胃不和）</strong><br>
+<strong>治法：</strong>疏肝理气，和胃降逆 → <strong>方药参考：</strong>柴胡疏肝散加减
+</div>
+</div>
+<div class="case-box">
+<h4>📋 案例三：心脾两虚</h4>
+<p><strong>症状：</strong>患者女，35岁，近半年心悸失眠、多梦易醒、健忘、食欲不振、腹胀便溏、面色萎黄、倦怠乏力。舌淡胖有齿痕、苔薄白，脉细弱。</p>
+<div class="case-reasoning">
+<strong>辨证推理：</strong><br>
+① 里证（无表证表现）✔<br>
+② 无明显寒热→虚证为主 ✔<br>
+③ 面色萎黄+乏力+舌淡+脉细弱→血虚/气虚 ✔<br>
+④ 心悸失眠+多梦健忘→病位在心；纳差腹胀+便溏→病位在脾 ✔<br>
+<strong>证候诊断：心脾两虚证（心血虚+脾气虚）</strong><br>
+<strong>治法：</strong>补益心脾，养血安神 → <strong>方药参考：</strong>归脾汤加减
+</div>
+</div>
+</div>
+<div class="takeaway"><strong>核心要点：</strong>三个案例分别展示了外感表证（案例一）、里实气滞证（案例二）、里虚气血两虚证（案例三）的完整辨证推理。注意每次辨证都是八纲→脏腑的递进思维，而非跳跃式结论。</div>
+</section>
+
+<!-- MODULE 15 -->
+<section id="m15" class="module">
+<h2><span class="m-tag">常见误区</span> 十大辨证误区与系统学习路径<span class="m-time">~2 min</span></h2>
+<p class="hook">知道了辨证"是什么"还不够，必须知道"不是什么"——避免常见误区才能少走弯路</p>
+<div class="content">
+<div class="table-container">
+<div class="table-caption">表14：十大常见辨证误区</div>
+<table>
+<thead><tr><th style="width:10%">#</th><th style="width:35%">误区</th><th style="width:55%">正确理解</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>将"症"等同于"证"</td><td>证是多个症状+体征经过综合分析后的本质概括，不是症状的简单叠加</td></tr>
+<tr><td>2</td><td>八纲单项使用，忽略组合</td><td>临床证候都是多纲组合（如表寒实证），单一纲领几乎不存在</td></tr>
+<tr><td>3</td><td>只辨八纲不定位脏腑</td><td>"里热证"不够精确，必须进一步定位到"胃热证"或"肺热证"</td></tr>
+<tr><td>4</td><td>寒热真假误判</td><td>真热假寒误用温药、真寒假热误用寒药，为医者大忌</td></tr>
+<tr><td>5</td><td>虚实证混淆</td><td>虚证用泻法则犯"虚虚之戒"，实证用补法则犯"实实之戒"</td></tr>
+<tr><td>6</td><td>忽略脏腑表里关系</td><td>心与小肠、肺与大肠、脾与胃等表里关系在辨证中有重要的相互参照价值</td></tr>
+<tr><td>7</td><td>五脏孤立看待</td><td>五脏生克传变（如肝病传脾），脏腑辨证不能只看孤立的一个脏</td></tr>
+<tr><td>8</td><td>忽略舌脉合参</td><td>舌诊和脉诊是辨证的重要客观依据，缺失任一项都会降低辨证准确性</td></tr>
+<tr><td>9</td><td>先入为主，"对号入座"</td><td>应根据症状推导出证候，而非先想一个证候再去"套"症状</td></tr>
+<tr><td>10</td><td>忽视辨证的动态变化</td><td>证候随病程演变——一个患者可能今天风寒束肺，明天入里化热变成痰热壅肺</td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>推荐学习三大原则：</strong></p>
+<p>① <strong>先框架后细节</strong>：先掌握八纲的宏观架构和五脏的核心病理特征，再深入学习每个证型的具体症状组合。</p>
+<p>② <strong>比较法学习</strong>：不孤立学习每个证型，而是通过对比表（如表证vs里证、虚证vs实证、五脏之间的证候对照）找出异同点。</p>
+<p>③ <strong>案例驱动</strong>：每学完一个脏腑的辨证就找一个典型案例做完整推理练习，将知识转化为临床思维能力。</p>
+</div>
+<div class="takeaway"><strong>核心要点：</strong>辨证学习中最危险的错误是"先入为主"和"虚实误判"。前者导致无视客观证据，后者可能导致治疗方向完全错误。建立逻辑推导的思维习惯比记忆证型更重要。</div>
+</section>
+
+<!-- MODULE 16 -->
+<section id="m16" class="module">
+<h2><span class="m-tag">术语表</span> 核心辨证术语索引与开放讨论<span class="m-time">~2 min</span></h2>
+<p class="hook">术语是思维的载体——准确掌握辨证术语的定义是临床沟通和学术研究的基础</p>
+<div class="content">
+<div class="table-container">
+<div class="table-caption">表15：八纲与脏腑辨证核心术语</div>
+<table>
+<thead><tr><th style="width:18%">术语</th><th style="width:82%">定义</th></tr></thead>
+<tbody>
+<tr><td><strong>辨证论治</strong></td><td>通过四诊收集资料，分析病因、病位、病性、病势，确定证候类型并据此制定治疗原则的过程</td></tr>
+<tr><td><strong>证候</strong></td><td>疾病在某一阶段病因、病位、病性、病势的综合概括，是辨证的核心对象</td></tr>
+<tr><td><strong>八纲</strong></td><td>阴阳、表里、寒热、虚实四对辨证纲领的总称，是所有辨证方法的总纲</td></tr>
+<tr><td><strong>同病异治</strong></td><td>同一疾病因证候不同而采用不同治法。如感冒可分风寒证（辛温解表）和风热证（辛凉解表）</td></tr>
+<tr><td><strong>异病同治</strong></td><td>不同疾病因证候相同而采用相同治法。如胃下垂和脱肛同属中气下陷，均可用补中益气汤</td></tr>
+<tr><td><strong>真寒假热</strong></td><td>内有真寒而外现假热（阴盛格阳），如面红如妆、发热欲衣被</td></tr>
+<tr><td><strong>真热假寒</strong></td><td>内有真热而外现假寒（热深厥亦深），如四肢厥冷而胸腹灼热</td></tr>
+<tr><td><strong>半表半里</strong></td><td>病邪既不完全在表也不完全在里的中间状态，表现为寒热往来、胸胁苦满</td></tr>
+<tr><td><strong>疏肝解郁</strong></td><td>治疗肝气郁结证的基本法则，以柴胡、香附等药物为主</td></tr>
+<tr><td><strong>五脏之伤，穷必及肾</strong></td><td>任何脏腑的慢性虚损性疾病最终都有可能累及肾，体现了肾为五脏之根本</td></tr>
+<tr><td><strong>脾宜升则健</strong></td><td>脾的正常功能依赖其升清的能力，气陷则为病</td></tr>
+<tr><td><strong>胃宜降则和</strong></td><td>胃的正常功能依赖其降浊的能力，气逆则为病</td></tr>
+<tr><td><strong>肝肾同源</strong></td><td>肝藏血、肾藏精，精血互生，肝肾在生理病理上关系密切</td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>开放讨论要点：</strong></p>
+<p>① 八纲辨证与西医诊断的关系——中医的"证"与西医的"病"是交叉关系，一个西医疾病可以对应多个中医证型。这种交叉映射是中西医结合的难点与亮点。</p>
+<p>② 脏腑辨证在人工智能时代的可能性——症状→证候的映射是否可以形式化为规则引擎？中医辨证能否基于大数据实现辅助决策？</p>
+<p>③ "证"的动态演变——疾病是一个过程，证候在病程中是动态变化的。如何培养对证候演变的预判能力是临床辨证的最高阶段。</p>
+</div>
+<div class="takeaway"><strong>核心要点：</strong>学习辨证最终不是为了记住每一个证型，而是建立"从现象到本质"的思维能力。术语是思维的载体，案例是思维的训练场，而临床实践是检验辨证能力的最终标准。</div>
+</section>
+
+</div>
+</div>
+
+<footer class="journey-footer">
+  <a href="#" class="back-to-plan" onclick="event.preventDefault();var w=window.open('tcm_learning.html#kc-p2_2','plan_main');if(w)w.focus()">🔗 返回学习路线: 中医与养生 系统学习方案 → Phase 2: 诊法与方技核心</a>
+  <p style="margin-top:12px;font-size:.72rem;color:var(--text-muted)">
+    本资料是 <strong>中医与养生 系统学习方案</strong> Phase 2: 诊法与方技核心 阶段的深度研读材料
+  </p>
+</footer>
+
+<div class="deep-floating-back">
+  <button onclick="event.preventDefault();var w=window.open('tcm_learning.html#kc-p2_2','plan_main');if(w)w.focus()">← 返回学习方案</button>
+</div>
+
+<div class="dd-toast" id="toastEl"><span id="toastMsg"></span></div>
+
+<script>
+var MODULE_IDS = ["m00","m01","m02","m03","m04","m05","m06","m07","m08","m09","m10","m11","m12","m13","m14","m15","m16"];
+var SEARCH_INDEX = [
+{id:"m00",t:"00 总览：辨证体系全貌",c:"八纲定方向，脏腑定位置——中医临床诊断的GPS导航系统。辨证论治的定义与八纲脏腑两大基石的关系。"},
+{id:"m01",t:"01 历史演进：从伤寒论到现代辨证体系",c:"六经辨证、卫气营血辨证、三焦辨证到八纲辨证的演化历程。"},
+{id:"m02",t:"02 核心概念：辨证论治 症证病的区别",c:"症状体征、证候、疾病三个不同层次概念的定义与鉴别。"},
+{id:"m03",t:"03 八纲总纲：阴阳为总纲统领表里寒热虚实",c:"表热实属阳，里寒虚属阴。八纲的层次结构说明。"},
+{id:"m04",t:"04 表里辨证：表证vs里证 半表半里",c:"发热恶寒并见为表证标志，半表半里证寒热往来。"},
+{id:"m05",t:"05 寒热辨证：寒证vs热证 真寒假热真热假寒",c:"真热假寒热深厥亦深，真寒假热阴盛格阳。"},
+{id:"m06",t:"06 虚实辨证：虚证vs实证 虚实夹杂转化",c:"邪气盛则实，精气夺则虚。虚实夹杂与虚实真假。"},
+{id:"m07",t:"07 阴阳辨证：阴虚阳虚亡阴亡阳",c:"阴虚则热阳虚则寒，亡阴亡阳的危重证鉴别。"},
+{id:"m08",t:"08 脏腑辨证·心与小肠",c:"心气虚心血虚心火亢盛痰蒙心窍心血瘀阻等证型。"},
+{id:"m09",t:"09 脏腑辨证·肝与胆",c:"肝气郁结肝火上炎肝阳上亢肝胆湿热肝风内动等证型。"},
+{id:"m10",t:"10 脏腑辨证·脾与胃",c:"脾气虚脾阳虚寒湿困脾胃热炽盛胃阴虚等证型。"},
+{id:"m11",t:"11 脏腑辨证·肺与大肠",c:"肺气虚风寒束肺痰热壅肺大肠湿热等证型。"},
+{id:"m12",t:"12 脏腑辨证·肾与膀胱",c:"肾阳虚肾阴虚肾精不足肾不纳气膀胱湿热等证型。"},
+{id:"m13",t:"13 临床应用：八纲到脏腑的辨证路径",c:"三层递进辨证法，决策树思维与辨证路线图。"},
+{id:"m14",t:"14 案例分析",c:"风寒感冒、肝胃不和、心脾两虚等完整辨证推理案例。"},
+{id:"m15",t:"15 常见误区与学习路径",c:"十大常见辨证误区与系统学习规划建议。"},
+{id:"m16",t:"16 术语表与开放讨论",c:"核心辨证术语索引与开放讨论要点。"}
+];
+var TOAST_TIMEOUT;
+
+(function(){
+var progressBar=document.getElementById('progressBar');
+var modules=document.querySelectorAll('.module');
+var observer=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting)e.target.classList.add('visible')})},{threshold:.15});
+modules.forEach(function(m){observer.observe(m)});
+var navLinks=document.querySelectorAll('.sidebar-nav a');
+var navObserver=new IntersectionObserver(function(entries){
+entries.forEach(function(e){
+if(e.isIntersecting){
+navLinks.forEach(function(a){a.classList.remove('active')});
+var act=document.querySelector('.sidebar-nav a[href="#'+e.target.id+'"]');
+if(act)act.classList.add('active');
+}
+})},{threshold:.3});
+modules.forEach(function(m){navObserver.observe(m)});
+window.addEventListener('scroll',function(){
+var st=document.documentElement.scrollTop,dh=document.documentElement.scrollHeight-window.innerHeight;
+var pct=dh>0?Math.min(100,(st/dh)*100):0;progressBar.style.width=pct+'%';
+});
+window.addEventListener('keydown',function(e){
+if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();openSearch()}
+if((e.ctrlKey||e.metaKey)&&e.key==='d'){e.preventDefault();toggleTheme()}
+if(e.key==='Escape')closeSearch()
+});
+})();
+
+function toggleTheme(){
+var b=document.body,isD=b.getAttribute('data-theme')==='dark';
+b.setAttribute('data-theme',isD?'light':'dark');
+try{localStorage.setItem('slm-theme',isD?'light':'dark')}catch(e){}
+showToast('已切换至'+(isD?'浅色':'深色')+'主题')
+}
+
+function openSearch(){document.getElementById('searchOverlay').classList.add('open');setTimeout(function(){document.getElementById('searchInput').focus()},100)}
+function closeSearch(){document.getElementById('searchOverlay').classList.remove('open');document.getElementById('searchResults').innerHTML=''}
+
+function doSearch(){
+var q=document.getElementById('searchInput').value.toLowerCase(),res=document.getElementById('searchResults');
+if(q.length<2){res.innerHTML='';return}
+var h='';SEARCH_INDEX.forEach(function(item){
+if(item.t.toLowerCase().indexOf(q)>=0||(item.c||'').toLowerCase().indexOf(q)>=0){
+h+='<div onclick="closeSearch();document.getElementById(\''+item.id+'\').scrollIntoView({behavior:\'smooth\'})">'+
+'<strong>'+item.t+'</strong><br><small style="color:var(--text-muted)">'+(item.c||'').substring(0,80)+'</small></div>';
+}
+});
+res.innerHTML=h||'<div style="padding:12px;color:var(--text-muted)">未找到匹配模块</div>'
+}
+
+function showToast(msg){
+var el=document.getElementById('toastEl'),mg=document.getElementById('toastMsg');
+if(!el||!mg)return;mg.textContent=msg;el.style.display='block';el.classList.add('toast-in');
+if(TOAST_TIMEOUT)clearTimeout(TOAST_TIMEOUT);
+TOAST_TIMEOUT=setTimeout(function(){el.style.display='none'},3000);
+}
+
+(function(){
+var t;try{t=localStorage.getItem('slm-theme')}catch(e){}
+if(t==='light')document.body.setAttribute('data-theme','light');
+})();
+
+(function initCharts(){
+if(typeof echarts==='undefined')return;
+var isLight=document.body.getAttribute('data-theme')==='light';
+var textColor=isLight?'#4a4035':'#b8ad98';
+
+var sunburstEl=document.getElementById('chart_sunburst');
+if(sunburstEl){
+var sb=echarts.init(sunburstEl);
+sb.setOption({
+tooltip:{trigger:'item'},
+series:[{type:'sunburst',
+data:[
+{name:'阳',itemStyle:{color:'#7ec8a0'},children:[
+{name:'表',value:2,itemStyle:{color:'#5ea87a'}},
+{name:'热',value:2,itemStyle:{color:'#e6b95a'}},
+{name:'实',value:2,itemStyle:{color:'#6ebf8a'}}
+]},
+{name:'阴',itemStyle:{color:'#b898a0'},children:[
+{name:'里',value:2,itemStyle:{color:'#8a8070'}},
+{name:'寒',value:2,itemStyle:{color:'#7ec8a0'}},
+{name:'虚',value:2,itemStyle:{color:'#d47860'}}
+]}
+],
+radius:['15%','90%'],label:{rotate:'radial',fontSize:12,color:textColor},
+itemStyle:{borderRadius:4,borderColor:isLight?'#fdfaf3':'#1a1814',borderWidth:2},
+emphasis:{label:{fontSize:16}}
+}]
+});
+}
+
+var treemapEl=document.getElementById('chart_treemap');
+if(treemapEl){
+var tm=echarts.init(treemapEl);
+tm.setOption({
+tooltip:{formatter:function(p){return p.name+': '+p.value+' 证型'}},
+series:[{type:'treemap',data:[
+{name:'阳证',value:4,itemStyle:{color:'#5ea87a'},children:[
+{name:'表证类',value:2,itemStyle:{color:'#7ec8a0'}},
+{name:'热证类',value:2,itemStyle:{color:'#e6b95a'}}
+]},
+{name:'阴证',value:4,itemStyle:{color:'#b898a0'},children:[
+{name:'里证类',value:2,itemStyle:{color:'#8a8070'}},
+{name:'寒证类',value:2,itemStyle:{color:'#6ebf8a'}}
+]},
+{name:'虚实',value:4,itemStyle:{color:'#d47860'},children:[
+{name:'虚证',value:2,itemStyle:{color:'#d47860'}},
+{name:'实证',value:2,itemStyle:{color:'#6ebf8a'}}
+]}
+],label:{fontSize:12,color:textColor}}]
+});
+}
+
+var flowEl=document.getElementById('chart_flow');
+if(flowEl){
+var fl=echarts.init(flowEl);
+fl.setOption({
+tooltip:{trigger:'item'},
+series:[{type:'tree',data:[{
+name:'四诊信息',itemStyle:{color:'#5ea87a'},children:[
+{name:'八纲分析',itemStyle:{color:'#7ec8a0'},children:[
+{name:'表里(病位)',itemStyle:{color:'#5ea87a'}},
+{name:'寒热(病性)',itemStyle:{color:'#e6b95a'}},
+{name:'虚实(病势)',itemStyle:{color:'#6ebf8a'}},
+{name:'阴阳(总纲)',itemStyle:{color:'#b898a0'}}
+]},
+{name:'脏腑定位',itemStyle:{color:'#d47860'},children:[
+{name:'心/肝/脾/肺/肾',itemStyle:{color:'#5ea87a'}}
+]},
+{name:'证候命名',itemStyle:{color:'#7ec8a0'}},
+{name:'确立治法',itemStyle:{color:'#6ebf8a'},children:[
+{name:'选方用药',itemStyle:{color:'#e6b95a'}}
+]}
+]}],orient:'LR',roam:true,label:{fontSize:11,color:textColor},
+leaves:{label:{fontSize:10}},expandAndCollapse:true,initialTreeDepth:2,
+symbolSize:8,lineStyle:{color:isLight?'#c0b8a0':'#5a5040',width:1}}]
+});
+}
+
+var cmpEl=document.getElementById('chart_compare');
+if(cmpEl){
+var cp=echarts.init(cmpEl);
+cp.setOption({
+tooltip:{trigger:'axis'},
+legend:{bottom:0,textStyle:{color:textColor,fontSize:10}},
+grid:{left:40,right:20,top:30,bottom:40},
+xAxis:{type:'category',data:['心','肝','脾','肺','肾'],axisLabel:{color:textColor}},
+yAxis:{type:'value',name:'虚证数',axisLabel:{color:textColor}},
+series:[
+{name:'虚证',type:'bar',data:[4,3,3,3,4],itemStyle:{color:'#d47860'}},
+{name:'实证',type:'bar',data:[3,4,2,3,2],itemStyle:{color:'#5ea87a'}}
+]
+});
+}
+
+window.addEventListener('resize',function(){
+[sb,tm,fl,cp].forEach(function(c){if(c)c.resize()});
+});
+})();
+</script>
+</body>
+</html>

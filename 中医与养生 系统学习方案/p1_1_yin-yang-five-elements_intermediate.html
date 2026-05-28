@@ -1,0 +1,688 @@
+<!-- template-version: 3.5.0 -->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>阴阳学说与五行生克 — 深度研读</title>
+<style>
+/* ───────────────────────────────────────────────
+   Template: Cedar Dawn (雪松晨曦) — deep_dive.css
+   Mood: warm, natural, organic
+   Contrast verified: text-primary≥10:1, text-secondary≥6:1, text-muted≥4.5:1
+   ─────────────────────────────────────────────── */
+:root{
+--bg-base:#1a1814;
+--bg-card:#282520;
+--bg-elevated:#312d27;
+--bg-overlay:rgba(0,0,0,.6);
+--text-primary:#ede6d8;
+--text-secondary:#b8ad98;
+--text-muted:#8a8070;
+--accent-indigo:#5ea87a;
+--accent-purple:#b898a0;
+--accent-cyan:#7ec8a0;
+--accent-gold:#e6b95a;
+--accent-green:#6ebf8a;
+--accent-red:#d47860;
+--accent-blue:#5ea87a;
+--accent-color:#5ea87a;
+--accent-dark:#3d6b50;
+--border-subtle:rgba(184,173,152,.15);
+--border-glow:rgba(94,168,122,.25);
+--shadow-sm:0 1px 3px rgba(0,0,0,.3);
+--shadow-md:0 4px 16px rgba(0,0,0,.4);
+--shadow-lg:0 8px 32px rgba(0,0,0,.5);
+--shadow-elevated:0 8px 32px rgba(0,0,0,.5);
+--radius-sm:6px;
+--radius-md:10px;
+--radius-lg:16px;
+--font-sans:'Segoe UI',system-ui,-apple-system,sans-serif;
+--font-mono:Consolas,'Cascadia Code',monospace;
+--transition:.25s cubic-bezier(.4,0,.2,1);
+--transition-smooth:.3s ease;
+--nav-h:56px;
+--accent-color-rgb:94,168,122;
+--chart-grid:#2d2924;
+--chart-axis-label:#8a8070;
+}
+[data-theme="light"]{
+--bg-base:#fdfaf3;
+--bg-card:#fffdf7;
+--bg-elevated:#f3efe3;
+--bg-overlay:rgba(0,0,0,.3);
+--text-primary:#1f1a12;
+--text-secondary:#4a4035;
+--text-muted:#5c5042;
+--accent-indigo:#3d6b50;
+--accent-purple:#7a5a6a;
+--accent-cyan:#4a8e6a;
+--accent-gold:#a07828;
+--accent-green:#4a9e66;
+--accent-red:#b05038;
+--accent-blue:#3d6b50;
+--accent-color:#3d6b50;
+--accent-dark:#2a4835;
+--border-subtle:rgba(31,26,18,.08);
+--border-glow:rgba(61,107,80,.25);
+--shadow-sm:0 1px 3px rgba(0,0,0,.06);
+--shadow-md:0 4px 16px rgba(0,0,0,.08);
+--shadow-lg:0 8px 32px rgba(0,0,0,.12);
+--shadow-elevated:0 8px 32px rgba(0,0,0,.12);
+--accent-color-rgb:61,107,80;
+--chart-grid:#ebe5d6;
+--chart-axis-label:#5c5042;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font-sans);background:var(--bg-base);color:var(--text-primary);line-height:1.75;overflow-x:hidden}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg-base)}::-webkit-scrollbar-thumb{background:var(--border-glow);border-radius:3px}
+
+.progress-bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--accent-indigo),var(--accent-purple),var(--accent-cyan));z-index:200;transition:width .1s linear}
+.navbar{position:fixed;top:3px;left:0;right:0;z-index:100;background:var(--bg-card);border-bottom:1px solid var(--border-subtle);backdrop-filter:blur(16px);height:var(--nav-h);display:flex;align-items:center;justify-content:space-between;padding:0 24px}
+.nav-left{display:flex;align-items:center;gap:12px;font-size:.82rem;font-weight:600;color:var(--accent-indigo)}
+.nav-right{display:flex;align-items:center;gap:8px}
+.nav-right button{background:var(--bg-elevated);border:1px solid var(--border-subtle);color:var(--text-secondary);padding:6px 12px;border-radius:var(--radius-sm);cursor:pointer;font-size:.75rem;transition:all var(--transition)}
+.nav-right button:hover{border-color:var(--border-glow);color:var(--accent-indigo)}
+
+.sidebar{position:fixed;left:0;top:0;height:100vh;width:280px;background:var(--bg-base);border-right:1px solid var(--border-subtle);padding:24px;overflow-y:auto;z-index:100;padding-top:calc(var(--nav-h) + 16px)}
+.sidebar h3{font-size:.85rem;font-weight:700;color:var(--text-secondary);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--border-subtle)}
+.sidebar-nav{list-style:none;padding:0}
+.sidebar-nav li{margin-bottom:2px}
+.sidebar-nav a{display:block;padding:8px 12px;border-radius:var(--radius-md);text-decoration:none;font-size:.76rem;color:var(--text-secondary);transition:all var(--transition);border-left:3px solid transparent}
+.sidebar-nav a:hover{background:rgba(91,141,184,.08);color:var(--accent-cyan);border-left-color:var(--accent-cyan)}
+.sidebar-nav a.active{background:rgba(91,141,184,.12);color:var(--accent-blue);font-weight:600;border-left-color:var(--accent-blue)}
+.sidebar-back-link{display:block;padding:8px 12px;margin-bottom:12px;border-radius:8px;background:var(--bg-elevated);color:var(--accent-blue);text-decoration:none;font-size:.78rem;font-weight:600}
+.sidebar-back-link:hover{color:var(--accent-cyan)}
+
+.content-area{margin-left:280px;width:calc(100% - 280px)}
+.container{max-width:calc(100% - 48px);margin:0 auto;padding:calc(var(--nav-h) + 24px) 24px 80px}
+
+.hero{text-align:center;padding:48px 0 36px}
+.hero h1{font-size:2.2rem;background:linear-gradient(135deg,var(--accent-indigo),var(--accent-purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+.hero .tags{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:12px}
+.hero .tags span{font-size:.7rem;padding:4px 12px;border-radius:50px;border:1px solid var(--border-glow);color:var(--accent-indigo);background:rgba(99,102,241,.06)}
+
+.meta-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:20px 24px;margin:0 auto 32px;max-width:700px;display:flex;justify-content:center;gap:36px;flex-wrap:wrap;box-shadow:var(--shadow-md)}
+.meta-item{text-align:center}
+.meta-item .val{font-size:1.4rem;font-weight:800;color:var(--accent-indigo)}
+.meta-item .lbl{font-size:.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px}
+
+.journey-bar{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:12px 20px;margin:0 auto 24px;max-width:900px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:.82rem;box-shadow:var(--shadow-elevated)}
+.journey-path{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.journey-icon{font-size:1rem}
+.journey-plan{color:var(--accent-purple);font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.journey-plan:hover{color:var(--accent-gold)}
+.journey-sep{color:var(--text-muted);font-size:.7rem}
+.journey-phase{color:var(--text-secondary);font-weight:600}
+.journey-kp{color:var(--text-primary);font-weight:700}
+.journey-pos{color:var(--text-muted);font-size:.72rem}
+.journey-nav{display:flex;align-items:center;gap:8px;font-size:.75rem}
+.journey-prev,.journey-next{color:var(--text-muted);cursor:default}
+.journey-divider{color:var(--border-subtle)}
+
+.module{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:28px 28px 24px;margin-bottom:20px;
+opacity:0;transform:translateY(24px);transition:opacity .5s ease,transform .5s ease;box-shadow:var(--shadow-sm)}
+.module.visible{opacity:1;transform:translateY(0)}
+.module:hover{border-color:var(--border-glow)}
+.module h2{font-size:1.15rem;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.module .m-tag{font-size:.65rem;padding:2px 10px;border-radius:50px;background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.2);color:var(--accent-indigo);font-weight:600}
+.module .m-time{font-size:.7rem;color:var(--text-muted);margin-left:auto}
+.module .hook{font-size:.9rem;color:var(--accent-purple);font-weight:600;margin:12px 0 16px;padding-left:12px;border-left:3px solid var(--accent-purple)}
+.module .content{font-size:.88rem;color:var(--text-secondary);line-height:1.8}
+.module .content p{margin-bottom:12px}
+
+.formula-block{background:rgba(99,102,241,.04);border:1px solid rgba(99,102,241,.12);border-radius:var(--radius-sm);padding:14px 18px;margin:14px 0;font-family:var(--font-mono);font-size:.82rem;color:var(--accent-cyan);overflow-x:auto;position:relative}
+.formula-block .f-cap{font-size:.7rem;color:var(--text-muted);margin-bottom:6px;display:block}
+.derivation-toggle{font-size:.7rem;color:var(--accent-gold);cursor:pointer;border:none;background:none;padding:4px 0;font-family:inherit;display:block;margin-top:6px}
+.derivation-toggle:hover{text-decoration:underline}
+.derivation-content{display:none;margin-top:8px;padding:12px 16px;background:rgba(245,158,11,.04);border-radius:var(--radius-sm);border-left:3px solid var(--accent-gold);font-size:.8rem;color:var(--text-secondary)}
+.derivation-content.open{display:block}
+
+.chart-wrap{background:rgba(99,102,241,.03);border-radius:var(--radius-sm);padding:8px;margin:14px 0;text-align:center}
+.chart-wrap > div{width:100%;height:280px}
+.chart-wrap .ch-cap{font-size:.72rem;color:var(--text-muted);margin-top:6px}
+
+.table-container{margin:20px 0;overflow-x:auto}
+.table-container table{width:100%;border-collapse:collapse;border-radius:var(--radius-md);overflow:hidden}
+.table-container th{background:var(--bg-elevated);color:var(--accent-cyan);font-weight:700;padding:12px 16px;text-align:left;font-size:.8rem}
+.table-container td{padding:12px 16px;border-bottom:1px solid var(--border-subtle);font-size:.82rem;color:var(--text-secondary)}
+.table-container tr:hover td{background:rgba(91,141,184,.03)}
+.table-container .table-caption{font-size:.72rem;color:var(--text-muted);margin-bottom:8px;text-align:center}
+
+.takeaway{font-size:.82rem;background:rgba(16,185,129,.06);border-left:3px solid var(--accent-green);padding:10px 14px;margin-top:16px;border-radius:0 var(--radius-sm) var(--radius-sm) 0;color:var(--accent-green)}
+
+.ref-list{list-style:none;padding:0;margin-top:8px;font-size:.78rem}
+.ref-list li{padding:4px 0;color:var(--text-muted)}
+.ref-list li::before{content:'📄 '}
+
+.search-overlay{position:fixed;inset:0;z-index:300;background:var(--bg-overlay);display:none;align-items:flex-start;justify-content:center;padding-top:120px}
+.search-overlay.open{display:flex}
+.search-box{width:520px;max-width:90vw;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:var(--radius-md);box-shadow:var(--shadow-lg);overflow:hidden}
+.search-box input{width:100%;padding:14px 18px;background:transparent;border:none;color:var(--text-primary);font-size:.95rem;outline:none;font-family:inherit}
+.search-results{max-height:360px;overflow-y:auto}
+.search-results div{padding:10px 18px;cursor:pointer;font-size:.82rem;color:var(--text-secondary);border-top:1px solid var(--border-subtle);transition:background var(--transition)}
+.search-results div:hover{background:rgba(99,102,241,.06);color:var(--text-primary)}
+
+.journey-footer{text-align:center;padding:40px 32px 60px;opacity:.8}
+.back-to-plan{display:inline-flex;align-items:center;gap:8px;padding:10px 24px;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:50px;color:var(--text-secondary);text-decoration:none;font-size:.85rem;font-weight:600;transition:all var(--transition-smooth)}
+.back-to-plan:hover{background:var(--bg-elevated);border-color:var(--accent-purple);color:var(--accent-purple)}
+
+.deep-floating-back{position:fixed;right:20px;bottom:20px;z-index:10000}
+.deep-floating-back button{padding:12px 20px;background:linear-gradient(135deg,var(--accent-color),var(--accent-dark));color:white;border:none;border-radius:24px;font-size:.85rem;font-weight:600;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.15);transition:transform .2s,box-shadow .2s}
+.deep-floating-back button:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.2)}
+
+.dd-toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);z-index:10001;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:8px;padding:14px 24px;box-shadow:0 4px 16px rgba(0,0,0,.15);font-size:.85rem;display:none}
+.toast-in{animation:toastIn .3s ease}
+@keyframes toastIn{from{opacity:0;transform:translate(-50%,20px)}to{opacity:1;transform:translate(-50%,0)}}
+
+@media print{.navbar,.progress-bar,.sidebar,.journey-bar,.journey-footer,.deep-floating-back{display:none!important}.content-area{margin-left:0;width:100%}.module{break-inside:avoid;opacity:1!important;transform:none!important;box-shadow:none}body{background:#fff}}
+
+@media(max-width:1024px){.sidebar{display:none}.content-area{margin-left:0;width:100%}}
+@media(max-width:768px){
+.hero h1{font-size:1.6rem}.module{padding:20px}.meta-card{font-size:.72rem;padding:12px 16px}.journey-bar{flex-direction:column;align-items:flex-start}
+.deep-floating-back{right:15px;bottom:15px}.deep-floating-back button{padding:10px 16px;font-size:.8rem}
+}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+</head>
+<body data-theme="dark">
+
+<div class="progress-bar" id="progressBar" style="width:0%"></div>
+
+<nav class="navbar">
+  <div class="nav-left">📖 阴阳学说与五行生克</div>
+  <div class="nav-right">
+    <button onclick="toggleTheme()" title="切换主题 (Ctrl+D)">🌓 主题</button>
+    <button onclick="openSearch()" title="搜索 (Ctrl+K)">🔍 搜索</button>
+  </div>
+</nav>
+
+<div class="sidebar">
+  <a href="#" class="sidebar-back-link" onclick="event.preventDefault();var w=window.open('tcm_learning.html#kc-p1_1','plan_main');if(w)w.focus()">← 返回主方案</a>
+  <h3>📖 目录导航</h3>
+  <ul class="sidebar-nav">
+    <li><a href="#m1">1. 阴阳学说总览</a></li>
+    <li><a href="#m2">2. 阴阳消长平衡图解</a></li>
+    <li><a href="#m3">3. 阴阳学说的医学应用</a></li>
+    <li><a href="#m4">4. 五行学说总览</a></li>
+    <li><a href="#m5">5. 五行生克关系全图</a></li>
+    <li><a href="#m6">6. 五行归类系统表</a></li>
+    <li><a href="#m7">7. 五脏的五行配属</a></li>
+    <li><a href="#m8">8. 生克关系在病理中的应用</a></li>
+    <li><a href="#m9">9. 案例研读：五行学说临床应用</a></li>
+    <li><a href="#m10">10. 阴阳五行综合应用与小结</a></li>
+  </ul>
+</div>
+
+<div class="content-area">
+<div class="search-overlay" id="searchOverlay">
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="搜索模块内容..." oninput="doSearch()" onkeydown="if(event.key==='Escape')closeSearch()">
+    <div class="search-results" id="searchResults"></div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="hero">
+    <h1>阴阳学说与五行生克</h1>
+    <div class="tags">
+      <span>阴阳学说</span><span>五行生克</span><span>中医基础理论</span><span>G6·系统图解</span>
+    </div>
+  </div>
+
+  <div class="meta-card">
+    <div class="meta-item"><div class="val">10</div><div class="lbl">研读模块</div></div><div class="meta-item"><div class="val">~45min</div><div class="lbl">预计用时</div></div><div class="meta-item"><div class="val">G6</div><div class="lbl">学习纹理</div></div><div class="meta-item"><div class="val">理解</div><div class="lbl">研读深度</div></div>
+  </div>
+
+  <div class="journey-bar" id="journeyBar">
+    <div class="journey-path">
+      <span class="journey-icon">📍</span>
+      <span class="journey-plan" onclick="var w=window.open('tcm_learning.html#kc-p1_1','plan_main');if(w)w.focus()">中医与养生 系统学习方案</span>
+      <span class="journey-sep">〉</span>
+      <span class="journey-phase">中医基础理论奠基</span>
+      <span class="journey-sep">〉</span>
+      <span class="journey-kp">阴阳学说与五行生克</span>
+      <span class="journey-pos">(1/4)</span>
+    </div>
+    <div class="journey-nav">
+      <span class="journey-prev" title="前置: 无">← 前置</span>
+      <span class="journey-divider">|</span>
+      <span class="journey-next" title="后续: 精气神与藏象学说">后续 →</span>
+    </div>
+  </div>
+
+  <div id="m1" class="module">
+    <h2><span class="m-tag">概念框架</span>1. 阴阳学说总览<span class="m-time">~4 min</span></h2>
+    <p class="hook">阴阳不是简单的二元对立，而是中国古代哲学对宇宙万物运动变化规律的最高概括。</p>
+    <div class="content">
+      <p>阴阳学说起源于远古先民对自然现象的观察：向日为阳，背日为阴；温暖为阳，寒冷为阴；活动为阳，静止为阴。随着哲学思辨的发展，阴阳从具体事物逐渐抽象为解释一切事物运动变化的基本范畴。</p>
+      <p><strong>阴阳学说的四大核心内容：</strong></p>
+      <p><strong>对立制约（阴阳对立）</strong>——阴阳双方性质相反，相互斗争、相互制约。如上与下、动与静、明与暗。这种制约维持着事物的动态平衡。例如，夏季阳气盛则阴气受制而内敛，冬季阴气盛则阳气受制而潜藏。</p>
+      <p><strong>互根互用（阴阳互根）</strong>——阴阳双方互为存在的前提，相互依存、相互为用。无上即无所谓下，无热即无所谓寒。《素问·阴阳应象大论》云："阴在内，阳之守也；阳在外，阴之使也。"功能（阳）依赖物质（阴）为基，物质（阴）需功能（阳）推动。</p>
+      <p><strong>消长平衡（阴阳消长）</strong>——阴阳双方处于永恒的运动变化中，此消彼长、此长彼消，在动态中维持相对平衡。如一日之中，从子时到午时阳气渐长、阴气渐消；从午时到子时阴气渐长、阳气渐消。</p>
+      <p><strong>相互转化（阴阳转化）</strong>——在特定条件下，阴阳可各自向其对立面转化。《灵枢·论疾诊尺》："四时之变，寒暑之胜，重阴必阳，重阳必阴。"如高热至极可致四肢厥冷（热极生寒），寒证至极可出现假热现象（寒极生热）。</p>
+      <p>太极图（阴阳鱼）是阴阳关系最直观的表达：黑白二鱼首尾相接，黑中有白点（阴中寓阳），白中有黑点（阳中寓阴），象征阴阳互根、消长、转化的全部内涵。</p>
+      <div class="formula-block">
+        <span class="f-cap">阴阳在人体结构中的体现</span>
+        上为阳 ←→ 下为阴 &nbsp;|&nbsp; 体表为阳 ←→ 体内为阴 &nbsp;|&nbsp; 背为阳 ←→ 腹为阴<br>
+        外侧为阳 ←→ 内侧为阴 &nbsp;|&nbsp; 六腑为阳 ←→ 五脏为阴 &nbsp;|&nbsp; 气为阳 ←→ 血为阴
+      </div>
+    </div>
+    <div class="takeaway">阴阳学说是中医理论的基石，贯穿于解释人体结构、生理功能、病理变化、诊断和治疗的各个方面。</div>
+  </div>
+
+  <div id="m2" class="module">
+    <h2><span class="m-tag">系统图解</span>2. 阴阳消长平衡图解<span class="m-time">~5 min</span></h2>
+    <p class="hook">阴阳之间的动态平衡是健康的本质——"阴平阳秘，精神乃治"。</p>
+    <div class="content">
+      <p>自然界阴阳消长最典型的范式是昼夜节律。《素问·金匮真言论》描述："平旦至日中，天之阳，阳中之阳也；日中至黄昏，天之阳，阳中之阴也；合夜至鸡鸣，天之阴，阴中之阴也；鸡鸣至平旦，天之阴，阴中之阳也。"</p>
+      <p><strong>一日阴阳消长节律：</strong></p>
+      <p><strong>子时（23:00-01:00）一阳生</strong>——阴极而阳始生，如冬至之后阳气萌动。此时应深睡以养初生之阳。</p>
+      <p><strong>卯时（05:00-07:00）阳气渐旺</strong>——阳气升发，人体从睡眠中苏醒，气血趋于体表。宜起床活动。</p>
+      <p><strong>午时（11:00-13:00）阳气极盛，一阴生</strong>——阳气达到顶点后开始回落，阴气开始滋生。宜小憩以助阴阳交接。</p>
+      <p><strong>酉时（17:00-19:00）阴气渐盛</strong>——阳气内敛，阴气生长。人体活动力下降，宜减少剧烈运动。</p>
+      <p><strong>亥时（21:00-23:00）阴气极盛</strong>——阴气主导，阳气潜藏。宜入眠以养阴蓄阳。</p>
+      <div class="chart-wrap">
+        <div id="chart_yinyang_balance"></div>
+        <div class="ch-cap">图：阴阳昼夜消长图——阴阳二气在24小时内的动态消长曲线</div>
+      </div>
+    </div>
+    <div class="takeaway">阴阳的消长平衡是动态的、周期性的，理解这一点是掌握中医时间医学（子午流注、四时养生）的基础。</div>
+  </div>
+
+  <div id="m3" class="module">
+    <h2><span class="m-tag">临床关联</span>3. 阴阳学说的医学应用<span class="m-time">~5 min</span></h2>
+    <p class="hook">从组织结构到生理病理，阴阳分类无处不在。</p>
+    <div class="content">
+      <p>阴阳学说为中医提供了最基本的分类框架和辨证维度。在临床实践中，阴阳的运用贯穿于对人体结构、生理功能、病理变化的全方位解释。</p>
+      <div class="table-container">
+        <div class="table-caption">表1：人体组织结构阴阳分类表</div>
+        <table>
+          <thead><tr><th>部位/组织</th><th>阳属性</th><th>阴属性</th></tr></thead>
+          <tbody>
+            <tr><td><strong>人体部位</strong></td><td>上部、体表、背、外侧</td><td>下部、体内、腹、内侧</td></tr>
+            <tr><td><strong>脏腑</strong></td><td>六腑（胆、胃、大肠、小肠、膀胱、三焦）</td><td>五脏（肝、心、脾、肺、肾）</td></tr>
+            <tr><td><strong>气血</strong></td><td>气（推动、温煦、防御）</td><td>血（濡养、滋润）</td></tr>
+            <tr><td><strong>功能物质</strong></td><td>功能活动（兴奋、升发、温煦）</td><td>物质基础（抑制、沉降、滋润）</td></tr>
+            <tr><td><strong>经络</strong></td><td>手足三阳经（分布于外侧、背部）</td><td>手足三阴经（分布于内侧、腹部）</td></tr>
+            <tr><td><strong>营卫</strong></td><td>卫气（行于脉外，主卫外）</td><td>营气（行于脉中，主濡养）</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p><strong>阴阳在病理诊断中的核心应用——八纲辨证的总纲：</strong></p>
+      <div class="formula-block">
+        <span class="f-cap">阴阳偏盛偏衰的病机规律</span>
+        阳盛则热 → 实热证（高热、面赤、口渴、脉数）<br>
+        阴盛则寒 → 实寒证（恶寒、肢冷、腹痛、脉紧）<br>
+        阳虚则寒 → 虚寒证（畏寒、乏力、面色㿠白、脉迟无力）<br>
+        阴虚则热 → 虚热证（潮热、盗汗、口干、脉细数）
+      </div>
+      <p>阴阳学说的诊断框架极其简洁而深刻：一切疾病，归根结底都是阴阳失调。治疗的总原则也因此清晰——<strong>"谨察阴阳所在而调之，以平为期"</strong>（《素问·至真要大论》），即调整阴阳，恢复"阴平阳秘"的平衡状态。</p>
+    </div>
+    <div class="takeaway">阴阳的分类框架为中医辨证提供了最基本的判断维度——"善诊者，察色按脉，先别阴阳"（《素问·阴阳应象大论》）。</div>
+  </div>
+
+  <div id="m4" class="module">
+    <h2><span class="m-tag">概念框架</span>4. 五行学说总览<span class="m-time">~5 min</span></h2>
+    <p class="hook">木火土金水——五种基本物质运动形态，构成了一个完整的系统模型。</p>
+    <div class="content">
+      <p>五行学说起源于商周时期，最初被称为"五材"——即木、火、土、金、水五种基本的物质材料。《尚书·洪范》首次将五行系统化："五行：一曰水，二曰火，三曰木，四曰金，五曰土。"值得注意的是，五行之"行"，古文作"𠀐"，意为行走、运行。《春秋繁露》明确指出："行者，行也。其行不同，故谓之五行。"因此，五行的本质不是五种静态的物质，而是五种基本的运动形态和功能属性。</p>
+      <p><strong>五行各自的核心特性（《尚书·洪范》原文）：</strong></p>
+      <p><strong>木曰曲直</strong>——树木可曲可直，向上向外生长舒展。引申为生长、升发、条达、舒畅等属性。对应春天、东方、风、青色。</p>
+      <p><strong>火曰炎上</strong>——火焰灼热，向上燃烧升腾。引申为温热、升腾、明亮等属性。对应夏天、南方、暑、赤色。</p>
+      <p><strong>土爰稼穑</strong>——大地承载万物，种植与收获。引申为生化、承载、受纳等属性。"土载四行，为万物之母"。对应长夏、中央、湿、黄色。</p>
+      <p><strong>金曰从革</strong>——金属可顺从人意改变形状，亦可变革切割他物。引申为沉降、肃杀、收敛、变革等属性。对应秋天、西方、燥、白色。</p>
+      <p><strong>水曰润下</strong>——水滋润万物且向下流动。引申为滋润、下行、寒凉、闭藏等属性。对应冬天、北方、寒、黑色。</p>
+      <p>五行学说本质上是中国古代的系统论思想。它将世间万物的属性和功能抽象为五种基本类型，并通过五行之间的生克关系来揭示事物间的内在联系与调控机制。与古希腊四元素说（火、气、水、土）不同，中国五行更强调运动与关系，而非物质成分。</p>
+    </div>
+    <div class="takeaway">五行学说是中国古代的系统论，用五种功能属性来归纳和推演万物之间的关系，是中医整体观念的方法论基础。</div>
+  </div>
+
+  <div id="m5" class="module">
+    <h2><span class="m-tag">系统图解</span>5. 五行生克关系全图<span class="m-time">~6 min</span></h2>
+    <p class="hook">相生与相克——五行之间的两种基本关系构成了一个自我调节的稳态系统。</p>
+    <div class="content">
+      <p>五行的价值不仅在于分类，更在于揭示了元素间的动态关系。正常状态下，五行通过相生和相克维持系统的动态平衡；异常状态下，则出现相乘和相侮的病理关系。</p>
+      <p><strong>相生（生成关系）——生命链条：</strong></p>
+      <p>木生火（钻木取火，木燃生火）→ 火生土（火焚物为灰烬，灰烬化土）→ 土生金（金属矿藏出于土中）→ 金生水（金属表面可凝结水珠，或喻金属熔化后流动如水）→ 水生木（水滋养树木生长）。</p>
+      <div class="formula-block">
+        <span class="f-cap">五行相生次序</span>
+        木 → 火 → 土 → 金 → 水 → 木
+        &nbsp;&nbsp;&nbsp;生&nbsp;&nbsp;&nbsp;&nbsp;生&nbsp;&nbsp;&nbsp;&nbsp;生&nbsp;&nbsp;&nbsp;&nbsp;生&nbsp;&nbsp;&nbsp;&nbsp;生
+      </div>
+      <p><strong>相克（制约关系）——平衡机制：</strong></p>
+      <p>木克土（树木根系固土，破土而出）→ 土克水（堤坝拦水，"水来土掩"）→ 水克火（水能灭火）→ 火克金（火能熔化金属）→ 金克木（金属斧刃可伐木）。</p>
+      <div class="formula-block">
+        <span class="f-cap">五行相克次序</span>
+        木 → 土 → 水 → 火 → 金 → 木
+        &nbsp;&nbsp;&nbsp;克&nbsp;&nbsp;&nbsp;&nbsp;克&nbsp;&nbsp;&nbsp;&nbsp;克&nbsp;&nbsp;&nbsp;&nbsp;克&nbsp;&nbsp;&nbsp;&nbsp;克
+      </div>
+      <p><strong>相乘（过度克制）</strong>——五行中某一行对其所克之行克制太过，导致被克者虚弱。如木旺乘土（肝气过盛，过度克制脾胃，导致消化功能紊乱）。</p>
+      <p><strong>相侮（反克）</strong>——五行中被克一方反向克制其克者，即"反克"。如木火刑金（正常情况下金克木，但当肝火过旺时可反克肺金，出现咳嗽、咯血等症状）。</p>
+      <div class="chart-wrap">
+        <div id="chart_wuxing_shengke"></div>
+        <div class="ch-cap">图：五行生克关系全图——绿色箭头为相生，红色箭头为相克</div>
+      </div>
+    </div>
+    <div class="takeaway">相生相克构成五行系统的自动调节机制——生中有克，克中有生，维持动态平衡。正如张景岳所言："造化之机，不可无生，亦不可无制。无生则发育无由，无制则亢而为害。"</div>
+  </div>
+
+  <div id="m6" class="module">
+    <h2><span class="m-tag">知识图谱</span>6. 五行归类系统表<span class="m-time">~5 min</span></h2>
+    <p class="hook">五行是一个强大的归类工具——将自然现象与人体功能纳入同一个分类体系。</p>
+    <div class="content">
+      <p>五行归类（又称"取象比类"）是中医最具特色的思维方式之一。它通过类比和推演，将自然界和人体各个层面的现象分别归属于五行体系，从而建立起"天人相应"的整体框架。以下是最完整的五行归类对照表：</p>
+      <div class="table-container">
+        <div class="table-caption">表2：五行归类系统全表</div>
+        <table>
+          <thead><tr><th>五行</th><th>木</th><th>火</th><th>土</th><th>金</th><th>水</th></tr></thead>
+          <tbody>
+            <tr><td><strong>五方</strong></td><td>东</td><td>南</td><td>中</td><td>西</td><td>北</td></tr>
+            <tr><td><strong>五季</strong></td><td>春</td><td>夏</td><td>长夏</td><td>秋</td><td>冬</td></tr>
+            <tr><td><strong>五气</strong></td><td>风</td><td>暑</td><td>湿</td><td>燥</td><td>寒</td></tr>
+            <tr><td><strong>五化</strong></td><td>生</td><td>长</td><td>化</td><td>收</td><td>藏</td></tr>
+            <tr><td><strong>五色</strong></td><td>青</td><td>赤</td><td>黄</td><td>白</td><td>黑</td></tr>
+            <tr><td><strong>五味</strong></td><td>酸</td><td>苦</td><td>甘</td><td>辛</td><td>咸</td></tr>
+            <tr><td><strong>五窍</strong></td><td>目</td><td>舌</td><td>口</td><td>鼻</td><td>耳</td></tr>
+            <tr><td><strong>五体</strong></td><td>筋</td><td>脉</td><td>肉</td><td>皮毛</td><td>骨</td></tr>
+            <tr><td><strong>五志</strong></td><td>怒</td><td>喜</td><td>思</td><td>悲（忧）</td><td>恐</td></tr>
+            <tr><td><strong>五脏</strong></td><td>肝</td><td>心</td><td>脾</td><td>肺</td><td>肾</td></tr>
+            <tr><td><strong>五腑</strong></td><td>胆</td><td>小肠</td><td>胃</td><td>大肠</td><td>膀胱</td></tr>
+            <tr><td><strong>五液</strong></td><td>泪</td><td>汗</td><td>涎</td><td>涕</td><td>唾</td></tr>
+            <tr><td><strong>五脉</strong></td><td>弦</td><td>洪</td><td>缓</td><td>浮</td><td>沉</td></tr>
+            <tr><td><strong>五声</strong></td><td>呼</td><td>笑</td><td>歌</td><td>哭</td><td>呻</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>这张表的价值在于：一旦确定了某一个现象的五行属性，就可以通过五行生克关系推断它与其他现象的关联。例如，肝（木）开窍于目（木），其华在爪，在志为怒（木），与春气相通——这就形成了一个完整的"肝系统"概念。同理，酸味入肝，青色食物多入肝经，春季宜养肝——这些都是从五行归类推导出的养生原理。</p>
+    </div>
+    <div class="takeaway">五行归类系统是中医取象比类思维方法的集中体现，是连接人与自然的中介框架——"天人相应"不是玄学，而是建立在严谨的五行分类体系之上的系统推演。</div>
+  </div>
+
+  <div id="m7" class="module">
+    <h2><span class="m-tag">原理机制</span>7. 五脏的五行配属<span class="m-time">~5 min</span></h2>
+    <p class="hook">肝心脾肺肾——五脏与五行的对应关系不是随意的，而是基于功能特性的深刻类比。</p>
+    <div class="content">
+      <p>五脏五行配属是藏象学说的理论核心。每一脏与对应的五行属性都基于其生理功能的深刻类比，而非表面的符号对应。理解这些类比逻辑，才能真正把握脏腑辨证的精髓。</p>
+      <p><strong>肝属木</strong>——肝主疏泄，调畅气机，喜条达而恶抑郁。《素问·灵兰秘典论》："肝者，将军之官，谋虑出焉。"肝的疏泄功能如同春木之舒展、生发。肝气郁结即如春木被抑，失其条达之性。在病理上，肝气郁结常见胁肋胀痛、情志抑郁，治疗需"疏肝理气"，即助木之条达。</p>
+      <p><strong>心属火</strong>——心主血脉，推动血液运行，温煦全身；心又藏神，为神明之主。《素问》："心者，君主之官也，神明出焉。"心的温煦推动作用如同火焰之温热、升腾。心火亢盛则面赤、心烦、口舌生疮（火性上炎，心开窍于舌）。</p>
+      <p><strong>脾属土</strong>——脾主运化水谷精微，为气血生化之源，后天之本。如同大地承载万物、生化不息。"土爰稼穑"，脾胃将水谷转化为气血的过程就是"化"的过程。脾胃虚弱则气血生化无源，如同土地贫瘠不能长养万物。</p>
+      <p><strong>肺属金</strong>——肺主气，司呼吸，主宣发肃降。《素问》："肺者，相傅之官，治节出焉。"肺的肃降功能如同金属之清肃、收敛和变革。秋季金气当令，万物收敛，与肺的清肃下降之性一致。肺失肃降则咳嗽、气喘，气机上逆。</p>
+      <p><strong>肾属水</strong>——肾主水液代谢，藏精，主纳气，为先天之本。如同水之滋润、下行、闭藏。肾精宜封藏而不宜妄泄，与冬季水行主藏的属性一致。肾精亏虚则生长发育迟缓、生殖功能减退，如同水源枯竭。</p>
+      <div class="formula-block">
+        <span class="f-cap">五脏五行对应速记</span>
+        肝 — 木 — 东方 — 春 — 青色 — 酸味 — 疏泄条达<br>
+        心 — 火 — 南方 — 夏 — 赤色 — 苦味 — 温煦升腾<br>
+        脾 — 土 — 中央 — 长夏 — 黄色 — 甘味 — 运化承载<br>
+        肺 — 金 — 西方 — 秋 — 白色 — 辛味 — 清肃收敛<br>
+        肾 — 水 — 北方 — 冬 — 黑色 — 咸味 — 滋润闭藏
+      </div>
+    </div>
+    <div class="takeaway">五脏五行配属是藏象学说的理论基础，直接指导着脏腑辨证和临床用药——例如，酸入肝，故白芍味酸能柔肝；苦入心，故黄连味苦能清心火。</div>
+  </div>
+
+  <div id="m8" class="module">
+    <h2><span class="m-tag">临床关联</span>8. 生克关系在病理中的应用<span class="m-time">~5 min</span></h2>
+    <p class="hook">"见肝之病，知肝传脾，当先实脾"——五行生克是预测疾病传变的理论工具。</p>
+    <div class="content">
+      <p>《金匮要略》开篇即言："见肝之病，知肝传脾，当先实脾。"张仲景的这句话揭示了五行生克在临床中最核心的价值——预测疾病传变并提前干预。这是中医"治未病"思想的理论基础。</p>
+      <p><strong>四大疾病传变模式：</strong></p>
+      <p><strong>母病及子（相生方向的病理传变）</strong>——母脏病变累及子脏。如肾水不足（母）导致肝血亏虚（子），称为"水不涵木"。临床可见：腰膝酸软（肾虚）+头晕目眩、视物模糊（肝血不足）。治则：滋水涵木（补肾以养肝）。</p>
+      <p><strong>子病犯母（相生逆方向的病理传变）</strong>——子脏病变反累母脏。如心火亢盛（子）引动肝火（母），称为"心火引动肝火"或"子盗母气"。临床可见：心烦失眠（心火）+急躁易怒、头痛目赤（肝火）。治则：清心泻火，兼平肝阳。</p>
+      <p><strong>相乘传变（相克方向的过度克制）</strong>——某一行对所克之行克制太过。如肝气横逆犯脾（木乘土），临床极常见：情志抑郁→肝气郁结→横逆犯胃→胃脘胀痛、嗳气、食欲减退。治则：抑木扶土（疏肝健脾）。代表方：逍遥散。</p>
+      <p><strong>相侮传变（反克方向的病理传变）</strong>——被克者反过来克制克者。如肝火犯肺（木火刑金），正常情况下金克木，但当肝火过亢时可反侮肺金。临床可见：急躁易怒（肝火）+咳嗽、胸痛、咯血（肺伤）。治则：佐金平木（清肺泻肝）。</p>
+      <div class="table-container">
+        <div class="table-caption">表3：五行相生相克治疗法则一览</div>
+        <table>
+          <thead><tr><th>治法</th><th>五行原理</th><th>代表方</th><th>适应证</th></tr></thead>
+          <tbody>
+            <tr><td>滋水涵木</td><td>水生木（补肾养肝）</td><td>杞菊地黄丸</td><td>肝肾阴虚，头晕目眩</td></tr>
+            <tr><td>培土生金</td><td>土生金（补脾益肺）</td><td>参苓白术散</td><td>脾肺气虚，咳嗽食少</td></tr>
+            <tr><td>金水相生</td><td>金生水（补肺滋肾）</td><td>百合固金汤</td><td>肺肾阴虚，干咳盗汗</td></tr>
+            <tr><td>抑木扶土</td><td>木克土过度（疏肝健脾）</td><td>逍遥散</td><td>肝郁脾虚，胁痛食少</td></tr>
+            <tr><td>佐金平木</td><td>木反侮金（清肺泻肝）</td><td>黛蛤散合泻白散</td><td>肝火犯肺，咳嗽胸痛</td></tr>
+            <tr><td>泻南补北</td><td>水克火（交通心肾）</td><td>黄连阿胶汤</td><td>心肾不交，心烦失眠</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="takeaway">五行生克为中医预测疾病传变、制定防治策略提供了系统化的理论工具。这也是中医"见微知著"和"既病防变"思想的集中体现。</div>
+  </div>
+
+  <div id="m9" class="module">
+    <h2><span class="m-tag">案例分析</span>9. 案例研读：五行学说临床应用<span class="m-time">~5 min</span></h2>
+    <p class="hook">通过一个真实的临床案例理解五行学说如何指导诊断和治疗。</p>
+    <div class="content">
+      <p><strong>病例概况：</strong></p>
+      <p>患者，女性，52岁。主诉：反复咳嗽3月余，伴气短、乏力、食欲不振、大便溏薄。曾服止咳西药效果不佳。查体：面色萎黄，语声低微，舌淡胖边有齿痕，苔白腻，脉细弱。</p>
+      <p><strong>五行辨证分析：</strong></p>
+      <p><strong>第一步：定位病位</strong>——咳嗽、气短，病位在肺（金）。但食欲差、便溏、乏力、面色萎黄则是典型的脾气虚弱表现（土），舌淡胖边有齿痕也印证了脾虚湿盛的判断。</p>
+      <p><strong>第二步：五行关联推理</strong>——脾属土，肺属金，土生金。脾为肺之母脏。当脾气虚弱，运化失职，气血生化不足时，母脏（脾）无法充分滋养子脏（肺），导致肺气亦虚，宣降失司，发为咳嗽。</p>
+      <p><strong>第三步：病机判断</strong>——此为"土不生金"证，也称为"脾肺气虚"证。本质是脾虚为本，肺虚为标。若仅治肺止咳而忽视健脾，则如扬汤止沸，不能根治。</p>
+      <p><strong>第四步：确立治则</strong>——培土生金（补脾益肺）。《难经·六十九难》："虚则补其母"。肺气虚，补其母（脾），此为"虚则补其母"之法。</p>
+      <p><strong>第五步：选方用药</strong>——参苓白术散加减：党参、茯苓、白术、山药、白扁豆、莲子肉、薏苡仁、砂仁、桔梗、甘草。方中以四君子汤（参、苓、术、草）为基础健脾益气为君，山药、扁豆、莲子、薏仁助脾运化为臣，砂仁理气和胃为佐，桔梗载药上行入肺为使——全方以健脾为核心，兼顾益肺止咳。</p>
+      <p><strong>疗效：</strong>服药两周后咳嗽明显减轻，食欲改善，大便成形。继服两周巩固，诸症悉除。此案充分体现了五行相生理论在临床中的指导价值。</p>
+      <div class="chart-wrap">
+        <div id="chart_case_flow"></div>
+        <div class="ch-cap">图：临床案例五行辨证推理路径</div>
+      </div>
+    </div>
+    <div class="takeaway">培土生金法体现了五行相生理论在临床中的直接应用——通过补脾来益肺。这个案例也说明，中医辨证不能见咳止咳，而要寻找并治疗疾病的根本原因。</div>
+  </div>
+
+  <div id="m10" class="module">
+    <h2><span class="m-tag">总结</span>10. 阴阳五行综合应用与小结<span class="m-time">~3 min</span></h2>
+    <p class="hook">阴阳学说提供定性框架，五行学说提供关系网络——两者结合形成中医理论的核心模型。</p>
+    <div class="content">
+      <p>阴阳学说和五行学说是中医理论体系中两个相互补充、密不可分的核心模型。</p>
+      <p><strong>阴阳与五行的关系：</strong></p>
+      <p><strong>阴阳是总纲</strong>——世间万物皆可分阴阳。阴阳是最高层次的分类，任何事物都可以也必须用阴阳二分法来把握其基本属性。正如《素问·阴阳应象大论》所言："阴阳者，天地之道也。"</p>
+      <p><strong>五行是细化</strong>——在阴阳的宏观框架下，五行进一步将事物细分为五种功能类型，并通过生克关系揭示事物间的内在联系。如果说阴阳解释了事物的本质属性，五行则展示了事物之间的互动网络。</p>
+      <p><strong>阴阳之中复有阴阳</strong>——五行中的每一行还可再分阴阳：肝有肝阴肝阳，心有心中阴阳，脾有脾阴脾阳，肺有肺阴肺阳，肾有肾阴肾阳。这种"无限可分"的特性使得阴阳五行的分析框架可以无限深入。</p>
+      <p><strong>生克关系的阴阳属性</strong>——相生体现的是滋生、促进，属于阳的属性；相克体现的是制约、调控，属于阴的属性。生与克的统一，即是阴阳消长平衡在五行层面的体现。</p>
+      <p><strong>学习建议与后续方向：</strong></p>
+      <p>本期对阴阳五行学说的学习，为后续的中医基础理论奠定了方法论基础。下一个知识点<strong>"精气神与藏象学说"</strong>将直接建立在本期所学的五行五脏配属关系之上，深入探讨各脏腑的详细生理功能和相互关系。建议在进入下一知识点前，先确保可以完全默写五行归类表，并理解每种生克关系的临床意义。</p>
+      <p>掌握阴阳五行学说，就是掌握了打开中医理论大门的钥匙——这是后续所有学习的逻辑起点和思维基础。</p>
+    </div>
+    <div class="takeaway">掌握阴阳五行，就掌握了打开中医理论大门的钥匙。这是后续所有学习的逻辑起点——正如《景岳全书》所言："凡诊病施治，必须先审阴阳，此为医道之纲领。"</div>
+  </div>
+</div>
+
+<footer class="journey-footer">
+  <a href="#" class="back-to-plan" onclick="event.preventDefault();var w=window.open('tcm_learning.html#kc-p1_1','plan_main');if(w)w.focus()">🔗 返回学习路线: 中医与养生 系统学习方案 → 中医基础理论奠基</a>
+  <p style="margin-top:12px;font-size:.72rem;color:var(--text-muted)">
+    本资料是 <strong>中医与养生 系统学习方案</strong> 中医基础理论奠基 阶段的深度研读材料
+  </p>
+</footer>
+
+<div class="deep-floating-back">
+  <button onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 16px rgba(0,0,0,.2)'"
+    onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 12px rgba(0,0,0,.15)'"
+    onclick="event.preventDefault();var w=window.open('tcm_learning.html#kc-p1_1','plan_main');if(w)w.focus()">
+    ← 返回学习方案
+  </button>
+</div>
+</div>
+
+<div class="dd-toast" id="toastEl"><span id="toastMsg"></span></div>
+
+<script>
+var MODULE_IDS = ["m1","m2","m3","m4","m5","m6","m7","m8","m9","m10"];
+var SEARCH_INDEX = [
+{"id":"m1","t":"阴阳学说总览","c":"阴阳不是简单的二元对立，而是中国古代哲学对宇宙万物运动变化规律的最高概括。阴阳学说起源于远古先民对自然现象的观察。"},
+{"id":"m2","t":"阴阳消长平衡图解","c":"阴阳之间的动态平衡是健康的本质——'阴平阳秘，精神乃治'。自然界阴阳消长最典型的范式是昼夜节律。"},
+{"id":"m3","t":"阴阳学说的医学应用","c":"从组织结构到生理病理，阴阳分类无处不在。阴阳学说为中医提供了最基本的分类框架和辨证维度。"},
+{"id":"m4","t":"五行学说总览","c":"木火土金水——五种基本物质运动形态，构成了一个完整的系统模型。五行学说起源于商周时期。"},
+{"id":"m5","t":"五行生克关系全图","c":"相生与相克——五行之间的两种基本关系构成了一个自我调节的稳态系统。五行的价值不仅在于分类。"},
+{"id":"m6","t":"五行归类系统表","c":"五行是一个强大的归类工具——将自然现象与人体功能纳入同一个分类体系。通过类比和推演建立天人相应框架。"},
+{"id":"m7","t":"五脏的五行配属","c":"肝心脾肺肾——五脏与五行的对应关系不是随意的，而是基于功能特性的深刻类比。五脏五行配属是藏象学说的理论核心。"},
+{"id":"m8","t":"生克关系在病理中的应用","c":"'见肝之病，知肝传脾，当先实脾'——五行生克是预测疾病传变的理论工具。四大疾病传变模式。"},
+{"id":"m9","t":"案例研读：五行学说临床应用","c":"通过一个真实的临床案例理解五行学说如何指导诊断和治疗。患者反复咳嗽3月余，伴气短乏力食欲不振。"},
+{"id":"m10","t":"阴阳五行综合应用与小结","c":"阴阳学说提供定性框架，五行学说提供关系网络——两者结合形成中医理论的核心模型。"}
+];
+var TOAST_TIMEOUT;
+
+(function(){
+var progressBar=document.getElementById('progressBar');
+var modules=document.querySelectorAll('.module');
+
+var observer=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting)e.target.classList.add('visible')})},{threshold:.15});
+modules.forEach(function(m){observer.observe(m)});
+
+var navLinks=document.querySelectorAll('.sidebar-nav a');
+var navObserver=new IntersectionObserver(function(entries){
+entries.forEach(function(e){
+if(e.isIntersecting){
+navLinks.forEach(function(a){a.classList.remove('active')});
+var act=document.querySelector('.sidebar-nav a[href="#'+e.target.id+'"]');
+if(act)act.classList.add('active');
+}
+})},{threshold:.3});
+modules.forEach(function(m){navObserver.observe(m)});
+
+window.addEventListener('scroll',function(){
+var st=document.documentElement.scrollTop,dh=document.documentElement.scrollHeight-window.innerHeight;
+var pct=dh>0?Math.min(100,(st/dh)*100):0;progressBar.style.width=pct+'%';
+});
+
+window.addEventListener('keydown',function(e){
+if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();openSearch()}
+if((e.ctrlKey||e.metaKey)&&e.key==='d'){e.preventDefault();toggleTheme()}
+if(e.key==='Escape')closeSearch()
+});
+})();
+
+function toggleTheme(){
+var b=document.body,isD=b.getAttribute('data-theme')==='dark';
+b.setAttribute('data-theme',isD?'light':'dark');
+try{localStorage.setItem('slm-theme',isD?'light':'dark')}catch(e){}
+showToast('已切换至'+(isD?'浅色':'深色')+'主题')
+}
+
+function openSearch(){document.getElementById('searchOverlay').classList.add('open');setTimeout(function(){document.getElementById('searchInput').focus()},100)}
+function closeSearch(){document.getElementById('searchOverlay').classList.remove('open');document.getElementById('searchResults').innerHTML=''}
+
+function doSearch(){
+var q=document.getElementById('searchInput').value.toLowerCase(),res=document.getElementById('searchResults');
+if(q.length<2){res.innerHTML='';return}
+var h='';SEARCH_INDEX.forEach(function(item){
+if(item.t.toLowerCase().indexOf(q)>=0||(item.c||'').toLowerCase().indexOf(q)>=0){
+h+='<div onclick="closeSearch();document.getElementById(\''+item.id+'\').scrollIntoView({behavior:\'smooth\'})">'+
+'<strong>'+item.t+'</strong><br><small style="color:var(--text-muted)">'+(item.c||'').substring(0,80)+'</small></div>';
+}
+});
+res.innerHTML=h||'<div style="padding:12px;color:var(--text-muted)">未找到匹配模块</div>'
+}
+
+function showToast(msg){
+var el=document.getElementById('toastEl'),mg=document.getElementById('toastMsg');
+if(!el||!mg)return;mg.textContent=msg;el.style.display='block';el.classList.add('toast-in');
+if(TOAST_TIMEOUT)clearTimeout(TOAST_TIMEOUT);
+TOAST_TIMEOUT=setTimeout(function(){el.style.display='none'},3000);
+}
+
+(function(){
+var t;try{t=localStorage.getItem('slm-theme')}catch(e){}
+if(t==='light')document.body.setAttribute('data-theme','light');
+})();
+
+(function(){
+document.querySelectorAll('.derivation-toggle').forEach(function(btn){
+btn.addEventListener('click',function(){
+var content=this.nextElementSibling;
+if(content){content.classList.toggle('open');this.textContent=content.classList.contains('open')?'▾ 收起推导':'▸ 展开推导'}
+});
+});
+})();
+
+(function initCharts(){
+if(typeof echarts==='undefined')return;
+var charts=[];
+function makeChart(elId,option){
+var el=document.getElementById(elId);
+if(!el)return null;
+var chart=echarts.init(el);
+chart.setOption(option);
+charts.push(chart);
+return chart;
+}
+
+var isDark=document.body.getAttribute('data-theme')==='dark';
+var textColor=isDark?'#b8ad98':'#4a4035';
+var axisColor=isDark?'#8a8070':'#5c5042';
+var gridColor=isDark?'#2d2924':'#ebe5d6';
+
+makeChart('chart_yinyang_balance',{
+tooltip:{trigger:'axis',formatter:function(p){return p[0].name+'<br/>阳气: '+p[0].value.toFixed(1)+'<br/>阴气: '+p[1].value.toFixed(1)}},
+legend:{data:['阳气','阴气'],bottom:0,textStyle:{color:textColor,fontSize:11}},
+grid:{top:20,right:30,bottom:40,left:50},
+xAxis:{type:'category',data:['子时','丑时','寅时','卯时','辰时','巳时','午时','未时','申时','酉时','戌时','亥时','子时'],axisLabel:{color:axisColor,fontSize:10},axisLine:{lineStyle:{color:gridColor}}},
+yAxis:{type:'value',min:0,max:100,axisLabel:{color:axisColor,fontSize:10},splitLine:{lineStyle:{color:gridColor}},name:'强度',nameTextStyle:{color:axisColor,fontSize:10}},
+series:[
+{name:'阳气',type:'line',smooth:true,data:[5,12,28,50,72,88,95,90,75,52,28,12,5],lineStyle:{color:'#e6b95a',width:2},itemStyle:{color:'#e6b95a'},areaStyle:{color:{type:'linear',x:0,y:0,x2:0,y2:1,colorStops:[{offset:0,color:'rgba(230,185,90,.25)'},{offset:1,color:'rgba(230,185,90,.02)'}]}}},
+{name:'阴气',type:'line',smooth:true,data:[95,88,72,50,28,12,5,10,25,48,72,88,95],lineStyle:{color:'#7ec8a0',width:2},itemStyle:{color:'#7ec8a0'},areaStyle:{color:{type:'linear',x:0,y:0,x2:0,y2:1,colorStops:[{offset:0,color:'rgba(126,200,160,.25)'},{offset:1,color:'rgba(126,200,160,.02)'}]}}}
+]
+});
+
+makeChart('chart_wuxing_shengke',{
+tooltip:{trigger:'item',formatter:'{b}'},
+series:[{
+type:'graph',layout:'circular',roam:false,label:{show:true,fontSize:14,fontWeight:'bold',color:textColor},
+edgeSymbol:['none','arrow'],edgeSymbolSize:10,
+data:[
+{name:'木',symbolSize:50,itemStyle:{color:'#6ebf8a'}},
+{name:'火',symbolSize:50,itemStyle:{color:'#d47860'}},
+{name:'土',symbolSize:50,itemStyle:{color:'#e6b95a'}},
+{name:'金',symbolSize:50,itemStyle:{color:'#b8ad98'}},
+{name:'水',symbolSize:50,itemStyle:{color:'#7ec8a0'}}
+],
+links:[
+{source:'木',target:'火',label:{show:true,formatter:'生',fontSize:10},lineStyle:{color:'#6ebf8a',curveness:.2}},
+{source:'火',target:'土',label:{show:true,formatter:'生',fontSize:10},lineStyle:{color:'#6ebf8a',curveness:.2}},
+{source:'土',target:'金',label:{show:true,formatter:'生',fontSize:10},lineStyle:{color:'#6ebf8a',curveness:.2}},
+{source:'金',target:'水',label:{show:true,formatter:'生',fontSize:10},lineStyle:{color:'#6ebf8a',curveness:.2}},
+{source:'水',target:'木',label:{show:true,formatter:'生',fontSize:10},lineStyle:{color:'#6ebf8a',curveness:.2}},
+{source:'木',target:'土',label:{show:true,formatter:'克',fontSize:10},lineStyle:{color:'#d47860',curveness:0}},
+{source:'土',target:'水',label:{show:true,formatter:'克',fontSize:10},lineStyle:{color:'#d47860',curveness:0}},
+{source:'水',target:'火',label:{show:true,formatter:'克',fontSize:10},lineStyle:{color:'#d47860',curveness:0}},
+{source:'火',target:'金',label:{show:true,formatter:'克',fontSize:10},lineStyle:{color:'#d47860',curveness:0}},
+{source:'金',target:'木',label:{show:true,formatter:'克',fontSize:10},lineStyle:{color:'#d47860',curveness:0}}
+],
+lineStyle:{width:2}
+}]
+});
+
+makeChart('chart_case_flow',{
+tooltip:{trigger:'item'},
+series:[{
+type:'sankey',layout:'none',emphasis:{focus:'adjacency'},
+nodeAlign:'left',
+data:[
+{name:'主诉：咳嗽气短'},
+{name:'病位在肺（金）'},
+{name:'兼症：食欲差便溏'},
+{name:'病位在脾（土）'},
+{name:'土不生金（脾肺气虚）'},
+{name:'治则：培土生金'},
+{name:'参苓白术散加减'},
+{name:'咳嗽止·纳食增'}
+],
+links:[
+{source:'主诉：咳嗽气短',target:'病位在肺（金）',value:10},
+{source:'兼症：食欲差便溏',target:'病位在脾（土）',value:10},
+{source:'病位在肺（金）',target:'土不生金（脾肺气虚）',value:10},
+{source:'病位在脾（土）',target:'土不生金（脾肺气虚）',value:10},
+{source:'土不生金（脾肺气虚）',target:'治则：培土生金',value:10},
+{source:'治则：培土生金',target:'参苓白术散加减',value:10},
+{source:'参苓白术散加减',target:'咳嗽止·纳食增',value:10}
+],
+label:{fontSize:10,color:textColor},
+lineStyle:{color:'gradient',curveness:.5}
+}]
+});
+
+window.addEventListener('resize',function(){charts.forEach(function(c){c.resize()})});
+})();
+</script>
+</body>
+</html>

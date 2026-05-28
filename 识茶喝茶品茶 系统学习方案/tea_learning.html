@@ -1,0 +1,1224 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>识茶·喝茶·品茶 系统学习方案</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+<style>
+/* ───────────────────────────────────────────────
+   Template: Cedar Dawn (雪松晨曦) — plan.css
+   Mood: warm, natural, organic
+   Contrast verified: text-primary≥10:1, text-secondary≥6:1, text-muted≥4.5:1
+   Light mode uses cool-toned text on warm background for hue separation
+   ─────────────────────────────────────────────── */
+:root{
+--bg-deep:#1a1814;
+--bg-primary:#211f1a;
+--bg-card:#282520;
+--bg-elevated:#312d27;
+--bg-input:#26231e;
+--text-primary:#ede6d8;
+--text-secondary:#b8ad98;
+--text-muted:#8a8070;
+--accent-blue:#5ea87a;
+--accent-cyan:#7ec8a0;
+--accent-purple:#b898a0;
+--accent-green:#6ebf8a;
+--accent-orange:#d4984a;
+--accent-pink:#d49898;
+--accent-red:#d47860;
+--accent-gold:#e6b95a;
+--border-subtle:rgba(255,255,255,0.05);
+--border-glow:rgba(94,168,122,0.25);
+--shadow-sm:0 1px 3px rgba(0,0,0,0.3);
+--shadow-md:0 4px 12px rgba(0,0,0,0.4);
+--radius-sm:6px;
+--radius-md:10px;
+--radius-lg:16px;
+--transition-fast:0.15s ease;
+--transition-smooth:0.3s ease;
+}
+body.light{
+--bg-deep:#fdfaf3;
+--bg-primary:#fffdf7;
+--bg-card:#faf7ed;
+--bg-elevated:#f3efe3;
+--bg-input:#ebe5d6;
+--text-primary:#1f1a12;
+--text-secondary:#4a4035;
+--text-muted:#5c5042;
+--accent-blue:#3d6b50;
+--accent-cyan:#4a8e6a;
+--accent-purple:#7a5a6a;
+--accent-green:#4a9e66;
+--accent-orange:#a06528;
+--accent-pink:#a06068;
+--accent-red:#b05038;
+--accent-gold:#a07828;
+--border-subtle:rgba(31,26,18,0.08);
+--border-glow:rgba(61,107,80,0.25);
+--shadow-sm:0 1px 3px rgba(0,0,0,0.06);
+--shadow-md:0 4px 12px rgba(0,0,0,0.08);
+}
+body.light .knowledge-card.expanded{border-color:rgba(74,158,102,0.5)}
+body.dark .knowledge-card.expanded{border-color:rgba(110,191,138,0.5);background:var(--bg-elevated)}
+.graph-container{width:100%;height:420px;margin-top:8px}
+.graph-toolbar{display:flex;justify-content:flex-end;margin-bottom:8px;flex-wrap:wrap;gap:8px}
+.graph-legend{display:flex;gap:14px;font-size:.68rem;color:var(--text-muted);flex-wrap:wrap}
+.gl-item{display:flex;align-items:center;gap:4px}
+.gl-dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+.gl-line-prereq{color:var(--accent-blue)}
+.gl-line-related{color:var(--text-muted)}
+.method-step{cursor:pointer;transition:all var(--transition-smooth)}
+.method-step:hover{border-color:var(--border-glow);transform:translateX(4px)}
+.method-step.done .method-step-num{background:var(--accent-green)}
+.method-step.done .method-step-num::after{content:' \2713';font-size:.7rem}
+.method-step-example{margin-top:10px;padding:10px;background:var(--bg-elevated);border-radius:var(--radius-sm);overflow-x:auto;font-size:.7rem;color:var(--text-muted)}
+.method-step-link{display:inline-block;margin-top:8px;font-size:.7rem;color:var(--accent-cyan);cursor:pointer;font-weight:600}
+.method-step-link:hover{text-decoration:underline}
+.method-progress{text-align:right;margin-top:16px;font-size:.72rem;color:var(--text-muted)}
+.gallery-toolbar{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.gallery-filter{padding:4px 14px;border-radius:50px;font-size:.68rem;cursor:pointer;font-weight:600;border:1px solid var(--border-subtle);color:var(--text-secondary);background:var(--bg-elevated);font-family:inherit;transition:all var(--transition-fast)}
+.gallery-filter:hover{color:var(--accent-cyan);border-color:var(--border-glow)}
+.gallery-filter.active{background:rgba(94,168,122,.12);color:var(--accent-cyan);border-color:var(--accent-cyan)}
+.drawing-card{cursor:pointer;position:relative;overflow:hidden}
+.drawing-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.drawing-card .drawing-type{font-size:.6rem;font-weight:700;padding:2px 8px;border-radius:50px;display:inline-block;margin-bottom:8px}
+.drawing-card .drawing-preview{width:100%;height:160px;background:var(--bg-elevated);border-radius:var(--radius-sm);margin-bottom:10px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.drawing-card .drawing-preview svg{max-width:100%;max-height:140px}
+.drawing-card .drawing-detail-link{font-size:.65rem;color:var(--accent-cyan);cursor:pointer;font-weight:600}
+.gallery-lightbox{display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.85);backdrop-filter:blur(8px);align-items:center;justify-content:center}
+.gallery-lightbox.open{display:flex}
+.lightbox-content{max-width:90vw;max-height:90vh;position:relative}
+.lightbox-close{position:absolute;top:-40px;right:0;background:none;border:none;color:#fff;font-size:1.5rem;cursor:pointer}
+.lightbox-image{background:var(--bg-card);border-radius:var(--radius-md);padding:24px;overflow:auto}
+.lightbox-image svg{max-width:100%;height:auto}
+.lightbox-info{margin-top:12px;text-align:center;color:var(--text-secondary);font-size:.8rem}
+@media(max-width:768px){.graph-container{height:320px}}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter','Noto Sans SC',-apple-system,sans-serif;background:var(--bg-deep);color:var(--text-primary);line-height:1.6;overflow-x:hidden}
+body.loading{opacity:0}body.loaded{opacity:1;transition:opacity 0.4s ease}
+.container{max-width:1200px;margin:0 auto;padding:0 24px}
+
+.hero{text-align:center;padding:80px 0 60px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;
+  background:radial-gradient(ellipse at 50% 0%,#5ea87a 0%,transparent 50%),radial-gradient(ellipse at 80% 50%,#d4984a 0%,transparent 40%);
+  opacity:0.15;z-index:0}
+.hero>*{position:relative;z-index:1}
+.hero h1{font-size:2.6rem;font-weight:900;letter-spacing:-0.02em;margin-bottom:16px;background:linear-gradient(135deg,#5ea87a,#d4984a);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{font-size:1.05rem;color:var(--text-secondary);max-width:700px;margin:0 auto 32px}
+.hero-stats{display:flex;gap:24px;justify-content:center;flex-wrap:wrap}
+.hero-stat{background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:16px 28px;text-align:center;min-width:100px}
+.hero-stat .num{font-size:2rem;font-weight:800;color:var(--accent-blue)}
+.hero-stat .lbl{font-size:0.75rem;color:var(--text-muted);margin-top:4px}
+
+.topbar{position:sticky;top:0;z-index:100;background:rgba(5,10,16,0.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border-subtle);padding:10px 0}
+.topbar .container{display:flex;gap:12px;align-items:center;overflow-x:auto}
+.topbar a{color:var(--text-secondary);text-decoration:none;font-size:0.78rem;font-weight:600;padding:6px 14px;border-radius:50px;transition:all var(--transition-fast);white-space:nowrap}
+.topbar a:hover{color:var(--accent-cyan);background:rgba(56,189,248,0.08)}
+.topbar .theme-toggle,.topbar .search-toggle{background:var(--bg-elevated);border:1px solid var(--border-subtle);color:var(--text-secondary);font-size:0.78rem;padding:6px 14px;border-radius:50px;cursor:pointer;font-family:inherit;font-weight:600;transition:all var(--transition-fast)}
+.topbar .theme-toggle:hover,.topbar .search-toggle:hover{color:var(--accent-cyan);border-color:var(--border-glow)}
+
+.search-overlay{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px)}
+.search-overlay.show{display:flex;align-items:flex-start;justify-content:center;padding-top:120px}
+.search-box{background:var(--bg-card);border:1px solid var(--border-glow);border-radius:var(--radius-md);padding:20px;width:90%;max-width:600px;box-shadow:0 16px 48px rgba(0,0,0,0.5)}
+.search-box input{width:100%;background:var(--bg-input);border:1px solid var(--border-subtle);border-radius:var(--radius-sm);padding:12px 16px;color:var(--text-primary);font-size:0.95rem;font-family:inherit;outline:none}
+.search-box input:focus{border-color:var(--accent-cyan)}
+.search-results{margin-top:12px;max-height:300px;overflow-y:auto}
+.search-result{padding:10px 14px;border-radius:var(--radius-sm);cursor:pointer;font-size:0.82rem;transition:background var(--transition-fast)}
+.search-result:hover{background:rgba(56,189,248,0.08)}
+.search-result .sr-title{font-weight:700;color:var(--accent-cyan)}
+.search-result .sr-detail{color:var(--text-muted);font-size:0.72rem;margin-top:2px}
+
+.section{padding:60px 0}
+.section-title{font-size:1.5rem;font-weight:800;margin-bottom:28px;display:flex;align-items:center;gap:10px}
+
+.phase-list{display:flex;flex-direction:column;gap:16px}
+.phase-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-lg);overflow:hidden;transition:all var(--transition-smooth)}
+.phase-card:hover{border-color:var(--border-glow)}
+.phase-card.open{border-color:var(--border-glow)}
+.phase-header{padding:20px 24px;cursor:pointer;display:flex;align-items:center;gap:14px;transition:background var(--transition-fast);user-select:none}
+.phase-header:hover{background:rgba(96,165,250,0.03)}
+.phase-icon{width:42px;height:42px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0}
+.phase-info{flex:1}.phase-info h3{font-size:1.05rem;font-weight:700}.phase-info .phase-week{font-size:0.72rem;color:var(--text-muted);margin-top:2px}.phase-sub{font-size:0.72rem;padding:3px 10px;border-radius:50px;font-weight:600}
+.phase-arrow{font-size:1.1rem;color:var(--text-muted);transition:transform var(--transition-smooth)}.phase-card.open .phase-arrow{transform:rotate(90deg)}
+.phase-body{display:none;padding:0 24px 20px;border-top:1px solid var(--border-subtle)}
+.phase-card.open .phase-body{display:block}
+.phase-body-inner{padding-top:16px}
+.phase-skills{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.skill-chip{padding:3px 12px;background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:50px;font-size:0.72rem;color:var(--text-secondary)}
+.phase-desc{font-size:0.82rem;color:var(--text-muted);margin-bottom:12px;line-height:1.7}
+.phase-codes{margin-top:8px}.phase-codes pre{background:rgba(0,0,0,0.3);border-radius:var(--radius-sm);padding:12px 16px;overflow-x:auto;font-size:0.72rem;font-family:'JetBrains Mono',monospace;color:var(--accent-cyan)}
+.footer{text-align:center;padding:40px 0;color:var(--text-muted);font-size:0.72rem;border-top:1px solid var(--border-subtle)}
+
+.knowledge-toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px}
+.knowledge-filters{display:flex;gap:6px;flex-wrap:wrap}
+.knowledge-filter{background:var(--bg-elevated);border:1px solid var(--border-subtle);color:var(--text-secondary);padding:4px 14px;border-radius:50px;cursor:pointer;font-size:0.72rem;font-weight:600;font-family:inherit;transition:all var(--transition-fast)}
+.knowledge-filter:hover{color:var(--accent-cyan);border-color:var(--border-glow)}
+.knowledge-filter.active{background:rgba(56,189,248,0.12);color:var(--accent-cyan);border-color:var(--accent-cyan)}
+.knowledge-count{font-size:0.68rem;color:var(--text-muted)}
+.knowledge-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px}
+@media(max-width:768px){.knowledge-grid{grid-template-columns:1fr}}
+
+.knowledge-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);overflow:hidden;cursor:default;transition:all var(--transition-smooth);position:relative}
+.knowledge-card:hover{border-color:var(--border-glow);box-shadow:var(--shadow-sm)}
+.knowledge-card.open{border-color:var(--border-glow)}
+.knowledge-card.expanded{grid-column:1/-1;border-color:var(--accent-green);box-shadow:var(--shadow-md)}
+.card-header{padding:14px 18px;cursor:pointer;display:flex;align-items:center;gap:10px;flex-wrap:wrap;transition:background var(--transition-fast);user-select:none}
+.card-header:hover{background:rgba(124,92,231,0.03)}
+.card-icon{font-size:1.1rem;flex-shrink:0}.card-title{font-weight:700;font-size:0.85rem;flex:1}
+.math-tag{padding:2px 10px;border-radius:50px;font-size:0.6rem;font-weight:700;cursor:pointer;transition:all var(--transition-fast);color:#fff}
+.math-tag:hover{opacity:0.8}
+
+.card-back{display:none;font-size:0.65rem;color:var(--text-muted);cursor:pointer;padding:2px 8px;border-radius:50px;background:var(--bg-elevated)}
+.knowledge-card.expanded .card-back,.knowledge-card.open .card-back{display:inline}
+.card-detail{display:none;padding:0 18px 16px;font-size:0.82rem;color:var(--text-secondary);line-height:1.7}
+.knowledge-card.open .card-detail,.knowledge-card.expanded .card-detail{display:block}
+.card-detail p{margin-bottom:8px}
+.card-formula{background:var(--bg-elevated);border:1px solid var(--border-glow);border-radius:var(--radius-sm);padding:14px 18px;margin-bottom:12px;font-size:0.95rem;text-align:center;color:var(--accent-blue);overflow-x:auto}
+.card-sum{background:rgba(251,191,36,0.06);border-left:3px solid var(--accent-orange);padding:10px 14px;margin-bottom:10px;border-radius:0 var(--radius-sm) var(--radius-sm) 0;font-size:0.78rem;color:var(--accent-orange)}
+.card-related{margin-top:4px;margin-bottom:8px;padding:12px 14px;background:rgba(255,255,255,0.015);border:1px dashed var(--border-subtle);border-radius:var(--radius-sm)}
+.cr-title{font-size:0.72rem;font-weight:700;color:var(--text-secondary);margin-bottom:8px}
+.cr-links{display:flex;flex-wrap:wrap;gap:6px}
+.cr-link{font-size:0.68rem;padding:4px 10px;border-radius:50px;border:1px solid var(--border-subtle);color:var(--accent-cyan);cursor:pointer;transition:all var(--transition-fast)}
+.cr-link:hover{background:rgba(38,198,218,0.1);border-color:var(--accent-cyan)}
+.skill-link{cursor:pointer;border-color:rgba(79,195,247,0.3);color:var(--accent-blue)}
+.skill-link:hover{background:rgba(79,195,247,0.1);transform:translateY(-1px)}
+.ks-expand-all{background:transparent;border:1px solid var(--border-subtle);color:var(--accent-cyan);padding:3px 10px;border-radius:50px;font-size:0.68rem;cursor:pointer;font-weight:600;transition:all var(--transition-fast);font-family:inherit;margin-left:8px}
+.ks-expand-all:hover{border-color:var(--accent-cyan);background:rgba(38,198,218,0.08)}
+@media(max-width:768px){.knowledge-card.expanded{grid-column:auto}}
+.deep-dive-bar{padding:0 0 8px;text-align:right;display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+.deep-dive-btn{background:linear-gradient(135deg,rgba(139,92,246,0.15),rgba(99,102,241,0.1));border:1px solid rgba(139,92,246,0.3);color:var(--accent-purple);padding:6px 16px;border-radius:50px;cursor:pointer;font-size:0.78rem;font-weight:600;font-family:inherit;transition:all var(--transition-smooth)}
+.deep-dive-btn:hover{border-color:rgba(139,92,246,0.6);box-shadow:0 0 16px rgba(139,92,246,0.15);transform:translateY(-1px)}
+.dd-ready .deep-dive-btn{background:rgba(16,185,129,0.1);border-color:rgba(16,185,129,0.3);color:var(--accent-green)}
+.dd-hint{font-size:0.65rem;color:var(--text-muted);opacity:0.7}
+.deep-dive-open-btn{background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);color:var(--accent-green);border-radius:50px;width:26px;height:26px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;font-size:0.75rem;font-weight:700;font-family:inherit;transition:all var(--transition-fast)}
+.deep-dive-open-btn:hover{background:rgba(16,185,129,0.25)}
+.dd-toast{animation:ddToastIn 0.3s ease}
+@keyframes ddToastIn{from{opacity:0;transform:translate(-50%,20px)}to{opacity:1;transform:translate(-50%,0)}}
+.phase-dd-batch{padding-top:16px;border-top:1px solid var(--border-subtle);display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.batch-deep-dive-btn{background:var(--bg-elevated);border:1px dashed var(--border-glow);color:var(--text-secondary);padding:8px 20px;border-radius:50px;cursor:pointer;font-size:0.82rem;font-weight:600;font-family:inherit;transition:all var(--transition-smooth)}
+.batch-deep-dive-btn:hover{border-style:solid;border-color:rgba(139,92,246,0.5);color:var(--accent-purple)}
+
+.method-steps{display:grid;gap:16px;max-width:800px}
+.method-step{display:flex;gap:16px;align-items:flex-start}
+.method-step-num{width:36px;height:36px;border-radius:50%;background:var(--accent-purple);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:0.9rem;flex-shrink:0}
+.method-step-text h4{font-size:0.9rem;color:var(--text-primary);margin-bottom:4px}
+.method-step-text p{font-size:0.78rem;color:var(--text-secondary);line-height:1.6}
+
+.formula-tabs{display:flex;gap:6px;margin-bottom:20px;flex-wrap:wrap}
+.formula-tab{background:var(--bg-elevated);border:1px solid var(--border-subtle);color:var(--text-secondary);padding:6px 16px;border-radius:50px;cursor:pointer;font-size:0.72rem;font-weight:600;font-family:inherit;transition:all var(--transition-fast)}
+.formula-tab:hover{color:var(--accent-cyan);border-color:var(--border-glow)}
+.formula-tab.active{background:rgba(56,189,248,0.12);color:var(--accent-cyan);border-color:var(--accent-cyan)}
+.formula-panel{display:none}
+.formula-panel.active{display:block}
+.formula-table{width:100%;border-collapse:collapse;font-size:0.78rem}
+.formula-table th{text-align:left;padding:10px 14px;background:var(--bg-elevated);color:var(--accent-cyan);font-weight:700;border-bottom:2px solid var(--border-glow)}
+.formula-table td{padding:9px 14px;border-bottom:1px solid var(--border-subtle);color:var(--text-secondary);font-family:'JetBrains Mono',monospace}
+
+.exercise-filters{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.exercise-filter{padding:4px 14px;border-radius:50px;font-size:0.68rem;cursor:pointer;font-weight:600;border:1px solid var(--border-subtle);color:var(--text-secondary);background:var(--bg-elevated);font-family:inherit;transition:all var(--transition-fast)}
+.exercise-filter:hover{color:var(--accent-cyan);border-color:var(--border-glow)}
+.exercise-filter.active{background:rgba(56,189,248,0.12);color:var(--accent-cyan);border-color:var(--accent-cyan)}
+.exercise-count{font-size:0.68rem;color:var(--text-muted);margin-bottom:12px}
+.exercise-list{display:flex;flex-direction:column;gap:8px}
+.exercise-item{display:flex;gap:12px;align-items:center;background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:12px 16px;transition:all var(--transition-fast)}
+.exercise-item:hover{border-color:var(--border-glow)}
+.exercise-num{font-size:0.7rem;color:var(--text-muted);font-family:'JetBrains Mono',monospace;min-width:28px}
+.ei-content{flex:1}.ei-title{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.ei-title-text{font-size:0.84rem;font-weight:600}
+.diff{padding:2px 8px;border-radius:50px;font-size:0.6rem;font-weight:700}
+.diff.easy{background:rgba(16,185,129,0.1);color:var(--accent-green)}
+.diff.medium{background:rgba(251,191,36,0.1);color:var(--accent-orange)}
+.diff.hard{background:rgba(239,68,68,0.1);color:#ef4444}
+.diff.project{background:rgba(139,92,246,0.1);color:var(--accent-purple)}
+.ei-check{width:28px;height:28px;border-radius:50%;border:2px solid var(--border-subtle);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:0.75rem;transition:all var(--transition-fast);flex-shrink:0}
+.ei-check:hover{border-color:var(--accent-green)}
+.ei-check.done{background:var(--accent-green);border-color:var(--accent-green);color:#fff}
+
+.resource-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.resource-item{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:16px 18px;transition:all var(--transition-fast)}
+.resource-item:hover{border-color:var(--border-glow)}
+.resource-item .ri-type{font-size:0.6rem;font-weight:700;padding:2px 8px;border-radius:50px;display:inline-block;margin-bottom:8px}
+.ri-type.book{background:rgba(96,165,250,0.1);color:var(--accent-blue)}
+.ri-type.paper{background:rgba(251,191,36,0.1);color:var(--accent-orange)}
+.ri-type.site{background:rgba(16,185,129,0.1);color:var(--accent-green)}
+.ri-type.tool{background:rgba(139,92,246,0.1);color:var(--accent-purple)}
+.resource-item h4{font-size:0.85rem;font-weight:700;margin-bottom:4px}.resource-item p{font-size:0.72rem;color:var(--text-muted);line-height:1.5}
+.resource-item a{font-size:0.68rem;color:var(--accent-cyan);text-decoration:none;font-weight:600}
+.resource-item a:hover{text-decoration:underline}
+
+.tracker-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+.tracker-item{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:14px 16px;cursor:pointer;transition:all var(--transition-fast);display:flex;align-items:center;gap:10px;user-select:none}
+.tracker-item:hover{border-color:var(--border-glow)}
+.tracker-check{width:24px;height:24px;border-radius:50%;border:2px solid var(--border-subtle);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all var(--transition-fast)}
+.tracker-item.done .tracker-check{background:var(--accent-green);border-color:var(--accent-green)}
+.tracker-check::after{content:'✓';color:transparent;font-size:0.7rem;font-weight:700}
+.tracker-item.done .tracker-check::after{color:#fff}
+.tracker-item.done .tracker-label{text-decoration:line-through;opacity:0.5}
+.tracker-label{font-size:0.78rem;font-weight:600}
+
+.progress-bar-container{width:100%;height:6px;background:var(--bg-elevated);border-radius:3px;margin:20px 0;overflow:hidden}
+.progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--accent-blue),var(--accent-green));border-radius:3px;transition:width 0.4s ease}
+
+.deep-floating-back{position:fixed;right:20px;bottom:20px;z-index:10000}
+.deep-floating-back button{padding:12px 20px;background:linear-gradient(135deg,var(--accent-color,#4a90d9),var(--accent-dark,#2d6cb0));color:white;border:none;border-radius:24px;font-size:0.85rem;font-weight:600;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.15);transition:transform 0.2s,box-shadow 0.2s}
+.deep-floating-back button:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,0.2)}
+@media(max-width:768px){.deep-floating-back{right:15px;bottom:15px}.deep-floating-back button{padding:10px 16px;font-size:0.8rem}}
+
+/* Drawing Section */
+.drawing-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.drawing-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:18px;transition:all var(--transition-fast)}
+.drawing-card:hover{border-color:var(--border-glow)}
+.drawing-card h4{font-size:0.85rem;font-weight:700;margin-bottom:8px;color:var(--accent-purple)}
+.drawing-card p{font-size:0.75rem;color:var(--text-muted);line-height:1.6}
+</style>
+</head>
+<body class="loading dark">
+
+<div class="topbar">
+  <div class="container">
+    <a href="#phases">📋 阶段</a><a href="#knowledge">💡 知识点</a>
+    <a href="#graph">🧠 图谱</a>
+    <a href="#method">📐 方法论</a>
+    <a href="#exercises">✏️ 练习</a><a href="#resources">📚 资料</a><a href="#tracker">✅ 进度</a>
+    <button class="theme-toggle" onclick="toggleTheme()" title="切换主题">🌓</button>
+    <button class="search-toggle" onclick="searchOpen()" title="搜索 (Ctrl+K)">🔍</button>
+  </div>
+</div>
+
+<div class="search-overlay" id="searchOverlay" onclick="event.target===this&&searchClose()">
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="搜索知识点..." oninput="searchKPs()" onkeydown="if(event.key==='Escape')searchClose()">
+    <div class="search-results" id="searchResults"></div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="hero">
+    <h1>识茶·喝茶·品茶</h1>
+    <p>从识茶入门到品茶精进，系统掌握中国茶文化的知识体系与实践技艺</p>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="num">14</div><div class="lbl">周</div></div>
+<div class="hero-stat"><div class="num">4</div><div class="lbl">阶段</div></div>
+<div class="hero-stat"><div class="num">14</div><div class="lbl">知识点</div></div>
+<div class="hero-stat"><div class="num">10</div><div class="lbl">练习</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+<section class="section" id="phases">
+  <div class="section-title">📋 学习阶段</div>
+  <div class="phase-list" id="phaseList"></div>
+</section>
+
+<section class="section" id="knowledge">
+  <div class="section-title">💡 知识要点</div>
+  <div class="knowledge-toolbar">
+    <div class="knowledge-filters" id="knowledgeFilters"></div>
+    <div><span class="knowledge-count" id="knowledgeCount"></span><button class="ks-expand-all" onclick="eAK()">📖 展开全部</button></div>
+  </div>
+  <div class="knowledge-grid" id="knowledgeContainer"></div>
+</section>
+
+<section class="section" id="graph">
+  <div class="section-title">🧠 知识图谱</div>
+  <div class="graph-toolbar">
+  <span class="graph-legend">
+    <span class="gl-item"><span class="gl-dot" style="background:var(--accent-blue)"></span> 已研读</span>
+    <span class="gl-item"><span class="gl-dot" style="background:var(--text-muted);opacity:0.4"></span> 待学习</span>
+    <span class="gl-item gl-line-prereq">━━ 前置依赖</span>
+    <span class="gl-item gl-line-related">┅┅ 同级关联</span>
+  </span>
+</div>
+<div id="graphContainer" class="graph-container"></div>
+</section>
+
+<section class="section" id="method">
+  <div class="section-title">📐 系统图解学习法</div>
+  <div class="method-steps" id="methodSteps"></div>
+<div class="method-progress">已完成 <strong id="methodProgress">0</strong>/<span id="methodTotal">4</span> 步</div>
+</section>
+
+<section class="section" id="drawing">
+  <div class="section-title">🎨 图表推导指南</div>
+  <div class="gallery-toolbar" id="galleryToolbar"></div>
+  <div class="drawing-grid" id="drawingGrid"></div>
+</section>
+
+<section class="section" id="exercises">
+  <div class="section-title">✏️ 练习题库</div>
+  <div class="exercise-filters" id="exerciseFilters"></div>
+  <div class="exercise-count" id="exerciseCount"></div>
+  <div class="exercise-list" id="exerciseList"></div>
+</section>
+
+<section class="section" id="resources">
+  <div class="section-title">📚 资料清单</div>
+  <div class="resource-grid" id="resourceGrid"></div>
+</section>
+
+<section class="section" id="tracker">
+  <div class="section-title">✅ 进度追踪</div>
+  <div class="progress-bar-container"><div class="progress-bar-fill" id="progressBar" style="width:0%"></div></div>
+  <div class="tracker-grid" id="trackerGrid"></div>
+</section>
+</div>
+
+<footer class="footer">© 2026 识茶·喝茶·品茶 系统学习方案</footer>
+
+<div id="ddToast" style="display:none;position:fixed;bottom:30px;left:50%;transform:translateX(-50%);z-index:10000;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:8px;padding:14px 24px;box-shadow:0 4px 16px rgba(0,0,0,0.15);font-size:0.85rem;"><span id="ddToastMsg"></span></div>
+
+<div class="gallery-lightbox" id="galleryLightbox" onclick="closeLightbox()">
+  <div class="lightbox-content" onclick="event.stopPropagation()">
+    <button class="lightbox-close" onclick="closeLightbox()">&#10005;</button>
+    <div class="lightbox-image" id="lightboxImage"></div>
+    <div class="lightbox-info" id="lightboxInfo"></div>
+  </div>
+</div>
+
+<script>
+var STORAGE_KEY = 'tea_culture';
+var PLAN = {id:'tea-culture-learning', title:'识茶·喝茶·品茶 系统学习方案', html_file:'tea_learning.html', template_id:'cedar-dawn'};
+var LS_PREFIX = STORAGE_KEY;
+
+var PHASES = [
+  {"id":"p1","week":"第1-4周","title":"识茶入门","sub":"基础奠基","color":"#4fc3f7","icon":"🌿","cls":"c1",
+   "skills":["茶树品种与起源","六大茶类分类体系","茶叶加工工艺基础","茶叶命名与等级辨识"],
+   "phase_kps":["p1_1","p1_2","p1_3","p1_4"],
+   "drawings":[
+     {"name":"六大茶类发酵度光谱图","type":"spectrum","phase_id":"p1","svg":"<svg viewBox='0 0 600 120' xmlns='http://www.w3.org/2000/svg'><defs><linearGradient id='fg' x1='0' y1='0' x2='1' y2='0'><stop offset='0%' stop-color='#4caf50'/><stop offset='20%' stop-color='#e0e0e0'/><stop offset='40%' stop-color='#ffd54f'/><stop offset='60%' stop-color='#ff9800'/><stop offset='80%' stop-color='#f44336'/><stop offset='100%' stop-color='#5d4037'/></linearGradient></defs><rect x='20' y='30' width='560' height='30' rx='4' fill='url(#fg)'/><text x='20' y='80' fill='#8a8070' font-size='10'>绿茶 0%</text><text x='130' y='80' fill='#8a8070' font-size='10'>白茶 5-10%</text><text x='250' y='80' fill='#8a8070' font-size='10'>黄茶 10-20%</text><text x='370' y='80' fill='#8a8070' font-size='10'>乌龙 15-70%</text><text x='480' y='80' fill='#8a8070' font-size='10'>红茶 70-95%</text><text x='530' y='80' fill='#8a8070' font-size='10'>黑茶 80-100%</text></svg>","related_kp":"p1_2","desc":"展示六大茶类从不发酵到后发酵的发酵度光谱分布"},
+     {"name":"茶叶加工工艺流程图","type":"flow","phase_id":"p1","svg":"<svg viewBox='0 0 600 100' xmlns='http://www.w3.org/2000/svg'><rect x='10' y='30' width='80' height='30' rx='4' fill='#5ea87a'/><text x='50' y='50' text-anchor='middle' fill='#fff' font-size='10'>鲜叶</text><line x1='90' y1='45' x2='110' y2='45' stroke='#8a8070' marker-end='url(#a)'/><rect x='110' y='30' width='80' height='30' rx='4' fill='#5ea87a'/><text x='150' y='50' text-anchor='middle' fill='#fff' font-size='10'>萎凋</text><line x1='190' y1='45' x2='210' y2='45' stroke='#8a8070'/><rect x='210' y='30' width='80' height='30' rx='4' fill='#d4984a'/><text x='250' y='50' text-anchor='middle' fill='#fff' font-size='10'>杀青/做青</text><line x1='290' y1='45' x2='310' y2='45' stroke='#8a8070'/><rect x='310' y='30' width='80' height='30' rx='4' fill='#5ea87a'/><text x='350' y='50' text-anchor='middle' fill='#fff' font-size='10'>揉捻</text><line x1='390' y1='45' x2='410' y2='45' stroke='#8a8070'/><rect x='410' y='30' width='80' height='30' rx='4' fill='#d4984a'/><text x='450' y='50' text-anchor='middle' fill='#fff' font-size='10'>发酵</text><line x1='490' y1='45' x2='510' y2='45' stroke='#8a8070'/><rect x='510' y='30' width='80' height='30' rx='4' fill='#5ea87a'/><text x='550' y='50' text-anchor='middle' fill='#fff' font-size='10'>干燥</text></svg>","related_kp":"p1_3","desc":"茶叶加工五大核心工序的流程关系"}
+   ],
+   "deep_dive_batch":"生成本阶段全部深度资料"},
+  {"id":"p2","week":"第5-8周","title":"泡茶技艺","sub":"核心工具","color":"#66bb6a","icon":"🫖","cls":"c2",
+   "skills":["水质与水温科学","茶具选择与搭配","各茶类冲泡技法","功夫茶冲泡流程"],
+   "phase_kps":["p2_1","p2_2","p2_3","p2_4"],
+   "drawings":[
+     {"name":"水温-茶类适配矩阵图","type":"matrix","phase_id":"p2","svg":"<svg viewBox='0 0 500 160' xmlns='http://www.w3.org/2000/svg'><text x='10' y='20' fill='#8a8070' font-size='10'>水温</text><rect x='60' y='10' width='80' height='20' rx='2' fill='#4caf50' opacity='0.7'/><text x='100' y='24' text-anchor='middle' fill='#fff' font-size='9'>绿茶 80°C</text><rect x='150' y='10' width='80' height='20' rx='2' fill='#e0e0e0' opacity='0.7'/><text x='190' y='24' text-anchor='middle' fill='#333' font-size='9'>白茶 85°C</text><rect x='240' y='10' width='80' height='20' rx='2' fill='#ff9800' opacity='0.7'/><text x='280' y='24' text-anchor='middle' fill='#fff' font-size='9'>乌龙 95°C</text><rect x='330' y='10' width='80' height='20' rx='2' fill='#f44336' opacity='0.7'/><text x='370' y='24' text-anchor='middle' fill='#fff' font-size='9'>红茶 90°C</text><rect x='60' y='40' width='350' height='20' rx='2' fill='none' stroke='#8a8070' stroke-width='0.5'/><rect x='60' y='40' width='70' height='20' rx='2' fill='#4caf50' opacity='0.3'/><rect x='130' y='40' width='105' height='20' rx='2' fill='#ff9800' opacity='0.3'/><rect x='235' y='40' width='175' height='20' rx='2' fill='#f44336' opacity='0.3'/><text x='60' y='80' fill='#8a8070' font-size='9'>茶具: 玻璃杯(绿) | 盖碗(白/乌龙) | 紫砂壶(乌龙/普洱) | 瓷壶(红茶)</text></svg>","related_kp":"p2_1","desc":"不同茶类与水温、茶具的适配关系矩阵"},
+     {"name":"功夫茶冲泡流程图","type":"flow","phase_id":"p2","svg":"<svg viewBox='0 0 600 60' xmlns='http://www.w3.org/2000/svg'><rect x='5' y='15' width='70' height='30' rx='4' fill='#5ea87a'/><text x='40' y='35' text-anchor='middle' fill='#fff' font-size='9'>闻香</text><line x1='75' y1='30' x2='90' y2='30' stroke='#8a8070'/><rect x='90' y='15' width='70' height='30' rx='4' fill='#5ea87a'/><text x='125' y='35' text-anchor='middle' fill='#fff' font-size='9'>温壶</text><line x1='160' y1='30' x2='175' y2='30' stroke='#8a8070'/><rect x='175' y='15' width='70' height='30' rx='4' fill='#5ea87a'/><text x='210' y='35' text-anchor='middle' fill='#fff' font-size='9'>投茶</text><line x1='245' y1='30' x2='260' y2='30' stroke='#8a8070'/><rect x='260' y='15' width='70' height='30' rx='4' fill='#d4984a'/><text x='295' y='35' text-anchor='middle' fill='#fff' font-size='9'>洗茶</text><line x1='330' y1='30' x2='345' y2='30' stroke='#8a8070'/><rect x='345' y='15' width='70' height='30' rx='4' fill='#5ea87a'/><text x='380' y='35' text-anchor='middle' fill='#fff' font-size='9'>冲泡</text><line x1='415' y1='30' x2='430' y2='30' stroke='#8a8070'/><rect x='430' y='15' width='70' height='30' rx='4' fill='#5ea87a'/><text x='465' y='35' text-anchor='middle' fill='#fff' font-size='9'>分茶</text><line x1='500' y1='30' x2='515' y2='30' stroke='#8a8070'/><rect x='515' y='15' width='70' height='30' rx='4' fill='#5ea87a'/><text x='550' y='35' text-anchor='middle' fill='#fff' font-size='9'>品饮</text></svg>","related_kp":"p2_4","desc":"功夫茶冲泡七步流程"}
+   ],
+   "deep_dive_batch":"生成本阶段全部深度资料"},
+  {"id":"p3","week":"第9-12周","title":"品茶之道","sub":"整合应用","color":"#ab47bc","icon":"🍵","cls":"c3",
+   "skills":["感官品评方法论","品茶术语与风味轮","茶食搭配艺术","茶道精神与礼仪"],
+   "phase_kps":["p3_1","p3_2","p3_3","p3_4"],
+   "drawings":[
+     {"name":"茶叶风味轮","type":"spectrum","phase_id":"p3","svg":"<svg viewBox='0 0 500 140' xmlns='http://www.w3.org/2000/svg'><circle cx='250' cy='70' r='55' fill='none' stroke='#5ea87a' stroke-width='1'/><text x='250' y='75' text-anchor='middle' fill='#ede6d8' font-size='11'>茶叶风味</text><circle cx='250' cy='20' r='8' fill='#4caf50'/><text x='250' y='12' text-anchor='middle' fill='#8a8070' font-size='8'>花香</text><circle cx='310' cy='50' r='8' fill='#ff9800'/><text x='340' y='54' fill='#8a8070' font-size='8'>果香</text><circle cx='310' cy='95' r='8' fill='#d4984a'/><text x='340' y='99' fill='#8a8070' font-size='8'>蜜香</text><circle cx='250' cy='120' r='8' fill='#66bb6a'/><text x='250' y='137' text-anchor='middle' fill='#8a8070' font-size='8'>鲜爽</text><circle cx='190' cy='95' r='8' fill='#ab47bc'/><text x='155' y='99' fill='#8a8070' font-size='8'>醇厚</text><circle cx='190' cy='50' r='8' fill='#ef5350'/><text x='155' y='54' fill='#8a8070' font-size='8'>回甘</text></svg>","related_kp":"p3_2","desc":"茶叶风味轮：香气与滋味的层级分类"},
+     {"name":"五步品评法流程图","type":"flow","phase_id":"p3","svg":"<svg viewBox='0 0 600 60' xmlns='http://www.w3.org/2000/svg'><rect x='5' y='15' width='100' height='30' rx='4' fill='#ab47bc'/><text x='55' y='35' text-anchor='middle' fill='#fff' font-size='9'>① 观形</text><line x1='105' y1='30' x2='120' y2='30' stroke='#8a8070'/><rect x='120' y='15' width='100' height='30' rx='4' fill='#ab47bc'/><text x='170' y='35' text-anchor='middle' fill='#fff' font-size='9'>② 察色</text><line x1='220' y1='30' x2='235' y2='30' stroke='#8a8070'/><rect x='235' y='15' width='100' height='30' rx='4' fill='#ab47bc'/><text x='285' y='35' text-anchor='middle' fill='#fff' font-size='9'>③ 闻香</text><line x1='335' y1='30' x2='350' y2='30' stroke='#8a8070'/><rect x='350' y='15' width='100' height='30' rx='4' fill='#ab47bc'/><text x='400' y='35' text-anchor='middle' fill='#fff' font-size='9'>④ 品味</text><line x1='450' y1='30' x2='465' y2='30' stroke='#8a8070'/><rect x='465' y='15' width='120' height='30' rx='4' fill='#ab47bc'/><text x='525' y='35' text-anchor='middle' fill='#fff' font-size='9'>⑤ 评叶底</text></svg>","related_kp":"p3_1","desc":"专业品茶五步法流程"}
+   ],
+   "deep_dive_batch":"生成本阶段全部深度资料"},
+  {"id":"p4","week":"第13-14周","title":"茶道精进","sub":"进阶前沿","color":"#ef5350","icon":"🏔️","cls":"c4",
+   "skills":["山头茶与风土概念","茶叶收藏与存储科学"],
+   "phase_kps":["p4_1","p4_2"],
+   "drawings":[
+     {"name":"茶叶存储条件矩阵图","type":"matrix","phase_id":"p4","svg":"<svg viewBox='0 0 500 120' xmlns='http://www.w3.org/2000/svg'><rect x='10' y='10' width='90' height='25' rx='2' fill='#4caf50' opacity='0.6'/><text x='55' y='27' text-anchor='middle' fill='#fff' font-size='8'>绿茶 冷藏</text><rect x='110' y='10' width='90' height='25' rx='2' fill='#e0e0e0' opacity='0.6'/><text x='155' y='27' text-anchor='middle' fill='#333' font-size='8'>白茶 常温</text><rect x='210' y='10' width='90' height='25' rx='2' fill='#ff9800' opacity='0.6'/><text x='255' y='27' text-anchor='middle' fill='#fff' font-size='8'>乌龙 密封</text><rect x='310' y='10' width='90' height='25' rx='2' fill='#f44336' opacity='0.6'/><text x='355' y='27' text-anchor='middle' fill='#fff' font-size='8'>红茶 密封</text><rect x='410' y='10' width='80' height='25' rx='2' fill='#5d4037' opacity='0.6'/><text x='450' y='27' text-anchor='middle' fill='#fff' font-size='8'>普洱 通风</text><text x='10' y='60' fill='#8a8070' font-size='8'>保质期: 绿茶12-18月 | 白茶越陈越香 | 乌龙1-3年 | 红茶2-3年 | 普洱数十年</text></svg>","related_kp":"p4_2","desc":"不同茶类的存储条件与保质期对比矩阵"}
+   ],
+   "deep_dive_batch":"生成本阶段全部深度资料"}
+];
+
+var GRAPH_DATA={"nodes":[
+  {"id":"p1_1","x":0,"y":0,"label":"茶树品种与起源"},
+  {"id":"p1_2","x":0,"y":1,"label":"六大茶类分类体系"},
+  {"id":"p1_3","x":0,"y":1,"label":"茶叶加工工艺基础"},
+  {"id":"p1_4","x":0,"y":0,"label":"茶叶命名与等级辨识"},
+  {"id":"p2_1","x":1,"y":1,"label":"水质与水温科学"},
+  {"id":"p2_2","x":1,"y":1,"label":"茶具选择与搭配"},
+  {"id":"p2_3","x":1,"y":1,"label":"各茶类冲泡技法"},
+  {"id":"p2_4","x":1,"y":2,"label":"功夫茶冲泡流程"},
+  {"id":"p3_1","x":2,"y":2,"label":"感官品评方法论"},
+  {"id":"p3_2","x":2,"y":2,"label":"品茶术语与风味轮"},
+  {"id":"p3_3","x":2,"y":2,"label":"茶食搭配艺术"},
+  {"id":"p3_4","x":2,"y":2,"label":"茶道精神与礼仪"},
+  {"id":"p4_1","x":3,"y":2,"label":"山头茶与风土概念"},
+  {"id":"p4_2","x":3,"y":2,"label":"茶叶收藏与存储科学"}
+],"edges":[
+  {"from":"p1_1","to":"p1_2","type":"prerequisite"},
+  {"from":"p1_2","to":"p1_3","type":"related"},
+  {"from":"p1_2","to":"p2_3","type":"cross_phase"},
+  {"from":"p1_3","to":"p1_4","type":"related"},
+  {"from":"p1_4","to":"p3_1","type":"cross_phase"},
+  {"from":"p2_1","to":"p2_3","type":"related"},
+  {"from":"p2_2","to":"p2_4","type":"related"},
+  {"from":"p2_3","to":"p2_4","type":"related"},
+  {"from":"p2_4","to":"p3_1","type":"cross_phase"},
+  {"from":"p3_1","to":"p3_2","type":"related"},
+  {"from":"p3_2","to":"p3_3","type":"related"},
+  {"from":"p3_3","to":"p3_4","type":"related"},
+  {"from":"p3_4","to":"p4_1","type":"cross_phase"},
+  {"from":"p1_1","to":"p4_1","type":"cross_phase"},
+  {"from":"p1_3","to":"p4_2","type":"cross_phase"}
+]};
+
+var METHOD_STEPS=[
+  {"num":1,"title":"绘制全景分类图","desc":"首先画出六大茶类的全景分类图，标注发酵度、核心工艺和代表茶品，建立整体认知框架","link_section":"graph","link_label":"→ 查看知识图谱"},
+  {"num":2,"title":"构建参数适配矩阵","desc":"将水温、茶具、冲泡时间等参数与茶类一一对应，形成可查阅的适配矩阵表","link_section":"drawing","link_label":"→ 查看图表指南"},
+  {"num":3,"title":"绘制流程关系图","desc":"为功夫茶冲泡、品评五步法等流程绘制步骤图，将文字知识转化为可视化流程","link_section":"drawing","link_label":"→ 查看图表指南"},
+  {"num":4,"title":"标注关联与差异","desc":"在图中标注知识点间的关联（如品种→工艺→风味）和差异（如不同茶类冲泡参数对比）","link_section":"","link_label":""}
+];
+
+var KPS = [
+  {id:'p1_1', n:'茶树品种与起源', p:'p1', tag:'foundation',
+   d:'茶树(Camellia sinensis)属山茶科山茶属，原产于中国西南地区（云南、贵州、四川交界地带）。主要分为大叶种、中叶种和小叶种三大类：大叶种茶多酚含量高，适制红茶和普洱茶；小叶种氨基酸含量高，适制绿茶和乌龙茶。了解茶树品种是识茶的第一步——品种决定了茶叶的先天禀赋。',
+   s:'品种决定禀赋，产地塑造性格',
+   rel:['p1_2','p1_3'],
+   deep_dive:{query:'茶树品种起源', topic_id:null, prompt:'请为"茶树品种与起源"生成 理解×标准 的深度研读资料', status:'ready', html_file:'p1_1_tea-plant-varieties_intermediate.html'}},
+  {id:'p1_2', n:'六大茶类分类体系', p:'p1', tag:'foundation',
+   d:'中国茶叶按发酵度从低到高分为六大类：绿茶(0%)、白茶(5-10%)、黄茶(10-20%)、乌龙茶(15-70%)、红茶(70-95%)、黑茶(80-100%后发酵)。发酵度是分类的核心依据，它决定了茶叶的色、香、味基本走向。每一大类下又有数十至上百个具体品种，如绿茶中的龙井、碧螺春，乌龙茶中的铁观音、大红袍。',
+   s:'发酵度是茶叶分类的灵魂刻度',
+   rel:['p1_1','p1_3','p2_3'],
+   deep_dive:{query:'六大茶类分类', topic_id:null, prompt:'请为"六大茶类分类体系"生成 理解×标准 的深度研读资料', status:'ready', html_file:'p1_2_six-tea-categories_intermediate.html'}},
+  {id:'p1_3', n:'茶叶加工工艺基础', p:'p1', tag:'foundation',
+   d:'茶叶加工的核心工序包括：萎凋(鲜叶失水软化)、杀青(高温钝化酶活性，绿茶关键)、揉捻(破坏细胞组织，促内含物释出)、发酵(多酚类氧化，红茶/乌龙茶关键)、干燥(固定品质，便于储存)。不同茶类的工艺差异造就了截然不同的风味——同一片鲜叶，走不同的工艺路线，可以成为绿茶、红茶或乌龙茶。',
+   s:'同片鲜叶，不同工艺，万千风味',
+   rel:['p1_2','p1_4'],
+   deep_dive:{query:'茶叶加工工艺', topic_id:null, prompt:'请为"茶叶加工工艺基础"生成 理解×标准 的深度研读资料', status:'ready', html_file:'p1_3_tea-processing-basics_intermediate.html'}},
+  {id:'p1_4', n:'茶叶命名与等级辨识', p:'p1', tag:'foundation',
+   d:'茶叶命名主要有三种方式：产地命名(如西湖龙井、武夷岩茶)、品种命名(如铁观音、水仙)、工艺命名(如正山小种、祁门红茶)。等级辨识需综合看外形(条索/颗粒/色泽)、内质(香气/滋味/汤色/叶底)。国家标准对各类茶设有特级、一级至六级的等级划分，但市场上等级标注不规范，需通过实际品鉴积累辨识经验。',
+   s:'命名藏身世，等级见功力',
+   rel:['p1_2','p3_1'],
+   deep_dive:{query:'茶叶命名等级', topic_id:null, prompt:'请为"茶叶命名与等级辨识"生成 理解×标准 的深度研读资料', status:'ready', html_file:'p1_4_tea-naming-grading_intermediate.html'}},
+  {id:'p2_1', n:'水质与水温科学', p:'p2', tag:'core_toolkit',
+   d:'水是茶的载体——"水为茶之母"。水的硬度(钙镁离子含量)直接影响茶汤：软水泡茶汤色明亮、滋味鲜爽；硬水泡茶汤色暗淡、滋味涩滞。pH值6.5-7.0最佳。水温是冲泡的核心变量：绿茶80-85°C保留鲜爽，乌龙茶95-100°C激发香气，红茶90-95°C平衡醇厚，黑茶100°C充分萃取。温度每偏差5°C，茶汤风味可产生显著差异。',
+   s:'水为茶之母，温为茶之魂',
+   rel:['p2_3','p1_2'],
+   deep_dive:{query:'水质水温泡茶', topic_id:null, prompt:'请为"水质与水温科学"生成 理解×标准 的深度研读资料', status:'none', html_file:''}},
+  {id:'p2_2', n:'茶具选择与搭配', p:'p2', tag:'core_toolkit',
+   d:'茶具与茶的关系是"器为茶之父"。盖碗(白瓷)——万能茶具，不吸味、不夺香，适合所有茶类品鉴；紫砂壶——双气孔结构保温透气，最宜乌龙茶和普洱茶；玻璃杯——观赏性强，适合绿茶(看茶叶舒展)；瓷壶——保温均匀，适合红茶。选择原则：看茶选器，嫩茶用散热快的器皿，老茶用保温好的器皿。',
+   s:'器为茶之父，看茶选器是关键',
+   rel:['p2_3','p2_4'],
+   deep_dive:{query:'茶具选择搭配', topic_id:null, prompt:'请为"茶具选择与搭配"生成 理解×标准 的深度研读资料', status:'none', html_file:''}},
+  {id:'p2_3', n:'各茶类冲泡技法', p:'p2', tag:'core_toolkit',
+   d:'不同茶类需要差异化的冲泡策略：绿茶——上投法(先注水后投茶，适合细嫩茶)或中投法(半水→投茶→满水)，忌闷泡；乌龙茶——高冲低斟，100°C沸水激发香气，前几泡5-10秒快出；红茶——温杯醒茶，90-95°C冲泡，3-5分钟出汤；白茶——低温慢泡(85-90°C)，老白茶可煮；黑茶/普洱——100°C洗茶1-2遍，后续冲泡渐次延长时间。',
+   s:'因茶施泡，每类茶有自己的节奏',
+   rel:['p2_1','p2_2','p1_2'],
+   deep_dive:{query:'茶类冲泡技法', topic_id:null, prompt:'请为"各茶类冲泡技法"生成 理解×标准 的深度研读资料', status:'none', html_file:''}},
+  {id:'p2_4', n:'功夫茶冲泡流程', p:'p2', tag:'core_toolkit',
+   d:'功夫茶是中式泡茶的集大成者，核心流程七步：①闻香——干茶投入温壶后摇香闻干香；②温壶——沸水润壶温杯，提升器皿温度；③投茶——茶量约为壶容1/3至1/2；④洗茶——首泡快速倒出(醒茶/润茶)；⑤冲泡——高冲注水，根据茶类控制浸泡时间；⑥分茶——低斟入公道杯，再分入品茗杯；⑦品饮——先闻杯盖香，再品茶汤三口。每一步都有其功能目的，不可省略。',
+   s:'七步功夫，步步有深意',
+   rel:['p2_2','p2_3','p3_1'],
+   deep_dive:{query:'功夫茶冲泡流程', topic_id:null, prompt:'请为"功夫茶冲泡流程"生成 理解×标准 的深度研读资料', status:'none', html_file:''}},
+  {id:'p3_1', n:'感官品评方法论', p:'p3', tag:'integration',
+   d:'专业品茶遵循五步法：①观形——审视干茶外形(条索/颗粒/色泽/匀整度)；②察色——观察茶汤颜色(色度/亮度/清浊)；③闻香——分三次闻(干香→热汤香→冷杯香)，辨别香型与持久度；④品味——小口啜饮，让茶汤在口腔中滚动，感受滋味(浓淡/醇涩/鲜甜)与回甘生津；⑤评叶底——查看泡后茶叶(嫩度/色泽/匀齐度)。五步环环相扣，缺一不可。',
+   s:'五步品评，从形到韵的完整感知',
+   rel:['p3_2','p2_4','p1_4'],
+   deep_dive:{query:'感官品评方法', topic_id:null, prompt:'请为"感官品评方法论"生成 理解×标准 的深度研读资料', status:'ready', html_file:'p3_1_sensory-evaluation-methodology_intermediate.html'}},
+  {id:'p3_2', n:'品茶术语与风味轮', p:'p3', tag:'integration',
+   d:'品茶术语是茶人的"通用语言"。香气术语：花香(茉莉/兰花/桂花)、果香(桃/梨/柑橘)、蜜香、薯香、木质香、陈香等；滋味术语：鲜爽、醇厚、浓烈、涩口、回甘、生津、收敛性、水味等；汤色术语：嫩绿/黄绿/橙黄/橙红/红艳/暗褐等。风味轮将所有术语按层级组织，从大类到具体描述，是训练品鉴能力的系统工具。',
+   s:'术语是茶人的通用语言',
+   rel:['p3_1','p3_3'],
+   deep_dive:{query:'品茶术语风味轮', topic_id:null, prompt:'请为"品茶术语与风味轮"生成 理解×标准 的深度研读资料', status:'ready', html_file:'p3_2_tea-tasting-terminology-flavor-wheel_intermediate.html'}},
+  {id:'p3_3', n:'茶食搭配艺术', p:'p3', tag:'integration',
+   d:'茶食搭配遵循"味不相掩、互相成就"的原则：绿茶配清淡糕点(绿豆糕/桂花糕)，避免浓味遮盖茶之鲜爽；乌龙茶配坚果类(核桃/杏仁)，油脂衬托茶之花果香；红茶配甜品(司康/马卡龙)，茶之醇厚化解甜腻；普洱茶配荤食(烤肉/月饼)，茶之消食去腻功能与油腻食物互补。搭配禁忌：酸味食物破坏茶汤平衡，辛辣食物干扰香气感知。',
+   s:'茶食相映，味不相掩',
+   rel:['p3_2','p3_4'],
+   deep_dive:{query:'茶食搭配艺术', topic_id:null, prompt:'请为"茶食搭配艺术"生成 理解×标准 的深度研读资料', status:'ready', html_file:'p3_3_tea-food-pairing-art_intermediate.html'}},
+  {id:'p3_4', n:'茶道精神与礼仪', p:'p3', tag:'integration',
+   d:'中国茶道精神可概括为"和、敬、清、寂"四字：和——人与自然、人与人的和谐；敬——对茶、对器、对客的敬意；清——心清、茶清、境清；寂——在宁静中感受当下。基本礼仪：叩手礼(食指中指轻叩桌面致谢)、奉茶礼(双手奉茶、先客后主)、续茶礼(茶不过七分满)。茶会组织需考虑茶序(由淡到浓)、时令(春花夏绿秋乌龙冬红茶)、人数(3-5人最佳)。',
+   s:'和敬清寂，茶道即人道',
+   rel:['p3_3','p4_1'],
+   deep_dive:{query:'茶道精神礼仪', topic_id:null, prompt:'请为"茶道精神与礼仪"生成 理解×标准 的深度研读资料', status:'ready', html_file:'p3_4_tea-ceremony-spirit-etiquette_intermediate.html'}},
+  {id:'p4_1', n:'山头茶与风土概念', p:'p4', tag:'advance_frontier',
+   d:'风土(Terroir)是茶叶品质的地理密码。普洱茶的山头文化最为典型：班章(苦涩化甘快，茶气刚烈)、冰岛(甜柔冰糖韵，回甘持久)、易武(香柔水甜，蜜香馥郁)、昔归(菌子香，汤感细腻)。武夷岩茶的"岩韵"源于丹霞地貌的矿物质渗透，正岩(三坑两涧)与外岩风味差异显著。凤凰单丛的"山韵"则来自潮州凤凰山的花香矿物质组合。理解风土，是进阶品茶的关键跨越。',
+   s:'风土是茶叶的地理密码',
+   rel:['p1_1','p3_1','p4_2'],
+   deep_dive:{query:'山头茶风土概念', topic_id:null, prompt:'请为"山头茶与风土概念"生成 理解×标准 的深度研读资料', status:'ready', html_file:'p4_1_mountain-tea-terroir_intermediate.html'}},
+  {id:'p4_2', n:'茶叶收藏与存储科学', p:'p4', tag:'advance_frontier',
+   d:'茶叶存储的核心原则：避光、防潮、防异味、适当通风。不同茶类存储要求差异大：绿茶/黄茶——密封冷藏(0-5°C)，保质期12-18个月；乌龙茶——密封常温，清香型1-2年，浓香型可久存；红茶——密封常温，2-3年；白茶——"一年茶三年药七年宝"，常温干燥存放，越陈越香；普洱茶——通风干燥、避免直晒，生普可陈化数十年。收藏价值判断：看原料(古树>台地)、工艺(传统>机器)、仓储(干仓>湿仓)、稀缺性。',
+   s:'存茶有道，陈化有期',
+   rel:['p1_3','p3_1'],
+   deep_dive:{query:'茶叶收藏存储', topic_id:null, prompt:'请为"茶叶收藏与存储科学"生成 理解×标准 的深度研读资料', status:'ready', html_file:'p4_2_tea-storage-collection_intermediate.html'}}
+];
+
+var FORMULA_TABS = [];
+var FORMULAS = [];
+
+var EXERCISES = [
+  {n:1, t:'辨识六大茶类——给定5款干茶样本，按发酵度从低到高排序', d:'easy'},
+  {n:2, t:'水温匹配练习——为绿茶、乌龙茶、红茶、黑茶分别选择最佳冲泡水温', d:'easy'},
+  {n:3, t:'茶具识别——识别盖碗、紫砂壶、玻璃杯、瓷壶并说明各自最适合的茶类', d:'easy'},
+  {n:4, t:'冲泡对比实验——同一款乌龙茶用不同水温冲泡，记录汤色、香气、滋味差异', d:'medium'},
+  {n:5, t:'风味描述训练——盲品3款茶，用标准术语描述香气类型和滋味特征', d:'medium'},
+  {n:6, t:'功夫茶流程实操——完整执行功夫茶冲泡7步流程，记录每步时间与操作要点', d:'medium'},
+  {n:7, t:'跨茶类品评报告——选择同一产区的绿茶、乌龙茶、红茶，撰写对比品评报告', d:'hard'},
+  {n:8, t:'茶会策划与执行——设计一场主题茶会(含茶单、茶具、茶食、流程)并执行', d:'hard'},
+  {n:9, t:'个人茶品鉴手册——建立20款茶的品鉴记录(含干茶/汤色/香气/滋味/叶底评分)', d:'project'},
+  {n:10, t:'家居茶室搭建方案——规划并搭建一个家庭茶饮空间(含茶具选购、茶叶储备、冲泡区设计)', d:'project'}
+];
+
+var RESOURCES = [
+  {t:'book', n:'《中国茶经》陈宗懋主编', d:'中国茶学权威百科全书，涵盖茶树、加工、审评、文化全领域'},
+  {t:'book', n:'《茶经》陆羽', d:'世界第一部茶学专著，唐代茶道经典，了解茶文化必读'},
+  {t:'book', n:'《茶叶审评与检验》', d:'系统的茶叶感官审评方法教材，专业品评的入门必读'},
+  {t:'book', n:'《大观茶论》赵佶', d:'宋代茶学经典，点茶法权威文献，理解中国茶道演变'},
+  {t:'book', n:'《中国茶文化学》', d:'茶文化历史与精神内涵的系统论述，深入理解茶道哲学'},
+  {t:'book', n:'《普洱茶鉴赏与收藏》', d:'普洱茶山头、仓储、收藏的专题指南，进阶茶友必备'},
+  {t:'paper', n:'《茶叶化学成分与品质关系研究综述》', d:'茶多酚、氨基酸等化学成分对品质的影响机制'},
+  {t:'paper', n:'《不同水质对茶汤品质影响的研究》', d:'水硬度与矿物质对茶汤色香味的量化影响分析'},
+  {t:'site', n:'中国茶叶流通协会官网', d:'行业资讯、茶叶标准与市场数据'},
+  {t:'site', n:'茶语网(www.chayu.com)', d:'茶文化社区与品鉴知识平台，丰富的茶评与教程'},
+  {t:'site', n:'国际茶文化研究会', d:'茶文化研究与交流平台，学术资源丰富'},
+  {t:'tool', n:'茶汤色卡', d:'标准化茶汤颜色对照工具，训练汤色辨识能力'},
+  {t:'tool', n:'电子温度计', d:'精确控制冲泡水温，消除温度偏差对茶汤的影响'},
+  {t:'tool', n:'白瓷品茗杯套装', d:'白瓷内壁便于观色闻香，品鉴训练的基础工具'}
+];
+
+var TRACKER_ITEMS = [
+  {id:'phase1', n:'阶段1：识茶入门'},
+  {id:'phase2', n:'阶段2：泡茶技艺'},
+  {id:'phase3', n:'阶段3：品茶之道'},
+  {id:'phase4', n:'阶段4：茶道精进'}
+];
+
+function safeGetLS(key,fallback){
+  try{var v=localStorage.getItem(key);return v!==null?v:fallback;}catch(e){return fallback;}
+}
+function safeSetLS(key,val){
+  try{localStorage.setItem(key,val);}catch(e){}
+}
+
+function renderFormula(fk){
+  if(typeof katex==='undefined')return;
+  if(fk.querySelector('.katex'))return;
+  var txt=fk.textContent.replace('💰 ','');
+  if(!txt)return;
+  try{katex.render(txt,fk,{throwOnError:false});}
+  catch(e){fk.textContent='⚠ '+txt;}
+}
+
+function renderAllFormulas(){
+  if(typeof katex==='undefined'){setTimeout(renderAllFormulas,300);return;}
+  var all=document.querySelectorAll('.card-formula,.ft-formula');
+  for(var i=0;i<all.length;i++){
+    if(all[i].querySelector('.katex'))continue;
+    var txt=all[i].textContent.replace('💰 ','');
+    if(!txt)continue;
+    try{katex.render(txt,all[i],{throwOnError:false});}
+    catch(e){all[i].textContent='⚠ '+txt;}
+  }
+}
+
+function collapseCard(el){el.classList.remove('expanded');el.classList.remove('open');var g=el.parentElement;if(g){var anyExpanded=g.querySelector('.knowledge-card.expanded');if(!anyExpanded)g.classList.remove('has-expanded');}}
+
+function kf(pid){
+  var cnt=document.getElementById('knowledgeCount');
+  var fil=pid==='all'?KPS:KPS.filter(function(k){return k.p===pid;});
+  var h='';
+  fil.forEach(function(kp){
+    var fh=kp.f?'<div class="card-formula">💰 '+kp.f+'</div>':'';
+    var sh=kp.s?'<div class="card-sum">💡 '+kp.s+'</div>':'';
+    var rh='';
+    if(kp.rel&&kp.rel.length){rh='<div class="card-related"><div class="cr-title">🔗 关联知识</div><div class="cr-links">';
+      kp.rel.forEach(function(r){var rk=KPS.find(function(x){return x.id===r;});
+        rh+='<span class="cr-link" onclick="event.stopPropagation();kfP(\''+r+'\')">'+(rk?rk.n:r)+'</span>';});
+      rh+='</div></div>';}
+    var ddSection='';
+    if(kp.deep_dive){
+      var ddStatus=kp.deep_dive.status||'none';
+      var ddArrow='';var ddBtnTxt='📖 深度研读';var ddHint='点击复制提示词';
+      if(ddStatus==='ready'&&kp.deep_dive.html_file){
+        ddArrow='<button class="deep-dive-open-btn" onclick="event.stopPropagation();ddOpen(\''+kp.id+'\')" title="打开深度研读资料">↗</button>';
+        ddBtnTxt='✅ 查看深度研读';
+        ddHint='点击 ↗ 打开资料';
+      }
+      ddSection='<div class="deep-dive-bar dd-'+ddStatus+'">'+ddArrow+
+        '<button class="deep-dive-btn" onclick="event.stopPropagation();ddTrigger(\''+kp.id+'\')">'+ddBtnTxt+'</button>'+
+        '<span class="dd-hint">'+ddHint+'</span></div>';
+    }
+    h+='<div class="knowledge-card" id="kc-'+kp.id+'" data-p="'+kp.p+'">'+
+      '<div class="card-header" onclick="tKCT(\''+kp.id+'\')">'+
+      '<span class="card-icon">📘</span>'+
+      '<span class="card-title">'+kp.n+'</span>'+
+      '<span class="math-tag" style="background:'+((PHASES.find(function(x){return x.id===kp.p;})||{color:'#6366f1'}).color)+'" onclick="event.stopPropagation();gP(\''+kp.p+'\')">'+
+      (PHASES.findIndex(function(x){return x.id===kp.p;})>=0?'P'+(PHASES.findIndex(function(x){return x.id===kp.p;})+1):'')+
+      '</span>'+
+      '<span class="card-back" onclick="event.stopPropagation();tKC_bk(\''+kp.id+'\')">收起 ✕</span>'+
+      '</div><div class="card-detail"><p>'+kp.d+'</p>'+fh+sh+rh+ddSection+'</div></div>';
+  });
+  document.getElementById('knowledgeContainer').innerHTML=h;
+  document.getElementById('knowledgeCount').textContent='显示 '+fil.length+'/'+KPS.length;
+  var btns=document.querySelectorAll('.knowledge-filter');
+  for(var i=0;i<btns.length;i++)btns[i].classList.remove('active');
+  var act=document.querySelector('.knowledge-filter[data-kp="'+pid+'"]');
+  if(act)act.classList.add('active');
+}
+
+function kfP(id){tKC_go(id);}
+
+function AHDS(ph){
+  var el=document.getElementById('phase-'+ph.id);if(!el)return;
+  var inner=el.querySelector('.phase-body-inner');if(!inner)return;
+  var sh='';
+  if(ph.skills&&ph.skills.length>0){
+    sh='<div class="phase-skills">'+
+      ph.skills.map(function(s,idx){var kpId=(ph.phase_kps&&ph.phase_kps[idx])?ph.phase_kps[idx]:'';
+        return '<span class="skill-chip skill-link" onclick="event.stopPropagation();kfP(\''+kpId+'\')">'+s+'</span>';}).join('')+
+      '</div>';
+  }
+  var ch='';
+  if(ph.codes&&ph.codes.length>0){ch='<div class="phase-codes">'+
+    ph.codes.map(function(c){return '<pre><code>'+c+'</code></pre>';}).join('')+'</div>';}
+  var bh='';
+  if(ph.deep_dive_batch){
+    bh='<div class="phase-dd-batch">'+
+      '<button class="batch-deep-dive-btn" onclick="event.stopPropagation();ddBatch(\''+ph.id+'\')">📦 生成本阶段全部深度资料</button>'+
+      '<span class="dd-hint">一键复制本阶段所有知识点的生成提示词</span></div>';
+  }
+  inner.innerHTML=sh+'<div class="phase-desc">深入了解核心概念与技巧。</div>'+ch+bh;
+}
+
+function tKCT(id){
+  var el=document.getElementById('kc-'+id);
+  if(!el)return;
+  if(el.classList.contains('expanded')){collapseCard(el);return;}
+  if(el.classList.contains('open')&&!el.classList.contains('expanded')){el.classList.remove('open');return;}
+  var kp=KPS.find(function(x){return x.id===id;});
+  if(!kp)return;
+  var g=el.parentElement;
+  el.classList.add('expanded');
+  el.classList.add('open');
+  g.classList.add('has-expanded');
+  setTimeout(function(){
+    var det=el.querySelector('.card-detail');
+    if(det){var fk=det.querySelector('.card-formula');if(fk)renderFormula(fk);}
+  },150);
+  var pd=document.getElementById('phase-'+kp.p);
+  if(pd)pd.classList.add('open');
+  el.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function tKC_go(id){
+  var b=document.querySelectorAll('.knowledge-filter');
+  for(var i=0;i<b.length;i++)b[i].classList.remove('active');
+  var a=document.querySelector('.knowledge-filter[data-kp="all"]');
+  if(a)a.classList.add('active');
+  kf('all');
+  setTimeout(function(){
+    var el=document.getElementById('kc-'+id);
+    if(!el)return;
+    var g=el.parentElement;
+    el.classList.add('expanded');
+    el.classList.add('open');
+    g.classList.add('has-expanded');
+    setTimeout(function(){
+      var det=el.querySelector('.card-detail');
+      if(det){var fk=det.querySelector('.card-formula');if(fk)renderFormula(fk);}
+    },150);
+    var kp=KPS.find(function(x){return x.id===id;});
+    if(kp){var pd=document.getElementById('phase-'+kp.p);if(pd)pd.classList.add('open');}
+    el.scrollIntoView({behavior:'smooth',block:'center'});
+  },100);
+}
+
+function tKC_bk(id){var el=document.getElementById('kc-'+id);if(el)collapseCard(el);}
+
+function eAK(){
+  var all=document.querySelectorAll('.knowledge-card');
+  var btn=document.querySelector('.ks-expand-all');
+  var isExp=btn&&btn.textContent.indexOf('收起')>=0;
+  if(isExp){
+    for(var i=0;i<all.length;i++)collapseCard(all[i]);
+    if(btn)btn.textContent='📖 展开全部';
+  }else{
+    for(var i=0;i<all.length;i++){
+      all[i].classList.add('open');all[i].classList.add('expanded');
+      all[i].parentElement.classList.add('has-expanded');
+      var fk=all[i].querySelector('.card-formula');if(fk)renderFormula(fk);
+    }
+    if(btn)btn.textContent='📕 全部收起';
+  }
+}
+
+function gP(id){
+  var s=document.getElementById('phase-'+id);
+  if(s){s.scrollIntoView({behavior:'smooth'});setTimeout(function(){s.classList.add('open');},400);}
+}
+
+function sFT(id,btn){
+  var tabs=document.querySelectorAll('.formula-tab');
+  for(var i=0;i<tabs.length;i++)tabs[i].classList.remove('active');
+  btn.classList.add('active');
+  var panels=document.querySelectorAll('.formula-panel');
+  for(var i=0;i<panels.length;i++)panels[i].classList.remove('active');
+  document.getElementById('fp-'+id).classList.add('active');
+}
+
+var DEEP_DIVE_WINDOWS={};
+function ddOpen(kpId){
+  var kp=KPS.find(function(k){return k.id===kpId;});
+  if(!kp||!kp.deep_dive||!kp.deep_dive.html_file)return;
+  var winName='dd_'+kpId;
+  if(DEEP_DIVE_WINDOWS[kpId]&&!DEEP_DIVE_WINDOWS[kpId].closed){DEEP_DIVE_WINDOWS[kpId].focus();return;}
+  var w=window.open(kp.deep_dive.html_file,winName);
+  if(w){DEEP_DIVE_WINDOWS[kpId]=w;setInterval(function(){if(w.closed)DEEP_DIVE_WINDOWS[kpId]=null;},1000);}
+}
+
+function encodeForContext(value){
+  if(typeof value!=='string')value=String(value||'');
+  return value.replace(/"/g,'\\"').replace(/;/g,'\\;').replace(/\[/g,'\\[').replace(/\]/g,'\\]');
+}
+
+function buildKPDeepDivePrompt(kp,ph,plan){
+  var prereqList=(kp.prerequisites||[]).join(',');
+  var nextKpList=(kp.next_kps||[]).join(',');
+  var phIndex=PHASES.findIndex(function(x){return x.id===ph.id;})+1;
+  var contextMarker='[context_plan: '+
+    'plan_id="'+encodeForContext(plan.id)+'"; '+
+    'plan_name="'+encodeForContext(plan.title)+'"; '+
+    'plan_file="'+encodeForContext(plan.html_file)+'"; '+
+    'template_id="'+encodeForContext(plan.template_id||'indigo-night')+'"; '+
+    'phase_id="'+encodeForContext(ph.id)+'"; '+
+    'phase_name="'+encodeForContext(ph.title)+'"; '+
+    'phase_position="'+phIndex+'/'+PHASES.length+'"; '+
+    'kp_id="'+encodeForContext(kp.id)+'"; '+
+    'kp_name="'+encodeForContext(kp.n||kp.name)+'"; '+
+    'prerequisites="'+encodeForContext(prereqList)+'"; '+
+    'next_kps="'+encodeForContext(nextKpList)+'"'+
+  ']\n\n';
+  return contextMarker+'请为以下知识点生成 理解×标准 的深度研读资料：\n知识点：'+(kp.n||kp.name)+'\n（已在上方提供完整上下文信息）';
+}
+
+var DD_TOAST_TIMEOUT;
+function ddTrigger(kpId){
+  var kp=KPS.find(function(k){return k.id===kpId;});
+  if(!kp)return;
+  var ph=PHASES.find(function(p){return p.id===kp.p;});
+  if(!ph)ph={id:kp.p,title:'未知阶段'};
+  var promptText=typeof PLAN!=='undefined'?buildKPDeepDivePrompt(kp,ph,PLAN):
+    '请为"'+(kp.n||kp.name)+'"生成 理解×标准 的深度研读资料';
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(promptText).then(function(){showDDToast('✅ 提示词已复制！粘贴到对话中生成深度资料',kp);})
+    .catch(function(){fallbackCopy(promptText);showDDToast('✅ 提示词已复制！',kp);});
+  }else{fallbackCopy(promptText);showDDToast('✅ 提示词已复制！',kp);}
+}
+
+function fallbackCopy(text){
+  var ta=document.createElement('textarea');ta.value=text;
+  document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
+}
+
+function showDDToast(msg,kp){
+  var toastEl=document.getElementById('ddToast');
+  var toastMsgEl=document.getElementById('ddToastMsg');
+  if(!toastEl||!toastMsgEl)return;
+  toastMsgEl.innerHTML=msg;
+  if(kp&&kp.deep_dive&&kp.deep_dive.status==='ready'&&kp.deep_dive.html_file){
+    toastMsgEl.innerHTML+='<br>📄 已有深度资料: <a href="#" onclick="event.preventDefault();ddOpen(\''+kp.id+'\')" style="color:var(--accent-color);text-decoration:underline;">点击打开</a>';
+  }
+  toastEl.style.display='block';
+  if(DD_TOAST_TIMEOUT)clearTimeout(DD_TOAST_TIMEOUT);
+  DD_TOAST_TIMEOUT=setTimeout(function(){toastEl.style.display='none';},4000);
+}
+
+function ddBatch(phaseId){
+  var phaseKps=KPS.filter(function(k){return k.p===phaseId&&k.deep_dive;});
+  if(phaseKps.length===0)return;
+  var ph=PHASES.find(function(p){return p.id===phaseId;});
+  if(!ph)ph={id:phaseId,title:'未知阶段'};
+  var batchText='📦 批量生成深度资料 - '+(ph.title||phaseId)+'\n\n';
+  phaseKps.forEach(function(kp){
+    if(typeof PLAN!=='undefined'){batchText+=buildKPDeepDivePrompt(kp,ph,PLAN)+'\n\n---\n\n';}
+    else{batchText+='请为"'+(kp.n||kp.name)+'"生成 理解×标准 的深度研读资料\n\n---\n\n';}
+  });
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(batchText).then(function(){showDDToast('✅ '+phaseKps.length+' 个提示词已复制到剪贴板！');})
+    .catch(function(){fallbackCopy(batchText);showDDToast('✅ '+phaseKps.length+' 个提示词已复制！');});
+  }else{fallbackCopy(batchText);showDDToast('✅ '+phaseKps.length+' 个提示词已复制！');}
+}
+
+function hES(){
+  var fH='<span class="exercise-filter active" onclick="fE(\'all\')">全部 ('+EXERCISES.length+')</span>';
+  fH+='<span class="exercise-filter" onclick="fE(\'easy\')">🟢 基础 ('+EXERCISES.filter(function(e){return e.d==='easy';}).length+')</span>';
+  fH+='<span class="exercise-filter" onclick="fE(\'medium\')">🟡 进阶 ('+EXERCISES.filter(function(e){return e.d==='medium';}).length+')</span>';
+  fH+='<span class="exercise-filter" onclick="fE(\'hard\')">🔴 挑战 ('+EXERCISES.filter(function(e){return e.d==='hard';}).length+')</span>';
+  fH+='<span class="exercise-filter" onclick="fE(\'project\')">📦 项目 ('+EXERCISES.filter(function(e){return e.d==='project';}).length+')</span>';
+  document.getElementById('exerciseFilters').innerHTML=fH;
+  fE('all');
+}
+
+function fE(diff){
+  var d=LS_PREFIX+'_done',dr=JSON.parse(safeGetLS(d,'[]'));
+  var fil=diff==='all'?EXERCISES:EXERCISES.filter(function(e){return e.d===diff;});
+  var h='';
+  fil.forEach(function(e){
+    var isD=dr.indexOf(parseInt(e.n))>=0;
+    var dCls='diff '+e.d;var dLbl={easy:'基础',medium:'进阶',hard:'挑战',project:'项目'};
+    h+='<div class="exercise-item"><span class="exercise-num">#'+e.n+'</span>'+
+      '<div class="ei-content"><div class="ei-title">'+
+      '<span class="ei-title-text">'+e.t+'</span>'+
+      '<span class="'+dCls+'">'+dLbl[e.d]+'</span></div></div>'+
+      '<div class="ei-check'+(isD?' done':'')+'" onclick="tE('+e.n+',this)">'+(isD?'✓':'')+'</div></div>';
+  });
+  document.getElementById('exerciseList').innerHTML=h;
+  uEC();
+  var btns=document.querySelectorAll('.exercise-filter');
+  for(var i=0;i<btns.length;i++)btns[i].classList.remove('active');
+  var a=document.querySelector('.exercise-filter[onclick="fE(\''+diff+'\')"]');
+  if(a)a.classList.add('active');
+}
+
+function tE(n,el){
+  var d=LS_PREFIX+'_done',dr=JSON.parse(safeGetLS(d,'[]'));
+  var idx=dr.indexOf(n);
+  if(idx>=0){dr.splice(idx,1);el.classList.remove('done');el.textContent='';}
+  else{dr.push(n);el.classList.add('done');el.textContent='✓';}
+  safeSetLS(d,JSON.stringify(dr));
+  uEC();
+}
+
+function uEC(){
+  var d=LS_PREFIX+'_done',dr=JSON.parse(safeGetLS(d,'[]'));
+  document.getElementById('exerciseCount').innerHTML='已完成 <strong>'+dr.length+'</strong>/'+EXERCISES.length;
+}
+
+var _graphChart=null;
+function initGraph(){
+  var el=document.getElementById('graphContainer');
+  if(!el||typeof GRAPH_DATA==='undefined'||typeof echarts==='undefined')return;
+  if(_graphChart){_graphChart.dispose()}
+  _graphChart=echarts.init(el);
+  var nodes=[],links=[];
+  for(var i=0;i<GRAPH_DATA.nodes.length;i++){
+    var gn=GRAPH_DATA.nodes[i],kp=null;
+    for(var j=0;j<KPS.length;j++){if(KPS[j].id===gn.id){kp=KPS[j];break}}
+    if(!kp)continue;
+    var pi=0;for(var k=0;k<PHASES.length;k++){if(PHASES[k].id===kp.p){pi=k;break}}
+    var isReady=kp.deep_dive&&kp.deep_dive.status==='ready';
+    nodes.push({name:gn.id,value:gn.label,x:pi*200+100+Math.random()*60,y:gn.y*120+80,
+      symbolSize:14,itemStyle:{color:PHASES[pi].color,opacity:isReady?1:0.4},
+      label:{show:true,formatter:gn.label,fontSize:10,color:'#b8ad98',position:'bottom'},
+      tooltip:{formatter:gn.label+(kp.s?'<br/>'+kp.s:'')}});
+  }
+  for(var i=0;i<GRAPH_DATA.edges.length;i++){
+    var e=GRAPH_DATA.edges[i];
+    var ls={};
+    if(e.type==='prerequisite'){ls={width:1.5,type:'solid',color:'rgba(99,102,241,0.6)'}}
+    else if(e.type==='related'){ls={width:1,type:'dashed',color:'rgba(99,102,241,0.25)'}}
+    else{ls={width:0.8,type:'dashed',color:'rgba(99,102,241,0.15)'}}
+    links.push({source:e.from,target:e.to,lineStyle:ls});
+  }
+  _graphChart.setOption({tooltip:{},animation:true,
+    series:[{type:'graph',layout:'none',roam:true,draggable:true,
+      edgeSymbol:['none','none'],nodes:nodes,links:links,
+      emphasis:{focus:'adjacency',lineStyle:{width:3}}}]});
+  _graphChart.on('click',function(p){
+    if(p.dataType==='node'&&p.name){tKC_go(p.name)}
+  });
+  window.addEventListener('resize',function(){if(_graphChart)_graphChart.resize()});
+}
+function graphRefresh(){
+  if(!_graphChart||typeof GRAPH_DATA==='undefined')return;
+  for(var i=0;i<GRAPH_DATA.nodes.length;i++){
+    var gn=GRAPH_DATA.nodes[i];
+    for(var j=0;j<KPS.length;j++){
+      if(KPS[j].id===gn.id){
+        var isReady=KPS[j].deep_dive&&KPS[j].deep_dive.status==='ready';
+        var pi=0;for(var k=0;k<PHASES.length;k++){if(PHASES[k].id===KPS[j].p){pi=k;break}}
+        _graphChart.setOption({series:[{data:_graphChart.getOption().series[0].data.map(function(d){
+          if(d.name===gn.id){d.itemStyle={color:PHASES[pi].color,opacity:isReady?1:0.4}}
+          return d})}]});
+        break;
+      }
+    }
+  }
+}
+
+function hMS(){
+  var el=document.getElementById('methodSteps');
+  if(!el||typeof METHOD_STEPS==='undefined')return;
+  var sk=STORAGE_KEY+'_method_done';
+  var done=JSON.parse(localStorage.getItem(sk)||'[]');
+  var h='';
+  for(var i=0;i<METHOD_STEPS.length;i++){
+    var s=METHOD_STEPS[i];
+    var isDone=done.indexOf(i)>=0;
+    h+='<div class="method-step'+(isDone?' done':'')+'" onclick="tMS('+i+')">';
+    h+='<div class="method-step-num">'+s.num+'</div>';
+    h+='<div class="method-step-text">';
+    h+='<h4>'+s.title+'</h4>';
+    h+='<p>'+s.desc+'</p>';
+    if(s.link_section){h+='<span class="method-step-link" onclick="event.stopPropagation();methodGoTo(\''+s.link_section+'\')">'+s.link_label+'</span>'}
+    h+='</div></div>';
+  }
+  el.innerHTML=h;
+  var pe=document.getElementById('methodProgress');
+  var te=document.getElementById('methodTotal');
+  if(pe)pe.textContent=done.length;
+  if(te)te.textContent=METHOD_STEPS.length;
+}
+function tMS(idx){
+  var sk=STORAGE_KEY+'_method_done';
+  var done=JSON.parse(localStorage.getItem(sk)||'[]');
+  var pos=done.indexOf(idx);
+  if(pos>=0){done.splice(pos,1)}else{done.push(idx)}
+  localStorage.setItem(sk,JSON.stringify(done));
+  hMS();
+}
+function methodGoTo(sectionId){
+  var el=document.getElementById(sectionId);
+  if(el)el.scrollIntoView({behavior:'smooth'});
+}
+
+function hRS(){
+  var h='';
+  for(var i=0;i<RESOURCES.length;i++){var r=RESOURCES[i];
+    h+='<div class="resource-item"><span class="ri-type '+r.t+'">'+r.t+'</span><h4>'+r.n+'</h4><p>'+r.d+'</p></div>';
+  }
+  document.getElementById('resourceGrid').innerHTML=h;
+}
+
+function hTR(){
+  var h='';var d=LS_PREFIX+'_tracker';var dr=JSON.parse(safeGetLS(d,'[]'));
+  for(var i=0;i<TRACKER_ITEMS.length;i++){var t=TRACKER_ITEMS[i];var done=dr.indexOf(t.id)>=0;
+    h+='<div class="tracker-item'+(done?' done':'')+'" onclick="tTR(\''+t.id+'\',this)">'+
+      '<div class="tracker-check"></div><span class="tracker-label">'+t.n+'</span></div>';
+  }
+  document.getElementById('trackerGrid').innerHTML=h;
+  uPB();
+}
+
+function tTR(id,el){
+  var d=LS_PREFIX+'_tracker';var dr=JSON.parse(safeGetLS(d,'[]'));
+  var idx=dr.indexOf(id);
+  if(idx>=0){dr.splice(idx,1);el.classList.remove('done');}
+  else{dr.push(id);el.classList.add('done');}
+  safeSetLS(d,JSON.stringify(dr));
+  uPB();
+}
+
+function uPB(){
+  var d=LS_PREFIX+'_tracker';var dr=JSON.parse(safeGetLS(d,'[]'));
+  var pct=TRACKER_ITEMS.length>0?Math.round(dr.length/TRACKER_ITEMS.length*100):0;
+  document.getElementById('progressBar').style.width=pct+'%';
+}
+
+function hFs(){
+  var tabsEl=document.getElementById('formulaTabs');if(!tabsEl)return;
+  var th='';
+  for(var i=0;i<FORMULA_TABS.length;i++){
+    th+='<span class="formula-tab'+(i===0?' active':'')+'" onclick="sFT(\'ft'+(i+1)+'\',this)">'+FORMULA_TABS[i].n+'</span>';
+  }
+  tabsEl.innerHTML=th;
+  var panelsEl=document.getElementById('formulaPanels');if(!panelsEl)return;
+  var ph='';
+  for(var i=0;i<FORMULAS.length;i++){
+    var f=FORMULAS[i];var fr='';
+    for(var j=0;j<f.r.length;j++){fr+='<tr><td>'+f.r[j][0]+'</td><td class="ft-formula">'+f.r[j][1]+'</td></tr>';}
+    ph+='<div class="formula-panel'+(i===0?' active':'')+'" id="fp-ft'+(i+1)+'">'+
+      '<table class="formula-table"><thead><tr><th>名称</th><th>公式</th></tr></thead><tbody>'+fr+'</tbody></table></div>';
+  }
+  panelsEl.innerHTML=ph;
+}
+
+function renderGallery(filterType){
+  var grid=document.getElementById('drawingGrid');
+  if(!grid)return;
+  var toolbar=document.getElementById('galleryToolbar');
+  var allDrawings=[];
+  for(var i=0;i<PHASES.length;i++){
+    var dr=PHASES[i].drawings;
+    if(!dr||dr.length===0)continue;
+    if(typeof dr[0]==='string'){
+      for(var j=0;j<dr.length;j++){allDrawings.push({name:dr[j],type:'',phase_id:PHASES[i].id,svg:'',related_kp:'',desc:''})}
+    }else{
+      for(var j=0;j<dr.length;j++){allDrawings.push(dr[j])}
+    }
+  }
+  var types=['all'];
+  for(var i=0;i<allDrawings.length;i++){if(allDrawings[i].type&&types.indexOf(allDrawings[i].type)<0)types.push(allDrawings[i].type)}
+  if(toolbar){
+    var th='';
+    var typeLabels={all:'全部',spectrum:'🌈 光谱',matrix:'📊 矩阵',flow:'🔀 流程',relation:'🕸️ 关系',timeline:'📅 时间线'};
+    for(var i=0;i<types.length;i++){
+      var lbl=typeLabels[types[i]]||types[i];
+      th+='<button class="gallery-filter'+(types[i]===filterType?' active':'')+'" onclick="renderGallery(\''+types[i]+'\')">'+lbl+'</button>';
+    }
+    toolbar.innerHTML=th;
+  }
+  var h='';
+  for(var i=0;i<allDrawings.length;i++){
+    var d=allDrawings[i];
+    if(filterType&&filterType!=='all'&&d.type!==filterType)continue;
+    var phase=null;for(var j=0;j<PHASES.length;j++){if(PHASES[j].id===d.phase_id){phase=PHASES[j];break}}
+    h+='<div class="drawing-card" onclick="openLightbox('+i+')">';
+    if(d.type){h+='<span class="drawing-type" style="background:rgba(94,168,122,.12);color:var(--accent-cyan)">'+d.type+'</span>'}
+    if(d.svg){h+='<div class="drawing-preview">'+d.svg+'</div>'}
+    h+='<div class="drawing-name">'+d.name+'</div>';
+    if(phase){h+='<div class="drawing-phase" style="font-size:.65rem;color:var(--text-muted);margin-top:4px">'+phase.title+'</div>'}
+    if(d.related_kp){
+      var kp=null;for(var j=0;j<KPS.length;j++){if(KPS[j].id===d.related_kp){kp=KPS[j];break}}
+      if(kp&&kp.deep_dive&&kp.deep_dive.status==='ready'){h+='<span class="drawing-detail-link" onclick="event.stopPropagation();ddOpen(\''+d.related_kp+'\')">📖 查看深度研读</span>'}
+    }
+    h+='</div>';
+  }
+  grid.innerHTML=h;
+}
+function openLightbox(idx){
+  var allDrawings=[];
+  for(var i=0;i<PHASES.length;i++){
+    var dr=PHASES[i].drawings;if(!dr)continue;
+    if(typeof dr[0]==='string'){for(var j=0;j<dr.length;j++){allDrawings.push({name:dr[j],svg:'',desc:''})}}
+    else{for(var j=0;j<dr.length;j++){allDrawings.push(dr[j])}}
+  }
+  if(idx<0||idx>=allDrawings.length)return;
+  var d=allDrawings[idx];
+  var img=document.getElementById('lightboxImage');
+  var info=document.getElementById('lightboxInfo');
+  if(img){img.innerHTML=d.svg||'<p style="color:var(--text-muted);text-align:center;padding:40px">暂无预览图</p>'}
+  if(info){info.textContent=d.name+(d.desc?' — '+d.desc:'')}
+  var lb=document.getElementById('galleryLightbox');
+  if(lb)lb.classList.add('open');
+}
+function closeLightbox(){
+  var lb=document.getElementById('galleryLightbox');
+  if(lb)lb.classList.remove('open');
+}
+
+function searchOpen(){document.getElementById('searchOverlay').classList.add('show');document.getElementById('searchInput').focus();}
+function searchClose(){document.getElementById('searchOverlay').classList.remove('show');}
+function searchKPs(){
+  var q=document.getElementById('searchInput').value.toLowerCase();
+  var res=KPS.filter(function(k){return k.n.toLowerCase().indexOf(q)>=0||(k.d||'').toLowerCase().indexOf(q)>=0;});
+  var h='';
+  for(var i=0;i<Math.min(res.length,10);i++){
+    h+='<div class="search-result" onclick="searchClose();tKC_go(\''+res[i].id+'\')">'+
+      '<div class="sr-title">'+res[i].n+'</div><div class="sr-detail">'+(res[i].d||'').substring(0,60)+'</div></div>';
+  }
+  document.getElementById('searchResults').innerHTML=h||'<div style="color:var(--text-muted);padding:10px">无结果</div>';
+}
+
+function loadTheme(){var t=safeGetLS(STORAGE_KEY+'_theme','dark');
+  if(t==='light'){document.body.classList.add('light');document.body.classList.remove('dark');}
+  else{document.body.classList.add('dark');document.body.classList.remove('light');}}
+function toggleTheme(){var t=safeGetLS(STORAGE_KEY+'_theme','dark');t=t==='dark'?'light':'dark';
+  safeSetLS(STORAGE_KEY+'_theme',t);loadTheme();}
+
+function syncKPsFromManifest(){
+  try{
+    fetch('manifest.json').then(function(r){
+      if(!r.ok)return;
+      return r.json();
+    }).then(function(manifest){
+      if(!manifest||!manifest.materials||!manifest.plans)return;
+      var currentPlan=null;
+      for(var i=0;i<manifest.plans.length;i++){
+        if(manifest.plans[i].html_file===STORAGE_KEY+'_learning.html'){
+          currentPlan=manifest.plans[i];break;
+        }
+      }
+      if(!currentPlan)return;
+      for(var i=0;i<manifest.materials.length;i++){
+        var mat=manifest.materials[i];
+        if(mat.belongs_to_plan!==currentPlan.id)continue;
+        if(!mat.html_file)continue;
+        var kpIndex=-1;
+        for(var j=0;j<KPS.length;j++){
+          if(KPS[j].id===mat.belongs_to_kp){kpIndex=j;break;}
+        }
+        if(kpIndex<0)continue;
+        var dd=KPS[kpIndex].deep_dive;
+        if(!dd){KPS[kpIndex].deep_dive={status:'ready',html_file:mat.html_file};}
+        else{dd.status='ready';dd.html_file=dd.html_file||mat.html_file;}
+        var kcEl=document.getElementById('kc-'+mat.belongs_to_kp);
+        if(!kcEl)continue;
+        var ddBtn=kcEl.querySelector('.deep-dive-btn');
+        if(ddBtn)ddBtn.textContent='✅ 查看深度研读';
+        var ddHint=kcEl.querySelector('.dd-hint');
+        if(ddHint)ddHint.textContent='点击 ↗ 打开资料';
+        var ddOpenBtn=kcEl.querySelector('.deep-dive-open-btn');
+        if(!ddOpenBtn){
+          var ddBar=kcEl.querySelector('.deep-dive-bar');
+          if(ddBar){
+            var btn=document.createElement('button');
+            btn.className='deep-dive-open-btn';
+            btn.title='打开深度研读资料';
+            btn.textContent='↗';
+            btn.onclick=function(kpId){return function(e){e.stopPropagation();ddOpen(kpId);};}(mat.belongs_to_kp);
+            ddBar.insertBefore(btn,ddBar.firstChild);
+          }
+        }
+      }
+    }).catch(function(){});
+  }catch(e){}
+  if(typeof graphRefresh==='function')graphRefresh();
+}
+
+function init(){
+  loadTheme();
+  var pl=document.getElementById('phaseList');
+  for(var i=0;i<PHASES.length;i++){var ph=PHASES[i];
+    var c=document.createElement('div');c.className='phase-card';c.id='phase-'+ph.id;
+    c.innerHTML='<div class="phase-header" onclick="event.stopPropagation();this.parentElement.classList.toggle(\'open\')">'+
+      '<div class="phase-icon" style="background:'+ph.color+'22;color:'+ph.color+'">'+ph.icon+'</div>'+
+      '<div class="phase-info"><h3>'+ph.title+'</h3><div class="phase-week">'+ph.week+'</div></div>'+
+      '<span class="phase-sub" style="background:'+ph.color+'22;color:'+ph.color+'">'+ph.sub+'</span>'+
+      '<span class="phase-arrow">▶</span>'+
+      '</div><div class="phase-body"><div class="phase-body-inner"></div></div>';
+    pl.appendChild(c);
+    AHDS(ph);
+  }
+  var fd=document.getElementById('knowledgeFilters');
+  fd.innerHTML='<button class="knowledge-filter active" data-kp="all" onclick="kf(\'all\')">全部</button>';
+  for(var i=0;i<PHASES.length;i++){fd.innerHTML+='<button class="knowledge-filter" data-kp="'+PHASES[i].id+'" onclick="kf(\''+PHASES[i].id+'\')">阶段'+(i+1)+'</button>';}
+  kf('all');
+  hES();
+  hRS();
+  hTR();
+  renderGallery('all');
+  hMS();
+  if(document.getElementById('graphContainer')){initGraph();}
+  document.body.classList.remove('loading');document.body.classList.add('loaded');
+  syncKPsFromManifest();
+  setTimeout(renderAllFormulas,100);
+}
+
+init();
+
+document.addEventListener('keydown',function(e){if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();searchOpen();}});
+
+(function(){var hash=location.hash;if(hash&&hash.indexOf('#kc-')===0){
+  var kid=hash.replace('#kc-','');setTimeout(function(){tKC_go(kid);},300);}})();
+
+(function() {
+  var CH_KEY = '_ml_llm_nav';
+
+  function processNav() {
+    var raw = localStorage.getItem(CH_KEY);
+    if (!raw) return;
+    try {
+      var data = JSON.parse(raw);
+      if (Date.now() - data.ts > 10000) {
+        localStorage.removeItem(CH_KEY);
+        return;
+      }
+      if (data.kpId) {
+        localStorage.removeItem(CH_KEY);
+        if (typeof kf === 'function') kf('all');
+        setTimeout(function() {
+          if (typeof tKC_go === 'function') tKC_go(data.kpId);
+        }, 200);
+      }
+    } catch(e) {
+      localStorage.removeItem(CH_KEY);
+    }
+  }
+
+  window.addEventListener('storage', function(e) {
+    if (e.key === CH_KEY) processNav();
+  });
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+      setTimeout(processNav, 300);
+    });
+  } else {
+    setTimeout(processNav, 300);
+  }
+})();
+</script>
+</body>
+</html>

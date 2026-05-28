@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>茶叶加工工艺基础 — 深度研读</title>
+<style>
+/* ───────────────────────────────────────────────
+   Template: Cedar Dawn (雪松晨曦) — deep_dive.css
+   Mood: warm, natural, organic
+   Contrast verified: text-primary≥10:1, text-secondary≥6:1, text-muted≥4.5:1
+   ─────────────────────────────────────────────── */
+:root{
+--bg-base:#1a1814;
+--bg-card:#282520;
+--bg-elevated:#312d27;
+--bg-overlay:rgba(0,0,0,.6);
+--text-primary:#ede6d8;
+--text-secondary:#b8ad98;
+--text-muted:#8a8070;
+--accent-indigo:#5ea87a;
+--accent-purple:#b898a0;
+--accent-cyan:#7ec8a0;
+--accent-gold:#e6b95a;
+--accent-green:#6ebf8a;
+--accent-red:#d47860;
+--accent-blue:#5ea87a;
+--accent-color:#5ea87a;
+--accent-dark:#3d6b50;
+--border-subtle:rgba(184,173,152,.15);
+--border-glow:rgba(94,168,122,.25);
+--shadow-sm:0 1px 3px rgba(0,0,0,.3);
+--shadow-md:0 4px 16px rgba(0,0,0,.4);
+--shadow-lg:0 8px 32px rgba(0,0,0,.5);
+--shadow-elevated:0 8px 32px rgba(0,0,0,.5);
+--radius-sm:6px;
+--radius-md:10px;
+--radius-lg:16px;
+--font-sans:'Segoe UI',system-ui,-apple-system,sans-serif;
+--font-mono:Consolas,'Cascadia Code',monospace;
+--transition:.25s cubic-bezier(.4,0,.2,1);
+--transition-smooth:.3s ease;
+--nav-h:56px;
+--accent-color-rgb:94,168,122;
+--chart-grid:#2d2924;
+--chart-axis-label:#8a8070;
+}
+[data-theme="light"]{
+--bg-base:#fdfaf3;
+--bg-card:#fffdf7;
+--bg-elevated:#f3efe3;
+--bg-overlay:rgba(0,0,0,.3);
+--text-primary:#1f1a12;
+--text-secondary:#4a4035;
+--text-muted:#5c5042;
+--accent-indigo:#3d6b50;
+--accent-purple:#7a5a6a;
+--accent-cyan:#4a8e6a;
+--accent-gold:#a07828;
+--accent-green:#4a9e66;
+--accent-red:#b05038;
+--accent-blue:#3d6b50;
+--accent-color:#3d6b50;
+--accent-dark:#2a4835;
+--border-subtle:rgba(31,26,18,.08);
+--border-glow:rgba(61,107,80,.25);
+--shadow-sm:0 1px 3px rgba(0,0,0,.06);
+--shadow-md:0 4px 16px rgba(0,0,0,.08);
+--shadow-lg:0 8px 32px rgba(0,0,0,.12);
+--shadow-elevated:0 8px 32px rgba(0,0,0,.12);
+--accent-color-rgb:61,107,80;
+--chart-grid:#ebe5d6;
+--chart-axis-label:#5c5042;
+}
+
+/* ===== Layout & Base ===== */
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font-sans);background:var(--bg-base);color:var(--text-primary);line-height:1.75;overflow-x:hidden}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg-base)}::-webkit-scrollbar-thumb{background:var(--border-glow);border-radius:3px}
+
+/* ===== Navbar ===== */
+.progress-bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--accent-indigo),var(--accent-purple),var(--accent-cyan));z-index:200;transition:width .1s linear}
+.navbar{position:fixed;top:3px;left:0;right:0;z-index:100;background:var(--bg-card);border-bottom:1px solid var(--border-subtle);backdrop-filter:blur(16px);height:var(--nav-h);display:flex;align-items:center;justify-content:space-between;padding:0 24px}
+.nav-left{display:flex;align-items:center;gap:12px;font-size:.82rem;font-weight:600;color:var(--accent-indigo)}
+.nav-right{display:flex;align-items:center;gap:8px}
+.nav-right button{background:var(--bg-elevated);border:1px solid var(--border-subtle);color:var(--text-secondary);padding:6px 12px;border-radius:var(--radius-sm);cursor:pointer;font-size:.75rem;transition:all var(--transition)}
+.nav-right button:hover{border-color:var(--border-glow);color:var(--accent-indigo)}
+
+/* ===== Sidebar ===== */
+.sidebar{position:fixed;left:0;top:0;height:100vh;width:280px;background:var(--bg-base);border-right:1px solid var(--border-subtle);padding:24px;overflow-y:auto;z-index:100;padding-top:calc(var(--nav-h) + 16px)}
+.sidebar h3{font-size:.85rem;font-weight:700;color:var(--text-secondary);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--border-subtle)}
+.sidebar-nav{list-style:none;padding:0}
+.sidebar-nav li{margin-bottom:2px}
+.sidebar-nav a{display:block;padding:8px 12px;border-radius:var(--radius-md);text-decoration:none;font-size:.76rem;color:var(--text-secondary);transition:all var(--transition);border-left:3px solid transparent}
+.sidebar-nav a:hover{background:rgba(91,141,184,.08);color:var(--accent-cyan);border-left-color:var(--accent-cyan)}
+.sidebar-nav a.active{background:rgba(91,141,184,.12);color:var(--accent-blue);font-weight:600;border-left-color:var(--accent-blue)}
+.sidebar-back-link{display:block;padding:8px 12px;margin-bottom:12px;border-radius:8px;background:var(--bg-elevated);color:var(--accent-blue);text-decoration:none;font-size:.78rem;font-weight:600}
+.sidebar-back-link:hover{color:var(--accent-cyan)}
+
+/* ===== Content Area — Fluid Layout ===== */
+.content-area{margin-left:280px;width:calc(100% - 280px)}
+.container{max-width:calc(100% - 48px);margin:0 auto;padding:calc(var(--nav-h) + 24px) 24px 80px}
+
+/* ===== Hero ===== */
+.hero{text-align:center;padding:48px 0 36px}
+.hero h1{font-size:2.2rem;background:linear-gradient(135deg,var(--accent-indigo),var(--accent-purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+.hero .tags{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:12px}
+.hero .tags span{font-size:.7rem;padding:4px 12px;border-radius:50px;border:1px solid var(--border-glow);color:var(--accent-indigo);background:rgba(99,102,241,.06)}
+
+/* ===== Meta Card ===== */
+.meta-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:20px 24px;margin:0 auto 32px;max-width:700px;display:flex;justify-content:center;gap:36px;flex-wrap:wrap;box-shadow:var(--shadow-md)}
+.meta-item{text-align:center}
+.meta-item .val{font-size:1.4rem;font-weight:800;color:var(--accent-indigo)}
+.meta-item .lbl{font-size:.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px}
+
+/* ===== Journey Bar ===== */
+.journey-bar{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:12px 20px;margin:0 auto 24px;max-width:900px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:.82rem;box-shadow:var(--shadow-elevated)}
+.journey-path{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.journey-icon{font-size:1rem}
+.journey-plan{color:var(--accent-purple);font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.journey-plan:hover{color:var(--accent-gold)}
+.journey-sep{color:var(--text-muted);font-size:.7rem}
+.journey-phase{color:var(--text-secondary);font-weight:600}
+.journey-kp{color:var(--text-primary);font-weight:700}
+.journey-pos{color:var(--text-muted);font-size:.72rem}
+.journey-nav{display:flex;align-items:center;gap:8px;font-size:.75rem}
+.journey-prev,.journey-next{color:var(--text-muted);cursor:default}
+.journey-divider{color:var(--border-subtle)}
+
+/* ===== Module Card ===== */
+.module{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:28px 28px 24px;margin-bottom:20px;opacity:0;transform:translateY(24px);transition:opacity .5s ease,transform .5s ease;box-shadow:var(--shadow-sm)}
+.module.visible{opacity:1;transform:translateY(0)}
+.module:hover{border-color:var(--border-glow)}
+.module h2{font-size:1.15rem;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.module .m-tag{font-size:.65rem;padding:2px 10px;border-radius:50px;background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.2);color:var(--accent-indigo);font-weight:600}
+.module .m-time{font-size:.7rem;color:var(--text-muted);margin-left:auto}
+.module .hook{font-size:.9rem;color:var(--accent-purple);font-weight:600;margin:12px 0 16px;padding-left:12px;border-left:3px solid var(--accent-purple)}
+.module .content{font-size:.88rem;color:var(--text-secondary);line-height:1.8}
+.module .content p{margin-bottom:12px}
+.module .content strong{color:var(--text-primary);font-weight:600}
+.module .content em{color:var(--accent-gold);font-style:normal}
+
+/* ===== Formula Block ===== */
+.formula-block{background:rgba(99,102,241,.04);border:1px solid rgba(99,102,241,.12);border-radius:var(--radius-sm);padding:14px 18px;margin:14px 0;font-family:var(--font-mono);font-size:.82rem;color:var(--accent-cyan);overflow-x:auto;position:relative}
+.formula-block .f-cap{font-size:.7rem;color:var(--text-muted);margin-bottom:6px;display:block}
+.derivation-toggle{font-size:.7rem;color:var(--accent-gold);cursor:pointer;border:none;background:none;padding:4px 0;font-family:inherit;display:block;margin-top:6px}
+.derivation-toggle:hover{text-decoration:underline}
+.derivation-content{display:none;margin-top:8px;padding:12px 16px;background:rgba(245,158,11,.04);border-radius:var(--radius-sm);border-left:3px solid var(--accent-gold);font-size:.8rem;color:var(--text-secondary)}
+.derivation-content.open{display:block}
+
+/* ===== Chart ===== */
+.chart-wrap{background:rgba(99,102,241,.03);border-radius:var(--radius-sm);padding:8px;margin:14px 0;text-align:center}
+.chart-canvas{width:100%;height:280px}
+.chart-wrap .ch-cap{font-size:.72rem;color:var(--text-muted);margin-top:6px}
+
+/* ===== Table ===== */
+.table-container{margin:20px 0;overflow-x:auto}
+.table-container table{width:100%;border-collapse:collapse;border-radius:var(--radius-md);overflow:hidden}
+.table-container th{background:var(--bg-elevated);color:var(--accent-cyan);font-weight:700;padding:12px 16px;text-align:left;font-size:.8rem}
+.table-container td{padding:12px 16px;border-bottom:1px solid var(--border-subtle);font-size:.82rem;color:var(--text-secondary)}
+.table-container tr:hover td{background:rgba(91,141,184,.03)}
+.table-container .table-caption{font-size:.72rem;color:var(--text-muted);margin-bottom:8px;text-align:center}
+
+/* ===== Callout ===== */
+.callout{padding:14px 18px;border-radius:var(--radius-md);margin:16px 0;font-size:.82rem}
+.callout-info{background:rgba(94,168,122,.06);border-left:3px solid var(--accent-indigo);color:var(--text-secondary)}
+.callout-warn{background:rgba(230,185,90,.06);border-left:3px solid var(--accent-gold);color:var(--text-secondary)}
+.callout-tip{background:rgba(184,152,160,.06);border-left:3px solid var(--accent-purple);color:var(--text-secondary)}
+.callout strong{color:var(--text-primary)}
+
+/* ===== Compare Grid ===== */
+.compare-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin:16px 0}
+.compare-card{background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:18px 20px}
+.compare-card h4{font-size:.85rem;color:var(--accent-indigo);margin-bottom:8px}
+.compare-card p{font-size:.78rem;color:var(--text-muted);line-height:1.7}
+
+/* ===== Timeline ===== */
+.timeline{position:relative;padding-left:30px;margin:16px 0}
+.timeline::before{content:'';position:absolute;left:8px;top:0;bottom:0;width:2px;background:var(--border-glow)}
+.timeline-item{position:relative;margin-bottom:18px;font-size:.82rem}
+.timeline-item::before{content:'';position:absolute;left:-26px;top:6px;width:10px;height:10px;border-radius:50%;background:var(--accent-indigo);border:2px solid var(--border-glow)}
+.timeline-year{font-weight:700;color:var(--accent-cyan);min-width:80px;display:inline-block}
+.timeline-text{color:var(--text-secondary)}
+
+/* ===== Process Flow ===== */
+.process-flow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:20px 0;justify-content:center}
+.process-step{background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:12px 18px;text-align:center;font-size:.76rem;min-width:80px}
+.process-step .psn{font-weight:800;color:var(--accent-indigo);font-size:.9rem;margin-bottom:4px}
+.process-step .psl{color:var(--text-muted);font-size:.68rem}
+.process-arrow{color:var(--accent-cyan);font-size:1.1rem;font-weight:700}
+
+/* ===== Term Grid ===== */
+.term-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;margin:16px 0}
+.term-card{background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:var(--radius-sm);padding:12px 16px;transition:all var(--transition)}
+.term-card:hover{border-color:var(--border-glow)}
+.term-card .tn{font-size:.8rem;font-weight:700;color:var(--accent-indigo)}
+.term-card .td{font-size:.72rem;color:var(--text-muted);margin-top:4px;line-height:1.6}
+
+/* ===== Takeaway ===== */
+.takeaway{font-size:.82rem;background:rgba(16,185,129,.06);border-left:3px solid var(--accent-green);padding:10px 14px;margin-top:16px;border-radius:0 var(--radius-sm) var(--radius-sm) 0;color:var(--accent-green)}
+
+/* ===== Ref List ===== */
+.ref-list{list-style:none;padding:0;margin-top:8px;font-size:.78rem}
+.ref-list li{padding:4px 0;color:var(--text-muted)}
+.ref-list li::before{content:'📄 '}
+
+/* ===== Search Overlay ===== */
+.search-overlay{position:fixed;inset:0;z-index:300;background:var(--bg-overlay);display:none;align-items:flex-start;justify-content:center;padding-top:120px}
+.search-overlay.open{display:flex}
+.search-box{width:520px;max-width:90vw;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:var(--radius-md);box-shadow:var(--shadow-lg);overflow:hidden}
+.search-box input{width:100%;padding:14px 18px;background:transparent;border:none;color:var(--text-primary);font-size:.95rem;outline:none;font-family:inherit}
+.search-results{max-height:360px;overflow-y:auto}
+.search-results div{padding:10px 18px;cursor:pointer;font-size:.82rem;color:var(--text-secondary);border-top:1px solid var(--border-subtle);transition:background var(--transition)}
+.search-results div:hover{background:rgba(99,102,241,.06);color:var(--text-primary)}
+
+/* ===== Footer ===== */
+.journey-footer{text-align:center;padding:40px 32px 60px;opacity:.8}
+.back-to-plan{display:inline-flex;align-items:center;gap:8px;padding:10px 24px;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:50px;color:var(--text-secondary);text-decoration:none;font-size:.85rem;font-weight:600;transition:all var(--transition-smooth)}
+.back-to-plan:hover{background:var(--bg-elevated);border-color:var(--accent-purple);color:var(--accent-purple)}
+
+/* ===== Floating Back ===== */
+.deep-floating-back{position:fixed;right:20px;bottom:20px;z-index:10000}
+.deep-floating-back button{padding:12px 20px;background:linear-gradient(135deg,var(--accent-color),var(--accent-dark));color:white;border:none;border-radius:24px;font-size:.85rem;font-weight:600;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.15);transition:transform .2s,box-shadow .2s}
+.deep-floating-back button:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.2)}
+
+/* ===== Toast ===== */
+.dd-toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);z-index:10001;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:8px;padding:14px 24px;box-shadow:0 4px 16px rgba(0,0,0,.15);font-size:.85rem;display:none}
+.toast-in{animation:toastIn .3s ease}
+@keyframes toastIn{from{opacity:0;transform:translate(-50%,20px)}to{opacity:1;transform:translate(-50%,0)}}
+
+/* ===== Print ===== */
+@media print{.navbar,.progress-bar,.sidebar,.journey-bar,.journey-footer,.deep-floating-back{display:none!important}.content-area{margin-left:0;width:100%}.module{break-inside:avoid;opacity:1!important;transform:none!important;box-shadow:none}body{background:#fff!important}}
+
+/* ===== Responsive ≤1024px ===== */
+@media(max-width:1024px){.sidebar{display:none}.content-area{margin-left:0;width:100%}}
+
+/* ===== Responsive ≤768px ===== */
+@media(max-width:768px){
+.hero h1{font-size:1.6rem}.module{padding:20px}.meta-card{font-size:.72rem;padding:12px 16px}.journey-bar{flex-direction:column;align-items:flex-start}
+.deep-floating-back{right:15px;bottom:15px}.deep-floating-back button{padding:10px 16px;font-size:.8rem}
+}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+</head>
+<body data-theme="dark">
+
+<div class="progress-bar" id="progressBar" style="width:0%"></div>
+
+<nav class="navbar">
+  <div class="nav-left">📖 茶叶加工工艺基础</div>
+  <div class="nav-right">
+    <button onclick="toggleTheme()" title="切换主题 (Ctrl+D)">🌓 主题</button>
+    <button onclick="openSearch()" title="搜索 (Ctrl+K)">🔍 搜索</button>
+  </div>
+</nav>
+
+<div class="sidebar">
+  <a href="#" class="sidebar-back-link" onclick="event.preventDefault();var w=window.open('tea_learning.html#kc-p1_3','plan_main');if(w)w.focus()">← 返回主方案</a>
+  <h3>📖 目录导航</h3>
+  <ul class="sidebar-nav">
+    <li><a href="#mod-learning_journey">📍 学习路线导航</a></li>
+<li><a href="#mod-concept">📘 核心概念</a></li>
+<li><a href="#mod-principle">🔬 原理流程</a></li>
+<li><a href="#mod-architecture">🏗️ 六大茶类工艺全景</a></li>
+<li><a href="#mod-application">🎯 工艺选择</a></li>
+<li><a href="#mod-misconceptions">⚠️ 常见误区</a></li>
+  </ul>
+</div>
+
+<div class="content-area">
+<div class="search-overlay" id="searchOverlay">
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="搜索模块内容..." oninput="doSearch()" onkeydown="if(event.key==='Escape')closeSearch()">
+    <div class="search-results" id="searchResults"></div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="hero">
+    <h1>茶叶加工工艺基础</h1>
+    <div class="tags">
+      <span>茶文化</span><span>工艺学</span><span>基础奠基</span>
+    </div>
+  </div>
+
+  <div class="meta-card">
+    <div class="meta-item"><div class="val">6</div><div class="lbl">模块</div></div><div class="meta-item"><div class="val">~16min</div><div class="lbl">阅读时间</div></div><div class="meta-item"><div class="val">理解×标准</div><div class="lbl">深度</div></div>
+  </div>
+
+  <!-- CONDITIONAL: HAS_CONTEXT_PLAN -->
+  <div class="journey-bar" id="journeyBar">
+    <div class="journey-path">
+      <span class="journey-icon">📍</span>
+      <span class="journey-plan" onclick="var w=window.open('tea_learning.html#kc-p1_3','plan_main');if(w)w.focus()">识茶·喝茶·品茶 系统学习方案</span>
+      <span class="journey-sep">〉</span>
+      <span class="journey-phase">识茶入门</span>
+      <span class="journey-sep">〉</span>
+      <span class="journey-kp">茶叶加工工艺基础</span>
+      <span class="journey-pos">(第3/4个知识点)</span>
+    </div>
+    <div class="journey-nav">
+      <span class="journey-prev" title="前置: 六大茶类分类体系">← 前置</span>
+      <span class="journey-divider">|</span>
+      <span class="journey-next" title="后续: 茶叶命名与等级辨识">后续 →</span>
+    </div>
+  </div>
+  <!-- /CONDITIONAL -->
+
+  <!-- ==================== MODULE 1: learning_journey ==================== -->
+  <div class="module" id="mod-learning_journey">
+    <h2>📍<span class="m-tag">导航</span><span class="m-time">~1min</span></h2>
+    <div class="hook">从分类到工艺：理解茶叶为什么是这样</div>
+    <div class="content">
+      <p>本知识点位于 <strong>识茶·喝茶·品茶 系统学习方案</strong> 的 <strong>识茶入门</strong> 阶段，是该阶段的第3个知识点（共4个）。</p>
+      <p>学习路线：<em>六大茶类分类体系</em>（前置知识）→ <strong>茶叶加工工艺基础</strong>（本知识点）→ <em>茶叶命名与等级辨识</em>（后续知识）。</p>
+      <p>你已经知道六大茶类「是什么」，现在要深入理解它们「为什么是这样」——答案就在加工工艺中。</p>
+    </div>
+  </div>
+
+  <!-- ==================== MODULE 2: concept ==================== -->
+  <div class="module" id="mod-concept">
+    <h2>📘<span class="m-tag">核心概念</span><span class="m-time">~4min</span></h2>
+    <div class="hook">五大核心工序：同一片鲜叶的「变形记」</div>
+    <div class="content">
+      <p>茶叶加工虽然因茶类而异，但都可以归纳为五个核心工序。每个工序都有不可替代的功能，它们的排列组合决定了最终茶类的归属。</p>
+
+      <div class="term-grid">
+        <div class="term-card">
+          <div class="tn">① 萎凋</div>
+          <div class="td">鲜叶摊放，水分蒸发至含水量60-65%，叶质变软，酶活性增强。这是<strong>香气前体物质形成</strong>的关键阶段，决定了茶叶的香气潜力。</div>
+        </div>
+        <div class="term-card">
+          <div class="tn">② 杀青</div>
+          <div class="td">高温(200-300°C)钝化多酚氧化酶活性，<strong>终止酶促氧化</strong>。这是绿茶、黄茶、黑茶区别于红茶的核心步骤——不杀青就会走向发酵。</div>
+        </div>
+        <div class="term-card">
+          <div class="tn">③ 揉捻</div>
+          <div class="td">机械力破坏叶细胞组织，茶汁挤出附着于叶表，条索成形。力度和时间决定茶叶<strong>外形和浸出速度</strong>，细胞破损率30-45%为最佳区间。</div>
+        </div>
+        <div class="term-card">
+          <div class="tn">④ 发酵</div>
+          <div class="td">多酚类物质在酶催化下氧化聚合——这是<strong>决定茶类本质</strong>的工序。红茶全发酵、乌龙半发酵、绿茶不发酵，发酵程度直接定义茶类。</div>
+        </div>
+        <div class="term-card">
+          <div class="tn">⑤ 干燥</div>
+          <div class="td">终止一切化学反应，固定品质，使含水率降至5-7%，便于储存。方式包括烘干(热风)、炒干(锅炒)、晒干(日光)，不同方式对香气有显著影响。</div>
+        </div>
+      </div>
+
+      <div class="callout callout-info">
+        <strong>核心洞察</strong>：这五个工序不是机械的流水线，而是制茶师的「调色板」。同一个工序可以用完全不同的方式执行（例如萎凋有日光萎凋、室内萎凋、加温萎凋），从而塑造出截然不同的风味特征。
+      </div>
+
+      <div class="process-flow">
+        <div class="process-step"><div class="psn">①</div><div class="psl">萎凋</div></div>
+        <div class="process-arrow">→</div>
+        <div class="process-step"><div class="psn">②</div><div class="psl">杀青</div></div>
+        <div class="process-arrow">→</div>
+        <div class="process-step"><div class="psn">③</div><div class="psl">揉捻</div></div>
+        <div class="process-arrow">→</div>
+        <div class="process-step"><div class="psn">④</div><div class="psl">发酵</div></div>
+        <div class="process-arrow">→</div>
+        <div class="process-step"><div class="psn">⑤</div><div class="psl">干燥</div></div>
+      </div>
+
+      <div class="takeaway"><strong>key_takeaway</strong>：同一片鲜叶，经历不同的工序组合，可以变成任何一类茶。六大茶类的本质差异不在原料，而在工艺。</div>
+    </div>
+  </div>
+
+  <!-- ==================== MODULE 3: principle ==================== -->
+  <div class="module" id="mod-principle">
+    <h2>🔬<span class="m-tag">原理流程</span><span class="m-time">~3min</span></h2>
+    <div class="hook">工艺路线决定茶类：每一个分叉都是一条路</div>
+    <div class="content">
+      <p>以鲜叶为起点，在关键的分叉点上做出不同选择，最终走向不同的茶类。下面的系统图解清晰地展示了每条工艺路线：</p>
+
+      <div class="formula-block">
+        <span class="f-cap">工艺路线分叉系统图解</span>
+        <strong>路线一：杀青路线</strong>（终止酶促氧化）
+        鲜叶 → 杀青 → 干燥 → <strong style="color:#5ea87a">绿茶</strong>
+        鲜叶 → 杀青 → 闷黄 → 干燥 → <strong style="color:#5ea87a">黄茶</strong>
+        鲜叶 → 杀青 → 揉捻 → 渥堆 → 干燥 → <strong style="color:#5ea87a">黑茶</strong>
+
+        <strong>路线二：不杀青路线</strong>（允许酶促氧化）
+        鲜叶 → 重萎凋 → 干燥 → <strong style="color:#5ea87a">白茶</strong>
+        鲜叶 → 轻萎凋 → 做青(摇青＋晾青)→ 杀青 → 揉捻 → 干燥 → <strong style="color:#5ea87a">乌龙茶</strong>
+        鲜叶 → 萎凋 → 揉捻 → 发酵(全发酵)→ 干燥 → <strong style="color:#5ea87a">红茶</strong>
+      </div>
+
+      <p>最重要的分叉点在于：<strong>是否杀青</strong>。杀青之后，茶叶走向绿茶、黄茶、黑茶（发酵程度从无到后发酵）；不杀青，则允许酶促氧化自然发生，走向白茶、乌龙茶、红茶（发酵程度从微到全）。</p>
+
+      <div class="callout callout-warn">
+        <strong>关键理解</strong>：发酵（氧化）的控制是区分六大茶类的<strong>最核心分叉点</strong>。发酵的程度决定了茶类归属，而控制发酵的手段则因茶类而异——灭酶（绿茶）、控温控湿（乌龙茶做青）、接菌（黑茶渥堆）各有不同。
+      </div>
+
+      <p>可以做这样一个思维实验：同一批采下的鲜叶，如果能同时走六条不同的工艺路线，最终会得到绿、黄、白、乌龙、红、黑六种截然不同的茶叶。这说明<strong>工艺的主宰力远超品种</strong>。</p>
+
+      <div class="chart-wrap">
+        <div id="chart-process-flow" class="chart-canvas"></div>
+        <div class="ch-cap">制茶五大工序关键程度对比 — 杀青是区分茶类的最大分水岭</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODULE 4: architecture ==================== -->
+  <div class="module" id="mod-architecture">
+    <h2>🏗️<span class="m-tag">工艺全景</span><span class="m-time">~3min</span></h2>
+    <div class="hook">六大茶类 × 五大工序：一张表看清所有工艺差异</div>
+    <div class="content">
+      <p>下表展示了六大茶类在每个工序上的处理方式，这是理解茶类差异的「总览地图」。</p>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>茶类</th>
+              <th>萎凋</th>
+              <th>杀青</th>
+              <th>揉捻</th>
+              <th>发酵</th>
+              <th>干燥</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong style="color:#5ea87a">绿茶</strong></td>
+              <td>无/轻</td>
+              <td>✅ 高温(200-300°C)</td>
+              <td>✅ </td>
+              <td>❌ 不发酵</td>
+              <td>✅ 烘干/炒干</td>
+            </tr>
+            <tr>
+              <td><strong style="color:#5ea87a">白茶</strong></td>
+              <td>✅ 重萎凋(60-72h)</td>
+              <td>❌ </td>
+              <td>❌/轻</td>
+              <td>微发酵(自然)</td>
+              <td>✅ 晒干/烘干</td>
+            </tr>
+            <tr>
+              <td><strong style="color:#5ea87a">黄茶</strong></td>
+              <td>无/轻</td>
+              <td>✅ </td>
+              <td>✅ </td>
+              <td>闷黄(湿热)</td>
+              <td>✅ </td>
+            </tr>
+            <tr>
+              <td><strong style="color:#5ea87a">乌龙茶</strong></td>
+              <td>✅ 日光晒青</td>
+              <td>✅ </td>
+              <td>✅ 多次包揉</td>
+              <td>✅ 做青(半发酵)</td>
+              <td>✅ </td>
+            </tr>
+            <tr>
+              <td><strong style="color:#5ea87a">红茶</strong></td>
+              <td>✅ </td>
+              <td>❌ </td>
+              <td>✅ </td>
+              <td>✅ 全发酵</td>
+              <td>✅ </td>
+            </tr>
+            <tr>
+              <td><strong style="color:#5ea87a">黑茶</strong></td>
+              <td>无/轻</td>
+              <td>✅ </td>
+              <td>✅ </td>
+              <td>✅ 渥堆(后发酵)</td>
+              <td>✅ </td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="table-caption">✅ = 有该工序   ❌ = 无该工序   特 = 该工序有独特方式</div>
+      </div>
+
+      <p>从表中可以看出几个关键规律：</p>
+      <p><strong>①杀青是最大分水岭</strong>——不杀青的茶（白茶、红茶）走向自然发酵路线，杀青的茶（绿、黄、黑、乌龙）人工控制发酵程度。乌龙茶的特殊之处在于它在杀青前已经做青（半发酵），杀青只是为了锁定那个恰到好处的发酵程度。</p>
+      <p><strong>②干燥是共同终点</strong>——所有茶类最终都经过干燥，但干燥方式不同（炒干、烘干、晒干）会带来不同的香气特征。</p>
+      <p><strong>③发酵方式各不同</strong>——白茶是自然微发酵、乌龙是做青半发酵、红茶是全发酵、黄茶是闷黄（湿热条件下的非酶促氧化）、黑茶是渥堆（微生物后发酵）。</p>
+
+      <div class="callout callout-tip">
+        <strong>记忆口诀</strong>：「绿杀青不动酶，红不杀青让酶跑；乌龙先做半再杀，白茶不杀微发酵；黄茶闷黄黑渥堆，各显神通造风味。」
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODULE 5: application ==================== -->
+  <div class="module" id="mod-application">
+    <h2>🎯<span class="m-tag">工艺选择</span><span class="m-time">~2min</span></h2>
+    <div class="hook">同片鲜叶的不同命运：以云南大叶种为例</div>
+    <div class="content">
+      <p>以<strong>云南大叶种</strong>为例，同一品种的鲜叶，经过三条不同的工艺路线，得到三种完全不同的茶：</p>
+
+      <div class="timeline">
+        <div class="timeline-item">
+          <span class="timeline-year">路线① 绿茶</span>
+          <span class="timeline-text">杀青→揉捻→干燥 → <strong>滇绿</strong>：鲜爽清冽，豆香高扬，保留了鲜叶的原始活力</span>
+        </div>
+        <div class="timeline-item">
+          <span class="timeline-year">路线② 红茶</span>
+          <span class="timeline-text">萎凋→揉捻→全发酵→干燥 → <strong>滇红</strong>：甜醇温润，蜜糖香与花果香交织，茶汤红艳</span>
+        </div>
+        <div class="timeline-item">
+          <span class="timeline-year">路线③ 黑茶</span>
+          <span class="timeline-text">杀青→揉捻→渥堆后发酵→干燥 → <strong>普洱茶(熟)</strong>：陈香醇厚，滋味稠滑，越陈越香</span>
+        </div>
+      </div>
+
+      <div class="compare-grid">
+        <div class="compare-card">
+          <h4>🍃 滇绿</h4>
+          <p><strong>风味</strong>：鲜爽、清冽、回甘快<br><strong>香气</strong>：豆香、栗香<br><strong>关键工艺</strong>：高温杀青锁住鲜爽<br><strong>适合</strong>：追求清新口感者</p>
+        </div>
+        <div class="compare-card">
+          <h4>🍂 滇红</h4>
+          <p><strong>风味</strong>：甜醇、温润、蜜韵悠长<br><strong>香气</strong>：蜜糖香、花果香<br><strong>关键工艺</strong>：全发酵释放甜醇<br><strong>适合</strong>：追求温润口感者</p>
+        </div>
+        <div class="compare-card">
+          <h4>🫖 普洱熟茶</h4>
+          <p><strong>风味</strong>：陈香、醇厚、稠滑<br><strong>香气</strong>：陈香、木香、枣香<br><strong>关键工艺</strong>：渥堆微生物转化<br><strong>适合</strong>：追求深沉陈韵者</p>
+        </div>
+        <div class="compare-card">
+          <h4>💡 启发</h4>
+          <p>同一品种、同一片山头、甚至同一季的鲜叶，只因工艺选择不同，就走上了截然不同的风味之路。这就是制茶工艺的魅力所在。</p>
+        </div>
+      </div>
+
+      <div class="takeaway"><strong>key_takeaway</strong>：原料是基础，工艺是灵魂。品种决定了茶叶的「底色」，但工艺决定了它最终呈现的「画面」。同样的云南大叶种，在杀青和发酵之间的一条分叉决定了它成为滇绿还是滇红。</div>
+    </div>
+  </div>
+
+  <!-- ==================== MODULE 6: misconceptions ==================== -->
+  <div class="module" id="mod-misconceptions">
+    <h2>⚠️<span class="m-tag">常见误区</span><span class="m-time">~3min</span></h2>
+    <div class="hook">工艺的精髓在于「度」——不是做得越多越好</div>
+    <div class="content">
+
+      <div class="compare-grid">
+        <div class="compare-card">
+          <h4>❌ 误区一：「发酵就是茶叶坏了？」</h4>
+          <p>茶叶发酵是<strong>受控的酶促氧化或微生物转化</strong>，与食物腐败完全不同。红茶的全发酵和普洱的渥堆都是正面工艺过程，通过多酚氧化聚合和微生物代谢产生丰富香气物质（如茶黄素、茶红素、茶褐素），是<strong>品质提升</strong>的过程。</p>
+        </div>
+        <div class="compare-card">
+          <h4>❌ 误区二：「杀青等于炒熟？」</h4>
+          <p>杀青温度虽高(200-300°C)但<strong>时间极短（3-5分钟）</strong>，目的是钝化酶活性而非做熟茶叶。实际叶温不超过85°C，茶叶仍是生的。把它理解为「给酶按暂停键」比「炒熟」更准确。</p>
+        </div>
+        <div class="compare-card">
+          <h4>❌ 误区三：「揉捻越重茶越好？」</h4>
+          <p>揉捻过度导致叶细胞破损率过高、茶汤苦涩且不耐泡。适度揉捻使<strong>细胞破损率在30-45%</strong>是最佳区间，既能保证浸出速度又不失层次感。揉捻是「释放」而非「破坏」。</p>
+        </div>
+        <div class="compare-card">
+          <h4>❌ 误区四：「干燥就是晒干？」</h4>
+          <p>现代制茶干燥方式多样：<strong>烘干</strong>（热风，香气清纯）、<strong>炒干</strong>（锅炒，产生栗香和炒豆香）、<strong>晒干</strong>（日光，保留更多原始风味）。不同干燥方式对最终香气形成有显著影响，绝非简单的「晒干就好」。</p>
+        </div>
+      </div>
+
+      <div class="callout callout-warn">
+        <strong>工艺的精髓</strong>：制茶不是工序的堆砌，而是「度」的掌控——萎凋的失水率、杀青的温度与时间、揉捻的力度与次数、发酵的程度与时长、干燥的温度曲线。每一项都需要精确控制，过犹不及。
+      </div>
+
+      <div class="takeaway"><strong>key_takeaway</strong>：工艺的精髓在于「度」——不是做得越多越好，而是恰如其分。最好的制茶师不是在「做茶」，而是在「读懂茶叶在每个阶段的需要」。</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- CONDITIONAL: HAS_CONTEXT_PLAN -->
+<footer class="journey-footer">
+  <a href="#" class="back-to-plan" onclick="event.preventDefault();var w=window.open('tea_learning.html#kc-p1_3','plan_main');if(w)w.focus()">🔗 返回学习路线: 识茶·喝茶·品茶 系统学习方案 → 识茶入门</a>
+  <p style="margin-top:12px;font-size:.72rem;color:var(--text-muted)">
+    本资料是 <strong>识茶·喝茶·品茶 系统学习方案</strong> 识茶入门 阶段的深度研读材料
+  </p>
+</footer>
+<!-- /CONDITIONAL -->
+
+<!-- CONDITIONAL: HAS_CONTEXT_PLAN -->
+<div class="deep-floating-back">
+  <button onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 16px rgba(0,0,0,.2)'"
+    onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 12px rgba(0,0,0,.15)'"
+    onclick="event.preventDefault();var w=window.open('tea_learning.html#kc-p1_3','plan_main');if(w)w.focus()">
+    ← 返回学习方案
+  </button>
+</div>
+<!-- /CONDITIONAL -->
+</div>
+
+<div class="dd-toast" id="toastEl"><span id="toastMsg"></span></div>
+
+<script>
+var MODULE_IDS = ["mod-learning_journey","mod-concept","mod-principle","mod-architecture","mod-application","mod-misconceptions"];
+var SEARCH_INDEX = [{"t":"📍 学习路线导航","c":"本知识点的前后关系与在学习方案中的定位","id":"mod-learning_journey"},{"t":"📘 核心概念","c":"五大核心工序详解：萎凋、杀青、揉捻、发酵、干燥","id":"mod-concept"},{"t":"🔬 原理流程","c":"工艺路线决定茶类，杀青与否是最核心的分叉点","id":"mod-principle"},{"t":"🏗️ 六大茶类工艺全景","c":"六大茶类×五大工序的完整工艺矩阵对比表","id":"mod-architecture"},{"t":"🎯 工艺选择","c":"以云南大叶种为例，同一片鲜叶的不同工艺路线","id":"mod-application"},{"t":"⚠️ 常见误区","c":"发酵不等于腐败、杀青不等于炒熟等四大常见误解","id":"mod-misconceptions"}];
+var TOAST_TIMEOUT;
+
+(function(){
+var progressBar=document.getElementById('progressBar');
+var modules=document.querySelectorAll('.module');
+
+var observer=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting)e.target.classList.add('visible')})},{threshold:.15});
+modules.forEach(function(m){observer.observe(m)});
+
+var navLinks=document.querySelectorAll('.sidebar-nav a');
+var navObserver=new IntersectionObserver(function(entries){
+entries.forEach(function(e){
+if(e.isIntersecting){
+navLinks.forEach(function(a){a.classList.remove('active')});
+var act=document.querySelector('.sidebar-nav a[href="#'+e.target.id+'"]');
+if(act)act.classList.add('active');
+}
+})},{threshold:.3});
+modules.forEach(function(m){navObserver.observe(m)});
+
+window.addEventListener('scroll',function(){
+var st=document.documentElement.scrollTop,dh=document.documentElement.scrollHeight-window.innerHeight;
+var pct=dh>0?Math.min(100,(st/dh)*100):0;progressBar.style.width=pct+'%';
+});
+
+window.addEventListener('keydown',function(e){
+if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();openSearch()}
+if((e.ctrlKey||e.metaKey)&&e.key==='d'){e.preventDefault();toggleTheme()}
+if(e.key==='Escape')closeSearch()
+});
+})();
+
+function toggleTheme(){
+var b=document.body,isD=b.getAttribute('data-theme')==='dark';
+b.setAttribute('data-theme',isD?'light':'dark');
+try{localStorage.setItem('slm-theme',isD?'light':'dark')}catch(e){}
+showToast('已切换至'+(isD?'浅色':'深色')+'主题')
+}
+
+function openSearch(){document.getElementById('searchOverlay').classList.add('open');setTimeout(function(){document.getElementById('searchInput').focus()},100)}
+function closeSearch(){document.getElementById('searchOverlay').classList.remove('open');document.getElementById('searchResults').innerHTML=''}
+
+function doSearch(){
+var q=document.getElementById('searchInput').value.toLowerCase(),res=document.getElementById('searchResults');
+if(q.length<2){res.innerHTML='';return}
+var h='';SEARCH_INDEX.forEach(function(item){
+if(item.t.toLowerCase().indexOf(q)>=0||(item.c||'').toLowerCase().indexOf(q)>=0){
+h+='<div onclick="closeSearch();document.getElementById(\''+item.id+'\').scrollIntoView({behavior:\'smooth\'})">'+
+'<strong>'+item.t+'</strong><br><small style="color:var(--text-muted)">'+(item.c||'').substring(0,80)+'</small></div>';
+}
+});
+res.innerHTML=h||'<div style="padding:12px;color:var(--text-muted)">未找到匹配模块</div>'
+}
+
+function showToast(msg){
+var el=document.getElementById('toastEl'),mg=document.getElementById('toastMsg');
+if(!el||!mg)return;mg.textContent=msg;el.style.display='block';el.classList.add('toast-in');
+if(TOAST_TIMEOUT)clearTimeout(TOAST_TIMEOUT);
+TOAST_TIMEOUT=setTimeout(function(){el.style.display='none'},3000);
+}
+
+(function(){
+var t;try{t=localStorage.getItem('slm-theme')}catch(e){}
+if(t==='light')document.body.setAttribute('data-theme','light');
+})();
+
+(function(){
+document.querySelectorAll('.derivation-toggle').forEach(function(btn){
+btn.addEventListener('click',function(){
+var content=this.nextElementSibling;
+if(content){content.classList.toggle('open');this.textContent=content.classList.contains('open')?'▾ 收起推导':'▸ 展开推导'}
+});
+});
+})();
+
+/* ===== ECharts 初始化模板 ===== */
+(function initCharts(){
+if(typeof echarts==='undefined')return;
+var charts=[];
+function makeChart(elId,option){
+var el=document.getElementById(elId);
+if(!el)return null;
+var chart=echarts.init(el);
+chart.setOption(option);
+return chart;
+}
+var c1=makeChart('chart-process-flow',{tooltip:{trigger:'axis'},grid:{left:'3%',right:'4%',bottom:'3%',containLabel:true},xAxis:{type:'category',data:['萎凋','杀青','揉捻','发酵','干燥'],axisLabel:{color:'#8a8070'}},yAxis:{type:'value',name:'关键程度',axisLabel:{color:'#8a8070'}},series:[{type:'line',data:[80,95,70,85,90],smooth:true,lineStyle:{color:'#5ea87a',width:3},areaStyle:{color:new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'rgba(94,168,122,.3)'},{offset:1,color:'rgba(94,168,122,.05)'}])}}]});
+if(c1)charts.push(c1);
+window.addEventListener('resize',function(){charts.forEach(function(c){c.resize()})});
+})();
+</script>
+</body>
+</html>

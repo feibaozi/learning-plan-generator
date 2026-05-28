@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<!-- template-version: 1.0.0 -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>各茶类冲泡技法 - 深度研读</title>
+<style>
+/* ───────────────────────────────────────────────
+   Template: Cedar Dawn (雪松晨曦) — deep_dive.css
+   Mood: warm, natural, organic
+   Contrast verified: text-primary≥10:1, text-secondary≥6:1, text-muted≥4.5:1
+   ─────────────────────────────────────────────── */
+:root{
+--bg-base:#1a1814;
+--bg-card:#282520;
+--bg-elevated:#312d27;
+--bg-overlay:rgba(0,0,0,.6);
+--text-primary:#ede6d8;
+--text-secondary:#b8ad98;
+--text-muted:#8a8070;
+--accent-indigo:#5ea87a;
+--accent-purple:#b898a0;
+--accent-cyan:#7ec8a0;
+--accent-gold:#e6b95a;
+--accent-green:#6ebf8a;
+--accent-red:#d47860;
+--accent-blue:#5ea87a;
+--accent-color:#5ea87a;
+--accent-dark:#3d6b50;
+--border-subtle:rgba(184,173,152,.15);
+--border-glow:rgba(94,168,122,.25);
+--shadow-sm:0 1px 3px rgba(0,0,0,.3);
+--shadow-md:0 4px 16px rgba(0,0,0,.4);
+--shadow-lg:0 8px 32px rgba(0,0,0,.5);
+--shadow-elevated:0 8px 32px rgba(0,0,0,.5);
+--radius-sm:6px;
+--radius-md:10px;
+--radius-lg:16px;
+--font-sans:'Segoe UI',system-ui,-apple-system,sans-serif;
+--font-mono:Consolas,'Cascadia Code',monospace;
+--transition:.25s cubic-bezier(.4,0,.2,1);
+--transition-smooth:.3s ease;
+--nav-h:56px;
+--accent-color-rgb:94,168,122;
+--chart-grid:#2d2924;
+--chart-axis-label:#8a8070;
+}
+[data-theme="light"]{
+--bg-base:#fdfaf3;
+--bg-card:#fffdf7;
+--bg-elevated:#f3efe3;
+--bg-overlay:rgba(0,0,0,.3);
+--text-primary:#1f1a12;
+--text-secondary:#4a4035;
+--text-muted:#5c5042;
+--accent-indigo:#3d6b50;
+--accent-purple:#7a5a6a;
+--accent-cyan:#4a8e6a;
+--accent-gold:#a07828;
+--accent-green:#4a9e66;
+--accent-red:#b05038;
+--accent-blue:#3d6b50;
+--accent-color:#3d6b50;
+--accent-dark:#2a4835;
+--border-subtle:rgba(31,26,18,.08);
+--border-glow:rgba(61,107,80,.25);
+--shadow-sm:0 1px 3px rgba(0,0,0,.06);
+--shadow-md:0 4px 16px rgba(0,0,0,.08);
+--shadow-lg:0 8px 32px rgba(0,0,0,.12);
+--shadow-elevated:0 8px 32px rgba(0,0,0,.12);
+--accent-color-rgb:61,107,80;
+--chart-grid:#ebe5d6;
+--chart-axis-label:#5c5042;
+}
+
+/* ===== Layout & Base ===== */
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font-sans);background:var(--bg-base);color:var(--text-primary);line-height:1.75;overflow-x:hidden}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg-base)}::-webkit-scrollbar-thumb{background:var(--border-glow);border-radius:3px}
+
+/* ===== Navbar ===== */
+.progress-bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--accent-indigo),var(--accent-purple),var(--accent-cyan));z-index:200;transition:width .1s linear}
+.navbar{position:fixed;top:3px;left:0;right:0;z-index:100;background:var(--bg-card);border-bottom:1px solid var(--border-subtle);backdrop-filter:blur(16px);height:var(--nav-h);display:flex;align-items:center;justify-content:space-between;padding:0 24px}
+.nav-left{display:flex;align-items:center;gap:12px;font-size:.82rem;font-weight:600;color:var(--accent-indigo)}
+.nav-right{display:flex;align-items:center;gap:8px}
+.nav-right button{background:var(--bg-elevated);border:1px solid var(--border-subtle);color:var(--text-secondary);padding:6px 12px;border-radius:var(--radius-sm);cursor:pointer;font-size:.75rem;transition:all var(--transition)}
+.nav-right button:hover{border-color:var(--border-glow);color:var(--accent-indigo)}
+
+/* ===== Sidebar ===== */
+.sidebar{position:fixed;left:0;top:0;height:100vh;width:280px;background:var(--bg-base);border-right:1px solid var(--border-subtle);padding:24px;overflow-y:auto;z-index:100;padding-top:calc(var(--nav-h) + 16px)}
+.sidebar h3{font-size:.85rem;font-weight:700;color:var(--text-secondary);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--border-subtle)}
+.sidebar-nav{list-style:none;padding:0}
+.sidebar-nav li{margin-bottom:2px}
+.sidebar-nav a{display:block;padding:8px 12px;border-radius:var(--radius-md);text-decoration:none;font-size:.76rem;color:var(--text-secondary);transition:all var(--transition);border-left:3px solid transparent}
+.sidebar-nav a:hover{background:rgba(91,141,184,.08);color:var(--accent-cyan);border-left-color:var(--accent-cyan)}
+.sidebar-nav a.active{background:rgba(91,141,184,.12);color:var(--accent-blue);font-weight:600;border-left-color:var(--accent-blue)}
+.sidebar-back-link{display:block;padding:8px 12px;margin-bottom:12px;border-radius:8px;background:var(--bg-elevated);color:var(--accent-blue);text-decoration:none;font-size:.78rem;font-weight:600}
+.sidebar-back-link:hover{color:var(--accent-cyan)}
+
+/* ===== Content Area — Fluid Layout ===== */
+.content-area{margin-left:280px;width:calc(100% - 280px)}
+.container{max-width:calc(100% - 48px);margin:0 auto;padding:calc(var(--nav-h) + 24px) 24px 80px}
+
+/* ===== Hero ===== */
+.hero{text-align:center;padding:48px 0 36px}
+.hero h1{font-size:2.2rem;background:linear-gradient(135deg,var(--accent-indigo),var(--accent-purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+.hero .tags{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:12px}
+.hero .tags span{font-size:.7rem;padding:4px 12px;border-radius:50px;border:1px solid var(--border-glow);color:var(--accent-indigo);background:rgba(99,102,241,.06)}
+
+/* ===== Meta Card ===== */
+.meta-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:20px 24px;margin:0 auto 32px;max-width:700px;display:flex;justify-content:center;gap:36px;flex-wrap:wrap;box-shadow:var(--shadow-md)}
+.meta-item{text-align:center}
+.meta-item .val{font-size:1.4rem;font-weight:800;color:var(--accent-indigo)}
+.meta-item .lbl{font-size:.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px}
+
+/* ===== Journey Bar ===== */
+.journey-bar{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:12px 20px;margin:0 auto 24px;max-width:900px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:.82rem;box-shadow:var(--shadow-elevated)}
+.journey-path{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.journey-icon{font-size:1rem}
+.journey-plan{color:var(--accent-purple);font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.journey-plan:hover{color:var(--accent-gold)}
+.journey-sep{color:var(--text-muted);font-size:.7rem}
+.journey-phase{color:var(--text-secondary);font-weight:600}
+.journey-kp{color:var(--text-primary);font-weight:700}
+.journey-pos{color:var(--text-muted);font-size:.72rem}
+.journey-nav{display:flex;align-items:center;gap:8px;font-size:.75rem}
+.journey-prev,.journey-next{color:var(--text-muted);cursor:default}
+.journey-divider{color:var(--border-subtle)}
+
+/* ===== Module Card ===== */
+.module{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:28px 28px 24px;margin-bottom:20px;opacity:0;transform:translateY(24px);transition:opacity .5s ease,transform .5s ease;box-shadow:var(--shadow-sm)}
+.module.visible{opacity:1;transform:translateY(0)}
+.module:hover{border-color:var(--border-glow)}
+.module h2{font-size:1.15rem;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.module .m-tag{font-size:.65rem;padding:2px 10px;border-radius:50px;background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.2);color:var(--accent-indigo);font-weight:600}
+.module .m-time{font-size:.7rem;color:var(--text-muted);margin-left:auto}
+.module .hook{font-size:.9rem;color:var(--accent-purple);font-weight:600;margin:12px 0 16px;padding-left:12px;border-left:3px solid var(--accent-purple)}
+.module .content{font-size:.88rem;color:var(--text-secondary);line-height:1.8}
+.module .content p{margin-bottom:12px}
+.module .content strong{color:var(--text-primary);font-weight:600}
+.module .content em{color:var(--accent-gold);font-style:normal}
+
+/* ===== Formula Block ===== */
+.formula-block{background:rgba(99,102,241,.04);border:1px solid rgba(99,102,241,.12);border-radius:var(--radius-sm);padding:14px 18px;margin:14px 0;font-family:var(--font-mono);font-size:.82rem;color:var(--accent-cyan);overflow-x:auto;position:relative}
+.formula-block .f-cap{font-size:.7rem;color:var(--text-muted);margin-bottom:6px;display:block}
+.derivation-toggle{font-size:.7rem;color:var(--accent-gold);cursor:pointer;border:none;background:none;padding:4px 0;font-family:inherit;display:block;margin-top:6px}
+.derivation-toggle:hover{text-decoration:underline}
+.derivation-content{display:none;margin-top:8px;padding:12px 16px;background:rgba(245,158,11,.04);border-radius:var(--radius-sm);border-left:3px solid var(--accent-gold);font-size:.8rem;color:var(--text-secondary)}
+.derivation-content.open{display:block}
+
+/* ===== Chart ===== */
+.chart-wrap{background:rgba(99,102,241,.03);border-radius:var(--radius-sm);padding:8px;margin:14px 0;text-align:center}
+.chart-canvas{width:100%;height:280px}
+.chart-wrap .ch-cap{font-size:.72rem;color:var(--text-muted);margin-top:6px}
+
+/* ===== Table ===== */
+.table-container{margin:20px 0;overflow-x:auto}
+.table-container table{width:100%;border-collapse:collapse;border-radius:var(--radius-md);overflow:hidden}
+.table-container th{background:var(--bg-elevated);color:var(--accent-cyan);font-weight:700;padding:12px 16px;text-align:left;font-size:.8rem}
+.table-container td{padding:12px 16px;border-bottom:1px solid var(--border-subtle);font-size:.82rem;color:var(--text-secondary)}
+.table-container tr:hover td{background:rgba(91,141,184,.03)}
+.table-container .table-caption{font-size:.72rem;color:var(--text-muted);margin-bottom:8px;text-align:center}
+
+/* ===== Callout ===== */
+.callout{padding:14px 18px;border-radius:var(--radius-md);margin:16px 0;font-size:.82rem}
+.callout-info{background:rgba(94,168,122,.06);border-left:3px solid var(--accent-indigo);color:var(--text-secondary)}
+.callout-warn{background:rgba(230,185,90,.06);border-left:3px solid var(--accent-gold);color:var(--text-secondary)}
+.callout-tip{background:rgba(184,152,160,.06);border-left:3px solid var(--accent-purple);color:var(--text-secondary)}
+.callout strong{color:var(--text-primary)}
+
+/* ===== Compare Grid ===== */
+.compare-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin:16px 0}
+.compare-card{background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:18px 20px}
+.compare-card h4{font-size:.85rem;color:var(--accent-indigo);margin-bottom:8px}
+.compare-card p{font-size:.78rem;color:var(--text-muted);line-height:1.7}
+
+/* ===== Timeline ===== */
+.timeline{position:relative;padding-left:30px;margin:16px 0}
+.timeline::before{content:'';position:absolute;left:8px;top:0;bottom:0;width:2px;background:var(--border-glow)}
+.timeline-item{position:relative;margin-bottom:18px;font-size:.82rem}
+.timeline-item::before{content:'';position:absolute;left:-26px;top:6px;width:10px;height:10px;border-radius:50%;background:var(--accent-indigo);border:2px solid var(--border-glow)}
+.timeline-year{font-weight:700;color:var(--accent-cyan);min-width:80px;display:inline-block}
+.timeline-text{color:var(--text-secondary)}
+
+/* ===== Process Flow ===== */
+.process-flow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:20px 0;justify-content:center}
+.process-step{background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:12px 18px;text-align:center;font-size:.76rem;min-width:80px}
+.process-step .psn{font-weight:800;color:var(--accent-indigo);font-size:.9rem;margin-bottom:4px}
+.process-step .psl{color:var(--text-muted);font-size:.68rem}
+.process-arrow{color:var(--accent-cyan);font-size:1.1rem;font-weight:700}
+
+/* ===== Term Grid ===== */
+.term-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;margin:16px 0}
+.term-card{background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:var(--radius-sm);padding:12px 16px;transition:all var(--transition)}
+.term-card:hover{border-color:var(--border-glow)}
+.term-card .tn{font-size:.8rem;font-weight:700;color:var(--accent-indigo)}
+.term-card .td{font-size:.72rem;color:var(--text-muted);margin-top:4px;line-height:1.6}
+
+/* ===== Takeaway ===== */
+.takeaway{font-size:.82rem;background:rgba(16,185,129,.06);border-left:3px solid var(--accent-green);padding:10px 14px;margin-top:16px;border-radius:0 var(--radius-sm) var(--radius-sm) 0;color:var(--accent-green)}
+
+/* ===== Ref List ===== */
+.ref-list{list-style:none;padding:0;margin-top:8px;font-size:.78rem}
+.ref-list li{padding:4px 0;color:var(--text-muted)}
+.ref-list li::before{content:'📄 '}
+
+/* ===== Search Overlay ===== */
+.search-overlay{position:fixed;inset:0;z-index:300;background:var(--bg-overlay);display:none;align-items:flex-start;justify-content:center;padding-top:120px}
+.search-overlay.open{display:flex}
+.search-box{width:520px;max-width:90vw;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:var(--radius-md);box-shadow:var(--shadow-lg);overflow:hidden}
+.search-box input{width:100%;padding:14px 18px;background:transparent;border:none;color:var(--text-primary);font-size:.95rem;outline:none;font-family:inherit}
+.search-results{max-height:360px;overflow-y:auto}
+.search-results div{padding:10px 18px;cursor:pointer;font-size:.82rem;color:var(--text-secondary);border-top:1px solid var(--border-subtle);transition:background var(--transition)}
+.search-results div:hover{background:rgba(99,102,241,.06);color:var(--text-primary)}
+
+/* ===== Footer ===== */
+.journey-footer{text-align:center;padding:40px 32px 60px;opacity:.8}
+.back-to-plan{display:inline-flex;align-items:center;gap:8px;padding:10px 24px;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:50px;color:var(--text-secondary);text-decoration:none;font-size:.85rem;font-weight:600;transition:all var(--transition-smooth)}
+.back-to-plan:hover{background:var(--bg-elevated);border-color:var(--accent-purple);color:var(--accent-purple)}
+
+/* ===== Floating Back ===== */
+.deep-floating-back{position:fixed;right:20px;bottom:20px;z-index:10000}
+.deep-floating-back button{padding:12px 20px;background:linear-gradient(135deg,var(--accent-color),var(--accent-dark));color:white;border:none;border-radius:24px;font-size:.85rem;font-weight:600;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.15);transition:transform .2s,box-shadow .2s}
+.deep-floating-back button:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.2)}
+
+/* ===== Toast ===== */
+.dd-toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);z-index:10001;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:8px;padding:14px 24px;box-shadow:0 4px 16px rgba(0,0,0,.15);font-size:.85rem;display:none}
+.toast-in{animation:toastIn .3s ease}
+@keyframes toastIn{from{opacity:0;transform:translate(-50%,20px)}to{opacity:1;transform:translate(-50%,0)}}
+
+/* ===== Print ===== */
+@media print{.navbar,.progress-bar,.sidebar,.journey-bar,.journey-footer,.deep-floating-back{display:none!important}.content-area{margin-left:0;width:100%}.module{break-inside:avoid;opacity:1!important;transform:none!important;box-shadow:none}body{background:#fff!important}}
+
+/* ===== Responsive ≤1024px ===== */
+@media(max-width:1024px){.sidebar{display:none}.content-area{margin-left:0;width:100%}}
+
+/* ===== Responsive ≤768px ===== */
+@media(max-width:768px){
+.hero h1{font-size:1.6rem}.module{padding:20px}.meta-card{font-size:.72rem;padding:12px 16px}.journey-bar{flex-direction:column;align-items:flex-start}
+.deep-floating-back{right:15px;bottom:15px}.deep-floating-back button{padding:10px 16px;font-size:.8rem}
+}
+
+/* ===== Brewing-specific extras ===== */
+.quick-ref-card{background:var(--bg-elevated);border:1px solid var(--border-glow);border-radius:var(--radius-md);padding:18px 24px;margin:16px 0}
+.quick-ref-card h4{font-size:.82rem;color:var(--accent-gold);margin-bottom:10px}
+.quick-ref-card dl{display:grid;grid-template-columns:auto 1fr;gap:6px 16px;font-size:.78rem}
+.quick-ref-card dt{color:var(--accent-cyan);font-weight:600}
+.quick-ref-card dd{color:var(--text-secondary)}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+</head>
+<body data-theme="dark">
+
+<div class="progress-bar" id="progressBar" style="width:0%"></div>
+
+<nav class="navbar">
+  <div class="nav-left">📖 各茶类冲泡技法</div>
+  <div class="nav-right">
+    <button onclick="toggleTheme()" title="切换主题 (Ctrl+D)">🌓 主题</button>
+    <button onclick="openSearch()" title="搜索 (Ctrl+K)">🔍 搜索</button>
+  </div>
+</nav>
+
+<div class="sidebar">
+  <a href="#" class="sidebar-back-link" onclick="event.preventDefault();var w=window.open('tea_learning.html#kc-p2_3','plan_main');if(w)w.focus()">← 返回主方案</a>
+  <h3>📖 目录导航</h3>
+  <ul class="sidebar-nav">
+    <li><a href="#module-intro">01 背景与缘起</a></li>
+    <li><a href="#module-four-elements">02 冲泡四大要素</a></li>
+    <li><a href="#module-green">03 绿茶冲泡</a></li>
+    <li><a href="#module-oolong">04 乌龙茶冲泡</a></li>
+    <li><a href="#module-black">05 红茶冲泡</a></li>
+    <li><a href="#module-white-yellow">06 白茶与黄茶</a></li>
+    <li><a href="#module-dark-puer">07 黑茶与普洱</a></li>
+    <li><a href="#module-throwing">08 三大投茶法</a></li>
+    <li><a href="#module-troubleshooting">09 冲泡急诊室</a></li>
+    <li><a href="#module-glossary">10 核心术语表</a></li>
+  </ul>
+</div>
+
+<div class="content-area">
+<div class="search-overlay" id="searchOverlay">
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="搜索模块内容..." oninput="doSearch()" onkeydown="if(event.key==='Escape')closeSearch()">
+    <div class="search-results" id="searchResults"></div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="hero">
+    <h1>各茶类冲泡技法</h1>
+    <div class="tags">
+      <span>🏷️ 泡茶技艺</span><span>🎯 核心工具</span><span>🍵 冲泡</span><span>📐 技法</span>
+    </div>
+  </div>
+
+  <div class="meta-card">
+    <div class="meta-item"><div class="val">🍵</div><div class="lbl">冲泡技法</div></div><div class="meta-item"><div class="val">🫖</div><div class="lbl">泡茶技艺</div></div><div class="meta-item"><div class="val">🎯</div><div class="lbl">理解×标准</div></div><div class="meta-item"><div class="val">⏱️</div><div class="lbl">约30分钟</div></div><div class="meta-item"><div class="val">10</div><div class="lbl">模块</div></div>
+  </div>
+
+  <!-- CONDITIONAL: HAS_CONTEXT_PLAN -->
+  <div class="journey-bar" id="journeyBar">
+    <div class="journey-path">
+      <span class="journey-icon">📍</span>
+      <span class="journey-plan" onclick="var w=window.open('tea_learning.html#kc-p2_3','plan_main');if(w)w.focus()">识茶·喝茶·品茶 系统学习方案</span>
+      <span class="journey-sep">〉</span>
+      <span class="journey-phase">泡茶技艺</span>
+      <span class="journey-sep">〉</span>
+      <span class="journey-kp">各茶类冲泡技法</span>
+      <span class="journey-pos">(2/4)</span>
+    </div>
+    <div class="journey-nav">
+      <span class="journey-prev" title="前置: 水质与水温科学、茶具选择与搭配">← 前置</span>
+      <span class="journey-divider">|</span>
+      <span class="journey-next" title="后续: 功夫茶冲泡流程">后续 →</span>
+    </div>
+  </div>
+  <!-- /CONDITIONAL -->
+
+<!-- MODULE 1: 背景与缘起 -->
+<section id="module-intro" class="module">
+<h2><span class="m-tag">背景与缘起</span> 因茶施泡——每一类茶都有自己的"性格"</h2>
+<p class="hook">同一片鲜叶经过了不同的工艺，就成了性格迥异的茶——绿茶如少女清新敏感，乌龙如中年深沉内敛，普洱如老者厚重包容。每类茶的性格，决定了它该被如何对待。</p>
+<div class="content">
+<p>冲泡技法的本质，是针对各类茶的<strong>化学成分</strong>（茶多酚/氨基酸/咖啡碱含量和比例）和<strong>物理形态</strong>（松散条索/紧结颗粒/紧压饼砖）的差异化策略。</p>
+<p>四大冲泡要素环环相扣——<em>水温</em>掌控萃取速率、<em>茶具</em>影响保温与散热、<em>投茶量</em>决定浓度基础、<em>浸泡时间</em>控制最终均衡。任何一类茶冲泡失败的核心原因都是同一个：没有理解<strong>各要素在冲泡此类茶时的"权重"</strong>。</p>
+<p>六大茶类按发酵程度由轻到重，冲泡的"硬度"也逐步升级：绿茶最敏感（低温快出），乌龙最讲究（高温高投快出），黑茶最包容（沸水慢浸可煮）。掌握了这个梯度，就掌握了冲泡的大方向。</p>
+</div>
+<div class="takeaway">
+泡茶的"道"在于——理解每类茶的特性，然后顺应它，而非对抗它。
+</div>
+</section>
+
+<!-- MODULE 2: 冲泡四大要素 -->
+<section id="module-four-elements" class="module">
+<h2><span class="m-tag">核心概念</span> 冲泡四大要素——水温、茶具、投茶量、浸泡时间</h2>
+<p class="hook">冲泡是四个变量的平衡游戏——任何一个变量的改变都需要其他三个做出相应调整。理解了这一点，你就能"随心所欲"地泡茶了。</p>
+<div class="content">
+<p><strong>四大要素的联动关系</strong>是冲泡技法的底层逻辑，记住以下规律即可应对任何茶：</p>
+
+<div class="formula-block">
+<span class="f-cap">📐 联动法则（记牢这四条）</span>
+水温↑ → 浸泡时间必须↓（避免过度萃取）<br>
+投茶量↑ → 浸泡时间↓ 或 水温↓（避免过浓）<br>
+茶具保温性↑ → 水温可以适当↓（器具帮留热）<br>
+茶叶形态紧结 → 水温↑、浸泡时间↑（需要更多能量打开茶叶）
+</div>
+
+<p><strong>投茶量标准参考</strong>（以 150ml 容量为基准）：</p>
+<div class="table-container">
+<table>
+<tr><th>茶类</th><th>投茶量</th><th>说明</th></tr>
+<tr><td>绿茶 / 黄茶</td><td>3g / 150ml</td><td>茶叶蓬松，看上去多但重量轻</td></tr>
+<tr><td>白茶</td><td>5g / 150ml</td><td>白毫银针蓬松可稍多，寿眉紧实可稍少</td></tr>
+<tr><td>乌龙茶（颗粒/条索型）</td><td>7-8g / 150ml</td><td>紧结型颗粒投茶量要大，这是乌龙茶浓香的关键</td></tr>
+<tr><td>红茶</td><td>4-5g / 150ml</td><td>名优红茶如金骏眉可略少（4g）</td></tr>
+<tr><td>黑茶 / 普洱</td><td>5-7g / 150ml</td><td>紧压茶需撬散，散茶可酌减</td></tr>
+</table>
+</div>
+
+<p><strong>浸泡时间规律</strong>：第一泡通常最短（仅润茶），后续每泡延长 5-10 秒，<em>清香型更短 / 浓香型更长</em>。务必沥尽最后一滴，避免闷泡影响下一泡品质。</p>
+
+<div class="chart-wrap">
+<div class="chart-canvas" id="chartRadar"></div>
+<div class="ch-cap">▲ 六大茶类冲泡四要素权重对比雷达图（数值越大 = 该要素越关键 / 要求越严格）</div>
+</div>
+</div>
+<div class="takeaway">
+泡茶没有"死规定"，只有"活原则"——掌握四大要素的联动关系，你就能自己推导出任何一款新茶的冲泡方案。
+</div>
+</section>
+
+<!-- MODULE 3: 绿茶冲泡 -->
+<section id="module-green" class="module">
+<h2><span class="m-tag">技法详解</span> 绿茶冲泡——低温、快出、不闷是关键</h2>
+<p class="hook">绿茶是茶叶界的"鲜肉"——未经发酵，保留了最多的叶绿素和维生素C。但这也意味着它最脆弱——高温一烫，鲜爽变苦涩，翠绿变暗黄。</p>
+<div class="content">
+<p><strong>绿茶冲泡三原则：</strong></p>
+
+<div class="compare-grid">
+<div class="compare-card">
+<h4>① 低温（75-85°C）</h4>
+<p>保护氨基酸/叶绿素/VC 不被破坏。高温破坏鲜爽物质，越好的绿茶越需要低温。龙井、碧螺春等名优绿茶上限 80-85°C，安吉白茶可低至 75°C。</p>
+</div>
+<div class="compare-card">
+<h4>② 快出（1-2分钟首泡）</h4>
+<p>茶多酚未经发酵，苦涩物质溶出极快，久浸必苦。第一泡 1-2 分钟，第二泡 40-60 秒，第三泡 1-1.5 分钟，可续水 2-3 次。</p>
+</div>
+<div class="compare-card">
+<h4>③ 不闷（开盖或玻璃杯）</h4>
+<p>闷热加速叶绿素脱镁变褐，产生"熟汤味"。用玻璃杯冲泡可同时观赏茶舞，盖碗冲泡务必开盖，切忌盖盖子。</p>
+</div>
+<div class="compare-card">
+<h4>⚠️ 三大禁忌</h4>
+<p>❌ 盖盖子闷蒸 → 熟汤味<br>❌ 100°C 沸水直冲 → 烫熟茶叶<br>❌ 第一泡超 3 分钟 → 必苦涩</p>
+</div>
+</div>
+
+<p><strong>三大投茶法选择（详见模块8）：</strong></p>
+<ul style="margin:12px 0;padding-left:24px;font-size:.88rem;color:var(--text-secondary);line-height:1.8">
+<li><strong>上投法</strong>（先注水后投茶）→ 碧螺春等极细嫩茶，茶毫多，先注水可避免浮于水面</li>
+<li><strong>中投法</strong>（半水→投茶→满水）→ 龙井、安吉白茶等，最能展现茶舞</li>
+<li><strong>下投法</strong>（先投茶后注水）→ 太平猴魁等大叶种绿茶</li>
+</ul>
+
+<p><strong>冲泡流程：</strong></p>
+<div class="process-flow">
+<div class="process-step"><div class="psn">1</div><div class="psl">温杯</div></div>
+<div class="process-arrow">→</div>
+<div class="process-step"><div class="psn">2</div><div class="psl">投茶 3g</div></div>
+<div class="process-arrow">→</div>
+<div class="process-step"><div class="psn">3</div><div class="psl">75-85°C 注水</div></div>
+<div class="process-arrow">→</div>
+<div class="process-step"><div class="psn">4</div><div class="psl">等待 1-2min</div></div>
+<div class="process-arrow">→</div>
+<div class="process-step"><div class="psn">5</div><div class="psl">品饮</div></div>
+<div class="process-arrow">→</div>
+<div class="process-step"><div class="psn">6</div><div class="psl">续水 2-3 次</div></div>
+</div>
+</div>
+<div class="takeaway">
+绿茶的关键词是"鲜"——一切手法都要围绕"保留鲜爽、避免苦涩"来展开。
+</div>
+</section>
+
+<!-- MODULE 4: 乌龙茶冲泡 -->
+<section id="module-oolong" class="module">
+<h2><span class="m-tag">技法详解</span> 乌龙茶冲泡——高冲激香，快进快出</h2>
+<p class="hook">乌龙茶是功夫茶的主角——100°C 沸水高冲而下的瞬间，茶叶中的芳香物质如火山爆发般释放。泡乌龙茶的快感就在这"一冲一倒"之间。</p>
+<div class="content">
+<p><strong>乌龙茶冲泡核心参数：</strong></p>
+
+<div class="quick-ref-card">
+<h4>🫖 乌龙茶冲泡速查卡</h4>
+<dl>
+<dt>水温</dt><dd>100°C 沸水（水温不够香出不来——这是铁律）</dd>
+<dt>投茶量</dt><dd>7-8g / 100ml（颗粒型乌龙茶投茶量要大）</dd>
+<dt>首泡出汤</dt><dd>闽南乌龙 5-10 秒 / 闽北&广东乌龙 10-15 秒</dd>
+<dt>后续递增</dt><dd>每泡 +5~10 秒，可冲泡 7-10 次以上</dd>
+<dt>茶具首选</dt><dd>紫砂壶（朱泥/紫泥）或潮州手拉壶</dd>
+<dt>温润泡</dt><dd>第一泡 100°C 注沸水后即刻倒出（3 秒内），目的唤醒干茶</dd>
+</dl>
+</div>
+
+<div class="callout callout-tip">
+<strong>💡 "高冲低斟"四字诀：</strong>注水时拉高水柱（高冲）利用水流冲击力翻动茶叶加速内含物溶出，出汤时壶嘴贴近公道杯（低斟）保持香气聚敛不散。这四个字值千金。
+</div>
+
+<p><strong>冲泡流程：</strong></p>
+<div class="process-flow">
+<div class="process-step"><div class="psn">1</div><div class="psl">温壶温杯</div></div>
+<div class="process-arrow">→</div>
+<div class="process-step"><div class="psn">2</div><div class="psl">投茶 7-8g</div></div>
+<div class="process-arrow">→</div>
+<div class="process-step"><div class="psn">3</div><div class="psl">100°C 沸水高冲</div></div>
+<div class="process-arrow">→</div>
+<div class="process-step"><div class="psn">4</div><div class="psl">5-10 秒出汤</div></div>
+<div class="process-arrow">→</div>
+<div class="process-step"><div class="psn">5</div><div class="psl">低斟入公道杯</div></div>
+<div class="process-arrow">→</div>
+<div class="process-step"><div class="psn">6</div><div class="psl">闻香品饮</div></div>
+</div>
+
+<div class="callout callout-info">
+<strong>🔬 为什么乌龙茶必须 100°C？</strong>乌龙茶经半发酵，高沸点芳香物质（如芳樟醇氧化物、橙花叔醇等）需要 95°C 以上才能充分激发。水温降到 90°C，香气立即大打折扣。这是化学原理决定的操作铁律。
+</div>
+</div>
+<div class="takeaway">
+乌龙茶冲泡的秘诀：高温 + 高投茶量 + 快出汤，"高冲低斟"四个字值千金。
+</div>
+</section>
+
+<!-- MODULE 5: 红茶冲泡 -->
+<section id="module-black" class="module">
+<h2><span class="m-tag">技法详解</span> 红茶冲泡——温杯醒茶，中温慢浸</h2>
+<p class="hook">红茶是全发酵茶，性格温和醇厚——不需要绿茶的"小心翼翼"，也不像乌龙茶那般"雷厉风行"。泡红茶就像对待一位老朋友：用 90°C 的温暖，慢慢聊。</p>
+<div class="content">
+<p><strong>红茶冲泡四要点：</strong></p>
+
+<div class="compare-grid">
+<div class="compare-card">
+<h4>① 水温 90-95°C</h4>
+<p>全发酵茶多酚已大量转化为茶黄素/茶红素，苦涩度低，中高温充分萃取醇厚感。名优红茶如金骏眉、正山小种、祁红更应避免 100°C 沸水。</p>
+</div>
+<div class="compare-card">
+<h4>② 温杯醒茶</h4>
+<p>注水前用热水温壶温杯，投茶后盖上盖子摇香 30 秒——干茶遇热释放<strong>蜜香/薯香/花果香</strong>。这个步骤对红茶尤其重要，能明显提升香气表现。</p>
+</div>
+<div class="compare-card">
+<h4>③ 浸泡 3-5 分钟</h4>
+<p>首泡时间比绿茶长、比乌龙茶也长。后续每泡可延长 1-2 分钟。全发酵茶的萃取速度适中，需要一定时间让醇厚物质充分溶出。</p>
+</div>
+<div class="compare-card">
+<h4>④ 茶具选白瓷</h4>
+<p>红茶的红色茶汤在白色瓷器中观赏性最佳，且白瓷不吸味，能最真实地还原红茶香气。白瓷壶/白瓷盖碗是红茶的首选搭档。</p>
+</div>
+</div>
+
+<div class="callout callout-warn">
+<strong>西式冲泡（加奶/加糖）注意：</strong>如果打算加奶或糖，需要更浓的茶底——投茶量增至 5-6g，浸泡 5 分钟以上。英式下午茶的"浓茶底"原则就是为了对冲牛奶的稀释效应。
+</div>
+
+<div class="callout callout-info">
+<strong>红茶怕什么？</strong>就怕水温过高导致"熟汤味"。90-95°C 是红茶的安全区——低于这个温度香气不足，高于这个温度产生闷味。记住：红茶不喜沸水。
+</div>
+</div>
+<div class="takeaway">
+红茶怕的只有一件事——水温过高导致"熟汤味"，90-95°C 是红茶的安全区。
+</div>
+</section>
+
+<!-- MODULE 6: 白茶与黄茶 -->
+<section id="module-white-yellow" class="module">
+<h2><span class="m-tag">技法详解</span> 白茶与黄茶——越简单越见功力</h2>
+<p class="hook">白茶和黄茶是六大茶类中最"低调"的存在——白茶像一位不需要化妆的女子，黄茶则是"闷黄"工艺造就的独特风味。它们看似简单，实则最考验泡茶功力。</p>
+<div class="content">
+
+<div class="compare-grid">
+<div class="compare-card">
+<h4>🍃 新白茶（白毫银针/白牡丹）</h4>
+<p><strong>水温：</strong>85-90°C<br><strong>浸泡：</strong>循序渐进 3-5 分钟首泡<br><strong>茶具：</strong>白瓷盖碗（还原度高）或玻璃杯（观赏银针竖立的美感）<br><strong>特点：</strong>清甜鲜爽，毫香明显，不宜久浸</p>
+</div>
+<div class="compare-card">
+<h4>🟤 老白茶（3 年以上）</h4>
+<p><strong>水温：</strong>100°C 沸水<br><strong>泡法：</strong>紫砂壶正常冲泡，或直接煮饮<br><strong>煮法：</strong>5g 老白茶 + 500ml 水，煮 3-5 分钟<br><strong>特点：</strong>汤色琥珀色，滋味甜润，枣香/药香释放</p>
+</div>
+<div class="compare-card">
+<h4>🌾 黄茶</h4>
+<p><strong>水温：</strong>85°C<br><strong>茶具：</strong>盖碗或玻璃杯<br><strong>特点：</strong>和绿茶类似但口感更醇和——闷黄工艺让黄茶比绿茶多了一丝"熟香"，鲜爽中带着温润。<br><strong>代表：</strong>君山银针、蒙顶黄芽、霍山黄芽</p>
+</div>
+<div class="compare-card">
+<h4>🔥 老白茶煮饮法（秋冬首选）</h4>
+<p><strong>步骤：</strong>① 5g 老白茶投入煮茶器<br>② 加 500ml 冷水或温水<br>③ 煮沸后转小火煮 3-5 分钟<br>④ 出汤即可饮用<br><strong>提示：</strong>可续水再煮 2-3 次，每次延长 2 分钟</p>
+</div>
+</div>
+
+<div class="callout callout-tip">
+<strong>📖 "一年茶，三年药，七年宝"：</strong>白茶的价值随时间增长，冲泡方式也应随年份改变。新茶宜泡不宜煮（煮则过浓苦涩），老茶可泡可煮（煮则枣香药香四溢）。判断标准：3 年以上即可开始尝试煮饮。
+</div>
+
+<div class="quick-ref-card">
+<h4>🍵 黄茶 vs 绿茶 冲泡对比</h4>
+<dl>
+<dt>水温</dt><dd>黄茶 85°C ≈ 绿茶 75-85°C（基本一致）</dd>
+<dt>滋味</dt><dd>黄茶更醇和，苦涩度更低（闷黄降低了多酚）</dd>
+<dt>香气</dt><dd>黄茶有独特"熟香"，绿茶是清香/豆香</dd>
+<dt>耐泡度</dt><dd>黄茶略优于绿茶，可多泡 1-2 次</dd>
+</dl>
+</div>
+
+</div>
+<div class="takeaway">
+"一年茶，三年药，七年宝"——白茶的价值随时间增长，冲泡方式也应随年份改变。
+</div>
+</section>
+
+<!-- MODULE 7: 黑茶与普洱茶 -->
+<section id="module-dark-puer" class="module">
+<h2><span class="m-tag">技法详解</span> 黑茶与普洱茶——高温唤醒沉睡的陈韵</h2>
+<p class="hook">一块沉睡了十年的普洱生饼，需要用 100°C 的沸水层层"唤醒"——就像打开一瓶陈年红酒需要醒酒，普洱茶需要"醒茶"。</p>
+<div class="content">
+
+<div class="quick-ref-card">
+<h4>🫖 普洱茶冲泡体系速查</h4>
+<dl>
+<dt>生普新茶（1-3年）</dt><dd>水温 90-95°C，快出快进，仍带绿茶般的鲜爽但更厚重</dd>
+<dt>生普老茶（5年+）</dt><dd>水温 100°C 沸水，每泡 20-30 秒起，"陈香"和"回甘"需要温度释放</dd>
+<dt>熟普</dt><dd>水温 100°C 沸水，洗茶 1-2 遍（去除渥堆发酵可能残留的堆味），后续渐次延长时间</dd>
+<dt>茶具</dt><dd>紫砂壶为首选（朱泥/紫泥，双气孔结构释放普洱醇厚感），紫陶壶/粗陶壶亦可</dd>
+<dt>投茶量</dt><dd>5-7g / 150ml，紧压茶需撬散</dd>
+</dl>
+</div>
+
+<div class="callout callout-info">
+<strong>🪓 紧压茶撬茶技巧：</strong>先用茶针从茶饼侧面插入，轻轻撬取 5-7g 的薄片。<strong>撬散的茶比整块的茶更容易冲泡出味</strong>——整块投入会外层泡烂了内层还干的。撬茶时尽量保持叶片完整，碎末过多会导致茶汤浑浊苦涩。
+</div>
+
+<div class="compare-grid">
+<div class="compare-card">
+<h4>🍂 黑茶（安化黑茶/六堡茶等）</h4>
+<p><strong>冲泡：</strong>100°C 沸水，可冲泡 8-10 次以上<br><strong>煮饮：</strong>粗陶壶/铸铁壶煮饮别有风味，5g 茶 + 600ml 水煮 5-8 分钟<br><strong>茶具：</strong>粗陶壶、紫砂壶均可<br><strong>特点：</strong>越煮越醇，适合秋冬围炉</p>
+</div>
+<div class="compare-card">
+<h4>🍵 熟普冲泡流程</h4>
+<p><strong>① 撬茶：</strong>茶针撬取 5-7g<br><strong>② 温壶：</strong>沸水烫热紫砂壶<br><strong>③ 洗茶：</strong>100°C 沸水，即刻倒出，重复 1-2 遍<br><strong>④ 冲泡：</strong>首泡 15-20 秒出汤<br><strong>⑤ 后续：</strong>每泡 +5-10 秒</p>
+</div>
+</div>
+
+</div>
+<div class="takeaway">
+"新茶如烈马，老茶如温玉"——年份越久的普洱茶，越需要耐心和技巧来冲泡。
+</div>
+</section>
+
+<!-- MODULE 8: 三大投茶法 -->
+<section id="module-throwing" class="module">
+<h2><span class="m-tag">技法专题</span> 三大投茶法——上投、中投、下投的选择逻辑</h2>
+<p class="hook">很多人一辈子只用过一种投茶法：先放茶，再倒水。但你知道吗——改变投茶顺序，一壶茶的品质可以天差地别。</p>
+<div class="content">
+
+<div class="compare-grid">
+<div class="compare-card">
+<h4>⬆️ 上投法</h4>
+<p><strong>顺序：</strong>先注水 → 后投茶<br><strong>原理：</strong>茶叶从水面上方徐徐落入水中<br><strong>适合：</strong>茶毫极多的极细嫩茶（碧螺春/都匀毛尖等）<br><strong>优势：</strong>避免茶毫浮于水面、水温自然略降保护嫩茶<br><strong>劣势：</strong>部分茶叶可能漂浮不下沉</p>
+</div>
+<div class="compare-card">
+<h4>↔️ 中投法</h4>
+<p><strong>顺序：</strong>先注 1/3 水 → 投茶 → 注满水<br><strong>原理：</strong>茶叶先被水浸润释放香气，吸水舒展后再注水<br><strong>适合：</strong>龙井/安吉白茶/黄山毛峰等<br><strong>优势：</strong>茶舞最漂亮，香气释放最充分<br><strong>特点：</strong>最通用的投茶方式</p>
+</div>
+<div class="compare-card">
+<h4>⬇️ 下投法</h4>
+<p><strong>顺序：</strong>先投茶 → 后注水<br><strong>原理：</strong>注水的水流冲击力帮助茶叶翻滚释放内含物<br><strong>适合：</strong>太平猴魁/六安瓜片等大叶种绿茶 + 所有乌龙/红茶/黑茶<br><strong>优势：</strong>操作最简单，出味最快<br><strong>特点：</strong>最常见的投茶方式</p>
+</div>
+<div class="compare-card">
+<h4>💡 快速判断口诀</h4>
+<p><strong>嫩茶上投或中投，老茶紧茶一律下投</strong><br><br>细则：<br>• 满披白毫的嫩芽 → 上投<br>• 一芽一叶/两叶 → 中投<br>• 大叶种/紧结型/发酵茶 → 下投</p>
+</div>
+</div>
+
+<div class="table-container">
+<div class="table-caption">三大投茶法全面对比</div>
+<table>
+<tr><th>投茶法</th><th>适合茶类</th><th>代表茶品</th><th>核心优势</th></tr>
+<tr><td>上投法</td><td>极细嫩绿茶</td><td>碧螺春、都匀毛尖、信阳毛尖</td><td>保护茶毫和嫩度，水温自然缓降</td></tr>
+<tr><td>中投法</td><td>中细嫩绿茶</td><td>龙井、安吉白茶、黄山毛峰</td><td>茶舞观赏性最佳，香气释放充分</td></tr>
+<tr><td>下投法</td><td>大叶绿茶 / 乌龙 / 红茶 / 黑茶</td><td>太平猴魁、铁观音、正山小种、普洱</td><td>操作简便，出味迅速，最通用</td></tr>
+</table>
+</div>
+
+</div>
+<div class="takeaway">
+嫩茶用上投或中投，老茶/紧结茶一律下投——这个原则可以帮你应对任何茶类。
+</div>
+</section>
+
+<!-- MODULE 9: 冲泡急诊室 -->
+<section id="module-troubleshooting" class="module">
+<h2><span class="m-tag">实践技巧</span> 冲泡"急诊室"——常见问题诊断与修正</h2>
+<p class="hook">茶汤苦涩？调整水温。茶汤寡淡？增加投茶量或浸泡时间。香气不足？检查水温是否够高。每一杯失败的茶，都有迹可循。</p>
+<div class="content">
+
+<div class="table-container">
+<div class="table-caption">冲泡问题速查表——症状 → 诊断 → 药方</div>
+<table>
+<tr><th>问题症状</th><th>可能原因</th><th>修正方案</th></tr>
+<tr><td>苦涩太重</td><td>水温过高 / 浸泡过久 / 投茶量过大</td><td>降温 5-10°C、缩短浸泡 10-20 秒</td></tr>
+<tr><td>滋味寡淡</td><td>水温不够 / 投茶量不足 / 浸泡过短</td><td>升温 5-10°C、增加 1-2g 茶、延长浸泡 30 秒</td></tr>
+<tr><td>香气不显</td><td>水温不够（尤其乌龙茶）/ 茶具保温性差</td><td>确认沸水冲泡、换保温性好的茶具（如紫砂壶）</td></tr>
+<tr><td>汤色浑浊</td><td>硬水 / 出汤不及时 / 碎末过多</td><td>换软水、控制出汤时间、撬茶时减少碎末</td></tr>
+<tr><td>有"闷味"</td><td>水温过高 + 盖盖子（绿茶）</td><td>开盖冲泡，降低水温</td></tr>
+<tr><td>后几泡突然变味</td><td>前一泡未沥尽（残留茶汤闷泡）</td><td>每泡务必沥尽最后一滴</td></tr>
+<tr><td>茶叶不下沉</td><td>水温过低 / 茶叶过嫩（上投法后遗症）</td><td>用茶匙轻轻压茶、稍等 1-2 分钟</td></tr>
+<tr><td>茶汤发酸</td><td>水温过高（红茶/乌龙茶）</td><td>红茶降至 90°C，乌龙茶检查是否闷泡过久</td></tr>
+</table>
+</div>
+
+<div class="callout callout-warn">
+<strong>🩺 诊断口诀：</strong>"苦调水温淡加量，香不够高查保温，闷味开盖浑换水，酸苦一律看时间"——背下这四句，冲泡问题不求人。
+</div>
+
+</div>
+<div class="takeaway">
+每一杯失败的茶都是一次学习机会——它能告诉你哪个变量出了问题。泡茶的进步，就藏在每一次"失败→诊断→修正"的循环里。
+</div>
+</section>
+
+<!-- MODULE 10: 关键术语表 -->
+<section id="module-glossary" class="module">
+<h2><span class="m-tag">关键术语表</span> 冲泡核心术语</h2>
+<p class="hook">掌握这些术语，你就能听懂茶人的"行话"，也能更精准地描述自己的冲泡感受。</p>
+<div class="content">
+
+<div class="table-container">
+<table>
+<tr><th>术语</th><th>英文</th><th>定义</th></tr>
+<tr><td>上投法</td><td>Top Dropping</td><td>先注水后投茶，适合极细嫩、茶毫多的绿茶</td></tr>
+<tr><td>中投法</td><td>Mid Dropping</td><td>先注 1/3 水→投茶→注满，最能展现茶舞</td></tr>
+<tr><td>下投法</td><td>Bottom Dropping</td><td>先投茶后注水，最通用的投茶方式</td></tr>
+<tr><td>高冲低斟</td><td>High Pour, Low Decant</td><td>注水时拉高水柱激发香气，出汤时壶嘴低贴公道杯保持聚香</td></tr>
+<tr><td>温润泡</td><td>Rinse / Awakening</td><td>第一泡注沸水后即刻倒出的醒茶步骤（非饮用）</td></tr>
+<tr><td>醒茶</td><td>Tea Awakening</td><td>冲泡前让干茶接触空气或温热茶具，唤醒茶叶香气</td></tr>
+<tr><td>快出</td><td>Flash Infusion</td><td>注水后极短时间内（5-15 秒）即出汤，用于乌龙茶前几泡</td></tr>
+<tr><td>闷泡</td><td>Steeping</td><td>浸泡时间过长导致茶汤苦涩或产生闷味</td></tr>
+<tr><td>沥尽</td><td>Drain Completely</td><td>出汤时务必沥尽茶具中最后一滴茶汤，避免影响下一泡</td></tr>
+<tr><td>茶舞</td><td>Tea Dance</td><td>茶叶在热水中舒展、沉浮的美感（尤指绿茶玻璃杯冲泡时）</td></tr>
+<tr><td>茶汤</td><td>Tea Liquor</td><td>冲泡后得到的茶水，包含色泽、清澈度、浓度等维度</td></tr>
+<tr><td>投茶量</td><td>Tea Dosage</td><td>单次冲泡使用的茶叶重量（通常以 g/150ml 计算）</td></tr>
+<tr><td>浸泡时间</td><td>Infusion Time</td><td>热水与茶叶接触的时间长度，直接决定萃取程度</td></tr>
+<tr><td>出汤</td><td>Decanting</td><td>将泡好的茶汤从茶壶/盖碗倒入公道杯的动作</td></tr>
+<tr><td>续水</td><td>Re-infusion</td><td>一杯茶喝完后继续加热水冲泡，茶叶可续水 2-10+ 次不等</td></tr>
+</table>
+</div>
+
+</div>
+</section>
+
+</div>
+
+<!-- CONDITIONAL: HAS_CONTEXT_PLAN -->
+<footer class="journey-footer">
+  <a href="#" class="back-to-plan" onclick="event.preventDefault();var w=window.open('tea_learning.html#kc-p2_3','plan_main');if(w)w.focus()">🔗 返回学习路线: 识茶·喝茶·品茶 系统学习方案 → 泡茶技艺</a>
+  <p style="margin-top:12px;font-size:.72rem;color:var(--text-muted)">
+    本资料是 <strong>识茶·喝茶·品茶 系统学习方案</strong> 泡茶技艺 阶段的深度研读材料
+  </p>
+</footer>
+<!-- /CONDITIONAL -->
+
+<!-- CONDITIONAL: HAS_CONTEXT_PLAN -->
+<div class="deep-floating-back">
+  <button onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 16px rgba(0,0,0,.2)'"
+    onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 12px rgba(0,0,0,.15)'"
+    onclick="event.preventDefault();var w=window.open('tea_learning.html#kc-p2_3','plan_main');if(w)w.focus()">
+    ← 返回学习方案
+  </button>
+</div>
+<!-- /CONDITIONAL -->
+</div>
+
+<div class="dd-toast" id="toastEl"><span id="toastMsg"></span></div>
+
+<script>
+var MODULE_IDS = ["module-intro","module-four-elements","module-green","module-oolong","module-black","module-white-yellow","module-dark-puer","module-throwing","module-troubleshooting","module-glossary"];
+var SEARCH_INDEX = [
+{"id":"module-intro","t":"背景与缘起 - 因茶施泡","c":"冲泡技法的本质是针对各类茶的化学成分和物理形态的差异化策略。四大冲泡要素环环相扣——水温、茶具、投茶量、浸泡时间。"},
+{"id":"module-four-elements","t":"核心概念 - 冲泡四大要素","c":"水温、茶具、投茶量、浸泡时间的联动关系。投茶量标准参考：绿茶3g、白茶5g、乌龙茶7-8g、红茶4-5g、黑茶5-7g。"},
+{"id":"module-green","t":"绿茶冲泡 - 低温快出不闷","c":"75-85°C低温、1-2分钟首泡快出、不闷开盖。上投法中投法下投法选择。忌盖盖子、忌沸水直冲、忌久浸。"},
+{"id":"module-oolong","t":"乌龙茶冲泡 - 高冲激香快进快出","c":"100°C沸水高冲、投茶量7-8g/100ml、5-15秒快出。高冲低斟四字诀。温润泡3秒内倒出。"},
+{"id":"module-black","t":"红茶冲泡 - 温杯醒茶中温慢浸","c":"90-95°C水温、温杯摇香30秒、浸泡3-5分钟。白瓷壶首选。忌100°C沸水导致熟汤味。"},
+{"id":"module-white-yellow","t":"白茶与黄茶冲泡","c":"新白茶85-90°C浸泡3-5分钟，老白茶100°C可煮饮。黄茶85°C类似绿茶但更醇和。一年茶三年药七年宝。"},
+{"id":"module-dark-puer","t":"黑茶与普洱茶冲泡","c":"生普新茶90-95°C快出，老茶100°C沸水。熟普洗茶1-2遍。紧压茶需茶针撬散。紫砂壶首选。"},
+{"id":"module-throwing","t":"三大投茶法 - 上投中投下投","c":"上投先水后茶适合碧螺春，中投半水投茶满水适合龙井，下投先茶后水最通用。嫩茶上投或中投，老茶紧茶一律下投。"},
+{"id":"module-troubleshooting","t":"冲泡急诊室 - 常见问题诊断","c":"苦涩降温、寡淡加量、香气不够查水温、闷味开盖、浑浊换水。每泡务必沥尽最后一滴。"},
+{"id":"module-glossary","t":"核心术语表","c":"上投法、中投法、下投法、高冲低斟、温润泡、醒茶、快出、闷泡、沥尽、茶舞、茶汤、投茶量、浸泡时间、出汤、续水。"}
+];
+var TOAST_TIMEOUT;
+
+(function(){
+var progressBar=document.getElementById('progressBar');
+var modules=document.querySelectorAll('.module');
+
+var observer=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting)e.target.classList.add('visible')})},{threshold:.15});
+modules.forEach(function(m){observer.observe(m)});
+
+var navLinks=document.querySelectorAll('.sidebar-nav a');
+var navObserver=new IntersectionObserver(function(entries){
+entries.forEach(function(e){
+if(e.isIntersecting){
+navLinks.forEach(function(a){a.classList.remove('active')});
+var act=document.querySelector('.sidebar-nav a[href="#'+e.target.id+'"]');
+if(act)act.classList.add('active');
+}
+})},{threshold:.3});
+modules.forEach(function(m){navObserver.observe(m)});
+
+window.addEventListener('scroll',function(){
+var st=document.documentElement.scrollTop,dh=document.documentElement.scrollHeight-window.innerHeight;
+var pct=dh>0?Math.min(100,(st/dh)*100):0;progressBar.style.width=pct+'%';
+});
+
+window.addEventListener('keydown',function(e){
+if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();openSearch()}
+if((e.ctrlKey||e.metaKey)&&e.key==='d'){e.preventDefault();toggleTheme()}
+if(e.key==='Escape')closeSearch()
+});
+})();
+
+function toggleTheme(){
+var b=document.body,isD=b.getAttribute('data-theme')==='dark';
+b.setAttribute('data-theme',isD?'light':'dark');
+try{localStorage.setItem('slm-theme',isD?'light':'dark')}catch(e){}
+showToast('已切换至'+(isD?'浅色':'深色')+'主题')
+}
+
+function openSearch(){document.getElementById('searchOverlay').classList.add('open');setTimeout(function(){document.getElementById('searchInput').focus()},100)}
+function closeSearch(){document.getElementById('searchOverlay').classList.remove('open');document.getElementById('searchResults').innerHTML=''}
+
+function doSearch(){
+var q=document.getElementById('searchInput').value.toLowerCase(),res=document.getElementById('searchResults');
+if(q.length<2){res.innerHTML='';return}
+var h='';SEARCH_INDEX.forEach(function(item){
+if(item.t.toLowerCase().indexOf(q)>=0||(item.c||'').toLowerCase().indexOf(q)>=0){
+h+='<div onclick="closeSearch();document.getElementById(\''+item.id+'\').scrollIntoView({behavior:\'smooth\'})">'+
+'<strong>'+item.t+'</strong><br><small style="color:var(--text-muted)">'+(item.c||'').substring(0,80)+'</small></div>';
+}
+});
+res.innerHTML=h||'<div style="padding:12px;color:var(--text-muted)">未找到匹配模块</div>'
+}
+
+function showToast(msg){
+var el=document.getElementById('toastEl'),mg=document.getElementById('toastMsg');
+if(!el||!mg)return;mg.textContent=msg;el.style.display='block';el.classList.add('toast-in');
+if(TOAST_TIMEOUT)clearTimeout(TOAST_TIMEOUT);
+TOAST_TIMEOUT=setTimeout(function(){el.style.display='none'},3000);
+}
+
+(function(){
+var t;try{t=localStorage.getItem('slm-theme')}catch(e){}
+if(t==='light')document.body.setAttribute('data-theme','light');
+})();
+
+(function(){
+document.querySelectorAll('.derivation-toggle').forEach(function(btn){
+btn.addEventListener('click',function(){
+var content=this.nextElementSibling;
+if(content){content.classList.toggle('open');this.textContent=content.classList.contains('open')?'▾ 收起推导':'▸ 展开推导'}
+});
+});
+})();
+
+/* ===== ECharts 初始化模板 ===== */
+(function initCharts(){
+if(typeof echarts==='undefined')return;
+var charts=[];
+function makeChart(elId,option){
+var el=document.getElementById(elId);
+if(!el)return null;
+var chart=echarts.init(el);
+chart.setOption(option);
+return chart;
+}
+var isLight=document.body.getAttribute('data-theme')==='light';
+var textColor=isLight?'#4a4035':'#b8ad98';
+var axisColor=isLight?'#5c5042':'#8a8070';
+var gridColor=isLight?'#ebe5d6':'#2d2924';
+
+var radarChart=makeChart('chartRadar',{
+tooltip:{trigger:'item'},
+legend:{bottom:0,textStyle:{color:textColor,fontSize:10},data:['绿茶','白茶','黄茶','乌龙茶','红茶','黑茶/普洱'],itemWidth:8,itemHeight:8},
+radar:{
+center:['50%','50%'],
+radius:'62%',
+indicator:[
+{name:'水温重要性',max:100},
+{name:'茶具保温性',max:100},
+{name:'投茶量',max:100},
+{name:'浸泡时间',max:100}
+],
+axisName:{color:axisColor,fontSize:10},
+splitArea:{areaStyle:{color:[gridColor]}},
+splitLine:{lineStyle:{color:gridColor}},
+axisLine:{lineStyle:{color:gridColor}}
+},
+series:[{
+type:'radar',
+data:[
+{value:[40,30,50,85],name:'绿茶',areaStyle:{color:'rgba(110,191,138,.15)'},lineStyle:{color:'#6ebf8a'},itemStyle:{color:'#6ebf8a'}},
+{value:[60,50,60,80],name:'白茶',areaStyle:{color:'rgba(184,152,160,.15)'},lineStyle:{color:'#b898a0'},itemStyle:{color:'#b898a0'}},
+{value:[50,35,50,75],name:'黄茶',areaStyle:{color:'rgba(230,185,90,.15)'},lineStyle:{color:'#e6b95a'},itemStyle:{color:'#e6b95a'}},
+{value:[95,85,95,30],name:'乌龙茶',areaStyle:{color:'rgba(212,120,96,.15)'},lineStyle:{color:'#d47860'},itemStyle:{color:'#d47860'}},
+{value:[70,55,60,70],name:'红茶',areaStyle:{color:'rgba(126,200,160,.15)'},lineStyle:{color:'#7ec8a0'},itemStyle:{color:'#7ec8a0'}},
+{value:[95,75,75,80],name:'黑茶/普洱',areaStyle:{color:'rgba(94,168,122,.15)'},lineStyle:{color:'#5ea87a'},itemStyle:{color:'#5ea87a'}}
+]
+}]
+});
+if(radarChart)charts.push(radarChart);
+
+window.addEventListener('resize',function(){charts.forEach(function(c){c.resize()})});
+})();
+</script>
+</body>
+</html>

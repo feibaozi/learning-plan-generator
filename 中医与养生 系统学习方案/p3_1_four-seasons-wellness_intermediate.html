@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>四季养生与二十四节气深度研读</title>
+<style>
+/* ───────────────────────────────────────────────
+   Template: Cedar Dawn (雪松晨曦) — deep_dive.css
+   Mood: warm, natural, organic
+   Contrast verified: text-primary≥10:1, text-secondary≥6:1, text-muted≥4.5:1
+   ─────────────────────────────────────────────── */
+:root{
+--bg-base:#1a1814;
+--bg-card:#282520;
+--bg-elevated:#312d27;
+--bg-overlay:rgba(0,0,0,.6);
+--text-primary:#ede6d8;
+--text-secondary:#b8ad98;
+--text-muted:#8a8070;
+--accent-indigo:#5ea87a;
+--accent-purple:#b898a0;
+--accent-cyan:#7ec8a0;
+--accent-gold:#e6b95a;
+--accent-green:#6ebf8a;
+--accent-red:#d47860;
+--accent-blue:#5ea87a;
+--accent-color:#5ea87a;
+--accent-dark:#3d6b50;
+--border-subtle:rgba(184,173,152,.15);
+--border-glow:rgba(94,168,122,.25);
+--shadow-sm:0 1px 3px rgba(0,0,0,.3);
+--shadow-md:0 4px 16px rgba(0,0,0,.4);
+--shadow-lg:0 8px 32px rgba(0,0,0,.5);
+--shadow-elevated:0 8px 32px rgba(0,0,0,.5);
+--radius-sm:6px;
+--radius-md:10px;
+--radius-lg:16px;
+--font-sans:'Segoe UI',system-ui,-apple-system,sans-serif;
+--font-mono:Consolas,'Cascadia Code',monospace;
+--transition:.25s cubic-bezier(.4,0,.2,1);
+--transition-smooth:.3s ease;
+--nav-h:56px;
+--accent-color-rgb:94,168,122;
+--chart-grid:#2d2924;
+--chart-axis-label:#8a8070;
+}
+[data-theme="light"]{
+--bg-base:#fdfaf3;
+--bg-card:#fffdf7;
+--bg-elevated:#f3efe3;
+--bg-overlay:rgba(0,0,0,.3);
+--text-primary:#1f1a12;
+--text-secondary:#4a4035;
+--text-muted:#5c5042;
+--accent-indigo:#3d6b50;
+--accent-purple:#7a5a6a;
+--accent-cyan:#4a8e6a;
+--accent-gold:#a07828;
+--accent-green:#4a9e66;
+--accent-red:#b05038;
+--accent-blue:#3d6b50;
+--accent-color:#3d6b50;
+--accent-dark:#2a4835;
+--border-subtle:rgba(31,26,18,.08);
+--border-glow:rgba(61,107,80,.25);
+--shadow-sm:0 1px 3px rgba(0,0,0,.06);
+--shadow-md:0 4px 16px rgba(0,0,0,.08);
+--shadow-lg:0 8px 32px rgba(0,0,0,.12);
+--shadow-elevated:0 8px 32px rgba(0,0,0,.12);
+--accent-color-rgb:61,107,80;
+--chart-grid:#ebe5d6;
+--chart-axis-label:#5c5042;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font-sans);background:var(--bg-base);color:var(--text-primary);line-height:1.75;overflow-x:hidden}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg-base)}::-webkit-scrollbar-thumb{background:var(--border-glow);border-radius:3px}
+
+.progress-bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--accent-indigo),var(--accent-purple),var(--accent-cyan));z-index:200;transition:width .1s linear}
+.navbar{position:fixed;top:3px;left:0;right:0;z-index:100;background:var(--bg-card);border-bottom:1px solid var(--border-subtle);backdrop-filter:blur(16px);height:var(--nav-h);display:flex;align-items:center;justify-content:space-between;padding:0 24px}
+.nav-left{display:flex;align-items:center;gap:12px;font-size:.82rem;font-weight:600;color:var(--accent-indigo)}
+.nav-right{display:flex;align-items:center;gap:8px}
+.nav-right button{background:var(--bg-elevated);border:1px solid var(--border-subtle);color:var(--text-secondary);padding:6px 12px;border-radius:var(--radius-sm);cursor:pointer;font-size:.75rem;transition:all var(--transition)}
+.nav-right button:hover{border-color:var(--border-glow);color:var(--accent-indigo)}
+
+.sidebar{position:fixed;left:0;top:0;height:100vh;width:280px;background:var(--bg-base);border-right:1px solid var(--border-subtle);padding:24px;overflow-y:auto;z-index:100;padding-top:calc(var(--nav-h) + 16px)}
+.sidebar h3{font-size:.85rem;font-weight:700;color:var(--text-secondary);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--border-subtle)}
+.sidebar-nav{list-style:none;padding:0}
+.sidebar-nav li{margin-bottom:2px}
+.sidebar-nav a{display:block;padding:8px 12px;border-radius:var(--radius-md);text-decoration:none;font-size:.76rem;color:var(--text-secondary);transition:all var(--transition);border-left:3px solid transparent}
+.sidebar-nav a:hover{background:rgba(var(--accent-color-rgb),.08);color:var(--accent-cyan);border-left-color:var(--accent-cyan)}
+.sidebar-nav a.active{background:rgba(var(--accent-color-rgb),.12);color:var(--accent-blue);font-weight:600;border-left-color:var(--accent-blue)}
+.sidebar-back-link{display:block;padding:8px 12px;margin-bottom:12px;border-radius:8px;background:var(--bg-elevated);color:var(--accent-blue);text-decoration:none;font-size:.78rem;font-weight:600}
+.sidebar-back-link:hover{color:var(--accent-cyan)}
+
+.content-area{margin-left:280px;width:calc(100% - 280px)}
+.container{max-width:calc(100% - 48px);margin:0 auto;padding:calc(var(--nav-h) + 24px) 24px 80px}
+
+.hero{text-align:center;padding:48px 0 36px}
+.hero h1{font-size:2.2rem;background:linear-gradient(135deg,var(--accent-indigo),var(--accent-purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+.hero .tags{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:12px}
+.hero .tags span{font-size:.7rem;padding:4px 12px;border-radius:50px;border:1px solid var(--border-glow);color:var(--accent-indigo);background:rgba(var(--accent-color-rgb),.06)}
+
+.meta-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:20px 24px;margin:0 auto 32px;max-width:700px;display:flex;justify-content:center;gap:36px;flex-wrap:wrap;box-shadow:var(--shadow-md)}
+.meta-item{text-align:center}
+.meta-item .val{font-size:1.4rem;font-weight:800;color:var(--accent-indigo)}
+.meta-item .lbl{font-size:.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px}
+
+.journey-bar{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:12px 20px;margin:0 auto 24px;max-width:900px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:.82rem;box-shadow:var(--shadow-elevated)}
+.journey-path{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.journey-icon{font-size:1rem}
+.journey-plan{color:var(--accent-purple);font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.journey-plan:hover{color:var(--accent-gold)}
+.journey-sep{color:var(--text-muted);font-size:.7rem}
+.journey-phase{color:var(--text-secondary);font-weight:600}
+.journey-kp{color:var(--text-primary);font-weight:700}
+.journey-pos{color:var(--text-muted);font-size:.72rem}
+.journey-nav{display:flex;align-items:center;gap:8px;font-size:.75rem}
+.journey-prev,.journey-next{color:var(--text-muted);cursor:default}
+.journey-divider{color:var(--border-subtle)}
+
+.module{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:28px 28px 24px;margin-bottom:20px;
+opacity:0;transform:translateY(24px);transition:opacity .5s ease,transform .5s ease;box-shadow:var(--shadow-sm)}
+.module.visible{opacity:1;transform:translateY(0)}
+.module:hover{border-color:var(--border-glow)}
+.module h2{font-size:1.15rem;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.module .m-tag{font-size:.65rem;padding:2px 10px;border-radius:50px;background:rgba(var(--accent-color-rgb),.1);border:1px solid rgba(var(--accent-color-rgb),.2);color:var(--accent-indigo);font-weight:600}
+.module .m-time{font-size:.7rem;color:var(--text-muted);margin-left:auto}
+.module .hook{font-size:.9rem;color:var(--accent-purple);font-weight:600;margin:12px 0 16px;padding-left:12px;border-left:3px solid var(--accent-purple)}
+.module .content{font-size:.88rem;color:var(--text-secondary);line-height:1.8}
+.module .content p{margin-bottom:12px}
+.module .content ul,.module .content ol{margin:8px 0 12px 20px}
+.module .content li{margin-bottom:6px}
+
+.formula-block{background:rgba(var(--accent-color-rgb),.04);border:1px solid rgba(var(--accent-color-rgb),.12);border-radius:var(--radius-sm);padding:14px 18px;margin:14px 0;font-family:var(--font-mono);font-size:.82rem;color:var(--accent-cyan);overflow-x:auto;position:relative}
+.formula-block .f-cap{font-size:.7rem;color:var(--text-muted);margin-bottom:6px;display:block}
+.derivation-toggle{font-size:.7rem;color:var(--accent-gold);cursor:pointer;border:none;background:none;padding:4px 0;font-family:inherit;display:block;margin-top:6px}
+.derivation-toggle:hover{text-decoration:underline}
+.derivation-content{display:none;margin-top:8px;padding:12px 16px;background:rgba(var(--accent-color-rgb),.04);border-radius:var(--radius-sm);border-left:3px solid var(--accent-gold);font-size:.8rem;color:var(--text-secondary)}
+.derivation-content.open{display:block}
+
+.chart-wrap{background:var(--bg-elevated);border-radius:var(--radius-sm);padding:8px;margin:14px 0;text-align:center}
+.chart-wrap>div{width:100%;height:250px}
+.chart-wrap-tall{background:var(--bg-elevated);border-radius:var(--radius-sm);padding:8px;margin:14px 0;text-align:center}
+.chart-wrap-tall>div{width:100%;height:300px}
+.chart-wrap .ch-cap{font-size:.72rem;color:var(--text-muted);margin-top:6px}
+.chart-wrap-tall .ch-cap{font-size:.72rem;color:var(--text-muted);margin-top:6px}
+
+.table-container{margin:20px 0;overflow-x:auto}
+.table-container table{width:100%;border-collapse:collapse;border-radius:var(--radius-md);overflow:hidden}
+.table-container th{background:var(--bg-elevated);color:var(--accent-cyan);font-weight:700;padding:12px 16px;text-align:left;font-size:.8rem}
+.table-container td{padding:12px 16px;border-bottom:1px solid var(--border-subtle);font-size:.82rem;color:var(--text-secondary)}
+.table-container tr:hover td{background:rgba(var(--accent-color-rgb),.03)}
+.table-container .table-caption{font-size:.72rem;color:var(--text-muted);margin-bottom:8px;text-align:center}
+
+.takeaway{font-size:.82rem;background:rgba(var(--accent-color-rgb),.06);border-left:3px solid var(--accent-green);padding:10px 14px;margin-top:16px;border-radius:0 var(--radius-sm) var(--radius-sm) 0;color:var(--accent-green)}
+
+.ref-list{list-style:none;padding:0;margin-top:8px;font-size:.78rem}
+.ref-list li{padding:4px 0;color:var(--text-muted)}
+.ref-list li::before{content:'📄 '}
+
+.search-overlay{position:fixed;inset:0;z-index:300;background:var(--bg-overlay);display:none;align-items:flex-start;justify-content:center;padding-top:120px}
+.search-overlay.open{display:flex}
+.search-box{width:520px;max-width:90vw;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:var(--radius-md);box-shadow:var(--shadow-lg);overflow:hidden}
+.search-box input{width:100%;padding:14px 18px;background:transparent;border:none;color:var(--text-primary);font-size:.95rem;outline:none;font-family:inherit}
+.search-results{max-height:360px;overflow-y:auto}
+.search-results div{padding:10px 18px;cursor:pointer;font-size:.82rem;color:var(--text-secondary);border-top:1px solid var(--border-subtle);transition:background var(--transition)}
+.search-results div:hover{background:rgba(var(--accent-color-rgb),.06);color:var(--text-primary)}
+
+.journey-footer{text-align:center;padding:40px 32px 60px;opacity:.8}
+.back-to-plan{display:inline-flex;align-items:center;gap:8px;padding:10px 24px;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:50px;color:var(--text-secondary);text-decoration:none;font-size:.85rem;font-weight:600;transition:all var(--transition-smooth)}
+.back-to-plan:hover{background:var(--bg-elevated);border-color:var(--accent-purple);color:var(--accent-purple)}
+
+.deep-floating-back{position:fixed;right:20px;bottom:20px;z-index:10000}
+.deep-floating-back button{padding:12px 20px;background:linear-gradient(135deg,var(--accent-color),var(--accent-dark));color:#fff;border:none;border-radius:24px;font-size:.85rem;font-weight:600;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.15);transition:transform .2s,box-shadow .2s}
+.deep-floating-back button:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.2)}
+
+.dd-toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);z-index:10001;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:8px;padding:14px 24px;box-shadow:0 4px 16px rgba(0,0,0,.15);font-size:.85rem;display:none}
+.toast-in{animation:toastIn .3s ease}
+@keyframes toastIn{from{opacity:0;transform:translate(-50%,20px)}to{opacity:1;transform:translate(-50%,0)}}
+
+@media print{.navbar,.progress-bar,.sidebar,.journey-bar,.journey-footer,.deep-floating-back{display:none!important}.content-area{margin-left:0;width:100%}.module{break-inside:avoid;opacity:1!important;transform:none!important;box-shadow:none}body{background:#fff}}
+
+@media(max-width:1024px){.sidebar{display:none}.content-area{margin-left:0;width:100%}}
+@media(max-width:768px){
+.hero h1{font-size:1.6rem}.module{padding:20px}.meta-card{font-size:.72rem;padding:12px 16px}.journey-bar{flex-direction:column;align-items:flex-start}
+.deep-floating-back{right:15px;bottom:15px}.deep-floating-back button{padding:10px 16px;font-size:.8rem}
+}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+</head>
+<body data-theme="dark">
+
+<div class="progress-bar" id="progressBar" style="width:0%"></div>
+
+<nav class="navbar">
+  <div class="nav-left">📖 四季养生与二十四节气</div>
+  <div class="nav-right">
+    <button onclick="toggleTheme()" title="切换主题 (Ctrl+D)">🌓 主题</button>
+    <button onclick="openSearch()" title="搜索 (Ctrl+K)">🔍 搜索</button>
+  </div>
+</nav>
+
+<div class="sidebar">
+  <a href="#" class="sidebar-back-link" onclick="event.preventDefault();var w=window.open('tcm_learning.html#kc-p3_1','plan_main');if(w)w.focus()">← 返回主方案</a>
+  <h3>📖 目录导航</h3>
+  <ul class="sidebar-nav">
+    <li><a href="#mod-01-journey">01. 学习路线导航</a></li>
+    <li><a href="#mod-02-background">02. 天人相应的理论渊源</a></li>
+    <li><a href="#mod-03-concept">03. 四季养生核心概念</a></li>
+    <li><a href="#mod-04-principle">04. 二十四节气养生原理</a></li>
+    <li><a href="#mod-05-application">05. 春季养生实践指南</a></li>
+    <li><a href="#mod-06-case-study">06. 夏季与长夏案例分析</a></li>
+    <li><a href="#mod-07-development">07. 秋收冬藏养生体系</a></li>
+    <li><a href="#mod-08-landscape">08. 四季-五脏-五味全景</a></li>
+    <li><a href="#mod-09-misconceptions">09. 常见误区</a></li>
+    <li><a href="#mod-10-learning-path">10. 学习路径建议</a></li>
+    <li><a href="#mod-11-glossary">11. 核心术语</a></li>
+    <li><a href="#mod-12-prospect">12. 现代时间生物学验证</a></li>
+    <li><a href="#mod-13-risk">13. 养生不当的风险</a></li>
+  </ul>
+</div>
+
+<div class="content-area">
+<div class="search-overlay" id="searchOverlay">
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="搜索模块内容..." oninput="doSearch()" onkeydown="if(event.key==='Escape')closeSearch()">
+    <div class="search-results" id="searchResults"></div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="hero">
+    <h1>四季养生与二十四节气</h1>
+    <div class="tags">
+      <span>养生保健</span><span>天人相应</span><span>四时调摄</span><span>系统图解型</span>
+    </div>
+  </div>
+
+  <div class="meta-card">
+    <div class="meta-item"><div class="val">13</div><div class="lbl">模块数</div></div>
+    <div class="meta-item"><div class="val">~35</div><div class="lbl">分钟阅读</div></div>
+    <div class="meta-item"><div class="val">理解</div><div class="lbl">深度级别</div></div>
+  </div>
+
+  <div class="journey-bar" id="journeyBar">
+    <div class="journey-path">
+      <span class="journey-icon">📍</span>
+      <span class="journey-plan" onclick="var w=window.open('tcm_learning.html#kc-p3_1','plan_main');if(w)w.focus()">中医与养生 系统学习方案</span>
+      <span class="journey-sep">〉</span>
+      <span class="journey-phase">养生保健整合应用</span>
+      <span class="journey-sep">〉</span>
+      <span class="journey-kp">四季养生与二十四节气</span>
+      <span class="journey-pos">(第3/4阶段 · 第1个知识点)</span>
+    </div>
+    <div class="journey-nav">
+      <span class="journey-prev" title="前置: 阴阳五行学说">← 前置</span>
+      <span class="journey-divider">|</span>
+      <span class="journey-next" title="后续: 体质辨识与个性化调理">后续 →</span>
+    </div>
+  </div>
+
+<!-- MODULE 01: learning_journey -->
+<div class="module" id="mod-01-journey">
+  <h2><span class="m-tag">路线</span> 01. 学习路线导航 <span class="m-time">⏱️ 3分钟</span></h2>
+  <div class="hook">「夫四时阴阳者，万物之根本也」——《黄帝内经》的这句箴言，是打开四季养生之门的钥匙。</div>
+  <div class="content">
+    <p>四季养生是中医「天人相应」哲学在日常生活中最直观的体现。它将人体的生理活动与自然界春夏秋冬的节律变化相呼应，形成了一套完整的时间医学体系。本研读材料从理论渊源到实践应用，帮助您构建系统的四季养生知识框架。</p>
+    <p><strong>第一层·文化根基</strong>：从《黄帝内经》「四气调神大论」出发，理解天人相应的哲学根源，了解二十四节气的形成与演变。<strong>第二层·核心理论</strong>：掌握春生、夏长、秋收、冬藏的四季养生总纲，以及二十四节气各自对应的养生要点。<strong>第三层·实践落地</strong>：从春季养肝的具体方案到冬季补肾的操作指南，将理论转化为可执行的日常实践。<strong>第四层·科学验证</strong>：了解现代时间生物学（chronobiology）如何验证中医四季养生的科学性，认识昼夜节律与健康的深层关联。</p>
+    <p>建议按照模块顺序逐层深入：先从背景概念建立整体认知（模块1-4），再进入具体季节的实践场景（模块5-8），最后审视误区和风险（模块9、13），并拓展科学前沿视野（模块12）。</p>
+  </div>
+</div>
+
+<!-- MODULE 02: background -->
+<div class="module" id="mod-02-background">
+  <h2><span class="m-tag">背景</span> 02. 天人相应的理论渊源 <span class="m-time">⏱️ 4分钟</span></h2>
+  <div class="hook">「人以天地之气生，四时之法成」——《黄帝内经·素问》将人的生命活动置于天地四时的宏大背景中进行考察，奠定了中医时间医学的基石。</div>
+  <div class="content">
+    <p>天人相应的思想根植于中国古代「天人合一」的宇宙观。古人观察到，日月运行、寒暑交替、草木枯荣都有固定的节律，而人体的气血盛衰、脏腑功能、疾病发生也与这些自然节律密切相关。《素问·四气调神大论》系统阐述了四时养生的纲领性法则：「春三月，此谓发陈……夜卧早起，广步于庭；夏三月，此谓蕃秀……夜卧早起，无厌于日；秋三月，此谓容平……早卧早起，与鸡俱兴；冬三月，此谓闭藏……早卧晚起，必待日光。」</p>
+    <p><strong>二十四节气的形成</strong>是中国人对太阳周年运动规律的精妙把握。早在春秋战国时期，人们就确定了冬至、夏至、春分、秋分四个关键节点。到秦汉时期，完整的二十四节气体系基本定型，并被纳入太初历（公元前104年）。每个节气约15天，精确反映了太阳黄经每变化15°时地球上的气候、物候特征。二十四节气不仅是农业生产的时间标尺，更是中医养生的重要参照——「节气灸」「节气调养」等中医特色疗法正是基于节气更替时人体气血变化的规律。</p>
+    <p><strong>四季-五行-五脏的对应体系</strong>是天人相应理论的核心框架：春属木，对应肝脏，主生发；夏属火，对应心脏，主长养；长夏属土，对应脾脏，主运化；秋属金，对应肺脏，主收敛；冬属水，对应肾脏，主闭藏。这一体系不仅是抽象的理论符号，更是指导食疗、起居、运动、情志调摄的实践纲领。例如春季当养肝，饮食宜辛散（如韭菜、香椿），情志宜舒畅（忌郁怒），运动宜舒缓升发（如太极拳、晨间散步）。</p>
+
+    <div class="chart-wrap">
+      <div id="chart_timeline"></div>
+      <div class="ch-cap">图：二十四节气四时养生指数变化趋势（四季面积折线图）</div>
+    </div>
+
+  </div>
+  <div class="takeaway">💡 天人相应是四季养生的哲学根基——人的生命节律嵌入天地自然的四时更替之中，顺之则昌，逆之则伤。</div>
+</div>
+
+<!-- MODULE 03: concept -->
+<div class="module" id="mod-03-concept">
+  <h2><span class="m-tag">概念</span> 03. 四季养生核心概念 <span class="m-time">⏱️ 4分钟</span></h2>
+  <div class="hook">春生、夏长、秋收、冬藏——这四个词不是文学修辞，而是人体在四季中功能状态切换的精确描述。</div>
+  <div class="content">
+    <p><strong>春生</strong>——春季属木，通于肝。春天是阳气从潜藏到升发的转折点，万物复苏、生机勃发。人体气血也开始从内脏向外周流动，肝的疏泄功能在这一时期最为活跃。春季养生的关键词是「升发」与「疏泄」：要让阳气畅通无阻地升起来，如果升发不畅就会导致春困、情绪抑郁、过敏等问题。调摄要点包括早起舒展身体、饮食增辛减酸（辛味助升发、酸味收敛不利春气）、保持情志舒畅。</p>
+    <p><strong>夏长</strong>——夏季属火，通于心。夏至是一年中阳气最旺的时节，人体气血运行旺盛、腠理开泄。此时养生的关键词是「养长」与「清心」：要充分利用旺盛的阳气促进身体的新陈代谢，同时防止暑热伤心耗气。长夏（夏至后到立秋前）属土，通于脾，是湿气最重的时段，养生重点转向「健脾祛湿」。</p>
+    <p><strong>秋收</strong>——秋季属金，通于肺。秋天阳气开始收敛，气候转凉变燥。人体的气血也从体表向内收敛，肺的宣发肃降功能成为主导。秋季养生的关键词是「收敛」与「润燥」：要顺应阳气收敛的趋势，减少剧烈运动，早睡早起；同时肺为娇脏、喜润恶燥，饮食应以滋阴润肺为主。</p>
+    <p><strong>冬藏</strong>——冬季属水，通于肾。冬天阳气潜藏于内，自然界万物蛰伏。人体的新陈代谢降至最低，肾的封藏功能成为主导。冬季养生的关键词是「闭藏」与「温补」：要减少消耗、保护阳气，早睡晚起以待日光；饮食以温补肾阳为主，为来年春天的生发积蓄能量。</p>
+
+    <div class="chart-wrap">
+      <div id="chart_radar"></div>
+      <div class="ch-cap">图：四季养生六维能力雷达图——春生·夏长·秋收·冬藏各有侧重</div>
+    </div>
+
+  </div>
+  <div class="takeaway">💡 四季养生遵循「春生·夏长·秋收·冬藏」的自然节律。每一季对应不同的脏腑重点和调养策略，不可一概而论。</div>
+</div>
+
+<!-- MODULE 04: principle -->
+<div class="module" id="mod-04-principle">
+  <h2><span class="m-tag">原理</span> 04. 二十四节气养生原理 <span class="m-time">⏱️ 5分钟</span></h2>
+  <div class="hook">如果说四季养生是「粗调」，那么节气养生就是「微调」——每个节气都是一次调理身体的天赐良机。</div>
+  <div class="content">
+    <p>二十四节气将一年的太阳周期划分为24个节点，每个节气约15天，精确标记了自然界阴阳消长的阶段性变化。中医认为，节气更替时是人体气血变化最剧烈、最易受外邪侵袭的时刻，同时也是调理效果最佳的「窗口期」。</p>
+    <p><strong>节气养生的核心原理</strong>在于「顺势而调」——在阳气升发的节气（从立春到夏至）助阳升发，在阳气收敛的节气（从立秋到冬至）助阴潜阳。八个关键的节气节点尤为重要：<strong>四立</strong>（立春、立夏、立秋、立冬）是季节转换的枢纽，此时应进行较大幅度的养生策略调整；<strong>二分二至</strong>（春分、秋分、夏至、冬至）是阴阳消长的极点，是调理对应脏腑的最佳时机。例如，夏至是一年中阳气最旺之时，「冬病夏治」的三伏贴多从夏至开始；冬至是一阳初生之际，「冬令进补」多从冬至启动。</p>
+
+    <div class="formula-block">
+      <span class="f-cap">节气养生的核心法则：五运六气周期</span>
+      二十四节气 × 五脏对应 × 六气变化 = 天人相应的时空调理坐标系
+      <button class="derivation-toggle">▸ 展开解读</button>
+      <div class="derivation-content">
+        「五运六气」是中医最具特色的时间医学理论，出自《黄帝内经》的运气七篇大论。五运指木、火、土、金、水五行的年周期变化，六气指风、寒、暑、湿、燥、火的季节分布规律。每年五运六气的组合不同，意味着不同年份同一节气的养生侧重也应有所调整。例如，2025年为乙巳年（金运不及），全年燥气偏弱、风气偏盛，养生应格外注意平肝息风。
+      </div>
+    </div>
+
+    <p><strong>五行生克与季节传变</strong>是理解节气养生深层逻辑的关键。五脏之间按照五行生克规律相互制约、相互促进。例如春季肝木旺盛，如果肝气过亢，根据「木克土」的关系，容易克制脾胃功能，这也是为什么春天很多人会出现食欲不振、消化不良的原因——不是脾胃本身出了问题，而是肝气过旺「欺负」了脾胃。因此春季养肝的同时要注意「实脾」，即适当健脾以防肝病传脾。理解了这套生克制化关系，就能在季节更替时为身体筑起一道「防火墙」。</p>
+    <p>同样地，夏季心火旺盛，根据「火克金」的关系，夏季过汗、过劳易伤心火，进而影响秋季肺金的收敛功能，这也是「夏不养心，秋必咳嗽」的中医解释。秋季肺金当令，若收敛过度则根据「金克木」的关系会影响来年春季肝木的升发。冬季肾水封藏，根据「水克火」的关系，肾水过寒可上凌心火，冬季心脑血管事件高发与此密切相关。</p>
+
+    <div class="chart-wrap">
+      <div id="chart_wuxing"></div>
+      <div class="ch-cap">图：五行·五脏·五季·五味网络关系全景图</div>
+    </div>
+
+  </div>
+  <div class="takeaway">💡 节气养生 = 24节气的时间节点 × 五脏的季节对应 × 五行的生克制化。在关键节气节点顺势调理，效果事半功倍。</div>
+</div>
+
+<!-- MODULE 05: application -->
+<div class="module" id="mod-05-application">
+  <h2><span class="m-tag">应用</span> 05. 春季养生实践指南 <span class="m-time">⏱️ 4分钟</span></h2>
+  <div class="hook">「一年之计在于春」——春季养好了，全年的气血生发就有了充足的「燃料」；春季养差了，则夏长无源、秋收无物、冬藏无本。</div>
+  <div class="content">
+    <p>春季（立春至谷雨，约2月4日-5月5日）是阳气从潜藏转向升发的关键时期。《素问·四气调神大论》描述春季养生纲领为：「春三月，此谓发陈。天地俱生，万物以荣。夜卧早起，广步于庭。被发缓形，以使志生。」</p>
+    <p><strong>饮食调理</strong>：春季饮食以「减酸增甘、辛散升发」为原则。推荐食材：韭菜（温中行气、助阳升发）、荠菜（清肝明目、利尿除湿）、春笋（清热化痰、升发清阳）、豆芽（芽苗类最具生发之气）、香椿（疏肝理气、健脾开胃）、枸杞叶（养肝明目、清热生津）。推荐药膳：枸杞猪肝汤（养肝补血）、荠菜豆腐羹（清热平肝）、薄荷菊花茶（疏风散热）。忌过食酸味食物（醋、梅子、山楂等），酸主收敛，不利于阳气升发；忌大辛大热之品，以免肝阳上亢。</p>
+    <p><strong>起居运动</strong>：宜早睡早起（建议22:30前入睡、6:00-6:30起床），晨间散步或打太极拳，以舒展身体、通畅气血。衣着遵循「春捂」原则，不要过早减衣，尤其注意护住颈后大椎穴和肚脐神阙穴。运动以舒缓升发为主，忌大汗淋漓（汗出过多有损初生的阳气）。</p>
+    <p><strong>情志调摄</strong>：春应于肝，肝主疏泄、在志为怒。春季最忌抑郁和暴怒，应保持心情舒畅、乐观豁达。可多参与户外活动，踏青赏花，借助自然界生机勃发的能量涵养自己的心志。</p>
+
+    <div class="chart-wrap-tall">
+      <div id="chart_spring_flow"></div>
+      <div class="ch-cap">图：春季养生决策流程——从体质辨识到具体措施的完整路径</div>
+    </div>
+
+  </div>
+  <div class="takeaway">💡 春季养生三步走：辨体质→定方案→落实践。核心是顺应肝木的升发之性，让阳气畅通无阻地「升」起来。</div>
+</div>
+
+<!-- MODULE 06: case_study -->
+<div class="module" id="mod-06-case-study">
+  <h2><span class="m-tag">案例</span> 06. 夏季与长夏案例分析 <span class="m-time">⏱️ 4分钟</span></h2>
+  <div class="hook">「夏至一阴生」——在最热的时节，阴气已经开始悄然萌动。夏季养生的精妙之处，恰在于「热中护阴」这个不易察觉的细节。</div>
+  <div class="content">
+    <p>夏季（立夏至大暑，约5月6日-7月22日）与长夏（大暑至白露前，约7月23日-9月6日）是两个连续但重点不同的养生时段。夏季通于心、属火，长夏通于脾、属土。很多人在夏季养生中只顾清热解暑，却忽略了长夏健脾祛湿的重要性，导致进入秋季后脾胃虛弱、易感秋燥。</p>
+    <p><strong>案例一：一位35岁程序员的夏日困局</strong>——张先生，长期久坐、缺乏运动，入夏后出现胸闷、心烦、失眠、食欲不振。自行判断为「上火」，连续饮用苦瓜汁和绿豆汤一周，症状不但未缓解反而出现腹泻、乏力。分析：张先生的根本问题是心脾两虚——久坐伤脾导致运化无力、湿气内生，夏季心火偏旺又扰心神。苦瓜和绿豆均属寒凉，虽然清热但更伤脾阳，犯了「虚虚实实」之戒。正确方案：清心泻火（莲子心3克泡水）+ 健脾祛湿（四神汤：山药、茯苓、莲子、芡实），配合午间小憩养心、傍晚散步健脾。一周后症状明显改善。</p>
+    <p><strong>案例二：长夏湿疹反复发作的老人</strong>——李奶奶，72岁，每年夏末秋初双下肢湿疹反复发作，奇痒难忍。外用激素药膏效果短暂，停药即复发。中医分析：长夏湿气主令，脾主四肢肌肉，脾虛湿盛则湿邪下注肌肤形成湿疹。单纯外治不解决内因。调理方案：内服参苓白术散加减（健脾化湿），外用黄柏、苦参煎汤湿敷（清热燥湿），饮食增加薏仁、赤小豆、冬瓜等利湿食材，减少甜腻和海鲜类「发物」。调理三周后湿疹面积减少70%以上。</p>
+    <p><strong>夏季养生的关键辨证要点</strong>：夏季虽热，但并非所有人都适合清热——阳虚体质者夏季反而应「春夏养阳」，适当食用温性食材（如生姜、羊肉）以借助天时补自身阳气之不足。这正是「冬病夏治」的理论基础：在阳气最旺的夏季治疗冬季好发的虚寒性疾病（如哮喘、过敏性鼻炎、老寒腿），可以收到事半功倍的效果。三伏贴、三伏灸等特色疗法即基于此原理。</p>
+
+    <div class="table-container">
+      <div class="table-caption">表：夏季vs长夏养生要点对比</div>
+      <table>
+        <thead>
+          <tr><th>对比维度</th><th>夏季（火·心）</th><th>长夏（土·脾）</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>时间范围</td><td>立夏→大暑（5-7月）</td><td>大暑→白露前（7-9月）</td></tr>
+          <tr><td>核心脏腑</td><td>心</td><td>脾</td></tr>
+          <tr><td>主要外邪</td><td>暑热</td><td>湿邪</td></tr>
+          <tr><td>养生重点</td><td>清心泻火、养阴生津</td><td>健脾化湿、芳香醒脾</td></tr>
+          <tr><td>推荐食材</td><td>绿豆、莲子、百合、西瓜</td><td>山药、茯苓、薏仁、冬瓜</td></tr>
+          <tr><td>禁忌</td><td>大辛大热、大汗淋漓</td><td>肥甘厚腻、生冷瓜果</td></tr>
+          <tr><td>经典方剂</td><td>生脉散（人参/麦冬/五味子）</td><td>四神汤（山药/茯苓/莲子/芡实）</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+  <div class="takeaway">💡 夏季≠单纯清热。心火当令要清中有养（生脉散益气养阴），长夏湿重要健脾化湿（四神汤健脾祛湿），阳虚者更要「春夏养阳」。</div>
+</div>
+
+<!-- MODULE 07: development -->
+<div class="module" id="mod-07-development">
+  <h2><span class="m-tag">演变</span> 07. 秋收冬藏养生体系 <span class="m-time">⏱️ 4分钟</span></h2>
+  <div class="hook">「秋冬养阴」——这四个字看似简单，却浓缩了秋收、冬藏两季养生的全部精髓。</div>
+  <div class="content">
+    <p>秋冬两季是阳气从收敛到潜藏的过程，也是人体「蓄力」的关键时期。秋季养肺、冬季养肾，二者紧密衔接又各有侧重。</p>
+    <p><strong>秋季（立秋至霜降，约8月7日-10月23日）</strong>属金、通于肺。秋风起、燥气当令，肺为娇脏、喜润恶燥，因此秋季养生的核心是「滋阴润燥」。饮食以甘凉滋润为主：梨（生津润肺）、银耳（滋阴润燥）、百合（润肺宁心）、芝麻（润燥滑肠）、蜂蜜（润肺补中）。推荐药膳：川贝雪梨汤（润肺止咳）、银耳莲子羹（滋阴安神）。起居上应「早卧早起，与鸡俱兴」，比夏季提前入睡。情志上应「使志安宁，以缓秋刑」——收敛神气、避免悲秋情绪。运动应减少强度，以太极拳、八段锦等柔缓运动为主。</p>
+    <p><strong>冬季（立冬至大寒，约11月7日-次年2月3日）</strong>属水、通于肾。寒气当令，阳气潜藏，万物蛰伏。冬季养生的核心是「温补肾阳、固精藏神」。饮食以甘温滋补为主：羊肉（温肾助阳）、核桃（补肾固精）、黑芝麻（补肝肾、益精血）、枸杞（滋补肝肾）、肉桂（温中散寒）。推荐药膳：当归生姜羊肉汤（温肾散寒补血）、核桃枸杞粥（补肾益精）。起居上应「早卧晚起，必待日光」——比秋季更早入睡、待太阳升起后再起床，以最大限度保护阳气。情志上应「使志若伏若匿」——内敛心神、减少欲望和消耗。</p>
+
+    <div class="table-container">
+      <div class="table-caption">表：秋收与冬藏养生体系全景对比</div>
+      <table>
+        <thead>
+          <tr><th>对比维度</th><th>秋收（金·肺）</th><th>冬藏（水·肾）</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>时间范围</td><td>立秋→霜降（8-10月）</td><td>立冬→大寒（11-次年2月）</td></tr>
+          <tr><td>核心脏腑</td><td>肺</td><td>肾</td></tr>
+          <tr><td>主要外邪</td><td>燥邪</td><td>寒邪</td></tr>
+          <tr><td>养生总纲</td><td>滋阴润燥、收敛神气</td><td>温补肾阳、固精藏神</td></tr>
+          <tr><td>饮食性味</td><td>甘凉滋润</td><td>甘温滋补</td></tr>
+          <tr><td>推荐食材</td><td>梨、银耳、百合、芝麻、蜂蜜</td><td>羊肉、核桃、黑芝麻、枸杞、肉桂</td></tr>
+          <tr><td>经典药膳</td><td>川贝雪梨汤、银耳莲子羹</td><td>当归生姜羊肉汤、核桃枸杞粥</td></tr>
+          <tr><td>起居要点</td><td>早卧早起，与鸡俱兴</td><td>早卧晚起，必待日光</td></tr>
+          <tr><td>运动原则</td><td>柔缓收敛、微汗为度</td><td>避寒就温、不可大汗</td></tr>
+          <tr><td>情志修养</td><td>使志安宁，以缓秋刑</td><td>使志若伏若匿</td></tr>
+          <tr><td>关键节气</td><td>秋分：阴阳均分，润燥关键</td><td>冬至：一阳初生，进补良机</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>秋冬养生的过渡衔接至关重要。从秋到冬的转换期（霜降到立冬），是呼吸系统疾病和心脑血管疾病的高发时段。此时应逐步从「润燥」过渡到「温补」：饮食中逐渐增加温性食材的比例，衣着上及时添衣御寒（尤其注意背部、腹部和足部保暖），运动上从室外转向室内以避免寒邪侵袭。特别要注意的是，冬季进补虽然重要，但必须讲究「因人制宜」——阴虚体质者冬季应以滋阴为主（如食用鸭肉、甲鱼、黑豆），而非一味温补；痰湿体质者冬季进补前应先健脾化湿，否则补而不受、反生痰湿。</p>
+  </div>
+  <div class="takeaway">💡 秋冬养生不是「贴秋膘+吃补品」这么简单。秋收重在润肺降气，冬藏重在温肾固精，过渡期更需要精细的辨证调整。</div>
+</div>
+
+<!-- MODULE 08: landscape -->
+<div class="module" id="mod-08-landscape">
+  <h2><span class="m-tag">全景</span> 08. 四季-五脏-五味-五志全景 <span class="m-time">⏱️ 4分钟</span></h2>
+  <div class="hook">春夏秋冬不只是时间刻度，更是一幅四季→五脏→五味→五志的精密对应图。读懂这张图，就读懂了整个中医养生体系的逻辑骨架。</div>
+  <div class="content">
+    <p>四季养生体系的核心是「四时-五脏-五气-五味-五志」的多维对应网络。这个网络不仅是理论的抽象构建，更是实践的导航地图。每一季都有其对应的脏腑、外邪、性味、情绪和养生法则，形成了一个自洽而优雅的调理系统。</p>
+    <p><strong>春季（木→肝→风→酸→怒）</strong>：东风生、肝气旺、酸味入肝、怒伤肝。养生核心是「疏」——疏肝理气，让肝木的升发之性顺畅表达。饮食宜辛散升发，情志忌郁怒，运动宜伸展。</p>
+    <p><strong>夏季（火→心→暑→苦→喜）</strong>：南风长、心气旺、苦味入心、喜伤心（过喜气缓）。养生核心是「清」——清心泻火，同时防止暑热耗气伤阴。饮食宜清暑益气，情志忌暴喜过激。</p>
+    <p><strong>长夏（土→脾→湿→甘→思）</strong>：中央湿、脾气旺、甘味入脾、思伤脾（过思气结）。养生核心是「化」——健脾化湿，保持脾胃运化功能通畅。饮食宜淡渗利湿，忌肥甘厚腻。</p>
+    <p><strong>秋季（金→肺→燥→辛→忧）</strong>：西风燥、肺气旺、辛味入肺、忧伤肺。养生核心是「润」——滋阴润燥，保护肺脏免受燥邪伤害。饮食宜甘凉滋润，情志忌悲忧。</p>
+    <p><strong>冬季（水→肾→寒→咸→恐）</strong>：北风寒、肾气旺、咸味入肾、恐伤肾。养生核心是「藏」——温补肾阳、固精藏神。饮食宜甘温滋补，情志忌恐惧。</p>
+
+    <div class="chart-wrap-tall">
+      <div id="chart_sankey"></div>
+      <div class="ch-cap">图：四季→五脏→五味→五志的完整对应流向桑基图</div>
+    </div>
+
+  </div>
+  <div class="takeaway">💡 四季养生的全景图 = 季节 × 脏腑 × 外邪 × 性味 × 情志。五条线并行交织，共同构成了中医时间医学的核心框架。</div>
+</div>
+
+<!-- MODULE 09: misconceptions -->
+<div class="module" id="mod-09-misconceptions">
+  <h2><span class="m-tag">误区</span> 09. 常见误区 <span class="m-time">⏱️ 3分钟</span></h2>
+  <div class="hook">「春捂秋冻就是多穿少穿」「秋天多吃梨就能润肺」——这些流传甚广的说法，有多少被误解了？</div>
+  <div class="content">
+    <p><strong>误区一：「春捂就是春天多穿衣服」</strong>——「春捂」出自古代养生谚语「春捂秋冻，不生杂病」，但其本意是提醒人们春季不要过早脱掉冬衣，因为春季阳气初生、乍暖还寒，过早减衣容易受寒。但「捂」不是捂得越多越好，应以「手足温暖、不出汗」为度。特别是儿童，过度春捂导致出汗后又吹风，反而更容易感冒。春季穿衣应遵循「上薄下厚」原则，重点保护背部和腹部。</p>
+    <p><strong>误区二：「秋天就是要多吃梨润肺」</strong>——梨确实是秋季润肺佳品，但并非人人适合、多多益善。梨性偏寒凉，脾胃虚寒者（平时容易腹泻、腹部怕冷、舌淡苔白）生吃梨反而会损伤脾阳。正确做法：脾胃虚寒者可将梨去核后填入川贝、冰糖隔水蒸熟食用，以减其寒性、增其润性。此外，秋季润肺不只有梨——银耳、百合、荸荠、蜂蜜、柿子等都是不错的选择。</p>
+    <p><strong>误区三：「冬天就是要大量进补」</strong>——「冬令进补」是中医养生传统，但进补不等于盲目吃补品。进补的首要前提是「辨证」：辨清自己属于气虚、血虚、阴虚还是阳虚，再针对性施补。一个痰湿壅盛、舌苔厚腻的人吃再多阿胶、鹿茸也无法吸收，反而会「闭门留寇」加重痰湿。此外，感冒期间、急性炎症期、消化不良时均应暂停进补，待邪去正安后再行补益。</p>
+    <p><strong>误区四：「夏季不能吃温热的食物」</strong>——很多人都知道「冬吃萝卜夏吃姜」这句谚语，但不解其深意。夏季人体阳气浮于体表，内脏（尤其是脾胃）相对虚寒，适当食用生姜等温热食材可以温中散寒，防止过食寒凉瓜果损伤脾胃。这即是中医「春夏养阳」的具体实践。</p>
+  </div>
+  <div class="takeaway">💡 四季养生四大误区：春捂≠多穿、秋梨≠人人能吃、冬补≠大补猛药、夏忌温≠不能吃姜。关键在于辨证和适度。</div>
+</div>
+
+<!-- MODULE 10: learning_path -->
+<div class="module" id="mod-10-learning-path">
+  <h2><span class="m-tag">路径</span> 10. 学习路径建议 <span class="m-time">⏱️ 3分钟</span></h2>
+  <div class="hook">学四季养生就像学下围棋——规则简单，但要下出水平需要大量实践和体悟。</div>
+  <div class="content">
+    <p><strong>入门阶段（1-2个月）：建立四时框架</strong>。首要任务是精读《黄帝内经·素问》中的「四气调神大论」篇和「金匮真言论」篇，这是四季养生的理论源头。同时，亲手绘制一张「四季-五行-五脏-五味-五志」对应表，反复默记直至烂熟于心。在一年中亲自感受每个季节转换时的身体变化——春天是否容易疲劳？秋天是否容易皮肤干燥？记录「个人季节日记」是建立感性认知的最佳方式。</p>
+    <p><strong>进阶阶段（2-4个月）：拆解节气养生</strong>。将注意力从四季细化到二十四节气，重点理解八个关键节点（四立四分二至）的养生要点。可以制作一张全年的「节气养生日历」，标注每个节气对应的脏腑、推荐食材和禁忌事项。推荐阅读元代忽思慧的《饮膳正要》中关于四时食养的章节，以及明代高濂的《遵生八笺·四时调摄笺》。</p>
+    <p><strong>深化阶段（4-6个月）：结合体质辨证实践</strong>。四季养生必须与个人体质相结合才能产生实际效果。建议先完成系统的中医体质辨识（可借助标准化量表自测），然后在专业指导下，为自己设计一整套「四季+体质」的个性化养生方案。关键实践：完整经历过一年四个季节的养生实践后，对比身体的整体变化——精力、睡眠、免疫力、情绪稳定性等指标。推荐系统学习清代徐灵胎的《医学源流论》中关于因时制宜的论述。</p>
+  </div>
+  <div class="takeaway">💡 四季养生学习三阶段：建框架（四时理论）→ 拆节气（24节点）→ 融体质（个人化实践）。理论学习与身体力行缺一不可。</div>
+</div>
+
+<!-- MODULE 11: glossary -->
+<div class="module" id="mod-11-glossary">
+  <h2><span class="m-tag">术语</span> 11. 核心术语 <span class="m-time">⏱️ 3分钟</span></h2>
+  <div class="hook">以下术语构成了四季养生话语体系的「基础词汇」，掌握它们就拥有了深入研读经典文献和现代研究的能力。</div>
+  <div class="content">
+    <p><strong>天人相应</strong>：中医核心哲学观念之一，认为人体是一个小宇宙，自然是一个大宇宙，人体的生理病理变化与天地自然的节律变化相互呼应。是四季养生的最高指导原则。</p>
+    <p><strong>四气调神</strong>：出自《黄帝内经·素问·四气调神大论》，指根据春夏秋冬四季的气候变化来调摄精神情志和生活方式，以达到「治未病」和延年益寿的目的。</p>
+    <p><strong>二十四节气</strong>：中国古代根据太阳黄经位置将一年划分为24个时段，每个节气约15天，精确反映季节、气候和物候变化。是中医运气学说的基础时间单位。</p>
+    <p><strong>春生夏长秋收冬藏</strong>：四季养生的核心八字纲领，描述人体阳气在一年中的升、浮、降、沉运动规律。</p>
+    <p><strong>春夏养阳，秋冬养阴</strong>：出自《素问·四气调神大论》。春夏阳气在外，应顺应其升发之势而养阳；秋冬阴气主事，应顺应其收敛之势而养阴。</p>
+    <p><strong>冬病夏治</strong>：在夏季阳气最旺时（三伏天），通过药物贴敷、艾灸等方法治疗冬季好发的虚寒性疾病（如哮喘、老寒腿、过敏性鼻炎）。</p>
+    <p><strong>子午流注</strong>：中医时间医学的核心理论之一，认为人体气血在十二正经中按照固定的时序循环流注，每个时辰有一经当令，是针灸择时取穴和起居养生的理论基础。</p>
+    <p><strong>五运六气</strong>：简称「运气学说」，以天干地支为工具推算每年气候变化规律及其与疾病发生的关系，是中医最具特色的医学气象学和流行病学预测体系。</p>
+    <p><strong>节律养生</strong>：现代整合概念，将中医四时养生理论与现代时间生物学（chronobiology）相结合，强调顺应生物钟（昼夜节律、季节节律）进行健康管理。</p>
+  </div>
+  <div class="takeaway">💡 从「天人相应」到「节律养生」，这套术语体系跨越了两千多年的时间跨度，但其核心思想始终未变：顺应自然是健康的根本法则。</div>
+</div>
+
+<!-- MODULE 12: prospect -->
+<div class="module" id="mod-12-prospect">
+  <h2><span class="m-tag">前沿</span> 12. 现代时间生物学验证 <span class="m-time">⏱️ 4分钟</span></h2>
+  <div class="hook">当「子午流注」遇上「circadian rhythm」——古老的中医时间医学与现代时间生物学正在发生激动人心的对话。</div>
+  <div class="content">
+    <p>时间生物学（chronobiology）是研究生物节律及其机制的科学，2017年诺贝尔生理学或医学奖授予了发现昼夜节律分子机制的Jeffrey Hall、Michael Rosbash和Michael Young三位科学家，标志着现代科学正式确认了生物钟的存在。有趣的是，中医在两千多年前就已经将时间节律作为医学理论的核心要素——「子午流注」、「四气调神」、「因时制宜」等概念与现代时间生物学的发现高度契合。</p>
+    <p><strong>昼夜节律与子午流注的印证</strong>：现代研究发现，人体的皮质醇分泌（肾上腺激素）在早晨6:00-8:00达到峰值，与中医「卯时（5:00-7:00）大肠经当令、宜起床排便」的节律一致。褪黑素在夜间22:00-2:00分泌最为旺盛，与中医「子时（23:00-1:00）胆经当令、宜深睡」的建议高度吻合。肝脏的解毒酶CYP450系统活性在凌晨1:00-3:00达到高峰，恰对应中医「丑时（1:00-3:00）肝经当令」。这些发现让越来越多的西方科学家开始认真审视中医时间医学的科学价值。</p>
+    <p><strong>季节节律的现代证据</strong>：大规模流行病学研究证实了疾病发生的季节性规律——心血管事件在冬季高发（对应「寒主收引、寒凝血瘀」），呼吸道疾病在秋冬之交激增（对应「秋燥伤肺」），消化道传染病在夏秋之交多发（对应「长夏多湿、湿困脾胃」）。免疫系统的功能也随季节波动：NK细胞活性在冬季下降约15-20%，为「冬藏」提供了免疫学注脚。近十年关于昼夜节律与中医时间医学的科学研究论文数量持续增长，已成为中西医结合领域最活跃的研究方向之一。</p>
+
+    <div class="chart-wrap">
+      <div id="chart_research"></div>
+      <div class="ch-cap">图：近十年昼夜节律与中医时间医学研究论文发表趋势（2015-2025）</div>
+    </div>
+
+    <p>展望未来，四季养生理论将在三个前沿方向发挥更大价值：<strong>个性化时间医学</strong>——结合个人的基因型（chronotype）和中医体质，制定精准的作息和养生时间表；<strong>时间药理学</strong>——根据子午流注和昼夜节律优化服药时间，提高疗效、减少副作用（如降压药在血压晨峰前服用、糖皮质激素在清晨服用）；<strong>光疗与节气</strong>——利用人工光照模拟季节变化调节褪黑素分泌，帮助现代人在失去与自然节律联结的环境中重建生物钟平衡。</p>
+  </div>
+  <div class="takeaway">💡 从《黄帝内经》到诺贝尔奖，中医四季养生正在获得现代科学的系统性验证。时间生物学是中西医对话最富成果的桥梁领域之一。</div>
+</div>
+
+<!-- MODULE 13: risk -->
+<div class="module" id="mod-13-risk">
+  <h2><span class="m-tag">风险</span> 13. 养生不当的风险 <span class="m-time">⏱️ 3分钟</span></h2>
+  <div class="hook">「养生」二字如果脱离辨证的约束，就可能从护身符变成伤人刃。</div>
+  <div class="content">
+    <p>四季养生的风险主要有四个方面，需要特别警惕：</p>
+    <p><strong>盲目跟风风险</strong>：社交媒体上充斥着各种「春季必吃」「冬季必喝」的养生建议，但这些建议大多剥离了体质前提。例如「春天喝蒲公英茶排毒」——蒲公英确实清热解毒，但性寒味苦，脾胃虚寒者长期饮用可导致腹痛、腹泻、食欲下降。任何脱离个人体质的养生建议都应审慎对待。</p>
+    <p><strong>矫枉过正风险</strong>：顺应季节不等于走极端。「春捂」过头导致出汗吹风反而受寒，「冬藏」过头变成不运动导致气滞血瘀。中医平衡思想的核心是「中道」——不适太过、不使不及。运动以微汗为度，进补以胃纳能受为限，清热以不伤脾阳为界。</p>
+    <p><strong>季节断连风险</strong>：四季养生是一个连续的循环系统，不能割裂对待。春天没养好会影响夏季的「长」，夏季过度消耗会影响秋季的「收」，秋季收敛不足会影响冬季的「藏」，冬季闭藏失职则来年春天无「生」可发——「冬不藏精，春必病温」就是这个道理。养生要有全局观和长远眼光。</p>
+    <p><strong>忽略预警信号风险</strong>：季节转换时期的身体不适——如入秋后的持续干咳、入冬后的异常怕冷——往往是身体发出的预警信号，而非「正常换季反应」。出现这些信号时应及时寻求专业辨证和调理，而非简单地「多喝热水」「熬过去就好」。</p>
+  </div>
+  <div class="takeaway">💡 四季养生四大风险：盲目跟风（无辨证）、矫枉过正（走极端）、季节断连（缺全局）、忽略预警（不重视信号）。养生贵在有知、有节、有恒。</div>
+</div>
+
+</div>
+
+<footer class="journey-footer">
+  <a href="#" class="back-to-plan" onclick="event.preventDefault();var w=window.open('tcm_learning.html#kc-p3_1','plan_main');if(w)w.focus()">🔗 返回学习路线: 中医与养生 系统学习方案 → 养生保健整合应用</a>
+  <p style="margin-top:12px;font-size:.72rem;color:var(--text-muted)">
+    本资料是 <strong>中医与养生 系统学习方案</strong> 养生保健整合应用 阶段的深度研读材料
+  </p>
+</footer>
+
+<div class="deep-floating-back">
+  <button onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 16px rgba(0,0,0,.2)'"
+    onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 12px rgba(0,0,0,.15)'"
+    onclick="event.preventDefault();var w=window.open('tcm_learning.html#kc-p3_1','plan_main');if(w)w.focus()">
+    ← 返回学习方案
+  </button>
+</div>
+</div>
+
+<div class="dd-toast" id="toastEl"><span id="toastMsg"></span></div>
+
+<script>
+var MODULE_IDS = ["mod-01-journey","mod-02-background","mod-03-concept","mod-04-principle","mod-05-application","mod-06-case-study","mod-07-development","mod-08-landscape","mod-09-misconceptions","mod-10-learning-path","mod-11-glossary","mod-12-prospect","mod-13-risk"];
+var SEARCH_INDEX = [
+  {id:"mod-01-journey",t:"学习路线导航",c:"从天人相应到四时调摄——四季养生是中医治未病理念在日常生活中的具体落地"},
+  {id:"mod-02-background",t:"天人相应的理论渊源",c:"人以天地之气生，四时之法成——从黄帝内经到二十四节气的形成与演变"},
+  {id:"mod-03-concept",t:"四季养生核心概念",c:"春生、夏长、秋收、冬藏——人体在四季中功能状态切换的精确描述"},
+  {id:"mod-04-principle",t:"二十四节气养生原理",c:"每个节气都是一次调理身体的天赐良机，五行生克贯穿季节传变"},
+  {id:"mod-05-application",t:"春季养生实践指南",c:"春季养肝三步走——辨体质、定方案、落实践，让阳气畅通升发"},
+  {id:"mod-06-case-study",t:"夏季与长夏案例分析",c:"从程序员的夏日困局到老人的湿疹反复——夏季养生的辨证要点"},
+  {id:"mod-07-development",t:"秋收冬藏养生体系",c:"秋收重在润肺降气，冬藏重在温肾固精——过渡期更需精细辨证"},
+  {id:"mod-08-landscape",t:"四季-五脏-五味全景",c:"春夏秋冬不只是时间刻度，更是脏腑-性味-情志的精密对应网络"},
+  {id:"mod-09-misconceptions",t:"常见误区",c:"春捂≠多穿、秋梨≠人人能吃、冬补≠大补——辨证和适度是关键"},
+  {id:"mod-10-learning-path",t:"学习路径建议",c:"建框架→拆节气→融体质——学习四季养生的三阶段路径"},
+  {id:"mod-11-glossary",t:"核心术语",c:"天人相应、四气调神、子午流注、五运六气——掌握基础词汇"},
+  {id:"mod-12-prospect",t:"现代时间生物学验证",c:"当子午流注遇上circadian rhythm——中医时间医学的科学验证"},
+  {id:"mod-13-risk",t:"养生不当的风险",c:"盲目跟风、矫枉过正、季节断连、忽略预警——养生的四大风险"}
+];
+var TOAST_TIMEOUT;
+
+(function(){
+var progressBar=document.getElementById('progressBar');
+var modules=document.querySelectorAll('.module');
+
+var observer=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting)e.target.classList.add('visible')})},{threshold:.15});
+modules.forEach(function(m){observer.observe(m)});
+
+var navLinks=document.querySelectorAll('.sidebar-nav a');
+var navObserver=new IntersectionObserver(function(entries){
+entries.forEach(function(e){
+if(e.isIntersecting){
+navLinks.forEach(function(a){a.classList.remove('active')});
+var act=document.querySelector('.sidebar-nav a[href="#'+e.target.id+'"]');
+if(act)act.classList.add('active');
+}
+})},{threshold:.3});
+modules.forEach(function(m){navObserver.observe(m)});
+
+window.addEventListener('scroll',function(){
+var st=document.documentElement.scrollTop,dh=document.documentElement.scrollHeight-window.innerHeight;
+var pct=dh>0?Math.min(100,(st/dh)*100):0;progressBar.style.width=pct+'%';
+});
+
+window.addEventListener('keydown',function(e){
+if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();openSearch()}
+if((e.ctrlKey||e.metaKey)&&e.key==='d'){e.preventDefault();toggleTheme()}
+if(e.key==='Escape')closeSearch()
+});
+})();
+
+function toggleTheme(){
+var b=document.body,isD=b.getAttribute('data-theme')==='dark';
+b.setAttribute('data-theme',isD?'light':'dark');
+try{localStorage.setItem('slm-theme',isD?'light':'dark')}catch(e){}
+showToast('已切换至'+(isD?'浅色':'深色')+'主题')
+}
+
+function openSearch(){document.getElementById('searchOverlay').classList.add('open');setTimeout(function(){document.getElementById('searchInput').focus()},100)}
+function closeSearch(){document.getElementById('searchOverlay').classList.remove('open');document.getElementById('searchResults').innerHTML=''}
+
+function doSearch(){
+var q=document.getElementById('searchInput').value.toLowerCase(),res=document.getElementById('searchResults');
+if(q.length<2){res.innerHTML='';return}
+var h='';SEARCH_INDEX.forEach(function(item){
+if(item.t.toLowerCase().indexOf(q)>=0||(item.c||'').toLowerCase().indexOf(q)>=0){
+h+='<div onclick="closeSearch();document.getElementById(\''+item.id+'\').scrollIntoView({behavior:\'smooth\'})">'+
+'<strong>'+item.t+'</strong><br><small style="color:var(--text-muted)">'+(item.c||'').substring(0,80)+'</small></div>';
+}
+});
+res.innerHTML=h||'<div style="padding:12px;color:var(--text-muted)">未找到匹配模块</div>'
+}
+
+function showToast(msg){
+var el=document.getElementById('toastEl'),mg=document.getElementById('toastMsg');
+if(!el||!mg)return;mg.textContent=msg;el.style.display='block';el.classList.add('toast-in');
+if(TOAST_TIMEOUT)clearTimeout(TOAST_TIMEOUT);
+TOAST_TIMEOUT=setTimeout(function(){el.style.display='none'},3000);
+}
+
+(function(){
+var t;try{t=localStorage.getItem('slm-theme')}catch(e){}
+if(t==='light')document.body.setAttribute('data-theme','light');
+})();
+
+(function(){
+document.querySelectorAll('.derivation-toggle').forEach(function(btn){
+btn.addEventListener('click',function(){
+var content=this.nextElementSibling;
+if(content){content.classList.toggle('open');this.textContent=content.classList.contains('open')?'▾ 收起解读':'▸ 展开解读'}
+});
+});
+})();
+
+/* ===== ECharts 初始化 ===== */
+(function initCharts(){
+if(typeof echarts==='undefined')return;
+var charts=[];
+var bgColor=document.body.getAttribute('data-theme')==='light'?'#f3efe3':'#312d27';
+function makeChart(elId,option){
+var el=document.getElementById(elId);
+if(!el)return null;
+var chart=echarts.init(el);
+if(!option.backgroundColor)option.backgroundColor=bgColor;
+chart.setOption(option);
+return chart;
+}
+
+/* 1. 二十四节气四色面积折线图 */
+var c1=makeChart('chart_timeline',{
+  tooltip:{trigger:'axis'},
+  legend:{data:['春','夏','长夏','秋','冬'],textStyle:{color:'#8a8070'},bottom:0},
+  grid:{left:'8%',right:'8%',top:30,bottom:28},
+  xAxis:{type:'category',data:['立春','雨水','惊蛰','春分','清明','谷雨','立夏','小满','芒种','夏至','小暑','大暑','立秋','处暑','白露','秋分','寒露','霜降','立冬','小雪','大雪','冬至','小寒','大寒'],axisLabel:{color:'#8a8070',fontSize:9,rotate:45},axisLine:{lineStyle:{color:'#2d2924'}}},
+  yAxis:{type:'value',name:'养生指数',axisLabel:{color:'#8a8070'},nameTextStyle:{color:'#8a8070'},splitLine:{lineStyle:{color:'#2d2924'}}},
+  series:[
+    {name:'春',type:'line',data:[55,65,75,80,85,75,30,15,8,3,2,2,5,8,12,10,5,3,3,2,2,2,6,15],smooth:true,lineStyle:{color:'#6ebf8a',width:2},itemStyle:{color:'#6ebf8a'},symbolSize:4,areaStyle:{color:{type:'linear',x:0,y:0,x2:0,y2:1,colorStops:[{offset:0,color:'rgba(110,191,138,.25)'},{offset:1,color:'rgba(110,191,138,.01)'}]}}},
+    {name:'夏',type:'line',data:[2,3,5,10,20,40,60,78,85,90,82,65,40,25,12,6,3,2,1,1,1,1,1,2],smooth:true,lineStyle:{color:'#d47860',width:2},itemStyle:{color:'#d47860'},symbolSize:4,areaStyle:{color:{type:'linear',x:0,y:0,x2:0,y2:1,colorStops:[{offset:0,color:'rgba(212,120,96,.25)'},{offset:1,color:'rgba(212,120,96,.01)'}]}}},
+    {name:'长夏',type:'line',data:[1,1,2,3,5,10,25,45,70,75,80,70,55,35,20,10,5,3,2,1,1,1,1,1],smooth:true,lineStyle:{color:'#e6b95a',width:2},itemStyle:{color:'#e6b95a'},symbolSize:4,areaStyle:{color:{type:'linear',x:0,y:0,x2:0,y2:1,colorStops:[{offset:0,color:'rgba(230,185,90,.25)'},{offset:1,color:'rgba(230,185,90,.01)'}]}}},
+    {name:'秋',type:'line',data:[2,2,2,2,3,5,8,10,15,18,25,40,60,75,85,80,65,45,28,15,8,5,3,2],smooth:true,lineStyle:{color:'#b898a0',width:2},itemStyle:{color:'#b898a0'},symbolSize:4,areaStyle:{color:{type:'linear',x:0,y:0,x2:0,y2:1,colorStops:[{offset:0,color:'rgba(184,152,160,.25)'},{offset:1,color:'rgba(184,152,160,.01)'}]}}},
+    {name:'冬',type:'line',data:[12,10,6,3,2,1,1,1,1,2,3,5,10,20,35,55,70,80,85,90,82,70,55,40],smooth:true,lineStyle:{color:'#5ea87a',width:2},itemStyle:{color:'#5ea87a'},symbolSize:4,areaStyle:{color:{type:'linear',x:0,y:0,x2:0,y2:1,colorStops:[{offset:0,color:'rgba(94,168,122,.25)'},{offset:1,color:'rgba(94,168,122,.01)'}]}}}
+  ]
+});
+if(c1)charts.push(c1);
+
+/* 2. 四季养生六维雷达图 */
+var c2=makeChart('chart_radar',{
+  tooltip:{},
+  legend:{data:['春','夏','长夏','秋','冬'],textStyle:{color:'#8a8070'},bottom:2},
+  radar:{center:['50%','48%'],radius:'70%',indicator:[
+    {name:'阳气升发',max:100},{name:'养阴清热',max:100},{name:'健脾祛湿',max:100},{name:'滋阴润燥',max:100},{name:'温补肾阳',max:100},{name:'情志调摄',max:100}
+  ],axisName:{color:'#8a8070'},splitArea:{areaStyle:{color:['rgba(94,168,122,.02)','rgba(94,168,122,.04)', 'rgba(94,168,122,.02)','rgba(94,168,122,.04)', 'rgba(94,168,122,.02)']}}},
+  series:[{type:'radar',data:[
+    {value:[90,20,40,30,30,70],name:'春',areaStyle:{color:'rgba(110,191,138,.12)'},lineStyle:{color:'#6ebf8a'},itemStyle:{color:'#6ebf8a'}},
+    {value:[10,90,60,40,20,60],name:'夏',areaStyle:{color:'rgba(212,120,96,.12)'},lineStyle:{color:'#d47860'},itemStyle:{color:'#d47860'}},
+    {value:[15,50,90,50,35,50],name:'长夏',areaStyle:{color:'rgba(230,185,90,.12)'},lineStyle:{color:'#e6b95a'},itemStyle:{color:'#e6b95a'}},
+    {value:[20,50,55,90,60,55],name:'秋',areaStyle:{color:'rgba(184,152,160,.12)'},lineStyle:{color:'#b898a0'},itemStyle:{color:'#b898a0'}},
+    {value:[30,20,30,40,90,45],name:'冬',areaStyle:{color:'rgba(94,168,122,.12)'},lineStyle:{color:'#5ea87a'},itemStyle:{color:'#5ea87a'}}
+  ]}]
+});
+if(c2)charts.push(c2);
+
+/* 3. 五脏五行网络关系图 */
+var c3=makeChart('chart_wuxing',{
+  tooltip:{trigger:'item'},
+  series:[{type:'graph',layout:'circular',roam:true,label:{show:true,fontSize:11,color:'#ede6d8'},edgeSymbol:['none','arrow'],edgeSymbolSize:[0,8],data:[
+    {name:'木',symbolSize:46,itemStyle:{color:'#6ebf8a'},category:0},
+    {name:'火',symbolSize:42,itemStyle:{color:'#d47860'},category:0},
+    {name:'土',symbolSize:44,itemStyle:{color:'#e6b95a'},category:0},
+    {name:'金',symbolSize:40,itemStyle:{color:'#b898a0'},category:0},
+    {name:'水',symbolSize:42,itemStyle:{color:'#5ea87a'},category:0},
+    {name:'肝',symbolSize:34,itemStyle:{color:'#6ebf8a'},category:1},
+    {name:'心',symbolSize:32,itemStyle:{color:'#d47860'},category:1},
+    {name:'脾',symbolSize:32,itemStyle:{color:'#e6b95a'},category:1},
+    {name:'肺',symbolSize:32,itemStyle:{color:'#b898a0'},category:1},
+    {name:'肾',symbolSize:32,itemStyle:{color:'#5ea87a'},category:1},
+    {name:'春',symbolSize:26,itemStyle:{color:'#7ec8a0'},category:2},
+    {name:'夏',symbolSize:26,itemStyle:{color:'#d47860'},category:2},
+    {name:'长夏',symbolSize:26,itemStyle:{color:'#e6b95a'},category:2},
+    {name:'秋',symbolSize:26,itemStyle:{color:'#b898a0'},category:2},
+    {name:'冬',symbolSize:26,itemStyle:{color:'#5ea87a'},category:2}
+  ],categories:[{name:'五行'},{name:'五脏'},{name:'五季'}],links:[
+    {source:'木',target:'肝',lineStyle:{width:2}},
+    {source:'火',target:'心',lineStyle:{width:2}},
+    {source:'土',target:'脾',lineStyle:{width:2}},
+    {source:'金',target:'肺',lineStyle:{width:2}},
+    {source:'水',target:'肾',lineStyle:{width:2}},
+    {source:'肝',target:'春'},{source:'心',target:'夏'},{source:'脾',target:'长夏'},{source:'肺',target:'秋'},{source:'肾',target:'冬'},
+    {source:'木',target:'火',lineStyle:{curveness:0.25,color:'#8a8070',type:'dashed'}},
+    {source:'火',target:'土',lineStyle:{curveness:0.25,color:'#8a8070',type:'dashed'}},
+    {source:'土',target:'金',lineStyle:{curveness:0.25,color:'#8a8070',type:'dashed'}},
+    {source:'金',target:'水',lineStyle:{curveness:0.25,color:'#8a8070',type:'dashed'}},
+    {source:'水',target:'木',lineStyle:{curveness:0.25,color:'#8a8070',type:'dashed'}},
+    {source:'木',target:'土',lineStyle:{curveness:-0.35,color:'#d47860',type:'dotted'}},
+    {source:'火',target:'金',lineStyle:{curveness:-0.35,color:'#d47860',type:'dotted'}},
+    {source:'土',target:'水',lineStyle:{curveness:-0.35,color:'#d47860',type:'dotted'}},
+    {source:'金',target:'木',lineStyle:{curveness:-0.35,color:'#d47860',type:'dotted'}},
+    {source:'水',target:'火',lineStyle:{curveness:-0.35,color:'#d47860',type:'dotted'}}
+  ],lineStyle:{color:'#8a8070',curveness:0.15,opacity:0.6}}]
+});
+if(c3)charts.push(c3);
+
+/* 4. 春季养生决策流程图 */
+var c4=makeChart('chart_spring_flow',{
+  tooltip:{trigger:'item',triggerOn:'mousemove'},
+  series:[{type:'tree',data:[{
+    name:'春季养生决策',
+    children:[
+      {name:'体质辨识',children:[
+        {name:'平和质：保持平衡性味'},
+        {name:'气虚质：黄芪党参升补'},
+        {name:'阳虚质：生姜红枣温煦'},
+        {name:'阴虚质：枸杞菊花柔肝'},
+        {name:'气郁质：玫瑰花茶疏肝'},
+        {name:'痰湿质：陈皮茯苓化湿'}
+      ]},
+      {name:'饮食调理',children:[
+        {name:'多食芽苗菜：韭菜荠菜豆芽'},
+        {name:'减酸增甘：少食醋梅山楂'},
+        {name:'辛散升发：薄荷香椿葱白'}
+      ]},
+      {name:'起居运动',children:[
+        {name:'夜卧早起：22:30前入睡'},
+        {name:'广步于庭：晨间缓步30分钟'},
+        {name:'披发缓形：衣着宽松舒展'}
+      ]},
+      {name:'情志调摄',children:[
+        {name:'戒怒：以理制怒疏泄有度'},
+        {name:'赏花踏青：借自然生机养志'},
+        {name:'音乐疗法：角调养肝'}
+      ]}
+    ]
+  }],top:'5%',left:'6%',bottom:'5%',right:'6%',symbolSize:7,label:{fontSize:10,color:'#ede6d8'},leaves:{label:{fontSize:9}},expandAndCollapse:true,animationDuration:550,animationDurationUpdate:750}]
+});
+if(c4)charts.push(c4);
+
+/* 5. 四季-五脏-五味-五志桑基图 */
+var c5=makeChart('chart_sankey',{
+  tooltip:{trigger:'item',triggerOn:'mousemove'},
+  series:[{type:'sankey',layout:'none',emphasis:{focus:'adjacency'},nodeAlign:'left',label:{fontSize:10,color:'#ede6d8'},nodeWidth:18,nodeGap:12,data:[
+    {name:'春'},{name:'夏'},{name:'长夏'},{name:'秋'},{name:'冬'},
+    {name:'肝'},{name:'心'},{name:'脾'},{name:'肺'},{name:'肾'},
+    {name:'酸'},{name:'苦'},{name:'甘'},{name:'辛'},{name:'咸'},
+    {name:'怒'},{name:'喜'},{name:'思'},{name:'忧'},{name:'恐'}
+  ],links:[
+    {source:'春',target:'肝',value:5},{source:'夏',target:'心',value:5},{source:'长夏',target:'脾',value:5},{source:'秋',target:'肺',value:5},{source:'冬',target:'肾',value:5},
+    {source:'肝',target:'酸',value:3},{source:'心',target:'苦',value:3},{source:'脾',target:'甘',value:3},{source:'肺',target:'辛',value:3},{source:'肾',target:'咸',value:3},
+    {source:'酸',target:'怒',value:2},{source:'苦',target:'喜',value:2},{source:'甘',target:'思',value:2},{source:'辛',target:'忧',value:2},{source:'咸',target:'恐',value:2}
+  ],lineStyle:{color:'gradient',curveness:0.5}}]
+});
+if(c5)charts.push(c5);
+
+/* 6. 现代时间生物学双系列柱状图 */
+var c6=makeChart('chart_research',{
+  tooltip:{trigger:'axis'},
+  legend:{data:['昼夜节律研究论文','中医时间医学论文'],textStyle:{color:'#8a8070'},bottom:0},
+  grid:{left:'12%',right:'5%',top:25,bottom:25},
+  xAxis:{type:'category',data:['2015','2016','2017','2018','2019','2020','2021','2022','2023','2024','2025'],axisLabel:{color:'#8a8070',fontSize:10}},
+  yAxis:{type:'value',name:'论文数(篇)',axisLabel:{color:'#8a8070'},nameTextStyle:{color:'#8a8070'},splitLine:{lineStyle:{color:'#2d2924'}}},
+  series:[
+    {name:'昼夜节律研究论文',type:'bar',data:[520,610,720,850,980,1150,1320,1580,1750,1980,2150],itemStyle:{color:'#5ea87a'},barMaxWidth:28},
+    {name:'中医时间医学论文',type:'bar',data:[35,48,62,85,110,150,195,260,340,430,530],itemStyle:{color:'#b898a0'},barMaxWidth:28}
+  ]
+});
+if(c6)charts.push(c6);
+
+window.addEventListener('resize',function(){charts.forEach(function(c){c.resize()})});
+})();
+</script>
+</body>
+</html>

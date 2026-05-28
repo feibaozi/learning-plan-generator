@@ -144,7 +144,7 @@
         "4. 按 (quotas[i] - floor(quotas[i])) 降序排列，将 remainder 个额外周数逐一分配给余数最大的阶段"
       ],
       "formula": "weeks = largest_remainder(quotas, TOTAL_WEEKS, min_per_phase=1)"
-    },
+    }
   },
 
   "phase_type_classifier": {
@@ -437,5 +437,65 @@
       "ref": "AP3",
       "note": "所有scroll逻辑合并到一个window.addEventListener"
     }
+  },
+
+  "method_texture_templates": {
+    "G1": {"title": "📐 推导方法论", "steps": [
+      {"num": 1, "title": "读假设与前提", "desc": "明确定理/公式的假设条件与适用范围", "link_section": "", "link_label": ""},
+      {"num": 2, "title": "跟推导链路", "desc": "逐步跟踪推导过程，理解每一步变换的动机", "link_section": "", "link_label": ""},
+      {"num": 3, "title": "验边界条件", "desc": "检验推导在边界和极端情况下的行为", "link_section": "", "link_label": ""},
+      {"num": 4, "title": "复现关键推导", "desc": "独立复现核心推导，确保真正理解", "link_section": "", "link_label": ""}
+    ]},
+    "G2": {"title": "📐 图解推导法", "steps": [
+      {"num": 1, "title": "公式配图", "desc": "为关键公式找到或绘制对应的可视化图示", "link_section": "", "link_label": ""},
+      {"num": 2, "title": "标注变量含义", "desc": "在图上标注每个变量的几何/物理含义", "link_section": "", "link_label": ""},
+      {"num": 3, "title": "对比不同条件", "desc": "改变参数值，观察图示变化，建立直觉", "link_section": "", "link_label": ""},
+      {"num": 4, "title": "公式-图双向验证", "desc": "用图验证公式结论，用公式解释图示特征", "link_section": "", "link_label": ""}
+    ]},
+    "G3": {"title": "🔧 拆解方法论", "steps": [
+      {"num": 1, "title": "识别整体架构", "desc": "看清系统的整体结构和模块划分", "link_section": "graph", "link_label": "→ 查看知识图谱"},
+      {"num": 2, "title": "拆解核心模块", "desc": "逐个拆解各模块的内部结构和接口", "link_section": "", "link_label": ""},
+      {"num": 3, "title": "画接口关系图", "desc": "绘制模块间的接口和数据流关系", "link_section": "", "link_label": ""},
+      {"num": 4, "title": "对比不同实现", "desc": "比较同一功能的不同实现方案的优劣", "link_section": "", "link_label": ""},
+      {"num": 5, "title": "重组变体", "desc": "尝试重组模块，理解设计决策的权衡", "link_section": "", "link_label": ""}
+    ]},
+    "G4": {"title": "📖 思辨方法论", "steps": [
+      {"num": 1, "title": "立论点", "desc": "明确核心论点或叙事主线", "link_section": "", "link_label": ""},
+      {"num": 2, "title": "找证据", "desc": "收集支持论点的事实、数据和案例", "link_section": "", "link_label": ""},
+      {"num": 3, "title": "考虑反方", "desc": "主动寻找反面证据和替代解释", "link_section": "", "link_label": ""},
+      {"num": 4, "title": "综合结论", "desc": "在正反论证基础上形成综合判断", "link_section": "", "link_label": ""}
+    ]},
+    "G5": {"title": "📐 学习方法论", "steps": [
+      {"num": 1, "title": "建立全景认知", "desc": "先建立领域全景图，理解各部分的相对位置", "link_section": "graph", "link_label": "→ 查看知识图谱"},
+      {"num": 2, "title": "深入核心公式", "desc": "重点攻克核心公式和推导", "link_section": "", "link_label": ""},
+      {"num": 3, "title": "看典型案例", "desc": "通过案例理解抽象概念的实际应用", "link_section": "", "link_label": ""},
+      {"num": 4, "title": "动手练习", "desc": "通过练习巩固理解，发现知识盲点", "link_section": "", "link_label": ""}
+    ]},
+    "G6": {"title": "📐 系统图解学习法", "steps": [
+      {"num": 1, "title": "绘制全景分类图", "desc": "画出领域全景分类图，建立整体认知框架", "link_section": "graph", "link_label": "→ 查看知识图谱"},
+      {"num": 2, "title": "构建参数适配矩阵", "desc": "将关键参数与分类维度一一对应，形成可查阅的矩阵表", "link_section": "drawing", "link_label": "→ 查看图表指南"},
+      {"num": 3, "title": "绘制流程关系图", "desc": "为核心流程绘制步骤图，将文字知识转化为可视化流程", "link_section": "drawing", "link_label": "→ 查看图表指南"},
+      {"num": 4, "title": "标注关联与差异", "desc": "在图中标注知识点间的关联和差异，深化系统理解", "link_section": "", "link_label": ""}
+    ]},
+    "G7": {"title": "📈 趋势追踪法", "steps": [
+      {"num": 1, "title": "找时间线", "desc": "梳理领域发展的关键时间节点", "link_section": "", "link_label": ""},
+      {"num": 2, "title": "标关键节点", "desc": "标记技术/市场/政策的转折点", "link_section": "", "link_label": ""},
+      {"num": 3, "title": "分析驱动力", "desc": "理解每个转折点背后的驱动因素", "link_section": "", "link_label": ""},
+      {"num": 4, "title": "预测方向", "desc": "基于趋势分析预测未来发展方向", "link_section": "", "link_label": ""}
+    ]},
+    "G8": {"title": "🛠️ 项目驱动学习法", "steps": [
+      {"num": 1, "title": "定目标", "desc": "设定一个具体的、可交付的项目目标", "link_section": "", "link_label": ""},
+      {"num": 2, "title": "拆任务", "desc": "将项目拆解为可独立完成的子任务", "link_section": "graph", "link_label": "→ 查看知识图谱"},
+      {"num": 3, "title": "逐步实现", "desc": "按顺序完成每个子任务，边做边学", "link_section": "", "link_label": ""},
+      {"num": 4, "title": "复盘优化", "desc": "完成后复盘，总结经验，优化下一次", "link_section": "", "link_label": ""}
+    ]}
+  },
+
+  "drawing_type_taxonomy": {
+    "spectrum": {"label": "🌈 光谱", "keywords": ["光谱", "渐变", "发酵度", "分布", "色谱"]},
+    "matrix": {"label": "📊 矩阵", "keywords": ["矩阵", "对比表", "参数", "适配", "对照"]},
+    "flow": {"label": "🔀 流程", "keywords": ["流程", "步骤", "工序", "冲泡", "品评"]},
+    "relation": {"label": "🕸️ 关系", "keywords": ["关系", "结构", "分类树", "全景", "体系"]},
+    "timeline": {"label": "📅 时间线", "keywords": ["时间线", "演化", "演进", "历史", "发展"]}
   }
 }

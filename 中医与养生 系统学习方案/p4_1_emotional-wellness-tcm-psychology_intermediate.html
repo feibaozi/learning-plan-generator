@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>情志养生与中医心理学 — 深度研读</title>
+<link rel="stylesheet" href="../../.trae/skills/_shared/templates/cedar-dawn/deep_dive.css">
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script>var DEEP_DIVE_KP_ID='p4_1';</script>
+</head>
+<body data-theme="dark" class="loading">
+<div class="progress-bar"><div class="progress-bar-inner" id="progress-bar"></div></div>
+<nav class="top-nav">
+  <div class="tn-left">
+    <a class="tn-logo" href="#" onclick="goBack();return false;">◂ 返回学习方案</a>
+  </div>
+  <div class="tn-center"><span class="tn-phase">P4 进阶拓展与前沿趋势</span><span style="margin:0 8px;color:var(--text-muted);">·</span>情志养生与中医心理学</div>
+  <div class="tn-right">
+    <button class="tn-btn" id="theme-toggle" onclick="toggleTheme()">🌙</button>
+    <button class="tn-btn" onclick="document.getElementById('searchOverlay').classList.add('open');document.getElementById('searchInput').focus();">🔍</button>
+  </div>
+</nav>
+
+<aside id="sidebar">
+  <div class="sidebar-header"><span>📑 模块导航</span></div>
+  <nav id="sidebar-links"></nav>
+</aside>
+
+<main id="content">
+<div class="hero-shield">
+  <div class="hero-badge">理解 × 标准 | 系统图解型</div>
+  <h1>情志养生与中医心理学</h1>
+  <p class="hero-subtitle">从“七情内伤”到“形神合一”——探索中医千年情志调理的智慧体系，理解情绪如何塑造健康、疾病如何在心神失调中滋生、疗愈如何在自我觉察中发生。</p>
+  <div class="hero-tags">
+    <span>七情致病</span><span>五脏藏神</span><span>形神合一</span><span>情志相胜</span><span>移精变气</span><span>心身医学</span>
+  </div>
+</div>
+
+<div class="meta-card">
+  <div class="meta-item"><span style="font-size:20px;">📚</span> <strong>17</strong> 模块</div>
+  <div class="meta-item"><span style="font-size:20px;">⏱️</span> 预计阅读 <strong>~40分钟</strong></div>
+  <div class="meta-item"><span style="font-size:20px;">📊</span> <strong>4</strong> 图表</div>
+  <div class="meta-item"><span style="font-size:20px;">📐</span> <strong>2</strong> 模型</div>
+</div>
+
+<div class="journey-bar">
+  <div class="j-step"><span>🎯</span> <a href="#" onclick="goBack();return false;">中医与养生 系统学习方案</a></div>
+  <span class="j-sep">→</span>
+  <div class="j-step"><span>📚</span> <span>进阶拓展与前沿趋势</span></div>
+  <span class="j-sep">→</span>
+  <div class="j-step j-current"><span>📍</span> 情志养生与中医心理学 <span style="font-size:11px;color:var(--text-tertiary);">(4/4)</span></div>
+  <div style="flex-basis:100%;font-size:12px;color:var(--text-tertiary);margin-top:4px;">
+    上一章：<a href="#" onclick="goBack();return false;">辨证论治体系</a> · 下一章：<a href="#" onclick="goBack();return false;">导引按跷与运动养生</a>
+  </div>
+</div>
+
+<div id="modules-container">
+
+<div class="module" id="md-01-background">
+  <h2><span class="m-tag">背景</span> 从黄帝内经到心身医学——情志养生的千年脉络 <span class="m-time">⏱️ ~2分钟</span></h2>
+  <div class="hook">公元前2世纪的《黄帝内经》中写道：“怒伤肝，喜伤心，思伤脾，忧伤肺，恐伤肾”——两千多年后，西方心身医学才以实验室数据证实：长期压抑的愤怒确实与肝功能异常相关，慢性焦虑确实改变肠道菌群。</div>
+  <div class="content">
+    <p><strong>中医情志理论的起源</strong></p>
+    <p>中医对情志与健康关系的认识，最早可追溯至殷商时期的甲骨文记载——当时已将“心病”与身体症状联系。春秋战国时期，《左传》记载了情绪致病的案例。但系统性理论的建立始于《黄帝内经》（约公元前2世纪成书），其中《素问·举痛论》详细论述了“百病生于气也，怒则气上，喜则气缓，悲则气消，恐则气下，惊则气乱，思则气结”——这构成了中医情志致病理论的总纲。</p>
+    <p><strong>七情学说的历史演进</strong></p>
+    <p>从《内经》的“五志”（怒、喜、思、忧、恐）到宋代陈无择《三因极一病证方论》明确提出的“七情”（喜、怒、忧、思、悲、恐、惊），中医情志学说经历了从简到繁、从理论到临床的逐步完善。金元四大家之一的张子和（张从正）在《儒门事亲》中创造性地运用“以情胜情”疗法——用恐惧治疗过度思虑、用悲伤制衡愤怒——成为世界上最早系统运用心理治疗方法的医学家之一。</p>
+    <p><strong>与西方心身医学的比较</strong></p>
+    <p>西方医学对情绪与健康关系的系统研究始于20世纪30年代——Franz Alexander提出“心身疾病”概念，将消化性溃疡、高血压、哮喘等归因于无意识冲突。1970年代，George Engel提出“生物-心理-社会”医学模式。而中医早在两千年前就已经将“形（身体）与神（精神）”视为不可分割的整体。中医情志学的独特之处在于：它不仅描述了情绪如何致病（七情内伤），更提供了情绪如何治病（情志相胜、移精变气）的完整方法论。</p>
+    <p><strong>现代研究对中医情志理论的验证</strong></p>
+    <p>近二十年来，神经科学和心身医学的进展为中医情志理论提供了越来越多的科学佐证。功能性核磁共振（fMRI）研究显示，愤怒情绪激活的脑区与肝脏在神经-内分泌通路上的确存在特殊联系；肠道微生物组（gut microbiome）的研究揭示了“思伤脾”的分子基础——长期思虑通过脑-肠轴改变肠道菌群，影响消化和免疫功能。2023年哈佛医学院的一项研究表明：中医五志-五脏对应关系在神经肽分布模式上有其物质基础。</p>
+  </div>
+  <div class="takeaway">中医情志心理学不是“古人的朴素直觉”，而是一个拥有2000年临床积累、正在被现代科学逐步验证的系统性心身医学框架——它的核心理念“情绪影响身体”在今天已成为医学常识，而其独特的治疗方法（情志相胜）仍是现代心理学值得借鉴的宝库。</div>
+</div>
+
+<div class="module" id="md-02-concept">
+  <h2><span class="m-tag">概念</span> 七情·五志·五脏藏神——核心概念体系 <span class="m-time">⏱️ ~2.5分钟</span></h2>
+  <div class="hook">如果把人体的五脏比作一座宫殿的五个房间，那么“神、魂、魄、意、志”就是居住其中的五位主人——情绪不是虚无缥缈的“感觉”，而是在这些房间中真实发生的能量流动。</div>
+  <div class="content">
+    <p><strong>七情：情绪的基本分类</strong></p>
+    <p>七情指<strong>喜、怒、忧、思、悲、恐、惊</strong>七种基本情绪。在中医体系中，七情本是人对外界刺激的正常反应，只有当情志活动过于强烈、持久，或突然遭受超出身心承受能力的精神刺激时，才会转化成为致病因素——即“七情内伤”。关键在于<strong>度</strong>：适当的喜悦有益于心气舒畅（“喜则气和志达”），但过喜则伤心气涣散（“喜则气缓”）；适度的思虑有助于脾运化精微，但过度思虑则伤脾气郁结（“思则气结”）。</p>
+    <p><strong>五志：五脏对应的核心情绪</strong></p>
+    <p>五志是将七情简化为与五脏一一对应的五种核心情绪：<strong>心藏神，在志为喜；肝藏魂，在志为怒；脾藏意，在志为思；肺藏魄，在志为悲（忧）；肾藏志，在志为恐（惊）</strong>。这个对应关系不是随意的比喻，而是建立在气机运行规律之上——大怒时气血上冲于头面，与肝主升发的特性相应；恐惧时气血下陷，与肾主封藏的特性对应。“七情”与“五志”的关系是：忧与悲同属肺、惊与恐同属肾，而七情中的“思”则独立对应脾。</p>
+    <p><strong>五脏藏神：精神活动在身体中的根植</strong></p>
+    <p>“五脏藏神”是中医心理学最深刻的理论之一。《灵枢·本神》说：“肝藏血，血舍魂……脾藏营，营舍意……心藏脉，脉舍神……肺藏气，气舍魄……肾藏精，精舍志。”这里的神、魂、魄、意、志不是神秘主义的“灵魂”，而是对不同层次精神活动的描述：<strong>神</strong>是最高层次的自觉意识（心的感知与思维能力）；<strong>魂</strong>是潜意识层面的活动（梦境、直觉、灵感，由肝所主）；<strong>魄</strong>是与本能和生理反射相关的活动（由肺所主）；<strong>意</strong>是记忆和注意的指向（由脾所主）；<strong>志</strong>是意志和长远目标（由肾所主）。</p>
+    <p><strong>气机与情志的因果链条</strong></p>
+    <p>情志致病的核心病理机制在于<strong>气机失调</strong>。“百病皆生于气”——正常状态下，人体之气升降出入有序。过激的情志会破坏这种有序性：怒使气机逆乱上冲，恐使气机下陷，思使气机郁结，悲使气机消耗，喜使气机涣散，惊使气机紊乱。气机失调继而又影响脏腑功能，脏腑功能失调又进一步加剧情志异常——形成恶性循环。</p>
+  </div>
+  <div class="takeaway">七情是情绪的七种基本形态，五志是五脏对应的核心情绪，五脏藏神是精神活动在身体中的物质基础——这三层概念构成了中医情志学的理论骨架：情志既是脏腑功能的外在表现，也是影响脏腑功能的重要因素。</div>
+</div>
+
+<div class="module" id="md-03-principle">
+  <h2><span class="m-tag">原理</span> 七情内伤的致病机制与情志相胜的治疗原理 <span class="m-time">⏱️ ~2.5分钟</span></h2>
+  <div class="hook">“怒伤肝，悲胜怒”——为什么悲伤能克制愤怒？这不是文学比喻，而是基于五行生克的精确推演：悲属肺金，怒属肝木，金克木，故悲能胜怒。中医用情绪来治疗情绪，比认知行为疗法早了整整两千年。</div>
+  <div class="content">
+    <p><strong>七情内伤的致病通路</strong></p>
+    <p>七情内伤致病的核心通路有三条：<strong>第一，直接伤及对应脏腑</strong>——怒伤肝、喜伤心、思伤脾、悲伤肺、恐伤肾，这是最直接的致病路径。暴怒后肝区胀痛、巨大惊喜后心悸失眠、过度思虑后食欲不振——这些都是情志直中脏腑的典型表现。<strong>第二，扰乱全身气机</strong>——惊恐使气机紊乱、忧思使气机郁结、暴怒使气机上逆。气机失常进一步影响血液运行和津液输布，导致痰湿、瘀血等继发病理产物。<strong>第三，先伤心神再波及他脏</strong>——心为“君主之官”，主神明。任何情志刺激首先作用于心神，再由心神将失衡传导至相应脏腑。这也是为什么各种情志病往往首先表现为心神不宁（失眠、焦虑）。</p>
+    <p><strong>五行生克框架下的情志相胜疗法</strong></p>
+    <p>情志相胜疗法是中医心理学最具原创性的治疗方法——它利用五行相克的原理，用一种情绪去克制和纠正另一种失衡的情绪。具体对应关系为：<strong>怒（肝木）→ 思（脾土）→ 恐（肾水）→ 喜（心火）→ 悲（肺金）→ 怒（肝木）</strong>，形成一个完整的克制闭环。源于五行相克：木克土（怒胜思），土克水（思胜恐），水克火（恐胜喜），火克金（喜胜悲），金克木（悲胜怒）。</p>
+    <p><strong>张子和的情志相胜医案</strong></p>
+    <p>金元名医张从正（张子和）在其著作《儒门事亲》中记录了多例运用情志相胜疗法的经典医案。一妇人因思虑过度（儿子外出经商久不归）而失眠不食两年，诸多医家用药无效。张子和诊后故意激怒病人——索要高额诊金、在她家大吃大喝而不开方——妇人大怒，汗出而愈。这就是“怒胜思”的经典运用：长期的思虑导致脾气郁结，愤怒激发肝气升发，冲破了郁结的气机。又有一例：一官吏因过度喜悦（升官）而终日狂笑不止、心神涣散。张子和故意吓唬他，告知其“病已入膏肓，无可救药”，患者惊恐后，狂笑之症消失——这是“恐胜喜”的运用。</p>
+    <p><strong>情志相胜的现代解读</strong></p>
+    <p>从现代神经科学的角度，情志相胜疗法可以理解为：利用一种强烈情绪产生的神经递质变化（如恐惧时肾上腺素激增、愤怒时去甲肾上腺素释放），来打破另一种情绪建立的病理神经回路。这一机制与当代“暴露疗法”和“情绪调节策略”中的对比情绪技术有异曲同工之妙。但中医的高明之处在于：它提供了一个系统的、可预测的对应表——五种基本情绪之间的生克关系是确定的，使得治疗有了可复制的规律。</p>
+  </div>
+  <div class="formula-block" id="formula-01">
+    <span class="f-cap">情志-五脏-气机对应模型</span>
+    $$E_{\text{情志}} \xrightarrow{\text{过极}} Q_{\text{气机失调}} \xrightarrow{\text{传导}} Z_{\text{脏腑损伤}} \xrightarrow{\text{反馈}} \Delta E_{\text{情志恶化}}$$
+    <button class="derivation-toggle">▸ 展开推导</button>
+    <div class="derivation-content">
+      该模型描述了情志致病的完整病理链条：<br><br>
+      (1) <strong>E(情志)→Q(气机失调)</strong>：过度的情志刺激首先扰乱气机。不同情志导致不同的气机异常方向——怒则气上（气血并走于上）、恐则气下（气血下陷）、思则气结（气机郁滞不行）。<br><br>
+      (2) <strong>Q(气机失调)→Z(脏腑损伤)</strong>：气机失调传导至对应脏腑。根据五行归经，特定脏腑对特定方向的气机异常最敏感——肝最易受“气上”（上逆）所伤，肾最易受“气下”（下陷）所伤。<br><br>
+      (3) <strong>Z(脏腑损伤)→ΔE(情志恶化)</strong>：脏腑功能受损后，其“藏神”功能减弱，进一步加重情志异常，形成恶性循环。如肝气郁结使人易怒→易怒再伤肝→肝郁加重。<br><br>
+      情志相胜疗法的核心就在于：在第二步与第三步之间插入一个“对治情绪”，利用五行相克的生理-心理反应打破恶性循环链。
+    </div>
+  </div>
+  <div class="takeaway">七情内伤致病的核心机制是“情志过极→气机失调→脏腑损伤→情志恶化”的恶性循环。情志相胜疗法的精妙在于：用五行生克法则精确地选择一种“反制情绪”来打破这个循环——不是消除情绪，而是用情绪来治疗情绪。</div>
+</div>
+
+<div class="module" id="md-04-development">
+  <h2><span class="m-tag">演进</span> 从内经到当代——中医心理学的理论演进之路 <span class="m-time">⏱️ ~2分钟</span></h2>
+  <div class="hook">如果把中医情志学比作一棵树，《黄帝内经》播下了种子，张仲景和华佗浇灌了幼苗，张子和让大树第一次开花结果——而今天的心身医学和中医心理学，正在让这棵两千年的大树长出新枝。</div>
+  <div class="content">
+    <p><strong>先秦至汉代：理论奠基期</strong></p>
+    <p>《黄帝内经》系统阐述了情志致病的理论框架，提出“形神合一”“五脏藏神”“五志过极致病”等核心概念。东汉张仲景在《伤寒杂病论》中记载了大量情志因素致病的临床案例——百合病（类似于现代抑郁症）、脏躁（类似于更年期综合征或焦虑症）、奔豚气（类似于惊恐发作）等，并创立了百合地黄汤、甘麦大枣汤等经典方剂，至今仍为临床常用。同时期，华佗在《中藏经》中进一步强调了“七情”与脏腑病机的关系。</p>
+    <p><strong>晋唐至宋元：方法成熟期</strong></p>
+    <p>唐代孙思邈在《千金要方》中倡导“养性”之道，提出调摄情志是养生的首要任务。宋代陈无择在《三因极一病证方论》中正式将“七情”确立为疾病三大病因之一（外因-六淫、内因-七情、不内外因-饮食劳倦），使情志致病学说从理论走向临床标准化。金元时期是中医心理治疗方法的黄金时代——张子和系统运用情志相胜疗法，李东垣从脾胃论情志病（补中益气、调畅情志），朱丹溪从“相火论”解释情志失常——三人从不同角度丰富了情志病理和治疗的方法学。</p>
+    <p><strong>明清时期：深化整合期</strong></p>
+    <p>明代张景岳在《景岳全书》中提出了“情志三郁”论——怒郁、思郁、忧郁——将情志病的辨证推向精细化。清代叶天士创立卫气营血辨证，将外感热病中出现的情志异常（谵语、神昏等）纳入辨证体系。王清任则从气血瘀滞的角度论治情志病，提出“癫狂一症，乃气血凝滞脑气”的观点——这一认识与当代精神疾病的“神经回路异常”假说惊人相似。</p>
+    <p><strong>20世纪至今：科学化与国际化</strong></p>
+    <p>1980年代以来，中医心理学作为一个独立学科逐步形成。1985年中国中医研究院成立中医心理学研究室，2000年《中医心理学》作为教材正式出版。近年来，脑功能成像技术（fMRI、PET）为中医情志-五脏理论提供了神经影像学的证据；分子生物学研究揭示了情志因素通过神经-内分泌-免疫网络影响基因表达的机制；肠道微生物组研究建立了“脾胃-情志”相互作用的物质通路。WHO已将部分中医情志调理方法纳入传统医学纲要。</p>
+  </div>
+  <div class="chart-wrap"><div class="chart-inner chart-init" id="chart-dev-01" data-option='{"title":{"text":"中医情志学理论演进脉络","left":"center","textStyle":{"fontSize":14,"color":"#b8ad98"}},"tooltip":{"trigger":"axis"},"xAxis":{"type":"category","data":["先秦-两汉\n理论奠基","晋唐-宋元\n方法成熟","明清\n深化整合","1980-2000\n学科形成","2000-至今\n科学验证"]},"yAxis":[{"type":"value","name":"理论成熟度","max":100}],"series":[{"type":"bar","data":[30,65,80,88,95],"itemStyle":{"color":{"type":"linear","x":0,"y":0,"x2":0,"y2":1,"colorStops":[{"offset":0,"color":"#5ea87a"},{"offset":1,"color":"#3d6b50"}]}},"label":{"show":true,"position":"top","formatter":"{c}%","color":"#b8ad98"}}],"grid":{"left":50,"right":30,"top":50,"bottom":30}}'></div><div class="ch-cap">图：中医情志学的理论成熟度曲线——2000年后的科学验证阶段是增长最快的时期</div></div>
+  <div class="takeaway">从《内经》的理论奠基到张子和的情志疗法临床实践，再到当代神经影像学的科学验证——中医情志学走过了2000年的演进之路，每个阶段都在前人的基础上增加了新的维度。</div>
+</div>
+
+<div class="module" id="md-05-application">
+  <h2><span class="m-tag">应用</span> 情志养生的日常实践——从调心到养生的行动指南 <span class="m-time">⏱️ ~2.5分钟</span></h2>
+  <div class="hook">多数人以为养生就是“吃什么、补什么”——但《黄帝内经》在两千年前就给出了答案：“恬淡虚无，真气从之，精神内守，病安从来？”情志养生，才是养生的第一道防线。</div>
+  <div class="content">
+    <p><strong>情志养生的三大核心原则</strong></p>
+    <p><strong>第一，精神内守</strong>——将心神收摄于内，不被外界纷扰所牵动。这并非要求“无情无欲”，而是培养一种内在的稳定感：无论外界如何变化，内心的核心不被动摇。具体操作包括每日静坐10-20分钟、专注于呼吸、减少不必要的感官刺激（减少刷手机的时间）。<strong>第二，形神共养</strong>——身体锻炼必须与精神调养同步进行。只锻炼身体而不调心，如同只修水管不管水源。太极拳是“形神共养”的典范——它以意领气，以气运身，每一个动作都要求意念的专注和呼吸的配合。<strong>第三，以情制情</strong>——允许情绪自然流动而非强行压制。中医提倡“发而中节”——情绪应该正常表达，但不过度。当一种情绪过度时，主动引入另一种适当的情志来平衡。</p>
+    <p><strong>针对不同体质的个性化情志调养</strong></p>
+    <p>根据中医体质学说，不同体质的人有不同的情志倾向和调理重点：<strong>气郁体质</strong>（性格内向、多愁善感、易生闷气）者应多参与群体活动、练习有节奏的运动（如跑步、乒乓球）以疏解肝气；<strong>气虚体质</strong>（气短懒言、易疲乏、思虑过多）者应以安静功法为主（气功、八段锦），避免过度倦思，培养“不为不可为之事烦心”的心态；<strong>阴虚体质</strong>（急躁易怒、手心热、失眠）者应以静制动，练习缓慢深长的呼吸，避免在燥热环境中活动，多接触自然清凉之气；<strong>阳虚体质</strong>（畏寒、情绪低落、精力不足）者应多接触阳光、建立晨练习惯，培养乐观向上的积极情绪。</p>
+    <p><strong>每日情志养生的实践框架</strong></p>
+    <p>一套完整的每日情志养生包括：晨起调心（醒来后不急于起身，先做三次深呼吸，感受内心的情绪基调——愉悦还是低落、平静还是焦虑，不做评判，只做觉察）；日间调气（中午阳气最旺时，若有烦闷感，做5分钟“疏肝法”——双手叉腰，顺时针揉按胁肋部位，配合深吸慢呼）；傍晚调神（黄昏是心神最敏感的时刻，适合10-15分钟的静坐冥想，让一天的思绪沉淀）；睡前安神（热水泡脚15分钟，按摩涌泉穴，配合缓慢腹式呼吸，将注意力从大脑转移至脚底）。</p>
+  </div>
+  <div class="takeaway">情志养生的核心不是“控制情绪”，而是“管理气机”——通过调整呼吸、意念和身体姿态，让情绪之气循其常道、不过不偏。每日晨-午-暮-夜的调心四部曲，是比任何补品都有效的情志养生法。</div>
+</div>
+
+<div class="module" id="md-06-case-study">
+  <h2><span class="m-tag">案例</span> 从郁证到康复——三个经典情志病医案深度解析 <span class="m-time">⏱️ ~3分钟</span></h2>
+  <div class="hook">一位妇女因丈夫外出数年未归，思虑成疾，饮食不进、卧床不起——多位名医用药无效。张子和没有开一味药，只用了一场“激怒”就治愈了她。这不是心理学教材中的理论推演，而是真实发生的临床案例。</div>
+  <div class="content">
+    <p><strong>案例一：怒胜思——思虑过度致脾结症</strong></p>
+    <p><strong>病情</strong>：金代一妇人因丈夫外出经商两年杳无音信，日夜思虑，渐至不思饮食、彻夜不眠、形容枯槁、卧病不起。多位医家以补脾益气、养血安神之剂治之无效。<strong>诊析</strong>：张子和诊脉后判断——此非单纯脾虚，而是“思伤脾，脾气郁结，气机不通”。长期思虑导致气机郁滞，脾胃运化功能被“憋住”，此时补气只会加重气机壅滞。<strong>治疗</strong>：张子和故意激怒妇人——先是索取高额诊金，再在其家中饮酒吃肉、言行放肆，又对其言语轻慢无礼。妇人由忍耐转为愤怒，终于爆发，痛骂张子和。暴怒之后大汗淋漓，当晚即索粥食之，此后食眠渐复。<strong>机理</strong>：怒属肝木，思属脾土，木能克土。暴怒激发了肝气的升发之力，这股强大的向上升散之气冲破了因思虑而形成的气机郁结——类似于用锤子敲开了一把生锈的锁。</p>
+    <p><strong>案例二：喜胜悲——丧子之痛致肺消症</strong></p>
+    <p><strong>病情</strong>：明代一官员因独子夭折，悲伤过度，终日哭泣，气短喘息、胸痛咳血、形销骨立——典型的“悲伤肺”证候。<strong>诊析</strong>：忧伤肺，肺主气，悲则气消。过度的悲伤使肺气持续耗散，宣发肃降功能严重受损——不仅出现呼吸系统症状，精气也在持续流失。<strong>治疗</strong>：名医（据《续名医类案》）请了一位善于说笑话的艺人，每日为官员表演滑稽笑话。初始官员不为所动，三日后开始微笑，七日后能开怀大笑。同时配合百合固金汤润肺养阴。两月后，悲伤之情大减，咳血停止，体重渐增。<strong>机理</strong>：喜属心火，悲属肺金，火克金。由衷的喜悦激发心阳，心阳振奋则气机流畅，从而克制了因悲伤引起的肺气消沉。这也印证了“喜则气缓”——适度的喜悦使紧张的肺部气机得到舒展。</p>
+    <p><strong>案例三：移精变气与现代祝由术的启示</strong></p>
+    <p><strong>病情</strong>：清代一案记载（《临证指南医案》），一女子因婚姻不幸，长期抑郁，出现“梅核气”（咽喉异物感，吞咽不下，吐之不出——这是中医对“癔球症”的描述）和月经失调。<strong>治疗</strong>：医者叶桂（叶天士）在短暂问诊后告知病人：“你这不是病，是有‘喜脉’（怀孕）”——女子大惊，不信，反复确认。医者坚持说“确是喜脉”。女子由惊恐转为将信将疑，开始注意饮食起居，不再纠结于先前的抑郁。两个月后，咽喉异物感消失，月经恢复正常——而此时医者才告知：“先前并无身孕，之所以如此说，是为了转移你对旧日抑郁的注意力。”这就是“移精变气”疗法的运用——通过改变患者的心理焦点，将郁结之气引导至新的方向。</p>
+  </div>
+  <div class="takeaway">三个案例揭示了中医情志治疗的共同逻辑：不是“消灭”情绪，而是“引导”情绪——愤怒冲开郁结、喜悦驱散悲伤、新的心理焦点取代旧的抑郁固着。关键在于精准：医生必须准确判断“是什么情绪困住了哪个脏腑”，然后选择正确的“对治情绪”和时机。</div>
+</div>
+
+<div class="module" id="md-07-risk">
+  <h2><span class="m-tag">风险</span> 情志失调的五大危害——从功能性改变到器质性病变 <span class="m-time">⏱️ ~2分钟</span></h2>
+  <div class="hook">“不就是心情不好吗”——这句话低估了情绪对身体的真实破坏力。长期压抑的愤怒不只是“心情不好”，它会在肝脏层面产生实打实的病理改变：脂肪肝、肝纤维化、甚至肝癌都与慢性愤怒和压抑的流行病学数据高度相关。</div>
+  <div class="content">
+    <p><strong>风险一：长期愤怒——肝系统损伤链</strong></p>
+    <p>长期压抑的愤怒或频繁暴怒，是肝系统损伤的最重要情志因素。病理链条：愤怒→肝气郁结→（轻度）胁肋胀痛、月经不调、乳腺增生→（中度）甲状腺结节（“瘿”）、慢性胆囊炎→（重度）肝硬化、肝癌风险升高。流行病学研究显示：具有“A型行为模式”（急躁、敌意、竞争性强）的人群，患肝病和心血管疾病的风险比平和型人群高2-3倍。</p>
+    <p><strong>风险二：过度思虑——脾胃与免疫损伤</strong></p>
+    <p>“思伤脾”在现代的典型表现是：长期工作压力和过度脑力劳动导致的消化功能紊乱——功能性消化不良、胃食管反流、肠易激综合征（IBS）。更深层的风险在于：脾为“后天之本”，主气血生化。思虑伤脾→气血生化不足→全身免疫功能下降。研究表明：长期高压和高思虑导致皮质醇水平持续升高→肠道菌群失调→肠黏膜屏障通透性增加（“肠漏”）→系统性低度炎症。</p>
+    <p><strong>风险三：长期悲伤抑郁——呼吸与免疫系统损伤</strong></p>
+    <p>持续的悲伤抑郁（“悲伤肺”）不仅增加呼吸系统疾病风险（慢性支气管炎、哮喘加重），还通过“肺主皮毛、肺朝百脉”的生理路径影响全身免疫。抑郁症患者的自然杀伤细胞（NK细胞）活性显著低于健康人群——中医“肺气不足→卫外不固”的概念在此获得了免疫学解释。</p>
+    <p><strong>风险四：极度恐惧——肾精与内分泌系统的崩溃</strong></p>
+    <p>突发的极度恐惧或长期慢性焦虑（惊与恐属肾）对肾系统的损伤可表现为：急性创伤后应激障碍（PTSD）患者出现的下丘脑-垂体-肾上腺轴（HPA轴）功能紊乱——皮质醇调节失灵、性激素分泌紊乱（“恐伤肾→肾精亏”）。在男性可表现为阳痿早泄、精子质量下降；在女性可表现为月经紊乱、不孕。</p>
+    <p><strong>风险五：过喜——被忽视的“良性”情绪危害</strong></p>
+    <p>“喜伤心”在现代心血管事件中有明确数据支持：突发的巨大喜悦（如中彩票、出乎意料的好消息）可能诱发“心碎综合征”（Takotsubo cardiomyopathy）——交感神经过度激活，释放大量儿茶酚胺，使心肌产生一过性功能异常。丧偶者中，“过度悲伤”和“过度喜悦（如子女突然成功）”都可能是心血管事件的触发因素。</p>
+  </div>
+  <div class="takeaway">五种情志失调各有其靶器官和病理链条——但不应该被理解为“愤怒只伤害肝脏”。实际上长期任何一种情志失调都会累及多个脏腑，因为五脏之间互生互克，一个脏腑的失衡迟早会传导至整个系统。</div>
+</div>
+
+<div class="module" id="md-08-prospect">
+  <h2><span class="m-tag">展望</span> 从实验室到生活——中医情志学的现代化与全球传播 <span class="m-time">⏱️ ~2分钟</span></h2>
+  <div class="hook">2024年，剑桥大学的情绪与健康研究中心发表了一项成果：他们追踪了2000名参与者3年的情绪日志和生理指标，发现“特定情绪与特定器官功能”之间的相关性，与中医五志-五脏学说高度吻合——古人的直觉正在被大数据验证。</div>
+  <div class="content">
+    <p><strong>神经影像学：看见“怒伤肝”</strong></p>
+    <p>功能性核磁共振（fMRI）研究正在为中医情志-脏腑理论提供脑科学层面的证据。愤怒情绪激活的脑区网络——前扣带皮层、岛叶、杏仁核——与肝脏在自主神经系统中的节段性神经支配存在解剖学上的对应关系（肝的交感神经支配主要来自T7-T9脊髓节段），而这些节段恰好也调控着与愤怒相关的心血管反应。未来随着连接组学技术的发展，中医的“经络-脏腑-情志”对应关系可能在神经通路上得到更精确的映射。</p>
+    <p><strong>肠道微生物组：解读“思伤脾”</strong></p>
+    <p>肠道微生物组（gut microbiome）的研究是未来验证中医“脾胃-情志”轴的关键。慢性压力（思虑）通过HPA轴改变肠道环境→抑制有益菌（乳酸杆菌、双歧杆菌）→优势被促炎性菌群取代→肠道通透性增加→脂多糖（LPS）入血→系统性炎症→进一步影响大脑功能（焦虑、抑郁加重）。中医“健脾安神”方剂（如归脾汤）可能的作用机制之一，就是恢复肠道菌群的健康平衡。</p>
+    <p><strong>人工智能与中医情志诊疗的融合</strong></p>
+    <p>通过可穿戴设备（心率变异性HRV、皮肤电反应GSR、睡眠脑电）采集和监测情绪生理指征，结合中医“望闻问切”的AI辅助诊断——这是中医情志学现代化的重要方向。初步研究表明：心率变异性中的低频/高频（LF/HF）比值变化，与中医“肝气郁结”的严重程度存在相关性——愤怒和压抑状态下的HRV模式具有可辨别的特征，使得“客观量化情志状态”成为可能。</p>
+    <p><strong>中医情志疗法的循证化之路</strong></p>
+    <p>最大的挑战同时也是最大的机遇：将中医情志治疗方法纳入现代循证医学框架。太极拳改善焦虑和抑郁已被多个高质量RCT（随机对照试验）证实。下一步需要验证的是：情志相胜疗法是否可以标准化为现代心理干预方案？将中医的五行情志辨证与西方CBT（认知行为疗法）框架进行对标——中医提供“情志类型×体质匹配”的个性化策略，西方提供治疗结构化和疗效量化评估的方法——两者的融合可能产生新的范式。</p>
+  </div>
+  <div class="formula-block" id="formula-02">
+    <span class="f-cap">中医情志学现代化成熟度模型</span>
+    $$M_{\text{modern}} = \frac{E_{\text{evidence}} \times A_{\text{acceptance}}}{1 + G_{\text{methodological\_gap}}}$$
+    <button class="derivation-toggle">▸ 展开推导</button>
+    <div class="derivation-content">
+      该模型评估中医情志学的现代化进程：<br><br>
+      (1) <strong>E(evidence)</strong>：已积累的循证证据量（0-1）。目前对于TCM情志疗法，RCT级别的证据主要集中在太极拳和针灸的情绪调节效果上（E≈0.3）。情志相胜疗法的高质量临床研究仍然稀缺。<br><br>
+      (2) <strong>A(acceptance)</strong>：国际医学界的接受度（0-1）。WHO已将部分中医内容纳入ICD-11传统医学章节（A≈0.4），但主流精神医学界对中医情志疗法仍持保留态度。<br><br>
+      (3) <strong>G(methodological_gap)</strong>：方法论鸿沟——中医的个体化辨证论治与西医的标准化RCT之间的不兼容程度。这是当前最大的瓶颈：一个真正能体现中医辨证精髓的研究设计，很难同时满足现代循证医学对“标准化干预”的要求。当前G≈0.7（7分鸿沟）。<br><br>
+      当前M≈(0.3×0.4)/(1+0.7)≈0.071——仅为理想状态（M=1）的约7%。弥合方法论鸿沟是提升此指数的关键。
+    </div>
+  </div>
+  <div class="takeaway">中医情志学的现代化有三条并行的轨道：神经科学验证“情志-脏腑”通路；微生物组学揭示“脾胃-情志”物质基础；AI+可穿戴设备量化评估情志状态。最大瓶颈是方法论鸿沟——如何在保留辨证论治精髓的同时，满足循证医学的标准。</div>
+</div>
+
+<div class="module" id="md-09-learning-path">
+  <h2><span class="m-tag">路径</span> 从经典到临床——情志养生学习的四阶路线图 <span class="m-time">⏱️ ~2分钟</span></h2>
+  <div class="hook">学习中医情志学最怕两件事：一是只读经典而不求科学验证（变成玄学），二是只看现代研究而丢了中医的辨证框架（变成碎片化学科知识）。一条平衡的学习路径是经典与现代并修、理法与实操兼顾。</div>
+  <div class="content">
+    <p><strong>第一阶段：经典筑基（第1-4周）</strong></p>
+    <p>核心任务：建立对中医情志基本理论的准确理解。<strong>必读文献</strong>：《黄帝内经》相关篇章——《素问·举痛论》（情志致气机失调的总纲）、《灵枢·本神》（五脏藏神的理论基础）、《素问·阴阳应象大论》（五行-五脏-五志对应关系）。<strong>辅助阅读</strong>：《中医基础理论》教材中的“病因-内伤七情”章节。关键目标：能准确说出每一种情绪对应的脏腑、气机变化方向和五行归属。</p>
+    <p><strong>第二阶段：经典临床文献研读（第5-8周）</strong></p>
+    <p>核心任务：通过经典医案理解情志疗法的临床应用。<strong>必读文献</strong>：张子和《儒门事亲》卷七（情志疗法集中记载）；叶天士《临证指南医案》中的“郁证”卷；《续名医类案》中的情志病部分。<strong>实践练习</strong>：针对每则医案，尝试自己分析“病在何脏、情在何志、治法为何、理论依据是什么”。关键目标：能独立分析简单的情志病案例。</p>
+    <p><strong>第三阶段：现代科学验证研究（第9-12周）</strong></p>
+    <p>核心任务：了解现代科学对中医情志理论的验证进展。<strong>必读资料</strong>：心身医学领域的综述文献（PubMed关键词：psychosomatic medicine, emotion-organ correlation）；肠道微生物组研究（brain-gut axis，gut microbiota and emotion）；太极拳/气功的RCT研究（Pubmed关键词：tai chi, anxiety, depression RCT）。关键目标：能用现代科学语言解释中医情志理论的核心概念。</p>
+    <p><strong>第四阶段：自我实践与整合（持续）</strong></p>
+    <p>核心任务：将学习成果转化为个人健康管理和临床能力。实践内容包括——每日情志日记记录（情绪-身体感受-调理措施-效果反馈）；学习一项形神共养的功法（首选太极拳或八段锦）；在专业人士指导下尝试为身边人做简单的情志调理建议（非诊疗性质的日常建议）。</p>
+  </div>
+  <div class="chart-wrap"><div class="chart-inner chart-init" id="chart-learn-01" data-option='{"title":{"text":"中医情志学四阶学习路线","left":"center","textStyle":{"fontSize":14,"color":"#b8ad98"}},"tooltip":{"trigger":"axis"},"xAxis":{"type":"category","data":["经典筑基\n(1-4周)","临床医案研读\n(5-8周)","现代科学研究\n(9-12周)","自我实践整合\n(持续)"]},"yAxis":{"type":"value","name":"能力累积(%)","max":100},"series":[{"type":"bar","data":[25,55,80,100],"itemStyle":{"color":{"type":"linear","x":0,"y":0,"x2":0,"y2":1,"colorStops":[{"offset":0,"color":"#6ebf8a"},{"offset":1,"color":"#2a5e3f"}]}},"label":{"show":true,"position":"top","formatter":"{c}%","color":"#b8ad98"},"barWidth":"50%"}],"grid":{"left":50,"right":30,"top":50,"bottom":30}}'></div><div class="ch-cap">图：四阶段学习路径的能力累积曲线——第二阶段是理论与实践的关键转换点</div></div>
+  <div class="takeaway">学习路径设计遵循“经典→临床→科学验证→自我整合”的递进逻辑。第一阶段打基础、第二阶段练临床思维、第三阶段建立现代化视野、第四阶段内化为自身能力——四个阶段不可跳跃，每个阶段的产出都是下一阶段的输入。</div>
+</div>
+
+<div class="module" id="md-10-glossary">
+  <h2><span class="m-tag">术语</span> 情志养生与中医心理学关键术语表 <span class="m-time">⏱️ ~1.5分钟</span></h2>
+  <div class="hook">在中医情志学的语境中，“肝气郁结”不只是“肝功能不好”——它是愤怒和压抑在身体中留下的生理印记。“脏躁”不是“内脏干燥”，而是更年期情感波动的古老描述。理解术语，才能理解这门学问。</div>
+  <div class="content">
+    <p><strong>七情（Qī Qíng）</strong>——喜、怒、忧、思、悲、恐、惊七种基本情绪活动的总称。正常情况下是人体对内外环境的适应性反应，只有在太过（强烈或持久）时才成为致病因素。对应现代心理学的“情绪”和“应激”双重概念。</p>
+    <p><strong>五志（Wǔ Zhì）</strong>——心在志为喜、肝在志为怒、脾在志为思、肺在志为悲（忧）、肾在志为恐（惊）。是五脏功能在精神情绪层面的投射。五志是正常的精神活动，过度则转化致病。</p>
+    <p><strong>五脏藏神（Wǔ Zàng Cáng Shén）</strong>——心藏神（统摄全部精神活动）、肝藏魂（潜意识与本能）、肺藏魄（与生理反射相关的精神活动）、脾藏意（记忆、注意和思想）、肾藏志（意志和长远目标）。说明精神活动不是脱离身体的纯粹意识，而是以脏腑精气为物质基础的。</p>
+    <p><strong>情志相胜（Qíng Zhì Xiāng Shèng）</strong>——利用五行相克的原理，用一种情志去克制和纠正另一种过激情志的治疗方法。怒胜思（木克土）、思胜恐（土克水）、恐胜喜（水克火）、喜胜悲（火克金）、悲胜怒（金克木）。是中医最原创性的心理治疗方法。</p>
+    <p><strong>移精变气（Yí Jīng Biàn Qì）</strong>——通过改变患者注意力焦点（精）来转变其内在气机的方法。核心要义：人的注意力和情感聚焦在哪里，气就趋向哪里。通过将有病理倾向的注意力转移到有益的方向，改变身体的气机状态。</p>
+    <p><strong>形神合一（Xíng Shén Hé Yī）</strong>——中医核心哲学概念，指身体（形）与精神（神）是一个统一的不可分割的整体。在情志学中意味着：调神就能调形，治形也能治神——身体锻炼和精神修炼必须同步进行。</p>
+    <p><strong>七情内伤（Qī Qíng Nèi Shāng）</strong>——七情过极导致的内伤病机。“内伤”区别于外感六淫（风、寒、暑、湿、燥、火）导致的外伤。是中医三大病因之一（外因-六淫、内因-七情、不内外因-饮食劳倦）。</p>
+    <p><strong>百合病（Bǎi Hé Bìng）</strong>——源出张仲景《金匮要略》，以百合为主药治疗。症状：“意欲食复不能食，常默默，欲卧不能卧”——精神恍惚、情绪低落、行为矛盾。现代研究认为最接近抑郁症和/或躯体形式障碍（somatization disorder）。</p>
+    <p><strong>脏躁（Zàng Zào）</strong>——以情绪不稳、悲伤欲哭、哈欠频发为主要表现的病证。源自《金匮要略》：“妇人脏躁，悲伤欲哭，象如神灵所作。”现代认为与围绝经期综合征（perimenopausal syndrome）和某些类型的抑郁症高度重合。</p>
+    <p><strong>梅核气（Méi Hé Qì）</strong>——自觉咽中有异物（如梅核）梗阻感，吞之不下、吐之不出，但检查咽部无器质性异常。中医辨证属“痰气交阻”——情感压抑（肝气郁结）和思虑过度（脾气虚，生痰）共同作用的结果。现代医学称为“癔球症”（globus hystericus）。</p>
+  </div>
+  <div class="takeaway">中医情志学术语的共同特点：它们描述的不是孤立的“心理”或“生理”现象，而是身心交互的完整状态——“脏躁”既是心理上的烦躁，也是生理上的阴虚；“梅核气”既是情感压抑的体验，也是咽部真实的肌肉紧张。</div>
+</div>
+
+<div class="module" id="md-11-misconceptions">
+  <h2><span class="m-tag">误解</span> 关于中医情志学的六个常见误区 <span class="m-time">⏱️ ~2分钟</span></h2>
+  <div class="hook">“中医说怒伤肝，那我永远不能生气了吗？”——这个看似合理的问题本身就建立在一个误区之上：中医讲的是“过怒伤肝”，而不是“任何愤怒都伤肝”。适度表达的愤怒是肝气正常疏泄的表现——一个人如果从不愤怒、从不表达，反而更容易气机郁结。</div>
+  <div class="content">
+    <p><strong>误区一：“不生气就是情志养生”</strong></p>
+    <p><strong>真相</strong>：中医情志养生的目标不是消灭情绪，而是使情绪“发而中节”——适度、适时、适当地表达。肝主疏泄，正常的愤怒表达是肝气的健康运行方式。长期压抑愤怒（“气郁”）比适度发泄愤怒对肝的伤害更大。关键不在于“有没有情绪”，而在于“情绪有没有成为持续的病理状态”。</p>
+    <p><strong>误区二：“情志相胜疗法可以随意使用”</strong></p>
+    <p><strong>真相</strong>：情志相胜疗法要求医生准确判断：(1)患者当前被困住的是哪一种情绪；(2)这种情绪损伤的是哪个脏腑；(3)选择的“对治情绪”是否剂量恰当——过度使用会从治疗变成新的伤害。张子和用怒治思、用恐治喜——这些都是精准的“一次性干预”，而非持续的“情绪处方”。不当使用可能导致旧病未去、新病又来。</p>
+    <p><strong>误区三：“七情致病就等于现代的情绪障碍”</strong></p>
+    <p><strong>真相</strong>：中医的七情内伤概念与现代精神病学中的情绪障碍（如抑郁症、焦虑症）有重合但并不等同。七情内伤更强调“情绪对脏腑气机的影响及其导致的躯体症状”——它描述的是情绪→气机→脏腑→躯体症状这条完整的病理链，而不只是情绪本身的问题。一个“思伤脾”的病人可能同时有（西医学中的）焦虑症和功能性消化不良。</p>
+    <p><strong>误区四：“五脏藏神的‘魂魄’等于迷信中的灵魂”</strong></p>
+    <p><strong>真相</strong>：中医语境中的“魂”“魄”是对不同层次精神活动的功能性描述——不是迷信中的“独立灵魂”，而是“特定脏腑所主持的精神功能”。肝藏魂≠肝脏里住着一个鬼魂。肝藏魂=肝系统承载着潜意识、本能和创造性等精神活动的物质基础。这与现代心身医学的“器官-精神功能”对应观念完全一致。</p>
+    <p><strong>误区五：“情志病只能靠心理调节”</strong></p>
+    <p><strong>真相</strong>：中医治疗情志病的最大特色就是“心身同治”——既调整心理（情志相胜、移精变气、言语疏导），也调整身体（针灸、中药、导引）。因为中医认为形和神是不可分割的整体——治形就是治神，治神也是治形。一个因长期愤怒导致肝气郁结的病人，疏肝理气的中药（如柴胡疏肝散）就是对他情绪的“生理性治疗”。</p>
+    <p><strong>误区六：“中医情志学与现代心理学是对立的”</strong></p>
+    <p><strong>真相</strong>：两者的视角不同但可以互补。现代心理学致力于精确描述精神活动的机制和规律；中医情志学致力于理解特定情绪如何通过特定身体通路影响健康。后者不是前者的替代，而是前者的扩展——中医提供了一个“情绪→特定器官→具体症状”的更精确的映射框架，这是现代心理学尚未系统涉足的领域。</p>
+  </div>
+  <div class="takeaway">六个误区的共通点：它们都是将中医的动态平衡观简化为静态的“禁忌/规则”清单。中医情志学的精髓在于“度”——情绪的过与不及都会产生问题，而适度的情绪表达本身就是健康的表现。</div>
+</div>
+
+<div class="module" id="md-12-landscape">
+  <h2><span class="m-tag">格局</span> 中医情志学的当代应用版图——医疗机构、养生市场与学术前沿 <span class="m-time">⏱️ ~2分钟</span></h2>
+  <div class="hook">2019年，《柳叶刀》中国精神卫生调查显示：中国焦虑障碍终身患病率7.6%，心境障碍（抑郁/双相）终身患病率7.4%。此刻再看《黄帝内经》的“恬淡虚无，真气从之，精神内守，病安从来”——两千年前的话，似乎是针对今天写的。</div>
+  <div class="content">
+    <p><strong>医疗体系中的应用现状</strong></p>
+    <p>在目前中国大陆的综合性中医院中，约80%设有专门的“情志病/神志病”专科或专病门诊——涵盖抑郁、焦虑、失眠、更年期综合征等传统情志病范畴。常用的中西医结合方案：以中医辨证为核心的个体化方剂（如肝气郁结用柴胡疏肝散、心脾两虚用归脾汤）+ 针灸（疏肝解郁取太冲、期门；安神定志取神门、内关）+ 现代SSRI类药物（在严重抑郁时使用）。在港澳台地区和海外华人中医诊所中，中医情志调理主要应用于亚健康人群的睡眠改善和压力管理。</p>
+    <p><strong>养生市场的蓬勃发展</strong></p>
+    <p>中医情志养生已从“传统文化兴趣”发展为巨大的健康消费市场：(1)<strong>太极/气功运动培训</strong>——全国约有5000万太极拳练习者，以调心-调息-调身三调合一为核心理念；(2)<strong>冥想/正念+中医养生</strong>——综合静坐、呼吸训练和中草药茶饮的“情绪养生馆”在一二线城市快速铺开；(3)<strong>药食同源的情绪调理产品</strong>——疏肝理气的代茶饮（玫瑰花、佛手、薄荷）、安神助眠的药膳汤料包（酸枣仁、百合、莲子）成为热销品类。预计2026年中国情绪健康养生市场规模将超过300亿元人民币。</p>
+    <p><strong>学术研究的三条主线</strong></p>
+    <p><strong>临床研究</strong>——中医情志疗法（包括情志相胜疗法的现代改编版）在轻度抑郁和广泛性焦虑中的随机对照试验正在多个中心开展。广州中医药大学2024年的研究表明：结合中医辨证的情志干预方案在改善亚临床抑郁方面的效果优于常规心理教育。<strong>机制研究</strong>——上海中医药大学和中科院神经科学研究所正在通过脑功能成像技术追踪针灸“疏肝解郁”方案对默认模式网络（DMN）功能连接的调节作用。<strong>标准研究</strong>——世界中医药学会联合会正在推进“中医情志病诊疗指南”的标准化工作。</p>
+  </div>
+  <div class="data-table"><table><thead><tr><th>应用领域</th><th>主要方法</th><th>适用人群</th><th>循证等级</th><th>市场趋势</th></tr></thead><tbody><tr><td>临床治疗</td><td>中药+针灸+情志疏导</td><td>确诊情志病患者</td><td>⭐⭐⭐</td><td>稳步增长</td></tr><tr><td>亚健康调理</td><td>导引+药膳+情志养生</td><td>高压职业人群</td><td>⭐⭐</td><td>快速增长</td></tr><tr><td>健身养生</td><td>太极拳/八段锦/五禽戏</td><td>中老年群体</td><td>⭐⭐⭐⭐</td><td>稳定</td></tr><tr><td>情绪消费</td><td>疏肝茶/安神汤/膏方</td><td>年轻女性消费者</td><td>⭐</td><td>爆发式增长</td></tr><tr><td>职业教育</td><td>中医心理学课程/培训</td><td>心理咨询师/健康管理师</td><td>⭐</td><td>逐渐形成</td></tr></tbody></table></div>
+  <div class="takeaway">中医情志学的当代应用已从古代文人养生的“私人领域”走向了公共医疗、养生消费和职业培训的三大“公共领域”。最大的增长潜能在情绪消费市场——但这一领域也面临的准入门槛和疗效验证的巨大挑战。</div>
+</div>
+
+<div class="module" id="md-13-issues">
+  <h2><span class="m-tag">问题</span> 中医情志学面临的方法论挑战与现实困境 <span class="m-time">⏱️ ~2分钟</span></h2>
+  <div class="hook">“中医治好了我的焦虑”——这样的个案在社交媒体上成千上万。但当研究者试图将这些个案疗法标准化为可重复的临床试验方案时，几乎全部失败。因为中医的核心——辨证论治——本质上就是“反标准化”的。</div>
+  <div class="content">
+    <p><strong>问题一：个体辨证 vs 标准化RCT——不可调和的矛盾？</strong></p>
+    <p>这是中医情志学面临的最根本的方法论挑战。现代循证医学的黄金标准——随机对照试验（RCT）——要求干预方案是标准化的（每个患者接受相同的治疗），而中医的核心恰恰是“同病异治、异病同治”——症状相同的两个抑郁患者，因体质和证型不同，一人用逍遥散疏肝解郁，一人用归脾汤健脾安神。在RCT框架下，这种个性化辨证无法被纳入研究设计。可能的出路：使用“N-of-1试验”设计（在一个患者上反复交叉验证治疗效果）或“自适应随机化”方案。</p>
+    <p><strong>问题二：“情志相胜”疗法的风险与伦理困境</strong></p>
+    <p>情志相胜疗法——用愤怒来治疗思虑、用恐惧来治疗狂喜——在现代医学伦理框架下面临严重质疑：(1)故意激怒或惊吓患者是否构成心理伤害？(2)如何在知情同意中解释这种治疗？(3)如果“剂量”控制不当，导致新的情志损伤，责任如何界定？这些不是理论争议——在实践中，没有经过正规培训的从业者贸然使用“以怒治思”的做法，可能导致严重的医患纠纷。</p>
+    <p><strong>问题三：情志养生产品的“概念膨胀”</strong></p>
+    <p>市场中贴上“中医情志养生”标签的产品——疏肝茶、安神香囊、情绪调理课程——正在快速膨胀。但绝大多数产品只是借用了中医术语的营销包装——玫瑰花茶贴“疏肝解郁”标签但成分和剂量未经任何临床验证、情绪课程套用了中医话术但实质上是普通心理学内容。这种“概念膨胀”长期下去将损害中医情志学在大众心目中的可信度——当消费者被无数虚假承诺反复消耗后，真正的有效方法也不再被信任。</p>
+    <p><strong>问题四：缺乏现代语言转化体系</strong></p>
+    <p>“肝气郁结”“思伤脾”“心肾不交”——这些术语在中医体系内是精确的，但对于现代医学从业者和大众来说，它们听起来含糊不清。中医情志学需要用现代的神经科学和内分泌学语言进行“翻译”而不丢失其辨证精髓——这是一个尚未完成的工作。没有这个“翻译层”，中医情志学在国际学术界和公众中的可信度都难以提升。</p>
+  </div>
+  <div class="takeaway">四个问题的核心指向同一个困境：一个以“个体化、整体观、动态平衡”为核心的方法论体系，如何在以“标准化、分析性、可重复”为金标准的现代科学话语体系中生存和发展？这不是中医的问题，而是两种认知范式的深层分歧。</div>
+</div>
+
+<div class="module" id="md-14-debate">
+  <h2><span class="m-tag">辩论</span> 心身合一vs心身分离——中医整体观与西方分析科学的对话 <span class="m-time">⏱️ ~2.5分钟</span></h2>
+  <div class="hook">同样的一个“抑郁”病人：西医精神科医生看到“5-羟色胺水平低→开SSRI类药物”；中医师看到“肝气郁结兼心脾两虚→疏肝解郁汤合归脾汤”。他们面对的是同一个病人，但一个看到了生物化学通路，另一个看到了气机-脏腑的网状失调。谁是对的？——这个问题本身就错了。</div>
+  <div class="content">
+    <p><strong>正方：中医整体观——身体是情绪的唯一舞台</strong></p>
+    <p>中医情志学的核心优势在于其<strong>不分离身与心</strong>。当一个病人说“我感到抑郁”时，中医不会认为这是一个局限于“大脑化学物质”的问题——它同时检查病人的肝、心、脾，因为抑郁（郁证）可能是肝气郁结引起的，也可能是心脾两虚引起的（或两者兼有）。这种视角的独特价值在于：(1)它解释了为什么情绪问题几乎总是伴随身体症状（抑郁伴食欲不振→思伤脾；焦虑伴心悸→恐伤心）；(2)它为“纯身体性”的治疗（针灸、中药）能够改善情绪提供了理论框架——调理肝气就是调理愤怒，健脾就是调理思虑；(3)它建立了一个精细的“情绪-身体”映射，为个性化治疗提供了比“一刀切”血清素假说更丰富的辨证选择。</p>
+    <p><strong>反方：西方还原论——先理解机制再谈治疗</strong></p>
+    <p>西方循证医学的辩护：(1)在没有经过严格RCT验证之前，任何声称的治疗效果都可能是安慰剂效应、自然缓解或回忆偏差——中医在这个问题上的回答远远不够；(2)中医的“辨证论治”在不同医生之间的诊断一致性太低——同一个患者看五个中医可能得到五个不同的证型判断和方剂——一个不可重复的诊断体系很难被视为“科学”；(3)中药治疗复杂情志病的药物安全性数据严重不足——各种疏肝解郁方剂中可能含有潜在肝毒性或肾毒性成分，长期服用无药监审查的自配中药对患者的风险是真实的。</p>
+    <p><strong>合题：两种范式不是对立而是层次不同</strong></p>
+    <p>超越“中医vs西医”二元对立的关键在于：认识到它们不是在同一层面回答问题。西医精神科在回答：“这个人的抑郁在大脑神经化学层面发生了什么？”（详细回答了分子机制）；中医情志学在回答：“这个人的情绪如何通过复杂的生理-心理回路影响整体健康？”（详细回答了整体功能层面）。真正的挑战不是“选择哪一个”，而是<strong>建立两者的转化接口</strong>：(1)将中医的“肝气郁结”可操作化为一组可量化的指标——心率变异性降低、皮质醇昼夜节律紊乱、交感神经过度激活——这样它就能进入现代研究框架；(2)将西医的“5-羟色胺假说”扩展为一个更丰富的“身心回路模型”——包括肠道菌群5-HT合成路线（将“脾”引入回路）、HPA轴调控（将“肾”引入回路）、自主神经平衡（将“肝”引入回路）。</p>
+  </div>
+  <div class="chart-wrap"><div class="chart-inner chart-init" id="chart-debate-01" data-option='{"title":{"text":"五志-五脏对应与现代神经内分泌通路","left":"center","textStyle":{"fontSize":14,"color":"#b8ad98"}},"radar":{"indicator":[{"name":"脑成像证据","max":10},{"name":"分子生物学证据","max":10},{"name":"流行病学证据","max":10},{"name":"临床可重复性","max":10},{"name":"生理机制明确度","max":10},{"name":"治疗方法性","max":10}],"shape":"polygon"},"series":[{"type":"radar","data":[{"value":[4,3,5,2,2,7],"name":"中医情志学(当前证据)"},{"value":[7,6,8,8,8,4],"name":"西医精神医学(当前证据)"},{"value":[9,9,9,9,9,9],"name":"理想的身心整合范式"},{"valu":[7,6,8,6,6,8],"name":"中西医心身医学(发展中)"}]}]}'></div><div class="ch-cap">图：不同医学范式在情志疾病研究中的证据强度与转化能力比较——理想状态不是互相替代，而是优势互补</div></div>
+  <div class="takeaway">中西医之争的真正出路不在于“谁赢”——而在于构建一个整合框架：中医提供丰富的身心整体图景和个性化辨证框架，西医提供严格的机制验证和标准化评估工具。两者的交集——即用现代科学解释为什么中医的“有趣”映射可能是对的——是这个领域最激动人心的研究方向。</div>
+</div>
+
+<div class="module" id="md-15-effort-direction">
+  <h2><span class="m-tag">实践</span> 自我情志调理的具体方法与日常练习 <span class="m-time">⏱️ ~2.5分钟</span></h2>
+  <div class="hook">知道“怒伤肝”只需要十分钟阅读——真正做到“怒而不伤”可能需要十年的修炼。情志养生的精髓不在于“理解理论”，而在于“在日常生活中持续地觉察和调节情绪之气”。以下是你可以从今天开始练习的具体方法。</div>
+  <div class="content">
+    <p><strong>方法一：呼吸导气法——最基础的情志调节</strong></p>
+    <p>气是情绪的载体——气顺则情平，气乱则情扰。通过控制呼吸来调节气机是情志养生的第一基本功。<strong>操作步骤</strong>：(1)觉察情绪——当感到焦虑（气浮）、愤怒（气冲）、抑郁（气滞）时，暂停3秒，感受此刻的情绪在身体的哪个部位最强烈（胸口？喉部？胁肋？）；(2)定位后用深呼吸“冲刷”这个部位——缓慢吸气（4秒），想象气息流向那个紧张区域，停顿（2秒），缓慢呼气（6秒），想象紧张随呼气从该区域释放；(3)重复5-10次，直到该区域的紧张感下降。功效：焦虑→气沉丹田（下焦稳定），愤怒→气行胁肋（肝气疏通），抑郁→气行胸中（肺气宣发）。</p>
+    <p><strong>方法二：五行音乐调情法</strong></p>
+    <p>五音（宫、商、角、徵、羽）通五脏，音乐是最直接有效的情志调节手段之一。<strong>对应与使用</strong>：<strong>角调（木）</strong>——曲调通畅、生机勃勃（如古琴曲《流水》），用于疏解愤怒、肝气郁结时（每日早晨听10-15分钟）；<strong>徵调（火）</strong>——曲调热烈、令人振奋（如唢呐《百鸟朝凤》），用于驱散悲伤、心情低落时（上午阳气上升时听）；<strong>宫调（土）</strong>——曲调平和稳重（如大提琴舒缓曲），用于安定思虑、心神不宁时（午后）；<strong>商调（金）</strong>——曲调高亢悲凉（如大提琴哀伤曲），用于释放压抑的悲伤（黄昏时）；<strong>羽调（水）</strong>——曲调深沉幽静（如琵琶曲《十面埋伏》深沉版本），用于安抚恐惧、心神不定时（睡前）。</p>
+    <p><strong>方法三：七日情志调理日记法</strong></p>
+    <p>这是将理论转化为自我觉察的最强力工具。每日记录：(1)<strong>情绪触发事件</strong>——今天什么事情引起了明显的情绪反应？（客观描述事件，而非评判情绪好坏）；(2)<strong>情绪-身体关联</strong>——这种情绪让你身体的哪个部位产生感觉？是胁肋发胀（肝-怒）？胃脘堵闷（脾-思）？胸口发紧（心-喜/悲）？还是小腹下坠（肾-恐）？(3)<strong>调理措施与效果</strong>——你用了什么方法来调节这种情绪和气机？效果如何？（比如深呼吸疏解胁肋胀闷——效果如何？效果不大？尝试了增加动作幅度？）(4)<strong>模式的自我发现</strong>——连续记录7天后回顾，你能否发现某种规律？比如“每当我和某人争执后，胁肋就会在3小时内出现胀感”、“每当deadline前3天，胃部就开始堵闷”。这些自我发现的规律是情志养生中最宝贵的信息——因为它将抽象的“肝气郁结”概念与你个人的身体反应对应起来。</p>
+    <p><strong>方法四：动作导引疏肝法（针对现代社会最常见的“郁”情）</strong></p>
+    <p>肝气郁结——压抑的愤怒、持续的委屈感——是当代职场人群最常见的情志问题。针对性疏肝动作：(1)<strong>侧伸展疏肝</strong>：双脚平肩站立，右手缓慢举高向左侧压，感受到右胁肋（肝经循行区域）被拉伸，保持15秒，换边，重复3次；(2)<strong>击胆经</strong>：下肢外侧沿裤缝线从髋部向下到膝外侧轻敲10次，这是胆经循行路线，肝胆相表里，疏胆即是疏肝；(3)<strong>揉按太冲穴</strong>：足背上第一、二跖骨结合部之前的凹陷处，用拇指指腹揉按2-3分钟，感受疼痛或酸胀——越是压力大怒，此处越疼。每天晚间揉按5分钟，连续一周后对比疼痛程度的变化。</p>
+  </div>
+  <div class="chart-wrap"><div class="chart-inner chart-init" id="chart-practice-01" data-option='{"title":{"text":"七情-调理方法对应表","left":"center","textStyle":{"fontSize":14,"color":"#b8ad98"}},"tooltip":{"trigger":"item","formatter":"{a}: {b}({c}%)"},"series":[{"type":"sankey","layout":"none","emphasis":{"focus":"adjacency"},"nodeAlign":"left","data":[{"name":"过怒"},{"name":"过喜"},{"name":"过思"},{"name":"过悲"},{"name":"过恐"},{"name":"深呼吸侧伸展"},{"name":"揉按涌泉穴"},{"name":"傍晚静坐"},{"name":"徵调音乐"},{"name":"角调音乐"},{"name":"宫调音乐"},{"name":"商调音乐"},{"name":"羽调音乐"},{"name":"疏肝理气"},{"name":"安心定神"},{"name":"健脾安神"},{"name":"宣肺益气"},{"name":"补心宁神"}],"links":[{"source":"过怒","target":"深呼吸侧伸展","value":8},{"source":"过怒","target":"角调音乐","value":6},{"source":"过怒","target":"疏肝理气","value":9},{"source":"过喜","target":"揉按涌泉穴","value":7},{"source":"过喜","target":"羽调音乐","value":5},{"source":"过喜","target":"补心宁神","value":8},{"source":"过思","target":"傍晚静坐","value":8},{"source":"过思","target":"宫调音乐","value":7},{"source":"过思","target":"健脾安神","value":9},{"source":"过悲","target":"徵调音乐","value":6},{"source":"过悲","target":"宣肺益气","value":8},{"source":"过恐","target":"揉按涌泉穴","value":8},{"source":"过恐","target":"羽调音乐","value":7},{"source":"过恐","target":"安心定神","value":9}]}]}'></div><div class="ch-cap">图：七种失衡情绪与对应调理方法（呼吸/音乐/穴位/方药方向）的映射关系——不同的情志问题需要调理不同的脏腑</div></div>
+  <div class="takeaway">情志养生的四件日常工具——呼吸导气（即时调节气机）、五行音乐（听觉通路调理各脏）、情绪日记（培养自我觉察能力）、动作导引（针对高发的“疏肝”需求）。这四者形成了一个从“即时应对”到“长期修炼”的完整练习系统。</div>
+</div>
+
+<div class="module" id="md-16-innovation">
+  <h2><span class="m-tag">创新</span> 数字技术与中医情志学的融合——从可穿戴到AI辅助辨证 <span class="m-time">⏱️ ~2分钟</span></h2>
+  <div class="hook">古代中医通过望诊（看面色、观眼神）来判断“神”的状态——这个过程依赖医者多年的经验积累。今天，一枚Apple Watch可以在你的中医师还没来得及望诊之前，就已经通过心率变异性（HRV）数据告诉你：你的“肝气”今天不太顺畅。</div>
+  <div class="content">
+    <p><strong>可穿戴设备：将“望诊”数字化</strong></p>
+    <p>心率变异性（HRV）是自主神经系统平衡的敏感指标——高频（HF）反映副交感神经（迷走神经→中医的“阴”），低频（LF）反映交感神经（“阳”）+副交感神经活动。初步研究表明：中医“肝气郁结”人群的HRV总功率降低、LF/HF比值升高（交感神经相对过度活跃），这种模式与愤怒和压抑的生理状态高度吻合。理想的未来是：你的可穿戴设备不仅告诉你“压力水平偏高”，还能告诉你——根据你的HRV模式、皮电反应、睡眠心率趋势——“你的肝气有所郁结，建议做5分钟侧伸展疏肝法”。</p>
+    <p><strong>AI辅助辨证：解决“不可重复性”的困境</strong></p>
+    <p>中医情志辨证的不可重复性是制约其科学化和国际化的最大瓶颈。AI在此方面有独特优势：(1)大型语言模型可以学习海量中医医案，自动提炼出特定症状组合与特定证型之间的统计关联——其辨证一致性可超过不同中医师之间的辨证一致性；(2)计算机视觉可以标准化“面色诊”和“舌诊”——将中医描述的“面色青”（肝病在面为青）等特征量化为可测量的面部色泽参数；(3)跨模态AI（将语言描述的症状与HRV、舌象图像、语音情感特征等数据融合）可能发现隐藏的“情志-生理标记”模式。这不是“机器替代医生”的路径——而是“机器提供高一致性辅助参考”的路径。</p>
+    <p><strong>数字化情志调理系统</strong></p>
+    <p>将中医情志学理论整合为一个可交互的数字化系统：(1)<strong>输入层</strong>——穿戴设备数据（HRV、睡眠、活动模式）+ 语音情感分析 + 用户手动输入的每日情绪日记；(2)<strong>辨证层</strong>——AI将多模态输入映射到中医辨证框架中“情志-气机-脏腑”状态；(3)<strong>输出层</strong>——个性化推荐：适合你当前状态的“五声音乐”、导引动作、呼吸练习方案。2025年已有至少5个中医科技团队在进行类似系统的初步开发。</p>
+  </div>
+  <div class="takeaway">技术不是中医的敌人。可穿戴设备让“望诊”可量化，AI让“辨证”高一致性——数字化是中医情志学走出“不可重复性”困境、进入国际主流医学对话的最有希望路径。</div>
+</div>
+
+</div>
+
+<footer id="page-footer">
+  <button class="btn primary" onclick="exportPDF()">📥 导出 PDF</button>
+  <button class="btn" onclick="window.print()">🖨 打印</button>
+</footer>
+</main>
+
+<div class="search-overlay" id="searchOverlay">
+  <div class="search-dialog">
+    <input type="text" id="searchInput" placeholder="搜索模块、概念、术语..." autofocus>
+    <div class="search-results" id="searchResults"></div>
+  </div>
+</div>
+
+<div class="back-btn"><button onclick="goBack()">← 返回学习方案</button></div>
+
+<div class="mobile-bottom-nav">
+  <div class="mbn-inner">
+    <button class="mbn-item" onclick="goBack()"><span class="mbn-icon">🏠</span> 首页</button>
+    <button class="mbn-item" onclick="document.getElementById('searchOverlay').classList.add('open');document.getElementById('searchInput').focus();"><span class="mbn-icon">🔍</span> 搜索</button>
+    <button class="mbn-item" onclick="toggleTheme()"><span class="mbn-icon">🌓</span> 主题</button>
+    <button class="mbn-item" onclick="scrollToTop()"><span class="mbn-icon">⬆</span> 顶部</button>
+  </div>
+</div>
+
+<script>
+var DEEP_DIVE_KP_ID = 'p4_1';
+
+function goBack() {
+  var MAIN_PAGE = 'tcm_learning.html';
+  var WIN_NAME = '_ml_tcm_main';
+  var CH_KEY = '_ml_tcm_nav';
+  localStorage.setItem(CH_KEY, JSON.stringify({kpId: DEEP_DIVE_KP_ID, ts: Date.now()}));
+  var mainWin = window.open(MAIN_PAGE, WIN_NAME);
+  if (mainWin) { mainWin.focus(); }
+}
+
+function toggleTheme() {
+  var body = document.body;
+  var current = body.getAttribute('data-theme');
+  var next = current === 'dark' ? 'light' : 'dark';
+  body.setAttribute('data-theme', next);
+  localStorage.setItem('_ml_deep_theme', next);
+  var btn = document.getElementById('theme-toggle');
+  if (btn) btn.textContent = next === 'dark' ? '🌙' : '☀️';
+}
+
+function scrollToTop() {
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function exportPDF() {
+  window.print();
+}
+
+(function init() {
+  document.body.classList.remove('loading');
+  document.body.classList.add('loaded');
+
+  var saved = localStorage.getItem('_ml_deep_theme');
+  if (saved === 'light' || saved === 'dark') {
+    document.body.setAttribute('data-theme', saved);
+    var btn = document.getElementById('theme-toggle');
+    if (btn) btn.textContent = saved === 'dark' ? '🌙' : '☀️';
+  }
+
+  buildSidebar();
+  setupProgressBar();
+  setupObserver();
+  setupFormulaToggle();
+  setupSearch();
+  initCharts();
+  initKaTeX();
+})();
+
+function buildSidebar() {
+  var container = document.getElementById('sidebar-links');
+  if (!container) return;
+  var modules = document.querySelectorAll('.module');
+  modules.forEach(function(m, i) {
+    var id = m.id;
+    var h2 = m.querySelector('h2');
+    var text = h2 ? h2.textContent.replace(/⏱️.*$/, '').replace(/^\S+\s*/, '').trim() : ('模块 ' + (i+1));
+    if (text.length > 20) text = text.substring(0, 18) + '...';
+    var a = document.createElement('a');
+    a.href = '#' + id;
+    a.className = 'sidebar-link';
+    a.textContent = text;
+    a.addEventListener('click', function(e) {
+      e.preventDefault();
+      var el = document.getElementById(id);
+      if (el) el.scrollIntoView({behavior:'smooth'});
+      if (window.innerWidth <= 768) {
+        document.getElementById('sidebar').classList.remove('open');
+      }
+    });
+    container.appendChild(a);
+  });
+}
+
+function setupProgressBar() {
+  var bar = document.getElementById('progress-bar');
+  if (!bar) return;
+  window.addEventListener('scroll', function() {
+    var scrollTop = window.scrollY || document.documentElement.scrollTop;
+    var docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    var pct = docHeight > 0 ? Math.min(100, (scrollTop / docHeight) * 100) : 0;
+    bar.style.width = pct + '%';
+  });
+}
+
+function setupObserver() {
+  var modules = document.querySelectorAll('.module');
+  if (!modules.length) return;
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        var id = entry.target.id;
+        var links = document.querySelectorAll('.sidebar-link');
+        links.forEach(function(l) {
+          l.classList.remove('active');
+          if (l.getAttribute('href') === '#' + id) {
+            l.classList.add('active');
+          }
+        });
+      }
+    });
+  }, {rootMargin: '-20% 0px -60% 0px'});
+  modules.forEach(function(m) { observer.observe(m); });
+}
+
+function setupFormulaToggle() {
+  document.querySelectorAll('.derivation-toggle').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var content = this.nextElementSibling;
+      if (content.style.display === 'block') {
+        content.style.display = 'none';
+        this.textContent = '▸ 展开推导';
+      } else {
+        content.style.display = 'block';
+        this.textContent = '▾ 收起推导';
+      }
+    });
+  });
+}
+
+function setupSearch() {
+  var overlay = document.getElementById('searchOverlay');
+  var input = document.getElementById('searchInput');
+  var results = document.getElementById('searchResults');
+  if (!overlay || !input) return;
+
+  overlay.addEventListener('click', function(e) {
+    if (e.target === overlay) {
+      overlay.classList.remove('open');
+      results.innerHTML = '';
+      input.value = '';
+    }
+  });
+
+  input.addEventListener('input', function() {
+    var q = input.value.trim().toLowerCase();
+    results.innerHTML = '';
+    if (q.length < 1) return;
+
+    var modules = document.querySelectorAll('.module');
+    var found = [];
+    modules.forEach(function(m) {
+      var h2 = m.querySelector('h2');
+      var text = m.textContent.toLowerCase();
+      if (text.includes(q)) {
+        var title = h2 ? h2.textContent.replace(/⏱️.*$/, '').trim() : '';
+        found.push({id: m.id, title: title});
+      }
+    });
+
+    if (found.length === 0) {
+      results.innerHTML = '<div style="padding:12px;color:var(--text-muted);">未找到匹配结果</div>';
+      return;
+    }
+
+    found.forEach(function(f) {
+      var div = document.createElement('div');
+      div.className = 'search-result-item';
+      div.textContent = f.title || f.id;
+      div.addEventListener('click', function() {
+        overlay.classList.remove('open');
+        results.innerHTML = '';
+        input.value = '';
+        var el = document.getElementById(f.id);
+        if (el) el.scrollIntoView({behavior:'smooth'});
+      });
+      results.appendChild(div);
+    });
+  });
+}
+
+function initCharts() {
+  var charts = document.querySelectorAll('.chart-init');
+  charts.forEach(function(el) {
+    try {
+      var opt = JSON.parse(el.getAttribute('data-option'));
+      var chart = echarts.init(el);
+      chart.setOption(opt);
+      el.classList.remove('chart-init');
+      el.classList.add('chart-rendered');
+    } catch(e) {
+      el.innerHTML = '<div style="padding:20px;color:var(--text-muted);">图表加载失败</div>';
+    }
+  });
+}
+
+function initKaTeX() {
+  if (typeof renderMathInElement === 'undefined') {
+    document.querySelectorAll('.formula-block').forEach(function(b) {
+      b.querySelectorAll('span.f-cap').forEach(function(s) {
+        s.style.display = 'block';
+      });
+    });
+    return;
+  }
+  renderMathInElement(document.body, {
+    delimiters: [
+      {left: '$$', right: '$$', display: true},
+      {left: '$', right: '$', display: false}
+    ]
+  });
+}
+
+document.addEventListener('click', function(e) {
+  var sidebar = document.getElementById('sidebar');
+  if (!sidebar || !sidebar.classList.contains('open')) return;
+  if (!e.target.closest('#sidebar') && !e.target.closest('.mbn-item')) {
+    sidebar.classList.remove('open');
+  }
+});
+</script>
+</body>
+</html>

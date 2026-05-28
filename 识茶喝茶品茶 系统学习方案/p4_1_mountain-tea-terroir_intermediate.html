@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<!-- template-version: 1.0.0 -->
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>山头茶与风土概念 — 深度研读</title>
+<style>
+/* ───────────────────────────────────────────────
+   Template: Cedar Dawn (雪松晨曦) — deep_dive.css
+   Mood: warm, natural, organic
+   Contrast verified: text-primary≥10:1, text-secondary≥6:1, text-muted≥4.5:1
+   ─────────────────────────────────────────────── */
+:root{
+--bg-base:#1a1814;
+--bg-card:#282520;
+--bg-elevated:#312d27;
+--bg-overlay:rgba(0,0,0,.6);
+--text-primary:#ede6d8;
+--text-secondary:#b8ad98;
+--text-muted:#8a8070;
+--accent-indigo:#5ea87a;
+--accent-purple:#b898a0;
+--accent-cyan:#7ec8a0;
+--accent-gold:#e6b95a;
+--accent-green:#6ebf8a;
+--accent-red:#d47860;
+--accent-blue:#5ea87a;
+--accent-color:#5ea87a;
+--accent-dark:#3d6b50;
+--border-subtle:rgba(184,173,152,.15);
+--border-glow:rgba(94,168,122,.25);
+--shadow-sm:0 1px 3px rgba(0,0,0,.3);
+--shadow-md:0 4px 16px rgba(0,0,0,.4);
+--shadow-lg:0 8px 32px rgba(0,0,0,.5);
+--shadow-elevated:0 8px 32px rgba(0,0,0,.5);
+--radius-sm:6px;
+--radius-md:10px;
+--radius-lg:16px;
+--font-sans:'Segoe UI',system-ui,-apple-system,sans-serif;
+--font-mono:Consolas,'Cascadia Code',monospace;
+--transition:.25s cubic-bezier(.4,0,.2,1);
+--transition-smooth:.3s ease;
+--nav-h:56px;
+--accent-color-rgb:94,168,122;
+--chart-grid:#2d2924;
+--chart-axis-label:#8a8070;
+}
+[data-theme="light"]{
+--bg-base:#fdfaf3;
+--bg-card:#fffdf7;
+--bg-elevated:#f3efe3;
+--bg-overlay:rgba(0,0,0,.3);
+--text-primary:#1f1a12;
+--text-secondary:#4a4035;
+--text-muted:#5c5042;
+--accent-indigo:#3d6b50;
+--accent-purple:#7a5a6a;
+--accent-cyan:#4a8e6a;
+--accent-gold:#a07828;
+--accent-green:#4a9e66;
+--accent-red:#b05038;
+--accent-blue:#3d6b50;
+--accent-color:#3d6b50;
+--accent-dark:#2a4835;
+--border-subtle:rgba(31,26,18,.08);
+--border-glow:rgba(61,107,80,.25);
+--shadow-sm:0 1px 3px rgba(0,0,0,.06);
+--shadow-md:0 4px 16px rgba(0,0,0,.08);
+--shadow-lg:0 8px 32px rgba(0,0,0,.12);
+--shadow-elevated:0 8px 32px rgba(0,0,0,.12);
+--accent-color-rgb:61,107,80;
+--chart-grid:#ebe5d6;
+--chart-axis-label:#5c5042;
+}
+
+/* ===== Layout & Base ===== */
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font-sans);background:var(--bg-base);color:var(--text-primary);line-height:1.75;overflow-x:hidden}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg-base)}::-webkit-scrollbar-thumb{background:var(--border-glow);border-radius:3px}
+
+/* ===== Navbar ===== */
+.progress-bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--accent-indigo),var(--accent-purple),var(--accent-cyan));z-index:200;transition:width .1s linear}
+.navbar{position:fixed;top:3px;left:0;right:0;z-index:100;background:var(--bg-card);border-bottom:1px solid var(--border-subtle);backdrop-filter:blur(16px);height:var(--nav-h);display:flex;align-items:center;justify-content:space-between;padding:0 24px}
+.nav-left{display:flex;align-items:center;gap:12px;font-size:.82rem;font-weight:600;color:var(--accent-indigo)}
+.nav-right{display:flex;align-items:center;gap:8px}
+.nav-right button{background:var(--bg-elevated);border:1px solid var(--border-subtle);color:var(--text-secondary);padding:6px 12px;border-radius:var(--radius-sm);cursor:pointer;font-size:.75rem;transition:all var(--transition)}
+.nav-right button:hover{border-color:var(--border-glow);color:var(--accent-indigo)}
+
+/* ===== Sidebar ===== */
+.sidebar{position:fixed;left:0;top:0;height:100vh;width:280px;background:var(--bg-base);border-right:1px solid var(--border-subtle);padding:24px;overflow-y:auto;z-index:100;padding-top:calc(var(--nav-h) + 16px)}
+.sidebar h3{font-size:.85rem;font-weight:700;color:var(--text-secondary);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--border-subtle)}
+.sidebar-nav{list-style:none;padding:0}
+.sidebar-nav li{margin-bottom:2px}
+.sidebar-nav a{display:block;padding:8px 12px;border-radius:var(--radius-md);text-decoration:none;font-size:.76rem;color:var(--text-secondary);transition:all var(--transition);border-left:3px solid transparent}
+.sidebar-nav a:hover{background:rgba(91,141,184,.08);color:var(--accent-cyan);border-left-color:var(--accent-cyan)}
+.sidebar-nav a.active{background:rgba(91,141,184,.12);color:var(--accent-blue);font-weight:600;border-left-color:var(--accent-blue)}
+.sidebar-back-link{display:block;padding:8px 12px;margin-bottom:12px;border-radius:8px;background:var(--bg-elevated);color:var(--accent-blue);text-decoration:none;font-size:.78rem;font-weight:600}
+.sidebar-back-link:hover{color:var(--accent-cyan)}
+
+/* ===== Content Area — Fluid Layout ===== */
+.content-area{margin-left:280px;width:calc(100% - 280px)}
+.container{max-width:calc(100% - 48px);margin:0 auto;padding:calc(var(--nav-h) + 24px) 24px 80px}
+
+/* ===== Hero ===== */
+.hero{text-align:center;padding:48px 0 36px}
+.hero h1{font-size:2.2rem;background:linear-gradient(135deg,var(--accent-indigo),var(--accent-purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+.hero .tags{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:12px}
+.hero .tags span{font-size:.7rem;padding:4px 12px;border-radius:50px;border:1px solid var(--border-glow);color:var(--accent-indigo);background:rgba(99,102,241,.06)}
+
+/* ===== Meta Card ===== */
+.meta-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:20px 24px;margin:0 auto 32px;max-width:700px;display:flex;justify-content:center;gap:36px;flex-wrap:wrap;box-shadow:var(--shadow-md)}
+.meta-item{text-align:center}
+.meta-item .val{font-size:1.4rem;font-weight:800;color:var(--accent-indigo)}
+.meta-item .lbl{font-size:.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px}
+
+/* ===== Journey Bar ===== */
+.journey-bar{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:12px 20px;margin:0 auto 24px;max-width:900px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:.82rem;box-shadow:var(--shadow-elevated)}
+.journey-path{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.journey-icon{font-size:1rem}
+.journey-plan{color:var(--accent-purple);font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.journey-plan:hover{color:var(--accent-gold)}
+.journey-sep{color:var(--text-muted);font-size:.7rem}
+.journey-phase{color:var(--text-secondary);font-weight:600}
+.journey-kp{color:var(--text-primary);font-weight:700}
+.journey-pos{color:var(--text-muted);font-size:.72rem}
+.journey-nav{display:flex;align-items:center;gap:8px;font-size:.75rem}
+.journey-prev,.journey-next{color:var(--text-muted);cursor:default}
+.journey-divider{color:var(--border-subtle)}
+
+/* ===== Module Card ===== */
+.module{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:28px 28px 24px;margin-bottom:20px;opacity:0;transform:translateY(24px);transition:opacity .5s ease,transform .5s ease;box-shadow:var(--shadow-sm)}
+.module.visible{opacity:1;transform:translateY(0)}
+.module:hover{border-color:var(--border-glow)}
+.module h2{font-size:1.15rem;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.module .m-tag{font-size:.65rem;padding:2px 10px;border-radius:50px;background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.2);color:var(--accent-indigo);font-weight:600}
+.module .m-time{font-size:.7rem;color:var(--text-muted);margin-left:auto}
+.module .hook{font-size:.9rem;color:var(--accent-purple);font-weight:600;margin:12px 0 16px;padding-left:12px;border-left:3px solid var(--accent-purple)}
+.module .content{font-size:.88rem;color:var(--text-secondary);line-height:1.8}
+.module .content p{margin-bottom:12px}
+.module .content strong{color:var(--text-primary);font-weight:600}
+.module .content em{color:var(--accent-gold);font-style:normal}
+
+/* ===== Formula Block ===== */
+.formula-block{background:rgba(99,102,241,.04);border:1px solid rgba(99,102,241,.12);border-radius:var(--radius-sm);padding:14px 18px;margin:14px 0;font-family:var(--font-mono);font-size:.82rem;color:var(--accent-cyan);overflow-x:auto;position:relative}
+.formula-block .f-cap{font-size:.7rem;color:var(--text-muted);margin-bottom:6px;display:block}
+.derivation-toggle{font-size:.7rem;color:var(--accent-gold);cursor:pointer;border:none;background:none;padding:4px 0;font-family:inherit;display:block;margin-top:6px}
+.derivation-toggle:hover{text-decoration:underline}
+.derivation-content{display:none;margin-top:8px;padding:12px 16px;background:rgba(245,158,11,.04);border-radius:var(--radius-sm);border-left:3px solid var(--accent-gold);font-size:.8rem;color:var(--text-secondary)}
+.derivation-content.open{display:block}
+
+/* ===== Chart ===== */
+.chart-wrap{background:rgba(99,102,241,.03);border-radius:var(--radius-sm);padding:8px;margin:14px 0;text-align:center}
+.chart-canvas{width:100%;height:280px}
+.chart-wrap .ch-cap{font-size:.72rem;color:var(--text-muted);margin-top:6px}
+
+/* ===== Table ===== */
+.table-container{margin:20px 0;overflow-x:auto}
+.table-container table{width:100%;border-collapse:collapse;border-radius:var(--radius-md);overflow:hidden}
+.table-container th{background:var(--bg-elevated);color:var(--accent-cyan);font-weight:700;padding:12px 16px;text-align:left;font-size:.8rem}
+.table-container td{padding:12px 16px;border-bottom:1px solid var(--border-subtle);font-size:.82rem;color:var(--text-secondary)}
+.table-container tr:hover td{background:rgba(91,141,184,.03)}
+.table-container .table-caption{font-size:.72rem;color:var(--text-muted);margin-bottom:8px;text-align:center}
+
+/* ===== Callout ===== */
+.callout{padding:14px 18px;border-radius:var(--radius-md);margin:16px 0;font-size:.82rem}
+.callout-info{background:rgba(94,168,122,.06);border-left:3px solid var(--accent-indigo);color:var(--text-secondary)}
+.callout-warn{background:rgba(230,185,90,.06);border-left:3px solid var(--accent-gold);color:var(--text-secondary)}
+.callout-tip{background:rgba(184,152,160,.06);border-left:3px solid var(--accent-purple);color:var(--text-secondary)}
+.callout strong{color:var(--text-primary)}
+
+/* ===== Compare Grid ===== */
+.compare-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin:16px 0}
+.compare-card{background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:18px 20px}
+.compare-card h4{font-size:.85rem;color:var(--accent-indigo);margin-bottom:8px}
+.compare-card p{font-size:.78rem;color:var(--text-muted);line-height:1.7}
+
+/* ===== Timeline ===== */
+.timeline{position:relative;padding-left:30px;margin:16px 0}
+.timeline::before{content:'';position:absolute;left:8px;top:0;bottom:0;width:2px;background:var(--border-glow)}
+.timeline-item{position:relative;margin-bottom:18px;font-size:.82rem}
+.timeline-item::before{content:'';position:absolute;left:-26px;top:6px;width:10px;height:10px;border-radius:50%;background:var(--accent-indigo);border:2px solid var(--border-glow)}
+.timeline-year{font-weight:700;color:var(--accent-cyan);min-width:80px;display:inline-block}
+.timeline-text{color:var(--text-secondary)}
+
+/* ===== Process Flow ===== */
+.process-flow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:20px 0;justify-content:center}
+.process-step{background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:12px 18px;text-align:center;font-size:.76rem;min-width:80px}
+.process-step .psn{font-weight:800;color:var(--accent-indigo);font-size:.9rem;margin-bottom:4px}
+.process-step .psl{color:var(--text-muted);font-size:.68rem}
+.process-arrow{color:var(--accent-cyan);font-size:1.1rem;font-weight:700}
+
+/* ===== Term Grid ===== */
+.term-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;margin:16px 0}
+.term-card{background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:var(--radius-sm);padding:12px 16px;transition:all var(--transition)}
+.term-card:hover{border-color:var(--border-glow)}
+.term-card .tn{font-size:.8rem;font-weight:700;color:var(--accent-indigo)}
+.term-card .td{font-size:.72rem;color:var(--text-muted);margin-top:4px;line-height:1.6}
+
+/* ===== Takeaway ===== */
+.takeaway{font-size:.82rem;background:rgba(16,185,129,.06);border-left:3px solid var(--accent-green);padding:10px 14px;margin-top:16px;border-radius:0 var(--radius-sm) var(--radius-sm) 0;color:var(--accent-green)}
+
+/* ===== Ref List ===== */
+.ref-list{list-style:none;padding:0;margin-top:8px;font-size:.78rem}
+.ref-list li{padding:4px 0;color:var(--text-muted)}
+.ref-list li::before{content:'📄 '}
+
+/* ===== Search Overlay ===== */
+.search-overlay{position:fixed;inset:0;z-index:300;background:var(--bg-overlay);display:none;align-items:flex-start;justify-content:center;padding-top:120px}
+.search-overlay.open{display:flex}
+.search-box{width:520px;max-width:90vw;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:var(--radius-md);box-shadow:var(--shadow-lg);overflow:hidden}
+.search-box input{width:100%;padding:14px 18px;background:transparent;border:none;color:var(--text-primary);font-size:.95rem;outline:none;font-family:inherit}
+.search-results{max-height:360px;overflow-y:auto}
+.search-results div{padding:10px 18px;cursor:pointer;font-size:.82rem;color:var(--text-secondary);border-top:1px solid var(--border-subtle);transition:background var(--transition)}
+.search-results div:hover{background:rgba(99,102,241,.06);color:var(--text-primary)}
+
+/* ===== Footer ===== */
+.journey-footer{text-align:center;padding:40px 32px 60px;opacity:.8}
+.back-to-plan{display:inline-flex;align-items:center;gap:8px;padding:10px 24px;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:50px;color:var(--text-secondary);text-decoration:none;font-size:.85rem;font-weight:600;transition:all var(--transition-smooth)}
+.back-to-plan:hover{background:var(--bg-elevated);border-color:var(--accent-purple);color:var(--accent-purple)}
+
+/* ===== Floating Back ===== */
+.deep-floating-back{position:fixed;right:20px;bottom:20px;z-index:10000}
+.deep-floating-back button{padding:12px 20px;background:linear-gradient(135deg,var(--accent-color),var(--accent-dark));color:white;border:none;border-radius:24px;font-size:.85rem;font-weight:600;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.15);transition:transform .2s,box-shadow .2s}
+.deep-floating-back button:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.2)}
+
+/* ===== Toast ===== */
+.dd-toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);z-index:10001;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:8px;padding:14px 24px;box-shadow:0 4px 16px rgba(0,0,0,.15);font-size:.85rem;display:none}
+.toast-in{animation:toastIn .3s ease}
+@keyframes toastIn{from{opacity:0;transform:translate(-50%,20px)}to{opacity:1;transform:translate(-50%,0)}}
+
+/* ===== Print ===== */
+@media print{.navbar,.progress-bar,.sidebar,.journey-bar,.journey-footer,.deep-floating-back{display:none!important}.content-area{margin-left:0;width:100%}.module{break-inside:avoid;opacity:1!important;transform:none!important;box-shadow:none}body{background:#fff!important}}
+
+/* ===== Responsive ≤1024px ===== */
+@media(max-width:1024px){.sidebar{display:none}.content-area{margin-left:0;width:100%}}
+
+/* ===== Responsive ≤768px ===== */
+@media(max-width:768px){
+.hero h1{font-size:1.6rem}.module{padding:20px}.meta-card{font-size:.72rem;padding:12px 16px}.journey-bar{flex-direction:column;align-items:flex-start}
+.deep-floating-back{right:15px;bottom:15px}.deep-floating-back button{padding:10px 16px;font-size:.8rem}
+}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+</head>
+<body data-theme="dark">
+
+<div class="progress-bar" id="progressBar" style="width:0%"></div>
+
+<nav class="navbar">
+  <div class="nav-left">📖 山头茶与风土概念</div>
+  <div class="nav-right">
+    <button onclick="toggleTheme()" title="切换主题 (Ctrl+D)">🌓 主题</button>
+    <button onclick="openSearch()" title="搜索 (Ctrl+K)">🔍 搜索</button>
+  </div>
+</nav>
+
+<div class="sidebar">
+  <a href="#" class="sidebar-back-link" onclick="event.preventDefault();var w=window.open('tea_learning.html#kc-p4_1','plan_main');if(w)w.focus()">← 返回主方案</a>
+  <h3>📖 目录导航</h3>
+  <ul class="sidebar-nav">
+    <li><a href="#mod-learning_journey">📍 学习路线导航</a></li>
+<li><a href="#mod-concept">📘 核心概念</a></li>
+<li><a href="#mod-principle">🔬 风土密码</a></li>
+<li><a href="#mod-landscape">🗺️ 山头图谱</a></li>
+<li><a href="#mod-application">🎯 品鉴实战</a></li>
+<li><a href="#mod-misconceptions">⚠️ 常见误区</a></li>
+  </ul>
+</div>
+
+<div class="content-area">
+<div class="search-overlay" id="searchOverlay">
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="搜索模块内容..." oninput="doSearch()" onkeydown="if(event.key==='Escape')closeSearch()">
+    <div class="search-results" id="searchResults"></div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="hero">
+    <h1>山头茶与风土概念</h1>
+    <div class="tags">
+      <span>茶文化</span><span>风土</span><span>普洱茶</span><span>茶道精进</span>
+    </div>
+  </div>
+
+  <div class="meta-card">
+    <div class="meta-item"><div class="val">6</div><div class="lbl">模块</div></div><div class="meta-item"><div class="val">~15min</div><div class="lbl">阅读时间</div></div><div class="meta-item"><div class="val">理解×标准</div><div class="lbl">深度</div></div>
+  </div>
+
+  <div class="journey-bar" id="journeyBar">
+    <div class="journey-path">
+      <span class="journey-icon">📍</span>
+      <span class="journey-plan" onclick="var w=window.open('tea_learning.html#kc-p4_1','plan_main');if(w)w.focus()">识茶·喝茶·品茶 系统学习方案</span>
+      <span class="journey-sep">〉</span>
+      <span class="journey-phase">茶道精进</span>
+      <span class="journey-sep">〉</span>
+      <span class="journey-kp">山头茶与风土概念</span>
+      <span class="journey-pos">(第1/2个知识点)</span>
+    </div>
+    <div class="journey-nav">
+      <span class="journey-prev" title="前置: (无)">← 前置</span>
+      <span class="journey-divider">|</span>
+      <span class="journey-next" title="后续: 茶叶收藏与存储科学">后续 →</span>
+    </div>
+  </div>
+
+  <div class="module" id="mod-learning_journey">
+    <h2><span class="m-tag">模块1</span> 📍 学习路线导航 <span class="m-time">⏱ ~2min</span></h2>
+    <div class="hook">在茶的世界里，如果说品种决定了茶叶的"基因"，那么风土就是茶叶的"性格"——同样的品种，在不同山头上生长，风味可以是天壤之别</div>
+    <div class="content">
+      <p>欢迎来到「识茶·喝茶·品茶 系统学习方案」的<strong>「茶道精进」阶段</strong>。在经历了识茶入门和喝茶进阶之后，你已具备扎实的茶叶基础认知，现在我们将深入到更精微的维度——地理与生态如何塑造茶叶的品质。</p>
+      <p>茶道精进阶段共包含 <strong>2 个知识点</strong>，你现在学习的是 <strong>第 1/2 个知识点</strong>：山头茶与风土概念。这一知识点的前置基础来自识茶入门阶段的<strong>茶树品种知识</strong>——理解不同品种的差异后，再来探究同一品种在不同山头的风味变异，才能体会风土的力量。</p>
+      <div class="callout callout-info">
+        <strong>📍 学习路线概览：</strong><br>
+        识茶入门 → 喝茶进阶 → 茶道精进（当前阶段）→ 茶道实践
+      </div>
+      <p><strong>前置知识：</strong>(无)</p>
+      <p><strong>后续学习：</strong>茶叶收藏与存储科学 — 了解山头风土后，你将学习如何选择和收藏具有陈化价值的山头茶。</p>
+      <p><strong>建议投入时间：</strong>约 15 分钟。6 个模块从概念到实战，建议一次读完，建立完整的山头茶认知框架。</p>
+    </div>
+    <div class="takeaway">💡 关键收获：风土是茶叶品质的终极解释变量——当品种和工艺相同时，山头的差异决定了一切</div>
+  </div>
+
+  <div class="module" id="mod-concept">
+    <h2><span class="m-tag">模块2</span> 📘 核心概念 — 风土（Terroir） <span class="m-time">⏱ ~3min</span></h2>
+    <div class="hook">为什么相隔仅几公里的两座山，产出的茶却风味迥异？答案藏在一个法语词里——Terroir</div>
+    <div class="content">
+      <p><strong>风土（Terroir）</strong>原是法国葡萄酒领域的核心概念，指特定地理范围内土壤、气候、地形、水文以及人文传统共同塑造的独特品质特征。近二十年来，这一概念被引入茶叶品鉴领域，尤其在普洱茶和武夷岩茶中得到了广泛认可。</p>
+
+      <p><strong>茶叶风土的四大维度：</strong></p>
+
+      <p><strong>🌍 土壤（Soil）</strong>——茶树从土壤中吸收矿物质元素，土壤的pH值、有机质含量、矿物质组成直接影响茶汤的醇厚度和岩韵感。例如武夷山丹霞地貌的红色砂砾岩富含钾、铁等矿物质，赋予岩茶独特的"岩骨"。</p>
+
+      <p><strong>⛰️ 海拔（Altitude）</strong>——海拔每升高100米，气温下降约0.6°C。高海拔茶园昼夜温差大，茶树生长缓慢，积累了更多的氨基酸和芳香物质，茶汤更加鲜甜、香气更加馥郁。云南古茶山海拔通常在1400-2200米之间。</p>
+
+      <p><strong>🌤️ 气候（Climate）</strong>——温度、降水量、日照时数、云雾天数共同构成茶树生长的微气候。多云雾环境散射阳光中的蓝紫光，促进氨基酸合成、抑制茶多酚过度积累，使茶汤更加鲜爽。</p>
+
+      <p><strong>🌿 生态（Ecosystem）</strong>——茶园周边的植被类型、生物多样性影响茶叶的香气物质构成。例如景迈山的茶树与樟树、多依果树共生，形成了独特的"兰香蜜韵"。</p>
+
+      <div class="formula-block">
+        <span class="f-cap">🌍 风土公式：</span>
+        茶叶风味 = 品种基因 × 风土环境 × 加工工艺
+      </div>
+
+      <div class="table-container">
+        <div class="table-caption">表1：四大风土维度对比</div>
+        <table>
+          <thead>
+            <tr><th>维度</th><th>核心变量</th><th>对品质的影响</th><th>典型体现</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>土壤</strong></td><td>pH值、矿物质、有机质</td><td>影响茶汤醇厚度和岩韵感</td><td>武夷山丹霞地貌→"岩骨"</td></tr>
+            <tr><td><strong>海拔</strong></td><td>气温、温差、气压</td><td>影响氨基酸/茶多酚比例</td><td>高海拔→鲜甜馥郁</td></tr>
+            <tr><td><strong>气候</strong></td><td>温度、降水、云雾、日照</td><td>影响光合代谢路径</td><td>多云雾→鲜爽甘甜</td></tr>
+            <tr><td><strong>生态</strong></td><td>伴生植被、生物多样性</td><td>影响香气物质构成</td><td>景迈山→兰香蜜韵</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+    <div class="takeaway">💡 关键收获：风土不是单一因素，而是土壤、海拔、气候、生态四维协同作用的结果</div>
+  </div>
+
+  <div class="module" id="mod-principle">
+    <h2><span class="m-tag">模块3</span> 🔬 风土密码 — 科学原理 <span class="m-time">⏱ ~3min</span></h2>
+    <div class="hook">海拔每升高100米，茶多酚就减少一个百分点——这是风土影响风味的量化证据</div>
+    <div class="content">
+      <p><strong>海拔的科学效应：</strong>高海拔（&gt;1800m）茶园的年均温较低（14-18°C），昼夜温差可达10-15°C。这种条件下，茶树的碳代谢（光合作用产物积累）和氮代谢（氨基酸合成）发生明显变化——夜间低温减少呼吸消耗，白天光合作用积累的碳水化合物更多转化为氨基酸而非多酚。</p>
+
+      <p>数据对比：海拔1800m vs 800m 的同品种普洱茶，<strong>氨基酸含量可差30%</strong>，茶多酚含量低15-20%，酚氨比显著降低，茶汤更甘甜醇和。</p>
+
+      <p><strong>土壤的地质密码：</strong></p>
+
+      <p><em>武夷山丹霞地貌</em>——红色砂砾岩风化形成富含钾(K⁺)、铁(Fe³⁺)、钙(Ca²⁺)的土壤，pH值5.0-5.5。这些矿物质通过茶树根系吸收后参与次生代谢，促进萜烯类香气物质和儿茶素的合成，形成独特的"岩韵"（矿物质感 + 花香 + 甘醇）。</p>
+
+      <p><em>云南古茶山的红壤/赤红壤</em>——pH值4.5-5.5，有机质含量3-5%，铝离子丰富，有利于茶多酚积累，这也解释了为什么云南大叶种茶多酚含量普遍较高。</p>
+
+      <p><strong>微气候的魔力：</strong></p>
+      <ul style="margin:8px 0 8px 24px;font-size:.84rem;color:var(--text-secondary);line-height:1.9">
+        <li><strong>云雾</strong>——西双版纳茶区年均雾日120-150天，云雾散射阳光中的蓝紫光（波长400-500nm），激活茶树的光形态建成反应，促进氨基酸合成；同时云雾降低光照强度，延缓叶片老化</li>
+        <li><strong>湿度</strong>——年降水量1200-1800mm，空气相对湿度75-85%，维持茶树持续生长，新梢持嫩性好</li>
+      </ul>
+
+      <div class="compare-grid">
+        <div class="compare-card">
+          <h4>🌋 班章 — 霸气刚烈</h4>
+          <p>海拔1700-1900m，红壤。茶多酚&gt;35%，苦底化甘快。茶气霸道十足，回甘生津强烈持久，被誉为"普洱茶之王"。</p>
+        </div>
+        <div class="compare-card">
+          <h4>🍯 冰岛 — 甜柔冰糖韵</h4>
+          <p>海拔1600-1800m，红黄壤。氨基酸含量突出，回甘持久。入口即甜，冰糖凉韵贯穿始终，汤感醇厚饱满。</p>
+        </div>
+      </div>
+
+    </div>
+    <div class="takeaway">💡 关键收获：风土通过海拔、土壤、微气候三条路径精确调控茶叶的化学物质谱，每一座山头都有其独特的风味指纹</div>
+  </div>
+
+  <div class="module" id="mod-landscape">
+    <h2><span class="m-tag">模块4</span> 🗺️ 山头图谱 — 普洱茶产区 <span class="m-time">⏱ ~3min</span></h2>
+    <div class="hook">普洱茶界流传着一句话——"班章为王，易武为后，冰岛为妃"——这背后是三大核心产区的风土对决</div>
+    <div class="content">
+      <p><strong>西双版纳产区：</strong></p>
+      <p><strong>勐海县 — 班章（老班章/新班章）</strong>：海拔1700-1900m，红壤，年均温16-18°C。茶多酚含量高达35-38%，滋味浓强，苦底明显但化甘极快，回甘生津强烈持久。被誉为"普洱茶之王"。</p>
+      <p><strong>南糯山</strong>：800年栽培型古茶树所在地，茶汤橙黄明亮，蜜香显著。</p>
+      <p><strong>勐腊县 — 易武</strong>：海拔1200-1500m，黄红壤，曾是古六大茶山的茶叶集散中心。特点是香气馥郁（蜜香+兰花香），汤感细腻柔滑，"柔中带刚"。以"易武正山"为核心的七村八寨构成了顶级普洱茶的核心产区之一。</p>
+
+      <p><strong>临沧产区：</strong></p>
+      <p><strong>冰岛</strong>：海拔1600-1800m，红黄壤。冰岛老寨古树茶以"冰糖甜"闻名——入口即甜，回甘带有独特的冰糖凉韵，汤感醇厚饱满。</p>
+      <p><strong>昔归</strong>：海拔1200-1400m，澜沧江畔，独特的河谷微气候赋予昔归茶一种类似干巴菌的独特香气，汤感极为细腻。</p>
+      <p><strong>大雪山</strong>：勐库大叶种的原生地，1号野生古茶树树龄2700+年。</p>
+
+      <p><strong>普洱产区 — 景迈山：</strong>海拔1400-1600m，赤红壤。2023年入选世界文化遗产。茶树与樟树、多依果树共生，形成独特的"兰香蜜韵"风味特征。</p>
+
+      <div class="table-container">
+        <div class="table-caption">表2：普洱茶五大核心山头风土对比</div>
+        <table>
+          <thead>
+            <tr><th>山头</th><th>产区</th><th>海拔</th><th>土壤</th><th>核心风味</th><th>茶多酚%</th><th>风格关键词</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>班章</strong></td><td>西双版纳·勐海</td><td>1700-1900m</td><td>红壤</td><td>苦底化甘、霸烈回甘</td><td>35-38%</td><td>霸气刚烈</td></tr>
+            <tr><td><strong>冰岛</strong></td><td>临沧·双江</td><td>1600-1800m</td><td>红黄壤</td><td>冰糖甜、凉韵回甘</td><td>28-32%</td><td>甜柔冰糖韵</td></tr>
+            <tr><td><strong>易武</strong></td><td>西双版纳·勐腊</td><td>1200-1500m</td><td>黄红壤</td><td>蜜香兰香、汤柔水甜</td><td>30-34%</td><td>香柔水甜</td></tr>
+            <tr><td><strong>昔归</strong></td><td>临沧·临翔</td><td>1200-1400m</td><td>红壤</td><td>菌香独特、汤感细腻</td><td>30-33%</td><td>菌香细腻</td></tr>
+            <tr><td><strong>景迈</strong></td><td>普洱·澜沧</td><td>1400-1600m</td><td>赤红壤</td><td>兰花香、蜂蜜甜</td><td>28-31%</td><td>兰香蜜韵</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="chart-wrap">
+        <div id="chart-concept-01" class="chart-canvas"></div>
+        <div class="ch-cap">图1：五大山头茶风味雷达图 — 香气、甜度、苦底、回甘、醇厚度五维对比</div>
+      </div>
+
+      <div class="callout callout-tip">
+        <strong>⛰️ 延伸：武夷岩茶的正岩/半岩/洲茶三级划分：</strong>正岩茶（核心景区内，丹霞地貌红砂砾岩土壤）品质最优，岩韵显著；半岩茶（景区周边，土壤过渡带）品质次之；洲茶（溪边冲积土）品质最次。这同样是风土决定品质的经典案例。
+      </div>
+
+    </div>
+    <div class="takeaway">💡 关键收获：普洱茶的山头体系是中国茶叶风土概念最完整、最系统的体现</div>
+  </div>
+
+  <div class="module" id="mod-application">
+    <h2><span class="m-tag">模块5</span> 🎯 品鉴实战 — 山头辨味 <span class="m-time">⏱ ~2min</span></h2>
+    <div class="hook">闭上眼睛，你能仅凭一杯茶汤判断出它是班章还是冰岛吗？这需要系统的风土辨味训练</div>
+    <div class="content">
+      <p><strong>山头辨味三步法：</strong></p>
+
+      <ol style="margin:8px 0 8px 24px;font-size:.84rem;color:var(--text-secondary);line-height:1.9">
+        <li><strong>建立风味坐标</strong>——先从最容易辨识的山头开始（班章的苦底力量、冰岛的冰糖甜、易武的蜜香柔滑），各喝10次以上，建立"风味锚点"</li>
+        <li><strong>盲品对比</strong>——将2-3个山头茶同时冲泡，在对比中感受差异，重点对比汤感厚度、苦涩化开速度、回甘位置和持久度</li>
+        <li><strong>风味轮标注</strong>——使用标准品茶术语，在风味轮上标注每个山头茶的位置</li>
+      </ol>
+
+      <p><strong>盲品对比实验流程：</strong></p>
+      <div class="process-flow">
+        <div class="process-step"><div class="psn">①</div><div class="psl">选两山头</div></div>
+        <div class="process-arrow">→</div>
+        <div class="process-step"><div class="psn">②</div><div class="psl">同器具/同水温/同投茶量</div></div>
+        <div class="process-arrow">→</div>
+        <div class="process-step"><div class="psn">③</div><div class="psl">盲标A/B</div></div>
+        <div class="process-arrow">→</div>
+        <div class="process-step"><div class="psn">④</div><div class="psl">独立品评记录</div></div>
+        <div class="process-arrow">→</div>
+        <div class="process-step"><div class="psn">⑤</div><div class="psl">揭晓对比</div></div>
+        <div class="process-arrow">→</div>
+        <div class="process-step"><div class="psn">⑥</div><div class="psl">复盘差异点</div></div>
+      </div>
+
+      <div class="callout callout-info">
+        <strong>🎯 山头品鉴的关键维度：</strong><br>
+        汤感厚度（舌面重量感）｜ 苦涩化开速度（入口→化开的时间）｜ 回甘位置与持久度（舌面/两颊/喉咙）｜ 香气类型与层次（干茶香→汤香→杯底香）
+      </div>
+
+      <div class="compare-grid">
+        <div class="compare-card">
+          <h4>🌋 班章识别点</h4>
+          <p>入口有明显的苦底力量感，但化甘极快（约5-8秒内转为甘甜）。回甘位置深至喉咙，生津强烈。汤感厚重，有"压舌感"。杯底香以花蜜香为主，冷杯后呈果木香。</p>
+        </div>
+        <div class="compare-card">
+          <h4>🍯 冰岛识别点</h4>
+          <p>入口几乎无苦感，直接呈现甜味——冰糖般的纯净甜感。回甘带有明显的"凉韵"（口腔泛起清凉感）。汤感醇厚但柔和。杯底香呈蜜糖香，持久性极强。</p>
+        </div>
+      </div>
+
+    </div>
+    <div class="takeaway">💡 关键收获：山头辨味不是天赋，是可以通过系统训练获得的能力——核心在多喝、多比、多记</div>
+  </div>
+
+  <div class="module" id="mod-misconceptions">
+    <h2><span class="m-tag">模块6</span> ⚠️ 常见误区 — 破除山头迷思 <span class="m-time">⏱ ~2min</span></h2>
+    <div class="hook">"这茶是班章的，肯定好喝"——这正是山头茶最大的陷阱</div>
+    <div class="content">
+
+      <div class="callout callout-warn">
+        <strong>⚠️ 误区1：「名山头 = 好茶」</strong><br>
+        名山头只是风土优势，不等于每一批茶都是好茶。同一山头有不同地块（向阳面vs背阴面、山顶vs山腰vs山脚）、不同树龄（古树vs大树vs小树）、不同工艺水平，品质差异可以非常大。不要被"名山头"三个字蒙蔽——<strong>喝的是茶，不是山头</strong>。
+      </div>
+
+      <div class="callout callout-warn">
+        <strong>⚠️ 误区2：「同一产区茶叶风味相同」</strong><br>
+        即使同为易武产区，刮风寨和落水洞的风味有明显差异。刮风寨更偏花香，落水洞更偏蜜香。产区内部的<strong>微风土差异</strong>同样不可忽视——这就是为什么资深茶人甚至会细分到一个山头的不同地块。
+      </div>
+
+      <div class="callout callout-warn">
+        <strong>⚠️ 误区3：「所有山头茶都值得收藏」</strong><br>
+        非也！具有收藏价值的山头茶需要满足：古树/大树原料、传统工艺制作、干仓存储。台地茶即使来自名山头，也不具备长期陈化价值。收藏之前，先问三个问题：原料是什么树龄？工艺是否到位？仓储条件如何？
+      </div>
+
+      <div class="callout callout-warn">
+        <strong>⚠️ 误区4：「风土决定一切」</strong><br>
+        风土是重要因素但不是唯一因素。品种适制性同样关键——同一山头用不同茶树品种制作，风味差异同样巨大。年份（春茶vs秋茶）和工艺也起到决定性作用。<strong>风土 × 品种 × 工艺 × 年份</strong>——四个变量的交互作用才是茶叶品质的完整方程。
+      </div>
+
+      <p>破除山头迷思的核心是：将山头视为<strong>参考坐标而非品质保证</strong>。理性看待名山头，把注意力放在实际品鉴体验上——只有你的口腔，才是最好的评审。</p>
+
+    </div>
+    <div class="takeaway">💡 关键收获：山头是参考坐标而非品质保证——理性看待名山头，把注意力放在实际品鉴体验上</div>
+  </div>
+</div>
+
+<footer class="journey-footer">
+  <a href="#" class="back-to-plan" onclick="event.preventDefault();var w=window.open('tea_learning.html#kc-p4_1','plan_main');if(w)w.focus()">🔗 返回学习路线: 识茶·喝茶·品茶 系统学习方案 → 茶道精进</a>
+  <p style="margin-top:12px;font-size:.72rem;color:var(--text-muted)">
+    本资料是 <strong>识茶·喝茶·品茶 系统学习方案</strong> 茶道精进 阶段的深度研读材料
+  </p>
+</footer>
+
+<div class="deep-floating-back">
+  <button onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 16px rgba(0,0,0,.2)'"
+    onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 12px rgba(0,0,0,.15)'"
+    onclick="event.preventDefault();var w=window.open('tea_learning.html#kc-p4_1','plan_main');if(w)w.focus()">
+    ← 返回学习方案
+  </button>
+</div>
+</div>
+
+<div class="dd-toast" id="toastEl"><span id="toastMsg"></span></div>
+
+<script>
+var MODULE_IDS = ["mod-learning_journey","mod-concept","mod-principle","mod-landscape","mod-application","mod-misconceptions"];
+var SEARCH_INDEX = [{"id":"mod-learning_journey","t":"学习路线导航","c":"当前位置: 识茶喝茶品茶 茶道精进 第1个知识点"},{"id":"mod-concept","t":"核心概念","c":"风土Terroir 海拔土壤气候维度 山头茶品质的地理密码"},{"id":"mod-principle","t":"风土密码","c":"海拔如何改变茶叶化学成分 云雾散射酚氨比 岩韵丹霞地貌 各山头风味物质差异"},{"id":"mod-landscape","t":"山头图谱","c":"班章冰岛易武昔归景迈 西双版纳临沧普洱产区 十二大古茶山"},{"id":"mod-application","t":"品鉴实战","c":"山头辨味训练 风味轮识别 对比品鉴实验"},{"id":"mod-misconceptions","t":"常见误区","c":"破除山头迷思 相同产区不等于相同品质 名山头不等于好茶"}];
+var TOAST_TIMEOUT;
+
+(function(){
+var progressBar=document.getElementById('progressBar');
+var modules=document.querySelectorAll('.module');
+
+var observer=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting)e.target.classList.add('visible')})},{threshold:.15});
+modules.forEach(function(m){observer.observe(m)});
+
+var navLinks=document.querySelectorAll('.sidebar-nav a');
+var navObserver=new IntersectionObserver(function(entries){
+entries.forEach(function(e){
+if(e.isIntersecting){
+navLinks.forEach(function(a){a.classList.remove('active')});
+var act=document.querySelector('.sidebar-nav a[href="#'+e.target.id+'"]');
+if(act)act.classList.add('active');
+}
+})},{threshold:.3});
+modules.forEach(function(m){navObserver.observe(m)});
+
+window.addEventListener('scroll',function(){
+var st=document.documentElement.scrollTop,dh=document.documentElement.scrollHeight-window.innerHeight;
+var pct=dh>0?Math.min(100,(st/dh)*100):0;progressBar.style.width=pct+'%';
+});
+
+window.addEventListener('keydown',function(e){
+if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();openSearch()}
+if((e.ctrlKey||e.metaKey)&&e.key==='d'){e.preventDefault();toggleTheme()}
+if(e.key==='Escape')closeSearch()
+});
+})();
+
+function toggleTheme(){
+var b=document.body,isD=b.getAttribute('data-theme')==='dark';
+b.setAttribute('data-theme',isD?'light':'dark');
+try{localStorage.setItem('slm-theme',isD?'light':'dark')}catch(e){}
+showToast('已切换至'+(isD?'浅色':'深色')+'主题')
+}
+
+function openSearch(){document.getElementById('searchOverlay').classList.add('open');setTimeout(function(){document.getElementById('searchInput').focus()},100)}
+function closeSearch(){document.getElementById('searchOverlay').classList.remove('open');document.getElementById('searchResults').innerHTML=''}
+
+function doSearch(){
+var q=document.getElementById('searchInput').value.toLowerCase(),res=document.getElementById('searchResults');
+if(q.length<2){res.innerHTML='';return}
+var h='';SEARCH_INDEX.forEach(function(item){
+if(item.t.toLowerCase().indexOf(q)>=0||(item.c||'').toLowerCase().indexOf(q)>=0){
+h+='<div onclick="closeSearch();document.getElementById(\''+item.id+'\').scrollIntoView({behavior:\'smooth\'})">'+
+'<strong>'+item.t+'</strong><br><small style="color:var(--text-muted)">'+(item.c||'').substring(0,80)+'</small></div>';
+}
+});
+res.innerHTML=h||'<div style="padding:12px;color:var(--text-muted)">未找到匹配模块</div>'
+}
+
+function showToast(msg){
+var el=document.getElementById('toastEl'),mg=document.getElementById('toastMsg');
+if(!el||!mg)return;mg.textContent=msg;el.style.display='block';el.classList.add('toast-in');
+if(TOAST_TIMEOUT)clearTimeout(TOAST_TIMEOUT);
+TOAST_TIMEOUT=setTimeout(function(){el.style.display='none'},3000);
+}
+
+(function(){
+var t;try{t=localStorage.getItem('slm-theme')}catch(e){}
+if(t==='light')document.body.setAttribute('data-theme','light');
+})();
+
+(function(){
+document.querySelectorAll('.derivation-toggle').forEach(function(btn){
+btn.addEventListener('click',function(){
+var content=this.nextElementSibling;
+if(content){content.classList.toggle('open');this.textContent=content.classList.contains('open')?'▾ 收起推导':'▸ 展开推导'}
+});
+});
+})();
+
+/* ===== ECharts 初始化模板 ===== */
+(function initCharts(){
+if(typeof echarts==='undefined')return;
+var charts=[];
+function makeChart(elId,option){
+var el=document.getElementById(elId);
+if(!el)return null;
+var chart=echarts.init(el);
+chart.setOption(option);
+return chart;
+}
+var c1=makeChart('chart-concept-01',{tooltip:{},legend:{bottom:'0%',textStyle:{color:'#8a8070'}},radar:{center:['50%','45%'],radius:'60%',axisName:{color:'#8a8070',fontSize:11},splitArea:{areaStyle:{color:['rgba(94,168,122,.02)','rgba(94,168,122,.04)']}},splitLine:{lineStyle:{color:'#3d3a34'}},axisLine:{lineStyle:{color:'#3d3a34'}},indicator:[{name:'香气',max:10},{name:'甜度',max:10},{name:'苦底',max:10},{name:'回甘',max:10},{name:'醇厚度',max:10}]},series:[{type:'radar',areaStyle:{opacity:.15},lineStyle:{width:2},symbol:'circle',symbolSize:4,data:[{value:[8,3,9,9,9],name:'班章',itemStyle:{color:'#d47860'},areaStyle:{color:'#d47860'}},{value:[7,10,1,9,7],name:'冰岛',itemStyle:{color:'#7ec8a0'},areaStyle:{color:'#7ec8a0'}},{value:[9,7,2,7,6],name:'易武',itemStyle:{color:'#b898a0'},areaStyle:{color:'#b898a0'}},{value:[6,6,3,6,5],name:'昔归',itemStyle:{color:'#e6b95a'},areaStyle:{color:'#e6b95a'}},{value:[7,8,2,6,5],name:'景迈',itemStyle:{color:'#6ebf8a'},areaStyle:{color:'#6ebf8a'}}]}]});
+if(c1)charts.push(c1);
+window.addEventListener('resize',function(){charts.forEach(function(c){c.resize()})});
+})();
+</script>
+</body>
+</html>

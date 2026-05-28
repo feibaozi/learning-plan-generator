@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<!-- template-version: 1.0.0 -->
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>茶叶收藏与存储科学 — 深度研读</title>
+<style>
+/* ───────────────────────────────────────────────
+   Template: Cedar Dawn (雪松晨曦) — deep_dive.css
+   Mood: warm, natural, organic
+   Contrast verified: text-primary≥10:1, text-secondary≥6:1, text-muted≥4.5:1
+   ─────────────────────────────────────────────── */
+:root{
+--bg-base:#1a1814;
+--bg-card:#282520;
+--bg-elevated:#312d27;
+--bg-overlay:rgba(0,0,0,.6);
+--text-primary:#ede6d8;
+--text-secondary:#b8ad98;
+--text-muted:#8a8070;
+--accent-indigo:#5ea87a;
+--accent-purple:#b898a0;
+--accent-cyan:#7ec8a0;
+--accent-gold:#e6b95a;
+--accent-green:#6ebf8a;
+--accent-red:#d47860;
+--accent-blue:#5ea87a;
+--accent-color:#5ea87a;
+--accent-dark:#3d6b50;
+--border-subtle:rgba(184,173,152,.15);
+--border-glow:rgba(94,168,122,.25);
+--shadow-sm:0 1px 3px rgba(0,0,0,.3);
+--shadow-md:0 4px 16px rgba(0,0,0,.4);
+--shadow-lg:0 8px 32px rgba(0,0,0,.5);
+--shadow-elevated:0 8px 32px rgba(0,0,0,.5);
+--radius-sm:6px;
+--radius-md:10px;
+--radius-lg:16px;
+--font-sans:'Segoe UI',system-ui,-apple-system,sans-serif;
+--font-mono:Consolas,'Cascadia Code',monospace;
+--transition:.25s cubic-bezier(.4,0,.2,1);
+--transition-smooth:.3s ease;
+--nav-h:56px;
+--accent-color-rgb:94,168,122;
+--chart-grid:#2d2924;
+--chart-axis-label:#8a8070;
+}
+[data-theme="light"]{
+--bg-base:#fdfaf3;
+--bg-card:#fffdf7;
+--bg-elevated:#f3efe3;
+--bg-overlay:rgba(0,0,0,.3);
+--text-primary:#1f1a12;
+--text-secondary:#4a4035;
+--text-muted:#5c5042;
+--accent-indigo:#3d6b50;
+--accent-purple:#7a5a6a;
+--accent-cyan:#4a8e6a;
+--accent-gold:#a07828;
+--accent-green:#4a9e66;
+--accent-red:#b05038;
+--accent-blue:#3d6b50;
+--accent-color:#3d6b50;
+--accent-dark:#2a4835;
+--border-subtle:rgba(31,26,18,.08);
+--border-glow:rgba(61,107,80,.25);
+--shadow-sm:0 1px 3px rgba(0,0,0,.06);
+--shadow-md:0 4px 16px rgba(0,0,0,.08);
+--shadow-lg:0 8px 32px rgba(0,0,0,.12);
+--shadow-elevated:0 8px 32px rgba(0,0,0,.12);
+--accent-color-rgb:61,107,80;
+--chart-grid:#ebe5d6;
+--chart-axis-label:#5c5042;
+}
+
+/* ===== Layout & Base ===== */
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font-sans);background:var(--bg-base);color:var(--text-primary);line-height:1.75;overflow-x:hidden}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg-base)}::-webkit-scrollbar-thumb{background:var(--border-glow);border-radius:3px}
+
+/* ===== Navbar ===== */
+.progress-bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--accent-indigo),var(--accent-purple),var(--accent-cyan));z-index:200;transition:width .1s linear}
+.navbar{position:fixed;top:3px;left:0;right:0;z-index:100;background:var(--bg-card);border-bottom:1px solid var(--border-subtle);backdrop-filter:blur(16px);height:var(--nav-h);display:flex;align-items:center;justify-content:space-between;padding:0 24px}
+.nav-left{display:flex;align-items:center;gap:12px;font-size:.82rem;font-weight:600;color:var(--accent-indigo)}
+.nav-right{display:flex;align-items:center;gap:8px}
+.nav-right button{background:var(--bg-elevated);border:1px solid var(--border-subtle);color:var(--text-secondary);padding:6px 12px;border-radius:var(--radius-sm);cursor:pointer;font-size:.75rem;transition:all var(--transition)}
+.nav-right button:hover{border-color:var(--border-glow);color:var(--accent-indigo)}
+
+/* ===== Sidebar ===== */
+.sidebar{position:fixed;left:0;top:0;height:100vh;width:280px;background:var(--bg-base);border-right:1px solid var(--border-subtle);padding:24px;overflow-y:auto;z-index:100;padding-top:calc(var(--nav-h) + 16px)}
+.sidebar h3{font-size:.85rem;font-weight:700;color:var(--text-secondary);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--border-subtle)}
+.sidebar-nav{list-style:none;padding:0}
+.sidebar-nav li{margin-bottom:2px}
+.sidebar-nav a{display:block;padding:8px 12px;border-radius:var(--radius-md);text-decoration:none;font-size:.76rem;color:var(--text-secondary);transition:all var(--transition);border-left:3px solid transparent}
+.sidebar-nav a:hover{background:rgba(91,141,184,.08);color:var(--accent-cyan);border-left-color:var(--accent-cyan)}
+.sidebar-nav a.active{background:rgba(91,141,184,.12);color:var(--accent-blue);font-weight:600;border-left-color:var(--accent-blue)}
+.sidebar-back-link{display:block;padding:8px 12px;margin-bottom:12px;border-radius:8px;background:var(--bg-elevated);color:var(--accent-blue);text-decoration:none;font-size:.78rem;font-weight:600}
+.sidebar-back-link:hover{color:var(--accent-cyan)}
+
+/* ===== Content Area — Fluid Layout ===== */
+.content-area{margin-left:280px;width:calc(100% - 280px)}
+.container{max-width:calc(100% - 48px);margin:0 auto;padding:calc(var(--nav-h) + 24px) 24px 80px}
+
+/* ===== Hero ===== */
+.hero{text-align:center;padding:48px 0 36px}
+.hero h1{font-size:2.2rem;background:linear-gradient(135deg,var(--accent-indigo),var(--accent-purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+.hero .tags{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:12px}
+.hero .tags span{font-size:.7rem;padding:4px 12px;border-radius:50px;border:1px solid var(--border-glow);color:var(--accent-indigo);background:rgba(99,102,241,.06)}
+
+/* ===== Meta Card ===== */
+.meta-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:20px 24px;margin:0 auto 32px;max-width:700px;display:flex;justify-content:center;gap:36px;flex-wrap:wrap;box-shadow:var(--shadow-md)}
+.meta-item{text-align:center}
+.meta-item .val{font-size:1.4rem;font-weight:800;color:var(--accent-indigo)}
+.meta-item .lbl{font-size:.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px}
+
+/* ===== Journey Bar ===== */
+.journey-bar{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:12px 20px;margin:0 auto 24px;max-width:900px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:.82rem;box-shadow:var(--shadow-elevated)}
+.journey-path{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.journey-icon{font-size:1rem}
+.journey-plan{color:var(--accent-purple);font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.journey-plan:hover{color:var(--accent-gold)}
+.journey-sep{color:var(--text-muted);font-size:.7rem}
+.journey-phase{color:var(--text-secondary);font-weight:600}
+.journey-kp{color:var(--text-primary);font-weight:700}
+.journey-pos{color:var(--text-muted);font-size:.72rem}
+.journey-nav{display:flex;align-items:center;gap:8px;font-size:.75rem}
+.journey-prev,.journey-next{color:var(--text-muted);cursor:default}
+.journey-divider{color:var(--border-subtle)}
+
+/* ===== Module Card ===== */
+.module{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:28px 28px 24px;margin-bottom:20px;opacity:0;transform:translateY(24px);transition:opacity .5s ease,transform .5s ease;box-shadow:var(--shadow-sm)}
+.module.visible{opacity:1;transform:translateY(0)}
+.module:hover{border-color:var(--border-glow)}
+.module h2{font-size:1.15rem;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.module .m-tag{font-size:.65rem;padding:2px 10px;border-radius:50px;background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.2);color:var(--accent-indigo);font-weight:600}
+.module .m-time{font-size:.7rem;color:var(--text-muted);margin-left:auto}
+.module .hook{font-size:.9rem;color:var(--accent-purple);font-weight:600;margin:12px 0 16px;padding-left:12px;border-left:3px solid var(--accent-purple)}
+.module .content{font-size:.88rem;color:var(--text-secondary);line-height:1.8}
+.module .content p{margin-bottom:12px}
+.module .content strong{color:var(--text-primary);font-weight:600}
+.module .content em{color:var(--accent-gold);font-style:normal}
+
+/* ===== Formula Block ===== */
+.formula-block{background:rgba(99,102,241,.04);border:1px solid rgba(99,102,241,.12);border-radius:var(--radius-sm);padding:14px 18px;margin:14px 0;font-family:var(--font-mono);font-size:.82rem;color:var(--accent-cyan);overflow-x:auto;position:relative}
+.formula-block .f-cap{font-size:.7rem;color:var(--text-muted);margin-bottom:6px;display:block}
+.derivation-toggle{font-size:.7rem;color:var(--accent-gold);cursor:pointer;border:none;background:none;padding:4px 0;font-family:inherit;display:block;margin-top:6px}
+.derivation-toggle:hover{text-decoration:underline}
+.derivation-content{display:none;margin-top:8px;padding:12px 16px;background:rgba(245,158,11,.04);border-radius:var(--radius-sm);border-left:3px solid var(--accent-gold);font-size:.8rem;color:var(--text-secondary)}
+.derivation-content.open{display:block}
+
+/* ===== Chart ===== */
+.chart-wrap{background:rgba(99,102,241,.03);border-radius:var(--radius-sm);padding:8px;margin:14px 0;text-align:center}
+.chart-canvas{width:100%;height:280px}
+.chart-wrap .ch-cap{font-size:.72rem;color:var(--text-muted);margin-top:6px}
+
+/* ===== Table ===== */
+.table-container{margin:20px 0;overflow-x:auto}
+.table-container table{width:100%;border-collapse:collapse;border-radius:var(--radius-md);overflow:hidden}
+.table-container th{background:var(--bg-elevated);color:var(--accent-cyan);font-weight:700;padding:12px 16px;text-align:left;font-size:.8rem}
+.table-container td{padding:12px 16px;border-bottom:1px solid var(--border-subtle);font-size:.82rem;color:var(--text-secondary)}
+.table-container tr:hover td{background:rgba(91,141,184,.03)}
+.table-container .table-caption{font-size:.72rem;color:var(--text-muted);margin-bottom:8px;text-align:center}
+
+/* ===== Callout ===== */
+.callout{padding:14px 18px;border-radius:var(--radius-md);margin:16px 0;font-size:.82rem}
+.callout-info{background:rgba(94,168,122,.06);border-left:3px solid var(--accent-indigo);color:var(--text-secondary)}
+.callout-warn{background:rgba(230,185,90,.06);border-left:3px solid var(--accent-gold);color:var(--text-secondary)}
+.callout-tip{background:rgba(184,152,160,.06);border-left:3px solid var(--accent-purple);color:var(--text-secondary)}
+.callout strong{color:var(--text-primary)}
+
+/* ===== Compare Grid ===== */
+.compare-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin:16px 0}
+.compare-card{background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:18px 20px}
+.compare-card h4{font-size:.85rem;color:var(--accent-indigo);margin-bottom:8px}
+.compare-card p{font-size:.78rem;color:var(--text-muted);line-height:1.7}
+
+/* ===== Timeline ===== */
+.timeline{position:relative;padding-left:30px;margin:16px 0}
+.timeline::before{content:'';position:absolute;left:8px;top:0;bottom:0;width:2px;background:var(--border-glow)}
+.timeline-item{position:relative;margin-bottom:18px;font-size:.82rem}
+.timeline-item::before{content:'';position:absolute;left:-26px;top:6px;width:10px;height:10px;border-radius:50%;background:var(--accent-indigo);border:2px solid var(--border-glow)}
+.timeline-year{font-weight:700;color:var(--accent-cyan);min-width:80px;display:inline-block}
+.timeline-text{color:var(--text-secondary)}
+
+/* ===== Process Flow ===== */
+.process-flow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:20px 0;justify-content:center}
+.process-step{background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:12px 18px;text-align:center;font-size:.76rem;min-width:80px}
+.process-step .psn{font-weight:800;color:var(--accent-indigo);font-size:.9rem;margin-bottom:4px}
+.process-step .psl{color:var(--text-muted);font-size:.68rem}
+.process-arrow{color:var(--accent-cyan);font-size:1.1rem;font-weight:700}
+
+/* ===== Term Grid ===== */
+.term-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;margin:16px 0}
+.term-card{background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:var(--radius-sm);padding:12px 16px;transition:all var(--transition)}
+.term-card:hover{border-color:var(--border-glow)}
+.term-card .tn{font-size:.8rem;font-weight:700;color:var(--accent-indigo)}
+.term-card .td{font-size:.72rem;color:var(--text-muted);margin-top:4px;line-height:1.6}
+
+/* ===== Takeaway ===== */
+.takeaway{font-size:.82rem;background:rgba(16,185,129,.06);border-left:3px solid var(--accent-green);padding:10px 14px;margin-top:16px;border-radius:0 var(--radius-sm) var(--radius-sm) 0;color:var(--accent-green)}
+
+/* ===== Ref List ===== */
+.ref-list{list-style:none;padding:0;margin-top:8px;font-size:.78rem}
+.ref-list li{padding:4px 0;color:var(--text-muted)}
+.ref-list li::before{content:'📄 '}
+
+/* ===== Search Overlay ===== */
+.search-overlay{position:fixed;inset:0;z-index:300;background:var(--bg-overlay);display:none;align-items:flex-start;justify-content:center;padding-top:120px}
+.search-overlay.open{display:flex}
+.search-box{width:520px;max-width:90vw;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:var(--radius-md);box-shadow:var(--shadow-lg);overflow:hidden}
+.search-box input{width:100%;padding:14px 18px;background:transparent;border:none;color:var(--text-primary);font-size:.95rem;outline:none;font-family:inherit}
+.search-results{max-height:360px;overflow-y:auto}
+.search-results div{padding:10px 18px;cursor:pointer;font-size:.82rem;color:var(--text-secondary);border-top:1px solid var(--border-subtle);transition:background var(--transition)}
+.search-results div:hover{background:rgba(99,102,241,.06);color:var(--text-primary)}
+
+/* ===== Footer ===== */
+.journey-footer{text-align:center;padding:40px 32px 60px;opacity:.8}
+.back-to-plan{display:inline-flex;align-items:center;gap:8px;padding:10px 24px;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:50px;color:var(--text-secondary);text-decoration:none;font-size:.85rem;font-weight:600;transition:all var(--transition-smooth)}
+.back-to-plan:hover{background:var(--bg-elevated);border-color:var(--accent-purple);color:var(--accent-purple)}
+
+/* ===== Floating Back ===== */
+.deep-floating-back{position:fixed;right:20px;bottom:20px;z-index:10000}
+.deep-floating-back button{padding:12px 20px;background:linear-gradient(135deg,var(--accent-color),var(--accent-dark));color:white;border:none;border-radius:24px;font-size:.85rem;font-weight:600;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.15);transition:transform .2s,box-shadow .2s}
+.deep-floating-back button:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.2)}
+
+/* ===== Toast ===== */
+.dd-toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);z-index:10001;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:8px;padding:14px 24px;box-shadow:0 4px 16px rgba(0,0,0,.15);font-size:.85rem;display:none}
+.toast-in{animation:toastIn .3s ease}
+@keyframes toastIn{from{opacity:0;transform:translate(-50%,20px)}to{opacity:1;transform:translate(-50%,0)}}
+
+/* ===== Print ===== */
+@media print{.navbar,.progress-bar,.sidebar,.journey-bar,.journey-footer,.deep-floating-back{display:none!important}.content-area{margin-left:0;width:100%}.module{break-inside:avoid;opacity:1!important;transform:none!important;box-shadow:none}body{background:#fff!important}}
+
+/* ===== Responsive ≤1024px ===== */
+@media(max-width:1024px){.sidebar{display:none}.content-area{margin-left:0;width:100%}}
+
+/* ===== Responsive ≤768px ===== */
+@media(max-width:768px){
+.hero h1{font-size:1.6rem}.module{padding:20px}.meta-card{font-size:.72rem;padding:12px 16px}.journey-bar{flex-direction:column;align-items:flex-start}
+.deep-floating-back{right:15px;bottom:15px}.deep-floating-back button{padding:10px 16px;font-size:.8rem}
+}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+</head>
+<body data-theme="dark">
+
+<div class="progress-bar" id="progressBar" style="width:0%"></div>
+
+<nav class="navbar">
+  <div class="nav-left">📖 茶叶收藏与存储科学</div>
+  <div class="nav-right">
+    <button onclick="toggleTheme()" title="切换主题 (Ctrl+D)">🌓 主题</button>
+    <button onclick="openSearch()" title="搜索 (Ctrl+K)">🔍 搜索</button>
+  </div>
+</nav>
+
+<div class="sidebar">
+  <a href="#" class="sidebar-back-link" onclick="event.preventDefault();var w=window.open('tea_learning.html#kc-p4_2','plan_main');if(w)w.focus()">← 返回主方案</a>
+  <h3>📖 目录导航</h3>
+  <ul class="sidebar-nav">
+    <li><a href="#mod-learning_journey">📍 学习路线导航</a></li>
+<li><a href="#mod-concept">📘 核心概念</a></li>
+<li><a href="#mod-principle">🔬 陈化原理</a></li>
+<li><a href="#mod-application">🎯 各茶类策略</a></li>
+<li><a href="#mod-landscape">🗺️ 收藏实战</a></li>
+<li><a href="#mod-misconceptions">⚠️ 常见误区</a></li>
+  </ul>
+</div>
+
+<div class="content-area">
+<div class="search-overlay" id="searchOverlay">
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="搜索模块内容..." oninput="doSearch()" onkeydown="if(event.key==='Escape')closeSearch()">
+    <div class="search-results" id="searchResults"></div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="hero">
+    <h1>茶叶收藏与存储科学</h1>
+    <div class="tags">
+      <span>茶文化</span><span>存储</span><span>陈化</span><span>茶道精进</span>
+    </div>
+  </div>
+
+  <div class="meta-card">
+    <div class="meta-item"><div class="val">6</div><div class="lbl">模块</div></div><div class="meta-item"><div class="val">~15min</div><div class="lbl">阅读时间</div></div><div class="meta-item"><div class="val">理解×标准</div><div class="lbl">深度</div></div>
+  </div>
+
+  <div class="journey-bar" id="journeyBar">
+    <div class="journey-path">
+      <span class="journey-icon">📍</span>
+      <span class="journey-plan" onclick="var w=window.open('tea_learning.html#kc-p4_2','plan_main');if(w)w.focus()">识茶·喝茶·品茶 系统学习方案</span>
+      <span class="journey-sep">〉</span>
+      <span class="journey-phase">茶道精进</span>
+      <span class="journey-sep">〉</span>
+      <span class="journey-kp">茶叶收藏与存储科学</span>
+      <span class="journey-pos">(第2/2个知识点)</span>
+    </div>
+    <div class="journey-nav">
+      <span class="journey-prev" title="前置: 山头茶与风土概念">← 前置</span>
+      <span class="journey-divider">|</span>
+      <span class="journey-next" title="后续: (无)">后续 →</span>
+    </div>
+  </div>
+
+  <div class="module" id="mod-learning_journey">
+    <h2><span class="m-tag">模块1</span> 📍 学习路线导航 <span class="m-time">⏱ ~2min</span></h2>
+    <div class="hook">存茶如养玉——时间可以是茶叶的朋友，也可以是茶叶的敌人，关键在于你是否掌握了存储的科学</div>
+    <div class="content">
+      <p>欢迎来到「识茶·喝茶·品茶 系统学习方案」的<strong>最后一个知识点</strong>。你现在正处于整个学习路线的<strong>「茶道精进」阶段</strong>，这是整个方案的压轴篇章。</p>
+      <p>茶道精进阶段共包含 <strong>2 个知识点</strong>，你现在学习的是 <strong>第 2/2 个知识点</strong>：茶叶收藏与存储科学。这是整个学习方案的收尾——只有掌握了存储之道，你才能真正完整地理解一杯好茶从茶园到茶杯的全过程。</p>
+      <div class="callout callout-info">
+        <strong>📍 学习路线概览：</strong><br>
+        识茶入门 → 喝茶进阶 → 品茶高阶 → 茶道精进（当前阶段，第2/2个知识点）
+      </div>
+      <p><strong>前置知识：</strong>山头茶与风土概念 — 理解了原料来源之后，你需要知道如何保存它们。</p>
+      <p><strong>后续学习：</strong>(无) — 这是整个方案的收官知识点，恭喜你完成了全部学习旅程！</p>
+      <p><strong>建议投入时间：</strong>约 15 分钟。存储是茶叶品质的最后一道工序，值得你用心研读。</p>
+    </div>
+    <div class="takeaway">💡 关键收获：存储是茶叶品质的最后一道工序——它决定了茶叶走向升华还是劣变</div>
+  </div>
+
+  <div class="module" id="mod-concept">
+    <h2><span class="m-tag">模块2</span> 📘 核心概念 — 茶叶陈化的化学本质 <span class="m-time">⏱ ~3min</span></h2>
+    <div class="hook">为什么同一批普洱茶，在昆明存五年和在广州存五年，风味完全不同？答案在于茶叶的陈化不是简单的"放久了"，而是一场精密的化学反应</div>
+    <div class="content">
+      <p><strong>茶叶陈化</strong>是指茶叶在加工完成后的储存期间继续发生的物理和化学变化。与<strong>发酵</strong>（加工过程中的酶促氧化）不同，陈化是缓慢的<strong>非酶促反应和微生物作用</strong>的综合结果。</p>
+      <p>陈化不是统一概念——<em>绿茶需要保鲜（防陈化）</em>，<em>白茶和普洱茶则需要利用陈化来提升品质</em>。理解陈化，首先要理解它的五大化学路径：</p>
+
+      <ul style="margin:8px 0 8px 24px;font-size:.84rem;color:var(--text-secondary);line-height:1.9">
+        <li><strong>茶多酚的氧化聚合——</strong>儿茶素等茶多酚在氧气和残余酶的共同作用下逐渐氧化聚合，生成茶黄素、茶红素、茶褐素。这是茶汤颜色从黄绿→橙黄→橙红→红褐的化学基础。</li>
+        <li><strong>氨基酸的转化——</strong>氨基酸与糖类发生美拉德反应，生成吡嗪类、吡咯类等陈香物质。同时氨基酸逐渐降解，这也是老茶鲜爽度下降的原因。</li>
+        <li><strong>碳水化合物的水解——</strong>多糖（纤维素、半纤维素、果胶等）在微生物和酶的作用下缓慢水解为可溶性糖，增加茶汤的甜度和醇厚度。</li>
+        <li><strong>芳香物质的酯化和氧化——</strong>低沸点青草气成分挥发，高沸点花果香成分通过酯化反应转化，同时产生新的陈香物质（如1,2,3-三甲氧基苯等）。</li>
+        <li><strong>微生物后发酵——</strong>普洱茶特有的黑曲霉、青霉、酵母菌等微生物群落持续作用，分解大分子物质为小分子，是普洱茶越陈越香的关键机制。</li>
+      </ul>
+
+      <div class="formula-block">
+        <span class="f-cap">📐 陈化品质模型：</span>
+        陈化品质 = f(初始品质, 温度, 湿度, 氧气, 光线, 时间)
+      </div>
+
+      <div class="table-container">
+        <div class="table-caption">表1：陈化五大化学路径总结</div>
+        <table>
+          <thead>
+            <tr><th>化学路径</th><th>反应类型</th><th>关键产物</th><th>感官体现</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>茶多酚氧化聚合</td><td>酶促+非酶促氧化</td><td>茶黄素、茶红素、茶褐素</td><td>汤色变深、苦涩降低</td></tr>
+            <tr><td>氨基酸转化</td><td>美拉德反应</td><td>吡嗪类、吡咯类陈香物质</td><td>陈香显现、鲜爽降低</td></tr>
+            <tr><td>碳水化物水解</td><td>微生物+酶水解</td><td>可溶性糖</td><td>汤质变厚、甜度增加</td></tr>
+            <tr><td>芳香物质转化</td><td>酯化+氧化</td><td>陈香物质、高沸点花果香</td><td>青气消散、陈韵生成</td></tr>
+            <tr><td>微生物后发酵</td><td>微生物代谢</td><td>小分子风味前体</td><td>醇厚、层次丰富</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>从化学视角看，陈化的本质是<strong>大分子降解为小分子、低沸点物质挥发、高沸点物质转化</strong>的过程。茶叶从"鲜爽"走向"醇和"，从"清新"走向"厚重"。</p>
+
+    </div>
+    <div class="takeaway">💡 关键收获：茶叶陈化是氧化、水解、酯化、微生物发酵的多线并行反应——控制存储条件就是控制这些反应的方向和速度</div>
+  </div>
+
+  <div class="module" id="mod-principle">
+    <h2><span class="m-tag">模块3</span> 🔬 陈化原理 — 环境因子如何塑造风味 <span class="m-time">⏱ ~3min</span></h2>
+    <div class="hook">温度升高10°C，陈化速度翻一倍——但要小心，加速陈化和加速劣变只有一线之隔</div>
+    <div class="content">
+      <p><strong>温度效应：</strong>温度每升高10°C，化学反应速度大约翻倍（阿伦尼乌斯方程）。但不同茶类对温度的响应截然不同：</p>
+      <ul style="margin:8px 0 8px 24px;font-size:.84rem;color:var(--text-secondary);line-height:1.9">
+        <li><strong>绿茶——</strong>高温加速叶绿素降解和茶多酚氧化，导致汤色变黄、鲜爽度下降。因此绿茶必须低温储存（0-5°C）。</li>
+        <li><strong>普洱茶——</strong>适度高温（25-30°C）促进微生物活性和化学反应，加速陈化。但超过35°C可能导致杂菌滋生。</li>
+        <li><strong>白茶——</strong>常温（20-25°C）慢陈，温度过高会破坏芳香物质。</li>
+      </ul>
+      <div class="callout callout-warn">
+        <strong>⚠️ 温度波动比恒定高温更危险：</strong>反复的冷凝-蒸发循环会加速茶叶变质——温差每达到10°C就可能产生冷凝水，导致局部霉变。
+      </div>
+
+      <p><strong>湿度控制：</strong>相对湿度(RH)是茶叶存储中最关键的参数。</p>
+      <ul style="margin:8px 0 8px 24px;font-size:.84rem;color:var(--text-secondary);line-height:1.9">
+        <li><strong>RH &lt; 30%</strong>——过于干燥，茶叶脆裂，陈化几乎停止（"死仓"）</li>
+        <li><strong>RH 40-60%</strong>——普洱/白茶的最适陈化湿度，微生物活性正常，缓慢而稳定</li>
+        <li><strong>RH 60-70%</strong>——陈化加速但存在霉变风险，需要加强通风管理</li>
+        <li><strong>RH &gt; 70%</strong>——霉变高风险区，黄曲霉毒素等危害物质可能产生</li>
+      </ul>
+      <div class="callout callout-info">
+        <strong>📏 含水量安全线：</strong>茶叶自身含水量需 &lt; 7%（国标安全线），超过10%极易霉变。绿茶需RH &lt; 50%低温密封保存。
+      </div>
+
+      <p><strong>氧气与光线：</strong>氧气是双刃剑——适量的氧气是茶多酚氧化聚合和微生物生长的必要条件（普洱需要微氧环境），但过量氧气加速芳香物质氧化散失，导致"陈味"过重甚至酸败。光线（尤其是紫外线）破坏叶绿素和芳香物质，使茶叶产生"日晒味"——<strong>所有茶类存储都必须避光</strong>。</p>
+
+      <p><strong>通风的意义：</strong>通风≠敞开。普洱茶的"适当通风"指定期换气（如每月1-2次开仓透气），而非持续敞开。目的：排除茶叶呼吸作用产生的CO₂和杂味、调节仓内温湿度、引入新鲜氧气维持微生物活性。<strong>绿/红/乌龙茶需严格密封</strong>。</p>
+
+      <div class="chart-wrap">
+        <div id="chart-principle-01" class="chart-canvas"></div>
+        <div class="ch-cap">图1：六大茶类最佳存储温湿度范围对比</div>
+      </div>
+
+    </div>
+    <div class="takeaway">💡 关键收获：存茶的本质是管理一个微型生态系统——温度、湿度、氧气三要素需要根据茶类目标精确调控</div>
+  </div>
+
+  <div class="module" id="mod-application">
+    <h2><span class="m-tag">模块4</span> 🎯 各茶类存储策略 — 因茶制宜 <span class="m-time">⏱ ~3min</span></h2>
+    <div class="hook">把绿茶放进普洱茶仓，三个月后你会得到一堆"草味"——每类茶都有自己专属的储存法则</div>
+    <div class="content">
+
+      <div class="table-container">
+        <div class="table-caption">表2：六大茶类存储策略对照表</div>
+        <table>
+          <thead>
+            <tr><th>茶类</th><th>存储温度</th><th>目标湿度</th><th>容器</th><th>保质期</th><th>陈化方向</th><th>关键禁忌</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>绿茶</strong></td><td>0-5°C冷藏</td><td>RH&lt;50%</td><td>铝箔袋密封+铁罐</td><td>12-18月</td><td>保鲜不陈化</td><td>忌常温敞开</td></tr>
+            <tr><td><strong>黄茶</strong></td><td>0-5°C冷藏</td><td>RH&lt;50%</td><td>密封铁罐</td><td>12-18月</td><td>保鲜不陈化</td><td>同绿茶</td></tr>
+            <tr><td><strong>白茶</strong></td><td>20-25°C常温</td><td>RH 45-60%</td><td>三层包装(铝箔+食品袋+纸箱)</td><td>可长期陈化</td><td>一年茶三年药七年宝</td><td>忌高温高湿</td></tr>
+            <tr><td><strong>乌龙茶(清香)</strong></td><td>0-5°C冷藏密封</td><td>RH&lt;50%</td><td>抽真空+铁罐</td><td>1-2年</td><td>保鲜为主</td><td>忌常温久置</td></tr>
+            <tr><td><strong>乌龙茶(浓香/老茶)</strong></td><td>常温密封</td><td>RH&lt;60%</td><td>瓷罐/锡罐密封</td><td>可长期存放</td><td>醇化提香</td><td>忌潮湿</td></tr>
+            <tr><td><strong>红茶</strong></td><td>常温密封</td><td>RH&lt;50%</td><td>密封铁罐/锡罐</td><td>2-3年(传统更长)</td><td>醇化变柔和</td><td>忌潮湿和异味</td></tr>
+            <tr><td><strong>黑茶/普洱(生)</strong></td><td>20-30°C</td><td>RH 50-65%</td><td>棉纸+笋壳+纸箱</td><td>数十年</td><td>越陈越香</td><td>忌阳光直射和异味</td></tr>
+            <tr><td><strong>黑茶/普洱(熟)</strong></td><td>20-30°C</td><td>RH 50-65%</td><td>棉纸+笋壳+纸箱</td><td>数十年</td><td>堆味消散+醇化</td><td>忌高湿闷仓</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="compare-grid">
+        <div class="compare-card">
+          <h4>🏠 干仓</h4>
+          <p>温度20-25°C，RH 50-60%，陈化速度慢但风味纯净、转化方向可控。汤色清澈明亮，滋味纯净有力。<strong>市场认可度最高</strong>，是行家首选。</p>
+        </div>
+        <div class="compare-card">
+          <h4>🌧️ 湿仓</h4>
+          <p>温度25-35°C，RH 70-85%，陈化速度快但风味浑浊。汤色深暗偏浊，滋味带有仓味、霉味。<strong>微生物风险高</strong>，市场认可度低，常被视为"做旧"手法。</p>
+        </div>
+      </div>
+
+      <div class="callout callout-tip">
+        <strong>☕ 醒茶技巧：</strong>长期存放的茶在品饮前需要"醒茶"——将茶饼撬散放入紫砂罐或瓷罐中透气<strong>1-4周</strong>，让茶叶与空气重新接触，散去仓储气味，唤醒香气和滋味。醒茶是老茶品饮的关键前置步骤。
+      </div>
+
+    </div>
+    <div class="takeaway">💡 关键收获：没有一种万能的存储方法——六大茶类的存储策略因茶而异，核心是理解每类茶的陈化目标</div>
+  </div>
+
+  <div class="module" id="mod-landscape">
+    <h2><span class="m-tag">模块5</span> 🗺️ 收藏实战 — 从入门到专业 <span class="m-time">⏱ ~3min</span></h2>
+    <div class="hook">面对一饼普洱茶，你怎么判断它值不值得存？收藏价值的判断公式，收藏老手都在用</div>
+    <div class="content">
+
+      <div class="formula-block">
+        <span class="f-cap">📐 收藏价值判断公式：</span>
+        收藏价值 = 原料品质(40%) × 工艺水平(30%) × 仓储条件(20%) × 稀缺性(10%)
+        <button class="derivation-toggle">▸ 展开推导</button>
+        <div class="derivation-content">
+          <p><strong>推导逻辑：</strong>原料占比最高(40%)，因为茶叶的内含物质基础决定了陈化天花板；工艺(30%)是转化的动力源——晒青工艺保留了微生物和残余酶，是普洱陈化的动力；仓储(20%)是时间变量——好原料+好工艺，死于烂仓储也毫无收藏价值；稀缺性(10%)是市场溢价因子——古树纯料、名家手制、限量批次在二级市场有更高溢价。</p>
+        </div>
+      </div>
+
+      <p><strong>原料品质：</strong><em>古树 &gt; 大树 &gt; 小树 &gt; 台地</em>。古树茶内含物更丰富，陈化潜力更大。<em>春茶 &gt; 秋茶 &gt; 夏茶</em>。春茶氨基酸含量高，陈化后滋味更丰富。<em>高海拔 &gt; 低海拔</em>。高山茶的茶多酚结构更有利于后期转化。</p>
+
+      <p><strong>工艺水平：</strong><em>传统晒青工艺 &gt; 机器烘干</em>。晒青保留了更多残余酶和微生物，为后期陈化提供动力。<em>适度揉捻 &gt; 过度揉捻</em>。揉捻过重破坏叶细胞过多，前期出味快但后期寡淡。<em>石磨压制 &gt; 机器压制</em>。石磨饼松紧适度，利于均匀陈化。</p>
+
+      <p><strong>仓储条件：</strong><em>干仓 &gt; 自然仓 &gt; 湿仓</em>。干仓陈化虽然慢，但风味纯净、转化方向可控。</p>
+
+      <div class="callout callout-tip">
+        <strong>🏠 家庭存茶实用指南：</strong><br>
+        <strong>容器选择——</strong>短期(1年内)用密封锡罐/瓷罐；中期(1-5年)用紫砂罐透气陈化；长期(5年+)用棉纸+笋壳+纸箱离地离墙存放。<br>
+        <strong>环境监测——</strong>温湿度计必备，建议配置可记录数据的电子温湿度计。<br>
+        <strong>空间要求——</strong>无异味、避光、通风良好、离地离墙至少20cm。
+      </div>
+
+      <p><strong>收藏流程全景：</strong></p>
+      <div class="process-flow">
+        <div class="process-step"><div class="psn">①</div><div class="psl">购茶</div></div>
+        <div class="process-arrow">→</div>
+        <div class="process-step"><div class="psn">②</div><div class="psl">品质评估(原料/工艺)</div></div>
+        <div class="process-arrow">→</div>
+        <div class="process-step"><div class="psn">③</div><div class="psl">容器选择</div></div>
+        <div class="process-arrow">→</div>
+        <div class="process-step"><div class="psn">④</div><div class="psl">环境布置(温湿度计/避光)</div></div>
+        <div class="process-arrow">→</div>
+        <div class="process-step"><div class="psn">⑤</div><div class="psl">入仓储藏</div></div>
+        <div class="process-arrow">→</div>
+        <div class="process-step"><div class="psn">⑥</div><div class="psl">定期检查(每月)</div></div>
+        <div class="process-arrow">→</div>
+        <div class="process-step"><div class="psn">⑦</div><div class="psl">品饮测试(每半年)</div></div>
+        <div class="process-arrow">→</div>
+        <div class="process-step"><div class="psn">⑧</div><div class="psl">决策(继续存/现在喝)</div></div>
+      </div>
+
+      <div class="callout callout-info">
+        <strong>📅 不同茶类的收藏周期建议：</strong><br>
+        绿茶/黄茶：12个月内饮用，不宜收藏<br>
+        清香乌龙：1-2年，不宜长期收藏<br>
+        红茶：2-5年为风味巅峰期<br>
+        白茶：5-10年显著提升，20年+进入黄金期<br>
+        浓香乌龙/老茶：5-15年醇化期<br>
+        普洱生茶：10-20年进入品饮佳期，30年+可达巅峰<br>
+        普洱熟茶：3-5年堆味消散，10-15年为品饮黄金期
+      </div>
+
+      <div class="callout callout-warn">
+        <strong>⚠️ 投资需谨慎：</strong>茶叶收藏首先是个人品味的投资，其次才是金融价值。不要以投机心态入市——茶叶市场波动大，变现渠道有限。好茶是用来喝的，不是用来炒的。
+      </div>
+
+    </div>
+    <div class="takeaway">💡 关键收获：收藏茶叶的本质是收藏时间——好原料+好工艺+好仓储=经得起时间考验的好茶</div>
+  </div>
+
+  <div class="module" id="mod-misconceptions">
+    <h2><span class="m-tag">模块6</span> ⚠️ 常见误区 — 破除存储迷思 <span class="m-time">⏱ ~2min</span></h2>
+    <div class="hook">"把茶放冰箱就万事大吉了"——这个看似合理的想法，毁掉的茶叶比任何其他错误都多</div>
+    <div class="content">
+
+      <div class="callout callout-warn">
+        <strong>⚠️ 误区1：「所有茶放冰箱保存最好」</strong><br>
+        大错！只有<strong>绿茶和黄茶</strong>适合冰箱冷藏(0-5°C密封)。普洱茶、白茶、乌龙茶、红茶放入冰箱会导致：取出时冷凝水使茶叶受潮、吸附冰箱异味、低温抑制普洱/白茶的陈化微生物活性。<strong>冰箱不是万能茶仓。</strong>
+      </div>
+
+      <div class="callout callout-warn">
+        <strong>⚠️ 误区2：「所有茶都能越陈越香」</strong><br>
+        并非如此！越陈越香主要适用于——<strong>白茶</strong>（良好条件20年+）、<strong>普洱茶</strong>（生普30年+，熟普口感巅峰15-20年）、<strong>部分传统工艺红茶</strong>（10-15年）。绿茶、黄茶、清香型乌龙茶以<strong>保鲜为原则</strong>，不存在越陈越香，放久了只会劣变。
+      </div>
+
+      <div class="callout callout-warn">
+        <strong>⚠️ 误区3：「真空包装最好」</strong><br>
+        看情况。绿茶/清香乌龙真空包装是正确的。但<strong>普洱茶绝对不能真空包装</strong>——普洱需要微氧环境进行后发酵，真空会彻底终止陈化过程。同理，老白茶也不宜真空。好茶需要呼吸。
+      </div>
+
+      <div class="callout callout-warn">
+        <strong>⚠️ 误区4：「只要不发霉就能喝」</strong><br>
+        储存不当的茶叶即使未发霉，也可能已发生<strong>隐性劣变</strong>：芳香物质氧化散失→茶汤寡淡无味；茶多酚过度氧化→汤色暗褐、滋味酸馊；脂肪酸败→出现"油耗味"或"哈喇味"。这些茶虽然没有食品安全问题，但<strong>品饮价值已经丧失</strong>——喝到的只是"茶叶的尸体"。
+      </div>
+
+      <p>这些误区的根源在于：人们往往用<strong>一种通用思维</strong>去处理所有茶类的存储问题。但茶叶是活的——不同茶类有不同的生命轨迹，存储策略必须因茶制宜、因地制宜。</p>
+
+    </div>
+    <div class="takeaway">💡 关键收获：存储不是简单的"放起来"，而是对温度、湿度、氧气、光线的精确管理——科学存茶，让时间成为你最好的制茶师</div>
+  </div>
+</div>
+
+<footer class="journey-footer">
+  <a href="#" class="back-to-plan" onclick="event.preventDefault();var w=window.open('tea_learning.html#kc-p4_2','plan_main');if(w)w.focus()">🔗 返回学习路线: 识茶·喝茶·品茶 系统学习方案 → 茶道精进</a>
+  <p style="margin-top:12px;font-size:.72rem;color:var(--text-muted)">
+    本资料是 <strong>识茶·喝茶·品茶 系统学习方案</strong> 茶道精进 阶段的深度研读材料
+  </p>
+</footer>
+
+<div class="deep-floating-back">
+  <button onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 16px rgba(0,0,0,.2)'"
+    onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 12px rgba(0,0,0,.15)'"
+    onclick="event.preventDefault();var w=window.open('tea_learning.html#kc-p4_2','plan_main');if(w)w.focus()">
+    ← 返回学习方案
+  </button>
+</div>
+</div>
+
+<div class="dd-toast" id="toastEl"><span id="toastMsg"></span></div>
+
+<script>
+var MODULE_IDS = ["mod-learning_journey","mod-concept","mod-principle","mod-application","mod-landscape","mod-misconceptions"];
+var SEARCH_INDEX = [{"id":"mod-learning_journey","t":"学习路线导航","c":"当前位置: 识茶喝茶品茶 茶道精进 第2个知识点"},{"id":"mod-concept","t":"核心概念","c":"茶叶陈化与存储 后发酵 氧化水解酯化 温度湿度光线氧气"},{"id":"mod-principle","t":"陈化原理","c":"茶多酚降解氨基酸转化 微生物后发酵 仓储环境如何塑造风味"},{"id":"mod-application","t":"各茶类策略","c":"绿茶冷藏白茶常温 乌龙密封红茶密封 普洱通风 各茶类存储方法"},{"id":"mod-landscape","t":"收藏实战","c":"家庭存茶工具环境监测 收藏价值评估原料工艺仓储稀缺性"},{"id":"mod-misconceptions","t":"常见误区","c":"破除存储迷思 冰箱存茶禁忌 所有茶都能陈化 越陈越香的边界"}];
+var TOAST_TIMEOUT;
+
+(function(){
+var progressBar=document.getElementById('progressBar');
+var modules=document.querySelectorAll('.module');
+
+var observer=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting)e.target.classList.add('visible')})},{threshold:.15});
+modules.forEach(function(m){observer.observe(m)});
+
+var navLinks=document.querySelectorAll('.sidebar-nav a');
+var navObserver=new IntersectionObserver(function(entries){
+entries.forEach(function(e){
+if(e.isIntersecting){
+navLinks.forEach(function(a){a.classList.remove('active')});
+var act=document.querySelector('.sidebar-nav a[href="#'+e.target.id+'"]');
+if(act)act.classList.add('active');
+}
+})},{threshold:.3});
+modules.forEach(function(m){navObserver.observe(m)});
+
+window.addEventListener('scroll',function(){
+var st=document.documentElement.scrollTop,dh=document.documentElement.scrollHeight-window.innerHeight;
+var pct=dh>0?Math.min(100,(st/dh)*100):0;progressBar.style.width=pct+'%';
+});
+
+window.addEventListener('keydown',function(e){
+if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();openSearch()}
+if((e.ctrlKey||e.metaKey)&&e.key==='d'){e.preventDefault();toggleTheme()}
+if(e.key==='Escape')closeSearch()
+});
+})();
+
+function toggleTheme(){
+var b=document.body,isD=b.getAttribute('data-theme')==='dark';
+b.setAttribute('data-theme',isD?'light':'dark');
+try{localStorage.setItem('slm-theme',isD?'light':'dark')}catch(e){}
+showToast('已切换至'+(isD?'浅色':'深色')+'主题')
+}
+
+function openSearch(){document.getElementById('searchOverlay').classList.add('open');setTimeout(function(){document.getElementById('searchInput').focus()},100)}
+function closeSearch(){document.getElementById('searchOverlay').classList.remove('open');document.getElementById('searchResults').innerHTML=''}
+
+function doSearch(){
+var q=document.getElementById('searchInput').value.toLowerCase(),res=document.getElementById('searchResults');
+if(q.length<2){res.innerHTML='';return}
+var h='';SEARCH_INDEX.forEach(function(item){
+if(item.t.toLowerCase().indexOf(q)>=0||(item.c||'').toLowerCase().indexOf(q)>=0){
+h+='<div onclick="closeSearch();document.getElementById(\''+item.id+'\').scrollIntoView({behavior:\'smooth\'})">'+
+'<strong>'+item.t+'</strong><br><small style="color:var(--text-muted)">'+(item.c||'').substring(0,80)+'</small></div>';
+}
+});
+res.innerHTML=h||'<div style="padding:12px;color:var(--text-muted)">未找到匹配模块</div>'
+}
+
+function showToast(msg){
+var el=document.getElementById('toastEl'),mg=document.getElementById('toastMsg');
+if(!el||!mg)return;mg.textContent=msg;el.style.display='block';el.classList.add('toast-in');
+if(TOAST_TIMEOUT)clearTimeout(TOAST_TIMEOUT);
+TOAST_TIMEOUT=setTimeout(function(){el.style.display='none'},3000);
+}
+
+(function(){
+var t;try{t=localStorage.getItem('slm-theme')}catch(e){}
+if(t==='light')document.body.setAttribute('data-theme','light');
+})();
+
+(function(){
+document.querySelectorAll('.derivation-toggle').forEach(function(btn){
+btn.addEventListener('click',function(){
+var content=this.nextElementSibling;
+if(content){content.classList.toggle('open');this.textContent=content.classList.contains('open')?'▾ 收起推导':'▸ 展开推导'}
+});
+});
+})();
+
+/* ===== ECharts 初始化 ===== */
+(function initCharts(){
+if(typeof echarts==='undefined')return;
+var charts=[];
+function makeChart(elId,option){
+var el=document.getElementById(elId);
+if(!el)return null;
+var chart=echarts.init(el);
+chart.setOption(option);
+return chart;
+}
+var c1=makeChart('chart-principle-01',{
+  tooltip:{trigger:'axis'},
+  legend:{bottom:'0%',textStyle:{color:'#8a8070'}},
+  grid:{left:'3%',right:'8%',bottom:'12%',top:'10%',containLabel:true},
+  xAxis:{type:'category',data:['绿茶','黄茶','白茶','清香乌龙','浓香乌龙','红茶','普洱(生)','普洱(熟)'],axisLabel:{color:'#8a8070',fontSize:10},axisLine:{lineStyle:{color:'#2d2924'}}},
+  yAxis:[
+    {type:'value',name:'温度(°C)',nameTextStyle:{color:'#8a8070'},axisLabel:{color:'#8a8070'},splitLine:{lineStyle:{color:'#2d2924'}}},
+    {type:'value',name:'湿度(RH%)',nameTextStyle:{color:'#8a8070'},axisLabel:{color:'#8a8070'},splitLine:{show:false}}
+  ],
+  series:[
+    {name:'推荐温度(°C)',type:'bar',data:[3,3,22,3,22,22,25,25],itemStyle:{color:'#7ec8a0'},barWidth:'35%'},
+    {name:'推荐湿度(RH%)',type:'bar',yAxisIndex:1,data:[40,40,52,40,50,40,58,58],itemStyle:{color:'#b898a0'},barWidth:'35%'}
+  ]
+});
+if(c1)charts.push(c1);
+window.addEventListener('resize',function(){charts.forEach(function(c){c.resize()})});
+})();
+</script>
+</body>
+</html>

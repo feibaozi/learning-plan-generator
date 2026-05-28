@@ -1,0 +1,788 @@
+<!-- template-version: 3.5.0 -->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>深度研读模板测试用例 - 多主题验证</title>
+<style>
+/* ===== 动态主题切换测试 ===== */
+:root{
+--bg-base:#1a1814;
+--bg-card:#282520;
+--bg-elevated:#312d27;
+--bg-overlay:rgba(0,0,0,.6);
+--text-primary:#ede6d8;
+--text-secondary:#b8ad98;
+--text-muted:#8a8070;
+--accent-indigo:#5ea87a;
+--accent-purple:#b898a0;
+--accent-cyan:#7ec8a0;
+--accent-gold:#e6b95a;
+--accent-green:#6ebf8a;
+--accent-red:#d47860;
+--accent-blue:#5ea87a;
+--accent-color:#5ea87a;
+--accent-dark:#3d6b50;
+--border-subtle:rgba(184,173,152,.15);
+--border-glow:rgba(94,168,122,.25);
+--shadow-sm:0 1px 3px rgba(0,0,0,.3);
+--shadow-md:0 4px 16px rgba(0,0,0,.4);
+--shadow-lg:0 8px 32px rgba(0,0,0,.5);
+--shadow-elevated:0 8px 32px rgba(0,0,0,.5);
+--radius-sm:6px;
+--radius-md:10px;
+--radius-lg:16px;
+--font-sans:'Segoe UI',system-ui,-apple-system,sans-serif;
+--font-mono:Consolas,'Cascadia Code',monospace;
+--transition:.25s cubic-bezier(.4,0,.2,1);
+--transition-smooth:.3s ease;
+--nav-h:56px;
+--accent-color-rgb:94,168,122;
+--chart-grid:#2d2924;
+--chart-axis-label:#8a8070;
+}
+[data-theme="light"]{
+--bg-base:#fdfaf3;
+--bg-card:#fffdf7;
+--bg-elevated:#f3efe3;
+--bg-overlay:rgba(0,0,0,.3);
+--text-primary:#1f1a12;
+--text-secondary:#4a4035;
+--text-muted:#5c5042;
+--accent-indigo:#3d6b50;
+--accent-purple:#7a5a6a;
+--accent-cyan:#4a8e6a;
+--accent-gold:#a07828;
+--accent-green:#4a9e66;
+--accent-red:#b05038;
+--accent-blue:#3d6b50;
+--accent-color:#3d6b50;
+--accent-dark:#2a4835;
+--border-subtle:rgba(31,26,18,.08);
+--border-glow:rgba(61,107,80,.25);
+--shadow-sm:0 1px 3px rgba(0,0,0,.06);
+--shadow-md:0 4px 16px rgba(0,0,0,.08);
+--shadow-lg:0 8px 32px rgba(0,0,0,.12);
+--shadow-elevated:0 8px 32px rgba(0,0,0,.12);
+--accent-color-rgb:61,107,80;
+--chart-grid:#ebe5d6;
+--chart-axis-label:#5c5042;
+}
+
+/* ===== 主题配色方案测试 ===== */
+[data-theme="indigo-night"]{
+--bg-base:#0f1419;
+--bg-card:#1a2028;
+--bg-elevated:#232d38;
+--accent-indigo:#6366f1;
+--accent-purple:#a78bfa;
+--accent-cyan:#38bdf8;
+--accent-color:#6366f1;
+--accent-dark:#4f46e5;
+--border-glow:rgba(99,102,241,.3);
+}
+[data-theme="arctic-frost"]{
+--bg-base:#f8fafc;
+--bg-card:#ffffff;
+--bg-elevated:#f1f5f9;
+--text-primary:#0f172a;
+--text-secondary:#475569;
+--text-muted:#94a3b8;
+--accent-indigo:#0ea5e9;
+--accent-purple:#8b5cf6;
+--accent-cyan:#06b6d4;
+--accent-color:#0ea5e9;
+--accent-dark:#0284c7;
+--border-subtle:rgba(15,23,42,.06);
+--border-glow:rgba(14,165,233,.25);
+--shadow-sm:0 1px 3px rgba(0,0,0,.04);
+--shadow-md:0 4px 16px rgba(0,0,0,.06);
+--shadow-lg:0 8px 32px rgba(0,0,0,.08);
+--chart-grid:#e2e8f0;
+--chart-axis-label:#94a3b8;
+}
+[data-theme="ocean-depth"]{
+--bg-base:#0c1524;
+--bg-card:#132035;
+--bg-elevated:#1a2a44;
+--accent-indigo:#38bdf8;
+--accent-purple:#a78bfa;
+--accent-cyan:#22d3ee;
+--accent-color:#38bdf8;
+--accent-dark:#0ea5e9;
+--border-glow:rgba(56,189,248,.3);
+}
+[data-theme="sunset-amber"]{
+--bg-base:#1c140f;
+--bg-card:#2a2018;
+--bg-elevated:#372a21;
+--accent-indigo:#f59e0b;
+--accent-purple:#f97316;
+--accent-cyan:#fb923c;
+--accent-color:#f59e0b;
+--accent-dark:#d97706;
+--border-glow:rgba(245,158,11,.3);
+}
+[data-theme="graphite-studio"]{
+--bg-base:#212121;
+--bg-card:#2d2d2d;
+--bg-elevated:#383838;
+--text-primary:#e0e0e0;
+--text-secondary:#b0b0b0;
+--text-muted:#808080;
+--accent-indigo:#81c784;
+--accent-purple:#ba68c8;
+--accent-cyan:#4fc3f7;
+--accent-color:#81c784;
+--accent-dark:#66bb6a;
+--border-subtle:rgba(224,224,224,.1);
+--border-glow:rgba(129,199,132,.3);
+--chart-grid:#323232;
+--chart-axis-label:#808080;
+}
+
+/* ===== Layout & Base ===== */
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font-sans);background:var(--bg-base);color:var(--text-primary);line-height:1.75;overflow-x:hidden}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg-base)}::-webkit-scrollbar-thumb{background:var(--border-glow);border-radius:3px}
+
+/* ===== Navbar ===== */
+.progress-bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--accent-indigo),var(--accent-purple),var(--accent-cyan));z-index:200;transition:width .1s linear}
+.navbar{position:fixed;top:3px;left:0;right:0;z-index:100;background:var(--bg-card);border-bottom:1px solid var(--border-subtle);backdrop-filter:blur(16px);height:var(--nav-h);display:flex;align-items:center;justify-content:space-between;padding:0 24px}
+.nav-left{display:flex;align-items:center;gap:12px;font-size:.82rem;font-weight:600;color:var(--accent-indigo)}
+.nav-right{display:flex;align-items:center;gap:8px}
+.nav-right button{background:var(--bg-elevated);border:1px solid var(--border-subtle);color:var(--text-secondary);padding:6px 12px;border-radius:var(--radius-sm);cursor:pointer;font-size:.75rem;transition:all var(--transition)}
+.nav-right button:hover{border-color:var(--border-glow);color:var(--accent-indigo)}
+
+/* ===== Theme Selector ===== */
+.theme-selector{position:relative;display:inline-block}
+.theme-selector button{background:var(--bg-elevated);border:1px solid var(--border-subtle);color:var(--text-secondary);padding:6px 12px;border-radius:var(--radius-sm);cursor:pointer;font-size:.75rem;transition:all var(--transition);display:flex;align-items:center;gap:6px}
+.theme-selector button:hover{border-color:var(--border-glow)}
+.theme-dropdown{position:absolute;right:0;top:100%;margin-top:4px;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:var(--radius-md);box-shadow:var(--shadow-lg);padding:4px;min-width:160px;display:none;z-index:1000}
+.theme-dropdown.show{display:block}
+.theme-option{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:var(--radius-sm);cursor:pointer;font-size:.76rem;color:var(--text-secondary);transition:background var(--transition)}
+.theme-option:hover{background:rgba(99,102,241,.06);color:var(--text-primary)}
+.theme-option.active{background:rgba(99,102,241,.1);color:var(--accent-indigo);font-weight:600}
+.theme-color{width:12px;height:12px;border-radius:50%}
+
+/* ===== Sidebar ===== */
+.sidebar{position:fixed;left:0;top:0;height:100vh;width:280px;background:var(--bg-base);border-right:1px solid var(--border-subtle);padding:24px;overflow-y:auto;z-index:100;padding-top:calc(var(--nav-h) + 16px)}
+.sidebar h3{font-size:.85rem;font-weight:700;color:var(--text-secondary);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--border-subtle)}
+.sidebar-nav{list-style:none;padding:0}
+.sidebar-nav li{margin-bottom:2px}
+.sidebar-nav a{display:block;padding:8px 12px;border-radius:var(--radius-md);text-decoration:none;font-size:.76rem;color:var(--text-secondary);transition:all var(--transition);border-left:3px solid transparent}
+.sidebar-nav a:hover{background:rgba(91,141,184,.08);color:var(--accent-cyan);border-left-color:var(--accent-cyan)}
+.sidebar-nav a.active{background:rgba(91,141,184,.12);color:var(--accent-blue);font-weight:600;border-left-color:var(--accent-blue)}
+.sidebar-back-link{display:block;padding:8px 12px;margin-bottom:12px;border-radius:8px;background:var(--bg-elevated);color:var(--accent-blue);text-decoration:none;font-size:.78rem;font-weight:600}
+.sidebar-back-link:hover{color:var(--accent-cyan)}
+
+/* ===== Content Area — Fluid Layout ===== */
+.content-area{margin-left:280px;width:calc(100% - 280px)}
+.container{max-width:calc(100% - 48px);margin:0 auto;padding:calc(var(--nav-h) + 24px) 24px 80px}
+
+/* ===== Hero ===== */
+.hero{text-align:center;padding:48px 0 36px}
+.hero h1{font-size:2.2rem;background:linear-gradient(135deg,var(--accent-indigo),var(--accent-purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+.hero .tags{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:12px}
+.hero .tags span{font-size:.7rem;padding:4px 12px;border-radius:50px;border:1px solid var(--border-glow);color:var(--accent-indigo);background:rgba(99,102,241,.06)}
+
+/* ===== Meta Card ===== */
+.meta-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:20px 24px;margin:0 auto 32px;max-width:700px;display:flex;justify-content:center;gap:36px;flex-wrap:wrap;box-shadow:var(--shadow-md)}
+.meta-item{text-align:center}
+.meta-item .val{font-size:1.4rem;font-weight:800;color:var(--accent-indigo)}
+.meta-item .lbl{font-size:.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px}
+
+/* ===== Journey Bar ===== */
+.journey-bar{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:12px 20px;margin:0 auto 24px;max-width:900px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:.82rem;box-shadow:var(--shadow-elevated)}
+.journey-path{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.journey-icon{font-size:1rem}
+.journey-plan{color:var(--accent-purple);font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.journey-plan:hover{color:var(--accent-gold)}
+.journey-sep{color:var(--text-muted);font-size:.7rem}
+.journey-phase{color:var(--text-secondary);font-weight:600}
+.journey-kp{color:var(--text-primary);font-weight:700}
+.journey-pos{color:var(--text-muted);font-size:.72rem}
+.journey-nav{display:flex;align-items:center;gap:8px;font-size:.75rem}
+.journey-prev,.journey-next{color:var(--text-muted);cursor:default}
+.journey-divider{color:var(--border-subtle)}
+
+/* ===== Module Card ===== */
+.module{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:28px 28px 24px;margin-bottom:20px;opacity:0;transform:translateY(24px);transition:opacity .5s ease,transform .5s ease;box-shadow:var(--shadow-sm)}
+.module.visible{opacity:1;transform:translateY(0)}
+.module:hover{border-color:var(--border-glow)}
+.module h2{font-size:1.15rem;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.module .m-tag{font-size:.65rem;padding:2px 10px;border-radius:50px;background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.2);color:var(--accent-indigo);font-weight:600}
+.module .m-time{font-size:.7rem;color:var(--text-muted);margin-left:auto}
+.module .hook{font-size:.9rem;color:var(--accent-purple);font-weight:600;margin:12px 0 16px;padding-left:12px;border-left:3px solid var(--accent-purple)}
+.module .content{font-size:.88rem;color:var(--text-secondary);line-height:1.8}
+.module .content p{margin-bottom:12px}
+.module .content strong{color:var(--text-primary);font-weight:600}
+.module .content em{color:var(--accent-gold);font-style:normal}
+.module .content ul{margin:12px 0;padding-left:24px}
+.module .content li{margin-bottom:6px}
+
+/* ===== Formula Block ===== */
+.formula-block{background:rgba(99,102,241,.04);border:1px solid rgba(99,102,241,.12);border-radius:var(--radius-sm);padding:14px 18px;margin:14px 0;font-family:var(--font-mono);font-size:.82rem;color:var(--accent-cyan);overflow-x:auto;position:relative}
+.formula-block .f-cap{font-size:.7rem;color:var(--text-muted);margin-bottom:6px;display:block}
+.derivation-toggle{font-size:.7rem;color:var(--accent-gold);cursor:pointer;border:none;background:none;padding:4px 0;font-family:inherit;display:block;margin-top:6px}
+.derivation-toggle:hover{text-decoration:underline}
+.derivation-content{display:none;margin-top:8px;padding:12px 16px;background:rgba(245,158,11,.04);border-radius:var(--radius-sm);border-left:3px solid var(--accent-gold);font-size:.8rem;color:var(--text-secondary)}
+.derivation-content.open{display:block}
+
+/* ===== Chart ===== */
+.chart-wrap{background:rgba(99,102,241,.03);border-radius:var(--radius-sm);padding:8px;margin:14px 0;text-align:center}
+.chart-wrap > div{width:100%;height:280px}
+.chart-wrap .ch-cap{font-size:.72rem;color:var(--text-muted);margin-top:6px}
+
+/* ===== Table ===== */
+.table-container{margin:20px 0;overflow-x:auto}
+.table-container table{width:100%;border-collapse:collapse;border-radius:var(--radius-md);overflow:hidden}
+.table-container th{background:var(--bg-elevated);color:var(--accent-cyan);font-weight:700;padding:12px 16px;text-align:left;font-size:.8rem}
+.table-container td{padding:12px 16px;border-bottom:1px solid var(--border-subtle);font-size:.82rem;color:var(--text-secondary)}
+.table-container tr:hover td{background:rgba(91,141,184,.03)}
+.table-container .table-caption{font-size:.72rem;color:var(--text-muted);margin-bottom:8px;text-align:center}
+
+/* ===== Callout ===== */
+.callout{padding:14px 18px;border-radius:var(--radius-md);margin:16px 0;font-size:.82rem}
+.callout-info{background:rgba(94,168,122,.06);border-left:3px solid var(--accent-indigo);color:var(--text-secondary)}
+.callout-warn{background:rgba(230,185,90,.06);border-left:3px solid var(--accent-gold);color:var(--text-secondary)}
+.callout-tip{background:rgba(184,152,160,.06);border-left:3px solid var(--accent-purple);color:var(--text-secondary)}
+.callout strong{color:var(--text-primary)}
+
+/* ===== Compare Grid ===== */
+.compare-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin:16px 0}
+.compare-card{background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:18px 20px}
+.compare-card h4{font-size:.85rem;color:var(--accent-indigo);margin-bottom:8px}
+.compare-card p{font-size:.78rem;color:var(--text-muted);line-height:1.7}
+
+/* ===== Timeline ===== */
+.timeline{position:relative;padding-left:30px;margin:16px 0}
+.timeline::before{content:'';position:absolute;left:8px;top:0;bottom:0;width:2px;background:var(--border-glow)}
+.timeline-item{position:relative;margin-bottom:18px;font-size:.82rem}
+.timeline-item::before{content:'';position:absolute;left:-26px;top:6px;width:10px;height:10px;border-radius:50%;background:var(--accent-indigo);border:2px solid var(--border-glow)}
+.timeline-year{font-weight:700;color:var(--accent-cyan);min-width:80px;display:inline-block}
+.timeline-text{color:var(--text-secondary)}
+
+/* ===== Process Flow ===== */
+.process-flow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:20px 0;justify-content:center}
+.process-step{background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:12px 18px;text-align:center;font-size:.76rem;min-width:80px}
+.process-step .psn{font-weight:800;color:var(--accent-indigo);font-size:.9rem;margin-bottom:4px}
+.process-step .psl{color:var(--text-muted);font-size:.68rem}
+.process-arrow{color:var(--accent-cyan);font-size:1.1rem;font-weight:700}
+
+/* ===== Term Grid ===== */
+.term-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;margin:16px 0}
+.term-card{background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:var(--radius-sm);padding:12px 16px;transition:all var(--transition)}
+.term-card:hover{border-color:var(--border-glow)}
+.term-card .tn{font-size:.8rem;font-weight:700;color:var(--accent-indigo)}
+.term-card .td{font-size:.72rem;color:var(--text-muted);margin-top:4px;line-height:1.6}
+
+/* ===== Image Test ===== */
+.image-test{margin:16px 0;text-align:center}
+.image-test img{max-width:100%;height:auto;border-radius:var(--radius-md);box-shadow:var(--shadow-md)}
+.image-test .img-cap{font-size:.72rem;color:var(--text-muted);margin-top:8px}
+
+/* ===== Takeaway ===== */
+.takeaway{font-size:.82rem;background:rgba(16,185,129,.06);border-left:3px solid var(--accent-green);padding:10px 14px;margin-top:16px;border-radius:0 var(--radius-sm) var(--radius-sm) 0;color:var(--accent-green)}
+
+/* ===== Ref List ===== */
+.ref-list{list-style:none;padding:0;margin-top:8px;font-size:.78rem}
+.ref-list li{padding:4px 0;color:var(--text-muted)}
+.ref-list li::before{content:'📄 '}
+
+/* ===== Search Overlay ===== */
+.search-overlay{position:fixed;inset:0;z-index:300;background:var(--bg-overlay);display:none;align-items:flex-start;justify-content:center;padding-top:120px}
+.search-overlay.open{display:flex}
+.search-box{width:520px;max-width:90vw;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:var(--radius-md);box-shadow:var(--shadow-lg);overflow:hidden}
+.search-box input{width:100%;padding:14px 18px;background:transparent;border:none;color:var(--text-primary);font-size:.95rem;outline:none;font-family:inherit}
+.search-results{max-height:360px;overflow-y:auto}
+.search-results div{padding:10px 18px;cursor:pointer;font-size:.82rem;color:var(--text-secondary);border-top:1px solid var(--border-subtle);transition:background var(--transition)}
+.search-results div:hover{background:rgba(99,102,241,.06);color:var(--text-primary)}
+
+/* ===== Footer ===== */
+.journey-footer{text-align:center;padding:40px 32px 60px;opacity:.8}
+.back-to-plan{display:inline-flex;align-items:center;gap:8px;padding:10px 24px;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:50px;color:var(--text-secondary);text-decoration:none;font-size:.85rem;font-weight:600;transition:all var(--transition-smooth)}
+.back-to-plan:hover{background:var(--bg-elevated);border-color:var(--accent-purple);color:var(--accent-purple)}
+
+/* ===== Floating Back ===== */
+.deep-floating-back{position:fixed;right:20px;bottom:20px;z-index:10000}
+.deep-floating-back button{padding:12px 20px;background:linear-gradient(135deg,var(--accent-color),var(--accent-dark));color:white;border:none;border-radius:24px;font-size:.85rem;font-weight:600;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.15);transition:transform .2s,box-shadow .2s}
+.deep-floating-back button:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.2)}
+
+/* ===== Toast ===== */
+.dd-toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);z-index:10001;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:8px;padding:14px 24px;box-shadow:0 4px 16px rgba(0,0,0,.15);font-size:.85rem;display:none}
+.toast-in{animation:toastIn .3s ease}
+@keyframes toastIn{from{opacity:0;transform:translate(-50%,20px)}to{opacity:1;transform:translate(-50%,0)}}
+
+/* ===== Print ===== */
+@media print{.navbar,.progress-bar,.sidebar,.journey-bar,.journey-footer,.deep-floating-back{display:none!important}.content-area{margin-left:0;width:100%}.module{break-inside:avoid;opacity:1!important;transform:none!important;box-shadow:none}body{background:#fff!important}}
+
+/* ===== Responsive ≤1024px ===== */
+@media(max-width:1024px){.sidebar{display:none}.content-area{margin-left:0;width:100%}}
+
+/* ===== Responsive ≤768px ===== */
+@media(max-width:768px){
+.hero h1{font-size:1.6rem}.module{padding:20px}.meta-card{font-size:.72rem;padding:12px 16px}.journey-bar{flex-direction:column;align-items:flex-start}
+.deep-floating-back{right:15px;bottom:15px}.deep-floating-back button{padding:10px 16px;font-size:.8rem}
+}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+</head>
+<body data-theme="dark">
+
+<div class="progress-bar" id="progressBar" style="width:0%"></div>
+
+<nav class="navbar">
+  <div class="nav-left">🧪 模板测试用例</div>
+  <div class="nav-right">
+    <div class="theme-selector">
+      <button id="themeBtn" onclick="toggleThemeDropdown()">🎨 主题: <span id="currentTheme">Cedar Dawn</span></button>
+      <div class="theme-dropdown" id="themeDropdown">
+        <div class="theme-option active" data-theme="dark" onclick="setTheme('dark', 'Cedar Dawn')"><span class="theme-color" style="background:#5ea87a"></span> Cedar Dawn</div>
+        <div class="theme-option" data-theme="light" onclick="setTheme('light', 'Light Mode')"><span class="theme-color" style="background:#3d6b50"></span> Light Mode</div>
+        <div class="theme-option" data-theme="indigo-night" onclick="setTheme('indigo-night', 'Indigo Night')"><span class="theme-color" style="background:#6366f1"></span> Indigo Night</div>
+        <div class="theme-option" data-theme="arctic-frost" onclick="setTheme('arctic-frost', 'Arctic Frost')"><span class="theme-color" style="background:#0ea5e9"></span> Arctic Frost</div>
+        <div class="theme-option" data-theme="ocean-depth" onclick="setTheme('ocean-depth', 'Ocean Depth')"><span class="theme-color" style="background:#38bdf8"></span> Ocean Depth</div>
+        <div class="theme-option" data-theme="sunset-amber" onclick="setTheme('sunset-amber', 'Sunset Amber')"><span class="theme-color" style="background:#f59e0b"></span> Sunset Amber</div>
+        <div class="theme-option" data-theme="graphite-studio" onclick="setTheme('graphite-studio', 'Graphite Studio')"><span class="theme-color" style="background:#81c784"></span> Graphite Studio</div>
+      </div>
+    </div>
+    <button onclick="openSearch()" title="搜索 (Ctrl+K)">🔍 搜索测试</button>
+  </div>
+</nav>
+
+<div class="sidebar">
+  <a href="#" class="sidebar-back-link" onclick="event.preventDefault();showToast('这是测试页面，无主方案')">← 返回主方案</a>
+  <h3>📖 测试目录</h3>
+  <ul class="sidebar-nav">
+    <li><a href="#md-01-hero">Hero 区域</a></li>
+    <li><a href="#md-02-meta">Meta 卡片</a></li>
+    <li><a href="#md-03-callout">Callout 提示框</a></li>
+    <li><a href="#md-04-table">Table 表格</a></li>
+    <li><a href="#md-05-chart">Chart 图表</a></li>
+    <li><a href="#md-06-compare">Compare Grid</a></li>
+    <li><a href="#md-07-timeline">Timeline 时间线</a></li>
+    <li><a href="#md-08-process">Process Flow</a></li>
+    <li><a href="#md-09-term">Term Grid</a></li>
+    <li><a href="#md-10-formula">Formula Block</a></li>
+    <li><a href="#md-11-image">Image 图片</a></li>
+    <li><a href="#md-12-validation">验证检查</a></li>
+  </ul>
+</div>
+
+<div class="content-area">
+<div class="search-overlay" id="searchOverlay">
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="搜索模块内容..." oninput="doSearch()" onkeydown="if(event.key==='Escape')closeSearch()">
+    <div class="search-results" id="searchResults"></div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="hero">
+    <h1>深度研读模板验证测试</h1>
+    <p style="color:var(--text-secondary);font-size:.95rem;margin-top:8px">测试所有组件、主题切换、响应式布局和流体宽度</p>
+    <div class="tags">
+      <span>🧪 测试用例</span><span>6个主题</span><span>响应式布局</span><span>流体宽度</span><span>ECharts</span><span>组件测试</span>
+    </div>
+  </div>
+
+  <div class="meta-card">
+    <div class="meta-item"><div class="val">12</div><div class="lbl">测试模块</div></div>
+    <div class="meta-item"><div class="val">6</div><div class="lbl">主题配色</div></div>
+    <div class="meta-item"><div class="val">2</div><div class="lbl">交互图表</div></div>
+    <div class="meta-item"><div class="val">3</div><div class="lbl">响应断点</div></div>
+  </div>
+
+  <div class="journey-bar">
+    <div class="journey-path">
+      <span class="journey-icon">📍</span>
+      <span class="journey-plan" onclick="showToast('测试计划')">模板验证计划</span>
+      <span class="journey-sep">〉</span>
+      <span class="journey-phase">测试阶段</span>
+      <span class="journey-sep">〉</span>
+      <span class="journey-kp">完整测试</span>
+      <span class="journey-pos">(1/1)</span>
+    </div>
+    <div class="journey-nav">
+      <span class="journey-prev" title="无前置">← 前置</span>
+      <span class="journey-divider">|</span>
+      <span class="journey-next" title="已完成">后续 →</span>
+    </div>
+  </div>
+
+  <div class="module" id="md-01-hero">
+    <h2><span class="m-tag">Hero</span> 标题与标签测试 <span class="m-time">⏱️ ~1分钟</span></h2>
+    <div class="hook">测试渐变标题、标签展示、响应式字体大小</div>
+    <div class="content">
+      <p><strong>渐变标题效果：</strong>标题使用了 CSS 渐变背景和文字裁剪，在深色和浅色主题下都应该清晰可见。</p>
+      <p><strong>标签云：</strong>标签使用圆角设计，带有边框发光效果，hover 时应有适当的过渡动画。</p>
+      <p><strong>响应式测试：</strong>在手机端（≤768px）标题应缩小到 1.6rem，标签应自动换行。</p>
+    </div>
+    <div class="takeaway">Hero 区域是页面的视觉焦点，需要确保在所有屏幕尺寸下都有良好的显示效果。</div>
+  </div>
+
+  <div class="module" id="md-02-meta">
+    <h2><span class="m-tag">Meta</span> 元信息卡片测试 <span class="m-time">⏱️ ~1分钟</span></h2>
+    <div class="hook">测试统计数据展示、卡片阴影、hover 效果</div>
+    <div class="content">
+      <p>Meta 卡片使用 flex 布局，在大屏上水平排列，在小屏上自动换行。卡片应带有适当的阴影效果，与背景形成层次感。</p>
+      <p><strong>测试要点：</strong></p>
+      <ul>
+        <li>数字使用强调色突出显示</li>
+        <li>标签使用大写字母和间距</li>
+        <li>卡片居中显示，最大宽度 700px</li>
+      </ul>
+    </div>
+    <div class="takeaway">Meta 卡片提供快速的内容概览，数字使用强调色突出显示。</div>
+  </div>
+
+  <div class="module" id="md-03-callout">
+    <h2><span class="m-tag">Callout</span> 提示框组件测试 <span class="m-time">⏱️ ~1分钟</span></h2>
+    <div class="hook">测试 Info、Warning、Tip 三种提示框样式</div>
+    <div class="content">
+      <div class="callout callout-info">
+        <strong>💡 Info 提示：</strong>这是信息类提示框，使用绿色左侧边框，适合展示说明性内容。
+      </div>
+      <div class="callout callout-warn">
+        <strong>⚠️ Warning 警告：</strong>这是警告类提示框，使用金色左侧边框，适合展示需要注意的内容。
+      </div>
+      <div class="callout callout-tip">
+        <strong>💬 Tip 提示：</strong>这是提示类提示框，使用紫色左侧边框，适合展示建议性内容。
+      </div>
+    </div>
+    <div class="takeaway">三种 callout 类型通过边框颜色区分，便于用户快速识别信息类型。</div>
+  </div>
+
+  <div class="module" id="md-04-table">
+    <h2><span class="m-tag">Table</span> 表格组件测试 <span class="m-time">⏱️ ~1分钟</span></h2>
+    <div class="hook">测试表格布局、hover 高亮、响应式滚动</div>
+    <div class="content">
+      <div class="table-container">
+        <div class="table-caption">测试数据表格 - 组件验证状态</div>
+        <table>
+          <tr><th>组件名称</th><th>状态</th><th>测试项</th><th>预期结果</th></tr>
+          <tr><td>Hero</td><td>✅ 通过</td><td>渐变标题</td><td>正确渲染</td></tr>
+          <tr><td>Meta Card</td><td>✅ 通过</td><td>flex布局</td><td>自动换行</td></tr>
+          <tr><td>Callout</td><td>✅ 通过</td><td>三种类型</td><td>颜色区分</td></tr>
+          <tr><td>Chart</td><td>✅ 通过</td><td>ECharts</td><td>自适应resize</td></tr>
+          <tr><td>Timeline</td><td>✅ 通过</td><td>时间线</td><td>垂直排列</td></tr>
+          <tr><td>Table</td><td>✅ 通过</td><td>响应式</td><td>横向滚动</td></tr>
+        </table>
+      </div>
+    </div>
+    <div class="takeaway">表格在小屏上应有横向滚动条，hover 行应有高亮效果。</div>
+  </div>
+
+  <div class="module" id="md-05-chart">
+    <h2><span class="m-tag">Chart</span> 图表组件测试 <span class="m-time">⏱️ ~1分钟</span></h2>
+    <div class="hook">测试 ECharts 集成、响应式 resize、主题适配</div>
+    <div class="content">
+      <div class="chart-wrap"><div id="chart-test"></div><div class="ch-cap">测试图表 - 点击切换主题观察颜色变化</div></div>
+      <p>图表应随窗口大小自动调整，切换主题时颜色应跟随主题变化。</p>
+      <p><strong>测试要点：</strong></p>
+      <ul>
+        <li>图表背景透明，使用 CSS 变量</li>
+        <li>响应 window.resize 事件</li>
+        <li>主题切换时颜色自动更新</li>
+      </ul>
+    </div>
+    <div class="takeaway">ECharts 通过 window.resize 事件实现自适应，确保在各种屏幕尺寸下都有良好的显示效果。</div>
+  </div>
+
+  <div class="module" id="md-06-compare">
+    <h2><span class="m-tag">Compare</span> 对比卡片测试 <span class="m-time">⏱️ ~1分钟</span></h2>
+    <div class="hook">测试双栏对比布局、卡片样式</div>
+    <div class="content">
+      <div class="compare-grid">
+        <div class="compare-card"><h4>深色主题</h4><p><strong>背景：</strong>深色系，适合夜间阅读<br><strong>对比度：</strong>高，减少眼睛疲劳</p></div>
+        <div class="compare-card"><h4>浅色主题</h4><p><strong>背景：</strong>浅色系，适合白天阅读<br><strong>对比度：</strong>适中，自然舒适</p></div>
+      </div>
+      <div class="compare-grid">
+        <div class="compare-card"><h4>流体布局</h4><p><strong>宽度：</strong>使用 calc(100% - ...)<br><strong>优势：</strong>自动适应容器宽度</p></div>
+        <div class="compare-card"><h4>固定布局</h4><p><strong>宽度：</strong>固定像素值<br><strong>问题：</strong>缩放时留白</p></div>
+      </div>
+    </div>
+    <div class="takeaway">对比卡片使用 2 列网格布局，在小屏上自动堆叠为单列。</div>
+  </div>
+
+  <div class="module" id="md-07-timeline">
+    <h2><span class="m-tag">Timeline</span> 时间线测试 <span class="m-time">⏱️ ~1分钟</span></h2>
+    <div class="hook">测试垂直时间线、节点样式、年份高亮</div>
+    <div class="content">
+      <div class="timeline">
+        <div class="timeline-item"><span class="timeline-year">2023</span><span class="timeline-text"><strong>模板 v1.0</strong> - 初始版本发布</span></div>
+        <div class="timeline-item"><span class="timeline-year">2024</span><span class="timeline-text"><strong>模板 v2.0</strong> - 响应式布局更新</span></div>
+        <div class="timeline-item"><span class="timeline-year">2025</span><span class="timeline-text"><strong>模板 v3.0</strong> - 深色主题支持</span></div>
+        <div class="timeline-item"><span class="timeline-year">2026</span><span class="timeline-text"><strong>模板 v3.5</strong> - 完整组件库</span></div>
+      </div>
+    </div>
+    <div class="takeaway">时间线使用垂直布局，年份使用强调色突出，节点使用圆形标记。</div>
+  </div>
+
+  <div class="module" id="md-08-process">
+    <h2><span class="m-tag">Process</span> 流程步骤测试 <span class="m-time">⏱️ ~1分钟</span></h2>
+    <div class="hook">测试水平流程步骤、箭头连接、响应式堆叠</div>
+    <div class="content">
+      <div class="process-flow">
+        <div class="process-step"><div class="psn">1</div><div class="psl">读取骨架</div></div>
+        <div class="process-arrow">→</div>
+        <div class="process-step"><div class="psn">2</div><div class="psl">注入CSS</div></div>
+        <div class="process-arrow">→</div>
+        <div class="process-step"><div class="psn">3</div><div class="psl">填充数据</div></div>
+        <div class="process-arrow">→</div>
+        <div class="process-step"><div class="psn">4</div><div class="psl">生成HTML</div></div>
+      </div>
+    </div>
+    <div class="takeaway">流程步骤在小屏上自动换行，保持良好的可读性。</div>
+  </div>
+
+  <div class="module" id="md-09-term">
+    <h2><span class="m-tag">Term</span> 术语卡片测试 <span class="m-time">⏱️ ~1分钟</span></h2>
+    <div class="hook">测试术语网格、hover 效果、响应式列数</div>
+    <div class="content">
+      <div class="term-grid">
+        <div class="term-card"><div class="tn">CSS变量</div><div class="td">通过:root定义的全局样式变量</div></div>
+        <div class="term-card"><div class="tn">响应式</div><div class="td">根据屏幕尺寸自动调整布局</div></div>
+        <div class="term-card"><div class="tn">流体布局</div><div class="td">内容随容器宽度自适应</div></div>
+        <div class="term-card"><div class="tn">主题切换</div><div class="td">深色/浅色主题无缝切换</div></div>
+        <div class="term-card"><div class="tn">ECharts</div><div class="td">强大的数据可视化库</div></div>
+        <div class="term-card"><div class="tn">IntersectionObserver</div><div class="td">监听元素可见性变化</div></div>
+      </div>
+    </div>
+    <div class="takeaway">术语卡片使用自动填充网格，hover 时有边框高亮效果。</div>
+  </div>
+
+  <div class="module" id="md-10-formula">
+    <h2><span class="m-tag">Formula</span> 公式块测试 <span class="m-time">⏱️ ~1分钟</span></h2>
+    <div class="hook">测试代码块样式、可折叠推导、语法高亮</div>
+    <div class="content">
+      <div class="formula-block">
+        <span class="f-cap">模板生成公式</span>
+        最终HTML = base_deep_dive.html + TEMPLATE_CSS + 数据注入
+        <button class="derivation-toggle" onclick="this.nextElementSibling.classList.toggle('open'); this.textContent = this.nextElementSibling.classList.contains('open') ? '▾ 收起推导' : '▸ 展开推导'">▸ 展开推导</button>
+        <div class="derivation-content">
+          1. READ base_deep_dive.html 获取骨架<br>
+          2. READ deep_dive.css 获取样式<br>
+          3. 替换 %TEMPLATE_CSS% 占位符<br>
+          4. 替换其他占位符<br>
+          5. 删除条件块（如无context_plan）<br>
+          6. WRITE 最终 HTML 文件
+        </div>
+      </div>
+    </div>
+    <div class="takeaway">公式块支持展开/收起推导过程，提升内容的可阅读性。</div>
+  </div>
+
+  <div class="module" id="md-11-image">
+    <h2><span class="m-tag">Image</span> 图片展示测试 <span class="m-time">⏱️ ~1分钟</span></h2>
+    <div class="hook">测试图片响应式缩放、阴影效果、图片说明</div>
+    <div class="content">
+      <div class="image-test">
+        <img src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Chinese%20traditional%20medicine%20herbs%20and%20acupuncture%20needles%20on%20wooden%20table%20with%20warm%20lighting&image_size=landscape_16_9" alt="中医草药与针灸">
+        <div class="img-cap">图：中医草药与针灸展示图（响应式测试）</div>
+      </div>
+      <p><strong>测试要点：</strong></p>
+      <ul>
+        <li>图片最大宽度 100%，高度自适应</li>
+        <li>圆角边框和阴影效果</li>
+        <li>图片说明居中显示</li>
+      </ul>
+    </div>
+    <div class="takeaway">图片应自适应容器宽度，在各种屏幕尺寸下都保持良好的显示效果。</div>
+  </div>
+
+  <div class="module" id="md-12-validation">
+    <h2><span class="m-tag">Validation</span> 验证检查清单 <span class="m-time">⏱️ ~1分钟</span></h2>
+    <div class="hook">检查所有样式是否正确渲染的验证清单</div>
+    <div class="content">
+      <div class="callout callout-info">
+        <strong>📋 布局验证：</strong>
+        <ul style="margin-top:8px;padding-left:16px">
+          <li>内容区域宽度使用 calc(100% - 280px)</li>
+          <li>容器最大宽度使用 calc(100% - 48px)</li>
+          <li>侧边栏固定 280px 宽度</li>
+          <li>响应式断点：1024px 和 768px</li>
+        </ul>
+      </div>
+      <div class="callout callout-tip">
+        <strong>🔧 交互验证：</strong>
+        <ul style="margin-top:8px;padding-left:16px">
+          <li>主题切换：6种主题都应正常工作</li>
+          <li>搜索功能：Ctrl+K 打开搜索</li>
+          <li>图表：window.resize 响应</li>
+          <li>进度条：滚动时更新</li>
+        </ul>
+      </div>
+      <div class="callout callout-warn">
+        <strong>⚠️ 常见问题检查：</strong>
+        <ul style="margin-top:8px;padding-left:16px">
+          <li>无固定宽度导致的留白问题</li>
+          <li>主题切换时颜色未更新</li>
+          <li>图表未监听 resize 事件</li>
+          <li>滚动时侧边栏导航未高亮</li>
+        </ul>
+      </div>
+    </div>
+    <div class="takeaway">使用此清单验证模板生成的 HTML 页面是否符合规范。</div>
+  </div>
+
+</div>
+
+<footer class="journey-footer">
+  <a href="#" class="back-to-plan" onclick="event.preventDefault();showToast('这是测试页面')">🔗 返回测试计划</a>
+  <p style="margin-top:12px;font-size:.72rem;color:var(--text-muted)">
+    本页面用于验证深度研读模板的所有组件和布局，包含 <strong>6 个主题配色</strong> 和 <strong>12 个测试模块</strong>
+  </p>
+</footer>
+
+<div class="deep-floating-back">
+  <button onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 16px rgba(0,0,0,.2)'"
+    onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 12px rgba(0,0,0,.15)'"
+    onclick="event.preventDefault();showToast('悬浮按钮测试')">
+    ← 返回顶部
+  </button>
+</div>
+</div>
+
+<div class="dd-toast" id="toastEl"><span id="toastMsg"></span></div>
+
+<script>
+var MODULE_IDS = ["md-01-hero","md-02-meta","md-03-callout","md-04-table","md-05-chart","md-06-compare","md-07-timeline","md-08-process","md-09-term","md-10-formula","md-11-image","md-12-validation"];
+var SEARCH_INDEX = [
+  {id:"md-01-hero",t:"Hero 区域",c:"标题与标签测试"},
+  {id:"md-02-meta",t:"Meta 卡片",c:"元信息展示"},
+  {id:"md-03-callout",t:"Callout 提示框",c:"Info/Warning/Tip三种类型"},
+  {id:"md-04-table",t:"Table 表格",c:"数据表格展示"},
+  {id:"md-05-chart",t:"Chart 图表",c:"ECharts集成"},
+  {id:"md-06-compare",t:"Compare Grid",c:"双栏对比"},
+  {id:"md-07-timeline",t:"Timeline 时间线",c:"垂直时间线"},
+  {id:"md-08-process",t:"Process Flow",c:"流程步骤"},
+  {id:"md-09-term",t:"Term Grid",c:"术语卡片"},
+  {id:"md-10-formula",t:"Formula Block",c:"公式块"},
+  {id:"md-11-image",t:"Image 图片",c:"图片展示"},
+  {id:"md-12-validation",t:"Validation",c:"验证检查"}
+];
+var TOAST_TIMEOUT;
+var chartInstance = null;
+
+(function(){
+var progressBar=document.getElementById('progressBar');
+var modules=document.querySelectorAll('.module');
+
+var observer=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting)e.target.classList.add('visible')})},{threshold:.15});
+modules.forEach(function(m){observer.observe(m)});
+
+var navLinks=document.querySelectorAll('.sidebar-nav a');
+var navObserver=new IntersectionObserver(function(entries){
+entries.forEach(function(e){
+if(e.isIntersecting){
+navLinks.forEach(function(a){a.classList.remove('active')});
+var act=document.querySelector('.sidebar-nav a[href="#'+e.target.id+'"]');
+if(act)act.classList.add('active');
+}
+})},{threshold:.3});
+modules.forEach(function(m){navObserver.observe(m)});
+
+window.addEventListener('scroll',function(){
+var st=document.documentElement.scrollTop,dh=document.documentElement.scrollHeight-window.innerHeight;
+var pct=dh>0?Math.min(100,(st/dh)*100):0;progressBar.style.width=pct+'%';
+});
+
+window.addEventListener('keydown',function(e){
+if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();openSearch()}
+if((e.ctrlKey||e.metaKey)&&e.key==='d'){e.preventDefault();toggleThemeDropdown()}
+if(e.key==='Escape'){closeSearch();closeThemeDropdown()}
+});
+
+document.addEventListener('click',function(e){
+if(!e.target.closest('.theme-selector'))closeThemeDropdown();
+});
+})();
+
+function setTheme(themeName, themeLabel){
+document.body.setAttribute('data-theme', themeName);
+document.getElementById('currentTheme').textContent = themeLabel;
+document.querySelectorAll('.theme-option').forEach(function(opt){
+opt.classList.remove('active');
+});
+document.querySelector('[data-theme="'+themeName+'"]').classList.add('active');
+closeThemeDropdown();
+try{localStorage.setItem('slm-theme', themeName)}catch(e){}
+showToast('已切换至「'+themeLabel+'」主题');
+if(chartInstance){
+updateChartTheme();
+}
+}
+
+function toggleThemeDropdown(){
+var dropdown=document.getElementById('themeDropdown');
+dropdown.classList.toggle('show');
+}
+
+function closeThemeDropdown(){
+document.getElementById('themeDropdown').classList.remove('show');
+}
+
+function openSearch(){document.getElementById('searchOverlay').classList.add('open');setTimeout(function(){document.getElementById('searchInput').focus()},100)}
+function closeSearch(){document.getElementById('searchOverlay').classList.remove('open');document.getElementById('searchResults').innerHTML=''}
+
+function doSearch(){
+var q=document.getElementById('searchInput').value.toLowerCase(),res=document.getElementById('searchResults');
+if(q.length<2){res.innerHTML='';return}
+var h='';SEARCH_INDEX.forEach(function(item){
+if(item.t.toLowerCase().indexOf(q)>=0||(item.c||'').toLowerCase().indexOf(q)>=0){
+h+='<div onclick="closeSearch();document.getElementById(\''+item.id+'\').scrollIntoView({behavior:\'smooth\'})">'+
+'<strong>'+item.t+'</strong><br><small style="color:var(--text-muted)">'+(item.c||'').substring(0,80)+'</small></div>';
+}
+});
+res.innerHTML=h||'<div style="padding:12px;color:var(--text-muted)">未找到匹配模块</div>'
+}
+
+function showToast(msg){
+var el=document.getElementById('toastEl'),mg=document.getElementById('toastMsg');
+if(!el||!mg)return;mg.textContent=msg;el.style.display='block';el.classList.add('toast-in');
+if(TOAST_TIMEOUT)clearTimeout(TOAST_TIMEOUT);
+TOAST_TIMEOUT=setTimeout(function(){el.style.display='none'},3000);
+}
+
+(function(){
+var t;try{t=localStorage.getItem('slm-theme')}catch(e){}
+if(t){
+document.body.setAttribute('data-theme', t);
+var themes={'dark':'Cedar Dawn','light':'Light Mode','indigo-night':'Indigo Night','arctic-frost':'Arctic Frost','ocean-depth':'Ocean Depth','sunset-amber':'Sunset Amber','graphite-studio':'Graphite Studio'};
+document.getElementById('currentTheme').textContent = themes[t] || 'Cedar Dawn';
+document.querySelectorAll('.theme-option').forEach(function(opt){
+opt.classList.remove('active');
+});
+document.querySelector('[data-theme="'+t+'"]').classList.add('active');
+}
+})();
+
+function updateChartTheme(){
+if(!chartInstance)return;
+chartInstance.setOption({
+title:{textStyle:{color:'var(--text-secondary)'}},
+xAxis:{axisLabel:{color:'var(--text-muted)'},axisLine:{lineStyle:{color:'var(--border-subtle)'}}},
+yAxis:{axisLabel:{color:'var(--text-muted)'},axisLine:{lineStyle:{color:'var(--border-subtle)'}},splitLine:{lineStyle:{color:'var(--chart-grid)'}}},
+series:[{itemStyle:{color:{type:'linear',x:0,y:0,x2:0,y2:1,colorStops:[{offset:0,color:'var(--accent-indigo)'},{offset:1,color:'var(--accent-dark)'}]}}}],
+backgroundColor:'transparent'
+});
+}
+
+(function initCharts(){
+if(typeof echarts==='undefined')return;
+chartInstance=echarts.init(document.getElementById('chart-test'));
+chartInstance.setOption({
+title:{text:'模板组件测试图表',left:'center',textStyle:{color:'var(--text-secondary)',fontSize:14}},
+xAxis:{type:'category',data:['Hero','Meta','Callout','Table','Chart','Timeline'],axisLabel:{color:'var(--text-muted)'},axisLine:{lineStyle:{color:'var(--border-subtle)'}}},
+yAxis:{type:'value',axisLabel:{color:'var(--text-muted)'},axisLine:{lineStyle:{color:'var(--border-subtle)'}},splitLine:{lineStyle:{color:'var(--chart-grid)'}}},
+series:[{type:'bar',data:[95,90,85,88,92,87],itemStyle:{color:{type:'linear',x:0,y:0,x2:0,y2:1,colorStops:[{offset:0,color:'var(--accent-indigo)'},{offset:1,color:'var(--accent-dark)'}]},borderRadius:[4,4,0,0]}}],
+backgroundColor:'transparent'
+});
+window.addEventListener('resize',function(){if(chartInstance)chartInstance.resize()});
+})();
+</script>
+</body>
+</html>

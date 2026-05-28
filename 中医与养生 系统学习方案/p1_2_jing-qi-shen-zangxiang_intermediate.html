@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>精气神与藏象学说 — 深度研读</title>
+<style>
+/* ───────────────────────────────────────────────
+   Template: Cedar Dawn (雪松晨曦) — deep_dive.css
+   Mood: warm, natural, organic
+   Contrast verified: text-primary≥10:1, text-secondary≥6:1, text-muted≥4.5:1
+   ─────────────────────────────────────────────── */
+:root{
+--bg-base:#1a1814;
+--bg-card:#282520;
+--bg-elevated:#312d27;
+--bg-overlay:rgba(0,0,0,.6);
+--text-primary:#ede6d8;
+--text-secondary:#b8ad98;
+--text-muted:#8a8070;
+--accent-indigo:#5ea87a;
+--accent-purple:#b898a0;
+--accent-cyan:#7ec8a0;
+--accent-gold:#e6b95a;
+--accent-green:#6ebf8a;
+--accent-red:#d47860;
+--accent-blue:#5ea87a;
+--accent-color:#5ea87a;
+--accent-dark:#3d6b50;
+--border-subtle:rgba(184,173,152,.15);
+--border-glow:rgba(94,168,122,.25);
+--shadow-sm:0 1px 3px rgba(0,0,0,.3);
+--shadow-md:0 4px 16px rgba(0,0,0,.4);
+--shadow-lg:0 8px 32px rgba(0,0,0,.5);
+--shadow-elevated:0 8px 32px rgba(0,0,0,.5);
+--radius-sm:6px;
+--radius-md:10px;
+--radius-lg:16px;
+--font-sans:'Segoe UI',system-ui,-apple-system,sans-serif;
+--font-mono:Consolas,'Cascadia Code',monospace;
+--transition:.25s cubic-bezier(.4,0,.2,1);
+--transition-smooth:.3s ease;
+--nav-h:56px;
+--accent-color-rgb:94,168,122;
+--chart-grid:#2d2924;
+--chart-axis-label:#8a8070;
+}
+[data-theme="light"]{
+--bg-base:#fdfaf3;
+--bg-card:#fffdf7;
+--bg-elevated:#f3efe3;
+--bg-overlay:rgba(0,0,0,.3);
+--text-primary:#1f1a12;
+--text-secondary:#4a4035;
+--text-muted:#5c5042;
+--accent-indigo:#3d6b50;
+--accent-purple:#7a5a6a;
+--accent-cyan:#4a8e6a;
+--accent-gold:#a07828;
+--accent-green:#4a9e66;
+--accent-red:#b05038;
+--accent-blue:#3d6b50;
+--accent-color:#3d6b50;
+--accent-dark:#2a4835;
+--border-subtle:rgba(31,26,18,.08);
+--border-glow:rgba(61,107,80,.25);
+--shadow-sm:0 1px 3px rgba(0,0,0,.06);
+--shadow-md:0 4px 16px rgba(0,0,0,.08);
+--shadow-lg:0 8px 32px rgba(0,0,0,.12);
+--shadow-elevated:0 8px 32px rgba(0,0,0,.12);
+--accent-color-rgb:61,107,80;
+--chart-grid:#ebe5d6;
+--chart-axis-label:#5c5042;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font-sans);background:var(--bg-base);color:var(--text-primary);line-height:1.75;overflow-x:hidden}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg-base)}::-webkit-scrollbar-thumb{background:var(--border-glow);border-radius:3px}
+
+.progress-bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--accent-indigo),var(--accent-purple),var(--accent-cyan));z-index:200;transition:width .1s linear}
+.navbar{position:fixed;top:3px;left:0;right:0;z-index:100;background:var(--bg-card);border-bottom:1px solid var(--border-subtle);backdrop-filter:blur(16px);height:var(--nav-h);display:flex;align-items:center;justify-content:space-between;padding:0 24px}
+.nav-left{display:flex;align-items:center;gap:12px;font-size:.82rem;font-weight:600;color:var(--accent-indigo)}
+.nav-right{display:flex;align-items:center;gap:8px}
+.nav-right button{background:var(--bg-elevated);border:1px solid var(--border-subtle);color:var(--text-secondary);padding:6px 12px;border-radius:var(--radius-sm);cursor:pointer;font-size:.75rem;transition:all var(--transition)}
+.nav-right button:hover{border-color:var(--border-glow);color:var(--accent-indigo)}
+
+.sidebar{position:fixed;left:0;top:0;height:100vh;width:280px;background:var(--bg-base);border-right:1px solid var(--border-subtle);padding:24px;overflow-y:auto;z-index:100;padding-top:calc(var(--nav-h) + 16px)}
+.sidebar h3{font-size:.85rem;font-weight:700;color:var(--text-secondary);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--border-subtle)}
+.sidebar-nav{list-style:none;padding:0}
+.sidebar-nav li{margin-bottom:2px}
+.sidebar-nav a{display:block;padding:8px 12px;border-radius:var(--radius-md);text-decoration:none;font-size:.76rem;color:var(--text-secondary);transition:all var(--transition);border-left:3px solid transparent}
+.sidebar-nav a:hover{background:rgba(91,141,184,.08);color:var(--accent-cyan);border-left-color:var(--accent-cyan)}
+.sidebar-nav a.active{background:rgba(91,141,184,.12);color:var(--accent-blue);font-weight:600;border-left-color:var(--accent-blue)}
+.sidebar-back-link{display:block;padding:8px 12px;margin-bottom:12px;border-radius:8px;background:var(--bg-elevated);color:var(--accent-blue);text-decoration:none;font-size:.78rem;font-weight:600}
+.sidebar-back-link:hover{color:var(--accent-cyan)}
+
+.content-area{margin-left:280px;width:calc(100% - 280px)}
+.container{max-width:calc(100% - 48px);margin:0 auto;padding:calc(var(--nav-h) + 24px) 24px 80px}
+
+.hero{text-align:center;padding:48px 0 36px}
+.hero h1{font-size:2.2rem;background:linear-gradient(135deg,var(--accent-indigo),var(--accent-purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+.hero .tags{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:12px}
+.hero .tags span{font-size:.7rem;padding:4px 12px;border-radius:50px;border:1px solid var(--border-glow);color:var(--accent-indigo);background:rgba(99,102,241,.06)}
+
+.meta-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:20px 24px;margin:0 auto 32px;max-width:700px;display:flex;justify-content:center;gap:36px;flex-wrap:wrap;box-shadow:var(--shadow-md)}
+.meta-item{text-align:center}
+.meta-item .val{font-size:1.4rem;font-weight:800;color:var(--accent-indigo)}
+.meta-item .lbl{font-size:.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px}
+
+/* Journey Bar */
+.journey-bar{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:12px 20px;margin:0 auto 24px;max-width:900px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:.82rem;box-shadow:var(--shadow-elevated)}
+.journey-path{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.journey-icon{font-size:1rem}
+.journey-plan{color:var(--accent-purple);font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.journey-plan:hover{color:var(--accent-gold)}
+.journey-sep{color:var(--text-muted);font-size:.7rem}
+.journey-phase{color:var(--text-secondary);font-weight:600}
+.journey-kp{color:var(--text-primary);font-weight:700}
+.journey-pos{color:var(--text-muted);font-size:.72rem}
+.journey-nav{display:flex;align-items:center;gap:8px;font-size:.75rem}
+.journey-prev,.journey-next{color:var(--text-muted);cursor:default}
+.journey-divider{color:var(--border-subtle)}
+
+.module{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:28px 28px 24px;margin-bottom:20px;
+opacity:0;transform:translateY(24px);transition:opacity .5s ease,transform .5s ease;box-shadow:var(--shadow-sm)}
+.module.visible{opacity:1;transform:translateY(0)}
+.module:hover{border-color:var(--border-glow)}
+.module h2{font-size:1.15rem;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.module .m-tag{font-size:.65rem;padding:2px 10px;border-radius:50px;background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.2);color:var(--accent-indigo);font-weight:600}
+.module .m-time{font-size:.7rem;color:var(--text-muted);margin-left:auto}
+.module .hook{font-size:.9rem;color:var(--accent-purple);font-weight:600;margin:12px 0 16px;padding-left:12px;border-left:3px solid var(--accent-purple)}
+.module .content{font-size:.88rem;color:var(--text-secondary);line-height:1.8}
+.module .content p{margin-bottom:12px}
+
+.formula-block{background:rgba(99,102,241,.04);border:1px solid rgba(99,102,241,.12);border-radius:var(--radius-sm);padding:14px 18px;margin:14px 0;font-family:var(--font-mono);font-size:.82rem;color:var(--accent-cyan);overflow-x:auto;position:relative}
+.formula-block .f-cap{font-size:.7rem;color:var(--text-muted);margin-bottom:6px;display:block}
+.derivation-toggle{font-size:.7rem;color:var(--accent-gold);cursor:pointer;border:none;background:none;padding:4px 0;font-family:inherit;display:block;margin-top:6px}
+.derivation-toggle:hover{text-decoration:underline}
+.derivation-content{display:none;margin-top:8px;padding:12px 16px;background:rgba(245,158,11,.04);border-radius:var(--radius-sm);border-left:3px solid var(--accent-gold);font-size:.8rem;color:var(--text-secondary)}
+.derivation-content.open{display:block}
+
+.chart-wrap{background:rgba(99,102,241,.03);border-radius:var(--radius-sm);padding:8px;margin:14px 0;text-align:center}
+.chart-wrap > div{width:100%;height:280px}
+.chart-wrap .ch-cap{font-size:.72rem;color:var(--text-muted);margin-top:6px}
+
+.table-container{margin:20px 0;overflow-x:auto}
+.table-container table{width:100%;border-collapse:collapse;border-radius:var(--radius-md);overflow:hidden}
+.table-container th{background:var(--bg-elevated);color:var(--accent-cyan);font-weight:700;padding:12px 16px;text-align:left;font-size:.8rem}
+.table-container td{padding:12px 16px;border-bottom:1px solid var(--border-subtle);font-size:.82rem;color:var(--text-secondary)}
+.table-container tr:hover td{background:rgba(91,141,184,.03)}
+.table-container .table-caption{font-size:.72rem;color:var(--text-muted);margin-bottom:8px;text-align:center}
+
+.takeaway{font-size:.82rem;background:rgba(16,185,129,.06);border-left:3px solid var(--accent-green);padding:10px 14px;margin-top:16px;border-radius:0 var(--radius-sm) var(--radius-sm) 0;color:var(--accent-green)}
+
+.ref-list{list-style:none;padding:0;margin-top:8px;font-size:.78rem}
+.ref-list li{padding:4px 0;color:var(--text-muted)}
+.ref-list li::before{content:'📄 '}
+
+.search-overlay{position:fixed;inset:0;z-index:300;background:var(--bg-overlay);display:none;align-items:flex-start;justify-content:center;padding-top:120px}
+.search-overlay.open{display:flex}
+.search-box{width:520px;max-width:90vw;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:var(--radius-md);box-shadow:var(--shadow-lg);overflow:hidden}
+.search-box input{width:100%;padding:14px 18px;background:transparent;border:none;color:var(--text-primary);font-size:.95rem;outline:none;font-family:inherit}
+.search-results{max-height:360px;overflow-y:auto}
+.search-results div{padding:10px 18px;cursor:pointer;font-size:.82rem;color:var(--text-secondary);border-top:1px solid var(--border-subtle);transition:background var(--transition)}
+.search-results div:hover{background:rgba(99,102,241,.06);color:var(--text-primary)}
+
+/* Journey Footer */
+.journey-footer{text-align:center;padding:40px 32px 60px;opacity:.8}
+.back-to-plan{display:inline-flex;align-items:center;gap:8px;padding:10px 24px;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:50px;color:var(--text-secondary);text-decoration:none;font-size:.85rem;font-weight:600;transition:all var(--transition-smooth)}
+.back-to-plan:hover{background:var(--bg-elevated);border-color:var(--accent-purple);color:var(--accent-purple)}
+
+/* Floating Back Button */
+.deep-floating-back{position:fixed;right:20px;bottom:20px;z-index:10000}
+.deep-floating-back button{padding:12px 20px;background:linear-gradient(135deg,var(--accent-color),var(--accent-dark));color:white;border:none;border-radius:24px;font-size:.85rem;font-weight:600;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.15);transition:transform .2s,box-shadow .2s}
+.deep-floating-back button:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.2)}
+
+/* Toast */
+.dd-toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);z-index:10001;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:8px;padding:14px 24px;box-shadow:0 4px 16px rgba(0,0,0,.15);font-size:.85rem;display:none}
+.toast-in{animation:toastIn .3s ease}
+@keyframes toastIn{from{opacity:0;transform:translate(-50%,20px)}to{opacity:1;transform:translate(-50%,0)}}
+
+/* Print */
+@media print{.navbar,.progress-bar,.sidebar,.journey-bar,.journey-footer,.deep-floating-back{display:none!important}.content-area{margin-left:0;width:100%}.module{break-inside:avoid;opacity:1!important;transform:none!important;box-shadow:none}body{background:#fff}}
+
+@media(max-width:1024px){.sidebar{display:none}.content-area{margin-left:0;width:100%}}
+@media(max-width:768px){
+.hero h1{font-size:1.6rem}.module{padding:20px}.meta-card{font-size:.72rem;padding:12px 16px}.journey-bar{flex-direction:column;align-items:flex-start}
+.deep-floating-back{right:15px;bottom:15px}.deep-floating-back button{padding:10px 16px;font-size:.8rem}
+}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+</head>
+<body data-theme="dark">
+
+<div class="progress-bar" id="progressBar" style="width:0%"></div>
+
+<nav class="navbar">
+  <div class="nav-left">📖 精气神与藏象学说</div>
+  <div class="nav-right">
+    <button onclick="toggleTheme()" title="切换主题 (Ctrl+D)">🌓 主题</button>
+    <button onclick="openSearch()" title="搜索 (Ctrl+K)">🔍 搜索</button>
+  </div>
+</nav>
+
+<div class="sidebar">
+  <a href="#" class="sidebar-back-link" onclick="event.preventDefault();var w=window.open('tcm_learning.html#kc-p1_2','plan_main');if(w)w.focus()">← 返回主方案</a>
+  <h3>📖 目录导航</h3>
+  <ul class="sidebar-nav">
+    <li><a href="#m1">1. 精：生命的物质基础</a></li>
+    <li><a href="#m2">2. 气的概念与五大功能</a></li>
+    <li><a href="#m3">3. 气的分类与运行</a></li>
+    <li><a href="#m4">4. 神的概念与层次</a></li>
+    <li><a href="#m5">5. 藏象学说总论</a></li>
+    <li><a href="#m6">6. 五脏功能系统详解表</a></li>
+    <li><a href="#m7">7. 六腑功能详解</a></li>
+    <li><a href="#m8">8. 五脏之间的关系网络</a></li>
+    <li><a href="#m9">9. 精气神在养生中的应用</a></li>
+    <li><a href="#m10">10. 藏象学说的现代研究与小结</a></li>
+  </ul>
+</div>
+
+<div class="content-area">
+<div class="search-overlay" id="searchOverlay">
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="搜索模块内容..." oninput="doSearch()" onkeydown="if(event.key==='Escape')closeSearch()">
+    <div class="search-results" id="searchResults"></div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="hero">
+    <h1>精气神与藏象学说</h1>
+    <div class="tags">
+      <span>精气神</span><span>藏象学说</span><span>五脏六腑</span><span>G6·系统图解</span>
+    </div>
+  </div>
+
+  <div class="meta-card">
+    <div class="meta-item"><div class="val">10</div><div class="lbl">研读模块</div></div><div class="meta-item"><div class="val">~45min</div><div class="lbl">预计用时</div></div><div class="meta-item"><div class="val">G6</div><div class="lbl">学习纹理</div></div><div class="meta-item"><div class="val">理解</div><div class="lbl">研读深度</div></div>
+  </div>
+
+  <!-- CONDITIONAL: HAS_CONTEXT_PLAN -->
+  <div class="journey-bar" id="journeyBar">
+    <div class="journey-path">
+      <span class="journey-icon">📍</span>
+      <span class="journey-plan" onclick="var w=window.open('tcm_learning.html#kc-p1_2','plan_main');if(w)w.focus()">中医与养生 系统学习方案</span>
+      <span class="journey-sep">〉</span>
+      <span class="journey-phase">中医基础理论奠基</span>
+      <span class="journey-sep">〉</span>
+      <span class="journey-kp">精气神与藏象学说</span>
+      <span class="journey-pos">(1/4)</span>
+    </div>
+    <div class="journey-nav">
+      <span class="journey-prev" title="前置: 阴阳学说与五行生克">← 前置</span>
+      <span class="journey-divider">|</span>
+      <span class="journey-next" title="后续: 经络系统与腧穴总论">后续 →</span>
+    </div>
+  </div>
+  <!-- /CONDITIONAL -->
+
+  <!-- ===== MODULE 1 ===== -->
+  <div class="module" id="m1">
+    <h2><span class="m-tag">概念框架</span> 精：生命的物质基础 <span class="m-time">~4 min</span></h2>
+    <div class="hook">"精"是构成人体和维持生命活动的最基本物质，是生命之本源。</div>
+    <div class="content">
+      <p>在中医学中，<strong>精</strong>（Jīng）是最根本的生命物质。它以两种形式存在于人体：<strong>先天之精</strong>（禀受于父母、与生俱来的生殖之精）和<strong>后天之精</strong>（来源于饮食水谷、由脾胃化生的营养物质）。</p>
+      <p>精的来源有两条途径：其一，父母生殖之精的遗传，是构成胚胎的原始物质；其二，出生后摄入饮食水谷，通过脾胃运化生成水谷精微，输布全身，不断充养五脏六腑。</p>
+      <div class="formula-block">
+        <span class="f-cap">精的来源公式</span>
+        先天之精（父母遗传） + 后天之精（水谷精微） → 肾藏之精（生命物质基础）
+      </div>
+      <p>精的四大功能：</p>
+      <p><strong>① 繁衍后代</strong>——生殖之精是生命延续的根本，肾精充足则生殖功能正常。<br>
+      <strong>② 促进生长发育</strong>——精是人体生长、发育、成熟、衰老全过程的物质基础。从幼年到壮年，肾中精气逐渐充盛；壮年后，精气渐衰。<br>
+      <strong>③ 生髓化血</strong>——精能生髓（包括骨髓、脊髓、脑髓），髓能化血，故精血同源。<br>
+      <strong>④ 濡养脏腑</strong>——后天之精输布全身，濡养五脏六腑、四肢百骸。</p>
+    </div>
+    <div class="takeaway">精是生命的物质基础，分为禀受于父母的先天之精和来源于饮食的后天之精。</div>
+  </div>
+
+  <!-- ===== MODULE 2 ===== -->
+  <div class="module" id="m2">
+    <h2><span class="m-tag">原理机制</span> 气的概念与五大功能 <span class="m-time">~5 min</span></h2>
+    <div class="hook">"气"是中医学中最具特色的概念之一——它既是物质又是功能，是生命活动的原动力。</div>
+    <div class="content">
+      <p><strong>气</strong>（Qì）是不断运动的极细微物质，是构成人体和维持生命活动的最基本物质之一。气的生成来源于三个方面：肺吸入自然界的<strong>清气</strong>、脾运化水谷产生的<strong>水谷精微之气</strong>、以及肾中<strong>精所化之气</strong>。</p>
+      <div class="formula-block">
+        <span class="f-cap">气的生成公式</span>
+        肺（清气） + 脾（水谷之气） + 肾（精气） → 人体之气
+      </div>
+      <p>气的<strong>五大功能</strong>及其临床意义：</p>
+      <p><strong>① 推动作用</strong>——气能推动血液运行、津液输布、脏腑功能活动和生长发育。气虚则推动无力，可见血瘀、水停、发育迟缓等。<br>
+      <strong>② 温煦作用</strong>——气能产生热量，维持体温恒定，保证脏腑功能正常进行。"气主煦之"，气虚则畏寒肢冷。<br>
+      <strong>③ 防御作用</strong>——卫气护卫肌表，抗御外邪。气虚则卫外不固，易感外邪。<br>
+      <strong>④ 固摄作用</strong>——气能统摄血液在脉中运行（脾统血），固摄汗液、尿液、精液等防止无故流失。气不摄血则出血，气不固津则自汗、遗尿。<br>
+      <strong>⑤ 气化作用</strong>——通过气的运动而产生的各种变化，包括精、气、血、津液各自的新陈代谢及其相互转化。如饮食→水谷精微→气血的转化过程。</p>
+    </div>
+    <div class="takeaway">气的五大功能——推动、温煦、防御、固摄、气化——任何一项失常都会导致相应的病理变化。</div>
+  </div>
+
+  <!-- ===== MODULE 3 ===== -->
+  <div class="module" id="m3">
+    <h2><span class="m-tag">知识表格</span> 气的分类与运行 <span class="m-time">~5 min</span></h2>
+    <div class="hook">气虽为一，但因其来源、分布和功能不同，又可分为多种类型。理解四气的分工，才能真正理解"气"的内涵。</div>
+    <div class="content">
+      <p>人体之气根据其<strong>生成来源</strong>、<strong>分布部位</strong>和<strong>功能特点</strong>的不同，主要分为四种：元气、宗气、营气、卫气。</p>
+      <div class="table-container">
+        <div class="table-caption">表：四气对比</div>
+        <table>
+          <thead>
+            <tr><th>气名</th><th>来源</th><th>分布</th><th>功能</th><th>失常表现</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>元气</strong><br><small>（原气/真气）</small></td>
+              <td>肾中先天之精所化，赖后天之精充养</td>
+              <td>发于肾，通过三焦布散全身</td>
+              <td>推动生长发育、温煦激发脏腑功能</td>
+              <td>元气虚→发育迟缓、脏腑功能衰退</td>
+            </tr>
+            <tr>
+              <td><strong>宗气</strong><br><small>（大气）</small></td>
+              <td>肺吸入清气 + 脾运化水谷精微</td>
+              <td>积于胸中（膻中），贯心脉、走息道</td>
+              <td>司呼吸、行血气、与视听言动有关</td>
+              <td>宗气不足→气短、心悸、语声低微</td>
+            </tr>
+            <tr>
+              <td><strong>营气</strong><br><small>（荣气）</small></td>
+              <td>水谷精微中富有营养的部分</td>
+              <td>行于脉中，循脉运行全身</td>
+              <td>化生血液、营养全身</td>
+              <td>营气虚→血虚、肌肤失养</td>
+            </tr>
+            <tr>
+              <td><strong>卫气</strong><br><small>（卫阳）</small></td>
+              <td>水谷精微中慓疾滑利的部分</td>
+              <td>行于脉外，布散体表</td>
+              <td>护卫肌表、温养脏腑、调节腠理开合</td>
+              <td>卫气虚→易感外邪、自汗恶风</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p>荣气和卫气的关系尤为密切：<strong>营行脉中，卫行脉外</strong>，营主内守而属阴，卫主外护而属阳，二者协调维持正常生理功能。睡眠与寤寐的节律也与营卫之气的运行密切相关。</p>
+    </div>
+    <div class="takeaway">元气为本、宗气司呼吸行血气、营气化生血液营养全身、卫气护卫肌表抗御外邪。</div>
+  </div>
+
+  <!-- ===== MODULE 4 ===== -->
+  <div class="module" id="m4">
+    <h2><span class="m-tag">概念框架</span> 神的概念与层次 <span class="m-time">~4 min</span></h2>
+    <div class="hook">"得神者昌，失神者亡"——望神是中医四诊之首，因为神是生命状态的综合反映。</div>
+    <div class="content">
+      <p><strong>神</strong>（Shén）在中医学中有广义和狭义之分：</p>
+      <p><strong>广义之神</strong>：指人体生命活动的外在表现。通过面色、眼神、言语、应答、肢体姿态等反映——即所谓"望神"的对象。<br>
+      <strong>狭义之神</strong>：指人的精神意识思维活动，包括魂、魄、意、志、思、虑、智等层次。</p>
+      <p>神的层次结构：</p>
+      <p><strong>魂</strong>——与肝相关，主梦幻、潜意识活动，"随神往来者谓之魂"。<br>
+      <strong>魄</strong>——与肺相关，主本能、感觉等与生俱来的反应，"并精出入者谓之魄"。<br>
+      <strong>意</strong>——与脾相关，主记忆、意念，"心有所忆谓之意"。<br>
+      <strong>志</strong>——与肾相关，主志向、意志的坚定，"意之所存谓之志"。<br>
+      <strong>思</strong>——对事物进行比较分析的思维过程。<br>
+      <strong>虑</strong>——在思的基础上进行长远考虑。<br>
+      <strong>智</strong>——经过思虑后做出正确判断和处理的能力。</p>
+      <div class="formula-block">
+        <span class="f-cap">精气神三位一体关系</span>
+        精 → 化气 → 气 → 生神 → 神 → 御气 → 气 → 化精
+        <br>精为基础 · 气为动力 · 神为主宰
+      </div>
+      <p><strong>精能生神</strong>：精足则神旺，精亏则神疲。<br>
+      <strong>气能养神</strong>：气血充盈则神清气爽，气血亏虚则神疲乏力。<br>
+      <strong>神能御气</strong>：神志清明则气机调畅，神乱则气乱。</p>
+    </div>
+    <div class="takeaway">精气神三位一体：精为基础，气为动力，神为主宰。三者相互依存、相互转化。</div>
+  </div>
+
+  <!-- ===== MODULE 5 ===== -->
+  <div class="module" id="m5">
+    <h2><span class="m-tag">概念框架</span> 藏象学说总论 <span class="m-time">~5 min</span></h2>
+    <div class="hook">藏象学说是中医认识人体生理病理的核心模型——"藏"是内在脏腑，"象"是外在征象。</div>
+    <div class="content">
+      <p><strong>藏象</strong>（Zàng Xiàng），"藏"指藏于体内的脏腑，"象"指表现于外的生理病理征象。藏象学说即是通过观察人体外部征象来研究内部脏腑的生理功能、病理变化及其相互关系的学说。</p>
+      <p>人体脏腑分为三大类：</p>
+      <p><strong>五脏</strong>（心、肝、脾、肺、肾）——功能特点是<strong>"藏精气而不泻"</strong>，以藏为主。五脏主贮藏精气，宜充盈不宜亏耗。<br>
+      <strong>六腑</strong>（胆、胃、小肠、大肠、膀胱、三焦）——功能特点是<strong>"传化物而不藏"</strong>，以通为用。六腑主受纳和传化水谷，宜通畅不宜壅滞。<br>
+      <strong>奇恒之腑</strong>（脑、髓、骨、脉、胆、女子胞）——形态似腑而功能似脏，"藏而不泻"。</p>
+      <div class="formula-block">
+        <span class="f-cap">藏象学说的核心结构</span>
+        五脏（核心）→ 络属六腑 → 外应五体、五官、五志、五液 → 形成五大功能系统
+      </div>
+      <p>藏象学说的基本特点：<strong>以五脏为中心的整体观</strong>。通过经络系统的联络，将六腑、五体（筋、脉、肉、皮、骨）、五官（目、舌、口、鼻、耳）、五志（怒、喜、思、悲忧、恐）、五液（泪、汗、涎、涕、唾）等联结为一个有机整体。</p>
+    </div>
+    <div class="takeaway">藏象学说以五脏为中心，通过经络系统将六腑、五体、五官、五志等联结为一个有机整体。</div>
+  </div>
+
+  <!-- ===== MODULE 6 ===== -->
+  <div class="module" id="m6">
+    <h2><span class="m-tag">知识图谱</span> 五脏功能系统详解表 <span class="m-time">~6 min</span></h2>
+    <div class="hook">五脏不是孤立的功能单位，而是五个相互关联的功能系统——每个系统都有其外应的组织、官窍、情志和体表特征。</div>
+    <div class="content">
+      <div class="table-container">
+        <div class="table-caption">表：五脏功能系统详解</div>
+        <table>
+          <thead>
+            <tr><th>五脏</th><th>五行</th><th>主要生理功能</th><th>在体</th><th>在窍</th><th>在志</th><th>在液</th><th>其华</th><th>功能失常表现</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>心</strong></td>
+              <td>火</td>
+              <td>主血脉、藏神</td>
+              <td>合脉</td>
+              <td>舌</td>
+              <td>喜</td>
+              <td>汗</td>
+              <td>面</td>
+              <td>心悸、失眠、面色无华</td>
+            </tr>
+            <tr>
+              <td><strong>肝</strong></td>
+              <td>木</td>
+              <td>主疏泄、藏血</td>
+              <td>合筋</td>
+              <td>目</td>
+              <td>怒</td>
+              <td>泪</td>
+              <td>爪</td>
+              <td>胁痛、目涩、筋脉拘挛</td>
+            </tr>
+            <tr>
+              <td><strong>脾</strong></td>
+              <td>土</td>
+              <td>主运化、统血</td>
+              <td>合肉</td>
+              <td>口</td>
+              <td>思</td>
+              <td>涎</td>
+              <td>唇</td>
+              <td>腹胀、便溏、肌瘦</td>
+            </tr>
+            <tr>
+              <td><strong>肺</strong></td>
+              <td>金</td>
+              <td>主气司呼吸、通调水道</td>
+              <td>合皮</td>
+              <td>鼻</td>
+              <td>悲忧</td>
+              <td>涕</td>
+              <td>毛</td>
+              <td>咳喘、鼻塞、皮毛枯槁</td>
+            </tr>
+            <tr>
+              <td><strong>肾</strong></td>
+              <td>水</td>
+              <td>藏精、主水、主纳气</td>
+              <td>合骨</td>
+              <td>耳及二阴</td>
+              <td>恐</td>
+              <td>唾</td>
+              <td>发</td>
+              <td>腰酸、耳鸣、发脱齿摇</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p>这张表是藏象学说的<strong>核心知识结构</strong>。理解每一行，就理解了一个完整的功能系统：</p>
+      <p>以<strong>肝</strong>为例——五行属木，主疏泄和藏血；其功能状态可以从筋的柔韧度（在体合筋）、眼睛的视觉（开窍于目）、爪甲的荣枯（其华在爪）、情绪是否易怒（在志为怒）、眼泪的分泌（在液为泪）等方面综合判断。一个功能系统内部的各个要素是<strong>同时受该脏功能状态影响</strong>的。</p>
+    </div>
+    <div class="takeaway">五脏功能系统表是藏象学说的核心知识结构，建议反复记忆，直至形成条件反射。</div>
+  </div>
+
+  <!-- ===== MODULE 7 ===== -->
+  <div class="module" id="m7">
+    <h2><span class="m-tag">原理机制</span> 六腑功能详解 <span class="m-time">~5 min</span></h2>
+    <div class="hook">六腑以通为用、以降为顺——传化水谷而不藏，这是六腑功能的核心特点。</div>
+    <div class="content">
+      <p>六腑的命名源于《素问·灵兰秘典论》，每个腑都有其"官职"比喻：</p>
+      <p><strong>胆</strong>——"中正之官，决断出焉"。贮藏和排泄胆汁以助消化；又主决断，与人的胆量和判断力有关。胆为<strong>奇恒之腑</strong>，既属六腑又具"藏精气"的特点。</p>
+      <p><strong>胃</strong>——"仓廪之官，五味出焉"。主受纳和腐熟水谷，为"水谷之海"。胃气以降为顺，胃失和降则出现恶心、呕吐、嗳气。</p>
+      <p><strong>小肠</strong>——"受盛之官，化物出焉"。接受胃初步消化后的食糜，进一步消化吸收，泌别清浊（清者为水谷精微由脾转输，浊者为残渣下传大肠、剩余水液渗入膀胱）。</p>
+      <p><strong>大肠</strong>——"传导之官，变化出焉"。接受小肠下传的残渣，吸收剩余水分，形成粪便排出体外。大肠传导失司则便秘或泄泻。</p>
+      <p><strong>膀胱</strong>——"州都之官，津液藏焉，气化则能出矣"。贮存和排泄尿液。膀胱的气化功能依赖于肾阳的温煦。</p>
+      <p><strong>三焦</strong>——"决渎之官，水道出焉"，又名"元气之别使"。三焦并非一个具体的解剖器官，而是<strong>气与津液运行的通道</strong>：上焦（膈以上）主宣发、中焦（膈至脐）主腐熟运化、下焦（脐以下）主分别清浊和排泄。</p>
+    </div>
+    <div class="takeaway">胆胃小肠大肠膀胱三焦——六腑的共同生理特点是"泻而不藏"，病理特点是"不通则痛"。</div>
+  </div>
+
+  <!-- ===== MODULE 8 ===== -->
+  <div class="module" id="m8">
+    <h2><span class="m-tag">系统图解</span> 五脏之间的关系网络 <span class="m-time">~6 min</span></h2>
+    <div class="hook">五脏之间不是独立的——它们通过气血、阴阳、五行生克联结成一个精密的调控网络。</div>
+    <div class="content">
+      <p>五脏之间的关系是藏象学说中最精妙的部分。以下是十组主要的脏腑关系及其关键机制：</p>
+      <div class="chart-wrap">
+        <div id="chart_zangfu_net" style="width:100%;height:420px"></div>
+        <div class="ch-cap">图：五脏关系网络图（力导向布局）</div>
+      </div>
+      <p><strong>每组关系的简要说明：</strong></p>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr><th>脏腑对</th><th>关系名称</th><th>关键机制</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>心 ↔ 肺</td><td>气血互用</td><td>心主血、肺主气，气为血帅、血为气母</td></tr>
+            <tr><td>心 ↔ 脾</td><td>血行相济</td><td>心主血、脾生血统血，共主血液运行</td></tr>
+            <tr><td>心 ↔ 肝</td><td>血行与情志</td><td>心主血藏神、肝藏血主疏泄，共同调节情志</td></tr>
+            <tr><td>心 ↔ 肾</td><td>水火既济</td><td>心火下降温肾、肾水上济制心火，阴阳平衡</td></tr>
+            <tr><td>肺 ↔ 脾</td><td>津液代谢</td><td>肺通调水道、脾运化水湿，共主水液代谢</td></tr>
+            <tr><td>肺 ↔ 肝</td><td>气机升降</td><td>肺主肃降、肝主升发，一升一降调畅气机（龙虎回环）</td></tr>
+            <tr><td>肺 ↔ 肾</td><td>呼吸与水液</td><td>肺主呼气、肾主纳气，共主呼吸；肺通调水道、肾主水</td></tr>
+            <tr><td>肝 ↔ 脾</td><td>消化与血行</td><td>肝主疏泄助脾运化、脾生血养肝</td></tr>
+            <tr><td>肝 ↔ 肾</td><td>精血同源（乙癸同源）</td><td>肝藏血、肾藏精，精血互化</td></tr>
+            <tr><td>脾 ↔ 肾</td><td>先后天互资</td><td>脾为后天之本、肾为先天之本，相互滋养</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="takeaway">五脏关系的核心可以概括为：心肾相交（水火既济）、肝肺升降（龙虎回环）、脾肾互资（先后天互补）。</div>
+  </div>
+
+  <!-- ===== MODULE 9 ===== -->
+  <div class="module" id="m9">
+    <h2><span class="m-tag">临床关联</span> 精气神在养生中的应用 <span class="m-time">~5 min</span></h2>
+    <div class="hook">养生之要，在于积精、养气、全神——这就是中医养生的"三宝"理论。</div>
+    <div class="content">
+      <p>中医养生学的核心就是围绕<strong>精、气、神</strong>三宝展开的。养生不是单一的对症调理，而是从物质基础（精）、功能动力（气）、整体调控（神）三个层面系统性地维护健康。</p>
+      <p><strong>一、养精——固护生命物质基础</strong></p>
+      <p>• <strong>节欲保精</strong>：房事有节，避免过度耗泄肾精。肾精是生命根基，过度损耗则早衰。<br>
+      • <strong>食养补精</strong>：多食血肉有情之品（如骨髓、核桃、黑芝麻、黑豆等），五味调和，不过食肥甘厚味损伤脾胃。<br>
+      • <strong>起居有常</strong>：保证充足睡眠，夜卧早起（春夏）或早卧晚起（秋冬），顺应四时。</p>
+      <p><strong>二、养气——增强生命功能动力</strong></p>
+      <p>• <strong>调息吐纳</strong>：练习腹式呼吸，吸气时气沉丹田，呼气时缓慢绵长。八段锦、太极拳等传统功法均注重调息。<br>
+      • <strong>运动导引</strong>：适度运动使气血流通，"流水不腐，户枢不蠹"。但勿过度出汗耗气。<br>
+      • <strong>情志调畅</strong>：怒则气上、喜则气缓、悲则气消、恐则气下、思则气结。保持情志平和是养气的关键。</p>
+      <p><strong>三、养神——维持生命整体协调</strong></p>
+      <p>• <strong>清静养神</strong>：《内经》云"恬淡虚无，真气从之，精神内守，病安从来"。保持内心清静。<br>
+      • <strong>少思寡欲</strong>：过度思虑消耗心血，过度欲望扰动心神。适度减少精神内耗。<br>
+      • <strong>形神共养</strong>：形体的锻炼与精神的修养并重，动静结合，形神合一。</p>
+    </div>
+    <div class="takeaway">积精（物质基础）→养气（功能动力）→全神（整体调控）——这是中医养生的完整路径。</div>
+  </div>
+
+  <!-- ===== MODULE 10 ===== -->
+  <div class="module" id="m10">
+    <h2><span class="m-tag">总结</span> 藏象学说的现代研究与小结 <span class="m-time">~3 min</span></h2>
+    <div class="hook">藏象学说虽然以古代术语表述，但其"功能系统"的理念与现代系统生物学的"功能模块"概念不谋而合。</div>
+    <div class="content">
+      <p><strong>现代科学内涵探讨：</strong></p>
+      <p>藏象学说中的"五脏"并非是解剖学意义上的器官，而是<strong>五大功能系统</strong>的抽象概括。现代研究发现，五脏的功能与<strong>神经-内分泌-免疫网络</strong>（NEI网络）有着令人惊讶的对应关系：</p>
+      <p>• <strong>心系统</strong>（主血脉、藏神）——对应心血管系统与中枢神经系统的高级功能<br>
+      • <strong>肝系统</strong>（主疏泄、藏血）——对应应激反应系统、自主神经调节与代谢调控<br>
+      • <strong>脾系统</strong>（主运化、统血）——对应消化系统、免疫功能与物质代谢<br>
+      • <strong>肺系统</strong>（主气、通调水道）——对应呼吸系统与体液平衡调节<br>
+      • <strong>肾系统</strong>（藏精、主水、主纳气）——对应内分泌系统（尤其是下丘脑-垂体-靶腺轴）、泌尿系统与生殖系统</p>
+      <p><strong>本知识点的核心要点总结：</strong></p>
+      <p>1. <strong>精气神</strong>是中医生命观的三大基石：精为物质基础、气为功能动力、神为整体主宰。<br>
+      2. <strong>气的五大功能</strong>（推动、温煦、防御、固摄、气化）是理解一切生理病理的钥匙。<br>
+      3. <strong>藏象学说</strong>以五脏为中心，将人体构建为五大功能系统，体现了系统性思维。<br>
+      4. <strong>五脏关系网络</strong>通过气血、阴阳、五行生克精确调控，是中医整体观的集中体现。<br>
+      5. <strong>养生实践</strong>应当从积精、养气、全神三个维度系统性进行。</p>
+    </div>
+    <div class="takeaway">藏象学说将人体视为以五脏为中心的五大功能系统，这一系统性思维是中医学区别于现代医学的本质特征。</div>
+  </div>
+
+</div>
+
+<!-- CONDITIONAL: HAS_CONTEXT_PLAN -->
+<footer class="journey-footer">
+  <a href="#" class="back-to-plan" onclick="event.preventDefault();var w=window.open('tcm_learning.html#kc-p1_2','plan_main');if(w)w.focus()">🔗 返回学习路线: 中医与养生 系统学习方案 → 中医基础理论奠基</a>
+  <p style="margin-top:12px;font-size:.72rem;color:var(--text-muted)">
+    本资料是 <strong>中医与养生 系统学习方案</strong> 中医基础理论奠基 阶段的深度研读材料
+  </p>
+</footer>
+<!-- /CONDITIONAL -->
+
+<!-- CONDITIONAL: HAS_CONTEXT_PLAN -->
+<div class="deep-floating-back">
+  <button onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 16px rgba(0,0,0,.2)'"
+    onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 12px rgba(0,0,0,.15)'"
+    onclick="event.preventDefault();var w=window.open('tcm_learning.html#kc-p1_2','plan_main');if(w)w.focus()">
+    ← 返回学习方案
+  </button>
+</div>
+<!-- /CONDITIONAL -->
+</div>
+
+<div class="dd-toast" id="toastEl"><span id="toastMsg"></span></div>
+
+<script>
+var MODULE_IDS = ["m1","m2","m3","m4","m5","m6","m7","m8","m9","m10"];
+var SEARCH_INDEX = [
+{"id":"m1","t":"精：生命的物质基础","c":"精是构成人体和维持生命活动的最基本物质，分为先天之精与后天之精。先天之精禀受于父母，后天之精来源于饮食水谷。精有繁衍、生长发育、生髓化血、濡养脏腑四大功能。"},
+{"id":"m2","t":"气的概念与五大功能","c":"气是不断运动的极细微物质，由肺吸入清气、脾运化水谷精微、肾精化气三者生成。五大功能：推动、温煦、防御、固摄、气化。"},
+{"id":"m3","t":"气的分类与运行","c":"元气、宗气、营气、卫气四类。元气为本，宗气司呼吸行血气，营气化生血液营养全身，卫气护卫肌表。营行脉中，卫行脉外。"},
+{"id":"m4","t":"神的概念与层次","c":"神有广义（生命活动外在表现）与狭义（精神意识思维）之分。层次包括魂、魄、意、志、思、虑、智。精能生神、气能养神、神能御气。"},
+{"id":"m5","t":"藏象学说总论","c":"藏象是中医认识人体生理病理的核心模型。五脏藏精气而不泻，六腑传化物而不藏。以五脏为中心通过经络将六腑、五体、五官等联结为整体。"},
+{"id":"m6","t":"五脏功能系统详解表","c":"心（火）主血脉藏神，肝（木）主疏泄藏血，脾（土）主运化统血，肺（金）主气司呼吸，肾（水）藏精主水纳气。各有在体、在窍、在志、在液、其华的对应。"},
+{"id":"m7","t":"六腑功能详解","c":"胆为中正之官主决断，胃为水谷之海主受纳腐熟，小肠受盛化物泌别清浊，大肠传导变化，膀胱贮存排泄尿液，三焦为元气别使决渎之官。"},
+{"id":"m8","t":"五脏之间的关系网络","c":"心-肺气血互用，心-脾血行相济，心-肝血行与情志，心-肾水火既济，肺-脾津液代谢，肺-肝气机升降，肺-肾呼吸与水液，肝-脾消化与血行，肝-肾精血同源，脾-肾先后天互资。"},
+{"id":"m9","t":"精气神在养生中的应用","c":"养精（节欲保精、食养补精），养气（调息吐纳、运动导引、情志调畅），养神（清静养神、少思寡欲、形神共养）。积精→养气→全神是中医养生的完整路径。"},
+{"id":"m10","t":"藏象学说的现代研究与小结","c":"藏象学说的五脏与神经-内分泌-免疫网络对应，系统性思维是中医学区别于现代医学的本质特征。精气神+藏象的核心要点总结。"}
+];
+var TOAST_TIMEOUT;
+
+(function(){
+var progressBar=document.getElementById('progressBar');
+var modules=document.querySelectorAll('.module');
+
+var observer=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting)e.target.classList.add('visible')})},{threshold:.15});
+modules.forEach(function(m){observer.observe(m)});
+
+var navLinks=document.querySelectorAll('.sidebar-nav a');
+var navObserver=new IntersectionObserver(function(entries){
+entries.forEach(function(e){
+if(e.isIntersecting){
+navLinks.forEach(function(a){a.classList.remove('active')});
+var act=document.querySelector('.sidebar-nav a[href="#'+e.target.id+'"]');
+if(act)act.classList.add('active');
+}
+})},{threshold:.3});
+modules.forEach(function(m){navObserver.observe(m)});
+
+window.addEventListener('scroll',function(){
+var st=document.documentElement.scrollTop,dh=document.documentElement.scrollHeight-window.innerHeight;
+var pct=dh>0?Math.min(100,(st/dh)*100):0;progressBar.style.width=pct+'%';
+});
+
+window.addEventListener('keydown',function(e){
+if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();openSearch()}
+if((e.ctrlKey||e.metaKey)&&e.key==='d'){e.preventDefault();toggleTheme()}
+if(e.key==='Escape')closeSearch()
+});
+})();
+
+function toggleTheme(){
+var b=document.body,isD=b.getAttribute('data-theme')==='dark';
+b.setAttribute('data-theme',isD?'light':'dark');
+try{localStorage.setItem('slm-theme',isD?'light':'dark')}catch(e){}
+showToast('已切换至'+(isD?'浅色':'深色')+'主题')
+}
+
+function openSearch(){document.getElementById('searchOverlay').classList.add('open');setTimeout(function(){document.getElementById('searchInput').focus()},100)}
+function closeSearch(){document.getElementById('searchOverlay').classList.remove('open');document.getElementById('searchResults').innerHTML=''}
+
+function doSearch(){
+var q=document.getElementById('searchInput').value.toLowerCase(),res=document.getElementById('searchResults');
+if(q.length<2){res.innerHTML='';return}
+var h='';SEARCH_INDEX.forEach(function(item){
+if(item.t.toLowerCase().indexOf(q)>=0||(item.c||'').toLowerCase().indexOf(q)>=0){
+h+='<div onclick="closeSearch();document.getElementById(\''+item.id+'\').scrollIntoView({behavior:\'smooth\'})">'+
+'<strong>'+item.t+'</strong><br><small style="color:var(--text-muted)">'+(item.c||'').substring(0,80)+'</small></div>';
+}
+});
+res.innerHTML=h||'<div style="padding:12px;color:var(--text-muted)">未找到匹配模块</div>'
+}
+
+function showToast(msg){
+var el=document.getElementById('toastEl'),mg=document.getElementById('toastMsg');
+if(!el||!mg)return;mg.textContent=msg;el.style.display='block';el.classList.add('toast-in');
+if(TOAST_TIMEOUT)clearTimeout(TOAST_TIMEOUT);
+TOAST_TIMEOUT=setTimeout(function(){el.style.display='none'},3000);
+}
+
+(function(){
+var t;try{t=localStorage.getItem('slm-theme')}catch(e){}
+if(t==='light')document.body.setAttribute('data-theme','light');
+})();
+
+(function(){
+document.querySelectorAll('.derivation-toggle').forEach(function(btn){
+btn.addEventListener('click',function(){
+var content=this.nextElementSibling;
+if(content){content.classList.toggle('open');this.textContent=content.classList.contains('open')?'▾ 收起推导':'▸ 展开推导'}
+});
+});
+})();
+
+/* ===== ECharts 初始化模板 ===== */
+(function initCharts(){
+if(typeof echarts==='undefined')return;
+var charts=[];
+function makeChart(elId,option){
+var el=document.getElementById(elId);
+if(!el)return null;
+var chart=echarts.init(el);
+chart.setOption(option);
+return chart;
+}
+
+var zangfuChart = makeChart('chart_zangfu_net', {
+  tooltip: {
+    trigger: 'item',
+    formatter: function(p) {
+      if (p.dataType === 'edge') return p.data.label || '';
+      return '<strong>' + p.name + '</strong>';
+    }
+  },
+  series: [{
+    type: 'graph',
+    layout: 'force',
+    roam: true,
+    draggable: true,
+    force: { repulsion: 300, edgeLength: [120, 200], gravity: 0.1 },
+    label: { show: true, fontSize: 14, fontWeight: 'bold', color: '#ede6d8' },
+    edgeSymbol: ['none', 'none'],
+    edgeLabel: { show: true, fontSize: 10, color: '#b8ad98', formatter: '{c}' },
+    lineStyle: { color: 'rgba(94,168,122,0.5)', curveness: 0.2, width: 1.5 },
+    data: [
+      { name: '心', symbolSize: 50, itemStyle: { color: '#d47860' } },
+      { name: '肝', symbolSize: 48, itemStyle: { color: '#7ec8a0' } },
+      { name: '脾', symbolSize: 48, itemStyle: { color: '#e6b95a' } },
+      { name: '肺', symbolSize: 48, itemStyle: { color: '#b8b8b8' } },
+      { name: '肾', symbolSize: 48, itemStyle: { color: '#5ea87a' } }
+    ],
+    links: [
+      { source: '心', target: '肺', label: { show: true, formatter: '气血互用' } },
+      { source: '心', target: '脾', label: { show: true, formatter: '血行相济' } },
+      { source: '心', target: '肝', label: { show: true, formatter: '血行情志' } },
+      { source: '心', target: '肾', label: { show: true, formatter: '水火既济' } },
+      { source: '肺', target: '脾', label: { show: true, formatter: '津液代谢' } },
+      { source: '肺', target: '肝', label: { show: true, formatter: '气机升降' } },
+      { source: '肺', target: '肾', label: { show: true, formatter: '呼吸水液' } },
+      { source: '肝', target: '脾', label: { show: true, formatter: '消化血行' } },
+      { source: '肝', target: '肾', label: { show: true, formatter: '精血同源' } },
+      { source: '脾', target: '肾', label: { show: true, formatter: '先后天互资' } }
+    ]
+  }]
+});
+if(zangfuChart)charts.push(zangfuChart);
+
+window.addEventListener('resize',function(){charts.forEach(function(c){c.resize()})});
+})();
+</script>
+</body>
+</html>

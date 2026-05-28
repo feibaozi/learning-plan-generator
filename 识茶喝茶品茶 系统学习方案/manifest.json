@@ -1,0 +1,131 @@
+{
+  "plans": [
+    {
+      "id": "tea-culture-learning",
+      "title": "识茶·喝茶·品茶 系统学习方案",
+      "domain": "cross-domain",
+      "texture": "G6",
+      "depth": "标准学习",
+      "template_id": "cedar-dawn",
+      "markdown_file": "识茶喝茶品茶学习方案.md",
+      "html_file": "tea_learning.html",
+      "generated_at": "2026-05-28T02:11:00+08:00",
+      "topic_profile": {
+        "abstract": 0.25,
+        "systemic": 0.60,
+        "math_density": 0.10,
+        "temporal": 0.15
+      },
+      "phases": [
+        {
+          "id": "p1",
+          "title": "识茶入门",
+          "weeks": "第1-4周",
+          "kps": [
+            {"id": "p1_1", "name": "茶树品种与起源", "topic_id": null, "has_deep_dive": true},
+            {"id": "p1_2", "name": "六大茶类分类体系", "topic_id": null, "has_deep_dive": true},
+            {"id": "p1_3", "name": "茶叶加工工艺基础", "topic_id": null, "has_deep_dive": true},
+            {"id": "p1_4", "name": "茶叶命名与等级辨识", "topic_id": null, "has_deep_dive": true}
+          ]
+        },
+        {
+          "id": "p2",
+          "title": "泡茶技艺",
+          "weeks": "第5-8周",
+          "kps": [
+            {"id": "p2_1", "name": "水质与水温科学", "topic_id": null, "has_deep_dive": false},
+            {"id": "p2_2", "name": "茶具选择与搭配", "topic_id": null, "has_deep_dive": false},
+            {"id": "p2_3", "name": "各茶类冲泡技法", "topic_id": null, "has_deep_dive": false},
+            {"id": "p2_4", "name": "功夫茶冲泡流程", "topic_id": null, "has_deep_dive": false}
+          ]
+        },
+        {
+          "id": "p3",
+          "title": "品茶之道",
+          "weeks": "第9-12周",
+          "kps": [
+            {"id": "p3_1", "name": "感官品评方法论", "topic_id": null, "has_deep_dive": true},
+            {"id": "p3_2", "name": "品茶术语与风味轮", "topic_id": null, "has_deep_dive": true},
+            {"id": "p3_3", "name": "茶食搭配艺术", "topic_id": null, "has_deep_dive": true},
+            {"id": "p3_4", "name": "茶道精神与礼仪", "topic_id": null, "has_deep_dive": true}
+          ]
+        },
+        {
+          "id": "p4",
+          "title": "茶道精进",
+          "weeks": "第13-14周",
+          "kps": [
+            {"id": "p4_1", "name": "山头茶与风土概念", "topic_id": null, "has_deep_dive": false},
+            {"id": "p4_2", "name": "茶叶收藏与存储科学", "topic_id": null, "has_deep_dive": false}
+          ]
+        }
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "belongs_to_plan": "tea-culture-learning",
+      "belongs_to_kp": "p1_1",
+      "kp_name": "茶树品种与起源",
+      "depth": "intermediate",
+      "html_file": "p1_1_tea-plant-varieties_intermediate.html",
+      "generated_at": "2026-05-28T02:20:00+08:00"
+    },
+    {
+      "belongs_to_plan": "tea-culture-learning",
+      "belongs_to_kp": "p1_2",
+      "kp_name": "六大茶类分类体系",
+      "depth": "intermediate",
+      "html_file": "p1_2_six-tea-categories_intermediate.html",
+      "generated_at": "2026-05-28T02:20:00+08:00"
+    },
+    {
+      "belongs_to_plan": "tea-culture-learning",
+      "belongs_to_kp": "p1_3",
+      "kp_name": "茶叶加工工艺基础",
+      "depth": "intermediate",
+      "html_file": "p1_3_tea-processing-basics_intermediate.html",
+      "generated_at": "2026-05-28T02:20:00+08:00"
+    },
+    {
+      "belongs_to_plan": "tea-culture-learning",
+      "belongs_to_kp": "p1_4",
+      "kp_name": "茶叶命名与等级辨识",
+      "depth": "intermediate",
+      "html_file": "p1_4_tea-naming-grading_intermediate.html",
+      "generated_at": "2026-05-28T02:20:00+08:00"
+    },
+    {
+      "belongs_to_plan": "tea-culture-learning",
+      "belongs_to_kp": "p3_1",
+      "kp_name": "感官品评方法论",
+      "depth": "intermediate",
+      "html_file": "p3_1_sensory-evaluation-methodology_intermediate.html",
+      "generated_at": "2026-05-28T10:00:00+08:00"
+    },
+    {
+      "belongs_to_plan": "tea-culture-learning",
+      "belongs_to_kp": "p3_2",
+      "kp_name": "品茶术语与风味轮",
+      "depth": "intermediate",
+      "html_file": "p3_2_tea-tasting-terminology-flavor-wheel_intermediate.html",
+      "generated_at": "2026-05-28T10:00:00+08:00"
+    },
+    {
+      "belongs_to_plan": "tea-culture-learning",
+      "belongs_to_kp": "p3_3",
+      "kp_name": "茶食搭配艺术",
+      "depth": "intermediate",
+      "html_file": "p3_3_tea-food-pairing-art_intermediate.html",
+      "generated_at": "2026-05-28T10:00:00+08:00"
+    },
+    {
+      "belongs_to_plan": "tea-culture-learning",
+      "belongs_to_kp": "p3_4",
+      "kp_name": "茶道精神与礼仪",
+      "depth": "intermediate",
+      "html_file": "p3_4_tea-ceremony-spirit-etiquette_intermediate.html",
+      "generated_at": "2026-05-28T10:00:00+08:00"
+    }
+  ]
+}

@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>中药基础与常用方剂 — 深度研读</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+--bg-base:#1a1814;--bg-card:#282520;--bg-elevated:#312d27;--bg-overlay:rgba(0,0,0,.6);
+--text-primary:#ede6d8;--text-secondary:#b8ad98;--text-muted:#8a8070;
+--accent-indigo:#5ea87a;--accent-purple:#b898a0;--accent-cyan:#7ec8a0;
+--accent-gold:#e6b95a;--accent-green:#6ebf8a;--accent-red:#d47860;--accent-blue:#5ea87a;
+--accent-color:#5ea87a;--accent-dark:#3d6b50;
+--border-subtle:rgba(184,173,152,.15);--border-glow:rgba(94,168,122,.25);
+--shadow-sm:0 1px 3px rgba(0,0,0,.3);--shadow-md:0 4px 16px rgba(0,0,0,.4);
+--shadow-lg:0 8px 32px rgba(0,0,0,.5);--shadow-elevated:0 8px 32px rgba(0,0,0,.5);
+--radius-sm:6px;--radius-md:10px;--radius-lg:16px;
+--font-sans:'Inter','Noto Sans SC','Segoe UI',system-ui,-apple-system,sans-serif;
+--font-mono:'JetBrains Mono',Consolas,'Cascadia Code',monospace;
+--transition:.25s cubic-bezier(.4,0,.2,1);--transition-smooth:.3s ease;--nav-h:56px;
+--accent-color-rgb:94,168,122;--chart-grid:#2d2924;--chart-axis-label:#8a8070;
+}
+[data-theme="light"]{
+--bg-base:#fdfaf3;--bg-card:#fffdf7;--bg-elevated:#f3efe3;--bg-overlay:rgba(0,0,0,.3);
+--text-primary:#1f1a12;--text-secondary:#4a4035;--text-muted:#5c5042;
+--accent-indigo:#3d6b50;--accent-purple:#7a5a6a;--accent-cyan:#4a8e6a;
+--accent-gold:#a07828;--accent-green:#4a9e66;--accent-red:#b05038;--accent-blue:#3d6b50;
+--accent-color:#3d6b50;--accent-dark:#2a4835;
+--border-subtle:rgba(31,26,18,.08);--border-glow:rgba(61,107,80,.25);
+--shadow-sm:0 1px 3px rgba(0,0,0,.06);--shadow-md:0 4px 16px rgba(0,0,0,.08);
+--shadow-lg:0 8px 32px rgba(0,0,0,.12);--shadow-elevated:0 8px 32px rgba(0,0,0,.12);
+--accent-color-rgb:61,107,80;--chart-grid:#ebe5d6;--chart-axis-label:#5c5042;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font-sans);background:var(--bg-base);color:var(--text-primary);line-height:1.75;overflow-x:hidden}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg-base)}::-webkit-scrollbar-thumb{background:var(--border-glow);border-radius:3px}
+.progress-bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--accent-indigo),var(--accent-purple),var(--accent-cyan));z-index:200;transition:width .1s linear}
+.navbar{position:fixed;top:3px;left:0;right:0;z-index:100;background:var(--bg-card);border-bottom:1px solid var(--border-subtle);backdrop-filter:blur(16px);height:var(--nav-h);display:flex;align-items:center;justify-content:space-between;padding:0 24px}
+.nav-left{display:flex;align-items:center;gap:12px;font-size:.82rem;font-weight:600;color:var(--accent-indigo)}
+.nav-right{display:flex;align-items:center;gap:8px}
+.nav-right button{background:var(--bg-elevated);border:1px solid var(--border-subtle);color:var(--text-secondary);padding:6px 12px;border-radius:var(--radius-sm);cursor:pointer;font-size:.75rem;transition:all var(--transition)}
+.nav-right button:hover{border-color:var(--border-glow);color:var(--accent-indigo)}
+.sidebar{position:fixed;left:0;top:0;height:100vh;width:280px;background:var(--bg-base);border-right:1px solid var(--border-subtle);padding:24px;overflow-y:auto;z-index:100;padding-top:calc(var(--nav-h) + 16px)}
+.sidebar h3{font-size:.85rem;font-weight:700;color:var(--text-secondary);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--border-subtle)}
+.sidebar-nav{list-style:none;padding:0}
+.sidebar-nav li{margin-bottom:2px}
+.sidebar-nav a{display:block;padding:8px 12px;border-radius:var(--radius-md);text-decoration:none;font-size:.76rem;color:var(--text-secondary);transition:all var(--transition);border-left:3px solid transparent}
+.sidebar-nav a:hover{background:rgba(94,168,122,.08);color:var(--accent-cyan);border-left-color:var(--accent-cyan)}
+.sidebar-nav a.active{background:rgba(94,168,122,.12);color:var(--accent-blue);font-weight:600;border-left-color:var(--accent-blue)}
+.sidebar-back-link{display:block;padding:8px 12px;margin-bottom:12px;border-radius:8px;background:var(--bg-elevated);color:var(--accent-blue);text-decoration:none;font-size:.78rem;font-weight:600}
+.sidebar-back-link:hover{color:var(--accent-cyan)}
+.content-area{margin-left:280px;width:calc(100% - 280px)}
+.container{max-width:calc(100% - 48px);margin:0 auto;padding:calc(var(--nav-h) + 24px) 24px 80px}
+.hero{text-align:center;padding:48px 0 36px}
+.hero h1{font-size:2.2rem;background:linear-gradient(135deg,var(--accent-indigo),var(--accent-purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+.hero .tags{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:12px}
+.hero .tags span{font-size:.7rem;padding:4px 12px;border-radius:50px;border:1px solid var(--border-glow);color:var(--accent-indigo);background:rgba(94,168,122,.06)}
+.meta-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:20px 24px;margin:0 auto 32px;max-width:700px;display:flex;justify-content:center;gap:36px;flex-wrap:wrap;box-shadow:var(--shadow-md)}
+.meta-item{text-align:center}
+.meta-item .val{font-size:1.4rem;font-weight:800;color:var(--accent-indigo)}
+.meta-item .lbl{font-size:.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px}
+.journey-bar{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:12px 20px;margin:0 auto 24px;max-width:900px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:.82rem;box-shadow:var(--shadow-elevated)}
+.journey-path{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.journey-icon{font-size:1rem}
+.journey-plan{color:var(--accent-purple);font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.journey-plan:hover{color:var(--accent-gold)}
+.journey-sep{color:var(--text-muted);font-size:.7rem}
+.journey-phase{color:var(--text-secondary);font-weight:600}
+.journey-kp{color:var(--text-primary);font-weight:700}
+.journey-pos{color:var(--text-muted);font-size:.72rem}
+.journey-nav{display:flex;align-items:center;gap:8px;font-size:.75rem}
+.journey-prev,.journey-next{color:var(--text-muted);cursor:default}
+.journey-divider{color:var(--border-subtle)}
+.module{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:28px 28px 24px;margin-bottom:20px;opacity:0;transform:translateY(24px);transition:opacity .5s ease,transform .5s ease;box-shadow:var(--shadow-sm)}
+.module.visible{opacity:1;transform:translateY(0)}
+.module:hover{border-color:var(--border-glow)}
+.module h2{font-size:1.15rem;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.module .m-tag{font-size:.65rem;padding:2px 10px;border-radius:50px;background:rgba(94,168,122,.1);border:1px solid rgba(94,168,122,.2);color:var(--accent-indigo);font-weight:600}
+.module .m-time{font-size:.7rem;color:var(--text-muted);margin-left:auto}
+.module .hook{font-size:.9rem;color:var(--accent-purple);font-weight:600;margin:12px 0 16px;padding-left:12px;border-left:3px solid var(--accent-purple)}
+.module .content{font-size:.88rem;color:var(--text-secondary);line-height:1.8}
+.module .content p{margin-bottom:12px}
+.module .content ul,.module .content ol{padding-left:20px;margin-bottom:12px}
+.module .content li{margin-bottom:4px}
+.formula-block{background:rgba(94,168,122,.04);border:1px solid rgba(94,168,122,.12);border-radius:var(--radius-sm);padding:14px 18px;margin:14px 0;font-family:var(--font-mono);font-size:.82rem;color:var(--accent-cyan);overflow-x:auto;position:relative}
+.formula-block .f-cap{font-size:.7rem;color:var(--text-muted);margin-bottom:6px;display:block}
+.derivation-toggle{font-size:.7rem;color:var(--accent-gold);cursor:pointer;border:none;background:none;padding:4px 0;font-family:inherit;display:block;margin-top:6px}
+.derivation-toggle:hover{text-decoration:underline}
+.derivation-content{display:none;margin-top:8px;padding:12px 16px;background:rgba(230,185,90,.04);border-radius:var(--radius-sm);border-left:3px solid var(--accent-gold);font-size:.8rem;color:var(--text-secondary)}
+.derivation-content.open{display:block}
+.chart-wrap{background:rgba(94,168,122,.03);border-radius:var(--radius-sm);padding:8px;margin:14px 0;text-align:center}
+.chart-wrap > div{width:100%;height:320px}
+.chart-wrap .ch-cap{font-size:.72rem;color:var(--text-muted);margin-top:6px}
+.table-container{margin:20px 0;overflow-x:auto}
+.table-container table{width:100%;border-collapse:collapse;border-radius:var(--radius-md);overflow:hidden}
+.table-container th{background:var(--bg-elevated);color:var(--accent-cyan);font-weight:700;padding:12px 16px;text-align:left;font-size:.8rem}
+.table-container td{padding:12px 16px;border-bottom:1px solid var(--border-subtle);font-size:.82rem;color:var(--text-secondary)}
+.table-container tr:hover td{background:rgba(94,168,122,.03)}
+.table-container .table-caption{font-size:.72rem;color:var(--text-muted);margin-bottom:8px;text-align:center}
+.takeaway{font-size:.82rem;background:rgba(110,191,138,.06);border-left:3px solid var(--accent-green);padding:10px 14px;margin-top:16px;border-radius:0 var(--radius-sm) var(--radius-sm) 0;color:var(--accent-green)}
+.ref-list{list-style:none;padding:0;margin-top:8px;font-size:.78rem}
+.ref-list li{padding:4px 0;color:var(--text-muted)}
+.ref-list li::before{content:'📄 '}
+.search-overlay{position:fixed;inset:0;z-index:300;background:var(--bg-overlay);display:none;align-items:flex-start;justify-content:center;padding-top:120px}
+.search-overlay.open{display:flex}
+.search-box{width:520px;max-width:90vw;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:var(--radius-md);box-shadow:var(--shadow-lg);overflow:hidden}
+.search-box input{width:100%;padding:14px 18px;background:transparent;border:none;color:var(--text-primary);font-size:.95rem;outline:none;font-family:inherit}
+.search-results{max-height:360px;overflow-y:auto}
+.search-results div{padding:10px 18px;cursor:pointer;font-size:.82rem;color:var(--text-secondary);border-top:1px solid var(--border-subtle);transition:background var(--transition)}
+.search-results div:hover{background:rgba(94,168,122,.06);color:var(--text-primary)}
+.journey-footer{text-align:center;padding:40px 32px 60px;opacity:.8}
+.back-to-plan{display:inline-flex;align-items:center;gap:8px;padding:10px 24px;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:50px;color:var(--text-secondary);text-decoration:none;font-size:.85rem;font-weight:600;transition:all var(--transition-smooth)}
+.back-to-plan:hover{background:var(--bg-elevated);border-color:var(--accent-purple);color:var(--accent-purple)}
+.deep-floating-back{position:fixed;right:20px;bottom:20px;z-index:10000;transition:opacity .3s,transform .3s}
+.deep-floating-back.hidden{opacity:0;transform:translateY(20px);pointer-events:none}
+.deep-floating-back button{padding:12px 20px;background:linear-gradient(135deg,var(--accent-color),var(--accent-dark));color:white;border:none;border-radius:24px;font-size:.85rem;font-weight:600;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.15);transition:transform .2s,box-shadow .2s;display:flex;align-items:center;gap:8px}
+.deep-floating-back button:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.2)}
+.dd-toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);z-index:10001;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:8px;padding:14px 24px;box-shadow:0 4px 16px rgba(0,0,0,.15);font-size:.85rem;display:none}
+.toast-in{animation:toastIn .3s ease}
+@keyframes toastIn{from{opacity:0;transform:translate(-50%,20px)}to{opacity:1;transform:translate(-50%,0)}}
+.herb-card{display:inline-block;background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:var(--radius-sm);padding:8px 14px;margin:4px;font-size:.78rem;color:var(--accent-gold);font-weight:600}
+.herb-card:hover{border-color:var(--border-glow);background:rgba(230,185,90,.06)}
+@media print{.navbar,.progress-bar,.sidebar,.journey-bar,.journey-footer,.deep-floating-back{display:none!important}.content-area{margin-left:0;width:100%}.module{break-inside:avoid;opacity:1!important;transform:none!important;box-shadow:none}body{background:#fff}}
+@media(max-width:1024px){.sidebar{display:none}.content-area{margin-left:0;width:100%}}
+@media(max-width:768px){
+.hero h1{font-size:1.6rem}.module{padding:20px}.meta-card{font-size:.72rem;padding:12px 16px}.journey-bar{flex-direction:column;align-items:flex-start}
+.deep-floating-back{right:15px;bottom:15px}.deep-floating-back button{padding:10px 16px;font-size:.8rem}
+}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+</head>
+<body data-theme="dark">
+
+<div class="progress-bar" id="progressBar" style="width:0%"></div>
+
+<nav class="navbar">
+  <div class="nav-left">🌿 中药基础与常用方剂</div>
+  <div class="nav-right">
+    <button onclick="toggleTheme()" title="切换主题 (Ctrl+D)">🌓 主题</button>
+    <button onclick="openSearch()" title="搜索 (Ctrl+K)">🔍 搜索</button>
+  </div>
+</nav>
+
+<div class="sidebar">
+  <a href="#" class="sidebar-back-link" onclick="event.preventDefault();var w=window.open('tcm_learning.html#kc-p2_3','plan_main');if(w)w.focus()">← 返回主方案</a>
+  <h3>📖 目录导航</h3>
+  <ul class="sidebar-nav">
+    <li><a href="#module-00">🗺️ 00 总览</a></li>
+    <li><a href="#module-01">📜 01 背景：从神农到现代</a></li>
+    <li><a href="#module-02">🔍 02 核心概念</a></li>
+    <li><a href="#module-03">🌡️ 03 四气五味</a></li>
+    <li><a href="#module-04">🎯 04 归经与升降浮沉</a></li>
+    <li><a href="#module-05">⚠️ 05 配伍与禁忌</a></li>
+    <li><a href="#module-06">🍃 06 解表药</a></li>
+    <li><a href="#module-07">🔥 07 清热药</a></li>
+    <li><a href="#module-08">💪 08 补虚药</a></li>
+    <li><a href="#module-09">💧 09 祛湿与理气药</a></li>
+    <li><a href="#module-10">🏛️ 10 方剂学基础</a></li>
+    <li><a href="#module-11">📋 11 解表与清热方</a></li>
+    <li><a href="#module-12">💊 12 补益与理气方</a></li>
+    <li><a href="#module-13">🌊 13 祛湿与理血方</a></li>
+    <li><a href="#module-14">👨‍⚕️ 14 案例分析</a></li>
+    <li><a href="#module-15">🔬 15 现代研究与学习路径</a></li>
+    <li><a href="#module-16">📚 16 术语表</a></li>
+  </ul>
+</div>
+
+<div class="content-area">
+<div class="search-overlay" id="searchOverlay">
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="搜索模块内容..." oninput="doSearch()" onkeydown="if(event.key==='Escape')closeSearch()">
+    <div class="search-results" id="searchResults"></div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="hero">
+    <h1>中药基础与常用方剂</h1>
+    <div class="tags">
+      <span>🔧 方法</span><span>🌿 中药学</span><span>📜 方剂学</span><span>💊 临床用药</span>
+    </div>
+  </div>
+
+  <div class="meta-card">
+    <div class="meta-item"><div class="val">16</div><div class="lbl">内容模块</div></div>
+    <div class="meta-item"><div class="val">~35min</div><div class="lbl">预计阅读</div></div>
+    <div class="meta-item"><div class="val">5</div><div class="lbl">图表</div></div>
+    <div class="meta-item"><div class="val">5</div><div class="lbl">核心公式</div></div>
+  </div>
+
+  <div class="journey-bar" id="journeyBar">
+    <div class="journey-path">
+      <span class="journey-icon">📍</span>
+      <span class="journey-plan" onclick="var w=window.open('tcm_learning.html#kc-p2_3','plan_main');if(w)w.focus()">中医与养生 系统学习方案</span>
+      <span class="journey-sep">〉</span>
+      <span class="journey-phase">第2阶段：诊法与方技核心</span>
+      <span class="journey-sep">〉</span>
+      <span class="journey-kp">中药基础与常用方剂</span>
+      <span class="journey-pos">(第3/4个知识点)</span>
+    </div>
+    <div class="journey-nav">
+      <span class="journey-prev" title="前置: 八纲辨证与脏腑辨证">← 前置</span>
+      <span class="journey-divider">|</span>
+      <span class="journey-next" title="后续: 针灸推拿基础技法">后续 →</span>
+    </div>
+  </div>
+
+<!-- module-00: 总览 -->
+<div class="module" id="module-00">
+<h2><span>🗺️</span> 学习路线 <span class="m-tag">定位</span><span class="m-time">总览</span></h2>
+<div class="hook">四气五味定药性，君臣佐使组方剂——这是中医从诊断走向治疗的关键桥梁</div>
+<div class="content">
+<p>中药学与方剂学是中医学两大核心分支。中药学研究药物的<strong>性能、功效、配伍与应用</strong>，方剂学则研究<strong>如何将药物组合成方</strong>以针对性地治疗疾病。二者共同构成中医"理-法-方-药"体系的后两个环节。</p>
+<p>本资料涵盖<strong>16个模块</strong>：从药性理论（四气、五味、归经、升降浮沉）入手，系统介绍六大类常用中药（解表、清热、补虚、祛湿、理气、活血等），再深入到方剂配伍原则（君臣佐使、七方十剂），最后通过12+首经典方剂的详细拆解和完整案例分析，帮助建立"见病识证→据证立法→依法选方→据方用药"的完整思维链条。</p>
+<p>学习目标：掌握<strong>30+味核心中药</strong>的性能功效，理解<strong>12+首经典方剂</strong>的配伍机理，能够进行基本的辨证选方用药推理。</p>
+</div>
+</div>
+
+<!-- module-01: 背景 -->
+<div class="module" id="module-01">
+<h2><span>📜</span> 背景与缘起 <span class="m-tag">历史</span><span class="m-time">~3min</span></h2>
+<div class="hook">从神农尝百草到青蒿素获得诺贝尔奖，中药学走过了数千年的知识积累与验证之路。</div>
+<div class="content">
+<p>中药的起源可追溯到远古时期的<strong>"神农尝百草"</strong>。先民在与自然互动的过程中，逐步积累了动植物和矿物的药用经验。现存最早的中药学专著是《<strong>神农本草经</strong>》（约东汉时期成书），载药365种，首创上中下三品分类法：上品养命、中品养性、下品治病。</p>
+<p>唐代《<strong>新修本草</strong>》（659年）是世界第一部国家药典，载药844种。明代李时珍的《<strong>本草纲目</strong>》（1590年）集历代本草学之大成，载药1892种，附方11096首，被誉为"东方医药巨典"，已被译成多种文字流传世界。</p>
+<p><strong>方剂学的发展脉络：</strong>《<strong>伤寒杂病论</strong>》（张仲景，约200年）是方剂学的奠基之作，记载了113首方剂，"方书之祖"的地位至今不可撼动。宋代《太平惠民和剂局方》作为官方药局配方标准，推广了大量有效成方。清代《<strong>医方集解</strong>》按功效对方剂进行分类，成为后世方剂学教材的蓝本。</p>
+<p>现代中药学研究已进入<strong>分子药理学</strong>阶段：从青蒿中提取青蒿素（2015年屠呦呦获诺贝尔奖）、从砒霜中发展三氧化二砷治疗白血病，验证了中药的科学价值。</p>
+<div class="table-container">
+<div class="table-caption">表：中药学与方剂学发展里程碑</div>
+<table>
+<tr><th>年代</th><th>著作/事件</th><th>意义</th></tr>
+<tr><td>远古</td><td>神农尝百草</td><td>中药经验的原始积累</td></tr>
+<tr><td>约东汉</td><td>《神农本草经》</td><td>现存最早中药学专著，365味</td></tr>
+<tr><td>约200年</td><td>《伤寒杂病论》</td><td>方剂学奠基，113方</td></tr>
+<tr><td>659年</td><td>《新修本草》</td><td>世界第一部国家药典</td></tr>
+<tr><td>1590年</td><td>《本草纲目》</td><td>集大成之作，1892种</td></tr>
+<tr><td>2015年</td><td>屠呦呦获诺贝尔奖</td><td>青蒿素验证中药科学价值</td></tr>
+</table>
+</div>
+</div>
+<div class="takeaway">中药学历经数千年经验积累，从本草描述到分子靶点的科学验证，始终保持着"以效为核心"的实用主义传统</div>
+</div>
+
+<!-- module-02: 核心概念 -->
+<div class="module" id="module-02">
+<h2><span>🔍</span> 核心概念 <span class="m-tag">定义</span><span class="m-time">~3min</span></h2>
+<div class="hook">中药≠草药≠方剂——三者既有联系又有本质区别，药性理论是中药区别于其他药物体系的根本特征。</div>
+<div class="content">
+<p><strong>中药（Chinese Materia Medica）</strong>：在中医理论指导下认识和使用的药物，包括植物药、动物药和矿物药。其核心特征是必须用中医理论（四气五味、归经、升降浮沉等）来描述和解释其作用。</p>
+<p><strong>草药（Herbal Medicine）</strong>：泛指民间使用的植物性药物，不一定有系统的理论指导。"草药"强调的是来源属性，"中药"强调的则是理论属性。</p>
+<p><strong>方剂（Formula / Prescription）</strong>：在辨证立法的基础上，按照<strong>君臣佐使</strong>的配伍原则，将两味或两味以上的中药组合而成的处方。方剂不是药物的简单堆砌，而是通过配伍产生协同、制约、引导等复杂作用。</p>
+<p><strong>药性理论</strong>是中药学的核心理论框架，包括四个方面：</p>
+<div class="formula-block"><span class="f-cap">药性理论的四大支柱</span>
+四气（寒热温凉）→ 调节阴阳偏盛偏衰
+五味（酸苦甘辛咸）→ 反映药物功能特性
+归经 → 药物作用的脏腑经络定位
+升降浮沉 → 药物作用的趋向性</div>
+<p>这四大理论维度共同构成了中药药性的"多维坐标系"，临床上根据病证的寒热虚实和脏腑定位来选药——这就是"据证立法→依法选方→据方用药"的逻辑链条。</p>
+</div>
+<div class="takeaway">中药必须是"在中医理论指导下使用"的药物，其药性由四气、五味、归经、升降浮沉四个维度共同定义</div>
+</div>
+
+<!-- module-03: 四气五味 -->
+<div class="module" id="module-03">
+<h2><span>🌡️</span> 四气五味 <span class="m-tag">核心理论</span><span class="m-time">~3min</span></h2>
+<div class="hook">寒者热之，热者寒之——四气是调节阴阳的杠杆，五味是功能信息的载体。</div>
+<div class="content">
+<p><strong>四气（四性）：寒、热、温、凉</strong></p>
+<p>四气反映药物对人体阴阳盛衰和寒热变化的作用倾向。寒与凉同类（凉次于寒），热与温同类（温次于热）。此外还有<strong>平性</strong>药物，指寒热偏性不明显、作用较为和缓者。</p>
+<p>临床应用的核心原则：<strong>"寒者热之，热者寒之"</strong>——即阳热证用寒凉药，阴寒证用温热药。这是中医治疗八法中的"温法"和"清法"的药理学基础。</p>
+<div class="table-container">
+<div class="table-caption">表：四气分类与代表药物</div>
+<table>
+<tr><th>四气</th><th>作用特点</th><th>适应证</th><th>代表药物</th></tr>
+<tr><td>寒</td><td>清热泻火、凉血解毒（作用强）</td><td>实热证、热毒证</td><td>石膏、黄连、金银花</td></tr>
+<tr><td>凉</td><td>清热、凉血（作用较和缓）</td><td>轻度热证</td><td>薄荷、桑叶、菊花</td></tr>
+<tr><td>平</td><td>寒热偏性不明显</td><td>各类证候均可</td><td>甘草、茯苓、山药</td></tr>
+<tr><td>温</td><td>温中散寒、温经通络（较和缓）</td><td>轻度寒证</td><td>桂枝、陈皮、当归</td></tr>
+<tr><td>热</td><td>温阳救逆、散寒止痛（作用强）</td><td>寒实证、亡阳证</td><td>附子、干姜、肉桂</td></tr>
+</table>
+</div>
+<p><strong>五味：酸、苦、甘、辛、咸（+淡、涩）</strong></p>
+<p>五味不仅是对药物味道的描述，更重要的是对药物<strong>功能的高度概括</strong>。每种味对应特定的功能方向：</p>
+<div class="table-container">
+<div class="table-caption">表：五味分类与功能对应</div>
+<table>
+<tr><th>味</th><th>作用</th><th>中医原理</th><th>代表药物</th></tr>
+<tr><td>辛</td><td>发散、行气、活血</td><td>能散能行</td><td>麻黄、川芎、木香</td></tr>
+<tr><td>甘</td><td>补益、和中、缓急</td><td>能补能缓能和</td><td>人参、甘草、大枣</td></tr>
+<tr><td>酸</td><td>收敛、固涩</td><td>能收能涩</td><td>五味子、乌梅、山茱萸</td></tr>
+<tr><td>苦</td><td>燥湿、泻火、降逆</td><td>能泄能燥能坚</td><td>黄连、黄芩、大黄</td></tr>
+<tr><td>咸</td><td>软坚散结、泻下通便</td><td>能下能软</td><td>芒硝、牡蛎、昆布</td></tr>
+<tr><td>淡</td><td>渗湿利水</td><td>能渗能利</td><td>茯苓、猪苓、薏苡仁</td></tr>
+<tr><td>涩</td><td>收敛固涩（与酸类似）</td><td>能收能涩</td><td>龙骨、海螵蛸、芡实</td></tr>
+</table>
+</div>
+<p>每味药物的性和味是<strong>综合判断</strong>的。例如：麻黄辛温（性温+味辛）、黄连苦寒（性寒+味苦）。性是定性（方向），味是定位（功能类型），两者结合才能准确描述药性。</p>
+</div>
+<div class="takeaway">四气定方向（寒热温凉调节阴阳），五味定功能（辛散酸收甘缓苦燥咸软），性与味结合构成药物性能的二维描述体系</div>
+</div>
+
+<!-- module-04: 归经与升降浮沉 -->
+<div class="module" id="module-04">
+<h2><span>🎯</span> 归经与升降浮沉 <span class="m-tag">核心理论</span><span class="m-time">~2min</span></h2>
+<div class="hook">同样是清热药，石膏清肺胃、黄连清心胃、龙胆草清肝胆——归经让药物有了"GPS导航"。</div>
+<div class="content">
+<p><strong>归经</strong>：指药物对机体某些脏腑经络具有<strong>选择性作用</strong>的特性。归经理论是中药药性理论的重大特色，它解决了"药物作用到哪里去"的问题。</p>
+<p>归经的确定基于三方面的综合判断：①药物的临床疗效（某药对某经的病证效果好）；②药物的形色气味（如青色入肝、味辛入肺等取象比类）；③经络理论（药物循经作用的观察）。其中<strong>临床疗效</strong>是最主要和最可靠的依据。</p>
+<div class="formula-block"><span class="f-cap">归经与脏腑病证的配对示例</span>
+肺经：咳喘（麻黄、杏仁）  心经：心悸失眠（酸枣仁、黄连）
+肝经：胁痛目赤（柴胡、龙胆草）脾经：食欲不振（白术、茯苓）
+肾经：腰膝酸软（熟地、杜仲）  胃经：胃热口渴（石膏、知母）</div>
+<p>一味药可归<strong>多个经</strong>，例如：甘草归心、肺、脾、胃经；柴胡归肝、胆、肺经。归经越多，适应范围越广，但针对性也可能下降。</p>
+<p><strong>升降浮沉</strong>：指药物进入人体后作用的<strong>四种趋向</strong>。升是上升，降是下降，浮是向外发散，沉是向内收敛。一般而言：</p>
+<div class="table-container">
+<div class="table-caption">表：升降浮沉的决定因素</div>
+<table>
+<tr><th>维度</th><th>升浮</th><th>沉降</th></tr>
+<tr><td>气味</td><td>辛甘、温热</td><td>酸苦咸、寒凉</td></tr>
+<tr><td>质地</td><td>质轻（花叶类）</td><td>质重（矿物贝壳类）</td></tr>
+<tr><td>炮制</td><td>酒炒则升</td><td>盐炒则降、姜汁炒则散</td></tr>
+<tr><td>典型药物</td><td>麻黄、升麻、柴胡</td><td>大黄、代赭石、龙骨</td></tr>
+</table>
+</div>
+<p>临床应用：病位在上在表（如外感头痛），用升浮药发散；病位在下在里（如便秘），用沉降药通下；病势上逆（如呕吐），用沉降药降逆；病势下陷（如脱肛），用升浮药升提。</p>
+</div>
+<div class="takeaway">归经决定了药物的作用靶点，升降浮沉决定了药物的作用方向——两者结合实现精准的"靶向给药"</div>
+</div>
+
+<!-- module-05: 配伍与禁忌 -->
+<div class="module" id="module-05">
+<h2><span>⚠️</span> 中药的配伍与禁忌 <span class="m-tag">核心理论</span><span class="m-time">~2min</span></h2>
+<div class="hook">两味药放一起，效果可能是1+1&gt;2，也可能是产生毒性——这就是配伍的学问。</div>
+<div class="content">
+<p><strong>七情配伍</strong>（《神农本草经》首提）：药物配合使用时的七种情况：</p>
+<div class="table-container">
+<div class="table-caption">表：七情配伍详解</div>
+<table>
+<tr><th>配伍关系</th><th>含义</th><th>效果</th><th>示例</th></tr>
+<tr><td>单行</td><td>单味药应用</td><td>独立起效</td><td>独参汤（单用人参）</td></tr>
+<tr><td>相须</td><td>同类药合用增效</td><td>协同增强</td><td>石膏+知母清热</td></tr>
+<tr><td>相使</td><td>主辅配合增效</td><td>辅助增强</td><td>黄芪+茯苓利水</td></tr>
+<tr><td>相畏</td><td>一药毒性被另一药减弱</td><td>毒性减轻</td><td>半夏畏生姜</td></tr>
+<tr><td>相杀</td><td>一药能消除另一药毒性</td><td>毒性消除</td><td>生姜杀半夏毒</td></tr>
+<tr><td>相恶</td><td>合用后功效降低</td><td>药效减弱</td><td>人参与莱菔子</td></tr>
+<tr><td>相反</td><td>合用产生毒副作用</td><td>毒副作用</td><td>甘草反甘遂</td></tr>
+</table>
+</div>
+<p><strong>十八反</strong>（配伍禁忌）：本草明言十八反，半蒌贝蔹及攻乌，藻戟遂芫俱战草，诸参辛芍叛藜芦。具体来说：乌头（川乌、草乌、附子）反半夏、瓜蒌、贝母、白蔹、白及；甘草反甘遂、大戟、海藻、芫花；藜芦反人参、丹参、沙参、玄参、细辛、芍药。</p>
+<p><strong>十九畏</strong>（配伍注意）：硫黄畏朴硝，水银畏砒霜，狼毒畏密陀僧，巴豆畏牵牛，丁香畏郁金，川乌草乌畏犀角，牙硝畏三棱，官桂畏赤石脂，人参畏五灵脂。</p>
+<div class="formula-block"><span class="f-cap">十八反歌诀</span>
+本草明言十八反，半蒌贝蔹及攻乌，
+藻戟遂芫俱战草，诸参辛芍叛藜芦。</div>
+<button class="derivation-toggle">▸ 展开：关于"相反"的现代认识</button>
+<div class="derivation-content">
+<p>现代药理研究表明，十八反并非绝对的配伍禁忌。部分"相反"配伍在特定条件下（如特定剂量、特定病证）反而可以产生特殊的治疗效果。例如：甘遂半夏汤（伤寒论方）中即有甘草与甘遂同用。然而，一般临床应用仍应谨慎遵循十八反原则，特别是对毒性药物的配伍。现代研究倾向于认为：十八反是特定条件下毒性增强的风险提示，而非绝对的"毒药"标签。</p>
+</div>
+<p><strong>妊娠用药禁忌</strong>：禁用药（毒性较强或药性猛烈，如巴豆、牵牛、大戟、斑蝥、麝香、三棱、莪术等）和慎用药（活血祛瘀、行气破滞类，如桃仁、红花、大黄、枳实、附子等）。</p>
+</div>
+<div class="takeaway">相须、相使是增效的黄金组合；相畏、相杀是减毒的巧妙运用；相反、相恶是临床必须谨慎回避的风险</div>
+</div>
+
+<!-- module-06: 解表药 -->
+<div class="module" id="module-06">
+<h2><span>🍃</span> 解表药 <span class="m-tag">药物分类</span><span class="m-time">~3min</span></h2>
+<div class="hook">外感风寒，一碗姜汤就能发汗解表——解表药是中医对抗外感病的第一道防线。</div>
+<div class="content">
+<p>解表药以<strong>发散表邪</strong>为主要功效，用于治疗外感表证（感冒、流感等初期阶段）。根据药性的寒热分为<strong>辛温解表药（发散风寒）</strong>和<strong>辛凉解表药（发散风热）</strong>两大类。</p>
+<div class="table-container">
+<div class="table-caption">表：主要解表药性味归经功效</div>
+<table>
+<tr><th>药名</th><th>性味</th><th>归经</th><th>功效</th><th>主治</th><th>用量(g)</th></tr>
+<tr><td>麻黄</td><td>辛、微苦、温</td><td>肺、膀胱</td><td>发汗解表、宣肺平喘、利水消肿</td><td>风寒表实证（无汗）</td><td>2-10</td></tr>
+<tr><td>桂枝</td><td>辛、甘、温</td><td>心、肺、膀胱</td><td>发汗解肌、温通经脉、助阳化气</td><td>风寒表虚证（有汗）</td><td>3-10</td></tr>
+<tr><td>紫苏</td><td>辛、温</td><td>肺、脾</td><td>解表散寒、行气和胃</td><td>风寒感冒伴脾胃气滞</td><td>5-10</td></tr>
+<tr><td>生姜</td><td>辛、温</td><td>肺、脾、胃</td><td>解表散寒、温中止呕</td><td>风寒表证、胃寒呕吐</td><td>3-10</td></tr>
+<tr><td>荆芥</td><td>辛、微温</td><td>肺、肝</td><td>祛风解表、透疹消疮</td><td>风寒/风热均可、疮疡初起</td><td>5-10</td></tr>
+<tr><td>防风</td><td>辛、甘、微温</td><td>膀胱、肝、脾</td><td>祛风解表、胜湿止痛</td><td>外感表证、风疹瘙痒</td><td>5-10</td></tr>
+<tr><td>薄荷</td><td>辛、凉</td><td>肺、肝</td><td>疏散风热、清利头目、利咽</td><td>风热感冒、头痛目赤</td><td>3-6</td></tr>
+<tr><td>桑叶</td><td>甘、苦、寒</td><td>肺、肝</td><td>疏散风热、清肺润燥、平肝明目</td><td>风热感冒、目赤昏花</td><td>5-10</td></tr>
+<tr><td>菊花</td><td>辛、甘、苦、微寒</td><td>肺、肝</td><td>疏散风热、平肝明目、清热解毒</td><td>风热感冒、目赤肿痛</td><td>5-10</td></tr>
+<tr><td>柴胡</td><td>苦、辛、微寒</td><td>肝、胆、肺</td><td>疏散退热、疏肝解郁、升举阳气</td><td>少阳证寒热往来、肝郁气滞</td><td>3-10</td></tr>
+</table>
+</div>
+<p><strong>使用注意</strong>：解表药多辛散，不宜久煎（后下或短煎）；发汗不宜太过，以微汗为度；体虚多汗、津液亏耗者慎用。</p>
+</div>
+<div class="takeaway">麻黄发汗力强治表实无汗，桂枝发汗力缓治表虚有汗——同是辛温解表，差异在于力度的精准控制</div>
+</div>
+
+<!-- module-07: 清热药 -->
+<div class="module" id="module-07">
+<h2><span>🔥</span> 清热药 <span class="m-tag">药物分类</span><span class="m-time">~3min</span></h2>
+<div class="hook">热者寒之——清热药是中医"灭火"的武器库，但火有虚实、分表里，清法也因此分为五类。</div>
+<div class="content">
+<p>清热药以<strong>清泄里热</strong>为主要功效，用于治疗各种里热证。根据热邪所在的部位和性质，分为五类：</p>
+<p><strong>①清热泻火药</strong>：清泄气分实热，用于高热、烦渴、汗出、脉洪大等气分热盛证。</p>
+<p><strong>②清热燥湿药</strong>：清热+燥湿，用于湿热内蕴（泻痢、黄疸、带下等）。</p>
+<p><strong>③清热解毒药</strong>：清解热毒，用于痈肿疮疡、热毒炽盛。</p>
+<p><strong>④清热凉血药</strong>：清解血分热邪，用于热入营血（斑疹、出血、神昏）。</p>
+<p><strong>⑤清虚热药</strong>：清退虚热，用于阴虚内热（骨蒸潮热、盗汗）。</p>
+<div class="table-container">
+<div class="table-caption">表：主要清热药性味归经功效</div>
+<table>
+<tr><th>分类</th><th>药名</th><th>性味</th><th>归经</th><th>功效</th><th>用量(g)</th></tr>
+<tr><td>泻火</td><td>石膏</td><td>甘、辛、大寒</td><td>肺、胃</td><td>清热泻火、除烦止渴</td><td>15-60</td></tr>
+<tr><td>泻火</td><td>知母</td><td>苦、甘、寒</td><td>肺、胃、肾</td><td>清热泻火、滋阴润燥</td><td>6-12</td></tr>
+<tr><td>泻火</td><td>栀子</td><td>苦、寒</td><td>心、肺、三焦</td><td>泻火除烦、清热利湿、凉血解毒</td><td>6-10</td></tr>
+<tr><td>燥湿</td><td>黄芩</td><td>苦、寒</td><td>肺、胆、脾、大肠、小肠</td><td>清热燥湿、泻火解毒、止血安胎</td><td>3-10</td></tr>
+<tr><td>燥湿</td><td>黄连</td><td>苦、寒</td><td>心、脾、胃、肝、胆、大肠</td><td>清热燥湿、泻火解毒</td><td>2-5</td></tr>
+<tr><td>燥湿</td><td>黄柏</td><td>苦、寒</td><td>肾、膀胱、大肠</td><td>清热燥湿、泻火除蒸、解毒</td><td>3-12</td></tr>
+<tr><td>解毒</td><td>金银花</td><td>甘、寒</td><td>肺、心、胃</td><td>清热解毒、疏散风热</td><td>6-15</td></tr>
+<tr><td>解毒</td><td>连翘</td><td>苦、微寒</td><td>肺、心、小肠</td><td>清热解毒、消肿散结、疏散风热</td><td>6-15</td></tr>
+<tr><td>凉血</td><td>生地黄</td><td>甘、苦、寒</td><td>心、肝、肾</td><td>清热凉血、养阴生津</td><td>10-15</td></tr>
+<tr><td>凉血</td><td>牡丹皮</td><td>苦、辛、微寒</td><td>心、肝、肾</td><td>清热凉血、活血化瘀</td><td>6-12</td></tr>
+</table>
+</div>
+</div>
+<div class="takeaway">清热泻火（清透气分热）→清热燥湿（湿热双清）→清热解毒（疮疡热毒）→清热凉血（血分深热）→清虚热（阴虚发热），层次递进</div>
+</div>
+
+<!-- module-08: 补虚药 -->
+<div class="module" id="module-08">
+<h2><span>💪</span> 补虚药 <span class="m-tag">药物分类</span><span class="m-time">~3min</span></h2>
+<div class="hook">虚则补之——人参补气、当归补血、熟地补阴、鹿茸补阳，补虚药是中医修复人体正气的主力军。</div>
+<div class="content">
+<p>补虚药以<strong>补益人体气血阴阳之不足</strong>为主要功效，用于治疗各种虚证。根据所补的物质和功能不同，分为补气、补血、补阴、补阳四类。</p>
+<div class="table-container">
+<div class="table-caption">表：主要补虚药性味归经功效</div>
+<table>
+<tr><th>分类</th><th>药名</th><th>性味</th><th>归经</th><th>功效</th><th>主治</th><th>用量(g)</th></tr>
+<tr><td>补气</td><td>人参</td><td>甘、微苦、微温</td><td>脾、肺、心、肾</td><td>大补元气、补脾益肺、安神益智</td><td>气虚欲脱、脾虚食少</td><td>3-9</td></tr>
+<tr><td>补气</td><td>黄芪</td><td>甘、微温</td><td>脾、肺</td><td>补气升阳、固表止汗、利水消肿</td><td>脾肺气虚、自汗</td><td>9-30</td></tr>
+<tr><td>补气</td><td>白术</td><td>甘、苦、温</td><td>脾、胃</td><td>健脾益气、燥湿利水、止汗安胎</td><td>脾虚食少、水肿</td><td>6-12</td></tr>
+<tr><td>补气</td><td>甘草</td><td>甘、平</td><td>心、肺、脾、胃</td><td>补脾益气、清热解毒、调和诸药</td><td>脾胃虚弱、调和药性</td><td>2-10</td></tr>
+<tr><td>补血</td><td>当归</td><td>甘、辛、温</td><td>肝、心、脾</td><td>补血活血、调经止痛、润肠通便</td><td>血虚萎黄、月经不调</td><td>6-12</td></tr>
+<tr><td>补血</td><td>熟地黄</td><td>甘、微温</td><td>肝、肾</td><td>补血滋阴、益精填髓</td><td>血虚萎黄、肝肾阴虚</td><td>9-15</td></tr>
+<tr><td>补血</td><td>白芍</td><td>苦、酸、微寒</td><td>肝、脾</td><td>养血调经、柔肝止痛、平抑肝阳</td><td>血虚月经不调、胁痛</td><td>6-15</td></tr>
+<tr><td>补阴</td><td>麦冬</td><td>甘、微苦、微寒</td><td>心、肺、胃</td><td>养阴润肺、益胃生津、清心除烦</td><td>肺燥干咳、胃阴不足</td><td>6-12</td></tr>
+<tr><td>补阴</td><td>枸杞子</td><td>甘、平</td><td>肝、肾</td><td>滋补肝肾、益精明目</td><td>肝肾阴虚、目昏</td><td>6-12</td></tr>
+<tr><td>补阳</td><td>杜仲</td><td>甘、温</td><td>肝、肾</td><td>补肝肾、强筋骨、安胎</td><td>肾虚腰痛、胎动不安</td><td>6-10</td></tr>
+</table>
+</div>
+<p><strong>使用注意</strong>：补虚药不宜滥用，需辨别虚证的类型和程度。"虚不受补"者（脾胃虚弱、运化不及）应先调理脾胃再进补。外邪未尽者不宜过早使用补药，以免"闭门留寇"。</p>
+</div>
+<div class="takeaway">补气（人参黄芪）→补血（当归熟地）→补阴（麦冬枸杞）→补阳（杜仲鹿茸），四类补虚覆盖了人体正气亏虚的全部维度</div>
+</div>
+
+<!-- module-09: 祛湿药与理气药 -->
+<div class="module" id="module-09">
+<h2><span>💧</span> 祛湿药与理气药 <span class="m-tag">药物分类</span><span class="m-time">~2min</span></h2>
+<div class="hook">湿性黏滞，气贵流通——祛湿药扫除体内"湿垃圾"，理气药疏通全身"气交通"。</div>
+<div class="content">
+<p><strong>祛湿药</strong>分为化湿燥湿、利水渗湿、祛风湿三类：</p>
+<div class="table-container">
+<div class="table-caption">表：主要祛湿药</div>
+<table>
+<tr><th>分类</th><th>药名</th><th>性味</th><th>归经</th><th>功效</th><th>用量(g)</th></tr>
+<tr><td>化湿</td><td>苍术</td><td>辛、苦、温</td><td>脾、胃、肝</td><td>燥湿健脾、祛风散寒</td><td>3-9</td></tr>
+<tr><td>化湿</td><td>厚朴</td><td>苦、辛、温</td><td>脾、胃、肺、大肠</td><td>燥湿消痰、下气除满</td><td>3-10</td></tr>
+<tr><td>化湿</td><td>藿香</td><td>辛、微温</td><td>脾、胃、肺</td><td>化湿醒脾、和中止呕</td><td>5-10</td></tr>
+<tr><td>利水</td><td>茯苓</td><td>甘、淡、平</td><td>心、肺、脾、肾</td><td>利水渗湿、健脾宁心</td><td>10-15</td></tr>
+<tr><td>利水</td><td>薏苡仁</td><td>甘、淡、凉</td><td>脾、胃、肺</td><td>利水渗湿、健脾止泻、除痹</td><td>9-30</td></tr>
+</table>
+</div>
+<p><strong>理气药</strong>以舒畅气机为主要功效，用于气滞证（胀满、疼痛、痞闷）：</p>
+<div class="table-container">
+<div class="table-caption">表：主要理气药</div>
+<table>
+<tr><th>药名</th><th>性味</th><th>归经</th><th>功效</th><th>用量(g)</th></tr>
+<tr><td>陈皮</td><td>辛、苦、温</td><td>脾、肺</td><td>理气健脾、燥湿化痰</td><td>3-10</td></tr>
+<tr><td>木香</td><td>辛、苦、温</td><td>脾、胃、大肠、胆</td><td>行气止痛、健脾消食</td><td>3-6</td></tr>
+<tr><td>香附</td><td>辛、微苦、微甘、平</td><td>肝、脾、三焦</td><td>疏肝解郁、调经止痛、理气宽中</td><td>6-10</td></tr>
+<tr><td>枳实</td><td>苦、辛、酸、微寒</td><td>脾、胃、大肠</td><td>破气消积、化痰除痞</td><td>3-10</td></tr>
+</table>
+</div>
+<p>理气药多辛散走窜，易耗气伤阴，气虚阴虚者慎用。</p>
+</div>
+<div class="takeaway">祛湿药利水渗湿（从下而出），理气药行散气滞（从里而解），两者常配伍使用以解决"气滞湿阻"的复合病机</div>
+</div>
+
+<!-- module-10: 方剂学基础 -->
+<div class="module" id="module-10">
+<h2><span>🏛️</span> 方剂学基础 <span class="m-tag">核心理论</span><span class="m-time">~2min</span></h2>
+<div class="hook">一味药是将，一首方是军团——君臣佐使的组织架构，让药物从单兵作战升级为系统工程。</div>
+<div class="content">
+<p><strong>君臣佐使</strong>是方剂配伍的基本原则（《素问·至真要大论》首提），四种角色各有定位：</p>
+<div class="formula-block"><span class="f-cap">君臣佐使的职责划分</span>
+【君药】针对主病或主证起主要治疗作用的药物（1-2味，药力居首）
+【臣药】辅助君药加强治疗作用，或针对兼病兼证（药力次于君）
+【佐药】分三类：佐助（协助君臣）、佐制（制约君臣毒性偏性）、反佐（病重格拒时用与君药性味相反的药物引导）
+【使药】分两类：引经（引导药物到达病所）、调和（调和方中诸药）</div>
+<div class="table-container">
+<div class="table-caption">表：方剂君臣佐使分析示例（四君子汤）</div>
+<table>
+<tr><th>角色</th><th>药物</th><th>剂量</th><th>在方中的作用</th></tr>
+<tr><td>君</td><td>人参</td><td>9g</td><td>大补脾胃之气，针对脾胃气虚主证</td></tr>
+<tr><td>臣</td><td>白术</td><td>9g</td><td>健脾燥湿，辅助人参益气健脾</td></tr>
+<tr><td>佐</td><td>茯苓</td><td>9g</td><td>健脾渗湿，使补而不滞</td></tr>
+<tr><td>使</td><td>甘草</td><td>6g</td><td>益气和中，调和诸药</td></tr>
+</table>
+</div>
+<p><strong>七方</strong>（按方剂组成分类）：大方（药味多、剂量大）、小方、缓方、急方、奇方、偶方、复方。</p>
+<p><strong>十剂</strong>（按功效分类）：宣剂（宣散）、通剂（通利）、补剂、泄剂、轻剂、重剂、滑剂、涩剂、燥剂、湿剂。</p>
+<p>现代方剂学按<strong>治法功效</strong>分为：解表剂、泻下剂、和解剂、清热剂、温里剂、补益剂、固涩剂、安神剂、理气剂、理血剂、治风剂、治燥剂、祛湿剂、祛痰剂、消食剂、驱虫剂等近20类。</p>
+</div>
+<div class="takeaway">一首方=君（主力）+臣（助攻）+佐（辅助/制约/反佐）+使（引导/调和），四者配合实现"增效减毒"的系统效应</div>
+</div>
+
+<!-- module-11: 解表与清热方 -->
+<div class="module" id="module-11">
+<h2><span>📋</span> 常用方剂——解表与清热 <span class="m-tag">经典方剂</span><span class="m-time">~2min</span></h2>
+<div class="hook">麻黄汤与桂枝汤，一对"有汗无汗"的经典对照——方剂之间的细微差异，就是临床精准用药的艺术。</div>
+<div class="content">
+<p><strong>麻黄汤</strong>（《伤寒论》）：发汗解表、宣肺平喘之峻剂。</p>
+<div class="formula-block"><span class="f-cap">麻黄汤组成</span>麻黄 9g（君）| 桂枝 6g（臣）| 杏仁 9g（佐）| 甘草 3g（使）
+主治：外感风寒表实证（恶寒发热、无汗而喘、脉浮紧）</div>
+<p><strong>桂枝汤</strong>（《伤寒论》）：解肌发表、调和营卫之祖方，被誉为"群方之冠"。</p>
+<div class="formula-block"><span class="f-cap">桂枝汤组成</span>桂枝 9g（君）| 白芍 9g（臣）| 生姜 9g（佐）| 大枣 12枚（佐）| 甘草 6g（使）
+主治：外感风寒表虚证（恶风发热、汗出、脉浮缓）</div>
+<p><strong>银翘散</strong>（《温病条辨》）：辛凉解表代表方。</p>
+<div class="formula-block"><span class="f-cap">银翘散组成</span>金银花 15g、连翘 15g（君）| 薄荷 6g、牛蒡子 9g（臣）| 荆芥 9g、淡豆豉 9g、桔梗 9g、竹叶 9g（佐）| 甘草 6g（使）
+主治：温病初起（发热、微恶风寒、咽痛口渴、脉浮数）</div>
+<p><strong>白虎汤</strong>（《伤寒论》）：清热泻火之代表方。</p>
+<div class="formula-block"><span class="f-cap">白虎汤组成</span>石膏 50g（君）| 知母 18g（臣）| 甘草 6g（佐使）| 粳米 9g（佐使）
+主治：气分热盛证（大热、大汗、大渴、脉洪大——四大症）</div>
+<p><strong>麻黄汤 vs 桂枝汤</strong>的关键区别：麻黄汤发汗力强，针对表实无汗；桂枝汤发汗力缓，解肌为主，针对表虚有汗。两者都治风寒表证，但一实一虚，不可混淆。</p>
+</div>
+<div class="takeaway">麻黄汤峻汗治表实，桂枝汤缓汗治表虚——同样的外感风寒，有汗无汗决定了截然不同的方剂选择</div>
+</div>
+
+<!-- module-12: 补益与理气方 -->
+<div class="module" id="module-12">
+<h2><span>💊</span> 常用方剂——补益与理气 <span class="m-tag">经典方剂</span><span class="m-time">~2min</span></h2>
+<div class="hook">四君子补气基础方，四物汤补血基础方，六味地黄丸补肾阴，逍遥散疏肝解郁——这四首方剂是中医临床最高频使用的"四大金刚"。</div>
+<div class="content">
+<p><strong>四君子汤</strong>（《太平惠民和剂局方》）：补气基础方。</p>
+<div class="formula-block"><span class="f-cap">四君子汤组成</span>人参 9g（君）| 白术 9g（臣）| 茯苓 9g（佐）| 甘草 6g（使）
+主治：脾胃气虚证（面色萎黄、语声低微、食少便溏、脉虚弱）</div>
+<p><strong>四物汤</strong>（《太平惠民和剂局方》）：补血调经基础方。</p>
+<div class="formula-block"><span class="f-cap">四物汤组成</span>熟地黄 12g（君）| 当归 9g（臣）| 白芍 9g（佐）| 川芎 6g（使）
+主治：营血虚滞证（面色无华、头晕目眩、月经不调、脉细涩）</div>
+<p>"四物汤"中的四味药分工精妙：熟地滋阴补血（君），当归补血活血（臣），白芍养血柔肝（佐），川芎活血行气（使）。补中有行，血虚得补而不滞。</p>
+<p><strong>六味地黄丸</strong>（《小儿药证直诀》）：滋补肾阴基础方，"三补三泻"的典范。</p>
+<div class="formula-block"><span class="f-cap">六味地黄丸组成（三补三泻）</span>
+【三补】熟地黄 24g（君，补肾阴）| 山茱萸 12g（臣，补肝肾）| 山药 12g（臣，补脾阴）
+【三泻】泽泻 9g（佐，泻肾浊）| 牡丹皮 9g（佐，泻肝火）| 茯苓 9g（佐，泻脾湿）
+主治：肾阴虚证（腰膝酸软、头晕耳鸣、盗汗遗精、手足心热）</div>
+<p><strong>逍遥散</strong>（《太平惠民和剂局方》）：疏肝解郁代表方。</p>
+<div class="formula-block"><span class="f-cap">逍遥散组成</span>柴胡 9g（君，疏肝解郁）| 当归 9g、白芍 9g（臣，养血柔肝）
+白术 9g、茯苓 9g（佐，健脾益气）| 薄荷 3g（佐，助柴胡疏肝散热）
+生姜 6g（佐，温胃和中）| 甘草 4.5g（使，调和诸药）
+主治：肝郁血虚脾弱证（胸胁胀痛、情志抑郁、月经不调、神疲食少）</div>
+</div>
+<div class="takeaway">四君子补气、四物汤补血、六味地黄丸补肾阴、逍遥散疏肝——四首基础方覆盖了气血阴阳和肝脾肾的核心调理需求</div>
+</div>
+
+<!-- module-13: 祛湿与理血方 -->
+<div class="module" id="module-13">
+<h2><span>🌊</span> 常用方剂——祛湿与理血 <span class="m-tag">经典方剂</span><span class="m-time">~2min</span></h2>
+<div class="hook">藿香正气散治"外寒内湿"，血府逐瘀汤治"胸中血瘀"，温胆汤治"胆胃不和、痰热内扰"——每首方剂都是对特定复合病机的精准打击。</div>
+<div class="content">
+<p><strong>藿香正气散</strong>（《太平惠民和剂局方》）：外散风寒、内化湿浊的代表方。</p>
+<div class="formula-block"><span class="f-cap">藿香正气散组成</span>藿香 15g（君，外散风寒内化湿浊）| 紫苏 6g、白芷 6g（臣，助藿香解表）
+半夏曲 9g、厚朴 6g、陈皮 9g、苍术 9g、茯苓 9g（佐，燥湿和胃）
+大腹皮 6g、桔梗 6g（佐，利气）| 甘草 9g、生姜 3片、大枣 3枚（使）
+主治：外感风寒、内伤湿滞证（恶寒发热、头重如裹、腹痛吐泻、舌苔白腻）</div>
+<p><strong>血府逐瘀汤</strong>（《医林改错》）：活血化瘀代表方。</p>
+<div class="formula-block"><span class="f-cap">血府逐瘀汤组成</span>桃仁 12g、红花 9g（君，破血逐瘀）| 当归 9g、川芎 4.5g、赤芍 6g、牛膝 9g（臣，活血通络）
+桔梗 4.5g、柴胡 3g（佐，行气引药上行）| 枳壳 6g（佐，行气）
+生地黄 9g（佐，凉血养血防伤正）| 甘草 6g（使，调和诸药）
+主治：胸中血瘀证（胸痛如针刺而有定处、心悸失眠、舌暗有瘀斑）</div>
+<p><strong>温胆汤</strong>（《三因极一病证方论》）：理气化痰、清胆和胃。</p>
+<div class="formula-block"><span class="f-cap">温胆汤组成</span>半夏 9g（君，燥湿化痰）| 竹茹 9g（臣，清热化痰）
+陈皮 9g、枳实 9g（佐，理气化痰）| 茯苓 12g（佐，健脾渗湿）
+生姜 6g、大枣 3枚、甘草 6g（佐使）
+主治：胆胃不和、痰热内扰证（失眠多梦、恶心呕吐、舌苔黄腻、脉滑数）</div>
+<p><strong>配伍精要对比</strong>：藿香正气散是"表里双解"（外面散寒+里面化湿），血府逐瘀汤是"气血同治"（活血+行气），温胆汤是"痰热并治"（化痰+清热）。三者分别代表了中药方剂应对复合病机的三种经典策略。</p>
+</div>
+<div class="takeaway">一首方剂的精妙之处在于多靶点协同：藿香正气散表里双解，血府逐瘀汤气血同治，温胆汤痰热并治</div>
+</div>
+
+<!-- module-14: 案例分析 -->
+<div class="module" id="module-14">
+<h2><span>👨‍⚕️</span> 案例分析 <span class="m-tag">应用</span><span class="m-time">~3min</span></h2>
+<div class="hook">从"头痛怕冷"到"麻黄汤"——带你走一遍辨证选方用药的完整推理过程。</div>
+<div class="content">
+<p><strong>案例：风寒感冒</strong></p>
+<p><strong>患者表现</strong>：男性，28岁，昨日淋雨后出现恶寒发热（T 38.5℃），头痛身痛，无汗，咳嗽气喘，脉浮紧，舌淡红苔薄白。</p>
+<p><strong>辨证分析</strong>：恶寒发热+无汗+脉浮紧——这是典型的<strong>外感风寒表实证</strong>。风寒束表，卫阳被遏，营阴郁滞。头痛身痛为寒邪凝滞经络；咳嗽气喘为肺气不宣（肺主皮毛，表闭则肺气不宣）。</p>
+<p><strong>治法确立</strong>：辛温解表、宣肺平喘（针对风寒+肺气不宣的病机）。</p>
+<p><strong>选方</strong>：麻黄汤。本病风寒表实+无汗而喘，正合麻黄汤"发汗解表、宣肺平喘"之功。</p>
+<div class="table-container">
+<div class="table-caption">表：麻黄汤用药分析</div>
+<table>
+<tr><th>药物</th><th>剂量</th><th>角色</th><th>在本案中的作用</th></tr>
+<tr><td>麻黄</td><td>9g</td><td>君</td><td>辛温发汗解表、宣肺平喘——针对主证</td></tr>
+<tr><td>桂枝</td><td>6g</td><td>臣</td><td>辛甘温通经脉，助麻黄发汗解肌</td></tr>
+<tr><td>杏仁</td><td>9g</td><td>佐</td><td>降利肺气，与麻黄一宣一降，恢复肺的宣发肃降功能</td></tr>
+<tr><td>甘草</td><td>3g</td><td>使</td><td>调和药性，缓和麻黄桂枝的峻烈</td></tr>
+</table>
+</div>
+<p><strong>加减思路</strong>：若患者素体虚弱（气虚），可加黄芪或改用桂枝汤（表虚有汗体质）；若咳痰黄稠（已有化热趋势），可加黄芩、桑白皮清热化痰。这就是"随证加减"的灵活性。</p>
+<p><strong>预期效果</strong>：服药后微汗出，体温逐渐下降，咳喘缓解。注意：麻黄汤发汗力强，得汗即止，不宜过服。</p>
+</div>
+<div class="takeaway">从症状→辨证→治法→选方→用药→加减，这就是中医"理-法-方-药"一体化思维的完整实践路径</div>
+</div>
+
+<!-- module-15: 现代研究与学习路径 -->
+<div class="module" id="module-15">
+<h2><span>🔬</span> 现代研究与学习路径 <span class="m-tag">拓展</span><span class="m-time">~2min</span></h2>
+<div class="hook">中药现代化不仅仅是提取有效成分，更是用科学语言重新解读"四气五味"的深层内涵。</div>
+<div class="content">
+<p><strong>现代研究热点</strong>：</p>
+<p>①<strong>网络药理学（Network Pharmacology）</strong>：利用计算生物学方法分析中药复方的多靶点作用机制，揭示"君臣佐使"的分子网络基础。</p>
+<p>②<strong>代谢组学与系统生物学</strong>：研究中药进入人体后的整体代谢轮廓，解释"一味药归多经"的科学内涵。</p>
+<p>③<strong>肠道菌群与中药相互作用</strong>：发现许多中药通过调节肠道菌群发挥药效——参苓白术散、黄连解毒汤等方剂的肠道菌群调节机制已成为研究热点。</p>
+<p>④<strong>中药质量标志物（Q-marker）</strong>：建立中药质量控制的科学指标体系，从"看闻摸尝"走向化学指纹图谱。</p>
+<p><strong>推荐学习路径</strong>：</p>
+<div class="formula-block"><span class="f-cap">中药方剂学习路径建议</span>
+第一阶段（入门）→ 掌握四气五味+30味核心中药+12首基础方剂
+第二阶段（进阶）→ 理解君臣佐使配伍规律+掌握50-80味常用中药
+第三阶段（深入）→ 研读《伤寒论》《金匮要略》原作+临床跟诊实践
+第四阶段（融通）→ 现代药理研究+中西医结合用药思路</div>
+<p><strong>经典参考书</strong>：《中药学》（高等中医药院校教材）、《方剂学》（教材）、《伤寒论讲义》、《思考中医》（刘力红）、《本草纲目》（选读）。</p>
+</div>
+<div class="takeaway">现代中药研究不再纠结于"中药是不是科学"，而是用科学工具揭示中药为什么有效——多靶点、多通路、多层次的网络调节</div>
+</div>
+
+<!-- module-16: 术语表 -->
+<div class="module" id="module-16">
+<h2><span>📚</span> 术语表 <span class="m-tag">速查</span><span class="m-time">参考</span></h2>
+<div class="hook">快速查阅中药方剂学核心术语的简明定义。</div>
+<div class="content">
+<div class="table-container">
+<div class="table-caption">表：中药方剂学术语速查</div>
+<table>
+<tr><th>术语</th><th>定义</th></tr>
+<tr><td>四气</td><td>寒、热、温、凉四种药性，反映药物对人体阴阳寒热的影响方向</td></tr>
+<tr><td>五味</td><td>酸、苦、甘、辛、咸五种药味（加淡、涩），代表药物的功能特性</td></tr>
+<tr><td>归经</td><td>药物对某些脏腑经络的选择性作用特性</td></tr>
+<tr><td>升降浮沉</td><td>药物作用的四种趋向：升（上升）、降（下降）、浮（向外）、沉（向内）</td></tr>
+<tr><td>七情配伍</td><td>药物配合的七种关系：单行、相须、相使、相畏、相杀、相恶、相反</td></tr>
+<tr><td>十八反</td><td>18种(类)"相反"配伍禁忌的药对</td></tr>
+<tr><td>十九畏</td><td>19种(类)"相畏"配伍注意事项的药对</td></tr>
+<tr><td>君臣佐使</td><td>方剂配伍的四级结构：君药主病、臣药辅君、佐药佐制反佐、使药引经调和</td></tr>
+<tr><td>七方</td><td>大方、小方、缓方、急方、奇方、偶方、复方——按组成特征分类</td></tr>
+<tr><td>十剂</td><td>宣、通、补、泄、轻、重、滑、涩、燥、湿——按功效分类</td></tr>
+<tr><td>解表药</td><td>以发散表邪为主要作用的药物（辛温、辛凉两类）</td></tr>
+<tr><td>清热药</td><td>以清泄里热为主要作用的药物（泻火、燥湿、解毒、凉血、清虚热五类）</td></tr>
+<tr><td>补虚药</td><td>以补益气血阴阳为主要作用的药物（补气、补血、补阴、补阳四类）</td></tr>
+<tr><td>三品分类</td><td>上品养命、中品养性、下品治病（《神农本草经》分类法）</td></tr>
+<tr><td>经方</td><td>汉代以前经典著作中记载的方剂，尤指《伤寒杂病论》所载方剂</td></tr>
+<tr><td>时方</td><td>汉代以后历代医家创制的方剂，相对于"经方"而言</td></tr>
+</table>
+</div>
+</div>
+</div>
+
+<!-- ECharts Charts Section -->
+<div class="module" id="charts-section">
+<h2><span>📊</span> 数据可视化 <span class="m-tag">图表</span></h2>
+<div class="content">
+
+<div class="chart-wrap">
+  <div id="chart-xingwei-radar"></div>
+  <div class="ch-cap">图1：代表性中药的四气五味雷达图（数值越大表示该属性越显著）</div>
+</div>
+
+<div class="chart-wrap">
+  <div id="chart-formula-treemap"></div>
+  <div class="ch-cap">图2：常用方剂分类树图（面积表示临床使用频率的相对大小）</div>
+</div>
+
+<div class="chart-wrap">
+  <div id="chart-herb-compare"></div>
+  <div class="ch-cap">图3：常用中药功效对比（按功效大类分组，数值表示参考药力强度）</div>
+</div>
+
+</div>
+</div>
+
+</div>
+
+<footer class="journey-footer">
+  <a href="#" class="back-to-plan" onclick="event.preventDefault();var w=window.open('tcm_learning.html#kc-p2_3','plan_main');if(w)w.focus()">🔗 返回学习路线: 中医与养生 系统学习方案 → 第2阶段：诊法与方技核心</a>
+  <p style="margin-top:12px;font-size:.72rem;color:var(--text-muted)">
+    本资料是 <strong>中医与养生 系统学习方案</strong> 第2阶段（诊法与方技核心）的深度研读材料
+  </p>
+</footer>
+
+<div class="deep-floating-back">
+  <button onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 16px rgba(0,0,0,.2)'"
+    onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 12px rgba(0,0,0,.15)'"
+    onclick="event.preventDefault();var w=window.open('tcm_learning.html#kc-p2_3','plan_main');if(w)w.focus()">
+    ← 返回学习方案
+  </button>
+</div>
+</div>
+
+<div class="dd-toast" id="toastEl"><span id="toastMsg"></span></div>
+
+<script>
+var MODULE_IDS = [
+  "module-00","module-01","module-02","module-03","module-04",
+  "module-05","module-06","module-07","module-08","module-09",
+  "module-10","module-11","module-12","module-13","module-14",
+  "module-15","module-16","charts-section"
+];
+
+var SEARCH_INDEX = [
+  {id:"module-00",t:"00 总览",c:"学习路线 定位 四气五味 君臣佐使 中药学 方剂学 知识体系概览"},
+  {id:"module-01",t:"01 背景与缘起",c:"神农本草经 伤寒杂病论 本草纲目 新修本草 方剂发展历史 青蒿素"},
+  {id:"module-02",t:"02 核心概念",c:"中药 草药 方剂 药性理论 四气 五味 归经 升降浮沉"},
+  {id:"module-03",t:"03 四气五味",c:"寒热温凉 酸苦甘辛咸 淡涩 平性 麻黄 黄连 人参 甘草"},
+  {id:"module-04",t:"04 归经与升降浮沉",c:"归经 经络 脏腑定位 升降浮沉 趋向性 靶向给药"},
+  {id:"module-05",t:"05 配伍与禁忌",c:"七情配伍 十八反 十九畏 相须 相使 相畏 相杀 相恶 相反 妊娠禁忌"},
+  {id:"module-06",t:"06 解表药",c:"麻黄 桂枝 柴胡 薄荷 辛温解表 辛凉解表 荆芥 防风 生姜 紫苏"},
+  {id:"module-07",t:"07 清热药",c:"石膏 知母 黄连 黄芩 金银花 连翘 清热泻火 清热燥湿 清热凉血"},
+  {id:"module-08",t:"08 补虚药",c:"人参 黄芪 当归 熟地 白术 甘草 白芍 麦冬 枸杞 杜仲 补气 补血 补阴 补阳"},
+  {id:"module-09",t:"09 祛湿与理气药",c:"茯苓 苍术 陈皮 木香 藿香 香附 枳实 厚朴 薏苡仁 化湿 利水"},
+  {id:"module-10",t:"10 方剂学基础",c:"君臣佐使 七方 十剂 四君子汤 方剂配伍 使药 引经药"},
+  {id:"module-11",t:"11 解表与清热方",c:"麻黄汤 桂枝汤 银翘散 白虎汤 有汗无汗 四大症 伤寒论 温病条辨"},
+  {id:"module-12",t:"12 补益与理气方",c:"四君子汤 四物汤 六味地黄丸 逍遥散 三补三泻 补气 补血 疏肝"},
+  {id:"module-13",t:"13 祛湿与理血方",c:"藿香正气散 血府逐瘀汤 温胆汤 表里双解 活血化瘀 痰热并治"},
+  {id:"module-14",t:"14 案例分析",c:"辨证选方 风寒感冒 麻黄汤案例 理法方药 随证加减"},
+  {id:"module-15",t:"15 现代研究与学习路径",c:"网络药理学 代谢组学 肠道菌群 Q-marker 学习路径 推荐书籍"},
+  {id:"module-16",t:"16 术语表",c:"四气 五味 归经 七情配伍 君臣佐使 经方 时方 术语速查"},
+  {id:"charts-section",t:"数据可视化",c:"雷达图 树图 柱状图 中药性味分布 方剂分类 功效对比"}
+];
+
+var TOAST_TIMEOUT;
+
+(function(){
+var progressBar=document.getElementById('progressBar');
+var modules=document.querySelectorAll('.module');
+
+var observer=new IntersectionObserver(function(entries){
+  entries.forEach(function(e){if(e.isIntersecting)e.target.classList.add('visible')});
+},{threshold:.15});
+modules.forEach(function(m){observer.observe(m)});
+
+var navLinks=document.querySelectorAll('.sidebar-nav a');
+var navObserver=new IntersectionObserver(function(entries){
+  entries.forEach(function(e){
+    if(e.isIntersecting){
+      navLinks.forEach(function(a){a.classList.remove('active')});
+      var act=document.querySelector('.sidebar-nav a[href="#'+e.target.id+'"]');
+      if(act)act.classList.add('active');
+    }
+  });
+},{threshold:.3});
+modules.forEach(function(m){navObserver.observe(m)});
+
+window.addEventListener('scroll',function(){
+  var st=document.documentElement.scrollTop;
+  var dh=document.documentElement.scrollHeight-window.innerHeight;
+  var pct=dh>0?Math.min(100,(st/dh)*100):0;
+  progressBar.style.width=pct+'%';
+});
+
+window.addEventListener('keydown',function(e){
+  if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();openSearch();}
+  if((e.ctrlKey||e.metaKey)&&e.key==='d'){e.preventDefault();toggleTheme();}
+  if(e.key==='Escape')closeSearch();
+});
+})();
+
+function toggleTheme(){
+  var b=document.body,isD=b.getAttribute('data-theme')==='dark';
+  b.setAttribute('data-theme',isD?'light':'dark');
+  try{localStorage.setItem('slm-theme',isD?'light':'dark');}catch(e){}
+  showToast('已切换至'+(isD?'浅色':'深色')+'主题');
+}
+
+function openSearch(){
+  document.getElementById('searchOverlay').classList.add('open');
+  setTimeout(function(){document.getElementById('searchInput').focus();},100);
+}
+function closeSearch(){
+  document.getElementById('searchOverlay').classList.remove('open');
+  document.getElementById('searchResults').innerHTML='';
+}
+
+function doSearch(){
+  var q=document.getElementById('searchInput').value.toLowerCase();
+  var res=document.getElementById('searchResults');
+  if(q.length<2){res.innerHTML='';return;}
+  var h='';
+  SEARCH_INDEX.forEach(function(item){
+    if(item.t.toLowerCase().indexOf(q)>=0||(item.c||'').toLowerCase().indexOf(q)>=0){
+      h+='<div onclick="closeSearch();document.getElementById(\''+item.id+'\').scrollIntoView({behavior:\'smooth\'})">'+
+      '<strong>'+item.t+'</strong><br><small style="color:var(--text-muted)">'+(item.c||'').substring(0,80)+'</small></div>';
+    }
+  });
+  res.innerHTML=h||'<div style="padding:12px;color:var(--text-muted)">未找到匹配模块</div>';
+}
+
+function showToast(msg){
+  var el=document.getElementById('toastEl'),mg=document.getElementById('toastMsg');
+  if(!el||!mg)return;
+  mg.textContent=msg;el.style.display='block';el.classList.add('toast-in');
+  if(TOAST_TIMEOUT)clearTimeout(TOAST_TIMEOUT);
+  TOAST_TIMEOUT=setTimeout(function(){el.style.display='none';},3000);
+}
+
+(function(){
+  var t;try{t=localStorage.getItem('slm-theme');}catch(e){}
+  if(t==='light')document.body.setAttribute('data-theme','light');
+})();
+
+(function(){
+  document.querySelectorAll('.derivation-toggle').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var content=this.nextElementSibling;
+      if(content){
+        content.classList.toggle('open');
+        this.textContent=content.classList.contains('open')?'▾ 收起':'▸ 展开';
+      }
+    });
+  });
+})();
+
+(function initCharts(){
+if(typeof echarts==='undefined')return;
+
+var isDark=document.body.getAttribute('data-theme')==='dark';
+var textColor=isDark?'#ede6d8':'#1f1a12';
+var textSec=isDark?'#b8ad98':'#4a4035';
+var gridColor=isDark?'#2d2924':'#ebe5d6';
+
+var chart1=echarts.init(document.getElementById('chart-xingwei-radar'));
+chart1.setOption({
+  tooltip:{trigger:'item'},
+  legend:{data:['麻黄(辛温解表)','黄连(苦寒清热)','人参(甘温补气)','五味子(酸收敛肺)','茯苓(甘淡渗湿)','大黄(苦寒泻下)'],bottom:0,textStyle:{color:textSec,fontSize:10}},
+  radar:{
+    center:['50%','48%'],
+    radius:'60%',
+    axisName:{color:textSec,fontSize:10},
+    indicator:[
+      {name:'寒/凉',max:5},{name:'热/温',max:5},
+      {name:'辛味',max:5},{name:'甘味',max:5},{name:'酸味',max:5},
+      {name:'苦味',max:5},{name:'咸味',max:5},{name:'淡味',max:5}
+    ],
+    splitArea:{areaStyle:{color:['rgba(94,168,122,.02)','rgba(94,168,122,.04)','rgba(94,168,122,.02)','rgba(94,168,122,.04)']}},
+    axisLine:{lineStyle:{color:gridColor}},
+    splitLine:{lineStyle:{color:gridColor}}
+  },
+  series:[{
+    type:'radar',
+    data:[
+      {value:[0,4,5,1,0,1,0,0],name:'麻黄(辛温解表)',itemStyle:{color:'#d47860'},areaStyle:{color:'rgba(212,120,96,.1)'}},
+      {value:[5,0,0,0,0,5,0,0],name:'黄连(苦寒清热)',itemStyle:{color:'#5ea87a'},areaStyle:{color:'rgba(94,168,122,.1)'}},
+      {value:[0,2,0,5,0,1,0,0],name:'人参(甘温补气)',itemStyle:{color:'#e6b95a'},areaStyle:{color:'rgba(230,185,90,.1)'}},
+      {value:[0,1,0,1,5,1,0,0],name:'五味子(酸收敛肺)',itemStyle:{color:'#b898a0'},areaStyle:{color:'rgba(184,152,160,.1)'}},
+      {value:[1,0,0,5,0,0,0,4],name:'茯苓(甘淡渗湿)',itemStyle:{color:'#7ec8a0'},areaStyle:{color:'rgba(126,200,160,.1)'}},
+      {value:[5,0,0,0,0,5,0,0],name:'大黄(苦寒泻下)',itemStyle:{color:'#6ebf8a'},areaStyle:{color:'rgba(110,191,138,.1)'}}
+    ]
+  }]
+});
+
+var chart2=echarts.init(document.getElementById('chart-formula-treemap'));
+chart2.setOption({
+  tooltip:{formatter:function(p){return p.name+'<br/>'+p.value+' 味药组成';}},
+  series:[{
+    type:'treemap',
+    roam:false,
+    nodeClick:false,
+    breadcrumb:{show:false},
+    label:{show:true,fontSize:11,color:'#fff',fontWeight:'bold'},
+    upperLabel:{show:true,height:28,fontSize:12,color:textSec},
+    data:[
+      {name:'解表剂',children:[
+        {name:'麻黄汤\n4味药',value:4,itemStyle:{color:'#d47860'}},
+        {name:'桂枝汤\n5味药',value:5,itemStyle:{color:'#e6b95a'}},
+        {name:'银翘散\n9味药',value:9,itemStyle:{color:'#7ec8a0'}}
+      ]},
+      {name:'清热剂',children:[
+        {name:'白虎汤\n4味药',value:4,itemStyle:{color:'#5ea87a'}},
+        {name:'黄连解毒汤\n4味药',value:4,itemStyle:{color:'#3d6b50'}}
+      ]},
+      {name:'补益剂',children:[
+        {name:'四君子汤\n4味药',value:4,itemStyle:{color:'#b898a0'}},
+        {name:'四物汤\n4味药',value:4,itemStyle:{color:'#6ebf8a'}},
+        {name:'六味地黄丸\n6味药',value:6,itemStyle:{color:'#4a8e6a'}}
+      ]},
+      {name:'理气剂·理血剂',children:[
+        {name:'逍遥散\n8味药',value:8,itemStyle:{color:'#7a5a6a'}},
+        {name:'血府逐瘀汤\n11味药',value:11,itemStyle:{color:'#d47860'}}
+      ]},
+      {name:'祛湿剂·祛痰剂',children:[
+        {name:'藿香正气散\n13味药',value:13,itemStyle:{color:'#5ea87a'}},
+        {name:'温胆汤\n8味药',value:8,itemStyle:{color:'#7ec8a0'}}
+      ]}
+    ]
+  }]
+});
+
+var chart3=echarts.init(document.getElementById('chart-herb-compare'));
+chart3.setOption({
+  tooltip:{trigger:'axis'},
+  legend:{data:['解表药','清热药','补虚药','祛湿·理气药'],bottom:0,textStyle:{color:textSec,fontSize:10}},
+  grid:{left:'3%',right:'4%',bottom:'15%',top:'10%',containLabel:true},
+  xAxis:{type:'category',data:['发汗力','清热力','补益力','辛散力','苦寒度','甘缓度'],axisLabel:{color:textSec,fontSize:10},axisLine:{lineStyle:{color:gridColor}}},
+  yAxis:{type:'value',max:10,axisLabel:{color:textSec,fontSize:10},splitLine:{lineStyle:{color:gridColor}}},
+  series:[
+    {name:'解表药',type:'bar',data:[9,1,1,9,1,2],itemStyle:{color:'#d47860'},barGap:'10%'},
+    {name:'清热药',type:'bar',data:[1,9,1,2,8,2],itemStyle:{color:'#5ea87a'}},
+    {name:'补虚药',type:'bar',data:[1,1,9,2,1,8],itemStyle:{color:'#e6b95a'}},
+    {name:'祛湿·理气药',type:'bar',data:[2,2,2,7,2,3],itemStyle:{color:'#7ec8a0'}}
+  ]
+});
+
+window.addEventListener('resize',function(){
+  chart1.resize();chart2.resize();chart3.resize();
+});
+})();
+</script>
+</body>
+</html>

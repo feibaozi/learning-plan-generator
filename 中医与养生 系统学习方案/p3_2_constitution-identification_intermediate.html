@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>体质辨识与个性化调理深度研读</title>
+<style>
+/* ───────────────────────────────────────────────
+   Template: Cedar Dawn (雪松晨曦) — deep_dive.css
+   Mood: warm, natural, organic
+   Contrast verified: text-primary≥10:1, text-secondary≥6:1, text-muted≥4.5:1
+   ─────────────────────────────────────────────── */
+:root{
+--bg-base:#1a1814;
+--bg-card:#282520;
+--bg-elevated:#312d27;
+--bg-overlay:rgba(0,0,0,.6);
+--text-primary:#ede6d8;
+--text-secondary:#b8ad98;
+--text-muted:#8a8070;
+--accent-indigo:#5ea87a;
+--accent-purple:#b898a0;
+--accent-cyan:#7ec8a0;
+--accent-gold:#e6b95a;
+--accent-green:#6ebf8a;
+--accent-red:#d47860;
+--accent-blue:#5ea87a;
+--accent-color:#5ea87a;
+--accent-dark:#3d6b50;
+--border-subtle:rgba(184,173,152,.15);
+--border-glow:rgba(94,168,122,.25);
+--shadow-sm:0 1px 3px rgba(0,0,0,.3);
+--shadow-md:0 4px 16px rgba(0,0,0,.4);
+--shadow-lg:0 8px 32px rgba(0,0,0,.5);
+--shadow-elevated:0 8px 32px rgba(0,0,0,.5);
+--radius-sm:6px;
+--radius-md:10px;
+--radius-lg:16px;
+--font-sans:'Segoe UI',system-ui,-apple-system,sans-serif;
+--font-mono:Consolas,'Cascadia Code',monospace;
+--transition:.25s cubic-bezier(.4,0,.2,1);
+--transition-smooth:.3s ease;
+--nav-h:56px;
+--accent-color-rgb:94,168,122;
+--chart-grid:#2d2924;
+--chart-axis-label:#8a8070;
+}
+[data-theme="light"]{
+--bg-base:#fdfaf3;
+--bg-card:#fffdf7;
+--bg-elevated:#f3efe3;
+--bg-overlay:rgba(0,0,0,.3);
+--text-primary:#1f1a12;
+--text-secondary:#4a4035;
+--text-muted:#5c5042;
+--accent-indigo:#3d6b50;
+--accent-purple:#7a5a6a;
+--accent-cyan:#4a8e6a;
+--accent-gold:#a07828;
+--accent-green:#4a9e66;
+--accent-red:#b05038;
+--accent-blue:#3d6b50;
+--accent-color:#3d6b50;
+--accent-dark:#2a4835;
+--border-subtle:rgba(31,26,18,.08);
+--border-glow:rgba(61,107,80,.25);
+--shadow-sm:0 1px 3px rgba(0,0,0,.06);
+--shadow-md:0 4px 16px rgba(0,0,0,.08);
+--shadow-lg:0 8px 32px rgba(0,0,0,.12);
+--shadow-elevated:0 8px 32px rgba(0,0,0,.12);
+--accent-color-rgb:61,107,80;
+--chart-grid:#ebe5d6;
+--chart-axis-label:#5c5042;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font-sans);background:var(--bg-base);color:var(--text-primary);line-height:1.75;overflow-x:hidden}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg-base)}::-webkit-scrollbar-thumb{background:var(--border-glow);border-radius:3px}
+
+.progress-bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--accent-indigo),var(--accent-purple),var(--accent-cyan));z-index:200;transition:width .1s linear}
+.navbar{position:fixed;top:3px;left:0;right:0;z-index:100;background:var(--bg-card);border-bottom:1px solid var(--border-subtle);backdrop-filter:blur(16px);height:var(--nav-h);display:flex;align-items:center;justify-content:space-between;padding:0 24px}
+.nav-left{display:flex;align-items:center;gap:12px;font-size:.82rem;font-weight:600;color:var(--accent-indigo)}
+.nav-right{display:flex;align-items:center;gap:8px}
+.nav-right button{background:var(--bg-elevated);border:1px solid var(--border-subtle);color:var(--text-secondary);padding:6px 12px;border-radius:var(--radius-sm);cursor:pointer;font-size:.75rem;transition:all var(--transition)}
+.nav-right button:hover{border-color:var(--border-glow);color:var(--accent-indigo)}
+
+.sidebar{position:fixed;left:0;top:0;height:100vh;width:280px;background:var(--bg-base);border-right:1px solid var(--border-subtle);padding:24px;overflow-y:auto;z-index:100;padding-top:calc(var(--nav-h) + 16px)}
+.sidebar h3{font-size:.85rem;font-weight:700;color:var(--text-secondary);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--border-subtle)}
+.sidebar-nav{list-style:none;padding:0}
+.sidebar-nav li{margin-bottom:2px}
+.sidebar-nav a{display:block;padding:8px 12px;border-radius:var(--radius-md);text-decoration:none;font-size:.76rem;color:var(--text-secondary);transition:all var(--transition);border-left:3px solid transparent}
+.sidebar-nav a:hover{background:rgba(94,168,122,.08);color:var(--accent-cyan);border-left-color:var(--accent-cyan)}
+.sidebar-nav a.active{background:rgba(94,168,122,.12);color:var(--accent-blue);font-weight:600;border-left-color:var(--accent-blue)}
+.sidebar-back-link{display:block;padding:8px 12px;margin-bottom:12px;border-radius:8px;background:var(--bg-elevated);color:var(--accent-blue);text-decoration:none;font-size:.78rem;font-weight:600}
+.sidebar-back-link:hover{color:var(--accent-cyan)}
+
+.content-area{margin-left:280px;width:calc(100% - 280px)}
+.container{max-width:calc(100% - 48px);margin:0 auto;padding:calc(var(--nav-h) + 24px) 24px 80px}
+
+.hero{text-align:center;padding:48px 0 36px}
+.hero h1{font-size:2.2rem;background:linear-gradient(135deg,var(--accent-indigo),var(--accent-purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+.hero .tags{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:12px}
+.hero .tags span{font-size:.7rem;padding:4px 12px;border-radius:50px;border:1px solid var(--border-glow);color:var(--accent-indigo);background:rgba(94,168,122,.06)}
+
+.meta-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:20px 24px;margin:0 auto 32px;max-width:700px;display:flex;justify-content:center;gap:36px;flex-wrap:wrap;box-shadow:var(--shadow-md)}
+.meta-item{text-align:center}
+.meta-item .val{font-size:1.4rem;font-weight:800;color:var(--accent-indigo)}
+.meta-item .lbl{font-size:.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px}
+
+/* Journey Bar */
+.journey-bar{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:12px 20px;margin:0 auto 24px;max-width:900px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:.82rem;box-shadow:var(--shadow-elevated)}
+.journey-path{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.journey-icon{font-size:1rem}
+.journey-plan{color:var(--accent-purple);font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.journey-plan:hover{color:var(--accent-gold)}
+.journey-sep{color:var(--text-muted);font-size:.7rem}
+.journey-phase{color:var(--text-secondary);font-weight:600}
+.journey-kp{color:var(--text-primary);font-weight:700}
+.journey-pos{color:var(--text-muted);font-size:.72rem}
+.journey-nav{display:flex;align-items:center;gap:8px;font-size:.75rem}
+.journey-prev,.journey-next{color:var(--text-muted);cursor:default}
+.journey-divider{color:var(--border-subtle)}
+
+.module{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:28px 28px 24px;margin-bottom:20px;
+opacity:0;transform:translateY(24px);transition:opacity .5s ease,transform .5s ease;box-shadow:var(--shadow-sm)}
+.module.visible{opacity:1;transform:translateY(0)}
+.module:hover{border-color:var(--border-glow)}
+.module h2{font-size:1.15rem;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.module .m-tag{font-size:.65rem;padding:2px 10px;border-radius:50px;background:rgba(94,168,122,.1);border:1px solid rgba(94,168,122,.2);color:var(--accent-indigo);font-weight:600}
+.module .m-time{font-size:.7rem;color:var(--text-muted);margin-left:auto}
+.module .hook{font-size:.9rem;color:var(--accent-purple);font-weight:600;margin:12px 0 16px;padding-left:12px;border-left:3px solid var(--accent-purple)}
+.module .content{font-size:.88rem;color:var(--text-secondary);line-height:1.8}
+.module .content p{margin-bottom:12px}
+
+.formula-block{background:rgba(94,168,122,.04);border:1px solid rgba(94,168,122,.12);border-radius:var(--radius-sm);padding:14px 18px;margin:14px 0;font-family:var(--font-mono);font-size:.82rem;color:var(--accent-cyan);overflow-x:auto;position:relative}
+.formula-block .f-cap{font-size:.7rem;color:var(--text-muted);margin-bottom:6px;display:block}
+.derivation-toggle{font-size:.7rem;color:var(--accent-gold);cursor:pointer;border:none;background:none;padding:4px 0;font-family:inherit;display:block;margin-top:6px}
+.derivation-toggle:hover{text-decoration:underline}
+.derivation-content{display:none;margin-top:8px;padding:12px 16px;background:rgba(230,185,90,.04);border-radius:var(--radius-sm);border-left:3px solid var(--accent-gold);font-size:.8rem;color:var(--text-secondary)}
+.derivation-content.open{display:block}
+
+.chart-wrap{background:var(--bg-elevated);border-radius:var(--radius-sm);padding:8px;margin:14px 0;text-align:center}
+.chart-wrap > div{width:100%;height:250px}
+.chart-wrap .ch-cap{font-size:.72rem;color:var(--text-muted);margin-top:6px}
+
+.chart-wrap-tall{background:var(--bg-elevated);border-radius:var(--radius-sm);padding:8px;margin:14px 0;text-align:center}
+.chart-wrap-tall > div{width:100%;height:300px}
+.chart-wrap-tall .ch-cap{font-size:.72rem;color:var(--text-muted);margin-top:6px}
+
+.table-container{margin:20px 0;overflow-x:auto}
+.table-container table{width:100%;border-collapse:collapse;border-radius:var(--radius-md);overflow:hidden}
+.table-container th{background:var(--bg-elevated);color:var(--accent-cyan);font-weight:700;padding:12px 16px;text-align:left;font-size:.8rem}
+.table-container td{padding:12px 16px;border-bottom:1px solid var(--border-subtle);font-size:.82rem;color:var(--text-secondary)}
+.table-container tr:hover td{background:rgba(94,168,122,.03)}
+.table-container .table-caption{font-size:.72rem;color:var(--text-muted);margin-bottom:8px;text-align:center}
+
+.takeaway{font-size:.82rem;background:rgba(110,191,138,.06);border-left:3px solid var(--accent-green);padding:10px 14px;margin-top:16px;border-radius:0 var(--radius-sm) var(--radius-sm) 0;color:var(--accent-green)}
+
+.ref-list{list-style:none;padding:0;margin-top:8px;font-size:.78rem}
+.ref-list li{padding:4px 0;color:var(--text-muted)}
+.ref-list li::before{content:'📄 '}
+
+.search-overlay{position:fixed;inset:0;z-index:300;background:var(--bg-overlay);display:none;align-items:flex-start;justify-content:center;padding-top:120px}
+.search-overlay.open{display:flex}
+.search-box{width:520px;max-width:90vw;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:var(--radius-md);box-shadow:var(--shadow-lg);overflow:hidden}
+.search-box input{width:100%;padding:14px 18px;background:transparent;border:none;color:var(--text-primary);font-size:.95rem;outline:none;font-family:inherit}
+.search-results{max-height:360px;overflow-y:auto}
+.search-results div{padding:10px 18px;cursor:pointer;font-size:.82rem;color:var(--text-secondary);border-top:1px solid var(--border-subtle);transition:background var(--transition)}
+.search-results div:hover{background:rgba(94,168,122,.06);color:var(--text-primary)}
+
+/* Journey Footer */
+.journey-footer{text-align:center;padding:40px 32px 60px;opacity:.8}
+.back-to-plan{display:inline-flex;align-items:center;gap:8px;padding:10px 24px;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:50px;color:var(--text-secondary);text-decoration:none;font-size:.85rem;font-weight:600;transition:all var(--transition-smooth)}
+.back-to-plan:hover{background:var(--bg-elevated);border-color:var(--accent-purple);color:var(--accent-purple)}
+
+/* Floating Back Button */
+.deep-floating-back{position:fixed;right:20px;bottom:20px;z-index:10000}
+.deep-floating-back button{padding:12px 20px;background:linear-gradient(135deg,var(--accent-color),var(--accent-dark));color:white;border:none;border-radius:24px;font-size:.85rem;font-weight:600;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.15);transition:transform .2s,box-shadow .2s}
+.deep-floating-back button:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.2)}
+
+/* Toast */
+.dd-toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);z-index:10001;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:8px;padding:14px 24px;box-shadow:0 4px 16px rgba(0,0,0,.15);font-size:.85rem;display:none}
+.toast-in{animation:toastIn .3s ease}
+@keyframes toastIn{from{opacity:0;transform:translate(-50%,20px)}to{opacity:1;transform:translate(-50%,0)}}
+
+/* Print */
+@media print{.navbar,.progress-bar,.sidebar,.journey-bar,.journey-footer,.deep-floating-back{display:none!important}.content-area{margin-left:0;width:100%}.module{break-inside:avoid;opacity:1!important;transform:none!important;box-shadow:none}body{background:#fff}}
+
+@media(max-width:1024px){.sidebar{display:none}.content-area{margin-left:0;width:100%}}
+@media(max-width:768px){
+.hero h1{font-size:1.6rem}.module{padding:20px}.meta-card{font-size:.72rem;padding:12px 16px}.journey-bar{flex-direction:column;align-items:flex-start}
+.deep-floating-back{right:15px;bottom:15px}.deep-floating-back button{padding:10px 16px;font-size:.8rem}
+.chart-wrap > div{height:230px}.chart-wrap-tall > div{height:270px}
+}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js">
+<\/script>
+</head>
+<body data-theme="dark">
+
+<div class="progress-bar" id="progressBar" style="width:0%"></div>
+
+<nav class="navbar">
+  <div class="nav-left">📖 体质辨识与个性化调理</div>
+  <div class="nav-right">
+    <button onclick="toggleTheme()" title="切换主题 (Ctrl+D)">🌓 主题</button>
+    <button onclick="openSearch()" title="搜索 (Ctrl+K)">🔍 搜索</button>
+  </div>
+</nav>
+
+<div class="sidebar">
+  <a href="#" class="sidebar-back-link" onclick="event.preventDefault();var w=window.open('tcm_learning.html#kc-p3_2','plan_main');if(w)w.focus()">← 返回主方案</a>
+  <h3>📖 目录导航</h3>
+  <ul class="sidebar-nav">
+    <li><a href="#learning_journey">01 学习路线导航</a></li>
+    <li><a href="#background">02 体质学说的源流发展</a></li>
+    <li><a href="#concept">03 九种体质类型精解</a></li>
+    <li><a href="#principle">04 体质形成的机理</a></li>
+    <li><a href="#application">05 体质辨识实操方法</a></li>
+    <li><a href="#case_study">06 典型体质调理案例</a></li>
+    <li><a href="#landscape">07 体质-脏腑-疾病全景</a></li>
+    <li><a href="#misconceptions">08 体质辨识常见误区</a></li>
+    <li><a href="#learning_path">09 体质调理学习路径</a></li>
+    <li><a href="#glossary">10 核心术语速查</a></li>
+    <li><a href="#prospect">11 现代科学研究进展</a></li>
+    <li><a href="#risk">12 错误调理的风险</a></li>
+    <li><a href="#issues">13 辨识的挑战与局限</a></li>
+    <li><a href="#effort_direction">14 实践方向与展望</a></li>
+  </ul>
+</div>
+
+<div class="content-area">
+<div class="search-overlay" id="searchOverlay">
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="搜索模块内容..." oninput="doSearch()" onkeydown="if(event.key==='Escape')closeSearch()">
+    <div class="search-results" id="searchResults"></div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="hero">
+    <h1>体质辨识与个性化调理</h1>
+    <div class="tags">
+      <span>养生保健</span><span>体质学说</span><span>个体化医学</span><span>系统图解型</span>
+    </div>
+  </div>
+
+  <div class="meta-card">
+    <div class="meta-item"><div class="val">14</div><div class="lbl">模块数</div></div>
+    <div class="meta-item"><div class="val">~55</div><div class="lbl">预估研读 / 分钟</div></div>
+    <div class="meta-item"><div class="val">G6</div><div class="lbl">系统图解型</div></div>
+    <div class="meta-item"><div class="val">理解</div><div class="lbl">深度研读级别</div></div>
+  </div>
+
+  <!-- CONDITIONAL: HAS_CONTEXT_PLAN -->
+  <div class="journey-bar" id="journeyBar">
+    <div class="journey-path">
+      <span class="journey-icon">📍</span>
+      <span class="journey-plan" onclick="var w=window.open('tcm_learning.html#kc-p3_2','plan_main');if(w)w.focus()">中医与养生 系统学习方案</span>
+      <span class="journey-sep">〉</span>
+      <span class="journey-phase">养生保健整合应用</span>
+      <span class="journey-sep">〉</span>
+      <span class="journey-kp">体质辨识与个性化调理</span>
+      <span class="journey-pos">(第3/4阶段 · 第2个知识点)</span>
+    </div>
+    <div class="journey-nav">
+      <span class="journey-prev" title="前置: 四季养生与二十四节气">← 前置</span>
+      <span class="journey-divider">|</span>
+      <span class="journey-next" title="后续: 食疗药膳与起居养生">后续 →</span>
+    </div>
+  </div>
+  <!-- /CONDITIONAL -->
+
+<!-- ======== MODULE 1: learning_journey ======== -->
+<div class="module" id="learning_journey">
+<h2><span class="m-tag">路线导航</span>学习路线导航</h2>
+<div class="hook">辨识体质不是给人贴标签，而是读懂身体发出的信号——这是个体化养生的第一道门。</div>
+<div class="content">
+<p>本模块是<strong>「中医与养生 系统学习方案」</strong>中<strong>养生保健整合应用</strong>阶段的第二个深度学习知识点。体质辨识是中医个体化养生的核心方法论——在掌握了四季养生与二十四节气的大框架后，你将从「按季节调理」进入「按体质调理」的精细化层面。</p>
+<p>学习路线上下文：本知识点位于第3阶段，前置知识为「四季养生与二十四节气」（p3_1），后续将衔接「食疗药膳与起居养生」（p3_3）。完成本模块后，你将能够：识别九种体质的基本特征、了解体质形成的先天与后天因素、掌握体质辨识的实操方法、学会针对不同体质的个性化调理策略。</p>
+</div>
+<div class="takeaway">体质辨识是连接中医理论与个体化实践的桥梁——学会看人，而不只是看病。</div>
+</div>
+
+<!-- ======== MODULE 2: background ======== -->
+<div class="module" id="background">
+<h2><span class="m-tag">源流</span>体质学说的源流与发展</h2>
+<div class="hook">从黄帝内经的阴阳分型，到王琦院士九种体质体系的创立——两千年的体质认知，是一部中医个体化医学的演进史。</div>
+<div class="content">
+<p>体质学说的萌芽可追溯至<strong>《黄帝内经》</strong>时期（约公元前200年），其中已有「人之生也，有刚有柔，有弱有强，有短有长，有阴有阳」的论述，初步将人体分为阴阳两大类型。东汉<strong>张仲景《伤寒杂病论》</strong>进一步提出「强人」「羸人」「尊荣人」等体质概念，将体质差异与疾病易感性相关联。</p>
+<p>唐宋时期，<strong>孙思邈</strong>在《千金要方》中强调「禀赋」对体质的影响，后世医家逐步认识到体质受先天禀赋与后天调养的双重塑造。明清时期，<strong>叶天士</strong>提出「体质」一词，<strong>吴鞠通</strong>在温病学著作中系统论述了体质辨识对辨证论治的指导意义。</p>
+<p>现代体质学说的标志性突破发生在<strong>1978年</strong>，<strong>王琦教授</strong>率先开展中医体质学的系统研究。经过40余年的临床流行病学调查、大样本量表和实验室研究，最终在2009年由中华中医药学会正式发布<strong>《中医体质分类与判定》</strong>标准（ZYYXH/T 157-2009），确立了平和质、气虚质、阳虚质、阴虚质、痰湿质、湿热质、血瘀质、气郁质和特禀质的九种体质分类体系。</p>
+<p>标志性事件还包括：<strong>2013年</strong>体质学说纳入国家基本公共卫生服务项目；<strong>2015年</strong>王琦团队开展全国性体质流行病学调查，覆盖数十万样本；<strong>2020年</strong>体质-基因组关联研究取得突破，为体质分类提供了分子生物学证据。</p>
+</div>
+
+<div class="chart-wrap"><div id="chart_timeline"></div><div class="ch-cap">图：中医体质学说的关键发展里程碑</div></div>
+
+<div class="takeaway">体质学说从内经的阴阳二分到现代九种体质的标准化，走过了两千年的理论积淀与临床验证之路。</div>
+</div>
+
+<!-- ======== MODULE 3: concept ======== -->
+<div class="module" id="concept">
+<h2><span class="m-tag">核心</span>九种体质类型精解</h2>
+<div class="hook">九种体质就像九种不同的土壤——同样的种子在不同土壤中生长出截然不同的植株，同样的生活对不同的体质产生截然不同的影响。</div>
+<div class="content">
+<p>中华中医药学会<strong>《中医体质分类与判定》</strong>将体质分为九种类型。其中<strong>平和质</strong>为理想体质（约占人群的32.75%），其余八种为偏颇体质。每种体质在形体特征、常见表现、心理特征、发病倾向和适应能力五个维度上各有特点。</p>
+<p><strong>平和质（A型）</strong>：阴阳气血调和，体态适中，面色润泽，精力充沛。对环境适应力强，较少生病。这是养生追求的「标准态」。</p>
+<p><strong>气虚质（B型）</strong>：元气不足，以疲乏、气短、自汗为主要特征。肌肉松软不实，语声低弱。易感冒、内脏下垂。全国占比约13.42%。</p>
+<p><strong>阳虚质（C型）</strong>：阳气不足，以畏寒怕冷、手足不温为核心特征。体型多白胖，肌肉松弛。易患水肿、腹泻。占比约9.04%。</p>
+<p><strong>阴虚质（D型）</strong>：阴液亏少，以口燥咽干、手足心热为核心特征。体型偏瘦。易患失眠、便秘。占比约8.27%。</p>
+<p><strong>痰湿质（E型）</strong>：痰湿凝聚，以形体肥胖、腹部肥满、口黏苔腻为主要特征。易患糖尿病、高脂血症。占比约7.32%，近年来呈上升趋势。</p>
+<p><strong>湿热质（F型）</strong>：湿热内蕴，以面垢油光、口苦、苔黄腻为核心特征。易患痤疮、黄疸。占比约9.14%。</p>
+<p><strong>血瘀质（G型）</strong>：血行不畅，以肤色晦暗、舌质紫黯、脉涩为特征。易患痛证、肿瘤。占比约8.06%。</p>
+<p><strong>气郁质（H型）</strong>：气机郁滞，以神情抑郁、忧虑脆弱为特征。体型多偏瘦。易患郁证、失眠。占比约8.02%。</p>
+<p><strong>特禀质（I型）</strong>：先天失常，以过敏反应（如过敏性鼻炎、哮喘、荨麻疹）为主要特征。占比约3.93%。</p>
+</div>
+
+<div class="chart-wrap"><div id="chart_radar"></div><div class="ch-cap">图：九种体质在核心特征维度上的雷达对比（数值为人群流行病学标准化指数）</div></div>
+
+<div class="takeaway">九种体质是学术界临床流行病学调查的结果，不是主观臆想——每一种都有明确的诊断标准和生物标志物研究基础。</div>
+</div>
+
+<!-- ======== MODULE 4: principle ======== -->
+<div class="module" id="principle">
+<h2><span class="m-tag">原理</span>体质形成的机理</h2>
+<div class="hook">体质的形成是先天禀赋与后天环境的一场长达数十年的「对话」——基因给了你底牌，生活方式决定了你怎么出牌。</div>
+<div class="content">
+<p><strong>先天因素</strong>是体质的「底色」。父母的体质强弱、生育时的年龄和健康状态、母亲孕期的营养与情志，都会通过禀赋遗传影响子代体质。现代研究表明，HLA基因多态性、代谢相关基因（如FTO、PPARG）等与体质类型存在关联。</p>
+<p><strong>后天因素</strong>是体质的「调色板」，包括：</p>
+<p><strong>饮食因素</strong>：长期偏嗜某一类食物会导致体质偏颇。如过食肥甘厚味→痰湿质；过食辛辣炙烤→湿热质；长期节食不均衡→气虚质/阴虚质。</p>
+<p><strong>情志因素</strong>：中医强调「七情致病」。长期精神压抑→气郁质（气机郁滞）；长期焦虑紧张→阴虚质（暗耗阴液）；大怒伤肝→气郁兼血瘀质。</p>
+<p><strong>劳逸因素</strong>：过劳耗气→气虚质；过逸少动→痰湿质（气机不畅，水湿停留）。</p>
+<p><strong>环境因素</strong>：地域气候与体质相关。南方湿热地带→湿热质多见；北方寒冷地带→阳虚质较多；城市白领人群→气郁质比例显著高于农村。</p>
+<p><strong>疾病与用药因素</strong>：慢性疾病、长期用药对体质有深刻影响。如长期使用糖皮质激素→阴虚阳亢质；久病卧床→气虚血瘀质。</p>
+<p><strong>体质是可变的</strong>：这是体质学说最重要的实践基础。通过饮食、运动、情志调节、中药调理等手段，可以逐步纠正偏颇体质，向平和质转化。研究显示系统干预6个月后，偏颇体质转化分平均改善15-25分。</p>
+</div>
+<div class="formula-block">
+<span class="f-cap">体质形成模型</span>
+体质 = 先天禀赋 × (饮食 + 情志 + 劳逸 + 环境 + 疾病/用药 + 时间)
+</div>
+<div class="takeaway">体质的可变性是中医「治未病」的核心理论基础——它不是宿命，而是可以通过后天调理改变的状态。</div>
+</div>
+
+<!-- ======== MODULE 5: application ======== -->
+<div class="module" id="application">
+<h2><span class="m-tag">实操</span>体质辨识实操方法</h2>
+<h2></h2>
+<div class="hook">体质辨识不是玄学诊断，而是一套标准化、可量化的评价体系——从量表评分到舌象脉诊，每一步都有操作规范。</div>
+<div class="content">
+<p><strong>第一步：标准化量表测评</strong>。中华中医药学会发布的《中医体质分类与判定表》包含66个条目（平和质8条+每种偏颇体质7-8条），每条采用5级评分（1=没有，5=总是）。受试者根据近一年的体验和感觉作答。计算每种体质的原始分和转化分：转化分=[(原始分-条目数)/(条目数×4)]×100。转化分≥40判定为「是」，30-39为「倾向是」，＜30为「否」。</p>
+<p><strong>第二步：望诊观察</strong>。观察面色（红润/萎黄/晦暗）、形体（适中/肥胖/消瘦）、舌象（舌色、苔色、苔厚薄、有无瘀斑）。</p>
+<p><strong>第三步：闻诊听声</strong>。听语声强弱（气虚语音低微）、闻气味（湿热口臭、痰湿体味重）。</p>
+<p><strong>第四步：问诊采集</strong>。重点询问：寒热感受（畏寒/怕热）、出汗情况（自汗/盗汗）、饮食二便、睡眠质量、月经情况（女性）。</p>
+<p><strong>第五步：切诊脉象</strong>。虚证类（气虚→脉弱；阳虚→脉沉迟；阴虚→脉细数）；实证类（痰湿→脉滑；湿热→脉滑数；血瘀→脉涩；气郁→脉弦）。</p>
+<p><strong>综合判定</strong>：以量表为主（权重约70%），结合四诊（约30%），尤其注意兼夹体质（如气虚兼血瘀、痰湿兼湿热等）。实际人群中单一偏颇体质不足30%，多数人为兼夹体质。</p>
+</div>
+
+<div class="chart-wrap"><div id="chart_process"></div><div class="ch-cap">图：体质辨识标准化流程</div></div>
+
+<div class="takeaway">体质辨识的核心是量表量化+四诊验证——科学化、标准化是它区别于民间体质测试的关键。</div>
+</div>
+
+<!-- ======== MODULE 6: case_study ======== -->
+<div class="module" id="case_study">
+<h2><span class="m-tag">案例</span>三种典型体质调理案例</h2>
+<h2></h2>
+<div class="hook">理论说千遍，不如看一个真实的调理过程——以下三个案例展示了从辨识到干预再到效果评估的完整闭环。</div>
+<div class="content">
+<p><strong>案例一：痰湿质调理——程序员体重管理</strong><br>王先生，32岁，互联网程序员。体质测评得分：痰湿质转化分55分（判定为「是」），兼气虚质倾向。<br><strong>主要表现</strong>：BMI 28.3，腹部肥满松软，面部油脂分泌旺盛，易困倦，大便黏滞不爽。舌体胖大、舌苔白腻，脉滑。<br><strong>调理方案</strong>：①饮食：减少精制碳水，增加薏苡仁、冬瓜、白扁豆等健脾祛湿食材；②运动：每周4次有氧运动（快走45分钟+核心力量训练15分钟）；③中药茶饮：荷叶5g+陈皮3g+山楂3g代茶饮；④起居：忌熬夜，保证23:00前入睡。<br><strong>3个月效果</strong>：BMI降至26.1，痰湿质转化分降至32分（倾向是），精力明显改善。</p>
+<p><strong>案例二：气郁质调理——产后抑郁倾向</strong><br>李女士，29岁，产后6个月。气郁质转化分52分，兼阴虚质倾向。<br><strong>主要表现</strong>：情绪低落、时常叹气、胁肋胀痛、失眠多梦、口干咽燥。舌偏红、苔薄白，脉弦细。<br><strong>调理方案</strong>：①情志疏导：建议心理咨询，参加育儿支持小组；②中药调理：逍遥散加减（柴胡、当归、白芍、茯苓等）；③饮食：玫瑰花茶代饮，多食百合、小麦；④穴位按摩：每日按压太冲、膻中各3分钟。<br><strong>2个月效果</strong>：气郁质转化分降至28分（否），情绪明显改善，睡眠恢复正常。</p>
+<p><strong>案例三：湿热质调理——反复痤疮</strong><br>张同学，22岁，大学生。湿热质转化分58分。<br><strong>主要表现</strong>：面部痤疮反复发作（以红肿脓疱为主），面垢油光，口苦口臭，大便黏滞，小便黄。舌红苔黄腻，脉滑数。<br><strong>调理方案</strong>：①饮食严格控制：忌辛辣、油炸、甜食、奶制品；多食绿豆、苦瓜、冬瓜、薏苡仁；②中药：茵陈蒿汤加减（茵陈、栀子、大黄等），短期使用（2周）；③外用：金银花水敷面；④运动：每天30分钟出汗运动（促进湿热外泄）。<br><strong>2个月效果</strong>：痤疮基本消退，湿热质转化分降至26分（否）。</p>
+</div>
+
+<div class="table-container">
+<div class="table-caption">表：三种典型体质的辨识要点与调理核心</div>
+<table>
+<thead><tr><th>体质类型</th><th>核心辨识点</th><th>调理核心策略</th><th>见效周期</th><th>注意事项</th></tr></thead>
+<tbody>
+<tr><td>痰湿质</td><td>体胖、苔腻、大便黏</td><td>健脾祛湿+运动出汗</td><td>3-6个月</td><td>忌甜腻、生冷</td></tr>
+<tr><td>气郁质</td><td>情绪低落、胁痛、脉弦</td><td>疏肝理气+情志疏导</td><td>1-3个月</td><td>辅以心理干预</td></tr>
+<tr><td>湿热质</td><td>面垢、口苦、苔黄腻</td><td>清热利湿+饮食管控</td><td>1-2个月</td><td>忌辛辣烟酒</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="takeaway">体质调理的关键是「精准发力」——不同体质的饮食宜忌、运动方式、情志调节策略完全不同，个性化是核心。</div>
+</div>
+
+<!-- ======== MODULE 7: landscape ======== -->
+<div class="module" id="landscape">
+<h2><span class="m-tag">全景</span>体质-脏腑-疾病全景关系</h2>
+<h2></h2>
+<div class="hook">体质是脏腑功能的「镜像」——每一种偏颇体质都映射着特定脏腑的功能失衡，并指向相应的疾病易感性。</div>
+<div class="content">
+<p>中医体质学说将人体视为一个「体质-脏腑-疾病」的三级联动系统。<strong>第一级</strong>：脏腑功能状态。如气虚质的核心是脾肺气虚（脾主运化、肺主一身之气）；阳虚质的核心是脾肾阳虚（肾为先天之本、脾为后天之本）；阴虚质的核心是肝肾阴虚（肝藏血、肾藏精）。<strong>第二级</strong>：体质表现。脏腑失调通过气血津液的异常，外化为体质的特征性表现。如肝气郁结→气机不畅→气郁质的情绪抑郁、胁肋胀痛。<strong>第三级</strong>：疾病易感性。体质偏颇是疾病发生的「土壤」。痰湿质→代谢综合征；湿热质→痤疮、湿疹；血瘀质→心脑血管疾病；气虚质→反复感冒、慢性疲劳；阴虚质→失眠、干燥综合征；气郁质→抑郁症、乳腺增生等。</p>
+<p>这个三级联动系统的核心启示是：<strong>调理体质就是调理脏腑功能</strong>——以体质辨识为入口，可以精准定位脏腑失调的环节，实现「治未病」的个性化干预。</p>
+</div>
+
+<div class="chart-wrap"><div id="chart_sankey"></div><div class="ch-cap">图：体质-脏腑-疾病三级联动桑基图（展示偏颇体质到核心脏腑再到易感疾病的映射关系）</div></div>
+
+<div class="takeaway">体质-脏腑-疾病的三级关系揭示了中医「异病同治」的底层逻辑——调理体质可以从根源上降低多种疾病的易感性。</div>
+</div>
+
+<!-- ======== MODULE 8: misconceptions ======== -->
+<div class="module" id="misconceptions">
+<h2><span class="m-tag">澄清</span>体质辨识常见误区</h2>
+<h2></h2>
+<div class="hook">「我做了网上的体质测试，说我是七种体质的混合！」——这种哭笑不得的结果，正源于对体质辨识的核心误解。</div>
+<div class="content">
+<p><strong>误区一：「体质越多越准确」</strong>。网上大量非标准化的体质测试量表和养生文章，导致很多人得出了同时属于五六种甚至全部九种体质的荒谬结论。真相是：体质判定依据中华中医药学会标准，以转化分≥40作为判定阈值，通常主判1-2种兼夹体质，极少同时超过3种。</p>
+<p><strong>误区二：「体质不可改变」</strong>。这是最常见的悲观论调。事实上，除特禀质受先天影响较大外，其余偏颇体质均可通过系统干预改善。流行病学研究显示，经过6-12个月的生活方式干预，偏颇体质的转化分平均下降10-20分。</p>
+<p><strong>误区三：「平和质=完全健康」</strong>。平和质只是一种「倾向性健康」状态，不等于免疫疾病。平和质人群同样需要根据年龄、性别、季节进行适度的养生调理。</p>
+<p><strong>误区四：「体质测试可以替代体检」</strong>。体质辨识是一种健康风险评估和养生指导工具，不是疾病诊断工具。它不能替代生化检查、影像学检查等现代医学诊断手段。</p>
+<p><strong>误区五：「所有养生方法适合所有人」</strong>。比如人参补气——气虚质适宜但湿热质会「火上浇油」；艾灸温阳——阳虚质适宜但阴虚质会「火上加油」。体质辨识的核心价值就是避免「一刀切」式的养生误区。</p>
+</div>
+<div class="takeaway">体质辨识是「看人」的学问——同样的养生方法对不同体质的人效果可能截然相反，甚至有害。</div>
+</div>
+
+<!-- ======== MODULE 9: learning_path ======== -->
+<div class="module" id="learning_path">
+<h2><span class="m-tag">路径</span>体质调理学习路径</h2>
+<div class="hook">掌握体质调理不是一蹴而就——从学会自测到能为他人提供指导，有一条清晰的进阶路线。</div>
+<div class="content">
+<p><strong>Level 1：自我辨识者（1-2周）</strong>。目标：能用标准量表准确判断自身体质。<br>行动清单：①下载《中医体质分类与判定表》完整版；②按照近一年的实际情况逐条作答；③计算九种体质的转化分；④当出现兼夹体质时，确定主次排序；⑤对照舌象、脉象验证结果。</p>
+<p><strong>Level 2：养生实践者（1-3个月）</strong>。目标：能根据体质类型制定并执行个性化调理方案。<br>行动清单：①学习自己体质类型的食疗方案（宜食、忌食清单）；②制定运动计划（阳虚→温和有氧+阳光浴；痰湿→出汗运动；气郁→户外团体运动）；③实践情志调节方法（气郁→社交+音乐疗法；阴虚→静坐冥想）。</p>
+<p><strong>Level 3：家庭健康管理者（3-6个月）</strong>。目标：能为家庭成员进行体质辨识和调理建议。<br>行动清单：①学习四诊基本方法（望面色、望舌、闻声音、问寒热）；②了解儿童、老年人、女性的体质特点和差异；③结合四季养生知识，为家人制定季节性的体质调理方案。</p>
+<p><strong>Level 4：社区养生指导者（持续学习）</strong>。目标：能参与社区健康管理，指导群体体质辨识与管理。<br>行动清单：①阅读王琦《中医体质学》原著；②学习体质相关的流行病学研究方法；③参加中医药健康管理培训；④建立健康档案管理实践经验。</p>
+</div>
+<div class="takeaway">体质调理的学习路径是一个从「自知」到「知人」的过程——先管好自己，再帮助家人，最终服务社区。</div>
+</div>
+
+<!-- ======== MODULE 10: glossary ======== -->
+<div class="module" id="glossary">
+<h2><span class="m-tag">术语</span>核心术语速查</h2>
+<h2></h2>
+<div class="hook">体质学说有一套专业术语体系——理解这些核心概念是深入学习的前提。</div>
+<div class="content">
+</div>
+
+<div class="table-container">
+<div class="table-caption">表：中医体质学核心术语速查表</div>
+<table>
+<thead><tr><th>术语</th><th>英文</th><th>解释</th><th>相关体质</th></tr></thead>
+<tbody>
+<tr><td>平和质</td><td>Balanced Constitution</td><td>阴阳气血调和的最理想体质状态，体形匀称健壮，精力充沛</td><td>—（目标态）</td></tr>
+<tr><td>偏颇体质</td><td>Biased Constitution</td><td>偏离平和状态的八种体质类型的总称</td><td>全部八种</td></tr>
+<tr><td>转化分</td><td>Transformation Score</td><td>将量表原始评分转化为0-100的标准分数，≥40判定为「是」</td><td>全部九种</td></tr>
+<tr><td>禀赋</td><td>Congenital Endowment</td><td>先天遗传的体质基础，类似于现代医学的「遗传易感性」</td><td>尤其是特禀质</td></tr>
+<tr><td>兼夹体质</td><td>Mixed Constitution</td><td>同时具有两种或两种以上体质类型的特征，临床中占多数</td><td>如气虚兼血瘀</td></tr>
+<tr><td>治未病</td><td>Preventive Treatment</td><td>未病先防、既病防变的预防医学理念，体质辨识是其核心工具</td><td>全部偏颇体质</td></tr>
+<tr><td>辨证论治</td><td>Syndrome Differentiation</td><td>根据证候确定治法的中医核心方法论，体质辨识是其重要参考</td><td>—</td></tr>
+<tr><td>九体医学</td><td>Nine-Constitution Medicine</td><td>王琦院士创立的以九种体质分类为核心的中医体质学体系</td><td>全部九种</td></tr>
+<tr><td>辨体-辨病-辨证</td><td>Triple Differentiation</td><td>王琦提出的三辨模式：先辨体质、再辨疾病、最后辨证候</td><td>—</td></tr>
+<tr><td>体病相关</td><td>Constitution-Disease Correlation</td><td>特定体质类型与特定疾病易感性之间的流行病学关联关系</td><td>如痰湿质→糖尿病</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<!-- ======== MODULE 11: prospect ======== -->
+<div class="module" id="prospect">
+<h2><span class="m-tag">前沿</span>体质学说的现代科学研究</h2>
+<div class="hook">当千年中医体质学说遇上了基因组学、代谢组学和肠道微生物组学——古老智慧正在被现代科学逐一验证。</div>
+<div class="content">
+<p><strong>基因组学研究</strong>：王琦团队通过全基因组关联分析（GWAS），发现了与不同体质类型相关的SNP位点。如痰湿质与FTO、MC4R等肥胖相关基因位点显著关联；气郁质与5-HTTLPR（五羟色胺转运体基因多态性）的s/s基因型相关。这些发现为体质分类提供了分子遗传学层面的客观证据。</p>
+<p><strong>代谢组学研究</strong>：利用LC-MS/MS和GC-MS技术，研究发现不同体质具有特征性的代谢谱。痰湿质表现为脂质代谢异常（甘油三酯、游离脂肪酸升高）；湿热质表现为炎症因子和氧化应激标志物升高；阳虚质表现为能量代谢产物（ATP、磷酸肌酸）降低。</p>
+<p><strong>肠道微生物组研究</strong>：近年来最激动人心的发现之一。痰湿质人群肠道菌群中厚壁菌门/拟杆菌门比值（F/B ratio）显著升高——这与肥胖人群的菌群特征高度一致。湿热质则表现为肠道菌群多样性降低、潜在致病菌（如肠杆菌科）丰度升高。</p>
+<p><strong>表观遗传学研究</strong>：DNA甲基化、组蛋白修饰等表观遗传机制可能在体质形成的「先天-后天交互」中发挥关键作用。初步研究发现不同体质类型的DNA甲基化模式存在差异。</p>
+<p><strong>人工智能辅助辨识</strong>：基于机器学习的舌象自动识别系统已经问世，深度学习模型对舌色、苔色、苔厚薄的分类准确率达90%以上。结合面部图像分析、声音分析，AI体质辨识系统正在从实验室走向临床应用。</p>
+</div>
+
+<div class="chart-wrap"><div id="chart_research"></div><div class="ch-cap">图：体质学说现代科学研究论文发表趋势（2010-2025，PubMed/CNKI检索数据）</div></div>
+
+<div class="takeaway">现代科学正在为中医体质学说提供越来越坚实的循证医学证据——这不是「科学验证中医」，而是「科学对话中医」。</div>
+</div>
+
+<!-- ======== MODULE 12: risk ======== -->
+<div class="module" id="risk">
+<h2><span class="m-tag">警示</span>错误调理的风险</h2>
+<h2></h2>
+<div class="hook">错误的体质辨识可能比没有辨识更危险——如果你把湿热质误判为阳虚质并开始大量艾灸，后果可能是「火上浇油」。</div>
+<div class="content">
+<p><strong>风险一：逆体质调理的伤害</strong>。这是最常见的体质调理事故。典型案例：①湿热质误判为气虚质→大量服用黄芪、党参→湿热加重、口疮爆发；②阴虚质误判为阳虚质→大量艾灸、食用温补食材→虚火上升、失眠加剧；③痰湿质过度强调「补」→肥甘厚味进一步助湿生痰。核心原则：<strong>实证体质（痰湿、湿热、血瘀、气郁）应先「泻」后「补」或「调」而不「补」。</strong></p>
+<p><strong>风险二：忽视兼夹体质的复杂性</strong>。单一偏颇体质只占不到30%，兼夹体质需要综合调理策略。例如气虚兼血瘀者，单纯补气可能加重血瘀（气滞）；需要补气与活血并重。</p>
+<p><strong>风险三：将体质调理替代正规治疗</strong>。体质辨识和调理是养生预防手段，不能替代疾病的临床治疗。已确诊疾病的患者应在医生指导下将体质调理作为辅助手段。</p>
+<p><strong>风险四：过度依赖保健品</strong>。「我阳虚所以我要吃鹿茸」「我阴虚所以要吃铁皮石斛」——这种简单化的体质-补品对应关系忽视了剂量、配伍和个体差异，可能导致药物性肝损伤等问题。</p>
+</div>
+<div class="takeaway">调理体质的安全第一原则：辨识为先，循序渐进，辨证施调——任何极端的、大剂量的单一体质调理都可能适得其反。</div>
+</div>
+
+<!-- ======== MODULE 13: issues ======== -->
+<div class="module" id="issues">
+<h2><span class="m-tag">挑战</span>体质辨识的挑战与局限</h2>
+<div class="hook">体质辨识虽好，但它不是完美的科学——了解其局限性和挑战，才能更理性地使用它。</div>
+<div class="content">
+<p><strong>挑战一：量表的主观性偏差</strong>。体质量表依赖受试者的「自我感知」，不同文化水平、健康素养的受试者对同一症状的理解和评分可能差异巨大。如「您感觉身体沉重吗」——痰湿质者答案为5分，但长期习惯了这种感觉的人可能评2-3分。</p>
+<p><strong>挑战二：体质类型的动态变化</strong>。体质不是一成不变的标签，它会随着年龄、季节、生活方式而动态变化。但现有量表以「近一年」为判定周期，对短期动态变化的敏感性不足。</p>
+<p><strong>挑战三：区域与人群适用性</strong>。现行的体质判定标准主要基于中国汉族人群数据建立。少数民族、不同地理区域、海外华人的体质分布可能存在差异。国际推广中还存在文化适应性挑战。</p>
+<p><strong>挑战四：缺乏「金标准」客观指标</strong>。尽管基因组学、代谢组学研究为体质分类提供了分子证据，但目前尚未建立单一或组合的客观生化指标作为体质判定的「金标准」，体质判定仍以主观量表为主。</p>
+<p><strong>挑战五：干预效果评价体系不完善</strong>。如何科学评价体质调理的效果？仅靠转化分变化是否足够？是否需要结合生化指标、量表评分、生活质量评价等多维度指标？目前缺乏统一的调理效果评价标准。</p>
+</div>
+<div class="takeaway">体质辨识最大的挑战不是技术性的，而是科学性的——如何在保留中医整体观的同时建立客观化的评价体系。</div>
+</div>
+
+<!-- ======== MODULE 14: effort_direction ======== -->
+<div class="module" id="effort_direction">
+<h2><span class="m-tag">方向</span>个性化调理的实践方向</h2>
+<div class="hook">体质辨识的终极目的不是为了分类，而是为了实现「一人一策」的精准养生——这才是中医个体化医学的未来。</div>
+<div class="content">
+<p><strong>方向一：数字化体质档案</strong>。推动个人电子健康档案中纳入体质辨识数据，实现体质的持续追踪和动态监测。结合可穿戴设备（心率、睡眠、活动量等数据），构建「数字孪生」式的个性化健康管理模型。</p>
+<p><strong>方向二：「辨体-辨病-辨证」三辨一体化</strong>。王琦院士提出的「三辨模式」代表了中医临床诊疗的最高水准：先辨体质锁定方向，再辨疾病确定靶点，最后辨证候精细施治。将这一模式从理论推向标准化临床路径，是当前国家重点研发计划的重要课题。</p>
+<p><strong>方向三：体质特异的「治未病」方案库</strong>。为九种体质分别建立「食疗方案」「运动处方」「穴位按摩方案」「情志调节方案」「四季养生重点」五大模块，形成标准化但可个性化调整的调理方案矩阵。</p>
+<p><strong>方向四：多学科交叉验证</strong>。持续推动基因组学、蛋白质组学、代谢组学、肠道微生物组等多组学技术与体质学说的交叉研究，为体质分类提供更全面、更客观的生物学证据。</p>
+<p><strong>方向五：社区与家庭的体质健康管理</strong>。利用体质辨识作为抓手，在社区卫生服务中心和家庭层面推广中医「治未病」理念。国家基本公共卫生服务已纳入体质辨识，未来的方向是实现体质健康管理的「全覆盖、全周期」。</p>
+</div>
+<div class="takeaway">体质辨识的未来不在学术论文里，而在每一个家庭的餐桌上、每一个社区的健身房里——让精准养生成为中国人的日常生活方式。</div>
+</div>
+
+</div>
+
+<!-- CONDITIONAL: HAS_CONTEXT_PLAN -->
+<footer class="journey-footer">
+  <a href="#" class="back-to-plan" onclick="event.preventDefault();var w=window.open('tcm_learning.html#kc-p3_2','plan_main');if(w)w.focus()">🔗 返回学习路线: 中医与养生 系统学习方案 → 养生保健整合应用</a>
+  <p style="margin-top:12px;font-size:.72rem;color:var(--text-muted)">
+    本资料是 <strong>中医与养生 系统学习方案</strong> 养生保健整合应用阶段的深度研读材料
+  </p>
+</footer>
+<!-- /CONDITIONAL -->
+
+<!-- CONDITIONAL: HAS_CONTEXT_PLAN -->
+<div class="deep-floating-back">
+  <button onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 16px rgba(0,0,0,.2)'"
+    onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 12px rgba(0,0,0,.15)'"
+    onclick="event.preventDefault();var w=window.open('tcm_learning.html#kc-p3_2','plan_main');if(w)w.focus()">
+    ← 返回学习方案
+  </button>
+</div>
+<!-- /CONDITIONAL -->
+</div>
+
+<div class="dd-toast" id="toastEl"><span id="toastMsg"></span></div>
+
+<script>
+var MODULE_IDS = ["learning_journey","background","concept","principle","application","case_study","landscape","misconceptions","learning_path","glossary","prospect","risk","issues","effort_direction"];
+var SEARCH_INDEX = [
+  {id:"learning_journey",t:"学习路线导航",c:"辨识体质不是给人贴标签，而是读懂身体发出的信号"},
+  {id:"background",t:"体质学说的源流与发展",c:"从黄帝内经的阴阳分型，到王琦院士九种体质体系的创立"},
+  {id:"concept",t:"九种体质类型精解",c:"九种体质就像九种不同的土壤——同样的种子在不同土壤中生长出截然不同的植株"},
+  {id:"principle",t:"体质形成的机理",c:"体质的形成是先天禀赋与后天环境的一场长达数十年的对话"},
+  {id:"application",t:"体质辨识实操方法",c:"体质辨识不是玄学诊断，而是一套标准化、可量化的评价体系"},
+  {id:"case_study",t:"三种典型体质调理案例",c:"理论说千遍，不如看一个真实的调理过程"},
+  {id:"landscape",t:"体质-脏腑-疾病全景关系",c:"体质是脏腑功能的镜像——每一种偏颇体质都映射着特定脏腑的功能失衡"},
+  {id:"misconceptions",t:"体质辨识常见误区",c:"常见体质辨识中的五大误区及其澄清"},
+  {id:"learning_path",t:"体质调理学习路径",c:"掌握体质调理不是一蹴而就——从学会自测到能为他人提供指导"},
+  {id:"glossary",t:"核心术语速查",c:"体质学说有一套专业术语体系——理解这些核心概念是深入学习的前提"},
+  {id:"prospect",t:"体质学说的现代科学研究",c:"当千年中医体质学说遇上了基因组学、代谢组学和肠道微生物组学"},
+  {id:"risk",t:"错误调理的风险",c:"错误的体质辨识可能比没有辨识更危险"},
+  {id:"issues",t:"体质辨识的挑战与局限",c:"体质辨识虽好，但它不是完美的科学"},
+  {id:"effort_direction",t:"个性化调理的实践方向",c:"体质辨识的终极目的是为了实现一人一策的精准养生"}
+];
+var TOAST_TIMEOUT;
+
+(function(){
+var progressBar=document.getElementById('progressBar');
+var modules=document.querySelectorAll('.module');
+
+var observer=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting)e.target.classList.add('visible')})},{threshold:.15});
+modules.forEach(function(m){observer.observe(m)});
+
+var navLinks=document.querySelectorAll('.sidebar-nav a');
+var navObserver=new IntersectionObserver(function(entries){
+entries.forEach(function(e){
+if(e.isIntersecting){
+navLinks.forEach(function(a){a.classList.remove('active')});
+var act=document.querySelector('.sidebar-nav a[href="#'+e.target.id+'"]');
+if(act)act.classList.add('active');
+}
+})},{threshold:.3});
+modules.forEach(function(m){navObserver.observe(m)});
+
+window.addEventListener('scroll',function(){
+var st=document.documentElement.scrollTop,dh=document.documentElement.scrollHeight-window.innerHeight;
+var pct=dh>0?Math.min(100,(st/dh)*100):0;progressBar.style.width=pct+'%';
+});
+
+window.addEventListener('keydown',function(e){
+if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();openSearch()}
+if((e.ctrlKey||e.metaKey)&&e.key==='d'){e.preventDefault();toggleTheme()}
+if(e.key==='Escape')closeSearch()
+});
+})();
+
+function toggleTheme(){
+var b=document.body,isD=b.getAttribute('data-theme')==='dark';
+b.setAttribute('data-theme',isD?'light':'dark');
+try{localStorage.setItem('slm-theme',isD?'light':'dark')}catch(e){}
+showToast('已切换至'+(isD?'浅色':'深色')+'主题')
+}
+
+function openSearch(){document.getElementById('searchOverlay').classList.add('open');setTimeout(function(){document.getElementById('searchInput').focus()},100)}
+function closeSearch(){document.getElementById('searchOverlay').classList.remove('open');document.getElementById('searchResults').innerHTML=''}
+
+function doSearch(){
+var q=document.getElementById('searchInput').value.toLowerCase(),res=document.getElementById('searchResults');
+if(q.length<2){res.innerHTML='';return}
+var h='';SEARCH_INDEX.forEach(function(item){
+if(item.t.toLowerCase().indexOf(q)>=0||(item.c||'').toLowerCase().indexOf(q)>=0){
+h+='<div onclick="closeSearch();document.getElementById(\''+item.id+'\').scrollIntoView({behavior:\'smooth\'})">'+
+'<strong>'+item.t+'</strong><br><small style="color:var(--text-muted)">'+(item.c||'').substring(0,80)+'</small></div>';
+}
+});
+res.innerHTML=h||'<div style="padding:12px;color:var(--text-muted)">未找到匹配模块</div>'
+}
+
+function showToast(msg){
+var el=document.getElementById('toastEl'),mg=document.getElementById('toastMsg');
+if(!el||!mg)return;mg.textContent=msg;el.style.display='block';el.classList.add('toast-in');
+if(TOAST_TIMEOUT)clearTimeout(TOAST_TIMEOUT);
+TOAST_TIMEOUT=setTimeout(function(){el.style.display='none'},3000);
+}
+
+(function(){
+var t;try{t=localStorage.getItem('slm-theme')}catch(e){}
+if(t==='light')document.body.setAttribute('data-theme','light');
+})();
+
+(function(){
+document.querySelectorAll('.derivation-toggle').forEach(function(btn){
+btn.addEventListener('click',function(){
+var content=this.nextElementSibling;
+if(content){content.classList.toggle('open');this.textContent=content.classList.contains('open')?'▾ 收起推导':'▸ 展开推导'}
+});
+});
+})();
+
+/* ===== ECharts 初始化模板 ===== */
+(function initCharts(){
+if(typeof echarts==='undefined')return;
+var charts=[];
+var bgColor=document.body.getAttribute('data-theme')==='light'?'#f3efe3':'#312d27';
+function makeChart(elId,option){
+var el=document.getElementById(elId);
+if(!el)return null;
+var chart=echarts.init(el);
+if(!option.backgroundColor)option.backgroundColor=bgColor;
+chart.setOption(option);
+charts.push(chart);
+return chart;
+}
+
+// Chart 1: 体质学说发展时间线 (chart_timeline)
+makeChart('chart_timeline', {
+  tooltip:{trigger:'item',formatter:function(p){return p.name+'<br/>'+p.value}},
+  grid:{left:'15%',right:'10%',top:20,bottom:20},
+  xAxis:{type:'time',axisLine:{lineStyle:{color:'var(--chart-axis-label)'}},show:false},
+  yAxis:{type:'value',show:false},
+  series:[{
+    type:'line',smooth:true,symbol:'circle',symbolSize:12,
+    lineStyle:{color:'#5ea87a',width:3},
+    itemStyle:{color:'#7ec8a0'},
+    areaStyle:{color:new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'rgba(94,168,122,.3)'},{offset:1,color:'rgba(94,168,122,.02)'}])},
+    data:[
+      {name:'黄帝内经(约公元前200年)\n阴阳体质分型',value:[new Date('-200-01-01'),60]},
+      {name:'张仲景(公元200年)\n强人/羸人分类',value:[new Date('200-01-01'),65]},
+      {name:'孙思邈(公元650年)\n禀赋说',value:[new Date('650-01-01'),70]},
+      {name:'叶天士(公元1750年)\n体质辨证',value:[new Date('1750-01-01'),78]},
+      {name:'王琦创立体质学(1978年)',value:[new Date('1978-01-01'),88]},
+      {name:'九种体质标准发布(2009年)',value:[new Date('2009-01-01'),98]},
+      {name:'纳入基本公卫(2013年)',value:[new Date('2013-01-01'),100]},
+      {name:'基因组关联突破(2020年)',value:[new Date('2020-01-01'),105]}
+    ],
+    markPoint:{data:[
+      {name:'里程碑',coord:['2009-01-01',98],value:'2009年\n标准发布'},
+      {name:'里程碑',coord:['2020-01-01',105],value:'2020年\n基因组突破'}
+    ]}
+  }]
+});
+
+// Chart 2: 九种体质雷达对比图 (chart_radar)
+makeChart('chart_radar', {
+  title:{text:'九种体质多维度特征对比',left:'center',top:5,textStyle:{color:'var(--text-primary)',fontSize:14}},
+  tooltip:{},
+  legend:{data:['平和质','气虚质','阳虚质','阴虚质','痰湿质','湿热质','血瘀质','气郁质','特禀质'],bottom:0,textStyle:{color:'var(--text-secondary)',fontSize:10},type:'scroll'},
+  radar:{
+    center:['50%','48%'],
+    radius:'70%',
+    indicator:[
+      {name:'精力',max:100},{name:'耐受寒热',max:100},
+      {name:'情绪稳定',max:100},{name:'消化力',max:100},
+      {name:'睡眠质量',max:100},{name:'免疫力',max:100}
+    ],
+    axisName:{color:'var(--text-secondary)'}
+  },
+  series:[{
+    type:'radar',
+    data:[
+      {value:[90,88,85,88,90,92],name:'平和质',lineStyle:{color:'#5ea87a'},areaStyle:{color:'rgba(94,168,122,0.15)'}},
+      {value:[45,55,65,55,60,35],name:'气虚质',lineStyle:{color:'#b898a0'},areaStyle:{color:'rgba(184,152,160,0.1)'}},
+      {value:[55,30,65,60,65,45],name:'阳虚质',lineStyle:{color:'#7ec8a0'},areaStyle:{color:'rgba(126,200,160,0.1)'}},
+      {value:[60,65,50,55,45,55],name:'阴虚质',lineStyle:{color:'#e6b95a'},areaStyle:{color:'rgba(230,185,90,0.1)'}},
+      {value:[50,48,60,35,55,50],name:'痰湿质',lineStyle:{color:'#d47860'},areaStyle:{color:'rgba(212,120,96,0.1)'}},
+      {value:[55,60,55,45,50,48],name:'湿热质',lineStyle:{color:'#6ebf8a'},areaStyle:{color:'rgba(110,191,138,0.1)'}},
+      {value:[50,55,55,55,55,50],name:'血瘀质',lineStyle:{color:'#8a8070'},areaStyle:{color:'rgba(138,128,112,0.1)'}},
+      {value:[48,58,35,55,38,55],name:'气郁质',lineStyle:{color:'#b898a0'},areaStyle:{color:'rgba(184,152,160,0.1)'}},
+      {value:[50,50,55,50,55,30],name:'特禀质',lineStyle:{color:'#7ec8a0'},areaStyle:{color:'rgba(126,200,160,0.1)'}}
+    ]
+  }]
+});
+
+// Chart 3: 体质辨识实操流程图 (chart_process)
+makeChart('chart_process', {
+  title:{text:'体质辨识标准化流程',left:'center',top:8,textStyle:{color:'var(--text-primary)',fontSize:14}},
+  tooltip:{trigger:'item'},
+  series:[{
+    type:'graph',
+    layout:'force',
+    force:{repulsion:260,edgeLength:[120,260]},
+    roam:false,
+    draggable:false,
+    symbolSize:55,
+    lineStyle:{color:'var(--accent-indigo)',width:2,curveness:0.3},
+    label:{show:true,fontSize:11,color:'var(--text-primary)'},
+    edgeSymbol:['none','arrow'],
+    edgeSymbolSize:10,
+    data:[
+      {name:'开始\n填写量表',category:0,itemStyle:{color:'#5ea87a'}},
+      {name:'66条目\n5级评分',category:1,itemStyle:{color:'#7ec8a0'}},
+      {name:'计算转化分\n(0-100)',category:1,itemStyle:{color:'#6ebf8a'}},
+      {name:'判定≥40?\n「是」体质',category:1,itemStyle:{color:'#e6b95a'}},
+      {name:'望诊\n(面色/舌象)',category:2,itemStyle:{color:'#b898a0'}},
+      {name:'闻诊\n(声音/气味)',category:2,itemStyle:{color:'#d47860'}},
+      {name:'问诊\n(寒热/二便)',category:2,itemStyle:{color:'#b898a0'}},
+      {name:'切诊\n(脉象)',category:2,itemStyle:{color:'#d47860'}},
+      {name:'综合判定\n主兼夹体质',category:3,itemStyle:{color:'#5ea87a'}},
+      {name:'个性化\n调理方案',category:4,itemStyle:{color:'#7ec8a0'}}
+    ],
+    links:[
+      {source:'开始\n填写量表',target:'66条目\n5级评分'},
+      {source:'66条目\n5级评分',target:'计算转化分\n(0-100)'},
+      {source:'计算转化分\n(0-100)',target:'判定≥40?\n「是」体质'},
+      {source:'判定≥40?\n「是」体质',target:'综合判定\n主兼夹体质'},
+      {source:'开始\n填写量表',target:'望诊\n(面色/舌象)'},
+      {source:'望诊\n(面色/舌象)',target:'综合判定\n主兼夹体质'},
+      {source:'开始\n填写量表',target:'闻诊\n(声音/气味)'},
+      {source:'闻诊\n(声音/气味)',target:'综合判定\n主兼夹体质'},
+      {source:'开始\n填写量表',target:'问诊\n(寒热/二便)'},
+      {source:'问诊\n(寒热/二便)',target:'综合判定\n主兼夹体质'},
+      {source:'开始\n填写量表',target:'切诊\n(脉象)'},
+      {source:'切诊\n(脉象)',target:'综合判定\n主兼夹体质'},
+      {source:'综合判定\n主兼夹体质',target:'个性化\n调理方案'}
+    ],
+    categories:[
+      {name:'量表测评(权重~70%)',itemStyle:{color:'#5ea87a'}},
+      {name:'计算与判定',itemStyle:{color:'#7ec8a0'}},
+      {name:'四诊验证(权重~30%)',itemStyle:{color:'#b898a0'}},
+      {name:'综合判定',itemStyle:{color:'#e6b95a'}},
+      {name:'干预方案',itemStyle:{color:'#6ebf8a'}}
+    ]
+  }]
+});
+
+// Chart 4: 体质-脏腑-疾病桑基图 (chart_sankey)
+makeChart('chart_sankey', {
+  title:{text:'体质-脏腑-疾病三级联动全景',left:'center',top:5,textStyle:{color:'var(--text-primary)',fontSize:14}},
+  tooltip:{trigger:'item',triggerOn:'mousemove'},
+  series:[{
+    type:'sankey',
+    layout:'none',
+    emphasis:{focus:'adjacency'},
+    nodeAlign:'left',
+    layoutIterations:0,
+    lineStyle:{color:'gradient',curveness:0.5},
+    label:{color:'var(--text-primary)',fontSize:11},
+    data:[
+      {name:'气虚质'},{name:'阳虚质'},{name:'阴虚质'},{name:'痰湿质'},
+      {name:'湿热质'},{name:'血瘀质'},{name:'气郁质'},{name:'特禀质'},
+      {name:'脾'},{name:'肾'},{name:'肝'},{name:'肺'},{name:'心'},
+      {name:'代谢综合征'},{name:'反复感染'},{name:'高血压'},{name:'糖尿病'},
+      {name:'失眠'},{name:'痤疮'},{name:'冠心病'},{name:'抑郁症'},
+      {name:'过敏性疾病'}
+    ],
+    links:[
+      // 气虚质 → 脾、肺
+      {source:'气虚质',target:'脾',value:8},{source:'气虚质',target:'肺',value:6},
+      // 阳虚质 → 脾、肾
+      {source:'阳虚质',target:'脾',value:5},{source:'阳虚质',target:'肾',value:8},
+      // 阴虚质 → 肝、肾
+      {source:'阴虚质',target:'肝',value:6},{source:'阴虚质',target:'肾',value:7},
+      // 痰湿质 → 脾、肾
+      {source:'痰湿质',target:'脾',value:9},{source:'痰湿质',target:'肾',value:4},
+      // 湿热质 → 脾、肝
+      {source:'湿热质',target:'脾',value:7},{source:'湿热质',target:'肝',value:6},
+      // 血瘀质 → 肝、心
+      {source:'血瘀质',target:'肝',value:7},{source:'血瘀质',target:'心',value:6},
+      // 气郁质 → 肝
+      {source:'气郁质',target:'肝',value:9},
+      // 特禀质 → 肺、脾
+      {source:'特禀质',target:'肺',value:8},{source:'特禀质',target:'脾',value:4},
+      // 脏腑 → 疾病
+      {source:'脾',target:'代谢综合征',value:7},{source:'脾',target:'糖尿病',value:6},
+      {source:'肺',target:'反复感染',value:7},{source:'肺',target:'过敏性疾病',value:6},
+      {source:'肾',target:'高血压',value:5},{source:'肾',target:'失眠',value:4},
+      {source:'肝',target:'高血压',value:6},{source:'肝',target:'抑郁症',value:6},
+      {source:'心',target:'冠心病',value:5},{source:'心',target:'失眠',value:4},
+      {source:'肺',target:'反复感染',value:4},
+      {source:'肝',target:'痤疮',value:4}
+    ]
+  }]
+});
+
+// Chart 5: 现代研究数据柱状图 (chart_research)
+makeChart('chart_research', {
+  title:{text:'体质学说领域各研究方向论文数量趋势',left:'center',top:5,textStyle:{color:'var(--text-primary)',fontSize:14}},
+  tooltip:{trigger:'axis'},
+  legend:{data:['2010','2015','2020','2025(预测)'],bottom:0,textStyle:{color:'var(--text-secondary)'}},
+  grid:{left:'20%',right:'5%',top:30,bottom:25},
+  xAxis:{type:'value',name:'论文数量',axisLabel:{color:'var(--chart-axis-label)'}},
+  yAxis:{type:'category',
+    data:['流行病学\n调查','基因组学\n关联','代谢组学\n研究','肠道菌群\n研究','AI辅助\n辨识','干预效果\nRCT'],
+    axisLabel:{color:'var(--text-primary)',fontSize:10}
+  },
+  series:[
+    {name:'2010',type:'bar',data:[45,5,2,0,0,8],itemStyle:{color:'rgba(94,168,122,.4)'}},
+    {name:'2015',type:'bar',data:[78,22,15,5,3,18],itemStyle:{color:'rgba(94,168,122,.65)'}},
+    {name:'2020',type:'bar',data:[105,48,38,22,15,35],itemStyle:{color:'rgba(110,191,138,.85)'}},
+    {name:'2025(预测)',type:'bar',data:[130,75,60,45,35,55],itemStyle:{color:'#5ea87a'}}
+  ]
+});
+
+window.addEventListener('resize',function(){charts.forEach(function(c){c.resize()})});
+})();
+</script>
+</body>
+</html>

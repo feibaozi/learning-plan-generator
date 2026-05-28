@@ -3,7 +3,15 @@ name: "learning-plan-generator"
 description: "Generate adaptive, texture-aware learning plans (Markdown + interactive HTML) for ANY domain. Auto-classifies topics, dynamically determines phase count/week allocation, and selects optimal learning texture (G1-G8). Invoke when user asks for: learning plan, study roadmap, course outline, 学习方案, 学习计划, 学习路线."
 version: "3.9.0"
 changelog: |
-  v3.9.0: 文件夹强制约定 + 深度资料命名标准化
+  v3.9.0: 三模块交互化改造 + 文件夹强制约定 + 深度资料命名标准化
+  - 知识图谱：Canvas → ECharts 交互式导航仪表盘（语义布局、节点可点击、连线分类型、状态同步）
+  - 方法论：静态 HTML → 纹理感知交互式学习画布（G1-G8 自适应、步骤可勾选、关联板块跳转）
+  - 图表指南：名称列表 → 视觉知识画廊（SVG 预览、类型筛选、lightbox 放大、深度资料联动）
+  - 新增占位符：%GRAPH_DATA%、%METHOD_STEPS%
+  - 废弃占位符：%METHOD_STEPS_HTML%
+  - 新增 plan_params.json 字段：method_texture_templates、drawing_type_taxonomy
+  - 6 个模板 plan.css 同步新增 graph/method/gallery/lightbox 样式
+  - ECharts CDN (v5.5.0) 引入主方案
   - Constraint #18 从 🟠 升级为 🔴: MUST 语言 + 强制子文件夹结构，绝对禁止根目录直接存放方案文件
   - Phase 4 新增 FOLDER CREATION 步骤：在任何文件写入前必须先创建 学习资料/[plan_name]/ 子文件夹
   - Phase 5.3 新增 4 项 🔴 验证 (#36-#39): 文件夹存在性、manifest html_file 无路径前缀、根目录泄漏检查、plan_folder 命名规范
@@ -510,7 +518,9 @@ the output HTML is WRITTEN to the new folder.**
 | `%HERO_STATS_HTML%` | HTML | Hero stat cards HTML (weeks, phases, exercises, kp counts) |
 | `%PHASE_TAG_CSS%` | CSS | Phase tag classes (tag-p1...tag-pN) using `phase_colors` — or empty if using inline `style` in kf() |
 | `%FOOTER_TEXT%` | string | Footer copyright text |
-| `%METHOD_STEPS_HTML%` | HTML | Derivation methodology steps HTML (only used if HAS_METHOD) |
+| `%METHOD_STEPS_HTML%` | HTML | **DEPRECATED** — Replaced by `%METHOD_STEPS%` in v3.9.0. Old HTML injection, no longer used. |
+| `%GRAPH_DATA%` | JSON literal | GRAPH_DATA object: `{nodes:[...], edges:[...]}` (HAS_GRAPH) |
+| `%METHOD_STEPS%` | JSON literal | METHOD_STEPS array (HAS_METHOD), replaces `%METHOD_STEPS_HTML%` |
 | `%STORAGE_KEY%` | string | localStorage key prefix, e.g. `"derivatives_pricing"` |
 | `%PLAN_JSON%` | JSON literal | PLAN object: `{id:"...", title:"...", html_file:"...", template_id:"..."}`. **html_file MUST be pure filename** (e.g. `"pe_learning.html"`), no path prefix — manifest.json is in the same folder |
 | `%PHASES_JSON%` | JSON literal | PHASES array (see C4 structure below) |
@@ -649,6 +659,45 @@ The template already enforces these critical rules. Do NOT remove or alter them 
 
 > ⚠️ **关键约束**: `body.loading` 移除必须在 `init()` 的**末尾**执行（与深度资料模板不同，后者在 DOMContentLoaded 开头执行）。这是因为学习方案页面需要完成所有阶段卡片、知识点网格、图表等的渲染后才显示内容，防止大段 DOM 操作产生的闪烁。
 
+### 4C-X: 构建 GRAPH_DATA（HAS_GRAPH 条件下）
+
+When `profile.systemic > 0.50`, the knowledge graph section is rendered. Instead of the old Canvas-based `drawGraph()`, the new ECharts-based interactive graph requires structured graph data.
+
+```
+1. 遍历 KPS，为每个 KP 分配坐标 (x, y):
+   x = PHASES.findIndex(p => p.id === KP.p)
+   y = KP.tag === 'foundation' ? 0 : KP.tag === 'core_toolkit' ? 1 : 2
+2. 遍历 KPS，从 rel 字段构建 edges:
+   - KP_A.rel 包含 KP_B.id 且同阶段 → type='related'
+   - KP_A.rel 包含 KP_B.id 且跨阶段 → type='cross_phase'
+3. 序列化为 JSON 注入 %GRAPH_DATA%
+```
+
+### 4C-Y: 构建 METHOD_STEPS（HAS_METHOD 条件下）
+
+When `profile.abstract < 0.60` (or texture is G1/G5/G6), the methodology section is rendered. Instead of the old static HTML injection (`%METHOD_STEPS_HTML%`), the new interactive learning canvas uses structured step data.
+
+```
+1. 根据 texture 从 plan_params.json 的 method_texture_templates 选择模板
+2. 根据主题领域填充具体的步骤描述（替换通用描述为领域相关描述）
+3. 设置 link_section（如 G6 步骤1 关联 graph，步骤2/3 关联 drawing）
+4. 序列化为 JSON 注入 %METHOD_STEPS%
+5. 不再使用 %METHOD_STEPS_HTML%（已废弃）
+```
+
+### 4C-Z: 构建 DRAWINGS（增强版，HAS_DRAWING 条件下）
+
+When `drawing_section_rule` matches, the drawing guide section is rendered. Instead of plain name lists, the new visual knowledge gallery uses structured drawing objects with SVG previews.
+
+```
+1. 从 Markdown 方案中提取所有 ASCII 图
+2. 将每个 ASCII 图转换为内联 SVG（不超过 ~2KB 每个）
+3. 按 drawing_type_taxonomy 关键字匹配分配 type
+4. 关联 KP（通过图表名称与 KP 名称的语义匹配设置 related_kp）
+5. PHASES[].drawings 从字符串数组升级为对象数组
+6. 序列化为 JSON 注入 PHASES_JSON 中的 drawings 字段
+```
+
 ### 4D: JS Skeleton (VERIFIED — DO NOT MODIFY)
 
 The template's `<script>` section contains ALL core interactive functions pre-verified:
@@ -769,6 +818,14 @@ Checklist items are grouped by severity. Check in order: 🔴 first, then 🟠, 
 | 37 | 🔴 manifest html_file 无路径前缀 | grep `html_file` manifest.json | 纯文件名（如 `"pe_learning.html"`），不含 `/` | v3.9 |
 | 38 | 🔴 根目录无方案文件泄漏 | `ls 学习资料/*.html` 对比 manifest 注册 | 每个 .html 方案文件都属于某个子文件夹 | v3.9 |
 | 39 | 🟠 plan_folder 命名规范 | 检查文件夹名称 | 匹配 plan_name，推荐以 " 系统学习方案" 结尾 | v3.9 |
+| 40 | 🔴 ECharts CDN 已引入 | grep `echarts@5.5.0` | `<script src="...echarts.min.js">` 在 `<head>` 中 | v3.9 |
+| 41 | 🔴 `%GRAPH_DATA%` 已替换 | grep `GRAPH_DATA` | JSON 赋值存在，无 `%GRAPH_DATA%` 残留 | v3.9 |
+| 42 | 🔴 `%METHOD_STEPS%` 已替换 | grep `METHOD_STEPS` | JSON 赋值存在，无 `%METHOD_STEPS%` 残留 | v3.9 |
+| 43 | 🔴 `%METHOD_STEPS_HTML%` 不存在 | grep `METHOD_STEPS_HTML` | 0 匹配（已废弃） | v3.9 |
+| 44 | 🔴 graphRefresh 函数定义 | grep `graphRefresh` | 函数存在，syncKPsFromManifest 中调用 | v3.9 |
+| 45 | 🔴 initGraph 函数定义 | grep `initGraph` | 函数存在，init() 中调用 | v3.9 |
+| 46 | 🔴 renderGallery 函数定义 | grep `renderGallery` | 函数存在，init() 中调用 | v3.9 |
+| 47 | 🔴 hMS 函数定义 | grep `hMS` | 函数存在，init() 中调用 | v3.9 |
 
 **🟠 重要级（遗漏将导致功能异常但不致白屏/崩溃）：**
 
@@ -793,6 +850,11 @@ Checklist items are grouped by severity. Check in order: 🔴 first, then 🟠, 
 | 22 | hash 路由正常工作 | 访问 `...html#kc-p1_1` | 展开对应 KP，滚动到视野 | C13 |
 | 23 | AHDS 函数被调用 | 搜索 `AHDS(` | init 中 PHASES.forEach(AHDS) | C9 |
 | 31 | 🔴 `body.loading` 三步机制 | 检查 CSS/HTML/JS | loading class → CSS opacity:0 → init() 末尾移除 | C10 |
+| 48 | 🟠 知识图谱节点可点击 | 点击 ECharts 节点 | 跳转到 KP 卡片并展开 | v3.9 |
+| 49 | 🟠 方法论步骤可勾选 | 点击步骤序号 | 切换 done 状态 | v3.9 |
+| 50 | 🟠 画廊卡片可点击 | 点击图表卡片 | lightbox 打开 | v3.9 |
+| 51 | 🟠 画廊可按类型筛选 | 点击筛选按钮 | 仅显示对应类型 | v3.9 |
+| 52 | 🟠 ECharts graph resize | 缩放窗口 | 图谱自适应 | v3.9 |
 
 **🟡 确认级（建议检查，遗漏影响较小）：**
 

@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>茶树品种与起源 — 深度研读</title>
+<style>
+/* ───────────────────────────────────────────────
+   Template: Cedar Dawn (雪松晨曦) — deep_dive.css
+   Mood: warm, natural, organic
+   Contrast verified: text-primary≥10:1, text-secondary≥6:1, text-muted≥4.5:1
+   ─────────────────────────────────────────────── */
+:root{
+--bg-base:#1a1814;
+--bg-card:#282520;
+--bg-elevated:#312d27;
+--bg-overlay:rgba(0,0,0,.6);
+--text-primary:#ede6d8;
+--text-secondary:#b8ad98;
+--text-muted:#8a8070;
+--accent-indigo:#5ea87a;
+--accent-purple:#b898a0;
+--accent-cyan:#7ec8a0;
+--accent-gold:#e6b95a;
+--accent-green:#6ebf8a;
+--accent-red:#d47860;
+--accent-blue:#5ea87a;
+--accent-color:#5ea87a;
+--accent-dark:#3d6b50;
+--border-subtle:rgba(184,173,152,.15);
+--border-glow:rgba(94,168,122,.25);
+--shadow-sm:0 1px 3px rgba(0,0,0,.3);
+--shadow-md:0 4px 16px rgba(0,0,0,.4);
+--shadow-lg:0 8px 32px rgba(0,0,0,.5);
+--shadow-elevated:0 8px 32px rgba(0,0,0,.5);
+--radius-sm:6px;
+--radius-md:10px;
+--radius-lg:16px;
+--font-sans:'Segoe UI',system-ui,-apple-system,sans-serif;
+--font-mono:Consolas,'Cascadia Code',monospace;
+--transition:.25s cubic-bezier(.4,0,.2,1);
+--transition-smooth:.3s ease;
+--nav-h:56px;
+--accent-color-rgb:94,168,122;
+--chart-grid:#2d2924;
+--chart-axis-label:#8a8070;
+}
+[data-theme="light"]{
+--bg-base:#fdfaf3;
+--bg-card:#fffdf7;
+--bg-elevated:#f3efe3;
+--bg-overlay:rgba(0,0,0,.3);
+--text-primary:#1f1a12;
+--text-secondary:#4a4035;
+--text-muted:#5c5042;
+--accent-indigo:#3d6b50;
+--accent-purple:#7a5a6a;
+--accent-cyan:#4a8e6a;
+--accent-gold:#a07828;
+--accent-green:#4a9e66;
+--accent-red:#b05038;
+--accent-blue:#3d6b50;
+--accent-color:#3d6b50;
+--accent-dark:#2a4835;
+--border-subtle:rgba(31,26,18,.08);
+--border-glow:rgba(61,107,80,.25);
+--shadow-sm:0 1px 3px rgba(0,0,0,.06);
+--shadow-md:0 4px 16px rgba(0,0,0,.08);
+--shadow-lg:0 8px 32px rgba(0,0,0,.12);
+--shadow-elevated:0 8px 32px rgba(0,0,0,.12);
+--accent-color-rgb:61,107,80;
+--chart-grid:#ebe5d6;
+--chart-axis-label:#5c5042;
+}
+
+/* ===== Layout & Base ===== */
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font-sans);background:var(--bg-base);color:var(--text-primary);line-height:1.75;overflow-x:hidden}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg-base)}::-webkit-scrollbar-thumb{background:var(--border-glow);border-radius:3px}
+
+/* ===== Navbar ===== */
+.progress-bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--accent-indigo),var(--accent-purple),var(--accent-cyan));z-index:200;transition:width .1s linear}
+.navbar{position:fixed;top:3px;left:0;right:0;z-index:100;background:var(--bg-card);border-bottom:1px solid var(--border-subtle);backdrop-filter:blur(16px);height:var(--nav-h);display:flex;align-items:center;justify-content:space-between;padding:0 24px}
+.nav-left{display:flex;align-items:center;gap:12px;font-size:.82rem;font-weight:600;color:var(--accent-indigo)}
+.nav-right{display:flex;align-items:center;gap:8px}
+.nav-right button{background:var(--bg-elevated);border:1px solid var(--border-subtle);color:var(--text-secondary);padding:6px 12px;border-radius:var(--radius-sm);cursor:pointer;font-size:.75rem;transition:all var(--transition)}
+.nav-right button:hover{border-color:var(--border-glow);color:var(--accent-indigo)}
+
+/* ===== Sidebar ===== */
+.sidebar{position:fixed;left:0;top:0;height:100vh;width:280px;background:var(--bg-base);border-right:1px solid var(--border-subtle);padding:24px;overflow-y:auto;z-index:100;padding-top:calc(var(--nav-h) + 16px)}
+.sidebar h3{font-size:.85rem;font-weight:700;color:var(--text-secondary);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--border-subtle)}
+.sidebar-nav{list-style:none;padding:0}
+.sidebar-nav li{margin-bottom:2px}
+.sidebar-nav a{display:block;padding:8px 12px;border-radius:var(--radius-md);text-decoration:none;font-size:.76rem;color:var(--text-secondary);transition:all var(--transition);border-left:3px solid transparent}
+.sidebar-nav a:hover{background:rgba(91,141,184,.08);color:var(--accent-cyan);border-left-color:var(--accent-cyan)}
+.sidebar-nav a.active{background:rgba(91,141,184,.12);color:var(--accent-blue);font-weight:600;border-left-color:var(--accent-blue)}
+.sidebar-back-link{display:block;padding:8px 12px;margin-bottom:12px;border-radius:8px;background:var(--bg-elevated);color:var(--accent-blue);text-decoration:none;font-size:.78rem;font-weight:600}
+.sidebar-back-link:hover{color:var(--accent-cyan)}
+
+/* ===== Content Area — Fluid Layout ===== */
+.content-area{margin-left:280px;width:calc(100% - 280px)}
+.container{max-width:calc(100% - 48px);margin:0 auto;padding:calc(var(--nav-h) + 24px) 24px 80px}
+
+/* ===== Hero ===== */
+.hero{text-align:center;padding:48px 0 36px}
+.hero h1{font-size:2.2rem;background:linear-gradient(135deg,var(--accent-indigo),var(--accent-purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+.hero .tags{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:12px}
+.hero .tags span{font-size:.7rem;padding:4px 12px;border-radius:50px;border:1px solid var(--border-glow);color:var(--accent-indigo);background:rgba(99,102,241,.06)}
+
+/* ===== Meta Card ===== */
+.meta-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:20px 24px;margin:0 auto 32px;max-width:700px;display:flex;justify-content:center;gap:36px;flex-wrap:wrap;box-shadow:var(--shadow-md)}
+.meta-item{text-align:center}
+.meta-item .val{font-size:1.4rem;font-weight:800;color:var(--accent-indigo)}
+.meta-item .lbl{font-size:.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px}
+
+/* ===== Journey Bar ===== */
+.journey-bar{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:12px 20px;margin:0 auto 24px;max-width:900px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:.82rem;box-shadow:var(--shadow-elevated)}
+.journey-path{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.journey-icon{font-size:1rem}
+.journey-plan{color:var(--accent-purple);font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.journey-plan:hover{color:var(--accent-gold)}
+.journey-sep{color:var(--text-muted);font-size:.7rem}
+.journey-phase{color:var(--text-secondary);font-weight:600}
+.journey-kp{color:var(--text-primary);font-weight:700}
+.journey-pos{color:var(--text-muted);font-size:.72rem}
+.journey-nav{display:flex;align-items:center;gap:8px;font-size:.75rem}
+.journey-prev,.journey-next{color:var(--text-muted);cursor:default}
+.journey-divider{color:var(--border-subtle)}
+
+/* ===== Module Card ===== */
+.module{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:28px 28px 24px;margin-bottom:20px;opacity:0;transform:translateY(24px);transition:opacity .5s ease,transform .5s ease;box-shadow:var(--shadow-sm)}
+.module.visible{opacity:1;transform:translateY(0)}
+.module:hover{border-color:var(--border-glow)}
+.module h2{font-size:1.15rem;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.module .m-tag{font-size:.65rem;padding:2px 10px;border-radius:50px;background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.2);color:var(--accent-indigo);font-weight:600}
+.module .m-time{font-size:.7rem;color:var(--text-muted);margin-left:auto}
+.module .hook{font-size:.9rem;color:var(--accent-purple);font-weight:600;margin:12px 0 16px;padding-left:12px;border-left:3px solid var(--accent-purple)}
+.module .content{font-size:.88rem;color:var(--text-secondary);line-height:1.8}
+.module .content p{margin-bottom:12px}
+.module .content strong{color:var(--text-primary);font-weight:600}
+.module .content em{color:var(--accent-gold);font-style:normal}
+
+/* ===== Formula Block ===== */
+.formula-block{background:rgba(99,102,241,.04);border:1px solid rgba(99,102,241,.12);border-radius:var(--radius-sm);padding:14px 18px;margin:14px 0;font-family:var(--font-mono);font-size:.82rem;color:var(--accent-cyan);overflow-x:auto;position:relative}
+.formula-block .f-cap{font-size:.7rem;color:var(--text-muted);margin-bottom:6px;display:block}
+.derivation-toggle{font-size:.7rem;color:var(--accent-gold);cursor:pointer;border:none;background:none;padding:4px 0;font-family:inherit;display:block;margin-top:6px}
+.derivation-toggle:hover{text-decoration:underline}
+.derivation-content{display:none;margin-top:8px;padding:12px 16px;background:rgba(245,158,11,.04);border-radius:var(--radius-sm);border-left:3px solid var(--accent-gold);font-size:.8rem;color:var(--text-secondary)}
+.derivation-content.open{display:block}
+
+/* ===== Chart ===== */
+.chart-wrap{background:rgba(99,102,241,.03);border-radius:var(--radius-sm);padding:8px;margin:14px 0;text-align:center}
+.chart-canvas{width:100%;height:280px}
+.chart-wrap .ch-cap{font-size:.72rem;color:var(--text-muted);margin-top:6px}
+
+/* ===== Table ===== */
+.table-container{margin:20px 0;overflow-x:auto}
+.table-container table{width:100%;border-collapse:collapse;border-radius:var(--radius-md);overflow:hidden}
+.table-container th{background:var(--bg-elevated);color:var(--accent-cyan);font-weight:700;padding:12px 16px;text-align:left;font-size:.8rem}
+.table-container td{padding:12px 16px;border-bottom:1px solid var(--border-subtle);font-size:.82rem;color:var(--text-secondary)}
+.table-container tr:hover td{background:rgba(91,141,184,.03)}
+.table-container .table-caption{font-size:.72rem;color:var(--text-muted);margin-bottom:8px;text-align:center}
+
+/* ===== Callout ===== */
+.callout{padding:14px 18px;border-radius:var(--radius-md);margin:16px 0;font-size:.82rem}
+.callout-info{background:rgba(94,168,122,.06);border-left:3px solid var(--accent-indigo);color:var(--text-secondary)}
+.callout-warn{background:rgba(230,185,90,.06);border-left:3px solid var(--accent-gold);color:var(--text-secondary)}
+.callout-tip{background:rgba(184,152,160,.06);border-left:3px solid var(--accent-purple);color:var(--text-secondary)}
+.callout strong{color:var(--text-primary)}
+
+/* ===== Compare Grid ===== */
+.compare-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin:16px 0}
+.compare-card{background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:18px 20px}
+.compare-card h4{font-size:.85rem;color:var(--accent-indigo);margin-bottom:8px}
+.compare-card p{font-size:.78rem;color:var(--text-muted);line-height:1.7}
+
+/* ===== Timeline ===== */
+.timeline{position:relative;padding-left:30px;margin:16px 0}
+.timeline::before{content:'';position:absolute;left:8px;top:0;bottom:0;width:2px;background:var(--border-glow)}
+.timeline-item{position:relative;margin-bottom:18px;font-size:.82rem}
+.timeline-item::before{content:'';position:absolute;left:-26px;top:6px;width:10px;height:10px;border-radius:50%;background:var(--accent-indigo);border:2px solid var(--border-glow)}
+.timeline-year{font-weight:700;color:var(--accent-cyan);min-width:80px;display:inline-block}
+.timeline-text{color:var(--text-secondary)}
+
+/* ===== Process Flow ===== */
+.process-flow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:20px 0;justify-content:center}
+.process-step{background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:12px 18px;text-align:center;font-size:.76rem;min-width:80px}
+.process-step .psn{font-weight:800;color:var(--accent-indigo);font-size:.9rem;margin-bottom:4px}
+.process-step .psl{color:var(--text-muted);font-size:.68rem}
+.process-arrow{color:var(--accent-cyan);font-size:1.1rem;font-weight:700}
+
+/* ===== Term Grid ===== */
+.term-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;margin:16px 0}
+.term-card{background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:var(--radius-sm);padding:12px 16px;transition:all var(--transition)}
+.term-card:hover{border-color:var(--border-glow)}
+.term-card .tn{font-size:.8rem;font-weight:700;color:var(--accent-indigo)}
+.term-card .td{font-size:.72rem;color:var(--text-muted);margin-top:4px;line-height:1.6}
+
+/* ===== Takeaway ===== */
+.takeaway{font-size:.82rem;background:rgba(16,185,129,.06);border-left:3px solid var(--accent-green);padding:10px 14px;margin-top:16px;border-radius:0 var(--radius-sm) var(--radius-sm) 0;color:var(--accent-green)}
+
+/* ===== Ref List ===== */
+.ref-list{list-style:none;padding:0;margin-top:8px;font-size:.78rem}
+.ref-list li{padding:4px 0;color:var(--text-muted)}
+.ref-list li::before{content:'📄 '}
+
+/* ===== Search Overlay ===== */
+.search-overlay{position:fixed;inset:0;z-index:300;background:var(--bg-overlay);display:none;align-items:flex-start;justify-content:center;padding-top:120px}
+.search-overlay.open{display:flex}
+.search-box{width:520px;max-width:90vw;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:var(--radius-md);box-shadow:var(--shadow-lg);overflow:hidden}
+.search-box input{width:100%;padding:14px 18px;background:transparent;border:none;color:var(--text-primary);font-size:.95rem;outline:none;font-family:inherit}
+.search-results{max-height:360px;overflow-y:auto}
+.search-results div{padding:10px 18px;cursor:pointer;font-size:.82rem;color:var(--text-secondary);border-top:1px solid var(--border-subtle);transition:background var(--transition)}
+.search-results div:hover{background:rgba(99,102,241,.06);color:var(--text-primary)}
+
+/* ===== Footer ===== */
+.journey-footer{text-align:center;padding:40px 32px 60px;opacity:.8}
+.back-to-plan{display:inline-flex;align-items:center;gap:8px;padding:10px 24px;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:50px;color:var(--text-secondary);text-decoration:none;font-size:.85rem;font-weight:600;transition:all var(--transition-smooth)}
+.back-to-plan:hover{background:var(--bg-elevated);border-color:var(--accent-purple);color:var(--accent-purple)}
+
+/* ===== Floating Back ===== */
+.deep-floating-back{position:fixed;right:20px;bottom:20px;z-index:10000}
+.deep-floating-back button{padding:12px 20px;background:linear-gradient(135deg,var(--accent-color),var(--accent-dark));color:white;border:none;border-radius:24px;font-size:.85rem;font-weight:600;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.15);transition:transform .2s,box-shadow .2s}
+.deep-floating-back button:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.2)}
+
+/* ===== Toast ===== */
+.dd-toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);z-index:10001;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:8px;padding:14px 24px;box-shadow:0 4px 16px rgba(0,0,0,.15);font-size:.85rem;display:none}
+.toast-in{animation:toastIn .3s ease}
+@keyframes toastIn{from{opacity:0;transform:translate(-50%,20px)}to{opacity:1;transform:translate(-50%,0)}}
+
+/* ===== Print ===== */
+@media print{.navbar,.progress-bar,.sidebar,.journey-bar,.journey-footer,.deep-floating-back{display:none!important}.content-area{margin-left:0;width:100%}.module{break-inside:avoid;opacity:1!important;transform:none!important;box-shadow:none}body{background:#fff!important}}
+
+/* ===== Responsive ≤1024px ===== */
+@media(max-width:1024px){.sidebar{display:none}.content-area{margin-left:0;width:100%}}
+
+/* ===== Responsive ≤768px ===== */
+@media(max-width:768px){
+.hero h1{font-size:1.6rem}.module{padding:20px}.meta-card{font-size:.72rem;padding:12px 16px}.journey-bar{flex-direction:column;align-items:flex-start}
+.deep-floating-back{right:15px;bottom:15px}.deep-floating-back button{padding:10px 16px;font-size:.8rem}
+}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+</head>
+<body data-theme="dark">
+
+<div class="progress-bar" id="progressBar" style="width:0%"></div>
+
+<nav class="navbar">
+  <div class="nav-left">📖 茶树品种与起源</div>
+  <div class="nav-right">
+    <button onclick="toggleTheme()" title="切换主题 (Ctrl+D)">🌓 主题</button>
+    <button onclick="openSearch()" title="搜索 (Ctrl+K)">🔍 搜索</button>
+  </div>
+</nav>
+
+<div class="sidebar">
+  <a href="#" class="sidebar-back-link" onclick="event.preventDefault();var w=window.open('tea_learning.html#kc-p1_1','plan_main');if(w)w.focus()">← 返回主方案</a>
+  <h3>📖 目录导航</h3>
+  <ul class="sidebar-nav">
+    <li><a href="#mod-learning_journey">📍 学习路线导航</a></li>
+<li><a href="#mod-concept">📘 核心概念</a></li>
+<li><a href="#mod-principle">🔬 核心原理</a></li>
+<li><a href="#mod-application">🎯 应用场景</a></li>
+<li><a href="#mod-landscape">🗺️ 品种格局</a></li>
+<li><a href="#mod-misconceptions">⚠️ 常见误区</a></li>
+  </ul>
+</div>
+
+<div class="content-area">
+<div class="search-overlay" id="searchOverlay">
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="搜索模块内容..." oninput="doSearch()" onkeydown="if(event.key==='Escape')closeSearch()">
+    <div class="search-results" id="searchResults"></div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="hero">
+    <h1>茶树品种与起源</h1>
+    <div class="tags">
+      <span>茶文化</span><span>植物学</span><span>基础奠基</span>
+    </div>
+  </div>
+
+  <div class="meta-card">
+    <div class="meta-item"><div class="val">6</div><div class="lbl">模块</div></div><div class="meta-item"><div class="val">~15min</div><div class="lbl">阅读时间</div></div><div class="meta-item"><div class="val">理解×标准</div><div class="lbl">深度</div></div>
+  </div>
+
+  <div class="journey-bar" id="journeyBar">
+    <div class="journey-path">
+      <span class="journey-icon">📍</span>
+      <span class="journey-plan" onclick="var w=window.open('tea_learning.html#kc-p1_1','plan_main');if(w)w.focus()">识茶·喝茶·品茶 系统学习方案</span>
+      <span class="journey-sep">〉</span>
+      <span class="journey-phase">识茶入门</span>
+      <span class="journey-sep">〉</span>
+      <span class="journey-kp">茶树品种与起源</span>
+      <span class="journey-pos">(第1/4个知识点)</span>
+    </div>
+    <div class="journey-nav">
+      <span class="journey-prev" title="前置: (无)">← 前置</span>
+      <span class="journey-divider">|</span>
+      <span class="journey-next" title="后续: 六大茶类分类体系">后续 →</span>
+    </div>
+  </div>
+
+  <div class="module" id="mod-learning_journey">
+    <h2><span class="m-tag">模块1</span> 📍 学习路线导航 <span class="m-time">⏱ ~2min</span></h2>
+    <div class="hook">在深入茶叶世界之前，先看清你在整个学习路线中的位置</div>
+    <div class="content">
+      <p>欢迎来到「识茶·喝茶·品茶 系统学习方案」的第一个知识点。你现在正处于整个学习路线的<strong>「识茶入门」阶段</strong>，这是整个方案的起点。</p>
+      <p>识茶入门阶段共包含 <strong>4 个知识点</strong>，你现在学习的是 <strong>第 1/4 个知识点</strong>：茶树品种与起源。这是识茶的基础基石——只有先了解茶树本身，才能理解后续的茶类分类、加工工艺和品鉴方法。</p>
+      <div class="callout callout-info">
+        <strong>📍 学习路线概览：</strong><br>
+        识茶入门（当前阶段）→ 喝茶进阶 → 品茶高阶 → 茶道实践
+      </div>
+      <p><strong>前置知识：</strong>(无) — 这是整个方案的起点，无需任何先修知识。</p>
+      <p><strong>后续学习：</strong>六大茶类分类体系 — 了解茶树品种后，你将学习不同品种如何制成六大茶类。</p>
+      <p><strong>建议投入时间：</strong>约 15 分钟。建议一次性读完 6 个模块，建立完整的品种认知框架。</p>
+    </div>
+    <div class="takeaway">💡 关键收获：明确自身在整体学习路径中的坐标，带着目标和预期进入后续学习</div>
+  </div>
+
+  <div class="module" id="mod-concept">
+    <h2><span class="m-tag">模块2</span> 📘 核心概念 — 茶树植物学身份 <span class="m-time">⏱ ~3min</span></h2>
+    <div class="hook">一片茶叶背后，是一棵跨越千年的植物——你知道吗，世界上所有的茶都来自同一个物种？</div>
+    <div class="content">
+      <p><strong>茶树（Camellia sinensis）</strong>属山茶科（Theaceae）山茶属（Camellia），是一种常绿灌木或小乔木。在植物分类学中，它是山茶属中最具经济价值的物种之一。</p>
+      <p>茶树<strong>原产于中国西南地区</strong>（云南、贵州、四川交界地带），这一结论被植物学界广泛接受为茶树的起源中心。至今，野生大茶树仍可在云南西双版纳、普洱等地的原始森林中找到，树龄可达数百年甚至千年以上。</p>
+
+      <div class="formula-block">
+        <span class="f-cap">🌿 植物学分类：</span>
+        界：植物界 Plantae → 门：被子植物门 Angiospermae → 纲：双子叶植物纲 Dicotyledoneae → 目：山茶目 Theales → 科：山茶科 Theaceae → 属：山茶属 Camellia → 种：茶树 Camellia sinensis
+      </div>
+
+      <p>茶树主要有两大变种：</p>
+      <ul style="margin:8px 0 8px 24px;font-size:.84rem;color:var(--text-secondary);line-height:1.9">
+        <li><strong>中国变种（var. sinensis）</strong>——灌木型，小叶种，耐寒性强，分布于中国大部分茶区及日本</li>
+        <li><strong>阿萨姆变种（var. assamica）</strong>——乔木型，大叶种，喜高温高湿，分布于云南、印度、斯里兰卡等热带茶区</li>
+      </ul>
+
+      <p>2017 年，茶树全基因组测序完成，揭示茶树的基因组大小约 <strong>3Gb</strong>，含有丰富的与风味物质合成相关的基因家族（如儿茶素合成途径基因、咖啡碱合成酶基因、萜烯类香气物质合成基因等），这为从分子层面理解不同茶树品种的风味差异奠定了科学基础。</p>
+
+      <div class="table-container">
+        <div class="table-caption">表1：两大茶树变种特征对比</div>
+        <table>
+          <thead>
+            <tr><th>特征</th><th>中国变种 (var. sinensis)</th><th>阿萨姆变种 (var. assamica)</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>树型</td><td>灌木型，低矮</td><td>乔木型，高大（可达15m+）</td></tr>
+            <tr><td>叶片大小</td><td>小叶，3-8cm</td><td>大叶，15-25cm</td></tr>
+            <tr><td>叶质</td><td>较厚硬，革质</td><td>较薄软，膜质</td></tr>
+            <tr><td>耐寒性</td><td>强（-12°C）</td><td>弱（0°C以上）</td></tr>
+            <tr><td>茶多酚含量</td><td>18-24%</td><td>25-35%</td></tr>
+            <tr><td>咖啡碱含量</td><td>2-3%</td><td>3-4%</td></tr>
+            <tr><td>代表性产地</td><td>浙江、安徽、福建、日本</td><td>云南、印度阿萨姆、斯里兰卡</td></tr>
+            <tr><td>适制茶类</td><td>绿茶、乌龙茶</td><td>红茶、普洱茶</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>除了两大变种外，还存在大量自然杂交和人工选育的品种，构成了中国丰富多彩的茶树种质资源。值得一提的是，<strong>所有真正的茶</strong>——无论是绿茶、红茶、乌龙茶、普洱茶还是白茶——均来自茶树这一物种。所谓「花草茶」（如菊花茶、薄荷茶）并非真正的「茶」，因为它们并非来自茶树的叶片。</p>
+
+    </div>
+    <div class="takeaway">💡 关键收获：世界上所有真正的茶都来自茶树（Camellia sinensis），品种差异决定了茶叶的先天禀赋</div>
+  </div>
+
+  <div class="module" id="mod-principle">
+    <h2><span class="m-tag">模块3</span> 🔬 核心原理 — 品种如何决定品质 <span class="m-time">⏱ ~3min</span></h2>
+    <div class="hook">同一个山坡上，两棵相邻的茶树——一棵做出来的茶鲜爽如春，另一棵却醇厚如秋——为什么？</div>
+    <div class="content">
+      <p>答案在于<strong>品种决定了茶叶化学物质的基础配比</strong>。不同茶树品种由于基因差异，其鲜叶中茶多酚、氨基酸、咖啡碱、芳香物质等内含成分的比例各不相同——这就是茶叶风味的「先天禀赋」。</p>
+
+      <div class="compare-grid">
+        <div class="compare-card">
+          <h4>🌿 大叶种</h4>
+          <p>茶多酚含量高（25-35%），氨基酸适中（1.5-2.5%），咖啡碱高（3-4%）。滋味浓强、收敛性强，适制红茶和普洱茶。代表性品种：云南勐海大叶种、凤庆大叶种。</p>
+        </div>
+        <div class="compare-card">
+          <h4>🍃 中叶种</h4>
+          <p>各项成分均衡：茶多酚（20-28%），氨基酸（2-3%），咖啡碱（2.5-3.5%）。适制性最广，可制绿茶、红茶、乌龙茶。代表性品种：铁观音、肉桂、水仙。</p>
+        </div>
+        <div class="compare-card">
+          <h4>🌱 小叶种</h4>
+          <p>氨基酸含量高（3-5%），茶多酚适中（18-24%），咖啡碱较低（2-3%）。滋味鲜爽、回甘明显，适制绿茶。代表性品种：龙井43号、福鼎大白茶。</p>
+        </div>
+        <div class="compare-card">
+          <h4>⚡ 品种差异的科学依据</h4>
+          <p>研究发现，不同品种的<strong>儿茶素组成差异可导致抗氧化能力相差 2-3 倍</strong>。此外，品种还决定芽叶形态（叶片大小差异可达5倍）、发芽时间（早生种 vs 晚生种）和对病虫害的抵抗力。</p>
+        </div>
+      </div>
+
+      <div class="chart-wrap">
+        <div id="chart-concept-01" class="chart-canvas"></div>
+        <div class="ch-cap">图1：三大品种类型在中国茶树资源中的大致分布比例</div>
+      </div>
+
+      <p><strong>品种决定风味的机制：</strong></p>
+      <ul style="margin:8px 0 8px 24px;font-size:.84rem;color:var(--text-secondary);line-height:1.9">
+        <li><strong>茶多酚 → 苦涩度与收敛性：</strong>含量越高，茶汤越浓强、收敛感越强</li>
+        <li><strong>氨基酸 → 鲜爽度：</strong>含量越高，茶汤越鲜甜，回甘越明显</li>
+        <li><strong>咖啡碱 → 苦味与提神效果：</strong>适度的苦味是茶汤层次的一部分</li>
+        <li><strong>酚氨比（茶多酚/氨基酸）：</strong>比值越低越适制绿茶，越高越适制红茶</li>
+      </ul>
+
+      <div class="callout callout-tip">
+        <strong>📐 酚氨比是判断适制性的关键指标：</strong>酚氨比 &lt; 8 适制绿茶（鲜爽型），酚氨比 8-15 适制乌龙茶（均衡型），酚氨比 &gt; 15 适制红茶（浓强型）。
+      </div>
+
+    </div>
+    <div class="takeaway">💡 关键收获：品种是茶叶风味金字塔的基石——同一工艺下，品种差异是风味差异的第一来源</div>
+  </div>
+
+  <div class="module" id="mod-application">
+    <h2><span class="m-tag">模块4</span> 🎯 应用场景 — 品种适制性 <span class="m-time">⏱ ~3min</span></h2>
+    <div class="hook">拿到一种新品种的茶叶，你如何判断它最适合做成什么茶？</div>
+    <div class="content">
+      <p><strong>品种适制性</strong>是连接茶树品种与成品茶之间的桥梁。它回答了一个核心问题：某个茶树品种最适合制作哪种茶类？这一判断基于品种的化学成分特征和物理性状。</p>
+
+      <div class="table-container">
+        <div class="table-caption">表2：不同茶类的品种适制性对照</div>
+        <table>
+          <thead>
+            <tr><th>目标茶类</th><th>理想品种特征</th><th>代表性品种</th><th>关键指标</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>绿茶</strong></td><td>芽叶细小、叶色嫩绿、氨基酸高、茶多酚适中</td><td>龙井43号、福鼎大白茶、安吉白茶（白化品种）</td><td>酚氨比 &lt; 8，氨基酸 &gt; 3%</td></tr>
+            <tr><td><strong>乌龙茶</strong></td><td>叶片中等、内含物丰富、芳樟醇等香气前体物质含量高</td><td>铁观音、肉桂、水仙、大红袍</td><td>酚氨比 8-15，成熟叶制作为佳</td></tr>
+            <tr><td><strong>红茶</strong></td><td>茶多酚含量高、多酚氧化酶活性强</td><td>云南大叶种、祁门种</td><td>茶多酚 &gt; 28%，酚氨比 &gt; 15</td></tr>
+            <tr><td><strong>普洱茶</strong></td><td>大叶种、内含物丰富、耐存放转化</td><td>勐海大叶种、勐库大叶种</td><td>茶多酚 &gt; 30%，水浸出物 &gt; 40%</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p><strong>适制性测试方法——小样制茶法：</strong></p>
+      <div class="process-flow">
+        <div class="process-step"><div class="psn">①</div><div class="psl">采同一品种鲜叶</div></div>
+        <div class="process-arrow">→</div>
+        <div class="process-step"><div class="psn">②</div><div class="psl">分三份</div></div>
+        <div class="process-arrow">→</div>
+        <div class="process-step"><div class="psn">③</div><div class="psl">分别按绿茶/红茶/乌龙茶工艺制作</div></div>
+        <div class="process-arrow">→</div>
+        <div class="process-step"><div class="psn">④</div><div class="psl">对比审评三组成品</div></div>
+        <div class="process-arrow">→</div>
+        <div class="process-step"><div class="psn">⑤</div><div class="psl">确定最佳适制茶类</div></div>
+      </div>
+
+      <div class="callout callout-info">
+        <strong>🎓 实践启示：</strong>同一种鲜叶按不同工艺制作，出来的风味可能天差地别。例如，云南大叶种制绿茶往往苦涩难咽，但制成红茶或普洱茶则醇厚回甘。这正是品种适制性的意义所在。
+      </div>
+
+      <p>需要注意的是，适制性并非绝对的「能做什么茶」或「不能做什么茶」，而是关于<strong>什么品种最适合做什么茶</strong>。随着加工工艺的进步，一些传统上被认为不适制某类茶的品种也出现了成功的创新产品。</p>
+
+    </div>
+    <div class="takeaway">💡 关键收获：没有最好的品种，只有最适合特定茶类的品种——适制性是品种与工艺的「最佳搭档」法则</div>
+  </div>
+
+  <div class="module" id="mod-landscape">
+    <h2><span class="m-tag">模块5</span> 🗺️ 品种格局 — 中国茶树种质资源 <span class="m-time">⏱ ~2min</span></h2>
+    <div class="hook">中国的茶树品种有多少？用十个手指头数不过来——不是几十个，是上千个</div>
+    <div class="content">
+      <p>中国拥有<strong>世界上最丰富的茶树种质资源</strong>。在这片广袤的土地上，分布着：</p>
+      <ul style="margin:8px 0 8px 24px;font-size:.84rem;color:var(--text-secondary);line-height:1.9">
+        <li><strong>国家级审定品种 120+ 个</strong>——经过国家审定认定的优良品种</li>
+        <li><strong>省级审定品种 300+ 个</strong>——各省区认定推广的良种</li>
+        <li><strong>地方群体种和野生资源数以千计</strong>——各地独特的地方品种和未经选育的野生茶树</li>
+      </ul>
+
+      <div class="table-container">
+        <div class="table-caption">表3：中国四大茶区代表性品种分布</div>
+        <table>
+          <thead>
+            <tr><th>茶区</th><th>品种特色</th><th>代表性品种</th><th>适制方向</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>云南</strong> 🏔️</td><td>大叶种基因库，世界茶树起源中心</td><td>勐海大叶种、凤庆大叶种、勐库大叶种</td><td>普洱茶、滇红茶</td></tr>
+            <tr><td><strong>福建</strong> 🍂</td><td>乌龙茶品种王国，国家级良种密度最高</td><td>铁观音、肉桂、水仙、大红袍、佛手、毛蟹（20+国家级良种）</td><td>乌龙茶、白茶、红茶</td></tr>
+            <tr><td><strong>浙江</strong> 🍃</td><td>绿茶品种高地，小叶种品质优异</td><td>龙井43、龙井群体种、安吉白茶（白化品种）</td><td>绿茶</td></tr>
+            <tr><td><strong>安徽</strong> 🌄</td><td>名茶品种荟萃，群体种历史悠久</td><td>黄山群体种、祁门种（世界三大高香红茶之一）</td><td>绿茶、红茶</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout callout-tip">
+        <strong>🏔️ 武夷山的名丛文化：</strong>武夷山被誉为「茶树品种王国」，拥有数百种名丛（单株选育的顶级品种）。其中最著名的<strong>四大名丛</strong>——<em>大红袍</em>、<em>铁罗汉</em>、<em>白鸡冠</em>、<em>水金龟</em>——是从数百个单株中选育出的顶级品种，每一株都有其独特的风味特征和文化故事。
+      </div>
+
+      <p>此外，中国茶树品种资源还在不断丰富中。茶树种质资源圃（如杭州国家茶树种质资源圃）保存了来自全国各地的 3,000+ 份茶树种质资源，为茶树育种和品种保护提供了坚实的物质基础。</p>
+
+    </div>
+    <div class="takeaway">💡 关键收获：中国茶树品种资源是世界级的生物多样性宝库，不同茶区的品种各具特色、互为补充</div>
+  </div>
+
+  <div class="module" id="mod-misconceptions">
+    <h2><span class="m-tag">模块6</span> ⚠️ 常见误区 — 破除品种迷思 <span class="m-time">⏱ ~2min</span></h2>
+    <div class="hook">「安吉白茶是白茶」、「大红袍是红茶」——这两个流传极广的说法，其实都是错的</div>
+    <div class="content">
+
+      <div class="callout callout-warn">
+        <strong>⚠️ 误区1：「安吉白茶是白茶」</strong><br>
+        安吉白茶<strong>是绿茶，不是白茶</strong>！「白茶」在这里指的是其茶树是一种<strong>低温敏感型白化品种</strong>——当气温低于 23°C 时，茶树嫩芽因叶绿素合成受阻而呈现玉白色，故名「白茶」。但按工艺分类，安吉白茶属于<strong>杀青绿茶</strong>，加工过程中没有萎凋和微发酵的白茶工艺环节。
+      </div>
+
+      <div class="callout callout-warn">
+        <strong>⚠️ 误区2：「大红袍是红茶」</strong><br>
+        大红袍<strong>是乌龙茶（武夷岩茶），不是红茶</strong>！虽然名称中带有「红」字，但大红袍属于<strong>半发酵乌龙茶</strong>，是武夷岩茶的四大名丛之首。它的「红」可能来源于传说或芽叶色泽，而非指茶类。真正的红茶是全发酵茶，如正山小种、滇红。
+      </div>
+
+      <div class="callout callout-warn">
+        <strong>⚠️ 误区3：「品种好 = 茶好」</strong><br>
+        品种只是起点，不是终点。好的茶树品种还需要配合：<strong>适宜的生态环境</strong>（海拔、土壤、气候）、<strong>恰当的采摘标准</strong>（嫩度、季节、时间）、<strong>精湛的制作工艺</strong>（杀青火候、揉捻力度、发酵程度）。一个顶级品种在糟糕的工艺下同样可能做出平庸甚至难喝的茶。
+      </div>
+
+      <div class="callout callout-warn">
+        <strong>⚠️ 误区4：「古树茶 = 野生茶」</strong><br>
+        这两个概念<strong>完全不同</strong>。古树茶是指<strong>人工栽培</strong>但树龄在百年以上的茶树，其生长位置、品种都经过人为选择和栽培管理。而野生茶是指<strong>未经人工选育</strong>的原始种群，在原始森林中自然生长。许多野生茶并不适合饮用（可能含有对胃有刺激的成分），而古树茶则是优质原料的代表。
+      </div>
+
+      <p>这些误区的存在说明：在进入茶的世界之前，理清基础概念和分类逻辑至关重要。破除品种迷思，正是成为专业识茶人的第一步。</p>
+
+    </div>
+    <div class="takeaway">💡 关键收获：破除品种迷思——名称不等于茶类，品种不等于品质，古树不等于野生——是成为专业识茶人的第一步</div>
+  </div>
+</div>
+
+<footer class="journey-footer">
+  <a href="#" class="back-to-plan" onclick="event.preventDefault();var w=window.open('tea_learning.html#kc-p1_1','plan_main');if(w)w.focus()">🔗 返回学习路线: 识茶·喝茶·品茶 系统学习方案 → 识茶入门</a>
+  <p style="margin-top:12px;font-size:.72rem;color:var(--text-muted)">
+    本资料是 <strong>识茶·喝茶·品茶 系统学习方案</strong> 识茶入门 阶段的深度研读材料
+  </p>
+</footer>
+
+<div class="deep-floating-back">
+  <button onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 16px rgba(0,0,0,.2)'"
+    onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 12px rgba(0,0,0,.15)'"
+    onclick="event.preventDefault();var w=window.open('tea_learning.html#kc-p1_1','plan_main');if(w)w.focus()">
+    ← 返回学习方案
+  </button>
+</div>
+</div>
+
+<div class="dd-toast" id="toastEl"><span id="toastMsg"></span></div>
+
+<script>
+var MODULE_IDS = ["mod-learning_journey","mod-concept","mod-principle","mod-application","mod-landscape","mod-misconceptions"];
+var SEARCH_INDEX = [{"id":"mod-learning_journey","t":"学习路线导航","c":"当前位置：识茶喝茶品茶系统学习方案 识茶入门 第1个知识点"},{"id":"mod-concept","t":"核心概念","c":"茶树Camellia sinensis属山茶科山茶属 大叶种中叶种小叶种"},{"id":"mod-principle","t":"核心原理","c":"茶树品种如何决定茶叶的先天禀赋 茶多酚氨基酸咖啡碱"},{"id":"mod-application","t":"应用场景","c":"不同品种适制性 大叶种适制红茶普洱茶 小叶种适制绿茶乌龙茶"},{"id":"mod-landscape","t":"品种格局","c":"中国四大茶区 云南大叶种基因库 武夷山名丛"},{"id":"mod-misconceptions","t":"常见误区","c":"破除常见误区 品种产地名丛"}];
+var TOAST_TIMEOUT;
+
+(function(){
+var progressBar=document.getElementById('progressBar');
+var modules=document.querySelectorAll('.module');
+
+var observer=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting)e.target.classList.add('visible')})},{threshold:.15});
+modules.forEach(function(m){observer.observe(m)});
+
+var navLinks=document.querySelectorAll('.sidebar-nav a');
+var navObserver=new IntersectionObserver(function(entries){
+entries.forEach(function(e){
+if(e.isIntersecting){
+navLinks.forEach(function(a){a.classList.remove('active')});
+var act=document.querySelector('.sidebar-nav a[href="#'+e.target.id+'"]');
+if(act)act.classList.add('active');
+}
+})},{threshold:.3});
+modules.forEach(function(m){navObserver.observe(m)});
+
+window.addEventListener('scroll',function(){
+var st=document.documentElement.scrollTop,dh=document.documentElement.scrollHeight-window.innerHeight;
+var pct=dh>0?Math.min(100,(st/dh)*100):0;progressBar.style.width=pct+'%';
+});
+
+window.addEventListener('keydown',function(e){
+if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();openSearch()}
+if((e.ctrlKey||e.metaKey)&&e.key==='d'){e.preventDefault();toggleTheme()}
+if(e.key==='Escape')closeSearch()
+});
+})();
+
+function toggleTheme(){
+var b=document.body,isD=b.getAttribute('data-theme')==='dark';
+b.setAttribute('data-theme',isD?'light':'dark');
+try{localStorage.setItem('slm-theme',isD?'light':'dark')}catch(e){}
+showToast('已切换至'+(isD?'浅色':'深色')+'主题')
+}
+
+function openSearch(){document.getElementById('searchOverlay').classList.add('open');setTimeout(function(){document.getElementById('searchInput').focus()},100)}
+function closeSearch(){document.getElementById('searchOverlay').classList.remove('open');document.getElementById('searchResults').innerHTML=''}
+
+function doSearch(){
+var q=document.getElementById('searchInput').value.toLowerCase(),res=document.getElementById('searchResults');
+if(q.length<2){res.innerHTML='';return}
+var h='';SEARCH_INDEX.forEach(function(item){
+if(item.t.toLowerCase().indexOf(q)>=0||(item.c||'').toLowerCase().indexOf(q)>=0){
+h+='<div onclick="closeSearch();document.getElementById(\''+item.id+'\').scrollIntoView({behavior:\'smooth\'})">'+
+'<strong>'+item.t+'</strong><br><small style="color:var(--text-muted)">'+(item.c||'').substring(0,80)+'</small></div>';
+}
+});
+res.innerHTML=h||'<div style="padding:12px;color:var(--text-muted)">未找到匹配模块</div>'
+}
+
+function showToast(msg){
+var el=document.getElementById('toastEl'),mg=document.getElementById('toastMsg');
+if(!el||!mg)return;mg.textContent=msg;el.style.display='block';el.classList.add('toast-in');
+if(TOAST_TIMEOUT)clearTimeout(TOAST_TIMEOUT);
+TOAST_TIMEOUT=setTimeout(function(){el.style.display='none'},3000);
+}
+
+(function(){
+var t;try{t=localStorage.getItem('slm-theme')}catch(e){}
+if(t==='light')document.body.setAttribute('data-theme','light');
+})();
+
+(function(){
+document.querySelectorAll('.derivation-toggle').forEach(function(btn){
+btn.addEventListener('click',function(){
+var content=this.nextElementSibling;
+if(content){content.classList.toggle('open');this.textContent=content.classList.contains('open')?'▾ 收起推导':'▸ 展开推导'}
+});
+});
+})();
+
+/* ===== ECharts 初始化模板 ===== */
+(function initCharts(){
+if(typeof echarts==='undefined')return;
+var charts=[];
+function makeChart(elId,option){
+var el=document.getElementById(elId);
+if(!el)return null;
+var chart=echarts.init(el);
+chart.setOption(option);
+return chart;
+}
+var c1=makeChart('chart-concept-01',{tooltip:{trigger:'item'},legend:{bottom:'0%',textStyle:{color:'#8a8070'}},series:[{type:'pie',radius:['35%','60%'],center:['50%','45%'],label:{color:'#8a8070'},data:[{value:25,name:'大叶种',itemStyle:{color:'#5ea87a'}},{value:40,name:'中叶种',itemStyle:{color:'#7ec8a0'}},{value:35,name:'小叶种',itemStyle:{color:'#b898a0'}}]}]});
+if(c1)charts.push(c1);
+window.addEventListener('resize',function(){charts.forEach(function(c){c.resize()})});
+})();
+</script>
+</body>
+</html>

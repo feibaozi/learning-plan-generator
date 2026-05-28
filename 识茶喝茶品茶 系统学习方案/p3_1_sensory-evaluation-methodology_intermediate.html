@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>感官品评方法论 — 深度研读</title>
+<style>
+/* ───────────────────────────────────────────────
+   Template: Cedar Dawn (雪松晨曦) — deep_dive.css
+   Mood: warm, natural, organic
+   Contrast verified: text-primary≥10:1, text-secondary≥6:1, text-muted≥4.5:1
+   ─────────────────────────────────────────────── */
+:root{
+--bg-base:#1a1814;
+--bg-card:#282520;
+--bg-elevated:#312d27;
+--bg-overlay:rgba(0,0,0,.6);
+--text-primary:#ede6d8;
+--text-secondary:#b8ad98;
+--text-muted:#8a8070;
+--accent-indigo:#5ea87a;
+--accent-purple:#b898a0;
+--accent-cyan:#7ec8a0;
+--accent-gold:#e6b95a;
+--accent-green:#6ebf8a;
+--accent-red:#d47860;
+--accent-blue:#5ea87a;
+--accent-color:#5ea87a;
+--accent-dark:#3d6b50;
+--border-subtle:rgba(184,173,152,.15);
+--border-glow:rgba(94,168,122,.25);
+--shadow-sm:0 1px 3px rgba(0,0,0,.3);
+--shadow-md:0 4px 16px rgba(0,0,0,.4);
+--shadow-lg:0 8px 32px rgba(0,0,0,.5);
+--shadow-elevated:0 8px 32px rgba(0,0,0,.5);
+--radius-sm:6px;
+--radius-md:10px;
+--radius-lg:16px;
+--font-sans:'Segoe UI',system-ui,-apple-system,sans-serif;
+--font-mono:Consolas,'Cascadia Code',monospace;
+--transition:.25s cubic-bezier(.4,0,.2,1);
+--transition-smooth:.3s ease;
+--nav-h:56px;
+--accent-color-rgb:94,168,122;
+--chart-grid:#2d2924;
+--chart-axis-label:#8a8070;
+}
+[data-theme="light"]{
+--bg-base:#fdfaf3;
+--bg-card:#fffdf7;
+--bg-elevated:#f3efe3;
+--bg-overlay:rgba(0,0,0,.3);
+--text-primary:#1f1a12;
+--text-secondary:#4a4035;
+--text-muted:#5c5042;
+--accent-indigo:#3d6b50;
+--accent-purple:#7a5a6a;
+--accent-cyan:#4a8e6a;
+--accent-gold:#a07828;
+--accent-green:#4a9e66;
+--accent-red:#b05038;
+--accent-blue:#3d6b50;
+--accent-color:#3d6b50;
+--accent-dark:#2a4835;
+--border-subtle:rgba(31,26,18,.08);
+--border-glow:rgba(61,107,80,.25);
+--shadow-sm:0 1px 3px rgba(0,0,0,.06);
+--shadow-md:0 4px 16px rgba(0,0,0,.08);
+--shadow-lg:0 8px 32px rgba(0,0,0,.12);
+--shadow-elevated:0 8px 32px rgba(0,0,0,.12);
+--accent-color-rgb:61,107,80;
+--chart-grid:#ebe5d6;
+--chart-axis-label:#5c5042;
+}
+
+/* ===== Layout & Base ===== */
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font-sans);background:var(--bg-base);color:var(--text-primary);line-height:1.75;overflow-x:hidden}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg-base)}::-webkit-scrollbar-thumb{background:var(--border-glow);border-radius:3px}
+
+/* ===== Navbar ===== */
+.progress-bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--accent-indigo),var(--accent-purple),var(--accent-cyan));z-index:200;transition:width .1s linear}
+.navbar{position:fixed;top:3px;left:0;right:0;z-index:100;background:var(--bg-card);border-bottom:1px solid var(--border-subtle);backdrop-filter:blur(16px);height:var(--nav-h);display:flex;align-items:center;justify-content:space-between;padding:0 24px}
+.nav-left{display:flex;align-items:center;gap:12px;font-size:.82rem;font-weight:600;color:var(--accent-indigo)}
+.nav-right{display:flex;align-items:center;gap:8px}
+.nav-right button{background:var(--bg-elevated);border:1px solid var(--border-subtle);color:var(--text-secondary);padding:6px 12px;border-radius:var(--radius-sm);cursor:pointer;font-size:.75rem;transition:all var(--transition)}
+.nav-right button:hover{border-color:var(--border-glow);color:var(--accent-indigo)}
+
+/* ===== Sidebar ===== */
+.sidebar{position:fixed;left:0;top:0;height:100vh;width:280px;background:var(--bg-base);border-right:1px solid var(--border-subtle);padding:24px;overflow-y:auto;z-index:100;padding-top:calc(var(--nav-h) + 16px)}
+.sidebar h3{font-size:.85rem;font-weight:700;color:var(--text-secondary);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--border-subtle)}
+.sidebar-nav{list-style:none;padding:0}
+.sidebar-nav li{margin-bottom:2px}
+.sidebar-nav a{display:block;padding:8px 12px;border-radius:var(--radius-md);text-decoration:none;font-size:.76rem;color:var(--text-secondary);transition:all var(--transition);border-left:3px solid transparent}
+.sidebar-nav a:hover{background:rgba(91,141,184,.08);color:var(--accent-cyan);border-left-color:var(--accent-cyan)}
+.sidebar-nav a.active{background:rgba(91,141,184,.12);color:var(--accent-blue);font-weight:600;border-left-color:var(--accent-blue)}
+.sidebar-back-link{display:block;padding:8px 12px;margin-bottom:12px;border-radius:8px;background:var(--bg-elevated);color:var(--accent-blue);text-decoration:none;font-size:.78rem;font-weight:600}
+.sidebar-back-link:hover{color:var(--accent-cyan)}
+
+/* ===== Content Area — Fluid Layout ===== */
+.content-area{margin-left:280px;width:calc(100% - 280px)}
+.container{max-width:calc(100% - 48px);margin:0 auto;padding:calc(var(--nav-h) + 24px) 24px 80px}
+
+/* ===== Hero ===== */
+.hero{text-align:center;padding:48px 0 36px}
+.hero h1{font-size:2.2rem;background:linear-gradient(135deg,var(--accent-indigo),var(--accent-purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+.hero .tags{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:12px}
+.hero .tags span{font-size:.7rem;padding:4px 12px;border-radius:50px;border:1px solid var(--border-glow);color:var(--accent-indigo);background:rgba(99,102,241,.06)}
+
+/* ===== Meta Card ===== */
+.meta-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:20px 24px;margin:0 auto 32px;max-width:700px;display:flex;justify-content:center;gap:36px;flex-wrap:wrap;box-shadow:var(--shadow-md)}
+.meta-item{text-align:center}
+.meta-item .val{font-size:1.4rem;font-weight:800;color:var(--accent-indigo)}
+.meta-item .lbl{font-size:.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px}
+
+/* ===== Journey Bar ===== */
+.journey-bar{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:12px 20px;margin:0 auto 24px;max-width:900px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:.82rem;box-shadow:var(--shadow-elevated)}
+.journey-path{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.journey-icon{font-size:1rem}
+.journey-plan{color:var(--accent-purple);font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.journey-plan:hover{color:var(--accent-gold)}
+.journey-sep{color:var(--text-muted);font-size:.7rem}
+.journey-phase{color:var(--text-secondary);font-weight:600}
+.journey-kp{color:var(--text-primary);font-weight:700}
+.journey-pos{color:var(--text-muted);font-size:.72rem}
+.journey-nav{display:flex;align-items:center;gap:8px;font-size:.75rem}
+.journey-prev,.journey-next{color:var(--text-muted);cursor:default}
+.journey-divider{color:var(--border-subtle)}
+
+/* ===== Module Card ===== */
+.module{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:28px 28px 24px;margin-bottom:20px;opacity:0;transform:translateY(24px);transition:opacity .5s ease,transform .5s ease;box-shadow:var(--shadow-sm)}
+.module.visible{opacity:1;transform:translateY(0)}
+.module:hover{border-color:var(--border-glow)}
+.module h2{font-size:1.15rem;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.module .m-tag{font-size:.65rem;padding:2px 10px;border-radius:50px;background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.2);color:var(--accent-indigo);font-weight:600}
+.module .m-time{font-size:.7rem;color:var(--text-muted);margin-left:auto}
+.module .hook{font-size:.9rem;color:var(--accent-purple);font-weight:600;margin:12px 0 16px;padding-left:12px;border-left:3px solid var(--accent-purple)}
+.module .content{font-size:.88rem;color:var(--text-secondary);line-height:1.8}
+.module .content p{margin-bottom:12px}
+.module .content strong{color:var(--text-primary);font-weight:600}
+.module .content em{color:var(--accent-gold);font-style:normal}
+
+/* ===== Formula Block ===== */
+.formula-block{background:rgba(99,102,241,.04);border:1px solid rgba(99,102,241,.12);border-radius:var(--radius-sm);padding:14px 18px;margin:14px 0;font-family:var(--font-mono);font-size:.82rem;color:var(--accent-cyan);overflow-x:auto;position:relative}
+.formula-block .f-cap{font-size:.7rem;color:var(--text-muted);margin-bottom:6px;display:block}
+.derivation-toggle{font-size:.7rem;color:var(--accent-gold);cursor:pointer;border:none;background:none;padding:4px 0;font-family:inherit;display:block;margin-top:6px}
+.derivation-toggle:hover{text-decoration:underline}
+.derivation-content{display:none;margin-top:8px;padding:12px 16px;background:rgba(245,158,11,.04);border-radius:var(--radius-sm);border-left:3px solid var(--accent-gold);font-size:.8rem;color:var(--text-secondary)}
+.derivation-content.open{display:block}
+
+/* ===== Chart ===== */
+.chart-wrap{background:rgba(99,102,241,.03);border-radius:var(--radius-sm);padding:8px;margin:14px 0;text-align:center}
+.chart-canvas{width:100%;height:280px}
+.chart-wrap .ch-cap{font-size:.72rem;color:var(--text-muted);margin-top:6px}
+
+/* ===== Table ===== */
+.table-container{margin:20px 0;overflow-x:auto}
+.table-container table{width:100%;border-collapse:collapse;border-radius:var(--radius-md);overflow:hidden}
+.table-container th{background:var(--bg-elevated);color:var(--accent-cyan);font-weight:700;padding:12px 16px;text-align:left;font-size:.8rem}
+.table-container td{padding:12px 16px;border-bottom:1px solid var(--border-subtle);font-size:.82rem;color:var(--text-secondary)}
+.table-container tr:hover td{background:rgba(91,141,184,.03)}
+.table-container .table-caption{font-size:.72rem;color:var(--text-muted);margin-bottom:8px;text-align:center}
+
+/* ===== Callout ===== */
+.callout{padding:14px 18px;border-radius:var(--radius-md);margin:16px 0;font-size:.82rem}
+.callout-info{background:rgba(94,168,122,.06);border-left:3px solid var(--accent-indigo);color:var(--text-secondary)}
+.callout-warn{background:rgba(230,185,90,.06);border-left:3px solid var(--accent-gold);color:var(--text-secondary)}
+.callout-tip{background:rgba(184,152,160,.06);border-left:3px solid var(--accent-purple);color:var(--text-secondary)}
+.callout strong{color:var(--text-primary)}
+
+/* ===== Compare Grid ===== */
+.compare-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin:16px 0}
+.compare-card{background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:18px 20px}
+.compare-card h4{font-size:.85rem;color:var(--accent-indigo);margin-bottom:8px}
+.compare-card p{font-size:.78rem;color:var(--text-muted);line-height:1.7}
+
+/* ===== Timeline ===== */
+.timeline{position:relative;padding-left:30px;margin:16px 0}
+.timeline::before{content:'';position:absolute;left:8px;top:0;bottom:0;width:2px;background:var(--border-glow)}
+.timeline-item{position:relative;margin-bottom:18px;font-size:.82rem}
+.timeline-item::before{content:'';position:absolute;left:-26px;top:6px;width:10px;height:10px;border-radius:50%;background:var(--accent-indigo);border:2px solid var(--border-glow)}
+.timeline-year{font-weight:700;color:var(--accent-cyan);min-width:80px;display:inline-block}
+.timeline-text{color:var(--text-secondary)}
+
+/* ===== Process Flow ===== */
+.process-flow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:20px 0;justify-content:center}
+.process-step{background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:12px 18px;text-align:center;font-size:.76rem;min-width:80px}
+.process-step .psn{font-weight:800;color:var(--accent-indigo);font-size:.9rem;margin-bottom:4px}
+.process-step .psl{color:var(--text-muted);font-size:.68rem}
+.process-arrow{color:var(--accent-cyan);font-size:1.1rem;font-weight:700}
+
+/* ===== Term Grid ===== */
+.term-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;margin:16px 0}
+.term-card{background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:var(--radius-sm);padding:12px 16px;transition:all var(--transition)}
+.term-card:hover{border-color:var(--border-glow)}
+.term-card .tn{font-size:.8rem;font-weight:700;color:var(--accent-indigo)}
+.term-card .td{font-size:.72rem;color:var(--text-muted);margin-top:4px;line-height:1.6}
+
+/* ===== Takeaway ===== */
+.takeaway{font-size:.82rem;background:rgba(16,185,129,.06);border-left:3px solid var(--accent-green);padding:10px 14px;margin-top:16px;border-radius:0 var(--radius-sm) var(--radius-sm) 0;color:var(--accent-green)}
+
+/* ===== Ref List ===== */
+.ref-list{list-style:none;padding:0;margin-top:8px;font-size:.78rem}
+.ref-list li{padding:4px 0;color:var(--text-muted)}
+.ref-list li::before{content:'📄 '}
+
+/* ===== Search Overlay ===== */
+.search-overlay{position:fixed;inset:0;z-index:300;background:var(--bg-overlay);display:none;align-items:flex-start;justify-content:center;padding-top:120px}
+.search-overlay.open{display:flex}
+.search-box{width:520px;max-width:90vw;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:var(--radius-md);box-shadow:var(--shadow-lg);overflow:hidden}
+.search-box input{width:100%;padding:14px 18px;background:transparent;border:none;color:var(--text-primary);font-size:.95rem;outline:none;font-family:inherit}
+.search-results{max-height:360px;overflow-y:auto}
+.search-results div{padding:10px 18px;cursor:pointer;font-size:.82rem;color:var(--text-secondary);border-top:1px solid var(--border-subtle);transition:background var(--transition)}
+.search-results div:hover{background:rgba(99,102,241,.06);color:var(--text-primary)}
+
+/* ===== Footer ===== */
+.journey-footer{text-align:center;padding:40px 32px 60px;opacity:.8}
+.back-to-plan{display:inline-flex;align-items:center;gap:8px;padding:10px 24px;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:50px;color:var(--text-secondary);text-decoration:none;font-size:.85rem;font-weight:600;transition:all var(--transition-smooth)}
+.back-to-plan:hover{background:var(--bg-elevated);border-color:var(--accent-purple);color:var(--accent-purple)}
+
+/* ===== Floating Back ===== */
+.deep-floating-back{position:fixed;right:20px;bottom:20px;z-index:10000}
+.deep-floating-back button{padding:12px 20px;background:linear-gradient(135deg,var(--accent-color),var(--accent-dark));color:white;border:none;border-radius:24px;font-size:.85rem;font-weight:600;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.15);transition:transform .2s,box-shadow .2s}
+.deep-floating-back button:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.2)}
+
+/* ===== Toast ===== */
+.dd-toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);z-index:10001;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:8px;padding:14px 24px;box-shadow:0 4px 16px rgba(0,0,0,.15);font-size:.85rem;display:none}
+.toast-in{animation:toastIn .3s ease}
+@keyframes toastIn{from{opacity:0;transform:translate(-50%,20px)}to{opacity:1;transform:translate(-50%,0)}}
+
+/* ===== Print ===== */
+@media print{.navbar,.progress-bar,.sidebar,.journey-bar,.journey-footer,.deep-floating-back{display:none!important}.content-area{margin-left:0;width:100%}.module{break-inside:avoid;opacity:1!important;transform:none!important;box-shadow:none}body{background:#fff!important}}
+
+/* ===== Responsive ≤1024px ===== */
+@media(max-width:1024px){.sidebar{display:none}.content-area{margin-left:0;width:100%}}
+
+/* ===== Responsive ≤768px ===== */
+@media(max-width:768px){
+.hero h1{font-size:1.6rem}.module{padding:20px}.meta-card{font-size:.72rem;padding:12px 16px}.journey-bar{flex-direction:column;align-items:flex-start}
+.deep-floating-back{right:15px;bottom:15px}.deep-floating-back button{padding:10px 16px;font-size:.8rem}
+}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+</head>
+<body data-theme="dark">
+
+<div class="progress-bar" id="progressBar" style="width:0%"></div>
+
+<nav class="navbar">
+  <div class="nav-left">📖 感官品评方法论</div>
+  <div class="nav-right">
+    <button onclick="toggleTheme()" title="切换主题 (Ctrl+D)">🌓 主题</button>
+    <button onclick="openSearch()" title="搜索 (Ctrl+K)">🔍 搜索</button>
+  </div>
+</nav>
+
+<div class="sidebar">
+  <a href="#" class="sidebar-back-link" onclick="event.preventDefault();var w=window.open('tea_learning.html#kc-p3_1','plan_main');if(w)w.focus()">← 返回主方案</a>
+  <h3>📖 目录导航</h3>
+  <ul class="sidebar-nav">
+    <li><a href="#mod-learning_journey">📍 学习路线导航</a></li>
+<li><a href="#mod-concept">📘 核心概念 — 五步品评法</a></li>
+<li><a href="#mod-principle">🔬 核心原理 — 感官品评的科学机制</a></li>
+<li><a href="#mod-application">🎯 应用场景 — 实战品评</a></li>
+<li><a href="#mod-landscape">🗺️ 审评标准体系</a></li>
+<li><a href="#mod-misconceptions">⚠️ 常见误区</a></li>
+<li><a href="#mod-case-study">🏆 品评训练方法</a></li>
+  </ul>
+</div>
+
+<div class="content-area">
+<div class="search-overlay" id="searchOverlay">
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="搜索模块内容..." oninput="doSearch()" onkeydown="if(event.key==='Escape')closeSearch()">
+    <div class="search-results" id="searchResults"></div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="hero">
+    <h1>感官品评方法论</h1>
+    <div class="tags">
+      <span>茶文化</span><span>品鉴科学</span><span>整合应用</span>
+    </div>
+  </div>
+
+  <div class="meta-card">
+    <div class="meta-item"><div class="val">7</div><div class="lbl">模块</div></div><div class="meta-item"><div class="val">~18min</div><div class="lbl">阅读时间</div></div><div class="meta-item"><div class="val">理解×标准</div><div class="lbl">深度</div></div>
+  </div>
+
+  <div class="journey-bar" id="journeyBar">
+    <div class="journey-path">
+      <span class="journey-icon">📍</span>
+      <span class="journey-plan" onclick="var w=window.open('tea_learning.html#kc-p3_1','plan_main');if(w)w.focus()">识茶·喝茶·品茶 系统学习方案</span>
+      <span class="journey-sep">〉</span>
+      <span class="journey-phase">品茶之道</span>
+      <span class="journey-sep">〉</span>
+      <span class="journey-kp">感官品评方法论</span>
+      <span class="journey-pos">(第1/4个知识点)</span>
+    </div>
+    <div class="journey-nav">
+      <span class="journey-prev" title="前置: (无)">← 前置</span>
+      <span class="journey-divider">|</span>
+      <span class="journey-next" title="后续: 品茶术语与风味轮">后续 →</span>
+    </div>
+  </div>
+
+  <div class="module" id="mod-learning_journey">
+    <h2><span class="m-tag">模块1</span> 📍 学习路线导航 <span class="m-time">⏱ ~2min</span></h2>
+    <div class="hook">在踏上品茶之旅前，先找准你在整个学习地图中的坐标</div>
+    <div class="content">
+      <p>欢迎来到「识茶·喝茶·品茶 系统学习方案」的<strong>品茶之道</strong>阶段。你现在正处于整个学习路线的第三阶段（第9-12周），是整个方案中承前启后的关键环节——识茶是"知道是什么"，泡茶是"会做"，品茶是"能判断好坏"。</p>
+      <p>品茶之道阶段共包含 <strong>4 个知识点</strong>，你现在学习的是 <strong>第 1/4 个知识点</strong>：感官品评方法论。品评是连接识茶与泡茶的桥梁，是茶道进阶的核心能力。</p>
+      <div class="callout callout-info">
+        <strong>📍 学习路线概览：</strong><br>
+        识茶入门 → 喝茶进阶 → <strong>品茶之道（当前阶段）</strong> → 茶道实践
+      </div>
+      <p><strong>前置知识：</strong>(无) — 但建议已掌握基本的泡茶技巧（冲泡参数如水温、时间、茶水比），这将帮助你更好地进行品评实践。</p>
+      <p><strong>后续学习：</strong>品茶术语与风味轮 — 掌握了五步品评法后，你将学习用标准化的术语来描述和记录品评结果。</p>
+      <p><strong>建议投入时间：</strong>约 18 分钟。建议一次性读完 7 个模块，建立完整的感官品评框架。品评能力的提升依赖于大量实践，理论知识是实践的基础。</p>
+    </div>
+    <div class="takeaway">💡 关键收获：明确自身在整体学习路径中的坐标——品评是连接识茶与泡茶的桥梁，是茶道进阶的核心能力</div>
+  </div>
+
+  <div class="module" id="mod-concept">
+    <h2><span class="m-tag">模块2</span> 📘 核心概念 — 五步品评法 <span class="m-time">⏱ ~3min</span></h2>
+    <div class="hook">一杯茶端到面前，你真的会"品"吗？不是喝，而是品——二者的差距在于是否有一套系统的方法</div>
+    <div class="content">
+      <p>专业品茶遵循<strong>五步品评法</strong>，这是一套从干茶到茶汤到叶底的完整审评流程。每一步都有明确的观察目标和评价维度，环环相扣、缺一不可。</p>
+
+      <div class="process-flow">
+        <div class="process-step"><div class="psn">①</div><div class="psl">观形<br>干茶外观</div></div>
+        <div class="process-arrow">→</div>
+        <div class="process-step"><div class="psn">②</div><div class="psl">察色<br>茶汤颜色</div></div>
+        <div class="process-arrow">→</div>
+        <div class="process-step"><div class="psn">③</div><div class="psl">闻香<br>三层次</div></div>
+        <div class="process-arrow">→</div>
+        <div class="process-step"><div class="psn">④</div><div class="psl">品味<br>口腔感受</div></div>
+        <div class="process-arrow">→</div>
+        <div class="process-step"><div class="psn">⑤</div><div class="psl">评叶底<br>泡后检视</div></div>
+      </div>
+
+      <p><strong>① 观形（Visual Dry Leaf）</strong>——观察干茶外形。主要维度：<em>条索</em>（紧结/松散）、<em>色泽</em>（翠绿/乌润/砂绿）、<em>匀整度</em>（大小形状一致性）。绿茶看毫毛是否满披，乌龙看条索紧结度，红茶看金毫显露程度。</p>
+      <p><strong>② 察色（View Liquor Color）</strong>——观察茶汤颜色。评价维度：<em>色度</em>（嫩绿→黄绿→橙黄→橙红→红艳→暗褐）、<em>亮度</em>（明亮→暗沉）、<em>清浊度</em>（清澈→浑浊）。优质茶汤清澈透亮，劣质茶汤浑浊暗淡。使用白瓷碗或玻璃杯为佳，便于观察汤色。</p>
+      <p><strong>③ 闻香（Smell Aroma）</strong>——闻香分为三个层次：<em>干茶香</em>（干闻干茶）、<em>热汤香</em>（趁热嗅杯盖或汤面）、<em>冷杯香</em>（冷却后嗅杯底/叶底）。优质茶的香型分明、持久，并随温度变化呈现不同香型层次——高温香、中温香、低温香各有特点。</p>
+      <p><strong>④ 品味（Taste）</strong>——小口啜饮，让茶汤在口腔中滚动覆盖整个舌面。感受的主要维度：<em>浓淡度</em>、<em>醇厚度</em>（茶汤的饱满感与质感）、<em>收敛性</em>（涩感）、<em>鲜甜度</em>、<em>回甘</em>（咽后返甜的速度与强度）和<em>生津</em>（两颊分泌液体的感觉）。</p>
+      <p><strong>⑤ 评叶底（Evaluate Wet Leaves）</strong>——查看泡后的茶叶底。评价维度：<em>嫩度</em>（芽叶比例、有无粗老叶）、<em>色泽</em>（鲜活亮绿→暗褐无光）、<em>匀齐度</em>（叶片大小均匀度）、<em>弹性</em>（手捏叶底的柔韧度）。叶底是茶叶的<em>"底牌"</em>——原料好坏，泡过才知道。</p>
+
+      <div class="callout callout-tip">
+        <strong>📐 品茶核心口诀：</strong>观其形→察其色→闻其香→品其味→评其底，五步环环相扣。缺了任何一步，都称不上完整的品评。
+      </div>
+
+    </div>
+    <div class="takeaway">💡 关键收获：五步品评法是从"喝茶"升级为"品茶"的唯一路径——每一步都是通往专业品鉴的必要台阶</div>
+  </div>
+
+  <div class="module" id="mod-principle">
+    <h2><span class="m-tag">模块3</span> 🔬 核心原理 — 感官品评的科学机制 <span class="m-time">⏱ ~3min</span></h2>
+    <div class="hook">为什么专业人士品茶需要三分钟，而普通人一口就下结论？差别不在舌头，而在大脑</div>
+    <div class="content">
+      <p>感官品评的背后有一套完整的<strong>生理学与感知科学</strong>体系。理解这些机制，能帮助你更理性地分析自己的品评体验。</p>
+
+      <div class="compare-grid">
+        <div class="compare-card">
+          <h4>👅 味觉生理</h4>
+          <p>舌面味蕾分布：<em>舌尖</em>（甜）→<em>舌侧前部</em>（咸）→<em>舌侧后部</em>（酸）→<em>舌根</em>（苦）。茶汤需在口腔中"滚动"才能完整感知所有味觉。味蕾数量个体差异可达3-10倍，解释了为什么有人天生对苦味更敏感。</p>
+        </div>
+        <div class="compare-card">
+          <h4>👃 嗅觉机制</h4>
+          <p>人类能辨识约1万亿种气味。品茶时香气通过两条途径感知：<em>鼻前嗅觉</em>（嗅杯盖/汤面）和<em>鼻后嗅觉</em>（茶汤入口后香气从口腔进入鼻腔）。鼻后嗅觉是"喉韵"的科学基础——咽下茶汤后从喉咙回返的香气体验。</p>
+        </div>
+        <div class="compare-card">
+          <h4>✋ 触觉感知</h4>
+          <p><em>收敛性</em>（涩感）来自茶多酚与口腔蛋白质结合产生的收敛反应，这不是味觉而是<strong>触觉信号</strong>。醇厚度来自茶多糖和果胶在口腔中产生的质感——类似于牛奶与水的口感差异。</p>
+        </div>
+        <div class="compare-card">
+          <h4>⚡ 三叉神经感知</h4>
+          <p>部分茶的"辛辣感"（如老普洱、陈年岩茶）来自<strong>三叉神经的化学感知</strong>，类似芥末或薄荷的刺激机制。这不是味觉也不是触觉，而是第三种独立的感知通道。</p>
+        </div>
+      </div>
+
+      <div class="chart-wrap">
+        <div id="chart-principle-01" class="chart-canvas"></div>
+        <div class="ch-cap">图1：三大茶类感官品评五维度雷达图对比</div>
+      </div>
+
+      <div class="table-container">
+        <div class="table-caption">表1：专业品评 vs 日常饮用对照</div>
+        <table>
+          <thead>
+            <tr><th>维度</th><th>专业品评</th><th>日常饮用</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>目的</strong></td><td>客观评价品质等级、辨识缺陷</td><td>主观享受与放松</td></tr>
+            <tr><td><strong>流程</strong></td><td>五步品评法，标准化流程</td><td>无固定流程，"好喝就行"</td></tr>
+            <tr><td><strong>时间</strong></td><td>3-8分钟完成一轮审评</td><td>随意，可能数小时</td></tr>
+            <tr><td><strong>记录</strong></td><td>使用标准术语和评分表</td><td>通常不记录</td></tr>
+            <tr><td><strong>感官参与</strong></td><td>视觉+嗅觉+味觉+触觉，综合调用</td><td>以味觉为主</td></tr>
+            <tr><td><strong>心理状态</strong></td><td>专注、批判性思维</td><td>放松、享受状态</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout callout-info">
+        <strong>🧠 认知心理学的启示：</strong>人对味道的判断极容易受到期望偏差（expectation bias）影响——知道品牌和价格后，评分会自动偏高15-25%。这是为什么专业审评中广泛使用盲品法。
+      </div>
+
+    </div>
+    <div class="takeaway">💡 关键收获：品茶不是玄学——味觉、嗅觉、触觉、三叉神经感知，四种独立感知通道共同构成品评体验的科学基础</div>
+  </div>
+
+  <div class="module" id="mod-application">
+    <h2><span class="m-tag">模块4</span> 🎯 应用场景 — 实战品评 <span class="m-time">⏱ ~3min</span></h2>
+    <div class="hook">知道五步法是一回事，真正在茶桌前用得出来是另一回事——如何把理论变成本能？</div>
+    <div class="content">
+      <p>五步品评法在不同场景下有<strong>不同的应用深度和侧重点</strong>。了解这些差异，能让你在任何场合都游刃有余。</p>
+
+      <div class="table-container">
+        <div class="table-caption">表2：三种品评场景对比</div>
+        <table>
+          <thead>
+            <tr><th>维度</th><th>日常品鉴</th><th>对比品评</th><th>专业审评</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>目的</strong></td><td>个人享受与学习</td><td>比较差异、选择偏好</td><td>等级评定、质量控制</td></tr>
+            <tr><td><strong>茶样数</strong></td><td>1款</td><td>2-5款</td><td>5-20款</td></tr>
+            <tr><td><strong>标准化程度</strong></td><td>低，随性而为</td><td>中，同一器具</td><td>高，严格按国标</td></tr>
+            <tr><td><strong>评分方式</strong></td><td>不评分，只记录感受</td><td>对比排名</td><td>因子评分法（100分制）</td></tr>
+            <tr><td><strong>所需时间</strong></td><td>不限</td><td>每款3-5分钟</td><td>每款2-3分钟</td></tr>
+            <tr><td><strong>重点步骤</strong></td><td>③闻香+④品味为主</td><td>全五步，横向对比</td><td>全五步，独立评后综合</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p><strong>日常品鉴（自己喝茶）：</strong>不必完整走完五步，重点放在③闻香+④品味。关键是要养成记录习惯——<em>品茶笔记是成长的最好证据</em>。每次记录2-3个关键词就行，积少成多。</p>
+      <p><strong>对比品评（两款以上同时品）：</strong>使用盲品法，排除品牌/价格偏见。重点比较同一维度的差异——比如只比较两款茶的香气类型差异，或只比较滋味的醇厚度。避免同时评多个维度导致注意力分散。</p>
+      <p><strong>专业审评（按国标GB/T 23776）：</strong>使用标准审评杯碗，<em>3g茶/150ml沸水/5分钟闷泡</em>。所有茶都按同一参数审评，公平比较"耐闷性"。国标评价术语有近200个标准词汇可供选用。</p>
+      <p><strong>茶会分享：</strong>先独立品评再交流讨论，避免从众效应和社会影响偏差。多用风味形容词（"花香带蜜韵"）而非好/坏的二元评价（"好喝/不好喝"），帮助建立共同语言。</p>
+
+      <div class="process-flow">
+        <div class="process-step"><div class="psn">①</div><div class="psl">准备<br>器具/茶样</div></div>
+        <div class="process-arrow">→</div>
+        <div class="process-step"><div class="psn">②</div><div class="psl">干评<br>外形审评</div></div>
+        <div class="process-arrow">→</div>
+        <div class="process-step"><div class="psn">③</div><div class="psl">湿评<br>汤色/香气</div></div>
+        <div class="process-arrow">→</div>
+        <div class="process-step"><div class="psn">④</div><div class="psl">湿评<br>滋味/叶底</div></div>
+        <div class="process-arrow">→</div>
+        <div class="process-step"><div class="psn">⑤</div><div class="psl">综合<br>评分/记录</div></div>
+      </div>
+
+      <div class="callout callout-info">
+        <strong>🎓 实践建议：</strong>从日常品鉴开始，加入对比品评训练，再逐步了解专业审评标准。三个层次的递进，就是完整的品评能力成长路径。
+      </div>
+
+    </div>
+    <div class="takeaway">💡 关键收获：同是品茶，不同场景需要不同策略——从随性的日常品鉴到严格的国标审评，五步法可深可浅、灵活运用</div>
+  </div>
+
+  <div class="module" id="mod-landscape">
+    <h2><span class="m-tag">模块5</span> 🗺️ 审评标准体系 <span class="m-time">⏱ ~3min</span></h2>
+    <div class="hook">茶艺师考试中的"盲品辨茶"环节，他们是如何从100款茶中准确挑出正岩大红袍的？</div>
+    <div class="content">
+      <p>专业审评不是"凭感觉"，背后有一套<strong>标准化的评价体系</strong>。这套体系让不同评茶员对同一款茶的评价可以相互比对和验证。</p>
+
+      <div class="chart-wrap">
+        <div id="chart-landscape-01" class="chart-canvas"></div>
+        <div class="ch-cap">图2：国标GB/T 23776-2018 茶叶感官审评因子权重分布</div>
+      </div>
+
+      <p><strong>国标GB/T 23776-2018（茶叶感官审评方法）：</strong></p>
+      <ul style="margin:8px 0 8px 24px;font-size:.84rem;color:var(--text-secondary);line-height:1.9">
+        <li><strong>外形 20%：</strong>条索、色泽、整碎、净度——颜值是第一印象</li>
+        <li><strong>汤色 10%：</strong>色度、亮度、清浊度——占比虽小，一目了然</li>
+        <li><strong>香气 30%：</strong>香型、浓度、持久度——占比最高之一，茶之灵魂</li>
+        <li><strong>滋味 30%：</strong>浓淡、醇厚、回甘——与香气并列最高权重</li>
+        <li><strong>叶底 10%：</strong>嫩度、色泽、匀度——底牌，不要忽略</li>
+      </ul>
+
+      <p><strong>评分术语标准化：</strong>每个维度使用"因子评分法"——从基准分开始，根据优缺点加减分。常用术语如"鲜爽"对应+0.5，"闷浊"对应-1.0。使用标准化术语可以避免因个人语言习惯不同造成的评分偏差。</p>
+
+      <p><strong>评茶员等级：</strong></p>
+      <div class="timeline">
+        <div class="timeline-item"><span class="timeline-year">初级评茶员</span><span class="timeline-text">辨识基本品质特征（外形/汤色/香气/滋味/叶底），区分明显等级差异</span></div>
+        <div class="timeline-item"><span class="timeline-year">中级评茶员</span><span class="timeline-text">准确判定等级和缺陷，使用标准术语独立完成审评报告</span></div>
+        <div class="timeline-item"><span class="timeline-year">高级评茶员</span><span class="timeline-text">盲品辨识品种/产地/年份，需经1000+次系统训练方可达到此水平</span></div>
+      </div>
+
+      <p><strong>国际标准对比：</strong></p>
+      <ul style="margin:8px 0 8px 24px;font-size:.84rem;color:var(--text-secondary);line-height:1.9">
+        <li><strong>ISO 3103（国际茶叶冲泡标准）：</strong>规定统一冲泡参数，确保全球评茶结果可比</li>
+        <li><strong>中国体系：</strong>重香气层次与滋味变化，五因子评分法</li>
+        <li><strong>日本体系：</strong>重汤色清澈度与鲜味（umami），尤其重视蒸青绿的色泽</li>
+        <li><strong>西方体系：</strong>重滋味强度与汤色浓度（liquor strength），常用于红茶评级</li>
+      </ul>
+
+      <div class="term-grid">
+        <div class="term-card"><div class="tn">鲜爽</div><div class="td">鲜味突出，爽口不腻，多见于高氨基酸绿茶</div></div>
+        <div class="term-card"><div class="tn">醇厚</div><div class="td">滋味饱满充实，质感如牛奶般浓稠</div></div>
+        <div class="term-card"><div class="tn">浓烈</div><div class="td">滋味强烈刺激，收敛性明显，多见于大叶种红茶</div></div>
+        <div class="term-card"><div class="tn">涩口</div><div class="td">涩感过重且不能化开，为品质缺陷信号</div></div>
+        <div class="term-card"><div class="tn">回甘</div><div class="td">咽下茶汤后口中返甜，回甘越快越强越好</div></div>
+        <div class="term-card"><div class="tn">生津</div><div class="td">两颊分泌唾液，口中湿润感持久</div></div>
+        <div class="term-card"><div class="tn">收敛性</div><div class="td">茶多酚引起的涩感，适度为佳，过度为劣</div></div>
+        <div class="term-card"><div class="tn">水味</div><div class="td">茶水分离感，滋味淡薄如水，不耐泡的表现</div></div>
+        <div class="term-card"><div class="tn">高香</div><div class="td">香气高扬明显，冲泡时扑面而来</div></div>
+        <div class="term-card"><div class="tn">幽香</div><div class="td">香气内敛持久，沉入汤中而不张扬</div></div>
+        <div class="term-card"><div class="tn">闷香</div><div class="td">香气沉闷不扬，可能因加工或储存不当所致</div></div>
+        <div class="term-card"><div class="tn">陈香</div><div class="td">经年存放产生的醇和香气，普洱茶和陈年茶的标志</div></div>
+      </div>
+
+    </div>
+    <div class="takeaway">💡 关键收获：审评不是玄学，有国际标准、国标体系和等级制度支撑——善用标准和术语，你的品评就有了可"校准"的坐标</div>
+  </div>
+
+  <div class="module" id="mod-misconceptions">
+    <h2><span class="m-tag">模块6</span> ⚠️ 常见误区 <span class="m-time">⏱ ~2min</span></h2>
+    <div class="hook">"越贵的茶越好喝"、"有涩味的茶就是不好的茶"——这些流行观点，其实都有问题</div>
+    <div class="content">
+
+      <div class="callout callout-warn">
+        <strong>⚠️ 误区1：「越贵越好喝」</strong><br>
+        价格反映的是<strong>稀缺性</strong>（产量/年份/品牌溢价），而非品质的唯一指标。100元的口粮茶可能比1000元的名山茶更"好喝"——取决于个人口味偏好。品评的核心是找出"你喜欢的"，而不是"最贵的"。记住：<em>价格 ≠ 品质 ≠ 适口</em>。
+      </div>
+
+      <div class="callout callout-warn">
+        <strong>⚠️ 误区2：「涩味 = 劣质茶」</strong><br>
+        适度的涩感（收敛性）是好茶的标志之一。关键在于<strong>涩后是否化开</strong>——好的涩感入口后迅速转化为生津和回甘；而"死涩"（化不开、持续刺激的涩）才是问题。学会区分收敛性涩与死涩，是品评能力进阶的关键一步。
+      </div>
+
+      <div class="callout callout-warn">
+        <strong>⚠️ 误区3：「茶叶越香越好」</strong><br>
+        香气分"面香"（冲泡时明显但短暂消失）和"底香"（内敛但持久于汤中和杯底）。优质茶的香气是<strong>沉入汤中</strong>的，而非只浮于表面。很多高等级岩茶香气并不张扬，但入汤后香融于水，越品越有层次。
+      </div>
+
+      <div class="callout callout-warn">
+        <strong>⚠️ 误区4：「颜色越绿越好（绿茶）/越红越好（红茶）」</strong><br>
+        对绿茶而言，<em>黄绿明亮 &gt; 深绿暗沉</em>；对红茶而言，<em>红艳明亮 &gt; 暗红浑浊</em>。共同原则：<strong>明度比色度更重要</strong>。透亮的黄绿胜于暗哑的深绿，明亮的红艳胜于浑浊的暗红。
+      </div>
+
+      <div class="callout callout-warn">
+        <strong>⚠️ 误区5：「品茶就是喝一口然后说好喝或不好喝」</strong><br>
+        品茶是需要<strong>语言化</strong>的——找到具体的形容词（鲜爽/醇厚/花香/果香/蜜香），而非笼统判断（好喝/不好喝）。把茶的风味翻译成文字，你的品评能力才算真正入门。
+      </div>
+
+      <p>这些误区的存在说明：品茶不是简单的"好喝/不好喝"，而是一门需要系统方法和持续训练的技艺。破除这些迷思，是迈向专业品评的第一步。</p>
+
+    </div>
+    <div class="takeaway">💡 关键收获：最常见的五个误区——“贵≠好”、“涩≠劣”、“香≠质”、“色≠优”、“喝≠品”——逐一破除，建立科学品评观</div>
+  </div>
+
+  <div class="module" id="mod-case-study">
+    <h2><span class="m-tag">模块7</span> 🏆 品评训练方法 <span class="m-time">⏱ ~2min</span></h2>
+    <div class="hook">品茶能力是"喝"出来的，但单纯的"多喝"远远不够——你需要一套刻意训练的方法</div>
+    <div class="content">
+      <p>品评能力的提升遵循<strong>刻意练习</strong>原则。以下是经过验证的系统训练方法：</p>
+
+      <p><strong>① 味觉灵敏度训练：</strong>用蔗糖（甜）、食盐（咸）、柠檬酸（酸）、奎宁（苦）、单宁酸（涩）分别配制不同浓度的标准液，训练味觉辨识阈限。从SUG=1%开始，逐步降低浓度（0.5%→0.25%），直到能辨识更低浓度的味道。这是品茶师的"基本功"，类似钢琴家的音阶训练。</p>
+
+      <p><strong>② 香气辨识训练：</strong>收集常见茶香标准品——花香（茉莉/栀子）、果香（蜜桃/荔枝）、蜜香、木质香、陈香，每日盲闻辨识。目标是能够在不知道茶名的情况下，仅凭香气判断香型类别。建议每天3-5款，持续1个月可见明显提升。</p>
+
+      <p><strong>③ 对比训练法：</strong>选2-3款同一茶类但不同等级/产地的茶同时冲泡，横向比较差异。从差异大的组合开始（如明前龙井 vs 雨前龙井），逐步过渡到差异接近的组合——这一步是品评能力的"深水区"。</p>
+
+      <p><strong>④ 盲品训练法：</strong>请他人代为编号，在不知品牌/价格/产地的情况下品评，消除心理暗示。记录品评结果后再揭晓答案，对比差异。你会发现，<em>去标之后，很多"好茶"并不那么突出</em>。</p>
+
+      <p><strong>⑤ 标准样对照法：</strong>获取标准等级茶样（如特级/一级/二级龙井），用标准样校准自己的品评坐标，避免偏离。建议每半年重新校准一次。</p>
+
+      <div class="callout callout-tip">
+        <strong>📓 品评日记格式建议：</strong>日期 / 茶名 / 产地 / 年份 / 外形评分 / 汤色评分 / 香气评分 / 滋味评分 / 叶底评分 / 总评（1-2句话）。坚持20款茶后，你的品评能力会有质的飞跃。
+      </div>
+
+      <p><strong>品评能力成长时间线：</strong></p>
+      <div class="timeline">
+        <div class="timeline-item"><span class="timeline-year">1-3个月 初学</span><span class="timeline-text">学会五步法基本流程，能区分明显好茶与差茶，建立基本的风味词汇库</span></div>
+        <div class="timeline-item"><span class="timeline-year">3-6个月 入门</span><span class="timeline-text">能辨识主要香型（花香/果香/蜜香），能区分同一茶类的不同等级</span></div>
+        <div class="timeline-item"><span class="timeline-year">6-12个月 进阶</span><span class="timeline-text">盲品可辨识品种和产地大类，能较准确地使用标准术语描述茶品</span></div>
+        <div class="timeline-item"><span class="timeline-year">1-2年+ 精通</span><span class="timeline-text">盲品可准确辨识品种/产地/年份，建立个人品评风格，接近高级评茶员水准</span></div>
+      </div>
+
+    </div>
+    <div class="takeaway">💡 关键收获：品评能力是可以训练的——味觉灵敏训练+香气辨识+对比法+盲品法+标准样对照，五个方法构成完整的品茶刻意练习体系</div>
+  </div>
+</div>
+
+<footer class="journey-footer">
+  <a href="#" class="back-to-plan" onclick="event.preventDefault();var w=window.open('tea_learning.html#kc-p3_1','plan_main');if(w)w.focus()">🔗 返回学习路线: 识茶·喝茶·品茶 系统学习方案 → 品茶之道</a>
+  <p style="margin-top:12px;font-size:.72rem;color:var(--text-muted)">
+    本资料是 <strong>识茶·喝茶·品茶 系统学习方案</strong> 品茶之道 阶段的深度研读材料
+  </p>
+</footer>
+
+<div class="deep-floating-back">
+  <button onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 16px rgba(0,0,0,.2)'"
+    onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 12px rgba(0,0,0,.15)'"
+    onclick="event.preventDefault();var w=window.open('tea_learning.html#kc-p3_1','plan_main');if(w)w.focus()">
+    ← 返回学习方案
+  </button>
+</div>
+</div>
+
+<div class="dd-toast" id="toastEl"><span id="toastMsg"></span></div>
+
+<script>
+var MODULE_IDS = ["mod-learning_journey","mod-concept","mod-principle","mod-application","mod-landscape","mod-misconceptions","mod-case-study"];
+var SEARCH_INDEX = [{"id":"mod-learning_journey","t":"学习路线导航","c":"品茶之道 第1个知识点 感官品评方法论 系统学习方案坐标"},{"id":"mod-concept","t":"核心概念 五步品评法","c":"观形察色闻香品味评叶底 五步品评法 干茶汤色香气滋味叶底"},{"id":"mod-principle","t":"核心原理 科学机制","c":"味觉生理 嗅觉机制 鼻前嗅觉 鼻后嗅觉 触觉感知 收敛性 三叉神经感知"},{"id":"mod-application","t":"应用场景 实战品评","c":"日常品鉴 对比品评 专业审评 国标GB/T 23776 盲品法 茶会分享"},{"id":"mod-landscape","t":"审评标准体系","c":"国标 外形汤色香气滋味叶底权重 评茶员等级 ISO 3103 因子评分法 术语"},{"id":"mod-misconceptions","t":"常见误区","c":"越贵越好喝 涩味劣质茶 越香越好 颜色误区 品茶语言化"},{"id":"mod-case-study","t":"品评训练方法","c":"味觉灵敏度训练 香气辨识 对比训练 盲品训练 标准样对照 品评日记"}];
+var TOAST_TIMEOUT;
+
+(function(){
+var progressBar=document.getElementById('progressBar');
+var modules=document.querySelectorAll('.module');
+
+var observer=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting)e.target.classList.add('visible')})},{threshold:.15});
+modules.forEach(function(m){observer.observe(m)});
+
+var navLinks=document.querySelectorAll('.sidebar-nav a');
+var navObserver=new IntersectionObserver(function(entries){
+entries.forEach(function(e){
+if(e.isIntersecting){
+navLinks.forEach(function(a){a.classList.remove('active')});
+var act=document.querySelector('.sidebar-nav a[href="#'+e.target.id+'"]');
+if(act)act.classList.add('active');
+}
+})},{threshold:.3});
+modules.forEach(function(m){navObserver.observe(m)});
+
+window.addEventListener('scroll',function(){
+var st=document.documentElement.scrollTop,dh=document.documentElement.scrollHeight-window.innerHeight;
+var pct=dh>0?Math.min(100,(st/dh)*100):0;progressBar.style.width=pct+'%';
+});
+
+window.addEventListener('keydown',function(e){
+if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();openSearch()}
+if((e.ctrlKey||e.metaKey)&&e.key==='d'){e.preventDefault();toggleTheme()}
+if(e.key==='Escape')closeSearch()
+});
+})();
+
+function toggleTheme(){
+var b=document.body,isD=b.getAttribute('data-theme')==='dark';
+b.setAttribute('data-theme',isD?'light':'dark');
+try{localStorage.setItem('slm-theme',isD?'light':'dark')}catch(e){}
+showToast('已切换至'+(isD?'浅色':'深色')+'主题')
+}
+
+function openSearch(){document.getElementById('searchOverlay').classList.add('open');setTimeout(function(){document.getElementById('searchInput').focus()},100)}
+function closeSearch(){document.getElementById('searchOverlay').classList.remove('open');document.getElementById('searchResults').innerHTML=''}
+
+function doSearch(){
+var q=document.getElementById('searchInput').value.toLowerCase(),res=document.getElementById('searchResults');
+if(q.length<2){res.innerHTML='';return}
+var h='';SEARCH_INDEX.forEach(function(item){
+if(item.t.toLowerCase().indexOf(q)>=0||(item.c||'').toLowerCase().indexOf(q)>=0){
+h+='<div onclick="closeSearch();document.getElementById(\''+item.id+'\').scrollIntoView({behavior:\'smooth\'})">'+
+'<strong>'+item.t+'</strong><br><small style="color:var(--text-muted)">'+(item.c||'').substring(0,80)+'</small></div>';
+}
+});
+res.innerHTML=h||'<div style="padding:12px;color:var(--text-muted)">未找到匹配模块</div>'
+}
+
+function showToast(msg){
+var el=document.getElementById('toastEl'),mg=document.getElementById('toastMsg');
+if(!el||!mg)return;mg.textContent=msg;el.style.display='block';el.classList.add('toast-in');
+if(TOAST_TIMEOUT)clearTimeout(TOAST_TIMEOUT);
+TOAST_TIMEOUT=setTimeout(function(){el.style.display='none'},3000);
+}
+
+(function(){
+var t;try{t=localStorage.getItem('slm-theme')}catch(e){}
+if(t==='light')document.body.setAttribute('data-theme','light');
+})();
+
+(function(){
+document.querySelectorAll('.derivation-toggle').forEach(function(btn){
+btn.addEventListener('click',function(){
+var content=this.nextElementSibling;
+if(content){content.classList.toggle('open');this.textContent=content.classList.contains('open')?'▾ 收起推导':'▸ 展开推导'}
+});
+});
+})();
+
+/* ===== ECharts 初始化模板 ===== */
+(function initCharts(){
+if(typeof echarts==='undefined')return;
+var charts=[];
+function makeChart(elId,option){
+var el=document.getElementById(elId);
+if(!el)return null;
+var chart=echarts.init(el);
+chart.setOption(option);
+return chart;
+}
+var chart1=makeChart('chart-principle-01',{tooltip:{},legend:{bottom:'0%',textStyle:{color:'#8a8070'}},radar:{center:['50%','42%'],radius:'58%',indicator:[{name:'外形',max:100},{name:'汤色',max:100},{name:'香气',max:100},{name:'滋味',max:100},{name:'叶底',max:100}],axisName:{color:'#8a8070'},splitLine:{lineStyle:{color:'#2d2924'}},splitArea:{areaStyle:{color:'transparent'}}},series:[{type:'radar',data:[{value:[70,85,75,80,75],name:'绿茶',itemStyle:{color:'#5ea87a'},areaStyle:{color:'rgba(94,168,122,.15)'},lineStyle:{color:'#5ea87a'}},{value:[80,75,90,85,80],name:'乌龙茶',itemStyle:{color:'#b898a0'},areaStyle:{color:'rgba(184,152,160,.15)'},lineStyle:{color:'#b898a0'}},{value:[75,80,80,85,70],name:'红茶',itemStyle:{color:'#e6b95a'},areaStyle:{color:'rgba(230,185,90,.15)'},lineStyle:{color:'#e6b95a'}}]}]});
+if(chart1)charts.push(chart1);
+var chart2=makeChart('chart-landscape-01',{tooltip:{trigger:'axis',formatter:function(p){return p[0].name+'：权重 '+p[0].value+'%'}},grid:{left:'8%',right:'8%',top:'12%',bottom:'10%'},xAxis:{type:'category',data:['外形','汤色','香气','滋味','叶底'],axisLabel:{color:'#8a8070',fontSize:11},axisLine:{lineStyle:{color:'#2d2924'}},axisTick:{show:false}},yAxis:{type:'value',max:40,name:'权重 (%)',nameTextStyle:{color:'#8a8070',fontSize:10},axisLabel:{color:'#8a8070',formatter:'{value}%'},splitLine:{lineStyle:{color:'#2d2924'}}},series:[{type:'bar',data:[{value:20,itemStyle:{color:'#5ea87a'}},{value:10,itemStyle:{color:'#7ec8a0'}},{value:30,itemStyle:{color:'#b898a0'}},{value:30,itemStyle:{color:'#e6b95a'}},{value:10,itemStyle:{color:'#d47860'}}],barWidth:'50%',label:{show:true,position:'top',color:'#8a8070',formatter:'{c}%',fontSize:12}}]});
+if(chart2)charts.push(chart2);
+window.addEventListener('resize',function(){charts.forEach(function(c){c.resize()})});
+})();
+</script>
+</body>
+</html>

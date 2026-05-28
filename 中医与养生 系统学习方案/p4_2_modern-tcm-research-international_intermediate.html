@@ -1,0 +1,700 @@
+<!-- template-version: 3.5.0 -->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>现代中医研究与国际化发展 — 深度研读</title>
+<style>
+/* ───────────────────────────────────────────────
+   Template: Cedar Dawn (雪松晨曦) — deep_dive.css
+   Mood: warm, natural, organic
+   Contrast verified: text-primary≥10:1, text-secondary≥6:1, text-muted≥4.5:1
+   ─────────────────────────────────────────────── */
+:root{
+--bg-base:#1a1814;
+--bg-card:#282520;
+--bg-elevated:#312d27;
+--bg-overlay:rgba(0,0,0,.6);
+--text-primary:#ede6d8;
+--text-secondary:#b8ad98;
+--text-muted:#8a8070;
+--accent-indigo:#5ea87a;
+--accent-purple:#b898a0;
+--accent-cyan:#7ec8a0;
+--accent-gold:#e6b95a;
+--accent-green:#6ebf8a;
+--accent-red:#d47860;
+--accent-blue:#5ea87a;
+--accent-color:#5ea87a;
+--accent-dark:#3d6b50;
+--border-subtle:rgba(184,173,152,.15);
+--border-glow:rgba(94,168,122,.25);
+--shadow-sm:0 1px 3px rgba(0,0,0,.3);
+--shadow-md:0 4px 16px rgba(0,0,0,.4);
+--shadow-lg:0 8px 32px rgba(0,0,0,.5);
+--shadow-elevated:0 8px 32px rgba(0,0,0,.5);
+--radius-sm:6px;
+--radius-md:10px;
+--radius-lg:16px;
+--font-sans:'Segoe UI',system-ui,-apple-system,sans-serif;
+--font-mono:Consolas,'Cascadia Code',monospace;
+--transition:.25s cubic-bezier(.4,0,.2,1);
+--transition-smooth:.3s ease;
+--nav-h:56px;
+--accent-color-rgb:94,168,122;
+--chart-grid:#2d2924;
+--chart-axis-label:#8a8070;
+}
+[data-theme="light"]{
+--bg-base:#fdfaf3;
+--bg-card:#fffdf7;
+--bg-elevated:#f3efe3;
+--bg-overlay:rgba(0,0,0,.3);
+--text-primary:#1f1a12;
+--text-secondary:#4a4035;
+--text-muted:#5c5042;
+--accent-indigo:#3d6b50;
+--accent-purple:#7a5a6a;
+--accent-cyan:#4a8e6a;
+--accent-gold:#a07828;
+--accent-green:#4a9e66;
+--accent-red:#b05038;
+--accent-blue:#3d6b50;
+--accent-color:#3d6b50;
+--accent-dark:#2a4835;
+--border-subtle:rgba(31,26,18,.08);
+--border-glow:rgba(61,107,80,.25);
+--shadow-sm:0 1px 3px rgba(0,0,0,.06);
+--shadow-md:0 4px 16px rgba(0,0,0,.08);
+--shadow-lg:0 8px 32px rgba(0,0,0,.12);
+--shadow-elevated:0 8px 32px rgba(0,0,0,.12);
+--accent-color-rgb:61,107,80;
+--chart-grid:#ebe5d6;
+--chart-axis-label:#5c5042;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font-sans);background:var(--bg-base);color:var(--text-primary);line-height:1.75;overflow-x:hidden}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg-base)}::-webkit-scrollbar-thumb{background:var(--border-glow);border-radius:3px}
+
+.progress-bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--accent-indigo),var(--accent-purple),var(--accent-cyan));z-index:200;transition:width .1s linear}
+.navbar{position:fixed;top:3px;left:0;right:0;z-index:100;background:var(--bg-card);border-bottom:1px solid var(--border-subtle);backdrop-filter:blur(16px);height:var(--nav-h);display:flex;align-items:center;justify-content:space-between;padding:0 24px}
+.nav-left{display:flex;align-items:center;gap:12px;font-size:.82rem;font-weight:600;color:var(--accent-indigo)}
+.nav-right{display:flex;align-items:center;gap:8px}
+.nav-right button{background:var(--bg-elevated);border:1px solid var(--border-subtle);color:var(--text-secondary);padding:6px 12px;border-radius:var(--radius-sm);cursor:pointer;font-size:.75rem;transition:all var(--transition)}
+.nav-right button:hover{border-color:var(--border-glow);color:var(--accent-indigo)}
+
+.sidebar{position:fixed;left:0;top:0;height:100vh;width:280px;background:var(--bg-base);border-right:1px solid var(--border-subtle);padding:24px;overflow-y:auto;z-index:100;padding-top:calc(var(--nav-h) + 16px)}
+.sidebar h3{font-size:.85rem;font-weight:700;color:var(--text-secondary);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--border-subtle)}
+.sidebar-nav{list-style:none;padding:0}
+.sidebar-nav li{margin-bottom:2px}
+.sidebar-nav a{display:block;padding:8px 12px;border-radius:var(--radius-md);text-decoration:none;font-size:.76rem;color:var(--text-secondary);transition:all var(--transition);border-left:3px solid transparent}
+.sidebar-nav a:hover{background:rgba(91,141,184,.08);color:var(--accent-cyan);border-left-color:var(--accent-cyan)}
+.sidebar-nav a.active{background:rgba(91,141,184,.12);color:var(--accent-blue);font-weight:600;border-left-color:var(--accent-blue)}
+.sidebar-back-link{display:block;padding:8px 12px;margin-bottom:12px;border-radius:8px;background:var(--bg-elevated);color:var(--accent-blue);text-decoration:none;font-size:.78rem;font-weight:600}
+.sidebar-back-link:hover{color:var(--accent-cyan)}
+
+.content-area{margin-left:280px;width:calc(100% - 280px)}
+.container{max-width:calc(100% - 48px);margin:0 auto;padding:calc(var(--nav-h) + 24px) 24px 80px}
+
+.hero{text-align:center;padding:48px 0 36px}
+.hero h1{font-size:2.2rem;background:linear-gradient(135deg,var(--accent-indigo),var(--accent-purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+.hero .tags{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:12px}
+.hero .tags span{font-size:.7rem;padding:4px 12px;border-radius:50px;border:1px solid var(--border-glow);color:var(--accent-indigo);background:rgba(99,102,241,.06)}
+
+.meta-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:20px 24px;margin:0 auto 32px;max-width:700px;display:flex;justify-content:center;gap:36px;flex-wrap:wrap;box-shadow:var(--shadow-md)}
+.meta-item{text-align:center}
+.meta-item .val{font-size:1.4rem;font-weight:800;color:var(--accent-indigo)}
+.meta-item .lbl{font-size:.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px}
+
+.journey-bar{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:12px 20px;margin:0 auto 24px;max-width:900px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:.82rem;box-shadow:var(--shadow-elevated)}
+.journey-path{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.journey-icon{font-size:1rem}
+.journey-plan{color:var(--accent-purple);font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.journey-plan:hover{color:var(--accent-gold)}
+.journey-sep{color:var(--text-muted);font-size:.7rem}
+.journey-phase{color:var(--text-secondary);font-weight:600}
+.journey-kp{color:var(--text-primary);font-weight:700}
+.journey-pos{color:var(--text-muted);font-size:.72rem}
+.journey-nav{display:flex;align-items:center;gap:8px;font-size:.75rem}
+.journey-prev,.journey-next{color:var(--text-muted);cursor:default}
+.journey-divider{color:var(--border-subtle)}
+
+.module{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:28px 28px 24px;margin-bottom:20px;opacity:0;transform:translateY(24px);transition:opacity .5s ease,transform .5s ease;box-shadow:var(--shadow-sm)}
+.module.visible{opacity:1;transform:translateY(0)}
+.module:hover{border-color:var(--border-glow)}
+.module h2{font-size:1.15rem;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.module .m-tag{font-size:.65rem;padding:2px 10px;border-radius:50px;background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.2);color:var(--accent-indigo);font-weight:600}
+.module .m-time{font-size:.7rem;color:var(--text-muted);margin-left:auto}
+.module .hook{font-size:.9rem;color:var(--accent-purple);font-weight:600;margin:12px 0 16px;padding-left:12px;border-left:3px solid var(--accent-purple)}
+.module .content{font-size:.88rem;color:var(--text-secondary);line-height:1.8}
+.module .content p{margin-bottom:12px}
+.module .content strong{color:var(--text-primary);font-weight:600}
+.module .content em{color:var(--accent-gold);font-style:normal}
+
+.formula-block{background:rgba(99,102,241,.04);border:1px solid rgba(99,102,241,.12);border-radius:var(--radius-sm);padding:14px 18px;margin:14px 0;font-family:var(--font-mono);font-size:.82rem;color:var(--accent-cyan);overflow-x:auto;position:relative}
+.formula-block .f-cap{font-size:.7rem;color:var(--text-muted);margin-bottom:6px;display:block}
+.derivation-toggle{font-size:.7rem;color:var(--accent-gold);cursor:pointer;border:none;background:none;padding:4px 0;font-family:inherit;display:block;margin-top:6px}
+.derivation-toggle:hover{text-decoration:underline}
+.derivation-content{display:none;margin-top:8px;padding:12px 16px;background:rgba(245,158,11,.04);border-radius:var(--radius-sm);border-left:3px solid var(--accent-gold);font-size:.8rem;color:var(--text-secondary)}
+.derivation-content.open{display:block}
+
+.chart-wrap{background:rgba(99,102,241,.03);border-radius:var(--radius-sm);padding:8px;margin:14px 0;text-align:center}
+.chart-wrap > div{width:100%;height:280px}
+.chart-wrap .ch-cap{font-size:.72rem;color:var(--text-muted);margin-top:6px}
+
+.table-container{margin:20px 0;overflow-x:auto}
+.table-container table{width:100%;border-collapse:collapse;border-radius:var(--radius-md);overflow:hidden}
+.table-container th{background:var(--bg-elevated);color:var(--accent-cyan);font-weight:700;padding:12px 16px;text-align:left;font-size:.8rem}
+.table-container td{padding:12px 16px;border-bottom:1px solid var(--border-subtle);font-size:.82rem;color:var(--text-secondary)}
+.table-container tr:hover td{background:rgba(91,141,184,.03)}
+.table-container .table-caption{font-size:.72rem;color:var(--text-muted);margin-bottom:8px;text-align:center}
+
+.callout{padding:14px 18px;border-radius:var(--radius-md);margin:16px 0;font-size:.82rem}
+.callout-info{background:rgba(94,168,122,.06);border-left:3px solid var(--accent-indigo);color:var(--text-secondary)}
+.callout-warn{background:rgba(230,185,90,.06);border-left:3px solid var(--accent-gold);color:var(--text-secondary)}
+.callout-tip{background:rgba(184,152,160,.06);border-left:3px solid var(--accent-purple);color:var(--text-secondary)}
+.callout strong{color:var(--text-primary)}
+
+.compare-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin:16px 0}
+.compare-card{background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:18px 20px}
+.compare-card h4{font-size:.85rem;color:var(--accent-indigo);margin-bottom:8px}
+.compare-card p{font-size:.78rem;color:var(--text-muted);line-height:1.7}
+
+.timeline{position:relative;padding-left:30px;margin:16px 0}
+.timeline::before{content:'';position:absolute;left:8px;top:0;bottom:0;width:2px;background:var(--border-glow)}
+.timeline-item{position:relative;margin-bottom:18px;font-size:.82rem}
+.timeline-item::before{content:'';position:absolute;left:-26px;top:6px;width:10px;height:10px;border-radius:50%;background:var(--accent-indigo);border:2px solid var(--border-glow)}
+.timeline-year{font-weight:700;color:var(--accent-cyan);min-width:80px;display:inline-block}
+.timeline-text{color:var(--text-secondary)}
+
+.process-flow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:20px 0;justify-content:center}
+.process-step{background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:12px 18px;text-align:center;font-size:.76rem;min-width:80px}
+.process-step .psn{font-weight:800;color:var(--accent-indigo);font-size:.9rem;margin-bottom:4px}
+.process-step .psl{color:var(--text-muted);font-size:.68rem}
+.process-arrow{color:var(--accent-cyan);font-size:1.1rem;font-weight:700}
+
+.term-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;margin:16px 0}
+.term-card{background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:var(--radius-sm);padding:12px 16px;transition:all var(--transition)}
+.term-card:hover{border-color:var(--border-glow)}
+.term-card .tn{font-size:.8rem;font-weight:700;color:var(--accent-indigo)}
+.term-card .td{font-size:.72rem;color:var(--text-muted);margin-top:4px;line-height:1.6}
+
+.takeaway{font-size:.82rem;background:rgba(16,185,129,.06);border-left:3px solid var(--accent-green);padding:10px 14px;margin-top:16px;border-radius:0 var(--radius-sm) var(--radius-sm) 0;color:var(--accent-green)}
+
+.ref-list{list-style:none;padding:0;margin-top:8px;font-size:.78rem}
+.ref-list li{padding:4px 0;color:var(--text-muted)}
+.ref-list li::before{content:'📄 '}
+
+.search-overlay{position:fixed;inset:0;z-index:300;background:var(--bg-overlay);display:none;align-items:flex-start;justify-content:center;padding-top:120px}
+.search-overlay.open{display:flex}
+.search-box{width:520px;max-width:90vw;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:var(--radius-md);box-shadow:var(--shadow-lg);overflow:hidden}
+.search-box input{width:100%;padding:14px 18px;background:transparent;border:none;color:var(--text-primary);font-size:.95rem;outline:none;font-family:inherit}
+.search-results{max-height:360px;overflow-y:auto}
+.search-results div{padding:10px 18px;cursor:pointer;font-size:.82rem;color:var(--text-secondary);border-top:1px solid var(--border-subtle);transition:background var(--transition)}
+.search-results div:hover{background:rgba(99,102,241,.06);color:var(--text-primary)}
+
+.journey-footer{text-align:center;padding:40px 32px 60px;opacity:.8}
+.back-to-plan{display:inline-flex;align-items:center;gap:8px;padding:10px 24px;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:50px;color:var(--text-secondary);text-decoration:none;font-size:.85rem;font-weight:600;transition:all var(--transition-smooth)}
+.back-to-plan:hover{background:var(--bg-elevated);border-color:var(--accent-purple);color:var(--accent-purple)}
+
+.deep-floating-back{position:fixed;right:20px;bottom:20px;z-index:10000}
+.deep-floating-back button{padding:12px 20px;background:linear-gradient(135deg,var(--accent-color),var(--accent-dark));color:white;border:none;border-radius:24px;font-size:.85rem;font-weight:600;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.15);transition:transform .2s,box-shadow .2s}
+.deep-floating-back button:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.2)}
+
+.dd-toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);z-index:10001;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:8px;padding:14px 24px;box-shadow:0 4px 16px rgba(0,0,0,.15);font-size:.85rem;display:none}
+.toast-in{animation:toastIn .3s ease}
+@keyframes toastIn{from{opacity:0;transform:translate(-50%,20px)}to{opacity:1;transform:translate(-50%,0)}}
+
+@media print{.navbar,.progress-bar,.sidebar,.journey-bar,.journey-footer,.deep-floating-back{display:none!important}.content-area{margin-left:0;width:100%}.module{break-inside:avoid;opacity:1!important;transform:none!important;box-shadow:none}body{background:#fff}}
+
+@media(max-width:1024px){.sidebar{display:none}.content-area{margin-left:0;width:100%}}
+@media(max-width:768px){
+.hero h1{font-size:1.6rem}.module{padding:20px}.meta-card{font-size:.72rem;padding:12px 16px}.journey-bar{flex-direction:column;align-items:flex-start}
+.deep-floating-back{right:15px;bottom:15px}.deep-floating-back button{padding:10px 16px;font-size:.8rem}
+}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+</head>
+<body data-theme="dark">
+
+<div class="progress-bar" id="progressBar" style="width:0%"></div>
+
+<nav class="navbar">
+  <div class="nav-left">📖 现代中医研究与国际化发展</div>
+  <div class="nav-right">
+    <button onclick="toggleTheme()" title="切换主题 (Ctrl+D)">🌓 主题</button>
+    <button onclick="openSearch()" title="搜索 (Ctrl+K)">🔍 搜索</button>
+  </div>
+</nav>
+
+<div class="sidebar">
+  <a href="#" class="sidebar-back-link" onclick="event.preventDefault();var w=window.open('tcm_learning.html#kc-p4_2','plan_main');if(w)w.focus()">← 返回主方案</a>
+  <h3>📖 目录导航</h3>
+  <ul class="sidebar-nav">
+    <li><a href="#md-00-overview">总览：五大支柱与国际化版图</a></li>
+    <li><a href="#md-01-history">历史演进：从经验医学到科学验证</a></li>
+    <li><a href="#md-02-basic">基础研究：经络·证候·药理</a></li>
+    <li><a href="#md-03-clinical">临床研究：循证中医的崛起</a></li>
+    <li><a href="#md-04-tech">技术融合：AI辅助辨证与智能诊断</a></li>
+    <li><a href="#md-05-intl">国际化进程：WHO ICD-11到海外立法</a></li>
+    <li><a href="#md-06-acupuncture">针灸全球推广</a></li>
+    <li><a href="#md-07-cases">案例研究：标志性事件</a></li>
+    <li><a href="#md-08-pharma">中药现代化：从单成分到网络药理学</a></li>
+    <li><a href="#md-09-education">教育传承：师承·院校·数字化</a></li>
+    <li><a href="#md-10-standard">标准化挑战：辨证论治的客观化困境</a></li>
+    <li><a href="#md-11-myths">常见误区：七种错误二分法</a></li>
+    <li><a href="#md-12-debate">争议讨论：现代化路线之争</a></li>
+    <li><a href="#md-13-path">学习路径：12周实践指南</a></li>
+    <li><a href="#md-14-glossary">术语表</a></li>
+    <li><a href="#md-15-outlook">展望：未来十年趋势</a></li>
+  </ul>
+</div>
+
+<div class="content-area">
+<div class="search-overlay" id="searchOverlay">
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="搜索模块内容..." oninput="doSearch()" onkeydown="if(event.key==='Escape')closeSearch()">
+    <div class="search-results" id="searchResults"></div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="hero">
+    <h1>现代中医研究与国际化发展</h1>
+    <div class="tags">
+      <span>🔬 前沿</span><span>循证中医</span><span>WHO ICD-11</span><span>中药现代化</span><span>AI辅助辨证</span><span>针灸全球化</span>
+    </div>
+  </div>
+
+  <div class="meta-card">
+    <div class="meta-item"><div class="val">16</div><div class="lbl">模块</div></div>
+    <div class="meta-item"><div class="val">~35min</div><div class="lbl">阅读时间</div></div>
+    <div class="meta-item"><div class="val">5</div><div class="lbl">交互图表</div></div>
+    <div class="meta-item"><div class="val">3</div><div class="lbl">核心模型</div></div>
+  </div>
+
+  <div class="journey-bar" id="journeyBar">
+    <div class="journey-path">
+      <span class="journey-icon">📍</span>
+      <span class="journey-plan" onclick="var w=window.open('tcm_learning.html#kc-p4_2','plan_main');if(w)w.focus()">中医与养生 系统学习方案</span>
+      <span class="journey-sep">〉</span>
+      <span class="journey-phase">进阶拓展与前沿趋势</span>
+      <span class="journey-sep">〉</span>
+      <span class="journey-kp">现代中医研究与国际化发展</span>
+      <span class="journey-pos">(2/2)</span>
+    </div>
+    <div class="journey-nav">
+      <span class="journey-prev" title="前置: p4_1 情志养生与中医心理学">← 前置</span>
+      <span class="journey-divider">|</span>
+      <span class="journey-next" title="后续: 无">后续 →</span>
+    </div>
+  </div>
+
+  <div class="module" id="md-00-overview">
+    <h2><span class="m-tag">总览</span> 现代中医研究的五大支柱与国际化版图 <span class="m-time">⏱️ ~2分钟</span></h2>
+    <div class="hook">"中医的生命力在于疗效，而疗效的可信度在于证据"——这条原则正在重塑整个中医研究生态</div>
+    <div class="content">
+      <p>现代中医研究是一个<strong>多维度并行推进</strong>的巨大工程，涵盖五个核心领域：<em>基础研究</em>（经络实质、证候本质、药理机制）、<em>临床研究</em>（RCT、循证中医、系统评价）、<em>技术应用</em>（AI辅助辨证、智能诊断设备）、<em>国际化推广</em>（WHO ICD-11、海外立法、教育输出）、以及<em>教育传承</em>（师承与院校融合、经典数字化）。</p>
+      <p>理解现代中医研究，不能将其视为"古今对立"——而是<strong>传统智慧与现代方法论之间的一场深度对话</strong>。这场对话的目标不是"证明中医正确"，而是"用全人类都能理解的语言，翻译中医两千年的临床智慧"。</p>
+      <div class="chart-wrap"><div id="chart-radar"></div><div class="ch-cap">现代中医研究五大领域发展指数</div></div>
+      <div class="callout callout-info">
+        <strong>💡 学习建议：</strong>本研读资料旨在提供"看地图"的能力——了解中医现代化和国际化的全景格局。建议结合p4_1（情志养生与中医心理学）一起学习，因为两部分共同构成了中医在当代发展的"两条腿"：一条向内（心身调理），一条向外（科学化与全球化）。
+      </div>
+    </div>
+    <div class="takeaway">中医现代化不是"古今对立"，而是"翻译"——用现代科学语言描述中医两千年的临床发现。五大领域各有进展，但核心瓶颈始终是：证据的质与量。</div>
+  </div>
+
+  <div class="module" id="md-01-history">
+    <h2><span class="m-tag">历史</span> 从经验医学到科学验证的范式转型 <span class="m-time">⏱️ ~2.5分钟</span></h2>
+    <div class="hook">"废医存药"还是"中西医汇通"？——这一争论已经持续了150年，而上一个十年给出的答案是：既非废也非存，而是"转译"</div>
+    <div class="content">
+      <p>中医现代化的历史是一部充满张力的思想史，经历了<strong>四个关键转折点</strong>：</p>
+      <div class="timeline">
+        <div class="timeline-item"><span class="timeline-year">1912-1949</span><span class="timeline-text"><strong>存废之争期</strong>——北洋政府将中医排除在医学教育体系之外；1929年南京政府通过"废止旧医案"（后因全国抗议撤回）。中医面临生存危机，但也激发了自身理论体系的反思和系统整理。</span></div>
+        <div class="timeline-item"><span class="timeline-year">1950-1978</span><span class="timeline-text"><strong>建制化与中西医结合期</strong>——新中国将中医纳入国家医疗体系，成立中医学院和研究院。"中西医结合"方针推动了针刺麻醉、青蒿素研究等标志性成果。</span></div>
+        <div class="timeline-item"><span class="timeline-year">1979-2000</span><span class="timeline-text"><strong>改革开放与国际化萌芽期</strong>——WHO首次承认针灸对43种疾病的有效性（1979年），中医开始走向世界。1985年，青蒿素类药物的发现获国际认可。</span></div>
+        <div class="timeline-item"><span class="timeline-year">2001-至今</span><span class="timeline-text"><strong>循证化与深度国际化期</strong>——WHO将中医纳入ICD-11传统医学章节（2019年实施）。中医RCT研究呈指数级增长。屠呦呦获诺贝尔奖标志着中药现代研究被国际最高学术标准认可。</span></div>
+      </div>
+      <p>贯穿这一百多年历史的核心问题是：<strong>如何在一个以"可重复、可量化、可证伪"为金标准的现代科学框架中，安放一个以"个体化辨证、整体动态观"为特色的传统医学体系？</strong></p>
+      <div class="formula-block">
+        中医现代化发展指数 M = α·E(证据积累) + β·T(技术融合) + γ·A(国际接受度)
+        <span class="f-cap">α=0.4, β=0.3, γ=0.3 — 权重反映了当前阶段"证据为王"的趋势</span>
+      </div>
+    </div>
+    <div class="takeaway">中医现代化的百年史不是"传统vs现代"的零和博弈，而是一场持续的"转译"——从存废之争到建制化，从开放到循证化，每一步都在寻找传统智慧与现代方法论之间的翻译接口。</div>
+  </div>
+
+  <div class="module" id="md-02-basic">
+    <h2><span class="m-tag">基础</span> 经络实质·证候本质·中药药理 <span class="m-time">⏱️ ~3分钟</span></h2>
+    <div class="hook">经络到底是什么？——2021年《自然》子刊的一篇论文给出了令人震惊的答案：它可能是"间质通道"——一种此前被忽视的、遍布全身的流体传输网络</div>
+    <div class="content">
+      <p><strong>方向一：经络实质的探索</strong></p>
+      <p>2021年，哈佛医学院和北京医院的研究团队在《Nature》子刊发表研究：使用新型共聚焦激光显微内镜技术，在人体内发现了一种与经络循行路线高度吻合的<em>间质流体通道网络</em>——由胶原蛋白束构成，内含组织液，充当"体内高速公路"运送信号分子和代谢产物。此外，经穴的低电阻特性、高发声特性已被大量研究重复证实。</p>
+      <p><strong>方向二：证候本质的研究</strong></p>
+      <p>"<em>肝气郁结</em>"与HPA轴功能紊乱、交感神经过度激活相关；"<em>脾气虚</em>"与肠道菌群失调、消化酶活性降低、线粒体能量代谢障碍相关；"<em>肾阳虚</em>"与下丘脑-垂体-甲状腺轴功能减退、线粒体氧化磷酸化水平降低相关。基于代谢组学和蛋白质组学的证候生物学基础研究正在快速推进。</p>
+      <p><strong>方向三：中药药理机制</strong></p>
+      <p>从单成分研究（如青蒿素抗疟）到网络药理学——中药研究经历了从"单靶点"到"多靶点网络"的范式升级。网络药理学通过构建"<em>成分-靶点-通路-疾病</em>"的复杂网络，揭示复方的整体作用机制。例如，补中益气汤的98种活性成分作用于217个靶点，涉及免疫调节、能量代谢、抗炎等多个通路。</p>
+      <div class="chart-wrap"><div id="chart-pharma"></div><div class="ch-cap">中药研究范式演进</div></div>
+    </div>
+    <div class="takeaway">经络的间质通道发现、证候的biomarker研究、网络药理学的范式升级——三个方向共同指向一个结论：中医理论不是"前科学的猜想"，而是可以用现代工具逐步解析的复杂系统。</div>
+  </div>
+
+  <div class="module" id="md-03-clinical">
+    <h2><span class="m-tag">临床</span> 循证中医的崛起与RCT实践 <span class="m-time">⏱️ ~3分钟</span></h2>
+    <div class="hook">"RCT是检验疗效的黄金标准"——但中医的辨证论治恰恰是"反标准化"的。当个体化遇到标准化，中医的循证之路该如何走？</div>
+    <div class="content">
+      <p>截至2025年，PubMed收录的中医相关RCT研究已超过<strong>25,000项</strong>，年增长率约15%。但CONSORT声明合规率不到40%。</p>
+      <p><strong>循证中医的三种策略：</strong></p>
+      <p>① <em>病证结合模式</em>——确定西医疾病诊断，再根据中医证型进行分层RCT。这是目前最常用的研究设计。</p>
+      <p>② <em>N-of-1试验</em>——针对单个患者进行交叉设计的随机对照试验。天然适合中医的个体化治疗逻辑，但推广难度大。</p>
+      <p>③ <em>实用临床试验（PCT）</em>——在真实临床环境下比较不同中医方案的效果，允许医生根据辨证灵活调整方剂。</p>
+      <div class="table-container">
+        <div class="table-caption">里程碑级中医RCT研究</div>
+        <table>
+          <tr><th>研究</th><th>年份</th><th>期刊</th><th>结论</th></tr>
+          <tr><td>芪苈强心胶囊治疗慢性心衰</td><td>2013</td><td>JACC</td><td>降低NT-proBNP水平（n=512）</td></tr>
+          <tr><td>麻杏石甘汤-银翘散治疗H1N1</td><td>2011</td><td>Ann Intern Med</td><td>退热时间优于奥司他韦（n=410）</td></tr>
+          <tr><td>针刺治疗慢性稳定性心绞痛</td><td>2019</td><td>JAMA Intern Med</td><td>减少心绞痛发作（n=404）</td></tr>
+          <tr><td>针灸治疗偏头痛</td><td>2012</td><td>CMAJ</td><td>真针灸优于假针灸（n=480）</td></tr>
+          <tr><td>太极拳改善纤维肌痛</td><td>2010</td><td>NEJM</td><td>太极拳优于有氧运动（n=66）</td></tr>
+        </table>
+      </div>
+      <div class="callout callout-warn">
+        <strong>⚠️ 方法论的阿喀琉斯之踵：</strong>(1)如何制备真正盲法且外观相同的安慰剂；(2)不同中医师的辨证一致性（κ系数仅0.3-0.5）；(3)复合干预的归因困难。
+      </div>
+    </div>
+    <div class="takeaway">循证中医不是"全盘RCT化"，而是找到适合中医个体化特征的循证策略——病证结合、N-of-1、PCT三种路径各有适用场景，关键是匹配研究问题与研究设计。</div>
+  </div>
+
+  <div class="module" id="md-04-tech">
+    <h2><span class="m-tag">技术</span> AI辅助辨证与智能诊断 <span class="m-time">⏱️ ~2.5分钟</span></h2>
+    <div class="hook">当卷积神经网络学会"望舌"，当可穿戴设备24小时记录脉象——中医诊断正在经历一场不声张的技术革命</div>
+    <div class="content">
+      <p>技术融合是中医现代化进展<strong>最快</strong>的领域——因为它不需要在理论上争辩"中医是否科学"，只管把中医诊断信息"量化"。</p>
+      <p><strong>AI舌诊：</strong>深度学习模型在<em>舌色分类</em>上准确率达92%，<em>舌苔厚薄</em>判定达88%，<em>瘀斑识别</em>达94%——均超过中位数中医师的目视判断一致性。</p>
+      <p><strong>脉诊传感器：</strong>使用压电传感器阵列模拟"三指布指"，同时记录<em>寸、关、尺三部九候</em>的压力脉波。当前挑战：混合脉象的机器学习识别仍不如有经验的中医师。</p>
+      <p><strong>AI辅助辨证系统：</strong>2024年北京中医药大学与清华大学联合开发的"华佗GPT"在中医执业医师模拟考试中取得了82%的正确率。但这只是"辅助"——最终辨证仍需中医师确认。</p>
+      <div class="compare-grid">
+        <div class="compare-card"><h4>👁️ AI望诊</h4><p><strong>成熟度：</strong>⭐⭐⭐⭐ 高<br>舌象识别准确率>90%，面色分析>85%</p></div>
+        <div class="compare-card"><h4>🖐️ AI切诊</h4><p><strong>成熟度：</strong>⭐⭐⭐ 中<br>单一脉象识别率高，复合脉象仍是瓶颈</p></div>
+        <div class="compare-card"><h4>🗣️ AI问诊</h4><p><strong>成熟度：</strong>⭐⭐⭐⭐ 高<br>结构化问诊已达可用水平</p></div>
+        <div class="compare-card"><h4>🧠 AI辨证</h4><p><strong>成熟度：</strong>⭐⭐ 低-中<br>简单证型可辨，复杂兼证仍在研发</p></div>
+      </div>
+    </div>
+    <div class="takeaway">AI+中医的核心价值不是"替代中医师"，而是"量化四诊信息+提供统计参考"——将主观的望闻问切转化为可重复的客观数据，这是解决辨证一致性问题的技术路径。</div>
+  </div>
+
+  <div class="module" id="md-05-intl">
+    <h2><span class="m-tag">国际化</span> WHO ICD-11到海外中医立法 <span class="m-time">⏱️ ~2.5分钟</span></h2>
+    <div class="hook">2019年5月25日，第72届世界卫生大会审议通过ICD-11——这是中医第一次拥有全球统一的疾病和证候分类编码</div>
+    <div class="content">
+      <p><strong>层面一：WHO的制度性承认</strong></p>
+      <p>ICD-11首次设立"传统医学"章节（第26章），收录了<em>150条传统医学证候</em>和<em>150条中医干预方式</em>。配套标准还有：《针灸穴位国际标准化方案》（361个标准穴位定位）、ISO/TC249中医药国际标准（已发布85项）。</p>
+      <p><strong>层面二：海外立法与监管</strong></p>
+      <p>截至2025年：<em>针灸</em>在全球<strong>193个</strong>国家/地区有不同程度的法律认可（其中103个有明确的针灸立法）；<em>中药</em>在<strong>75个</strong>国家/地区以不同形式注册；<em>中医师执业</em>在<strong>42个</strong>国家/地区获得合法地位。各国监管模式差异巨大：澳大利亚采用"AHPRA国家注册"模式，美国采用"NCCAOM认证+各州自主"模式，德国采用"Heilpraktiker+医师附加资格"双轨制。</p>
+      <p><strong>层面三：国际学术地位</strong></p>
+      <p>中医论文的国际发表量2000-2025年增长了<strong>15倍</strong>。但质量分布呈"金字塔"：顶刊年均<5篇，大量集中在影响因子3-5的专科期刊。针灸相关研究是唯一能常态化进入顶刊的中医子领域。</p>
+      <div class="chart-wrap"><div id="chart-intl"></div><div class="ch-cap">中医国际化进展（按指标）</div></div>
+    </div>
+    <div class="takeaway">ICD-11给了中医一个"统计编码座位"，而不是"疗效金牌"。国际化的实质进展在针灸立法和教育输出，学术认可仍需更多高质量RCT支撑。</div>
+  </div>
+
+  <div class="module" id="md-06-acupuncture">
+    <h2><span class="m-tag">针灸</span> 最成功的中医国际化故事 <span class="m-time">⏱️ ~2分钟</span></h2>
+    <div class="hook">1971年——《纽约时报》记者James Reston在北京阑尾切除术后接受了针灸止痛治疗，他在头版文章中写道："针刺确实有效"——点燃了美国第一轮"针灸热"</div>
+    <div class="content">
+      <p><strong>为什么是针灸最先走出去？</strong></p>
+      <p>① <em>操作直观、非药物</em>——不涉及复杂的中药复方安全性审查；② <em>疗效可实证</em>——针刺镇痛的神经生物学机制已被大量研究阐明（内啡肽释放、DNIC、中枢神经去抑制）；③ <em>与西医兼容</em>——针灸可以作为"补充"而非"替代"；④ <em>WHO背书</em>——1979年WHO首次发布《针灸适应症清单》。</p>
+      <div class="process-flow">
+        <div class="process-step"><div class="psn">1970s</div><div class="psl">针刺麻醉热</div></div>
+        <div class="process-arrow">→</div>
+        <div class="process-step"><div class="psn">1979</div><div class="psl">WHO首次认可</div></div>
+        <div class="process-arrow">→</div>
+        <div class="process-step"><div class="psn">1997</div><div class="psl">NIH共识声明</div></div>
+        <div class="process-arrow">→</div>
+        <div class="process-step"><div class="psn">2010s</div><div class="psl">纳入多国医保</div></div>
+        <div class="process-arrow">→</div>
+        <div class="process-step"><div class="psn">2020s</div><div class="psl">神经机制解密</div></div>
+      </div>
+      <p><strong>针灸研究的神经科学前沿：</strong>2020-2025年间，哈佛、MIT和复旦大学的联合研究揭示了针刺效应的三条核心通路：(1)<em>躯体-自主神经反射</em>——针刺足三里通过迷走神经激活肾上腺抗炎；(2)<em>下行疼痛抑制通路</em>——针刺合谷穴激活PAG→RVM→脊髓背角闸门控制；(3)<em>节段性体表-内脏反射</em>——特定脊髓节段针刺调节对应内脏功能。</p>
+    </div>
+    <div class="takeaway">针灸国际化的成功经验：找到一个机制可解释、疗效可RCT验证、与西医体系兼容的"切入点"，以此为突破口带动整体的国际认可。</div>
+  </div>
+
+  <div class="module" id="md-07-cases">
+    <h2><span class="m-tag">案例</span> 中医国际化进程中的标志性事件 <span class="m-time">⏱️ ~3分钟</span></h2>
+    <div class="hook">2015年12月10日，斯德哥尔摩——84岁的屠呦呦从瑞典国王手中接过诺贝尔奖章。她说："青蒿素是传统中医药送给世界人民的礼物"</div>
+    <div class="content">
+      <p><strong>👑 案例一：青蒿素——中药现代化的"天花板"成就</strong></p>
+      <p>1972年，屠呦呦团队从东晋葛洪《肘后备急方》"青蒿一握，以水二升渍，绞取汁，尽服之"获得灵感——意识到高温提取会破坏活性成分，改用低温乙醚提取，成功分离出青蒿素。这一"转译性阅读"是古典文献指导现代科研的典范。青蒿素及其衍生物在过去30年中挽救了数百万疟疾患儿的生命。</p>
+      <p><strong>⚖️ 案例二：马兜铃酸事件——中药安全性的警钟</strong></p>
+      <p>1990年代，比利时一家减肥诊所使用含广防己（含马兜铃酸）的中草药制剂，约100名女性患者中出现快速进展的终末期肾病。后续研究发现马兜铃酸具有强致癌性。该事件导致全球多个国家对含马兜铃酸的中药实施禁令，在西方公众中强化了"中药不安全"的刻板印象。</p>
+      <p><strong>🌍 案例三：连花清瘟的COVID-19历程</strong></p>
+      <p>2020年COVID-19疫情期间，连花清瘟胶囊作为推荐中成药被广泛使用。一项纳入284例患者的多中心RCT显示：连花清瘟可缩短发热时间1.5天。但方法学质量受到Cochrane协作组的审慎评估——部分研究存在随机化不充分、未设安慰剂对照等缺陷。</p>
+    </div>
+    <div class="takeaway">三个案例分别代表了中医国际化的三种模式：成功转译（青蒿素）、安全教训（马兜铃酸）、循证困境（连花清瘟）——它们共同构成了中医走向世界的完整叙事。</div>
+  </div>
+
+  <div class="module" id="md-08-pharma">
+    <h2><span class="m-tag">药理</span> 从单成分提取到网络药理学 <span class="m-time">⏱️ ~2.5分钟</span></h2>
+    <div class="hook">一味"丹参"——传统认为是"活血化瘀"的良药。现代研究发现：丹参含有50多种活性成分，作用于NF-κB、TGF-β、PI3K/Akt等十几个信号通路——这不是"一种药一个靶点"，这是"一味中药就是一个复方"</div>
+    <div class="content">
+      <p><strong>三大现代化路径：</strong></p>
+      <p>① <em>单成分药物开发</em>——从药材中分离纯化单一活性成分。成功案例：青蒿素、丹参酮IIA磺酸钠、苦参碱。局限：丢失了复方配伍的协同效应。</p>
+      <p>② <em>指纹图谱质量控制</em>——用HPLC生成"化学成分指纹图谱"，确保不同批次产品的一致性。"色谱指纹图谱+多指标成分含量测定"已成为《中国药典》标准。但一致性不等于有效性。</p>
+      <p>③ <em>网络药理学与多组学整合</em>——最前沿的方向。流程：药材→化学成分鉴定(LC-MS)→靶点预测(分子对接)→靶点-通路富集分析(KEGG/GO)→"成分-靶点-通路-疾病"网络构建→关键节点实验验证。这种方法<strong>不试图将复方简化为单一成分</strong>，而是<strong>用复杂系统科学来理解复杂的复方</strong>。</p>
+      <div class="formula-block">
+        中药复方网络药理学工作流
+        <span class="f-cap">药材→LC-MS鉴定→靶点预测→KEGG/GO富集→网络构建→实验验证</span>
+      </div>
+    </div>
+    <div class="takeaway">中药现代化的本质不是"把中药变成西药"，而是"为中药的复方复杂性找到合适的科学表达工具"。网络药理学+系统生物学是目前最接近这一目标的工具组合。</div>
+  </div>
+
+  <div class="module" id="md-09-education">
+    <h2><span class="m-tag">教育</span> 师承制度·院校教育·经典数字化 <span class="m-time">⏱️ ~2分钟</span></h2>
+    <div class="hook">"读经典、跟名师、做临床"——九个字概括了中医教育的核心路径。但在AI时代，"跟名师"能不能变成"跟AI名师"？答案是：不能完全代替，但可以前所未有地放大</div>
+    <div class="content">
+      <p><strong>院校教育体系：</strong>中国现有24所独立设置的中医药大学，每年培养约5万名中医类本科毕业生。课程体系为"三三制"：1/3中医经典与临床、1/3西医基础与临床、1/3通识教育。核心矛盾：五年本科很难同时培养"扎实的中医辨证能力"和"必要的西医基础知识"。</p>
+      <p><strong>师承制度的现代化转型：</strong>"<em>数字化师承</em>"模式：将名老中医的诊疗全过程通过录像+传感器完整记录，建立"数字医案库"。广东省中医院的名医工作室项目已积累了超过<strong>10,000例</strong>名医完整诊疗过程的数字档案。</p>
+      <p><strong>经典数字化工程：</strong>《中华医藏》收录自战国至民国的<strong>2,289种</strong>中医典籍，全部高精度扫描并建立全文检索数据库。配合AI技术：古籍中的方剂、药物、症状描述被NLP模型自动提取和结构化。</p>
+    </div>
+    <div class="takeaway">中医教育的未来不是"师承vs院校"的二选一，而是"数字化师承"——用技术放大名师的隐性知识传递，同时保持经典研读和临床实践的不可替代性。</div>
+  </div>
+
+  <div class="module" id="md-10-standard">
+    <h2><span class="m-tag">标准</span> 辨证论治的客观化困境 <span class="m-time">⏱️ ~2.5分钟</span></h2>
+    <div class="hook">同一个患者——请五位中医师分别辨证——结果可能是：肝气郁结、肝郁脾虚、气滞血瘀、肝胃不和、少阳证。五个答案中只有一个重合——这不是医生水平问题，这是中医辨证本身的可重复性危机</div>
+    <div class="content">
+      <p>辨证一致性是中医现代化和国际化的<strong>最核心瓶颈</strong>。多项"一致性研究"显示：中医师之间辨证的<em>κ系数</em>通常在<strong>0.3-0.5</strong>之间（κ>0.8为高度一致，κ<0.4为低度一致）。</p>
+      <p><strong>不一致的来源：</strong>(1)<em>四诊信息采集的主观差异</em>；(2)<em>辨证权重的个性化</em>——有人更重视舌象，有人更重视脉象；(3)<em>证型边界的模糊性</em>——"肝气郁结"和"肝郁脾虚"之间是渐进过渡；(4)<em>学术流派的差异</em>。</p>
+      <p><strong>解决路径：</strong>(1)<em>标准操作流程(SOP)</em>——将四诊的采集方法标准化；(2)<em>辨证量表</em>——将每种证型分解为可逐项评分的诊断指标；(3)<em>AI辅助参考</em>——AI提供"基于海量医案统计的最可能证型排序"，中医师在AI参考下做出最终辨证。</p>
+      <div class="callout callout-warn">
+        <strong>⚠️ 深层矛盾：</strong>提高辨证一致性可能导致"过度标准化"——当中医辨证变成"勾选量表+AI输出"后，它可能失去那些无法被标准化仪器捕捉的"神"的信息。如何在不杀死"中医之魂"的前提下提高一致性——这是最难的平衡题。
+      </div>
+    </div>
+    <div class="takeaway">辨证一致性（κ=0.3-0.5）是中医现代化的核心瓶颈。解决路径不是"全盘标准化"而是"AI辅助+量表参考+中医师最终判断"的三层架构——兼顾客观性和个体性。</div>
+  </div>
+
+  <div class="module" id="md-11-myths">
+    <h2><span class="m-tag">误区</span> 关于"中医是否科学"的七种错误二分法 <span class="m-time">⏱️ ~3分钟</span></h2>
+    <div class="hook">"中医不是科学，因为阴阳五行不能被实验证明"——这句话本身包含了一个未被检视的前提：只有能被双盲实验验证的医学体系才具有价值</div>
+    <div class="content">
+      <p><strong>误区一："中医不是科学"</strong>→ 纠正：将"是否科学"替换为多指标评估——哪些主张已被验证？哪些正在被验证？哪些目前无法用现有方法验证但临床有效？第三类不是"伪科学"，而是"<em>科学工具尚不足以解析的复杂系统</em>"。</p>
+      <p><strong>误区二："屠呦呦得诺贝尔奖证明中医是科学"</strong>→ 纠正：青蒿素的研究方法论是<strong>完全现代的化学分离+临床试验</strong>。它证明的是"中医古籍中记载的某些草药确实含有活性成分"——而非"中医辨证理论体系完全正确"。</p>
+      <p><strong>误区三："没有RCT证据 = 无效"</strong>→ 纠正：<em>absence of evidence is not evidence of absence</em>。"缺少RCT证据"反映的是研究资源的不足，不一定是疗效的缺失。</p>
+      <p><strong>误区四："中药是天然的所以安全"</strong>→ 纠正：这是最危险的误区（马兜铃酸事件的血的教训）。<em>天然≠安全</em>。10,000多种中药材中，完成了系统毒理学评估的不到5%。</p>
+      <p><strong>误区五："中医现代化就是废医存药"</strong>→ 纠正：将"肝气郁结"翻译为"HPA轴失调+交感神经激活"不会废除中医理论——而是增加了一个现代科学的解释层。</p>
+      <p><strong>误区六："针灸是安慰剂效应"</strong>→ 纠正：多项设置了"假针灸"对照的高质量RCT显示：真针灸在慢性疼痛上的效应量中等（Cohen's d≈0.3-0.5），对行为调节类差异不显著。结论不是"无效"或"完全有效"——而是"疗效取决于病种和穴位选择的精准性"。</p>
+      <p><strong>误区七："国际认可 = 中医比西医好"</strong>→ 纠正：WHO将中医纳入ICD-11的实质是"承认中医作为一种传统医学体系的<em>客观存在和分类价值</em>"——而非"WHO推荐用中医替代西医"。</p>
+    </div>
+    <div class="takeaway">关于中医的讨论，最需要警惕的不是"反对中医"或"支持中医"的立场，而是将复杂问题简化为非此即彼的二分法——每一种二分法都遮蔽了更重要的真相。</div>
+  </div>
+
+  <div class="module" id="md-12-debate">
+    <h2><span class="m-tag">争议</span> 中医现代化的路线之争 <span class="m-time">⏱️ ~2.5分钟</span></h2>
+    <div class="hook">"废医验药"vs"系统保留"vs"选择性转译"——这三条路线构成了中医现代化最核心的路线之争，且至今没有共识</div>
+    <div class="content">
+      <div class="compare-grid">
+        <div class="compare-card"><h4>路线A：废医验药</h4><p>抛弃中医理论，只保留中药材中经过科学验证的有效成分。支持：青蒿素的成功证明了这条路可行。反对：废医之后的"验药"完全脱离复方配伍逻辑——单成分药物已经不是"中药"。</p></div>
+        <div class="compare-card"><h4>路线B：系统保留</h4><p>中医是自洽的完整体系，其理论不需要也不应该被"还原"为现代科学术语。支持：辨证论治是超越RCT的个体化医学。反对：拒绝现代化等于慢性消亡——没有RCT就没有医保和法律的合法性。</p></div>
+      </div>
+      <div class="compare-grid">
+        <div class="compare-card"><h4>路线C：选择性转译</h4><p>保留辨证论治和整体观框架，将其中可被现代科学方法验证的部分进行"转译"——用现代生物医学语言描述中医的临床发现。这是当前大多数中医研究机构的实际操作路线。</p></div>
+        <div class="compare-card"><h4>超越路线之争</h4><p>将"肝气郁结"翻译为"HPA轴+交感神经+情绪压抑"——不等于"废除肝气郁结"的概念，而是给中医术语增加了一个现代科学的外文译本。翻译不消灭原文——它创造新的理解通道。</p></div>
+      </div>
+    </div>
+    <div class="takeaway">三条路线将并行演进：废医验药派为青蒿素2.0提供候选；系统保留派保持辨证论治的"火种"；选择性转译派成为两者之间的翻译桥梁。最理性的期待不是"谁会赢"，而是三者互相借用方法和成果。</div>
+  </div>
+
+  <div class="module" id="md-13-path">
+    <h2><span class="m-tag">路径</span> 跟进中医前沿研究的12周实践指南 <span class="m-time">⏱️ ~2分钟</span></h2>
+    <div class="hook">"我对中医现代化感兴趣，但我不知道该关注什么"——以下是一个为期12周的最低可行学习路径</div>
+    <div class="content">
+      <p><strong>阶段一：建立信息获取系统（第1-2周）</strong></p>
+      <p>配置信息管道：PubMed搜索策略设置为每周邮件提醒；中文信息源：中国中医药报、中医智库App；国际组织动态：WHO传统医学官网、ISO/TC249标准发布页面。</p>
+      <p><strong>阶段二：核心文献速读（第3-8周）</strong></p>
+      <p>每周一篇关键综述：(1)BMJ针灸证据综述；(2)中药网络药理学方法论综述；(3)WHO Traditional Medicine Strategy 2014-2023；(4)ICD-11传统医学章节全文；(5)青蒿素发现过程的完整历史。</p>
+      <p><strong>阶段三：选择专题深挖（第9-12周）</strong></p>
+      <p>根据个人兴趣选择一个子方向深耕：(1)循证中医——学习CONSORT声明、Cochrane Risk of Bias工具；(2)AI+中医——学习深度学习在医学图像分析中的应用；(3)中药现代化——学习网络药理学和分子对接的基本方法。</p>
+    </div>
+    <div class="takeaway">跟进前沿不需要"全知全能"——建立信息管道→速读核心文献→选择一个方向深挖，这三步足以让你在12周内建立起对中医现代化全貌的基本认知。</div>
+  </div>
+
+  <div class="module" id="md-14-glossary">
+    <h2><span class="m-tag">术语</span> 现代中医研究关键术语 <span class="m-time">⏱️ ~2分钟</span></h2>
+    <div class="hook">"循证中医""网络药理学""N-of-1试验"——这些不同学科交叉产生的新术语是理解现代中医研究的语言基础设施</div>
+    <div class="content">
+      <div class="term-grid">
+        <div class="term-card"><div class="tn">RCT（随机对照试验）</div><div class="td">将受试者随机分配至治疗组和对照组，比较两组差异。中医RCT的难点在于安慰剂的盲法设计。</div></div>
+        <div class="term-card"><div class="tn">CONSORT声明</div><div class="td">RCT报告规范的国际标准。评估中医RCT质量的第一步。</div></div>
+        <div class="term-card"><div class="tn">ICD-11</div><div class="td">《国际疾病分类》第11版。首次设立传统医学章节，使中医证候有了全球统一编码。</div></div>
+        <div class="term-card"><div class="tn">网络药理学</div><div class="td">通过构建"成分-靶点-通路-疾病"多层面网络来揭示药物作用机制。最契合中药"多成分多靶点"特性的方法。</div></div>
+        <div class="term-card"><div class="tn">N-of-1试验</div><div class="td">针对单个患者的交叉随机试验。天然适合中医的个体化逻辑。</div></div>
+        <div class="term-card"><div class="tn">指纹图谱</div><div class="td">利用色谱/光谱技术生成中药材的"化学成分模式图"——像指纹一样独特。</div></div>
+        <div class="term-card"><div class="tn">κ系数（Cohen's Kappa）</div><div class="td">评估不同评估者之间一致性的统计量。中医辨证一致性研究中常用。</div></div>
+        <div class="term-card"><div class="tn">ISO/TC249</div><div class="td">国际标准化组织下设的中医药技术委员会。负责制定中药、针灸的国际标准。</div></div>
+        <div class="term-card"><div class="tn">HPA轴</div><div class="td">下丘脑-垂体-肾上腺轴——人体核心应激反应系统。中医"肝郁""肾虚"等证候与HPA轴功能紊乱密切相关。</div></div>
+        <div class="term-card"><div class="tn">NCCAOM</div><div class="td">美国国家针灸与东方医学认证委员会。进入美国中医执业的必备认证。</div></div>
+      </div>
+    </div>
+    <div class="takeaway">掌握这些术语是阅读现代中医研究文献的"门票"——它们是中医与现代科学对话的"翻译词汇表"。</div>
+  </div>
+
+  <div class="module" id="md-15-outlook">
+    <h2><span class="m-tag">展望</span> 未来十年中医研究的关键趋势 <span class="m-time">⏱️ ~2分钟</span></h2>
+    <div class="hook">"预测未来最好的方式就是参与未来的创造"——对于中医现代化，这句话尤其适用</div>
+    <div class="content">
+      <p><strong>未来十年五大趋势预测：</strong></p>
+      <p>① <em>AI+中医将进入"辅助决策"阶段</em>——AI提供基于百万级医案统计的多证型概率排序和高一致性辅助辨证参考。</p>
+      <p>② <em>可穿戴+中医体质辨识将成为预防医学的入口</em>——智能手表记录HRV+睡眠+活动量→自动体质评估→个性化养生建议。中医"治未病"理念在技术上首次有了大规模落地的可能。</p>
+      <p>③ <em>中药质量标准化将完成第一阶段</em>——指纹图谱+多成分含量测定将成为所有正式中成药的质量标准。</p>
+      <p>④ <em>中医纳入多国医保的进程将加速</em>——在老龄化+慢性病高发的压力下，各国医保系统对低成本补充疗法的接纳度正在提升。</p>
+      <p>⑤ <em>"形神合一"将成为连接中医和心身医学的桥梁</em>——神经影像+肠道微生物组+HPA轴三大研究通路将逐一验证中医"情志-脏腑"理论的生物学基础。</p>
+      <div class="chart-wrap"><div id="chart-future"></div><div class="ch-cap">中医现代化五大趋势影响力预测</div></div>
+      <div class="callout callout-tip">
+        <strong>🔑 个人行动建议：</strong>(1)从业者——学会阅读和评估RCT，注册PubMed Alert；(2)养生爱好者——优先信任有高质量RCT支持的方法，对只靠"古代智慧"背书的产品保持批判性距离；(3)研究者——"选择性转译"是当前最具可行性的路线：找到中医理论中一个具体可操作的概念，用现代方法严格验证。
+      </div>
+    </div>
+    <div class="takeaway">中医现代化的未来不是某一条路线的胜利，而是AI辅助决策、可穿戴体质辨识、中药标准化、医保纳入、心身医学验证五个方向的并行推进——每一个方向都有可能成为下一个"针灸式"的突破口。</div>
+  </div>
+
+</div>
+
+<footer class="journey-footer">
+  <a href="#" class="back-to-plan" onclick="event.preventDefault();var w=window.open('tcm_learning.html#kc-p4_2','plan_main');if(w)w.focus()">🔗 返回学习路线: 中医与养生 系统学习方案 → 进阶拓展与前沿趋势</a>
+  <p style="margin-top:12px;font-size:.72rem;color:var(--text-muted)">
+    本资料是 <strong>中医与养生 系统学习方案</strong> 进阶拓展与前沿趋势阶段的深度研读材料
+  </p>
+</footer>
+
+<div class="deep-floating-back">
+  <button onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 16px rgba(0,0,0,.2)'"
+    onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 12px rgba(0,0,0,.15)'"
+    onclick="event.preventDefault();var w=window.open('tcm_learning.html#kc-p4_2','plan_main');if(w)w.focus()">
+    ← 返回学习方案
+  </button>
+</div>
+</div>
+
+<div class="dd-toast" id="toastEl"><span id="toastMsg"></span></div>
+
+<script>
+var MODULE_IDS = ["md-00-overview","md-01-history","md-02-basic","md-03-clinical","md-04-tech","md-05-intl","md-06-acupuncture","md-07-cases","md-08-pharma","md-09-education","md-10-standard","md-11-myths","md-12-debate","md-13-path","md-14-glossary","md-15-outlook"];
+var SEARCH_INDEX = [
+  {id:"md-00-overview",t:"总览：五大支柱与国际化版图",c:"现代中医研究多维度并行推进"},
+  {id:"md-01-history",t:"历史演进：从经验医学到科学验证",c:"四个关键转折点 存废之争 建制化 循证化"},
+  {id:"md-02-basic",t:"基础研究：经络·证候·药理",c:"间质通道 证候本质 网络药理学 多靶点"},
+  {id:"md-03-clinical",t:"临床研究：循证中医的崛起",c:"RCT 病证结合 N-of-1 实用临床试验"},
+  {id:"md-04-tech",t:"技术融合：AI辅助辨证",c:"AI舌诊 脉诊传感器 华佗GPT 深度学习"},
+  {id:"md-05-intl",t:"国际化进程：WHO ICD-11",c:"ICD-11 海外立法 AHPRA NCCAOM ISO/TC249"},
+  {id:"md-06-acupuncture",t:"针灸全球推广",c:"针刺麻醉 WHO认可 NIH共识 神经科学前沿"},
+  {id:"md-07-cases",t:"案例研究：标志性事件",c:"青蒿素 马兜铃酸 连花清瘟 COVID-19"},
+  {id:"md-08-pharma",t:"中药现代化：从单成分到网络药理学",c:"单成分开发 指纹图谱 网络药理学 多组学"},
+  {id:"md-09-education",t:"教育传承：师承·院校·数字化",c:"三三制 数字化师承 中华医藏 NLP"},
+  {id:"md-10-standard",t:"标准化挑战：辨证论治的客观化",c:"κ系数0.3-0.5 辨证一致性 SOP 辨证量表"},
+  {id:"md-11-myths",t:"常见误区：七种错误二分法",c:"中医是否科学 安慰剂 天然安全 废医存药"},
+  {id:"md-12-debate",t:"争议讨论：现代化路线之争",c:"废医验药 系统保留 选择性转译 翻译层"},
+  {id:"md-13-path",t:"学习路径：12周实践指南",c:"PubMed CONSORT 网络药理学 分子对接"},
+  {id:"md-14-glossary",t:"术语表",c:"RCT CONSORT ICD-11 网络药理学 N-of-1 κ系数 ISO/TC249 HPA轴"},
+  {id:"md-15-outlook",t:"展望：未来十年趋势",c:"AI辅助决策 可穿戴体质辨识 中药标准化 医保纳入 心身医学"}
+];
+var TOAST_TIMEOUT;
+
+(function(){
+var progressBar=document.getElementById('progressBar');
+var modules=document.querySelectorAll('.module');
+
+var observer=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting)e.target.classList.add('visible')})},{threshold:.15});
+modules.forEach(function(m){observer.observe(m)});
+
+var navLinks=document.querySelectorAll('.sidebar-nav a');
+var navObserver=new IntersectionObserver(function(entries){
+entries.forEach(function(e){
+if(e.isIntersecting){
+navLinks.forEach(function(a){a.classList.remove('active')});
+var act=document.querySelector('.sidebar-nav a[href="#'+e.target.id+'"]');
+if(act)act.classList.add('active');
+}
+})},{threshold:.3});
+modules.forEach(function(m){navObserver.observe(m)});
+
+window.addEventListener('scroll',function(){
+var st=document.documentElement.scrollTop,dh=document.documentElement.scrollHeight-window.innerHeight;
+var pct=dh>0?Math.min(100,(st/dh)*100):0;progressBar.style.width=pct+'%';
+});
+
+window.addEventListener('keydown',function(e){
+if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();openSearch()}
+if((e.ctrlKey||e.metaKey)&&e.key==='d'){e.preventDefault();toggleTheme()}
+if(e.key==='Escape')closeSearch()
+});
+})();
+
+function toggleTheme(){
+var b=document.body,isD=b.getAttribute('data-theme')==='dark';
+b.setAttribute('data-theme',isD?'light':'dark');
+try{localStorage.setItem('slm-theme',isD?'light':'dark')}catch(e){}
+showToast('已切换至'+(isD?'浅色':'深色')+'主题')
+}
+
+function openSearch(){document.getElementById('searchOverlay').classList.add('open');setTimeout(function(){document.getElementById('searchInput').focus()},100)}
+function closeSearch(){document.getElementById('searchOverlay').classList.remove('open');document.getElementById('searchResults').innerHTML=''}
+
+function doSearch(){
+var q=document.getElementById('searchInput').value.toLowerCase(),res=document.getElementById('searchResults');
+if(q.length<2){res.innerHTML='';return}
+var h='';SEARCH_INDEX.forEach(function(item){
+if(item.t.toLowerCase().indexOf(q)>=0||(item.c||'').toLowerCase().indexOf(q)>=0){
+h+='<div onclick="closeSearch();document.getElementById(\''+item.id+'\').scrollIntoView({behavior:\'smooth\'})">'+
+'<strong>'+item.t+'</strong><br><small style="color:var(--text-muted)">'+(item.c||'').substring(0,80)+'</small></div>';
+}
+});
+res.innerHTML=h||'<div style="padding:12px;color:var(--text-muted)">未找到匹配模块</div>'
+}
+
+function showToast(msg){
+var el=document.getElementById('toastEl'),mg=document.getElementById('toastMsg');
+if(!el||!mg)return;mg.textContent=msg;el.style.display='block';el.classList.add('toast-in');
+if(TOAST_TIMEOUT)clearTimeout(TOAST_TIMEOUT);
+TOAST_TIMEOUT=setTimeout(function(){el.style.display='none'},3000);
+}
+
+(function(){
+var t;try{t=localStorage.getItem('slm-theme')}catch(e){}
+if(t==='light')document.body.setAttribute('data-theme','light');
+})();
+
+(function(){
+document.querySelectorAll('.derivation-toggle').forEach(function(btn){
+btn.addEventListener('click',function(){
+var content=this.nextElementSibling;
+if(content){content.classList.toggle('open');this.textContent=content.classList.contains('open')?'▾ 收起推导':'▸ 展开推导'}
+});
+});
+})();
+
+(function initCharts(){
+if(typeof echarts==='undefined')return;
+var charts=[];
+function makeChart(elId,option){
+var el=document.getElementById(elId);
+if(!el)return null;
+var chart=echarts.init(el);
+chart.setOption(option);
+return chart;
+}
+var c1=makeChart('chart-radar',{title:{text:'现代中医研究五大领域发展指数',left:'center',textStyle:{fontSize:14,color:'#b8ad98'}},radar:{center:['50%','55%'],radius:'70%',indicator:[{name:'基础研究',max:100},{name:'临床研究',max:100},{name:'技术应用',max:100},{name:'国际化',max:100},{name:'教育传承',max:100}]},series:[{type:'radar',data:[{value:[60,45,75,80,55],name:'发展成熟度',areaStyle:{color:'rgba(94,168,122,.15)'},lineStyle:{color:'#5ea87a',width:2},itemStyle:{color:'#5ea87a'}}]}]});
+if(c1)charts.push(c1);
+var c2=makeChart('chart-pharma',{title:{text:'中药研究范式演进',left:'center',textStyle:{fontSize:14,color:'#b8ad98'}},xAxis:{type:'category',data:['1990s\n单成分提取','2000s\n指纹图谱','2010s\n系统生物学','2020s\n网络药理学','未来\nAI驱动多组学']},yAxis:{type:'value',name:'方法论复杂度'},series:[{type:'bar',data:[15,35,55,80,100],itemStyle:{color:{type:'linear',x:0,y:0,x2:0,y2:1,colorStops:[{offset:0,color:'#5ea87a'},{offset:1,color:'#3d6b50'}]}},label:{show:true,position:'top',color:'#b8ad98'}}],grid:{left:50,right:30,top:50,bottom:30}});
+if(c2)charts.push(c2);
+var c3=makeChart('chart-intl',{title:{text:'中医国际化进展（按指标）',left:'center',textStyle:{fontSize:14,color:'#b8ad98'}},xAxis:{type:'category',data:['WHO制度认可','海外立法','学术发表','教育输出','产业国际化']},yAxis:{type:'value',name:'成熟度%',max:100},series:[{type:'bar',data:[90,65,45,55,40],itemStyle:{color:{type:'linear',x:0,y:0,x2:0,y2:1,colorStops:[{offset:0,color:'#5ea87a'},{offset:1,color:'#3d6b50'}]}},label:{show:true,position:'top',color:'#b8ad98',formatter:'{c}%'}}],grid:{left:50,right:30,top:50,bottom:30}});
+if(c3)charts.push(c3);
+var c4=makeChart('chart-future',{title:{text:'中医现代化五大趋势影响力预测',left:'center',textStyle:{fontSize:14,color:'#b8ad98'}},radar:{center:['50%','55%'],radius:'70%',indicator:[{name:'AI辅助辨证',max:10},{name:'可穿戴+体质辨识',max:10},{name:'中药质量标准化',max:10},{name:'多国医保纳入',max:10},{name:'心身医学验证',max:10}]},series:[{type:'radar',data:[{value:[9,8,7,6,8],name:'影响力(1-10)',areaStyle:{color:'rgba(94,168,122,.15)'},lineStyle:{color:'#5ea87a',width:2},itemStyle:{color:'#5ea87a'}}]}]});
+if(c4)charts.push(c4);
+window.addEventListener('resize',function(){charts.forEach(function(c){c.resize()})});
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>茶具选择与搭配 — 深度研读</title>
+<style>
+:root{
+--bg-base:#1a1814;
+--bg-card:#282520;
+--bg-elevated:#312d27;
+--bg-overlay:rgba(0,0,0,.6);
+--text-primary:#ede6d8;
+--text-secondary:#b8ad98;
+--text-muted:#8a8070;
+--accent-indigo:#5ea87a;
+--accent-purple:#b898a0;
+--accent-cyan:#7ec8a0;
+--accent-gold:#e6b95a;
+--accent-green:#6ebf8a;
+--accent-red:#d47860;
+--accent-blue:#5ea87a;
+--accent-color:#5ea87a;
+--accent-dark:#3d6b50;
+--border-subtle:rgba(184,173,152,.15);
+--border-glow:rgba(94,168,122,.25);
+--shadow-sm:0 1px 3px rgba(0,0,0,.3);
+--shadow-md:0 4px 16px rgba(0,0,0,.4);
+--shadow-lg:0 8px 32px rgba(0,0,0,.5);
+--shadow-elevated:0 8px 32px rgba(0,0,0,.5);
+--radius-sm:6px;
+--radius-md:10px;
+--radius-lg:16px;
+--font-sans:'Segoe UI',system-ui,-apple-system,sans-serif;
+--font-mono:Consolas,'Cascadia Code',monospace;
+--transition:.25s cubic-bezier(.4,0,.2,1);
+--transition-smooth:.3s ease;
+--nav-h:56px;
+--accent-color-rgb:94,168,122;
+--chart-grid:#2d2924;
+--chart-axis-label:#8a8070;
+}
+[data-theme="light"]{
+--bg-base:#fdfaf3;
+--bg-card:#fffdf7;
+--bg-elevated:#f3efe3;
+--bg-overlay:rgba(0,0,0,.3);
+--text-primary:#1f1a12;
+--text-secondary:#4a4035;
+--text-muted:#5c5042;
+--accent-indigo:#3d6b50;
+--accent-purple:#7a5a6a;
+--accent-cyan:#4a8e6a;
+--accent-gold:#a07828;
+--accent-green:#4a9e66;
+--accent-red:#b05038;
+--accent-blue:#3d6b50;
+--accent-color:#3d6b50;
+--accent-dark:#2a4835;
+--border-subtle:rgba(31,26,18,.08);
+--border-glow:rgba(61,107,80,.25);
+--shadow-sm:0 1px 3px rgba(0,0,0,.06);
+--shadow-md:0 4px 16px rgba(0,0,0,.08);
+--shadow-lg:0 8px 32px rgba(0,0,0,.12);
+--shadow-elevated:0 8px 32px rgba(0,0,0,.12);
+--accent-color-rgb:61,107,80;
+--chart-grid:#ebe5d6;
+--chart-axis-label:#5c5042;
+}
+
+/* ===== Layout & Base ===== */
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font-sans);background:var(--bg-base);color:var(--text-primary);line-height:1.75;overflow-x:hidden}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg-base)}::-webkit-scrollbar-thumb{background:var(--border-glow);border-radius:3px}
+
+/* ===== Navbar ===== */
+.progress-bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--accent-indigo),var(--accent-purple),var(--accent-cyan));z-index:200;transition:width .1s linear}
+.navbar{position:fixed;top:3px;left:0;right:0;z-index:100;background:var(--bg-card);border-bottom:1px solid var(--border-subtle);backdrop-filter:blur(16px);height:var(--nav-h);display:flex;align-items:center;justify-content:space-between;padding:0 24px}
+.nav-left{display:flex;align-items:center;gap:12px;font-size:.82rem;font-weight:600;color:var(--accent-indigo)}
+.nav-right{display:flex;align-items:center;gap:8px}
+.nav-right button{background:var(--bg-elevated);border:1px solid var(--border-subtle);color:var(--text-secondary);padding:6px 12px;border-radius:var(--radius-sm);cursor:pointer;font-size:.75rem;transition:all var(--transition)}
+.nav-right button:hover{border-color:var(--border-glow);color:var(--accent-indigo)}
+
+/* ===== Sidebar ===== */
+.sidebar{position:fixed;left:0;top:0;height:100vh;width:280px;background:var(--bg-base);border-right:1px solid var(--border-subtle);padding:24px;overflow-y:auto;z-index:100;padding-top:calc(var(--nav-h) + 16px)}
+.sidebar h3{font-size:.85rem;font-weight:700;color:var(--text-secondary);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--border-subtle)}
+.sidebar-nav{list-style:none;padding:0}
+.sidebar-nav li{margin-bottom:2px}
+.sidebar-nav a{display:block;padding:8px 12px;border-radius:var(--radius-md);text-decoration:none;font-size:.76rem;color:var(--text-secondary);transition:all var(--transition);border-left:3px solid transparent}
+.sidebar-nav a:hover{background:rgba(94,168,122,.08);color:var(--accent-cyan);border-left-color:var(--accent-cyan)}
+.sidebar-nav a.active{background:rgba(94,168,122,.12);color:var(--accent-blue);font-weight:600;border-left-color:var(--accent-blue)}
+.sidebar-back-link{display:block;padding:8px 12px;margin-bottom:12px;border-radius:8px;background:var(--bg-elevated);color:var(--accent-blue);text-decoration:none;font-size:.78rem;font-weight:600}
+.sidebar-back-link:hover{color:var(--accent-cyan)}
+
+/* ===== Content Area — Fluid Layout ===== */
+.content-area{margin-left:280px;width:calc(100% - 280px)}
+.container{max-width:calc(100% - 48px);margin:0 auto;padding:calc(var(--nav-h) + 24px) 24px 80px}
+
+/* ===== Hero ===== */
+.hero{text-align:center;padding:48px 0 36px}
+.hero h1{font-size:2.2rem;background:linear-gradient(135deg,var(--accent-indigo),var(--accent-purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+.hero .tags{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:12px}
+.hero .tags span{font-size:.7rem;padding:4px 12px;border-radius:50px;border:1px solid var(--border-glow);color:var(--accent-indigo);background:rgba(94,168,122,.06)}
+
+/* ===== Meta Card ===== */
+.meta-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:20px 24px;margin:0 auto 32px;max-width:700px;display:flex;justify-content:center;gap:36px;flex-wrap:wrap;box-shadow:var(--shadow-md)}
+.meta-item{text-align:center}
+.meta-item .val{font-size:1.4rem;font-weight:800;color:var(--accent-indigo)}
+.meta-item .lbl{font-size:.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px}
+
+/* ===== Journey Bar ===== */
+.journey-bar{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:12px 20px;margin:0 auto 24px;max-width:900px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:.82rem;box-shadow:var(--shadow-elevated)}
+.journey-path{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.journey-icon{font-size:1rem}
+.journey-plan{color:var(--accent-purple);font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.journey-plan:hover{color:var(--accent-gold)}
+.journey-sep{color:var(--text-muted);font-size:.7rem}
+.journey-phase{color:var(--text-secondary);font-weight:600}
+.journey-kp{color:var(--text-primary);font-weight:700}
+.journey-pos{color:var(--text-muted);font-size:.72rem}
+.journey-nav{display:flex;align-items:center;gap:8px;font-size:.75rem}
+.journey-prev,.journey-next{color:var(--text-muted);cursor:default}
+.journey-divider{color:var(--border-subtle)}
+
+/* ===== Module Card ===== */
+.module{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:28px 28px 24px;margin-bottom:20px;opacity:0;transform:translateY(24px);transition:opacity .5s ease,transform .5s ease;box-shadow:var(--shadow-sm)}
+.module.visible{opacity:1;transform:translateY(0)}
+.module:hover{border-color:var(--border-glow)}
+.module h2{font-size:1.15rem;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.module .m-tag{font-size:.65rem;padding:2px 10px;border-radius:50px;background:rgba(94,168,122,.1);border:1px solid rgba(94,168,122,.2);color:var(--accent-indigo);font-weight:600}
+.module .m-time{font-size:.7rem;color:var(--text-muted);margin-left:auto}
+.module .hook{font-size:.9rem;color:var(--accent-purple);font-weight:600;margin:12px 0 16px;padding-left:12px;border-left:3px solid var(--accent-purple)}
+.module .content{font-size:.88rem;color:var(--text-secondary);line-height:1.8}
+.module .content p{margin-bottom:12px}
+.module .content strong{color:var(--text-primary);font-weight:600}
+.module .content em{color:var(--accent-gold);font-style:normal}
+
+/* ===== Formula Block ===== */
+.formula-block{background:rgba(94,168,122,.04);border:1px solid rgba(94,168,122,.12);border-radius:var(--radius-sm);padding:14px 18px;margin:14px 0;font-family:var(--font-mono);font-size:.82rem;color:var(--accent-cyan);overflow-x:auto;position:relative}
+.formula-block .f-cap{font-size:.7rem;color:var(--text-muted);margin-bottom:6px;display:block}
+.derivation-toggle{font-size:.7rem;color:var(--accent-gold);cursor:pointer;border:none;background:none;padding:4px 0;font-family:inherit;display:block;margin-top:6px}
+.derivation-toggle:hover{text-decoration:underline}
+.derivation-content{display:none;margin-top:8px;padding:12px 16px;background:rgba(230,185,90,.04);border-radius:var(--radius-sm);border-left:3px solid var(--accent-gold);font-size:.8rem;color:var(--text-secondary)}
+.derivation-content.open{display:block}
+
+/* ===== Chart ===== */
+.chart-wrap{background:rgba(94,168,122,.03);border-radius:var(--radius-sm);padding:8px;margin:14px 0;text-align:center}
+.chart-canvas{width:100%;height:280px}
+.chart-wrap .ch-cap{font-size:.72rem;color:var(--text-muted);margin-top:6px}
+
+/* ===== Table ===== */
+.table-container{margin:20px 0;overflow-x:auto}
+.table-container table{width:100%;border-collapse:collapse;border-radius:var(--radius-md);overflow:hidden}
+.table-container th{background:var(--bg-elevated);color:var(--accent-cyan);font-weight:700;padding:12px 16px;text-align:left;font-size:.8rem}
+.table-container td{padding:12px 16px;border-bottom:1px solid var(--border-subtle);font-size:.82rem;color:var(--text-secondary)}
+.table-container tr:hover td{background:rgba(94,168,122,.03)}
+.table-container .table-caption{font-size:.72rem;color:var(--text-muted);margin-bottom:8px;text-align:center}
+
+/* ===== Callout ===== */
+.callout{padding:14px 18px;border-radius:var(--radius-md);margin:16px 0;font-size:.82rem}
+.callout-info{background:rgba(94,168,122,.06);border-left:3px solid var(--accent-indigo);color:var(--text-secondary)}
+.callout-warn{background:rgba(230,185,90,.06);border-left:3px solid var(--accent-gold);color:var(--text-secondary)}
+.callout-tip{background:rgba(184,152,160,.06);border-left:3px solid var(--accent-purple);color:var(--text-secondary)}
+.callout strong{color:var(--text-primary)}
+
+/* ===== Compare Grid ===== */
+.compare-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin:16px 0}
+.compare-card{background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:18px 20px}
+.compare-card h4{font-size:.85rem;color:var(--accent-indigo);margin-bottom:8px}
+.compare-card p{font-size:.78rem;color:var(--text-muted);line-height:1.7}
+
+/* ===== Timeline ===== */
+.timeline{position:relative;padding-left:30px;margin:16px 0}
+.timeline::before{content:'';position:absolute;left:8px;top:0;bottom:0;width:2px;background:var(--border-glow)}
+.timeline-item{position:relative;margin-bottom:18px;font-size:.82rem}
+.timeline-item::before{content:'';position:absolute;left:-26px;top:6px;width:10px;height:10px;border-radius:50%;background:var(--accent-indigo);border:2px solid var(--border-glow)}
+.timeline-year{font-weight:700;color:var(--accent-cyan);min-width:80px;display:inline-block}
+.timeline-text{color:var(--text-secondary)}
+
+/* ===== Process Flow ===== */
+.process-flow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:20px 0;justify-content:center}
+.process-step{background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:12px 18px;text-align:center;font-size:.76rem;min-width:80px}
+.process-step .psn{font-weight:800;color:var(--accent-indigo);font-size:.9rem;margin-bottom:4px}
+.process-step .psl{color:var(--text-muted);font-size:.68rem}
+.process-arrow{color:var(--accent-cyan);font-size:1.1rem;font-weight:700}
+
+/* ===== Term Grid ===== */
+.term-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;margin:16px 0}
+.term-card{background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:var(--radius-sm);padding:12px 16px;transition:all var(--transition)}
+.term-card:hover{border-color:var(--border-glow)}
+.term-card .tn{font-size:.8rem;font-weight:700;color:var(--accent-indigo)}
+.term-card .td{font-size:.72rem;color:var(--text-muted);margin-top:4px;line-height:1.6}
+
+/* ===== Takeaway ===== */
+.takeaway{font-size:.82rem;background:rgba(110,191,138,.06);border-left:3px solid var(--accent-green);padding:10px 14px;margin-top:16px;border-radius:0 var(--radius-sm) var(--radius-sm) 0;color:var(--accent-green)}
+
+/* ===== Ref List ===== */
+.ref-list{list-style:none;padding:0;margin-top:8px;font-size:.78rem}
+.ref-list li{padding:4px 0;color:var(--text-muted)}
+.ref-list li::before{content:'📄 '}
+
+/* ===== Search Overlay ===== */
+.search-overlay{position:fixed;inset:0;z-index:300;background:var(--bg-overlay);display:none;align-items:flex-start;justify-content:center;padding-top:120px}
+.search-overlay.open{display:flex}
+.search-box{width:520px;max-width:90vw;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:var(--radius-md);box-shadow:var(--shadow-lg);overflow:hidden}
+.search-box input{width:100%;padding:14px 18px;background:transparent;border:none;color:var(--text-primary);font-size:.95rem;outline:none;font-family:inherit}
+.search-results{max-height:360px;overflow-y:auto}
+.search-results div{padding:10px 18px;cursor:pointer;font-size:.82rem;color:var(--text-secondary);border-top:1px solid var(--border-subtle);transition:background var(--transition)}
+.search-results div:hover{background:rgba(94,168,122,.06);color:var(--text-primary)}
+
+/* ===== Footer ===== */
+.journey-footer{text-align:center;padding:40px 32px 60px;opacity:.8}
+.back-to-plan{display:inline-flex;align-items:center;gap:8px;padding:10px 24px;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:50px;color:var(--text-secondary);text-decoration:none;font-size:.85rem;font-weight:600;transition:all var(--transition-smooth)}
+.back-to-plan:hover{background:var(--bg-elevated);border-color:var(--accent-purple);color:var(--accent-purple)}
+
+/* ===== Floating Back ===== */
+.deep-floating-back{position:fixed;right:20px;bottom:20px;z-index:10000}
+.deep-floating-back button{padding:12px 20px;background:linear-gradient(135deg,var(--accent-color),var(--accent-dark));color:white;border:none;border-radius:24px;font-size:.85rem;font-weight:600;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.15);transition:transform .2s,box-shadow .2s}
+.deep-floating-back button:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.2)}
+
+/* ===== Toast ===== */
+.dd-toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);z-index:10001;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:8px;padding:14px 24px;box-shadow:0 4px 16px rgba(0,0,0,.15);font-size:.85rem;display:none}
+.toast-in{animation:toastIn .3s ease}
+@keyframes toastIn{from{opacity:0;transform:translate(-50%,20px)}to{opacity:1;transform:translate(-50%,0)}}
+
+/* ===== Print ===== */
+@media print{.navbar,.progress-bar,.sidebar,.journey-bar,.journey-footer,.deep-floating-back{display:none!important}.content-area{margin-left:0;width:100%}.module{break-inside:avoid;opacity:1!important;transform:none!important;box-shadow:none}body{background:#fff!important}}
+
+/* ===== Responsive ≤1024px ===== */
+@media(max-width:1024px){.sidebar{display:none}.content-area{margin-left:0;width:100%}}
+
+/* ===== Responsive ≤768px ===== */
+@media(max-width:768px){
+.hero h1{font-size:1.6rem}.module{padding:20px}.meta-card{font-size:.72rem;padding:12px 16px}.journey-bar{flex-direction:column;align-items:flex-start}
+.deep-floating-back{right:15px;bottom:15px}.deep-floating-back button{padding:10px 16px;font-size:.8rem}
+}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+</head>
+<body data-theme="dark">
+
+<div class="progress-bar" id="progressBar" style="width:0%"></div>
+
+<nav class="navbar">
+  <div class="nav-left">📖 茶具选择与搭配</div>
+  <div class="nav-right">
+    <button onclick="toggleTheme()" title="切换主题 (Ctrl+D)">🌓 主题</button>
+    <button onclick="openSearch()" title="搜索 (Ctrl+K)">🔍 搜索</button>
+  </div>
+</nav>
+
+<div class="sidebar">
+  <a href="#" class="sidebar-back-link" onclick="event.preventDefault();var w=window.open('tea_learning.html#kc-p2_2','plan_main');if(w)w.focus()">← 返回主方案</a>
+  <h3>📖 目录导航</h3>
+  <ul class="sidebar-nav">
+    <li><a href="#module-intro">01 器为茶之父——茶具文化</a></li>
+    <li><a href="#module-classification">02 茶具分类体系</a></li>
+    <li><a href="#module-material">03 材质的秘密</a></li>
+    <li><a href="#module-gaiwan">04 盖碗——万能茶具</a></li>
+    <li><a href="#module-zisha">05 紫砂壶——泥料壶型养壶</a></li>
+    <li><a href="#module-glass">06 玻璃杯——绿茶的舞台</a></li>
+    <li><a href="#module-pairing">07 看茶选器——搭配矩阵</a></li>
+    <li><a href="#module-care">08 茶具的选购与养护</a></li>
+    <li><a href="#module-glossary">09 茶具核心术语</a></li>
+  </ul>
+</div>
+
+<div class="content-area">
+<div class="search-overlay" id="searchOverlay">
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="搜索模块内容..." oninput="doSearch()" onkeydown="if(event.key==='Escape')closeSearch()">
+    <div class="search-results" id="searchResults"></div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="hero">
+    <h1>茶具选择与搭配</h1>
+    <div class="tags">
+      <span>🏷️ 泡茶技艺</span><span>🎯 核心工具</span><span>🏺 茶具</span><span>🫖 搭配</span>
+    </div>
+  </div>
+
+  <div class="meta-card">
+    <div class="meta-item"><div class="val">🏺</div><div class="lbl">茶具选择</div></div><div class="meta-item"><div class="val">🫖</div><div class="lbl">泡茶技艺</div></div><div class="meta-item"><div class="val">🎯</div><div class="lbl">理解×标准</div></div><div class="meta-item"><div class="val">⏱️</div><div class="lbl">约28分钟</div></div><div class="meta-item"><div class="val">9</div><div class="lbl">模块</div></div>
+  </div>
+
+  <!-- CONDITIONAL: HAS_CONTEXT_PLAN -->
+  <div class="journey-bar" id="journeyBar">
+    <div class="journey-path">
+      <span class="journey-icon">📍</span>
+      <span class="journey-plan" onclick="var w=window.open('tea_learning.html#kc-p2_2','plan_main');if(w)w.focus()">识茶·喝茶·品茶 系统学习方案</span>
+      <span class="journey-sep">〉</span>
+      <span class="journey-phase">泡茶技艺</span>
+      <span class="journey-sep">〉</span>
+      <span class="journey-kp">茶具选择与搭配</span>
+      <span class="journey-pos">(2/4)</span>
+    </div>
+    <div class="journey-nav">
+      <span class="journey-prev" title="前置: 水质与水温科学">← 前置</span>
+      <span class="journey-divider">|</span>
+      <span class="journey-next" title="后续: 各茶类冲泡技法">后续 →</span>
+    </div>
+  </div>
+  <!-- /CONDITIONAL -->
+
+<!-- MODULE 1: 背景与缘起 -->
+<section id="module-intro" class="module">
+<h2><span class="m-tag">背景与缘起</span> 器为茶之父——茶具文化的千年传承<span class="m-time">~3 min</span></h2>
+<p class="hook">陆羽《茶经》列出二十四器——风炉、鍑、碾、罗、则、瓢……唐代人泡一杯茶，竟然需要二十多种器具！茶具不是配角，它和茶叶本身同等重要。</p>
+<div class="content">
+<p>中国茶具文化是世界上体系最完整的茶器文化。从唐代煎茶二十四器，到宋代点茶十二先生——审安老人在《茶具图赞》中，将十二件茶具拟人化，封以"官衔"：茶焙为"韦鸿胪"、茶碾为"金法曹"、茶盏为"陶宝文"……茶具在宋人眼中，不是冰冷的器物，而是有性格、有官职的"同僚"。</p>
+<p>到了明代，朱元璋"废团改散"——废除制作繁琐的团茶，推行散茶冲泡。这一政令彻底改写了中国泡茶史：点茶法衰落，瀹泡法兴起，<strong>紫砂壶</strong>由此登上历史舞台。供春、时大彬、陈鸣远等大师，将紫砂从实用器推至艺术品——一把时大彬的壶，在当时就已价值千金。</p>
+<p>现代功夫茶具的标准化，主要受到潮汕功夫茶传统的影响。一个标准的功夫茶席通常包含12-18件器具，虽然看起来"繁琐"，但每一件都有明确的功能定位。相比之下，日本茶道的"茶道具"深受唐宋茶文化影响却自成一脉，英国下午茶的骨瓷茶具则走向了精致装饰的路线。</p>
+<div class="timeline">
+  <div class="timeline-item"><span class="timeline-year">唐·公元760年</span><span class="timeline-text">陆羽《茶经》首次系统记载二十四器，确立茶具在茶事中的独立地位</span></div>
+  <div class="timeline-item"><span class="timeline-year">宋·公元1269年</span><span class="timeline-text">审安老人《茶具图赞》拟人化十二件茶具，展现宋代点茶文化的精致审美</span></div>
+  <div class="timeline-item"><span class="timeline-year">明·公元1391年</span><span class="timeline-text">朱元璋废团改散，瀹泡法兴起，紫砂壶从宜兴走向全国</span></div>
+  <div class="timeline-item"><span class="timeline-year">明末清初</span><span class="timeline-text">供春、时大彬推动紫砂壶艺术化，"宫中艳说大彬壶"</span></div>
+  <div class="timeline-item"><span class="timeline-year">现代</span><span class="timeline-text">功夫茶具标准化，白瓷盖碗成为国家标准审评器</span></div>
+</div>
+</div>
+<div class="takeaway"><strong>核心要点：</strong>一套好茶具能用几十年甚至传给下一代——它不仅是泡茶工具，更是文化的载体。"器为茶之父，水为茶之母"——选对茶具，是对好茶最基本的尊重。</div>
+</section>
+
+<!-- MODULE 2: 核心概念 -->
+<section id="module-classification" class="module">
+<h2><span class="m-tag">核心概念</span> 茶具分类体系——从主泡器到辅助器<span class="m-time">~3 min</span></h2>
+<p class="hook">一个完整的功夫茶席至少需要12件器具——主泡器、公道杯、品茗杯、闻香杯、茶盘、茶巾……当你了解每件器具的功能时，功夫茶那一套"繁琐"的流程就变得合情合理了。</p>
+<div class="content">
+<p>茶具按功能分为<strong>四大类</strong>，每一类都有不可替代的作用：</p>
+<p><strong>1) 主泡器</strong>——茶叶与水接触的核心容器，包括茶壶（紫砂壶、瓷壶、玻璃壶）、盖碗、玻璃杯。主泡器是茶席的"主角"，决定了茶汤的基本风格。一只白瓷盖碗就能泡所有茶，它是茶人的"标准器"。</p>
+<p><strong>2) 辅泡器</strong>——辅助冲泡流程的工具，核心是"茶道六君子"：茶则（量取茶叶）、茶针（疏通壶嘴）、茶漏（引导茶叶入壶）、茶夹（夹取杯具）、茶匙（拨茶入壶）、茶筒（收纳）。加上公道杯（均匀茶汤浓度）和滤网（过滤茶渣），构成了冲泡的"流水线"。</p>
+<p><strong>3) 品饮器</strong>——品鉴和饮用的器皿，包括品茗杯（小杯细品）、闻香杯（嗅茶香专用，常见于台湾功夫茶）、杯托（隔热护手）。品茗杯的选择大有讲究：瓷杯不夺香适合品鉴，紫砂杯增醇适合普洱，玻璃杯观色适合绿茶。</p>
+<p><strong>4) 环境器</strong>——营造氛围和配套功能的设备，包括茶盘（承接溢水）、茶巾（清洁擦拭）、煮水器（电水壶/铁壶/银壶）、茶仓（储存茶叶的容器）、茶席布（铺设茶席）。</p>
+<div class="process-flow">
+  <div class="process-step"><div class="psn">🏺</div><div class="psl">主泡器</div></div>
+  <div class="process-arrow">→</div>
+  <div class="process-step"><div class="psn">🔧</div><div class="psl">辅泡器</div></div>
+  <div class="process-arrow">→</div>
+  <div class="process-step"><div class="psn">🍵</div><div class="psl">品饮器</div></div>
+  <div class="process-arrow">→</div>
+  <div class="process-step"><div class="psn">🌿</div><div class="psl">环境器</div></div>
+</div>
+<div class="compare-grid">
+  <div class="compare-card"><h4>🏺 主泡器（核心）</h4><p>茶壶、盖碗、玻璃杯——茶叶与水的相遇之处。材质决定茶汤底色，器型影响出汤速度。</p></div>
+  <div class="compare-card"><h4>🔧 辅泡器（支撑）</h4><p>公道杯、茶道六君子、滤网——让泡茶流程井然有序，保证每一杯浓度一致。</p></div>
+  <div class="compare-card"><h4>🍵 品饮器（终端）</h4><p>品茗杯、闻香杯、杯托——"品"与"喝"的区别，就在于这三件器具的配合。</p></div>
+  <div class="compare-card"><h4>🌿 环境器（氛围）</h4><p>茶盘、茶巾、煮水器、茶仓——虽不直接参与冲泡，但决定了茶席的完整性和仪式感。</p></div>
+</div>
+</div>
+<div class="takeaway"><strong>核心要点：</strong>茶具的"多"不是形式主义——每一件都有明确的功能目的，理解了功能就不会觉得繁琐。四大分类帮助你建立茶具的"功能地图"。</div>
+</section>
+
+<!-- MODULE 3: 材质科学 -->
+<section id="module-material" class="module">
+<h2><span class="m-tag">材质科学</span> 材质的秘密——不同茶具材质如何影响茶汤<span class="m-time">~4 min</span></h2>
+<p class="hook">紫砂壶泡的乌龙茶总比盖碗泡的"醇厚"一点，玻璃杯里的绿茶比瓷杯里的"鲜活"一些——这不是心理作用，是科学的。</p>
+<div class="content">
+<p>茶具材质对茶汤的影响，本质上涉及三个物理化学机制：<strong>1) 热传导</strong>（保温还是散热）、<strong>2) 表面吸附</strong>（是否吸味养壶）、<strong>3) 矿物溶出</strong>（是否释放微量元素）。了解这些机制，才能真正做到"看茶选器"。</p>
+<p><strong>瓷器（白瓷/青瓷/汝窑）</strong>——表面覆盖玻璃质釉，致密光滑，几乎不吸附茶汁。导热适中，不保温也不散热过快。白瓷最能还原茶汤本色，因此被国家标准审评法选为<strong>唯一指定审评器</strong>。青瓷如龙泉/汝瓷自带文化审美加分，适合仪式感冲泡。</p>
+<p><strong>紫砂</strong>——宜兴特有矿石（含石英、云母、赤铁矿等），经约1200°C烧结后形成独特的<strong>双气孔结构</strong>（闭口气孔保温＋开口气孔透气）。泡茶时吸附茶汁形成"包浆"，用得越久泡茶越醇。但正因为吸味，紫砂壶讲究<strong>"一壶一茶"</strong>——一把壶最好只泡一类茶，否则会串味。</p>
+<p><strong>玻璃</strong>——二氧化硅为主体，化学性质极为稳定，不吸味不夺香。最大的优势是<strong>透明</strong>——可以观赏茶叶在水中舒展的"茶舞"。散热快，恰恰适合不能久泡的嫩绿茶（绿茶在高温密闭环境中会被"蒸熟"，变黄变苦）。</p>
+<p><strong>粗陶/柴烧</strong>——不加釉或仅局部施釉，透气性极强，部分含铁/锰等金属元素。古朴自然的风格适合煮老茶、泡黑茶。但透气过强会加速香气散失，不适合嫩绿茶或高香型乌龙。</p>
+<div class="table-container">
+<div class="table-caption">表1：四大材质茶具性能对比</div>
+<table>
+<thead><tr><th>材质</th><th>透气性</th><th>保温性</th><th>吸味性</th><th>观赏性</th><th>最佳茶类</th></tr></thead>
+<tbody>
+<tr><td><strong>瓷器</strong></td><td>极低</td><td>⭐中度</td><td>无</td><td>⭐观汤色</td><td>所有茶类（万能品鉴器）</td></tr>
+<tr><td><strong>紫砂</strong></td><td>中高</td><td>⭐⭐好</td><td>有</td><td>低</td><td>乌龙茶、普洱老茶、红茶</td></tr>
+<tr><td><strong>玻璃</strong></td><td>无</td><td>⭐低</td><td>无</td><td>⭐⭐最佳</td><td>绿茶、黄茶、花茶</td></tr>
+<tr><td><strong>粗陶/柴烧</strong></td><td>极高</td><td>⭐⭐好</td><td>强</td><td>低</td><td>黑茶、老白茶、老普洱</td></tr>
+</tbody>
+</table>
+</div>
+<div class="formula-block">
+<span class="f-cap">看茶选器核心公式</span>
+嫩茶(绿茶/黄茶) → 散热快的材质(玻璃/薄瓷) + 不吸味 → 保鲜保绿<br>
+老茶(乌龙/普洱/黑茶) → 保温好的材质(紫砂/厚瓷) + 可吸味 → 醇厚激发
+</div>
+</div>
+<div class="takeaway"><strong>核心要点：</strong>"看茶选器"——选材质的核心准则是：嫩茶用散热快的（玻璃/薄瓷），老茶用保温好的（紫砂/厚瓷）。记住这个原则，永远不会选错器。</div>
+</section>
+
+<!-- MODULE 4: 盖碗专题 -->
+<section id="module-gaiwan" class="module">
+<h2><span class="m-tag">专题深入</span> 盖碗——万能茶具的正确打开方式<span class="m-time">~3 min</span></h2>
+<p class="hook">鲁迅先生说："喝好茶，是要用盖碗的。"盖碗被称为"茶具之王"，不吸味、不夺香，是品鉴茶叶的"标准器"。但你可能一直用错了手势——</p>
+<div class="content">
+<p>盖碗的三部结构：<strong>盖</strong>（调节散热和出汤速度，闻香时掀盖嗅盖内凝聚的香气）、<strong>碗</strong>（容纳茶叶和水的核心空间，内壁白瓷最便于观汤色）、<strong>托</strong>（隔热护手，现代功夫茶多不用托，直接手持碗身）。</p>
+<p><strong>使用要点：</strong></p>
+<p>茶量约占碗容量的<strong>1/3</strong>——太多则注水后茶叶膨胀挤满，出汤不畅；太少则茶汤寡淡。注水至碗沿下方<strong>2-3mm</strong>——留一点空间避免溢出烫手。出汤手法是关键：<strong>食指按盖</strong>（控制盖与碗之间形成出汤缝隙的大小）、<strong>拇指和中指捏碗沿</strong>（一定捏碗沿而非碗身！碗身烫手）、将碗倾斜约90°快速出汤，<strong>3-5秒出净</strong>——沥尽最后一滴，这是功夫茶"公道"的前提，否则下一泡会有苦涩残留。</p>
+<p><strong>盖的妙用：</strong>闻香时掀盖嗅盖内香气（茶叶香气物质随热蒸汽上升凝结在盖上）；观赏汤色时用盖撇去表面浮沫；控制出汤速度时调整盖与碗之间的缝隙大小——缝大出汤快（适合嫩茶避免泡过头）、缝小出汤慢（适合老茶充分浸泡）。</p>
+<div class="callout callout-info">
+<strong>选购黄金法则：</strong>盖碗容量<strong>120-150ml</strong>最实用（1-3人品饮的最佳平衡点）。内壁必须是白瓷（便于观汤色判断茶汤浓度）。碗沿外翻角度是选购时最容易被忽略但最重要的细节——外翻太少不好捏、一烫就脱手；外翻太多出汤时茶汤会顺着碗沿流到手上。拿在手里试一下：拇指和中指能舒适地捏住碗沿、食指能轻松按住盖，这就是你的盖碗。
+</div>
+<div class="compare-grid">
+  <div class="compare-card"><h4>✅ 推荐：白瓷盖碗</h4><p>不吸味，泡任何茶都能还原茶叶本味。内壁白色便于判断汤色是否合适。价格亲民，摔了不心疼。</p></div>
+  <div class="compare-card"><h4>⚠️ 慎选：彩绘/深色内壁</h4><p>深色或彩绘内壁影响观汤色——你无法通过颜色判断这泡茶是否泡过头了。适合把玩，不适合品鉴。</p></div>
+</div>
+</div>
+<div class="takeaway"><strong>核心要点：</strong>每个茶人至少需要一个白瓷盖碗——它是你品鉴茶叶的"基准仪器"。就像实验室的天平，不需要花哨，需要的是准确。</div>
+</section>
+
+<!-- MODULE 5: 紫砂壶专题 -->
+<section id="module-zisha" class="module">
+<h2><span class="m-tag">专题深入</span> 紫砂壶——从泥料、壶型到养壶之道<span class="m-time">~4 min</span></h2>
+<p class="hook">一把好紫砂壶是"活的"——它吸附茶汁、包浆内敛，用得越久泡茶越香。有人为了一把顾景舟的壶倾尽百万——但一把好壶的价值，首先是泡茶的实用价值。</p>
+<div class="content">
+<p><strong>三大泥料：</strong></p>
+<p><strong>紫泥（含铁量适中，约8-10%）</strong>——产量最大、适用范围最广的紫砂泥。烧成后呈紫棕色，气孔率适中，保温性良好，最适合冲泡乌龙茶、普洱茶和红茶。紫泥壶是新手入门的最佳选择——不挑茶类，养壶速度适中，价格相对理性。</p>
+<p><strong>朱泥（含铁量高，约12-18%）</strong>——结晶度高、密度大、导热快。烧成后呈红色或暗红色，壶身敲击声清脆如金石。因为导热快、散热也快，恰好契合乌龙茶的"快冲快出"节奏。朱泥壶是乌龙茶的最佳搭档——台湾冻顶、福建铁观音、广东凤凰单丛，用朱泥壶冲泡的那股"岩韵"和"喉底"，是其他材质无法替代的。</p>
+<p><strong>段泥（含铁量低，约5-6%）</strong>——色泽米黄或浅绿，气孔率高、透气性最强。适合冲泡绿茶、白茶和轻发酵乌龙茶——这些茶类不能闷，段泥的强透气性保证了茶叶呼吸充分。但段泥壶不耐高温骤变，使用时需先温壶。</p>
+<div class="table-container">
+<div class="table-caption">表2：三大紫砂泥料对比</div>
+<table>
+<thead><tr><th>泥料</th><th>颜色</th><th>含铁量</th><th>适合茶类</th><th>导热</th><th>养壶速度</th></tr></thead>
+<tbody>
+<tr><td><strong>紫泥</strong></td><td>紫棕</td><td>~8-10%</td><td>乌龙/普洱/红茶</td><td>中等</td><td>中等</td></tr>
+<tr><td><strong>朱泥</strong></td><td>红/暗红</td><td>~12-18%</td><td>乌龙茶（最佳）</td><td>快</td><td>慢</td></tr>
+<tr><td><strong>段泥</strong></td><td>米黄/浅绿</td><td>~5-6%</td><td>绿茶/白茶/轻发酵乌龙</td><td>慢</td><td>快</td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>壶型选择：</strong>圆形壶（石瓢、仿古、掇球）→ 适合条索舒展的乌龙茶，水流顺畅；方形壶/高筒壶 → 适合细碎红茶，茶叶不易堵住壶嘴；扁壶 → 适合散开快的茶，茶叶在壶底均匀摊开。</p>
+<p><strong>养壶之道：</strong>新壶开壶——清水煮沸30分钟去除土腥味即可（不必用豆腐/甘蔗/茶叶"大煮"，那更多是仪式感而非必要）。日常养壶——每次用完立即清理茶叶、开水冲洗内外、毛巾擦干、倒扣晾干。养壶"三不"：<strong>不追求速成</strong>（养壶是时间的朋友，不是化学实验）、<strong>不擦油蜡</strong>（堵死气孔变成"闷壶"）、<strong>不用化学清洁剂</strong>（紫砂会吸附并缓慢释放到茶汤中）。</p>
+<div class="callout callout-warn">
+<strong>⚠️ 警惕化工壶：</strong>市面上几十元的"紫砂壶"大多是普通陶土加化工颜料调制而成。真紫砂壶的原料来自宜兴黄龙山等特定矿区，矿石储量有限

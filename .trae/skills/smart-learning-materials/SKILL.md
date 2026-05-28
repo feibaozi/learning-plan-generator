@@ -23,10 +23,23 @@ v3.7.0: 侧边栏目录导航 + ECharts 动态图表 + 表格样式统一
   - 新增 %SIDEBAR_NAV_HTML% 和 %ECHARTS_INIT_CODE% 占位符
   - content-area 布局层：margin-left:280px 偏移，≤1024px 隐藏侧边栏恢复全宽
   - 打印样式补充 .sidebar 隐藏 + .content-area 恢复全宽
-version: "3.7.0"
+v3.8.0: CSS 模板化注入完整落地
+  - %TEMPLATE_CSS% 占位符机制：base_deep_dive.html 移除全部硬编码 CSS，仅保留占位符
+  - deep_dive.css 作为 6 主题样式的单一权威源，含完整 :root + [data-theme="light"] + 全部布局/组件/响应式规则
+  - 新增 project_rules.md 深度研读 HTML 生成强制规范（流体布局/响应断点/ECharts resize/校验流程）
+  - validate_templates.ps1 校验脚本加强：移除 <link> 外链误报 + 新增流体布局/响应断点/ECharts resize 检测
+  - 文档管理 SSOT 规范：.trae/skills/ 单一真相源 + sync_skills.ps1 同步到 .claude/.trae-cn
+  - 测试用例 test_template.html：6 主题下拉切换 + 12 组件验证 + 搜索/进度条/Toast 交互
+v3.8.1: 图表容器选择器精确化
+  - 修复 `.chart-wrap > div` 泛选择器导致 `.ch-cap` 标题 div 被强制 height:280px 产生大量留白
+  - 新增 `.chart-canvas` 专用 class，按语义精确选择图表容器（而非按 DOM 位置选择）
+  - 6 个模板 deep_dive.css 同步更新：`.chart-wrap > div` → `.chart-canvas`
+  - 图表容器 HTML 规范更新：`<div id="chart-xxx" class="chart-canvas"></div>`
+  - SKILL.md 图表规范章节同步更新
+version: "3.8.1"
 ---
 
-# Smart Learning Materials Generator v3.5
+# Smart Learning Materials Generator v3.8
 
 ## 描述
 
@@ -585,7 +598,9 @@ chart_count = CEIL(
 **图表规范**:
 
 - 使用 ECharts 5.x 完整 option JSON 配置（CDN 加载）
-- 图表容器使用 `<div>` 元素（`width:100%; height:280px`），不用 `<canvas>`
+- 图表容器使用 `<div class="chart-canvas">` 元素（`width:100%; height:280px`），不用 `<canvas>`
+- 图表容器**必须**带 `class="chart-canvas"`，不可省略（CSS 通过 `.chart-canvas` 精确匹配，不再使用 `.chart-wrap > div` 泛选择器）
+- 图表标题/说明使用 `<div class="ch-cap">`，放在 `.chart-wrap` 内但不会被 `.chart-canvas` 规则误匹配
 - 初始化使用模板内置的 `makeChart(elId, option)` 工厂函数
 - 图表配色使用 CSS 变量引用（确保深浅主题一致切换）
 - 浅色主题色板: `['#6366f1','#8b5cf6','#a78bfa','#22d3ee','#f59e0b','#10b981','#ef4444']`

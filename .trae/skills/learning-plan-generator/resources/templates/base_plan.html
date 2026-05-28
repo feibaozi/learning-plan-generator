@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 %KAETX_CDN%
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
 <style>
 %TEMPLATE_CSS%
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -236,14 +237,23 @@ body.loading{opacity:0}body.loaded{opacity:1;transition:opacity 0.4s ease}
 <!-- CONDITIONAL: HAS_GRAPH -->
 <section class="section" id="graph">
   <div class="section-title">🧠 知识图谱</div>
-  <canvas id="graphCanvas" width="1000" height="400"></canvas>
+  <div class="graph-toolbar">
+  <span class="graph-legend">
+    <span class="gl-item"><span class="gl-dot" style="background:var(--accent-blue)"></span> 已研读</span>
+    <span class="gl-item"><span class="gl-dot" style="background:var(--text-muted);opacity:0.4"></span> 待学习</span>
+    <span class="gl-item gl-line-prereq">━━ 前置依赖</span>
+    <span class="gl-item gl-line-related">┅┅ 同级关联</span>
+  </span>
+</div>
+<div id="graphContainer" class="graph-container"></div>
 </section>
 <!-- /CONDITIONAL -->
 
 <!-- CONDITIONAL: HAS_METHOD -->
 <section class="section" id="method">
   <div class="section-title">📐 推导方法论</div>
-  %METHOD_STEPS_HTML%
+  <div class="method-steps" id="methodSteps"></div>
+<div class="method-progress">已完成 <strong id="methodProgress">0</strong>/<span id="methodTotal">4</span> 步</div>
 </section>
 <!-- /CONDITIONAL -->
 
@@ -258,6 +268,7 @@ body.loading{opacity:0}body.loaded{opacity:1;transition:opacity 0.4s ease}
 <!-- CONDITIONAL: HAS_DRAWING -->
 <section class="section" id="drawing">
   <div class="section-title">🎨 图表推导指南</div>
+  <div class="gallery-toolbar" id="galleryToolbar"></div>
   <div class="drawing-grid" id="drawingGrid"></div>
 </section>
 <!-- /CONDITIONAL -->
@@ -285,6 +296,14 @@ body.loading{opacity:0}body.loaded{opacity:1;transition:opacity 0.4s ease}
 
 <div id="ddToast" style="display:none;position:fixed;bottom:30px;left:50%;transform:translateX(-50%);z-index:10000;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:8px;padding:14px 24px;box-shadow:0 4px 16px rgba(0,0,0,0.15);font-size:0.85rem;"><span id="ddToastMsg"></span></div>
 
+<div class="gallery-lightbox" id="galleryLightbox" onclick="closeLightbox()">
+  <div class="lightbox-content" onclick="event.stopPropagation()">
+    <button class="lightbox-close" onclick="closeLightbox()">&#10005;</button>
+    <div class="lightbox-image" id="lightboxImage"></div>
+    <div class="lightbox-info" id="lightboxInfo"></div>
+  </div>
+</div>
+
 <script>
 // ============================================================
 // DATA SECTION — REPLACE ALL %PLACEHOLDER% MARKERS
@@ -294,6 +313,9 @@ var PLAN = %PLAN_JSON%;
 var LS_PREFIX = STORAGE_KEY;
 
 var PHASES = %PHASES_JSON%;
+
+var GRAPH_DATA=%GRAPH_DATA%;
+var METHOD_STEPS=%METHOD_STEPS%;
 
 var KPS = %KPS_JSON%;
 
@@ -635,42 +657,92 @@ function uEC(){
 // GRAPH FUNCTIONS (use only if HAS_GRAPH)
 // ============================================================
 
-function drawGraph(){
-  var canvas=document.getElementById('graphCanvas');
-  if(!canvas)return;
-  var ctx=canvas.getContext('2d');
-  var dpr=window.devicePixelRatio||1;
-  var rect=canvas.parentElement.getBoundingClientRect();
-  canvas.width=rect.width*dpr;canvas.height=380*dpr;
-  canvas.style.width=rect.width+'px';canvas.style.height='380px';
-  ctx.scale(dpr,dpr);
-  var W=rect.width,H=380;
-  var cols=PHASES.length;var colW=W/(cols+0.5);var padding=40;
-  for(var i=0;i<PHASES.length;i++){var p=PHASES[i];
-    var cx=padding+colW*(i+0.3);
-    ctx.fillStyle=p.color+'22';ctx.fillRect(cx-colW*0.35,20,colW*0.7,H-40);
-    ctx.strokeStyle=p.color+'44';ctx.strokeRect(cx-colW*0.35,20,colW*0.7,H-40);
-    ctx.fillStyle=p.color;ctx.font='bold 13px "Noto Sans SC","Microsoft YaHei",sans-serif';ctx.textAlign='center';
-    ctx.fillText(p.icon+' '+p.title,cx,H-10);
+var _graphChart=null;
+function initGraph(){
+  var el=document.getElementById('graphContainer');
+  if(!el||typeof GRAPH_DATA==='undefined'||typeof echarts==='undefined')return;
+  if(_graphChart){_graphChart.dispose()}
+  _graphChart=echarts.init(el);
+  var nodes=[],links=[];
+  for(var i=0;i<GRAPH_DATA.nodes.length;i++){
+    var gn=GRAPH_DATA.nodes[i],kp=null;
+    for(var j=0;j<KPS.length;j++){if(KPS[j].id===gn.id){kp=KPS[j];break}}
+    if(!kp)continue;
+    var pi=0;for(var k=0;k<PHASES.length;k++){if(PHASES[k].id===kp.p){pi=k;break}}
+    var isReady=kp.deep_dive&&kp.deep_dive.status==='ready';
+    nodes.push({name:gn.id,value:gn.label,x:pi*200+100+Math.random()*60,y:gn.y*120+80,
+      symbolSize:14,itemStyle:{color:PHASES[pi].color,opacity:isReady?1:0.4},
+      label:{show:true,formatter:gn.label,fontSize:10,color:'#b8ad98',position:'bottom'},
+      tooltip:{formatter:gn.label+(kp.s?'<br/>'+kp.s:'')}});
   }
-  var kpPos={};
-  for(var i=0;i<KPS.length;i++){var kp=KPS[i];
-    var pi=PHASES.findIndex(function(x){return x.id===kp.p;});if(pi<0)continue;
-    var hash=0;for(var c=0;c<kp.id.length;c++){hash=((hash<<5)-hash)+kp.id.charCodeAt(c);hash|=0;}
-    var ny=60+Math.abs(hash%(H-120));
-    var nx=padding+colW*(pi+0.3);var r=4;
-    ctx.beginPath();ctx.arc(nx,ny,r,0,Math.PI*2);ctx.fillStyle=PHASES[pi].color;ctx.fill();
-    ctx.strokeStyle=PHASES[pi].color+'88';ctx.lineWidth=0.5;ctx.stroke();
-    kpPos[kp.id]={x:nx,y:ny};
+  for(var i=0;i<GRAPH_DATA.edges.length;i++){
+    var e=GRAPH_DATA.edges[i];
+    var ls={};
+    if(e.type==='prerequisite'){ls={width:1.5,type:'solid',color:'rgba(99,102,241,0.6)'}}
+    else if(e.type==='related'){ls={width:1,type:'dashed',color:'rgba(99,102,241,0.25)'}}
+    else{ls={width:0.8,type:'dashed',color:'rgba(99,102,241,0.15)'}}
+    links.push({source:e.from,target:e.to,lineStyle:ls});
   }
-  for(var i=0;i<KPS.length;i++){var kp2=KPS[i];if(!kp2.rel)continue;
-    var srcPos=kpPos[kp2.id];if(!srcPos)continue;
-    kp2.rel.forEach(function(rid){
-      var dstPos=kpPos[rid];if(!dstPos)return;
-      ctx.beginPath();ctx.moveTo(srcPos.x,srcPos.y);ctx.lineTo(dstPos.x,dstPos.y);
-      ctx.strokeStyle='#6366f122';ctx.lineWidth=0.5;ctx.setLineDash([2,4]);ctx.stroke();ctx.setLineDash([]);
-    });
+  _graphChart.setOption({tooltip:{},animation:true,
+    series:[{type:'graph',layout:'none',roam:true,draggable:true,
+      edgeSymbol:['none','none'],nodes:nodes,links:links,
+      emphasis:{focus:'adjacency',lineStyle:{width:3}}}]});
+  _graphChart.on('click',function(p){
+    if(p.dataType==='node'&&p.name){tKC_go(p.name)}
+  });
+  window.addEventListener('resize',function(){if(_graphChart)_graphChart.resize()});
+}
+function graphRefresh(){
+  if(!_graphChart||typeof GRAPH_DATA==='undefined')return;
+  for(var i=0;i<GRAPH_DATA.nodes.length;i++){
+    var gn=GRAPH_DATA.nodes[i];
+    for(var j=0;j<KPS.length;j++){
+      if(KPS[j].id===gn.id){
+        var isReady=KPS[j].deep_dive&&KPS[j].deep_dive.status==='ready';
+        var pi=0;for(var k=0;k<PHASES.length;k++){if(PHASES[k].id===KPS[j].p){pi=k;break}}
+        _graphChart.setOption({series:[{data:_graphChart.getOption().series[0].data.map(function(d){
+          if(d.name===gn.id){d.itemStyle={color:PHASES[pi].color,opacity:isReady?1:0.4}}
+          return d})}]});
+        break;
+      }
+    }
   }
+}
+
+function hMS(){
+  var el=document.getElementById('methodSteps');
+  if(!el||typeof METHOD_STEPS==='undefined')return;
+  var sk=STORAGE_KEY+'_method_done';
+  var done=JSON.parse(localStorage.getItem(sk)||'[]');
+  var h='';
+  for(var i=0;i<METHOD_STEPS.length;i++){
+    var s=METHOD_STEPS[i];
+    var isDone=done.indexOf(i)>=0;
+    h+='<div class="method-step'+(isDone?' done':'')+'" onclick="tMS('+i+')">';
+    h+='<div class="method-step-num">'+s.num+'</div>';
+    h+='<div class="method-step-text">';
+    h+='<h4>'+s.title+'</h4>';
+    h+='<p>'+s.desc+'</p>';
+    if(s.link_section){h+='<span class="method-step-link" onclick="event.stopPropagation();methodGoTo(\''+s.link_section+'\')">'+s.link_label+'</span>'}
+    h+='</div></div>';
+  }
+  el.innerHTML=h;
+  var pe=document.getElementById('methodProgress');
+  var te=document.getElementById('methodTotal');
+  if(pe)pe.textContent=done.length;
+  if(te)te.textContent=METHOD_STEPS.length;
+}
+function tMS(idx){
+  var sk=STORAGE_KEY+'_method_done';
+  var done=JSON.parse(localStorage.getItem(sk)||'[]');
+  var pos=done.indexOf(idx);
+  if(pos>=0){done.splice(pos,1)}else{done.push(idx)}
+  localStorage.setItem(sk,JSON.stringify(done));
+  hMS();
+}
+function methodGoTo(sectionId){
+  var el=document.getElementById(sectionId);
+  if(el)el.scrollIntoView({behavior:'smooth'});
 }
 
 // ============================================================
@@ -740,17 +812,68 @@ function hFs(){
 // DRAWING SECTION RENDER
 // ============================================================
 
-function hDS(){
-  var grid=document.getElementById('drawingGrid');if(!grid)return;
-  var h='';
-  for(var i=0;i<PHASES.length;i++){var ph=PHASES[i];
-    if(ph.drawings&&ph.drawings.length){
-      for(var j=0;j<ph.drawings.length;j++){
-        h+='<div class="drawing-card"><h4>'+ph.drawings[j]+'</h4><p>阶段'+(i+1)+'：'+ph.title+'</p></div>';
-      }
+function renderGallery(filterType){
+  var grid=document.getElementById('drawingGrid');
+  if(!grid)return;
+  var toolbar=document.getElementById('galleryToolbar');
+  var allDrawings=[];
+  for(var i=0;i<PHASES.length;i++){
+    var dr=PHASES[i].drawings;
+    if(!dr||dr.length===0)continue;
+    if(typeof dr[0]==='string'){
+      for(var j=0;j<dr.length;j++){allDrawings.push({name:dr[j],type:'',phase_id:PHASES[i].id,svg:'',related_kp:'',desc:''})}
+    }else{
+      for(var j=0;j<dr.length;j++){allDrawings.push(dr[j])}
     }
   }
-  grid.innerHTML=h||'<p style="color:var(--text-muted);font-size:0.85rem">各阶段的图表推导要点将在此展示。</p>';
+  var types=['all'];
+  for(var i=0;i<allDrawings.length;i++){if(allDrawings[i].type&&types.indexOf(allDrawings[i].type)<0)types.push(allDrawings[i].type)}
+  if(toolbar){
+    var th='';
+    var typeLabels={all:'全部',spectrum:'🌈 光谱',matrix:'📊 矩阵',flow:'🔀 流程',relation:'🕸️ 关系',timeline:'📅 时间线'};
+    for(var i=0;i<types.length;i++){
+      var lbl=typeLabels[types[i]]||types[i];
+      th+='<button class="gallery-filter'+(types[i]===filterType?' active':'')+'" onclick="renderGallery(\''+types[i]+'\')">'+lbl+'</button>';
+    }
+    toolbar.innerHTML=th;
+  }
+  var h='';
+  for(var i=0;i<allDrawings.length;i++){
+    var d=allDrawings[i];
+    if(filterType&&filterType!=='all'&&d.type!==filterType)continue;
+    var phase=null;for(var j=0;j<PHASES.length;j++){if(PHASES[j].id===d.phase_id){phase=PHASES[j];break}}
+    h+='<div class="drawing-card" onclick="openLightbox('+i+')">';
+    if(d.type){h+='<span class="drawing-type" style="background:rgba(94,168,122,.12);color:var(--accent-cyan)">'+d.type+'</span>'}
+    if(d.svg){h+='<div class="drawing-preview">'+d.svg+'</div>'}
+    h+='<div class="drawing-name">'+d.name+'</div>';
+    if(phase){h+='<div class="drawing-phase" style="font-size:.65rem;color:var(--text-muted);margin-top:4px">'+phase.title+'</div>'}
+    if(d.related_kp){
+      var kp=null;for(var j=0;j<KPS.length;j++){if(KPS[j].id===d.related_kp){kp=KPS[j];break}}
+      if(kp&&kp.deep_dive&&kp.deep_dive.status==='ready'){h+='<span class="drawing-detail-link" onclick="event.stopPropagation();ddOpen(\''+d.related_kp+'\')">📖 查看深度研读</span>'}
+    }
+    h+='</div>';
+  }
+  grid.innerHTML=h;
+}
+function openLightbox(idx){
+  var allDrawings=[];
+  for(var i=0;i<PHASES.length;i++){
+    var dr=PHASES[i].drawings;if(!dr)continue;
+    if(typeof dr[0]==='string'){for(var j=0;j<dr.length;j++){allDrawings.push({name:dr[j],svg:'',desc:''})}}
+    else{for(var j=0;j<dr.length;j++){allDrawings.push(dr[j])}}
+  }
+  if(idx<0||idx>=allDrawings.length)return;
+  var d=allDrawings[idx];
+  var img=document.getElementById('lightboxImage');
+  var info=document.getElementById('lightboxInfo');
+  if(img){img.innerHTML=d.svg||'<p style="color:var(--text-muted);text-align:center;padding:40px">暂无预览图</p>'}
+  if(info){info.textContent=d.name+(d.desc?' — '+d.desc:'')}
+  var lb=document.getElementById('galleryLightbox');
+  if(lb)lb.classList.add('open');
+}
+function closeLightbox(){
+  var lb=document.getElementById('galleryLightbox');
+  if(lb)lb.classList.remove('open');
 }
 
 // ============================================================
@@ -835,6 +958,7 @@ function syncKPsFromManifest(){
       }
     }).catch(function(){});
   }catch(e){}
+  if(typeof graphRefresh==='function')graphRefresh();
 }
 
 // ============================================================
@@ -865,10 +989,11 @@ function init(){
   hES();
   hRS();
   hTR();
-  // CONDITIONAL: HAS_DRAWING -> call hDS()
-  hDS();
-  // CONDITIONAL: HAS_GRAPH -> call drawGraph() in animation loop
-  if(document.getElementById('graphCanvas')){drawGraph();window.addEventListener('resize',drawGraph);}
+  // CONDITIONAL: HAS_DRAWING -> call renderGallery()
+  renderGallery('all');
+  hMS();
+  // CONDITIONAL: HAS_GRAPH -> call initGraph()
+  if(document.getElementById('graphContainer')){initGraph();}
   document.body.classList.remove('loading');document.body.classList.add('loaded');
   syncKPsFromManifest();
   setTimeout(renderAllFormulas,100);
@@ -884,11 +1009,6 @@ document.addEventListener('keydown',function(e){if((e.ctrlKey||e.metaKey)&&e.key
 
 (function(){var hash=location.hash;if(hash&&hash.indexOf('#kc-')===0){
   var kid=hash.replace('#kc-','');setTimeout(function(){tKC_go(kid);},300);}})();
-
-// ============================================================
-// GRAPH CANVAS CLICK HANDLER
-// ============================================================
-var gc=document.getElementById('graphCanvas');if(gc){gc.addEventListener('click',function(){drawGraph();});}
 
 // ============================================================
 // CROSS-WINDOW NAVIGATION LISTENER (_ml_llm_nav)

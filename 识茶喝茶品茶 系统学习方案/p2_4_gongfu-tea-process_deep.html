@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>功夫茶冲泡流程 - 深度研读</title>
+<style>
+/* ───────────────────────────────────────────────
+   Template: Cedar Dawn (雪松晨曦) — deep_dive.css
+   Mood: warm, natural, organic
+   Contrast verified: text-primary≥10:1, text-secondary≥6:1, text-muted≥4.5:1
+   ─────────────────────────────────────────────── */
+:root{
+--bg-base:#1a1814;
+--bg-card:#282520;
+--bg-elevated:#312d27;
+--bg-overlay:rgba(0,0,0,.6);
+--text-primary:#ede6d8;
+--text-secondary:#b8ad98;
+--text-muted:#8a8070;
+--accent-indigo:#5ea87a;
+--accent-purple:#b898a0;
+--accent-cyan:#7ec8a0;
+--accent-gold:#e6b95a;
+--accent-green:#6ebf8a;
+--accent-red:#d47860;
+--accent-blue:#5ea87a;
+--accent-color:#5ea87a;
+--accent-dark:#3d6b50;
+--border-subtle:rgba(184,173,152,.15);
+--border-glow:rgba(94,168,122,.25);
+--shadow-sm:0 1px 3px rgba(0,0,0,.3);
+--shadow-md:0 4px 16px rgba(0,0,0,.4);
+--shadow-lg:0 8px 32px rgba(0,0,0,.5);
+--shadow-elevated:0 8px 32px rgba(0,0,0,.5);
+--radius-sm:6px;
+--radius-md:10px;
+--radius-lg:16px;
+--font-sans:'Segoe UI',system-ui,-apple-system,sans-serif;
+--font-mono:Consolas,'Cascadia Code',monospace;
+--transition:.25s cubic-bezier(.4,0,.2,1);
+--transition-smooth:.3s ease;
+--nav-h:56px;
+--accent-color-rgb:94,168,122;
+--chart-grid:#2d2924;
+--chart-axis-label:#8a8070;
+}
+[data-theme="light"]{
+--bg-base:#fdfaf3;
+--bg-card:#fffdf7;
+--bg-elevated:#f3efe3;
+--bg-overlay:rgba(0,0,0,.3);
+--text-primary:#1f1a12;
+--text-secondary:#4a4035;
+--text-muted:#5c5042;
+--accent-indigo:#3d6b50;
+--accent-purple:#7a5a6a;
+--accent-cyan:#4a8e6a;
+--accent-gold:#a07828;
+--accent-green:#4a9e66;
+--accent-red:#b05038;
+--accent-blue:#3d6b50;
+--accent-color:#3d6b50;
+--accent-dark:#2a4835;
+--border-subtle:rgba(31,26,18,.08);
+--border-glow:rgba(61,107,80,.25);
+--shadow-sm:0 1px 3px rgba(0,0,0,.06);
+--shadow-md:0 4px 16px rgba(0,0,0,.08);
+--shadow-lg:0 8px 32px rgba(0,0,0,.12);
+--shadow-elevated:0 8px 32px rgba(0,0,0,.12);
+--accent-color-rgb:61,107,80;
+--chart-grid:#ebe5d6;
+--chart-axis-label:#5c5042;
+}
+
+/* ===== Layout & Base ===== */
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font-sans);background:var(--bg-base);color:var(--text-primary);line-height:1.75;overflow-x:hidden}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg-base)}::-webkit-scrollbar-thumb{background:var(--border-glow);border-radius:3px}
+
+/* ===== Navbar ===== */
+.progress-bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--accent-indigo),var(--accent-purple),var(--accent-cyan));z-index:200;transition:width .1s linear}
+.navbar{position:fixed;top:3px;left:0;right:0;z-index:100;background:var(--bg-card);border-bottom:1px solid var(--border-subtle);backdrop-filter:blur(16px);height:var(--nav-h);display:flex;align-items:center;justify-content:space-between;padding:0 24px}
+.nav-left{display:flex;align-items:center;gap:12px;font-size:.82rem;font-weight:600;color:var(--accent-indigo)}
+.nav-right{display:flex;align-items:center;gap:8px}
+.nav-right button{background:var(--bg-elevated);border:1px solid var(--border-subtle);color:var(--text-secondary);padding:6px 12px;border-radius:var(--radius-sm);cursor:pointer;font-size:.75rem;transition:all var(--transition)}
+.nav-right button:hover{border-color:var(--border-glow);color:var(--accent-indigo)}
+
+/* ===== Sidebar ===== */
+.sidebar{position:fixed;left:0;top:0;height:100vh;width:280px;background:var(--bg-base);border-right:1px solid var(--border-subtle);padding:24px;overflow-y:auto;z-index:100;padding-top:calc(var(--nav-h) + 16px)}
+.sidebar h3{font-size:.85rem;font-weight:700;color:var(--text-secondary);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--border-subtle)}
+.sidebar-nav{list-style:none;padding:0}
+.sidebar-nav li{margin-bottom:2px}
+.sidebar-nav a{display:block;padding:8px 12px;border-radius:var(--radius-md);text-decoration:none;font-size:.76rem;color:var(--text-secondary);transition:all var(--transition);border-left:3px solid transparent}
+.sidebar-nav a:hover{background:rgba(91,141,184,.08);color:var(--accent-cyan);border-left-color:var(--accent-cyan)}
+.sidebar-nav a.active{background:rgba(91,141,184,.12);color:var(--accent-blue);font-weight:600;border-left-color:var(--accent-blue)}
+.sidebar-back-link{display:block;padding:8px 12px;margin-bottom:12px;border-radius:8px;background:var(--bg-elevated);color:var(--accent-blue);text-decoration:none;font-size:.78rem;font-weight:600}
+.sidebar-back-link:hover{color:var(--accent-cyan)}
+
+/* ===== Content Area — Fluid Layout ===== */
+.content-area{margin-left:280px;width:calc(100% - 280px)}
+.container{max-width:calc(100% - 48px);margin:0 auto;padding:calc(var(--nav-h) + 24px) 24px 80px}
+
+/* ===== Hero ===== */
+.hero{text-align:center;padding:48px 0 36px}
+.hero h1{font-size:2.2rem;background:linear-gradient(135deg,var(--accent-indigo),var(--accent-purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+.hero .tags{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:12px}
+.hero .tags span{font-size:.7rem;padding:4px 12px;border-radius:50px;border:1px solid var(--border-glow);color:var(--accent-indigo);background:rgba(99,102,241,.06)}
+
+/* ===== Meta Card ===== */
+.meta-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:20px 24px;margin:0 auto 32px;max-width:700px;display:flex;justify-content:center;gap:36px;flex-wrap:wrap;box-shadow:var(--shadow-md)}
+.meta-item{text-align:center}
+.meta-item .val{font-size:1.4rem;font-weight:800;color:var(--accent-indigo)}
+.meta-item .lbl{font-size:.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px}
+
+/* ===== Journey Bar ===== */
+.journey-bar{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:12px 20px;margin:0 auto 24px;max-width:900px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:.82rem;box-shadow:var(--shadow-elevated)}
+.journey-path{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.journey-icon{font-size:1rem}
+.journey-plan{color:var(--accent-purple);font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.journey-plan:hover{color:var(--accent-gold)}
+.journey-sep{color:var(--text-muted);font-size:.7rem}
+.journey-phase{color:var(--text-secondary);font-weight:600}
+.journey-kp{color:var(--text-primary);font-weight:700}
+.journey-pos{color:var(--text-muted);font-size:.72rem}
+.journey-nav{display:flex;align-items:center;gap:8px;font-size:.75rem}
+.journey-prev,.journey-next{color:var(--text-muted);cursor:default}
+.journey-divider{color:var(--border-subtle)}
+
+/* ===== Module Card ===== */
+.module{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:28px 28px 24px;margin-bottom:20px;opacity:0;transform:translateY(24px);transition:opacity .5s ease,transform .5s ease;box-shadow:var(--shadow-sm)}
+.module.visible{opacity:1;transform:translateY(0)}
+.module:hover{border-color:var(--border-glow)}
+.module h2{font-size:1.15rem;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.module .m-tag{font-size:.65rem;padding:2px 10px;border-radius:50px;background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.2);color:var(--accent-indigo);font-weight:600}
+.module .m-time{font-size:.7rem;color:var(--text-muted);margin-left:auto}
+.module .hook{font-size:.9rem;color:var(--accent-purple);font-weight:600;margin:12px 0 16px;padding-left:12px;border-left:3px solid var(--accent-purple)}
+.module .content{font-size:.88rem;color:var(--text-secondary);line-height:1.8}
+.module .content p{margin-bottom:12px}
+.module .content strong{color:var(--text-primary);font-weight:600}
+.module .content em{color:var(--accent-gold);font-style:normal}
+
+/* ===== Formula Block ===== */
+.formula-block{background:rgba(99,102,241,.04);border:1px solid rgba(99,102,241,.12);border-radius:var(--radius-sm);padding:14px 18px;margin:14px 0;font-family:var(--font-mono);font-size:.82rem;color:var(--accent-cyan);overflow-x:auto;position:relative}
+.formula-block .f-cap{font-size:.7rem;color:var(--text-muted);margin-bottom:6px;display:block}
+.derivation-toggle{font-size:.7rem;color:var(--accent-gold);cursor:pointer;border:none;background:none;padding:4px 0;font-family:inherit;display:block;margin-top:6px}
+.derivation-toggle:hover{text-decoration:underline}
+.derivation-content{display:none;margin-top:8px;padding:12px 16px;background:rgba(245,158,11,.04);border-radius:var(--radius-sm);border-left:3px solid var(--accent-gold);font-size:.8rem;color:var(--text-secondary)}
+.derivation-content.open{display:block}
+
+/* ===== Chart ===== */
+.chart-wrap{background:rgba(99,102,241,.03);border-radius:var(--radius-sm);padding:8px;margin:14px 0;text-align:center}
+.chart-canvas{width:100%;height:280px}
+.chart-wrap .ch-cap{font-size:.72rem;color:var(--text-muted);margin-top:6px}
+
+/* ===== Table ===== */
+.table-container{margin:20px 0;overflow-x:auto}
+.table-container table{width:100%;border-collapse:collapse;border-radius:var(--radius-md);overflow:hidden}
+.table-container th{background:var(--bg-elevated);color:var(--accent-cyan);font-weight:700;padding:12px 16px;text-align:left;font-size:.8rem}
+.table-container td{padding:12px 16px;border-bottom:1px solid var(--border-subtle);font-size:.82rem;color:var(--text-secondary)}
+.table-container tr:hover td{background:rgba(91,141,184,.03)}
+.table-container .table-caption{font-size:.72rem;color:var(--text-muted);margin-bottom:8px;text-align:center}
+
+/* ===== Callout ===== */
+.callout{padding:14px 18px;border-radius:var(--radius-md);margin:16px 0;font-size:.82rem}
+.callout-info{background:rgba(94,168,122,.06);border-left:3px solid var(--accent-indigo);color:var(--text-secondary)}
+.callout-warn{background:rgba(230,185,90,.06);border-left:3px solid var(--accent-gold);color:var(--text-secondary)}
+.callout-tip{background:rgba(184,152,160,.06);border-left:3px solid var(--accent-purple);color:var(--text-secondary)}
+.callout strong{color:var(--text-primary)}
+
+/* ===== Compare Grid ===== */
+.compare-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin:16px 0}
+.compare-card{background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:18px 20px}
+.compare-card h4{font-size:.85rem;color:var(--accent-indigo);margin-bottom:8px}
+.compare-card p{font-size:.78rem;color:var(--text-muted);line-height:1.7}
+
+/* ===== Timeline ===== */
+.timeline{position:relative;padding-left:30px;margin:16px 0}
+.timeline::before{content:'';position:absolute;left:8px;top:0;bottom:0;width:2px;background:var(--border-glow)}
+.timeline-item{position:relative;margin-bottom:18px;font-size:.82rem}
+.timeline-item::before{content:'';position:absolute;left:-26px;top:6px;width:10px;height:10px;border-radius:50%;background:var(--accent-indigo);border:2px solid var(--border-glow)}
+.timeline-year{font-weight:700;color:var(--accent-cyan);min-width:80px;display:inline-block}
+.timeline-text{color:var(--text-secondary)}
+
+/* ===== Process Flow ===== */
+.process-flow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:20px 0;justify-content:center}
+.process-step{background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:12px 18px;text-align:center;font-size:.76rem;min-width:80px}
+.process-step .psn{font-weight:800;color:var(--accent-indigo);font-size:.9rem;margin-bottom:4px}
+.process-step .psl{color:var(--text-muted);font-size:.68rem}
+.process-arrow{color:var(--accent-cyan);font-size:1.1rem;font-weight:700}
+
+/* ===== Term Grid ===== */
+.term-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;margin:16px 0}
+.term-card{background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:var(--radius-sm);padding:12px 16px;transition:all var(--transition)}
+.term-card:hover{border-color:var(--border-glow)}
+.term-card .tn{font-size:.8rem;font-weight:700;color:var(--accent-indigo)}
+.term-card .td{font-size:.72rem;color:var(--text-muted);margin-top:4px;line-height:1.6}
+
+/* ===== Takeaway ===== */
+.takeaway{font-size:.82rem;background:rgba(16,185,129,.06);border-left:3px solid var(--accent-green);padding:10px 14px;margin-top:16px;border-radius:0 var(--radius-sm) var(--radius-sm) 0;color:var(--accent-green)}
+
+/* ===== Ref List ===== */
+.ref-list{list-style:none;padding:0;margin-top:8px;font-size:.78rem}
+.ref-list li{padding:4px 0;color:var(--text-muted)}
+.ref-list li::before{content:'📄 '}
+
+/* ===== Search Overlay ===== */
+.search-overlay{position:fixed;inset:0;z-index:300;background:var(--bg-overlay);display:none;align-items:flex-start;justify-content:center;padding-top:120px}
+.search-overlay.open{display:flex}
+.search-box{width:520px;max-width:90vw;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:var(--radius-md);box-shadow:var(--shadow-lg);overflow:hidden}
+.search-box input{width:100%;padding:14px 18px;background:transparent;border:none;color:var(--text-primary);font-size:.95rem;outline:none;font-family:inherit}
+.search-results{max-height:360px;overflow-y:auto}
+.search-results div{padding:10px 18px;cursor:pointer;font-size:.82rem;color:var(--text-secondary);border-top:1px solid var(--border-subtle);transition:background var(--transition)}
+.search-results div:hover{background:rgba(99,102,241,.06);color:var(--text-primary)}
+
+/* ===== Footer ===== */
+.journey-footer{text-align:center;padding:40px 32px 60px;opacity:.8}
+.back-to-plan{display:inline-flex;align-items:center;gap:8px;padding:10px 24px;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:50px;color:var(--text-secondary);text-decoration:none;font-size:.85rem;font-weight:600;transition:all var(--transition-smooth)}
+.back-to-plan:hover{background:var(--bg-elevated);border-color:var(--accent-purple);color:var(--accent-purple)}
+
+/* ===== Floating Back ===== */
+.deep-floating-back{position:fixed;right:20px;bottom:20px;z-index:10000}
+.deep-floating-back button{padding:12px 20px;background:linear-gradient(135deg,var(--accent-color),var(--accent-dark));color:white;border:none;border-radius:24px;font-size:.85rem;font-weight:600;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.15);transition:transform .2s,box-shadow .2s}
+.deep-floating-back button:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.2)}
+
+/* ===== Toast ===== */
+.dd-toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);z-index:10001;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:8px;padding:14px 24px;box-shadow:0 4px 16px rgba(0,0,0,.15);font-size:.85rem;display:none}
+.toast-in{animation:toastIn .3s ease}
+@keyframes toastIn{from{opacity:0;transform:translate(-50%,20px)}to{opacity:1;transform:translate(-50%,0)}}
+
+/* ===== Print ===== */
+@media print{.navbar,.progress-bar,.sidebar,.journey-bar,.journey-footer,.deep-floating-back{display:none!important}.content-area{margin-left:0;width:100%}.module{break-inside:avoid;opacity:1!important;transform:none!important;box-shadow:none}body{background:#fff!important}}
+
+/* ===== Responsive ≤1024px ===== */
+@media(max-width:1024px){.sidebar{display:none}.content-area{margin-left:0;width:100%}}
+
+/* ===== Responsive ≤768px ===== */
+@media(max-width:768px){
+.hero h1{font-size:1.6rem}.module{padding:20px}.meta-card{font-size:.72rem;padding:12px 16px}.journey-bar{flex-direction:column;align-items:flex-start}
+.deep-floating-back{right:15px;bottom:15px}.deep-floating-back button{padding:10px 16px;font-size:.8rem}
+}
+
+/* ===== Thinking Box ===== */
+.thinking-box{background:rgba(230,185,90,.05);border:1px dashed rgba(230,185,90,.2);border-radius:var(--radius-sm);padding:14px 18px;margin:12px 0;font-size:.8rem;color:var(--accent-gold)}
+.thinking-box::before{content:'🧠 茶人心思：';display:block;font-weight:700;margin-bottom:4px;color:var(--accent-gold)}
+
+/* ===== Case Box ===== */
+.case-box{background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:var(--radius-sm);padding:16px 20px;margin:12px 0}
+.case-box h4{font-size:.85rem;color:var(--accent-gold);margin-bottom:8px}
+.case-box p{font-size:.82rem;margin-bottom:6px}
+.case-reasoning{padding:8px 14px;margin-top:8px;background:rgba(94,168,122,.06);border-left:3px solid var(--accent-cyan);font-size:.78rem;color:var(--accent-cyan);border-radius:0 var(--radius-sm) var(--radius-sm) 0}
+
+/* ===== Step Card ===== */
+.step-card{background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:16px 20px;margin:12px 0}
+.step-card .sn{font-size:.75rem;font-weight:800;color:var(--accent-indigo);margin-bottom:6px}
+.step-card .sd{font-size:.78rem;color:var(--text-secondary);line-height:1.7}
+
+/* ===== Myth Grid ===== */
+.myth-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin:16px 0}
+.myth-card{background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:var(--radius-sm);padding:14px 18px}
+.myth-card .mn{font-size:.78rem;font-weight:700;color:var(--accent-red);margin-bottom:6px}
+.myth-card .mt{font-size:.74rem;color:var(--text-muted);line-height:1.7}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+</head>
+<body data-theme="dark">
+
+<div class="progress-bar" id="progressBar" style="width:0%"></div>
+
+<nav class="navbar">
+  <div class="nav-left">📖 功夫茶冲泡流程</div>
+  <div class="nav-right">
+    <button onclick="toggleTheme()" title="切换主题 (Ctrl+D)">🌓 主题</button>
+    <button onclick="openSearch()" title="搜索 (Ctrl+K)">🔍 搜索</button>
+  </div>
+</nav>
+
+<div class="sidebar">
+  <a href="#" class="sidebar-back-link" onclick="event.preventDefault();var w=window.open('tea_learning.html#kc-p2_4','plan_main');if(w)w.focus()">← 返回主方案</a>
+  <h3>📖 目录导航</h3>
+  <ul class="sidebar-nav">
+    <li><a href="#module-intro">01 背景与缘起：功夫茶的起源</a></li>
+    <li><a href="#module-philosophy">02 核心概念：三大核心理念</a></li>
+    <li><a href="#module-seven-steps">03 流程详解：七步功夫</a></li>
+    <li><a href="#module-optimization">04 进阶技巧：冲泡参数优化</a></li>
+    <li><a href="#module-variations">05 技法对比：三大地域流派</a></li>
+    <li><a href="#module-common-mistakes">06 实践技巧：七个常见错误</a></li>
+    <li><a href="#module-tips">07 实战心法：工夫在茶外</a></li>
+    <li><a href="#module-glossary">08 关键术语表</a></li>
+  </ul>
+</div>
+
+<div class="content-area">
+<div class="search-overlay" id="searchOverlay">
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="搜索模块内容..." oninput="doSearch()" onkeydown="if(event.key==='Escape')closeSearch()">
+    <div class="search-results" id="searchResults"></div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="hero">
+    <h1>功夫茶冲泡流程</h1>
+    <div class="tags">
+      <span>🏷️ 泡茶技艺</span><span>🎯 核心工具</span><span>🫖 功夫茶</span><span>📋 流程</span>
+    </div>
+  </div>
+
+  <div class="meta-card">
+    <div class="meta-item"><div class="val">🫖</div><div class="lbl">功夫茶流程</div></div><div class="meta-item"><div class="val">🍵</div><div class="lbl">泡茶技艺</div></div><div class="meta-item"><div class="val">🎯</div><div class="lbl">理解×标准</div></div><div class="meta-item"><div class="val">⏱️</div><div class="lbl">约25分钟</div></div><div class="meta-item"><div class="val">8</div><div class="lbl">模块</div></div>
+  </div>
+
+  <div class="journey-bar" id="journeyBar">
+    <div class="journey-path">
+      <span class="journey-icon">📍</span>
+      <span class="journey-plan" onclick="var w=window.open('tea_learning.html#kc-p2_4','plan_main');if(w)w.focus()">识茶·喝茶·品茶 系统学习方案</span>
+      <span class="journey-sep">〉</span>
+      <span class="journey-phase">泡茶技艺</span>
+      <span class="journey-sep">〉</span>
+      <span class="journey-kp">功夫茶冲泡流程</span>
+      <span class="journey-pos">(2/4)</span>
+    </div>
+    <div class="journey-nav">
+      <span class="journey-prev" title="前置: 水质与水温科学、茶具选择与搭配、各茶类冲泡技法">← 前置</span>
+      <span class="journey-divider">|</span>
+      <span class="journey-next" title="后续: 感官品评方法论">后续 →</span>
+    </div>
+  </div>
+
+<!-- MODULE 1: 背景与缘起 -->
+<section id="module-intro" class="module">
+<h2><span class="m-tag">背景与缘起</span> 功夫茶的起源——从潮汕到世界的"中国茶道"<span class="m-time">~3 min</span></h2>
+<p class="hook">一个潮汕人可以一天不吃饭，但不能一天不喝功夫茶。功夫茶不是一种茶的名字，而是一套泡茶的方法论——"功夫"二字，指的是泡茶的技艺和用心。</p>
+<div class="content">
+<p>功夫茶起源于宋代<strong>点茶法</strong>，成熟于明代<strong>瀹茶法</strong>，至清代在福建漳州/泉州和广东潮汕地区形成完整的功夫茶冲泡体系。清代俞蛟《梦厂杂著·潮嘉风月》最早详细记载了功夫茶冲泡流程，是功夫茶历史的重要文献。</p>
+<p>功夫茶的核心精神可以用四个字概括：<strong>"和、敬、精、乐"</strong>——<em>和</em>是与自然和谐，<em>敬</em>是对茶、器、客的敬意，<em>精</em>是追求技艺的精益求精，<em>乐</em>是享受泡茶饮茶的过程乐趣。这四个字所承载的不仅是一套技艺，更是一种生活态度与精神境界。</p>
+<p>功夫茶有三大地域流派，各有千秋：</p>
+<div class="compare-grid">
+<div class="compare-card">
+<h4>闽南功夫茶</h4>
+<p>以铁观音为代表，喜用白瓷盖碗，讲究"春风拂面"和扬香，出汤快、香气高扬，是功夫茶中最重"香"的流派。</p>
+</div>
+<div class="compare-card">
+<h4>潮汕功夫茶</h4>
+<p>以凤凰单丛为代表，用潮州朱泥手拉壶，投茶量大、茶汤浓郁，重"山韵"——即茶叶所生长的山场气息，是功夫茶中最"浓"的流派。</p>
+</div>
+<div class="compare-card" style="grid-column:1/-1;max-width:400px;justify-self:center">
+<h4>台湾功夫茶</h4>
+<p>以高山乌龙为代表，多用紫砂壶，独创"闻香杯+品茗杯"双杯品饮法，重清香高雅，是功夫茶中最"雅"的流派。</p>
+</div>
+</div>
+<p>三大流派流程基本一致，差异在于器具选择和冲泡节奏。正如功夫茶大师所言：<em>"器为父，水为母，技艺是灵魂"</em>——每种流派都在同样的七步功夫中找到了自己的表达方式。</p>
+<div class="timeline">
+<div class="timeline-item"><span class="timeline-year">宋代</span><span class="timeline-text">点茶法盛行——功夫茶的远祖，奠定了"精于技艺"的精神内核</span></div>
+<div class="timeline-item"><span class="timeline-year">明代</span><span class="timeline-text">瀹茶法普及——散茶瀹泡取代团茶点试，功夫茶的直系前身</span></div>
+<div class="timeline-item"><span class="timeline-year">清代</span><span class="timeline-text">功夫茶体系成熟——闽南、潮汕形成完整冲泡规程，俞蛟首次文字记载</span></div>
+<div class="timeline-item"><span class="timeline-year">近代</span><span class="timeline-text">台湾功夫茶兴起——融合闽南与潮汕传统，发展出"双杯品饮"</span></div>
+<div class="timeline-item"><span class="timeline-year">当代</span><span class="timeline-text">功夫茶走向世界——成为"中国茶道"的代名词，被列入国家级非物质文化遗产</span></div>
+</div>
+</div>
+<div class="takeaway"><strong>核心要点：</strong>功夫茶的核心不是"步骤"，而是"态度"——每一泡都要全力以赴，这是对茶的尊重。理解了这一点，你泡的每一壶茶都将与众不同。</div>
+</section>
+
+<!-- MODULE 2: 核心概念 -->
+<section id="module-philosophy" class="module">
+<h2><span class="m-tag">核心概念</span> 功夫茶的三大核心理念——"高冲低斟""关公巡城""韩信点兵"<span class="m-time">~4 min</span></h2>
+<p class="hook">功夫茶中有三句行话，每一个茶人都应该听懂："高冲低斟"决定了茶汤的香气，"关公巡城"确保每杯浓度一致，"韩信点兵"则是公平到最后一滴。</p>
+<div class="content">
+<p>这三句行话，是功夫茶冲泡的灵魂，理解了它们，你就不是机械地"走流程"，而是用心在"泡茶"。</p>
+
+<div class="step-card">
+<div class="sn">理念一：高冲低斟</div>
+<div class="sd">注水时壶嘴高于壶口<strong>10-15cm</strong>，利用水流落差冲击力翻动茶叶，激发香气——这是"高冲"。出汤时壶嘴贴近公道杯（或直接低斟入品茗杯），避免茶汤与空气剧烈接触导致香气散失及降温——这是"低斟"。高冲是为了让茶叶"醒过来"，低斟是为了让香气"留下来"。<br><em>口诀：高冲激香，低斟保香。</em></div>
+</div>
+
+<div class="step-card">
+<div class="sn">理念二：关公巡城</div>
+<div class="sd">分茶时将公道杯中的茶汤<strong>依次循环注入各品茗杯</strong>——不是一杯注满再注下一杯，而是巡回往复。这是因为先倒出的茶汤较淡、后倒出的较浓，如果逐个注满，第一杯淡而无味，最后一杯浓而苦涩。巡城般来回分注，确保每杯茶汤浓度均匀一致。一般为3杯一巡，来回巡2-3次。<br><em>口诀：不厚此薄彼，杯杯均分。</em></div>
+</div>
+
+<div class="step-card">
+<div class="sn">理念三：韩信点兵</div>
+<div class="sd">分茶到最后，公道杯中剩余的几滴精华——"点"入各杯中。这些最后的浓汤是最醇厚的部分，不点则浪费了整泡茶中最精华的部分。"点到为止"，即是公平到最后一滴的精神体现。这个动作看似微不足道，却是功夫茶精神的极致表达——<strong>对每一滴茶汤的尊重</strong>。<br><em>口诀：公平到最后一滴。</em></div>
+</div>
+
+<div class="callout callout-tip">
+<strong>🍵 茶三酒四：</strong>功夫茶还有一个重要的核心概念——品茶最佳人数是<strong>3人</strong>（刚好3杯），这个人数最能保证交流的深度和品茶的专注度。工夫茶杯之所以小巧（仅20-30ml），就是为了让人小口慢品，而非牛饮解渴。正如一句老话："茶三酒四踢跎二"——喝茶三人为宜，喝酒四人合适，游玩两人最妙。
+</div>
+
+<div class="thinking-box">下一次你拿起茶壶时，不妨停下来想一想：高冲是为了什么？低斟又是为了什么？当你理解了每一步的"目的"，那种"照本宣科"的感觉就会消失，取而代之的是与茶的真正对话。</div>
+</div>
+<div class="takeaway"><strong>核心要点：</strong>功夫茶的每一步都有"为什么"——理解了背后的逻辑，流程就不再是机械的套路，而是有灵魂的仪式。高冲低斟、关公巡城、韩信点兵，这三句话是你走进功夫茶世界的第一把钥匙。</div>
+</section>
+
+<!-- MODULE 3: 七步功夫 -->
+<section id="module-seven-steps" class="module">
+<h2><span class="m-tag">流程详解</span> 七步功夫——完整的功夫茶冲泡流程<span class="m-time">~7 min</span></h2>
+<p class="hook">下面这七个步骤，每一步都有具体的时间、动作要领和目的。初学者只需"照做"，熟练后自然会"得其意而忘其形"。</p>
+<div class="content">
+
+<div class="process-flow">
+<div class="process-step"><div class="psn">1</div><div class="psl">净器洁具</div></div>
+<div class="process-arrow">→</div>
+<div class="process-step"><div class="psn">2</div><div class="psl">赏茶纳茶</div></div>
+<div class="process-arrow">→</div>
+<div class="process-step"><div class="psn">3</div><div class="psl">温润醒茶</div></div>
+<div class="process-arrow">→</div>
+<div class="process-step"><div class="psn">4</div><div class="psl">凤凰点头</div></div>
+<div class="process-arrow">→</div>
+<div class="process-step"><div class="psn">5</div><div class="psl">玉液出壶</div></div>
+<div class="process-arrow">→</div>
+<div class="process-step"><div class="psn">6</div><div class="psl">平分秋色</div></div>
+<div class="process-arrow">→</div>
+<div class="process-step"><div class="psn">7</div><div class="psl">三品得趣</div></div>
+</div>
+
+<div class="step-card">
+<div class="sn">Step 1: 净器洁具（准备阶段）</div>
+<div class="sd">用沸水将所有茶具清洗/烫洗一遍——壶/盖碗、公道杯、品茗杯无一遗漏。<strong>目的：清洁杀菌 + 提升器皿温度。</strong>温热器具不会在注水时吸热导致水温骤降，这在功夫茶中尤为关键——乌龙茶需要高温才能充分激发香气。用时：约1分钟。<br><em>老茶人常说："温器具如暖人心，器具不温，茶汤不醇。"</em></div>
+</div>
+
+<div class="step-card">
+<div class="sn">Step 2: 赏茶纳茶（投茶阶段）</div>
+<div class="sd">将干茶置于茶荷中，请客人欣赏干茶外形、色泽、香气——这是功夫茶特有的社交礼仪。然后用茶则将茶叶拨入壶/盖碗中。<strong>投茶量：壶容量的1/3至1/2</strong>（乌龙茶约7-8g/100ml）。潮汕功夫茶投茶量偏大，往往达到壶容量的1/2甚至更满——因为他们追求浓郁醇厚的茶汤。目的：让客人对即将品饮的茶叶建立第一印象，同时让茶师根据干茶状态调整冲泡策略。</div>
+</div>
+
+<div class="step-card">
+<div class="sn">Step 3: 温润/醒茶（洗茶阶段）</div>
+<div class="sd">注沸水至壶满，<strong>即刻（3秒内）</strong>快速倒入茶盘或废水杯。目的：唤醒沉睡的干茶——让茶叶湿润舒展"醒来"，同时冲刷去除表面浮尘。对于紧压茶（普洱饼/砖），此步更是必须——第一泡茶通常不饮用。<br><em>这一泡被称为"温润泡"，是茶与水的第一次握手，短暂而温柔。</em></div>
+</div>
+
+<div class="step-card">
+<div class="sn">Step 4: 凤凰点头（正式冲泡）</div>
+<div class="sd">沸水<strong>高冲</strong>注入壶中，壶嘴距壶口<strong>10-15cm</strong>，水流利用高度差冲击茶叶翻滚→内含物快速溶出→香气爆发。壶嘴注水时"三起三落"（壶嘴上下轻点3次），形如凤凰点头——目的是让水流均匀浸润所有茶叶，避免局部过热。注满后盖上壶盖，此时在壶外也淋浇一圈沸水（<strong>"淋壶"</strong>——保证壶内外温度一致、激发壶盖香）。淋壶时注意手法要均匀，壶身被沸水包裹后在蒸汽中微微发亮，这一幕本身就是功夫茶的视觉之美。</div>
+</div>
+
+<div class="step-card">
+<div class="sn">Step 5: 玉液出壶（出汤阶段）</div>
+<div class="sd">浸泡时间到后，食指按住壶盖、拇指和中指捏壶把（或盖碗沿），将壶/盖碗倾斜90°<strong>低斟出汤</strong>至公道杯。<strong>务必沥尽最后一滴茶汤</strong>——残留会持续浸泡影响下一泡品质。这是初学者最容易犯的错误之一。出汤时间参考：闽南乌龙5-10秒，潮汕单丛8-15秒，后续每泡递增5-10秒。<br><em>出汤的动作要稳、要决断——犹豫不决，茶汤已老。</em></div>
+</div>
+
+<div class="step-card">
+<div class="sn">Step 6: 平分秋色（分茶阶段）</div>
+<div class="sd">用"关公巡城"手法将公道杯中的茶汤依次巡回分入各品茗杯；最后"韩信点兵"将余沥点入各杯。分茶时公道杯嘴贴近品茗杯（低斟），避免香气散失。每杯茶汤量约<strong>七分满</strong>——<em>"酒满敬人，茶满欺人"</em>（茶满则烫手、且暗示送客）。分茶的过程是功夫茶仪式感最强的一环——公道杯在品茗杯上方缓缓巡行，茶汤如琥珀般倾注而入，一巡、二巡、三巡，每一杯的分量都在这个过程中逐渐平衡。</div>
+</div>
+
+<div class="step-card">
+<div class="sn">Step 7: 三品得趣（品饮阶段）</div>
+<div class="sd">品饮三步：<strong>①先闻杯盖香/杯面香</strong>——乌龙茶高香扑面，这是对茶的第一印象；<strong>②观茶汤色</strong>——橙黄明亮为上，浊暗为下；<strong>③小口啜饮</strong>，让茶汤在口中滚动一圈（舌头搅拌）→感受滋味醇厚度和回甘生津。<strong>一口为喝，二口为饮，三口为品</strong>——功夫茶讲究"品"而非"喝"。品完闻<strong>杯底香</strong>（"冷香"）——高品质功夫茶冷杯留香持久，这往往比热香更能揭示茶叶的真实品质。</div>
+</div>
+
+<div class="callout callout-info">
+<strong>⏱️ 完整时间线参考（以潮汕单丛功夫茶为例）：</strong><br>
+0:00 净器洁具 → 1:00 赏茶纳茶 → 1:30 温润醒茶（3秒倒掉）→ 1:40 凤凰点头（注水+淋壶15秒）→ 2:00 浸泡10-15秒 → 2:15 玉液出壶 → 2:30 平分秋色 → 2:45 三品得趣。一泡茶从准备到品饮约3分钟，再泡约2分钟一泡，一壶茶可冲泡8-10次，全程约20-25分钟。
+</div>
+
+<div class="formula-block">
+<span class="f-cap">功夫茶冲泡的核心公式</span>
+品质 = 好茶(40%) + 好水(20%) + 好器(10%) + 好技(20%) + 好心境(10%)
+</div>
+
+</div>
+<div class="takeaway"><strong>核心要点：</strong>七步功夫，步步有深意——功夫茶的"功夫"，就在这每一个细节之中。净器、纳茶、醒茶、高冲、低斟、巡城、点兵——把这七步刻在肌肉记忆里，你离功夫茶高手只差练习。</div>
+</section>
+
+<!-- MODULE 4: 进阶技巧 -->
+<section id="module-optimization" class="module">
+<h2><span class="m-tag">进阶技巧</span> 从"照做"到"活用"——功夫茶冲泡参数优化<span class="m-time">~3 min</span></h2>
+<p class="hook">当你熟练了七步流程之后，真正的"功夫"才刚刚开始——如何根据不同的茶叶、人数、季节，调整每个步骤的细节？</p>
+<div class="content">
+<p>高手的标志不是知道多少茶知识，而是能否<strong>灵活调整每一泡的参数</strong>。下面是一份实战参数优化指南：</p>
+
+<div class="table-container">
+<div class="table-caption">表1：不同茶叶的投茶量与浸泡参数参考</div>
+<table>
+<thead><tr><th>茶叶类型</th><th>推荐主泡器</th><th>投茶量（100ml水）</th><th>首泡时间</th><th>后续递增</th><th>可冲泡次数</th></tr></thead>
+<tbody>
+<tr><td><strong>浓香型铁观音</strong></td><td>白瓷盖碗</td><td>7-8g</td><td>8-12秒</td><td>+5-10秒/泡</td><td>7-9泡</td></tr>
+<tr><td><strong>清香型铁观音</strong></td><td>白瓷盖碗</td><td>8g</td><td>5-8秒</td><td>+5-8秒/泡</td><td>5-7泡</td></tr>
+<tr><td><strong>凤凰单丛</strong></td><td>潮州朱泥壶</td><td>8-10g</td><td>8-15秒</td><td>+10-15秒/泡</td><td>8-12泡</td></tr>
+<tr><td><strong>台湾高山乌龙</strong></td><td>紫砂壶</td><td>6-8g</td><td>15-20秒</td><td>+10-15秒/泡</td><td>6-8泡</td></tr>
+<tr><td><strong>武夷岩茶/大红袍</strong></td><td>紫砂壶/盖碗</td><td>8-10g</td><td>5-10秒</td><td>+5-10秒/泡</td><td>7-10泡</td></tr>
+<tr><td><strong>老普洱/黑茶</strong></td><td>紫砂壶</td><td>8-10g</td><td>15-20秒</td><td>+10-20秒/泡</td><td>10-15泡</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="chart-wrap">
+<div id="chart_steeping" class="chart-canvas"></div>
+<div class="ch-cap">图1：轻发酵 vs 重发酵乌龙茶 10泡累计浸泡时间趋势。轻发酵（如清香铁观音）前期出汤快、后期增速快；重发酵（如凤凰单丛/大红袍）整体浸泡时间更长、曲线更平稳。</div>
+</div>
+
+<div class="callout callout-warn">
+<strong>⚠️ 参数调整的核心原则：</strong>第1泡是"基准泡"——根据第1泡的口感调整后续浸泡时间。淡了则延长、浓了则缩短。每一泡都是一次"反馈-调整"的机会，这就是"活学活用"的精髓。
+</div>
+
+<div class="compare-grid">
+<div class="compare-card">
+<h4>🫖 投茶量调整</h4>
+<p>浓香型乌龙茶/单丛 投壶1/3；清香型铁观音/台湾高山茶 投壶1/2（紧结颗粒型体积小投多）；老普洱/黑茶 投壶1/2。人数多时按比例加茶——功夫茶的核心在于"茶、水、时间"三者的平衡。</p>
+</div>
+<div class="compare-card">
+<h4>🌡️ 季节适配</h4>
+<p>夏季用盖碗——散热快、品饮温茶舒适；冬季用紫砂壶——保温好、品饮热茶暖身暖胃。夏季投茶量略减、浸泡时间略缩短；冬季反之。冬日尤其适合陈年老铁观音或老普洱，围炉煮茶是功夫茶最温馨的打开方式。</p>
+</div>
+</div>
+
+<div class="thinking-box">功夫茶如习武——初学时要"一招一式，循规蹈矩"；进阶后要"见招拆招，灵活应对"。你的目标不是把每一个参数背下来，而是培养对茶汤的"感觉"——喝一口就知道下一泡该调快还是调慢。</div>
+
+</div>
+<div class="takeaway"><strong>核心要点：</strong>高手与初学者的区别不在于"知不知道七步"，而在于"能不能根据具体情况调整每一步的参数"。每泡一次、味调一次——这才是真功夫。</div>
+</section>
+
+<!-- MODULE 5: 技法对比 -->
+<section id="module-variations" class="module">
+<h2><span class="m-tag">技法对比</span> 三大地域流派——闽南 vs 潮汕 vs 台湾功夫茶<span class="m-time">~3 min</span></h2>
+<p class="hook">同样是功夫茶，福建人用盖碗、潮汕人用朱泥小壶、台湾人用紫砂壶——同样的七步功夫，不同的器具选择造就了三种风味。</p>
+<div class="content">
+
+<div class="table-container">
+<div class="table-caption">表2：闽南·潮汕·台湾 三大功夫茶流派对比</div>
+<table>
+<thead><tr><th>维度</th><th>闽南功夫茶</th><th>潮汕功夫茶</th><th>台湾功夫茶</th></tr></thead>
+<tbody>
+<tr><td><strong>代表茶</strong></td><td>铁观音（安溪）</td><td>凤凰单丛（潮州）</td><td>高山乌龙（阿里山/梨山）</td></tr>
+<tr><td><strong>主泡器</strong></td><td>白瓷盖碗（150ml）</td><td>潮州朱泥手拉壶（100-120ml）</td><td>紫砂壶（150-200ml）</td></tr>
+<tr><td><strong>投茶量</strong></td><td>7-8g（壶约1/3）</td><td>壶1/2至满（浓郁是王道）</td><td>壶1/4至1/3</td></tr>
+<tr><td><strong>水温</strong></td><td>100°C沸水</td><td>100°C沸水</td><td>95-100°C</td></tr>
+<tr><td><strong>出汤时间</strong></td><td>5-10秒（快出）</td><td>10-15秒</td><td>15-20秒（稍长）</td></tr>
+<tr><td><strong>品杯</strong></td><td>白瓷小杯（30ml）</td><td>薄胎白瓷小杯（20-25ml，若琛杯）</td><td>闻香杯+品茗杯（双杯制）</td></tr>
+<tr><td><strong>核心技法</strong></td><td>"春风拂面"——用盖刮去浮沫</td><td>"若琛出韵"——薄胎杯聚香极致</td><td>"双杯品饮"——先闻香后品茗</td></tr>
+<tr><td><strong>风格定位</strong></td><td>扬香派——重香气的高扬绽放</td><td>重韵派——重山韵的浓郁醇厚</td><td>清雅派——重清香的细腻高雅</td></tr>
+<tr><td><strong>典型场景</strong></td><td>春夏日常、商务待客</td><td>潮汕人日常生活、待客之道</td><td>茶艺馆、茶道表演</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="compare-grid">
+<div class="compare-card">
+<h4>🔑 三大流派共同点</h4>
+<p>七步流程框架一致（净器→纳茶→醒茶→冲泡→出汤→分茶→品饮）；都讲究"高冲低斟"；都遵循"关公巡城、韩信点兵"的分茶理念；都追求"茶三酒四"的品饮氛围；都体现了对茶、器、客的尊重。</p>
+</div>
+<div class="compare-card">
+<h4>🔑 三大流派差异根源</h4>
+<p>根源在于当地所产茶叶的特性差异——铁观音高香→闽南用盖碗快出扬香；单丛浓郁→潮汕用小壶大投茶量追求极致浓醇；高山乌龙清香→台湾用紫砂壶稍长时间释放细腻香气，并独创双杯制分步品鉴。</p>
+</div>
+</div>
+
+<div class="callout callout-tip">
+<strong>🍵 台湾功夫茶的双杯品饮法：</strong>这是台湾功夫茶最独特的标志。茶汤先倒入<strong>闻香杯</strong>（细高筒形），再将闻香杯倒扣在品茗杯上，快速翻转——品茗杯中留下茶汤，闻香杯中留下香气。先闻香、后品饮，将嗅觉和味觉的体验分为两个独立环节，是对乌龙茶高香特性的极致发挥。
+</div>
+
+</div>
+<div class="takeaway"><strong>核心要点：</strong>功夫茶是一套方法论——器具和参数可以变，但"尊重茶、追求极致"的精神不变。理解了三大流派的异同，你就真正拥有了"功夫"的自由。</div>
+</section>
+
+<!-- MODULE 6: 常见错误 -->
+<section id="module-common-mistakes" class="module">
+<h2><span class="m-tag">实践技巧</span> 初学者最容易犯的七个错误<span class="m-time">~3 min</span></h2>
+<p class="hook">淋壶时烫到手、出汤时壶盖掉落、分茶时泼了一桌子——每一个功夫茶老手，都是从这些"事故"中走过来的。</p>
+<div class="content">
+
+<div class="myth-grid">
+<div class="myth-card">
+<div class="mn">❌ 错误一：第一泡喝了</div>
+<div class="mt">洗茶水/温润泡一般倒掉不喝——这泡主要是醒茶，滋味还未充分释放且表面有浮尘。乌龙茶功夫茶中第一泡倒掉是标准操作。唯一例外是部分顶级绿茶，但功夫茶领域，请务必倒掉第一泡。</div>
+</div>
+
+<div class="myth-card">
+<div class="mn">❌ 错误二：壶太满茶汤溢出</div>
+<div class="mt">注水八分满即可，留空间给茶叶吸水膨胀。特别是紧结颗粒型茶叶（如铁观音），干茶入壶看似不多，吸水后会膨胀至原来的2-3倍体积——注满则溢，狼狈且有失体面。</div>
+</div>
+
+<div class="myth-card">
+<div class="mn">❌ 错误三：出汤不沥尽</div>
+<div class="mt">这是最常见的错误！残留的茶汤在壶底持续浸泡，下一泡会变得苦涩。<em>"宁可倒慢一点，也要把壶倒到滴水不剩"</em>——最后几滴是苦味的浓缩，必须沥尽。</div>
+</div>
+
+<div class="myth-card">
+<div class="mn">❌ 错误四：茶汤不倒干净</div>
+<div class="mt">公道杯中残留的茶汤会让下一泡与残留混合→浓度不均、冷热不均。每次分茶应该刚好分完。公道杯的名字就来自它的功能——"公道"意味着公平地分配每一泡茶汤。</div>
+</div>
+
+<div class="myth-card">
+<div class="mn">❌ 错误五：品茶一饮而尽</div>
+<div class="mt">功夫茶不是解渴，是品味。三口一杯是基本节奏：先观色、再闻香、最后小口啜饮品味。好茶在口中应该有"变化"——入口的滋味、中段的厚感、吞咽后的回甘——一饮而尽等于暴殄天物。</div>
+</div>
+
+<div class="myth-card">
+<div class="mn">❌ 错误六：水温不够</div>
+<div class="mt">乌龙茶水温不够→香气激发不出来，茶汤薄而无力。确保每次冲泡前煮水器中的水是沸水状态。不要用"大概开了"的水——肉眼看到"蟹眼泡"（细密气泡如蟹眼大小）才算是真正的沸水。</div>
+</div>
+
+<div class="myth-card">
+<div class="mn">❌ 错误七：忘记"工夫在茶外"</div>
+<div class="mt">准备阶段的净器/洁具/备茶容易被忽略，但这是品质保障的基础——就像医生做手术前的消毒环节，是必要的前奏。茶桌的整洁、器具的摆放、泡茶时的从容——这些"茶外工夫"直接影响茶汤品质和品茶体验。</div>
+</div>
+</div>
+
+<div class="case-box">
+<h4>🍵 实战案例：出汤不沥尽的代价</h4>
+<p>一位茶友泡凤凰单丛，第3泡出汤后壶中残留约5ml茶汤未倒出。第4泡注入沸水后，这5ml残留茶汤与新鲜茶汤混合——茶汤入口有明显苦底，回甘被涩味掩盖，第4泡本该是单丛最精彩的一泡（经过前几泡的唤醒，茶叶已充分舒展），却因为这一个小小的失误而功亏一篑。</p>
+<div class="case-reasoning">
+<strong>教训：</strong>如果说功夫茶中有什么是"零容忍"的错误，那就是出汤不沥尽。每一泡出汤时，多停留2-3秒，确认最后一滴已经落入公道杯中，再放下壶。这2-3秒，就是好茶与坏茶的分界线。
+</div>
+</div>
+
+</div>
+<div class="takeaway"><strong>核心要点：</strong>每一个"错误"都是学习机会——功夫茶没有捷径，多泡多练是最快的学习方法。与其害怕犯错，不如记住这七个常见坑，"踩过"了自然就成长了。</div>
+</section>
+
+<!-- MODULE 7: 实战心法 -->
+<section id="module-tips" class="module">
+<h2><span class="m-tag">实战心法</span> 功夫茶的"工夫在茶外"——环境、心境与时令<span class="m-time">~2 min</span></h2>
+<p class="hook">功夫茶的"功夫"，一半在手上——冲泡技艺，一半在心里——心境与氛围。一个嘈杂的环境、一个急躁的心情，永远泡不出一壶好功夫茶。</p>
+<div class="content">
+
+<div class="compare-grid">
+<div class="compare-card">
+<h4>🌿 环境营造</h4>
+<p>功夫茶需要一个安静的角落——一张茶桌、一把舒适的椅子、自然光线（不要太亮太刺眼），远离厨房和嘈杂区域。如果有条件可以挂一幅字画、摆一盆盆栽兰花或文竹、放一段古琴或琵琶背景音乐——不是为了"形式"，而是通过环境来<strong>静心</strong>，静心后才能专注于泡茶的每一个细节。</p>
+</div>
+<div class="compare-card">
+<h4>🧘 心境准备</h4>
+<p>"先静心，后泡茶"——放下手机、放下杂念，告诉自己"接下来的20分钟只属于茶"。急躁的人一定泡不好功夫茶——出汤太快太慢都是心不静的表现。<em>功夫茶的终极目标不是泡出一杯完美的茶，而是在泡茶的过程中让自己安静下来。茶好喝是结果，心静才是目的。</em></p>
+</div>
+</div>
+
+<div class="table-container">
+<div class="table-caption">表3：四季功夫茶时令建议</div>
+<table>
+<thead><tr><th>季节</th><th>推荐茶类</th><th>推荐主泡器</th><th>品饮风格</th></tr></thead>
+<tbody>
+<tr><td><strong>春</strong></td><td>清香型铁观音、台湾高山乌龙</td><td>白瓷盖碗</td><td>清爽的上午茶，感受春天的花香气息</td></tr>
+<tr><td><strong>夏</strong></td><td>清香型铁观音、消青型乌龙</td><td>盖碗（散热快）</td><td>温茶或凉茶，在酷暑中寻找一丝清幽</td></tr>
+<tr><td><strong>秋</strong></td><td>浓香型铁观音、大红袍</td><td>紫砂壶</td><td>温润的午后茶，品味秋收的醇厚感</td></tr>
+<tr><td><strong>冬</strong></td><td>凤凰单丛、陈年老铁、老普洱</td><td>紫砂壶/朱泥壶</td><td>暖身暖胃的围炉茶，陈茶的温暖感最佳</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="callout callout-info">
+<strong>🌅 一日之中的功夫茶：</strong>潮汕人有"三茶"习俗——<strong>早茶、午茶、夜茶</strong>。早茶配早点（清淡淡茶开胃）、午茶解困（半浓功夫茶提神）、夜茶叙话（浓郁功夫茶配茶点，是社交的黄金时刻）。一日三茶，茶贯穿了潮汕人的生活节奏，这或许就是功夫茶文化最日常、最生动的体现。
+</div>
+
+<div class="thinking-box">下一次泡茶前，先花一分钟整理茶桌、调整呼吸。你可能发现，这"一分钟"不只是仪式，而是一种从日常到"茶时刻"的心理切换。功夫茶高手泡茶前的那份从容，不是装的——是真的心静了。</div>
+
+</div>
+<div class="takeaway"><strong>核心要点：</strong>功夫茶不是"泡茶的功夫"，而是"修心的功夫"。茶好喝是结果，心静才是目的。环境、心境、时令——这三者构成了功夫茶的"茶外工夫"，决定了茶汤能有多好喝。</div>
+</section>
+
+<!-- MODULE 8: 术语表 -->
+<section id="module-glossary" class="module">
+<h2><span class="m-tag">关键术语表</span> 功夫茶核心术语<span class="m-time">~2 min</span></h2>
+<div class="content">
+
+<div class="table-container">
+<div class="table-caption">表4：功夫茶核心术语一览（20个必知术语）</div>
+<table>
+<thead><tr><th>术语</th><th>英文</th><th>定义</th></tr></thead>
+<tbody>
+<tr><td><strong>功夫茶</strong></td><td>Gongfu Tea / Kung Fu Tea</td><td>一种讲究冲泡技艺和品饮方法的乌龙茶冲泡体系，"功夫"指泡茶的技艺和用心</td></tr>
+<tr><td><strong>高冲低斟</strong></td><td>High Pour, Low Serve</td><td>注水时壶嘴高于壶口以激发香气，出汤时壶嘴贴近杯口以保留香气</td></tr>
+<tr><td><strong>关公巡城</strong></td><td>General's Patrol</td><td>分茶时依次巡回注入各杯，确保每杯茶汤浓度均匀一致</td></tr>
+<tr><td><strong>韩信点兵</strong></td><td>Marshal's Count</td><td>分茶最后将壶中余沥"点"入各杯，确保公平到最后一滴</td></tr>
+<tr><td><strong>温润泡</strong></td><td>Rinse Infusion / Awakening Steep</td><td>第一泡快速倒掉的洗茶/醒茶步骤，帮助茶叶舒展并去除表面浮尘</td></tr>
+<tr><td><strong>淋壶</strong></td><td>Shower the Pot</td><td>冲泡后在壶外浇淋沸水，保证壶内外温度一致并激发壶盖香</td></tr>
+<tr><td><strong>若琛杯</strong></td><td>Ruochen Cup</td><td>潮汕功夫茶特制薄胎白瓷小杯（20-25ml），因其薄胎聚香效果极佳而得名</td></tr>
+<tr><td><strong>闻香杯</strong></td><td>Aroma Cup</td><td>台湾功夫茶特有的细高筒形杯，用于先闻茶香再转入品茗杯品饮</td></tr>
+<tr><td><strong>公道杯</strong></td><td>Fairness Pitcher / Gong Dao Bei</td><td>出汤后用于均匀茶汤浓度的中间容器，保证分茶时的公平性</td></tr>
+<tr><td><strong>茶荷</strong></td><td>Tea Presentation Vessel</td><td>用于盛放干茶供客人欣赏茶叶外形和干香的器具</td></tr>
+<tr><td><strong>茶则</strong></td><td>Tea Scoop</td><td>用于从茶罐中取茶并投入茶壶的量茶工具</td></tr>
+<tr><td><strong>茶六君子</strong></td><td>Six Gentlemen of Tea</td><td>茶筒/茶则/茶匙/茶夹/茶漏/茶针六件套，功夫茶的基础辅助工具</td></tr>
+<tr><td><strong>凤凰三点头</strong></td><td>Phoenix Triple Nod</td><td>注水时壶嘴上下轻点三次，使水流均匀浸润所有茶叶，形如凤凰点头</td></tr>
+<tr><td><strong>春风拂面</strong></td><td>Spring Breeze</td><td>闽南功夫茶中用盖碗盖沿轻刮茶汤表面浮沫的动作</td></tr>
+<tr><td><strong>若琛出韵</strong></td><td>Ruochen Rhyme</td><td>潮汕功夫茶特色的薄胎杯品饮体验，利用杯壁薄散热快的特性让茶韵凸显</td></tr>
+<tr><td><strong>茶三酒四</strong></td><td>Tea for Three, Wine for Four</td><td>品功夫茶最佳3人、饮酒最佳4人的传统说法</td></tr>
+<tr><td><strong>杯底香</strong></td><td>Cup Bottom Aroma / Cold Aroma</td><td>品饮后闻空杯底残留的冷香，高品质功夫茶冷杯留香持久</td></tr>
+<tr><td><strong>茶船</strong></td><td>Tea Boat / Tea Tray</td><td>承接冲泡过程中溢出的水和废茶汤的托盘容器</td></tr>
+<tr><td><strong>茶巾</strong></td><td>Tea Towel</td><td>用于擦拭茶具和茶桌的专用小方巾，保持茶席整洁</td></tr>
+<tr><td><strong>茶盘</strong></td><td>Tea Tray / Tea Table</td><td>具有排水功能的功夫茶专用泡茶台面，可承接淋壶和洗茶的废水</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="callout callout-tip">
+<strong>📖 进阶阅读建议：</strong>清代俞蛟《梦厂杂著·潮嘉风月》——最早详细记载功夫茶冲泡流程的古籍。潮汕功夫茶有"关公巡城、韩信点兵"的行话，闽南功夫茶有"春风拂面、游山玩水"的技法，台湾功夫茶有"双杯品饮、闻香识茶"的创新——这三套术语体系共同构成了功夫茶丰富的文化内涵。
+</div>
+
+</div>
+<div class="takeaway"><strong>核心要点：</strong>掌握这20个核心术语，你就有了与任何茶人对话的基本语言。功夫茶不仅是一套冲泡技术，更是一套完整的文化语言体系——术语是进入这个体系的通行证。</div>
+</section>
+
+</div>
+
+<footer class="journey-footer">
+  <a href="#" class="back-to-plan" onclick="event.preventDefault();var w=window.open('tea_learning.html#kc-p2_4','plan_main');if(w)w.focus()">🔗 返回学习路线: 识茶·喝茶·品茶 系统学习方案 → 泡茶技艺</a>
+  <p style="margin-top:12px;font-size:.72rem;color:var(--text-muted)">
+    本资料是 <strong>识茶·喝茶·品茶 系统学习方案</strong> 泡茶技艺 阶段的深度研读材料
+  </p>
+</footer>
+
+<div class="deep-floating-back">
+  <button onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 16px rgba(0,0,0,.2)'"
+    onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 12px rgba(0,0,0,.15)'"
+    onclick="event.preventDefault();var w=window.open('tea_learning.html#kc-p2_4','plan_main');if(w)w.focus()">
+    ← 返回学习方案
+  </button>
+</div>
+</div>
+
+<div class="dd-toast" id="toastEl"><span id="toastMsg"></span></div>
+
+<script>
+var MODULE_IDS = ["module-intro","module-philosophy","module-seven-steps","module-optimization","module-variations","module-common-mistakes","module-tips","module-glossary"];
+var SEARCH_INDEX = [
+{id:"module-intro",t:"01 背景与缘起：功夫茶的起源",c:"从宋代点茶法到清代成熟体系，闽南·潮汕·台湾三大流派，和敬精乐核心精神。"},
+{id:"module-philosophy",t:"02 核心概念：三大核心理念",c:"高冲低斟、关公巡城、韩信点兵——功夫茶三句行话的深度解读与物理原理。"},
+{id:"module-seven-steps",t:"03 流程详解：七步功夫",c:"净器洁具→赏茶纳茶→温润醒茶→凤凰点头→玉液出壶→平分秋色→三品得趣，完整冲泡流程。"},
+{id:"module-optimization",t:"04 进阶技巧：冲泡参数优化",c:"投茶量调整、浸泡时间微调、人数变化、季节适配——从照做到活用的进阶指南。"},
+{id:"module-variations",t:"05 技法对比：三大地域流派",c:"闽南盖碗扬香派、潮汕朱泥壶重韵派、台湾紫砂壶清雅派——对比分析与双杯品饮法。"},
+{id:"module-common-mistakes",t:"06 实践技巧：七个常见错误",c:"第一泡喝了、茶汤不沥尽、水温不够——初学者最容易犯的七个错误及纠正方法。"},
+{id:"module-tips",t:"07 实战心法：工夫在茶外",c:"环境营造、心境准备、四季时令适配——茶好喝是结果，心静才是目的的功夫茶哲学。"},
+{id:"module-glossary",t:"08 关键术语表",c:"功夫茶20个核心术语（中英对照）：高冲低斟、关公巡城、韩信点兵、若琛杯等完整释义。"}
+];
+var TOAST_TIMEOUT;
+
+(function(){
+var progressBar=document.getElementById('progressBar');
+var modules=document.querySelectorAll('.module');
+
+var observer=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting)e.target.classList.add('visible')})},{threshold:.15});
+modules.forEach(function(m){observer.observe(m)});
+
+var navLinks=document.querySelectorAll('.sidebar-nav a');
+var navObserver=new IntersectionObserver(function(entries){
+entries.forEach(function(e){
+if(e.isIntersecting){
+navLinks.forEach(function(a){a.classList.remove('active')});
+var act=document.querySelector('.sidebar-nav a[href="#'+e.target.id+'"]');
+if(act)act.classList.add('active');
+}
+})},{threshold:.3});
+modules.forEach(function(m){navObserver.observe(m)});
+
+window.addEventListener('scroll',function(){
+var st=document.documentElement.scrollTop,dh=document.documentElement.scrollHeight-window.innerHeight;
+var pct=dh>0?Math.min(100,(st/dh)*100):0;progressBar.style.width=pct+'%';
+});
+
+window.addEventListener('keydown',function(e){
+if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();openSearch()}
+if((e.ctrlKey||e.metaKey)&&e.key==='d'){e.preventDefault();toggleTheme()}
+if(e.key==='Escape')closeSearch()
+});
+})();
+
+function toggleTheme(){
+var b=document.body,isD=b.getAttribute('data-theme')==='dark';
+b.setAttribute('data-theme',isD?'light':'dark');
+try{localStorage.setItem('slm-theme',isD?'light':'dark')}catch(e){}
+showToast('已切换至'+(isD?'浅色':'深色')+'主题')
+}
+
+function openSearch(){document.getElementById('searchOverlay').classList.add('open');setTimeout(function(){document.getElementById('searchInput').focus()},100)}
+function closeSearch(){document.getElementById('searchOverlay').classList.remove('open');document.getElementById('searchResults').innerHTML=''}
+
+function doSearch(){
+var q=document.getElementById('searchInput').value.toLowerCase(),res=document.getElementById('searchResults');
+if(q.length<2){res.innerHTML='';return}
+var h='';SEARCH_INDEX.forEach(function(item){
+if(item.t.toLowerCase().indexOf(q)>=0||(item.c||'').toLowerCase().indexOf(q)>=0){
+h+='<div onclick="closeSearch();document.getElementById(\''+item.id+'\').scrollIntoView({behavior:\'smooth\'})">'+
+'<strong>'+item.t+'</strong><br><small style="color:var(--text-muted)">'+(item.c||'').substring(0,80)+'</small></div>';
+}
+});
+res.innerHTML=h||'<div style="padding:12px;color:var(--text-muted)">未找到匹配模块</div>'
+}
+
+function showToast(msg){
+var el=document.getElementById('toastEl'),mg=document.getElementById('toastMsg');
+if(!el||!mg)return;mg.textContent=msg;el.style.display='block';el.classList.add('toast-in');
+if(TOAST_TIMEOUT)clearTimeout(TOAST_TIMEOUT);
+TOAST_TIMEOUT=setTimeout(function(){el.style.display='none'},3000);
+}
+
+(function(){
+var t;try{t=localStorage.getItem('slm-theme')}catch(e){}
+if(t==='light')document.body.setAttribute('data-theme','light');
+})();
+
+(function(){
+document.querySelectorAll('.derivation-toggle').forEach(function(btn){
+btn.addEventListener('click',function(){
+var content=this.nextElementSibling;
+if(content){content.classList.toggle('open');this.textContent=content.classList.contains('open')?'▾ 收起推导':'▸ 展开推导'}
+});
+});
+})();
+
+/* ===== ECharts 初始化模板 ===== */
+(function initCharts(){
+if(typeof echarts==='undefined')return;
+var charts=[];
+
+var isLight=document.body.getAttribute('data-theme')==='light';
+var textColor=isLight?'#4a4035':'#b8ad98';
+
+var chartSteepingEl=document.getElementById('chart_steeping');
+if(chartSteepingEl){
+var cs=echarts.init(chartSteepingEl);
+cs.setOption({
+tooltip:{trigger:'axis',formatter:function(params){var s='';params.forEach(function(p){s+=p.marker+p.seriesName+': '+p.value+'秒<br/>'});return s}},
+legend:{bottom:0,textStyle:{color:textColor,fontSize:10},data:['清香型乌龙（轻发酵）','浓香型乌龙（重发酵）']},
+grid:{left:50,right:30,top:20,bottom:45},
+xAxis:{type:'category',data:['1','2','3','4','5','6','7','8','9','10'],name:'冲泡次数',nameTextStyle:{color:textColor},axisLabel:{color:textColor}},
+yAxis:{type:'value',name:'累计浸泡时间（秒）',nameTextStyle:{color:textColor},axisLabel:{color:textColor}},
+series:[
+{name:'清香型乌龙（轻发酵）',type:'line',data:[8,18,30,44,60,80,105,135,170,210],smooth:true,lineStyle:{color:'#7ec8a0',width:2},itemStyle:{color:'#7ec8a0'},symbol:'circle',symbolSize:6,areaStyle:{color:{type:'linear',x:0,y:0,x2:0,y2:1,colorStops:[{offset:0,color:'rgba(126,200,160,.2)'},{offset:1,color:'rgba(126,200,160,.0)'}]}}},
+{name:'浓香型乌龙（重发酵）',type:'line',data:[12,28,46,68,95,125,160,200,245,295],smooth:true,lineStyle:{color:'#e6b95a',width:2},itemStyle:{color:'#e6b95a'},symbol:'circle',symbolSize:6,areaStyle:{color:{type:'linear',x:0,y:0,x2:0,y2:1,colorStops:[{offset:0,color:'rgba(230,185,90,.2)'},{offset:1,color:'rgba(230,185,90,.0)'}]}}}
+]
+});
+charts.push(cs);
+}
+
+window.addEventListener('resize',function(){charts.forEach(function(c){c.resize()})});
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>经络系统与腧穴总论 — 深度研读</title>
+<style>
+/* ───────────────────────────────────────────────
+   Template: Cedar Dawn (雪松晨曦) — deep_dive.css
+   Mood: warm, natural, organic
+   Contrast verified: text-primary≥10:1, text-secondary≥6:1, text-muted≥4.5:1
+   ─────────────────────────────────────────────── */
+:root{
+--bg-base:#1a1814;
+--bg-card:#282520;
+--bg-elevated:#312d27;
+--bg-overlay:rgba(0,0,0,.6);
+--text-primary:#ede6d8;
+--text-secondary:#b8ad98;
+--text-muted:#8a8070;
+--accent-indigo:#5ea87a;
+--accent-purple:#b898a0;
+--accent-cyan:#7ec8a0;
+--accent-gold:#e6b95a;
+--accent-green:#6ebf8a;
+--accent-red:#d47860;
+--accent-blue:#5ea87a;
+--accent-color:#5ea87a;
+--accent-dark:#3d6b50;
+--border-subtle:rgba(184,173,152,.15);
+--border-glow:rgba(94,168,122,.25);
+--shadow-sm:0 1px 3px rgba(0,0,0,.3);
+--shadow-md:0 4px 16px rgba(0,0,0,.4);
+--shadow-lg:0 8px 32px rgba(0,0,0,.5);
+--shadow-elevated:0 8px 32px rgba(0,0,0,.5);
+--radius-sm:6px;
+--radius-md:10px;
+--radius-lg:16px;
+--font-sans:'Segoe UI',system-ui,-apple-system,sans-serif;
+--font-mono:Consolas,'Cascadia Code',monospace;
+--transition:.25s cubic-bezier(.4,0,.2,1);
+--transition-smooth:.3s ease;
+--nav-h:56px;
+--accent-color-rgb:94,168,122;
+--chart-grid:#2d2924;
+--chart-axis-label:#8a8070;
+}
+[data-theme="light"]{
+--bg-base:#fdfaf3;
+--bg-card:#fffdf7;
+--bg-elevated:#f3efe3;
+--bg-overlay:rgba(0,0,0,.3);
+--text-primary:#1f1a12;
+--text-secondary:#4a4035;
+--text-muted:#5c5042;
+--accent-indigo:#3d6b50;
+--accent-purple:#7a5a6a;
+--accent-cyan:#4a8e6a;
+--accent-gold:#a07828;
+--accent-green:#4a9e66;
+--accent-red:#b05038;
+--accent-blue:#3d6b50;
+--accent-color:#3d6b50;
+--accent-dark:#2a4835;
+--border-subtle:rgba(31,26,18,.08);
+--border-glow:rgba(61,107,80,.25);
+--shadow-sm:0 1px 3px rgba(0,0,0,.06);
+--shadow-md:0 4px 16px rgba(0,0,0,.08);
+--shadow-lg:0 8px 32px rgba(0,0,0,.12);
+--shadow-elevated:0 8px 32px rgba(0,0,0,.12);
+--accent-color-rgb:61,107,80;
+--chart-grid:#ebe5d6;
+--chart-axis-label:#5c5042;
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font-sans);background:var(--bg-base);color:var(--text-primary);line-height:1.75;overflow-x:hidden}
+body.loading{opacity:0}body.loaded{opacity:1;transition:opacity .4s ease}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg-base)}::-webkit-scrollbar-thumb{background:var(--border-glow);border-radius:3px}
+
+.progress-bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--accent-indigo),var(--accent-purple),var(--accent-cyan));z-index:200;transition:width .1s linear}
+.navbar{position:fixed;top:3px;left:0;right:0;z-index:100;background:var(--bg-card);border-bottom:1px solid var(--border-subtle);backdrop-filter:blur(16px);height:var(--nav-h);display:flex;align-items:center;justify-content:space-between;padding:0 24px}
+.nav-left{display:flex;align-items:center;gap:12px;font-size:.82rem;font-weight:600;color:var(--accent-indigo)}
+.nav-right{display:flex;align-items:center;gap:8px}
+.nav-right button{background:var(--bg-elevated);border:1px solid var(--border-subtle);color:var(--text-secondary);padding:6px 12px;border-radius:var(--radius-sm);cursor:pointer;font-size:.75rem;transition:all var(--transition);font-family:inherit}
+.nav-right button:hover{border-color:var(--border-glow);color:var(--accent-indigo)}
+
+.sidebar{position:fixed;left:0;top:0;height:100vh;width:280px;background:var(--bg-base);border-right:1px solid var(--border-subtle);padding:24px;overflow-y:auto;z-index:100;padding-top:calc(var(--nav-h) + 16px)}
+.sidebar h3{font-size:.85rem;font-weight:700;color:var(--text-secondary);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--border-subtle)}
+.sidebar-nav{list-style:none;padding:0}
+.sidebar-nav li{margin-bottom:2px}
+.sidebar-nav a{display:block;padding:8px 12px;border-radius:var(--radius-md);text-decoration:none;font-size:.76rem;color:var(--text-secondary);transition:all var(--transition);border-left:3px solid transparent}
+.sidebar-nav a:hover{background:rgba(94,168,122,.08);color:var(--accent-cyan);border-left-color:var(--accent-cyan)}
+.sidebar-nav a.active{background:rgba(94,168,122,.12);color:var(--accent-blue);font-weight:600;border-left-color:var(--accent-blue)}
+.sidebar-back-link{display:block;padding:8px 12px;margin-bottom:12px;border-radius:8px;background:var(--bg-elevated);color:var(--accent-blue);text-decoration:none;font-size:.78rem;font-weight:600}
+.sidebar-back-link:hover{color:var(--accent-cyan)}
+
+.content-area{margin-left:280px;width:calc(100% - 280px)}
+.container{max-width:calc(100% - 48px);margin:0 auto;padding:calc(var(--nav-h) + 24px) 24px 80px}
+
+.hero{text-align:center;padding:48px 0 36px}
+.hero h1{font-size:2.2rem;background:linear-gradient(135deg,var(--accent-indigo),var(--accent-purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+.hero .tags{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:12px}
+.hero .tags span{font-size:.7rem;padding:4px 12px;border-radius:50px;border:1px solid var(--border-glow);color:var(--accent-indigo);background:rgba(94,168,122,.06)}
+
+.meta-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:20px 24px;margin:0 auto 32px;max-width:700px;display:flex;justify-content:center;gap:36px;flex-wrap:wrap;box-shadow:var(--shadow-md)}
+.meta-item{text-align:center}
+.meta-item .val{font-size:1.4rem;font-weight:800;color:var(--accent-indigo)}
+.meta-item .lbl{font-size:.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px}
+
+.journey-bar{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:12px 20px;margin:0 auto 24px;max-width:900px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:.82rem;box-shadow:var(--shadow-elevated)}
+.journey-path{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.journey-icon{font-size:1rem}
+.journey-plan{color:var(--accent-purple);font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.journey-plan:hover{color:var(--accent-gold)}
+.journey-sep{color:var(--text-muted);font-size:.7rem}
+.journey-phase{color:var(--text-secondary);font-weight:600}
+.journey-kp{color:var(--text-primary);font-weight:700}
+.journey-pos{color:var(--text-muted);font-size:.72rem}
+.journey-nav{display:flex;align-items:center;gap:8px;font-size:.75rem}
+.journey-prev,.journey-next{color:var(--text-muted);cursor:default}
+.journey-divider{color:var(--border-subtle)}
+
+.module{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:28px 28px 24px;margin-bottom:20px;
+opacity:0;transform:translateY(24px);transition:opacity .5s ease,transform .5s ease;box-shadow:var(--shadow-sm)}
+.module.visible{opacity:1;transform:translateY(0)}
+.module:hover{border-color:var(--border-glow)}
+.module h2{font-size:1.15rem;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.module .m-tag{font-size:.65rem;padding:2px 10px;border-radius:50px;background:rgba(94,168,122,.1);border:1px solid rgba(94,168,122,.2);color:var(--accent-indigo);font-weight:600}
+.module .m-time{font-size:.7rem;color:var(--text-muted);margin-left:auto}
+.module .hook{font-size:.9rem;color:var(--accent-purple);font-weight:600;margin:12px 0 16px;padding-left:12px;border-left:3px solid var(--accent-purple)}
+.module .content{font-size:.88rem;color:var(--text-secondary);line-height:1.8}
+.module .content p{margin-bottom:12px}
+.module .content strong{color:var(--text-primary)}
+
+.formula-block{background:rgba(94,168,122,.04);border:1px solid rgba(94,168,122,.12);border-radius:var(--radius-sm);padding:14px 18px;margin:14px 0;font-family:var(--font-mono);font-size:.82rem;color:var(--accent-cyan);overflow-x:auto;position:relative}
+.formula-block .f-cap{font-size:.7rem;color:var(--text-muted);margin-bottom:6px;display:block}
+
+.chart-wrap{background:rgba(94,168,122,.03);border-radius:var(--radius-sm);padding:8px;margin:14px 0;text-align:center}
+.chart-wrap > div{width:100%;height:420px}
+.chart-wrap .ch-cap{font-size:.72rem;color:var(--text-muted);margin-top:6px}
+
+.table-container{margin:20px 0;overflow-x:auto}
+.table-container table{width:100%;border-collapse:collapse;border-radius:var(--radius-md);overflow:hidden}
+.table-container th{background:var(--bg-elevated);color:var(--accent-cyan);font-weight:700;padding:12px 16px;text-align:left;font-size:.8rem}
+.table-container td{padding:10px 14px;border-bottom:1px solid var(--border-subtle);font-size:.82rem;color:var(--text-secondary)}
+.table-container tr:hover td{background:rgba(94,168,122,.03)}
+.table-container .table-caption{font-size:.72rem;color:var(--text-muted);margin-bottom:8px;text-align:center}
+
+.takeaway{font-size:.82rem;background:rgba(16,185,129,.06);border-left:3px solid var(--accent-green);padding:10px 14px;margin-top:16px;border-radius:0 var(--radius-sm) var(--radius-sm) 0;color:var(--accent-green)}
+
+.ref-list{list-style:none;padding:0;margin-top:8px;font-size:.78rem}
+.ref-list li{padding:4px 0;color:var(--text-muted)}
+.ref-list li::before{content:'📄 '}
+
+.search-overlay{position:fixed;inset:0;z-index:300;background:var(--bg-overlay);display:none;align-items:flex-start;justify-content:center;padding-top:120px}
+.search-overlay.open{display:flex}
+.search-box{width:520px;max-width:90vw;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:var(--radius-md);box-shadow:var(--shadow-lg);overflow:hidden}
+.search-box input{width:100%;padding:14px 18px;background:transparent;border:none;color:var(--text-primary);font-size:.95rem;outline:none;font-family:inherit}
+.search-results{max-height:360px;overflow-y:auto}
+.search-results div{padding:10px 18px;cursor:pointer;font-size:.82rem;color:var(--text-secondary);border-top:1px solid var(--border-subtle);transition:background var(--transition)}
+.search-results div:hover{background:rgba(94,168,122,.06);color:var(--text-primary)}
+
+.journey-footer{text-align:center;padding:40px 32px 60px;opacity:.8}
+.back-to-plan{display:inline-flex;align-items:center;gap:8px;padding:10px 24px;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:50px;color:var(--text-secondary);text-decoration:none;font-size:.85rem;font-weight:600;transition:all var(--transition-smooth)}
+.back-to-plan:hover{background:var(--bg-elevated);border-color:var(--accent-purple);color:var(--accent-purple)}
+
+.deep-floating-back{position:fixed;right:20px;bottom:20px;z-index:10000}
+.deep-floating-back button{padding:12px 20px;background:linear-gradient(135deg,var(--accent-color),var(--accent-dark));color:white;border:none;border-radius:24px;font-size:.85rem;font-weight:600;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.15);transition:transform .2s,box-shadow .2s}
+.deep-floating-back button:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.2)}
+
+.dd-toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);z-index:10001;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:8px;padding:14px 24px;box-shadow:0 4px 16px rgba(0,0,0,.15);font-size:.85rem;display:none}
+.toast-in{animation:toastIn .3s ease}
+@keyframes toastIn{from{opacity:0;transform:translate(-50%,20px)}to{opacity:1;transform:translate(-50%,0)}}
+
+/* ── 经络色系 ── */
+.meridian-card{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.meridian-chip{padding:5px 14px;border-radius:50px;font-size:.78rem;font-weight:600;white-space:nowrap}
+.mc-lung{background:rgba(94,168,122,.15);color:#5ea87a;border:1px solid rgba(94,168,122,.3)}
+.mc-large{background:rgba(180,180,180,.12);color:#9e9e9e;border:1px solid rgba(160,160,160,.25)}
+.mc-stomach{background:rgba(230,185,90,.15);color:#e6b95a;border:1px solid rgba(230,185,90,.3)}
+.mc-spleen{background:rgba(230,185,90,.1);color:#d4a843;border:1px solid rgba(230,185,90,.2)}
+.mc-heart{background:rgba(212,120,96,.15);color:#d47860;border:1px solid rgba(212,120,96,.3)}
+.mc-small{background:rgba(212,120,96,.1);color:#c06850;border:1px solid rgba(212,120,96,.2)}
+.mc-bladder{background:rgba(126,200,160,.15);color:#7ec8a0;border:1px solid rgba(126,200,160,.3)}
+.mc-kidney{background:rgba(126,200,160,.1);color:#6bbf90;border:1px solid rgba(126,200,160,.2)}
+.mc-pc{background:rgba(184,152,160,.15);color:#b898a0;border:1px solid rgba(184,152,160,.3)}
+.mc-sj{background:rgba(184,152,160,.1);color:#a88890;border:1px solid rgba(184,152,160,.2)}
+.mc-gb{background:rgba(94,168,122,.12);color:#4d9a6a;border:1px solid rgba(94,168,122,.2)}
+.mc-liver{background:rgba(94,168,122,.1);color:#3d8a5a;border:1px solid rgba(94,168,122,.18)}
+
+.print-only{display:none}
+@media print{
+.navbar,.progress-bar,.sidebar,.journey-bar,.journey-footer,.deep-floating-back{display:none!important}
+.content-area{margin-left:0;width:100%}.module{break-inside:avoid;opacity:1!important;transform:none!important;box-shadow:none}body{background:#fff}
+.print-only{display:block}
+}
+
+@media(max-width:1024px){.sidebar{display:none}.content-area{margin-left:0;width:100%}}
+@media(max-width:768px){
+.hero h1{font-size:1.6rem}.module{padding:20px}.meta-card{font-size:.72rem;padding:12px 16px}.journey-bar{flex-direction:column;align-items:flex-start}
+.deep-floating-back{right:15px;bottom:15px}.deep-floating-back button{padding:10px 16px;font-size:.8rem}
+.chart-wrap>div{height:300px}
+.meridian-card{gap:4px}.meridian-chip{padding:3px 10px;font-size:.7rem}
+}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+</head>
+<body data-theme="dark" class="loading">
+
+<div class="progress-bar" id="progressBar" style="width:0%"></div>
+
+<nav class="navbar">
+  <div class="nav-left">📖 经络系统与腧穴总论</div>
+  <div class="nav-right">
+    <button onclick="toggleTheme()" title="切换主题 (Ctrl+D)">🌓 主题</button>
+    <button onclick="openSearch()" title="搜索 (Ctrl+K)">🔍 搜索</button>
+  </div>
+</nav>
+
+<div class="sidebar">
+  <a href="#" class="sidebar-back-link" onclick="event.preventDefault();goBack()">← 返回主方案</a>
+  <h3>📖 目录导航</h3>
+  <ul class="sidebar-nav" id="sidebarNav"></ul>
+</div>
+
+<div class="content-area">
+<div class="search-overlay" id="searchOverlay">
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="搜索模块内容..." oninput="doSearch()" onkeydown="if(event.key==='Escape')closeSearch()">
+    <div class="search-results" id="searchResults"></div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="hero">
+    <h1>经络系统与腧穴总论</h1>
+    <div class="tags">
+      <span>经络系统</span><span>腧穴总论</span><span>十二正经</span><span>G6·系统图解</span>
+    </div>
+  </div>
+
+  <div class="meta-card">
+    <div class="meta-item"><div class="val">10</div><div class="lbl">研读模块</div></div><div class="meta-item"><div class="val">~50min</div><div class="lbl">预计用时</div></div><div class="meta-item"><div class="val">G6</div><div class="lbl">学习纹理</div></div><div class="meta-item"><div class="val">理解</div><div class="lbl">研读深度</div></div>
+  </div>
+
+  <div class="journey-bar" id="journeyBar">
+    <div class="journey-path">
+      <span class="journey-icon">📍</span>
+      <span class="journey-plan" onclick="goBack()">中医与养生 系统学习方案</span>
+      <span class="journey-sep">〉</span>
+      <span class="journey-phase">中医基础理论奠基</span>
+      <span class="journey-sep">〉</span>
+      <span class="journey-kp">经络系统与腧穴总论</span>
+      <span class="journey-pos">(1/4)</span>
+    </div>
+    <div class="journey-nav">
+      <span class="journey-prev" title="前置: 阴阳学说与五行生克, 精气神与藏象学说">← 前置</span>
+      <span class="journey-divider">|</span>
+      <span class="journey-next" title="后续: 气血津液与病因病机">后续 →</span>
+    </div>
+  </div>
+
+<!-- ============ m1 ============ -->
+<div class="module" id="m1">
+  <h2><span class="m-tag">概念框架</span>经络的概念与组成<span class="m-time">~5 min</span></h2>
+  <p class="hook">如果把人体比作一座城市，经络就是这座城市的交通网络——气血在其中运行，联络着每一个"社区"（脏腑组织）。</p>
+  <div class="content">
+    <p><strong>经络的定义</strong></p>
+    <p>经络是<strong>运行气血、联络脏腑、沟通内外、贯穿上下</strong>的通道系统。《灵枢·经脉》云："经脉者，所以能决死生，处百病，调虚实，不可不通。"经络是人体生命活动的重要维系系统，既不同于血管，也不同于神经，而是一个独立的功能网络。</p>
+    <p><strong>经络系统的组成</strong></p>
+    <p>经络系统由<strong>经脉</strong>和<strong>络脉</strong>两大部分构成：</p>
+    <p>• <strong>经脉（主干）</strong>：纵行于人体深层，是气血运行的主要通道。包括<strong>十二正经</strong>（十二经脉）、<strong>奇经八脉</strong>、<strong>十二经别</strong>（十二经脉的别行分支，深入体腔）</p>
+    <p>• <strong>络脉（分支）</strong>：横行于人体浅层，是经脉的分支网络。包括<strong>十五络脉</strong>（十二经脉+任督各一支+脾之大络）、<strong>孙络</strong>（最细小的分支）、<strong>浮络</strong>（浮现于体表的络脉）</p>
+    <p><strong>经脉与络脉的区别</strong></p>
+    <p>经脉主"经"——纵行、深层、主干：络脉主"络"——横行、浅层、分支。两者相互贯通，形成覆盖全身、无处不到的网络系统。</p>
+  </div>
+  <div class="formula-block">
+    <span class="f-cap">经络系统构成</span>
+    <div>经络系统 = 经脉（十二正经 + 奇经八脉 + 十二经别）+ 络脉（十五络脉 + 孙络 + 浮络）</div>
+  </div>
+  <div class="takeaway">💡 经络系统由经脉和络脉两大部分组成，经脉是主干（纵行深层），络脉是分支（横行浅层）。</div>
+</div>
+
+<!-- ============ m2 ============ -->
+<div class="module" id="m2">
+  <h2><span class="m-tag">系统图解</span>十二正经命名与走向规律<span class="m-time">~5 min</span></h2>
+  <p class="hook">十二正经的命名看似复杂，实则有一套清晰的规律——手/足+阴/阳+脏腑，掌握规律就能轻松记住。</p>
+  <div class="content">
+    <p><strong>命名规则</strong></p>
+    <p>每条正经的名称由三部分组成：<strong>手足部位</strong> + <strong>阴阳属性</strong> + <strong>所属脏腑</strong>。例如"手太阴肺经"：位置在上肢（手）→ 阴经中阴气最盛（太阴）→ 属肺脏。</p>
+
+    <p><strong>手三阴经（上肢内侧）</strong></p>
+    <div class="meridian-card">
+      <span class="meridian-chip mc-lung">手太阴肺经</span>
+      <span class="meridian-chip mc-pc">手厥阴心包经</span>
+      <span class="meridian-chip mc-heart">手少阴心经</span>
+    </div>
+    <p>排列规律：前缘→中间→后缘（太阴在前、厥阴在中、少阴在后）</p>
+
+    <p><strong>手三阳经（上肢外侧）</strong></p>
+    <div class="meridian-card">
+      <span class="meridian-chip mc-large">手阳明大肠经</span>
+      <span class="meridian-chip mc-sj">手少阳三焦经</span>
+      <span class="meridian-chip mc-small">手太阳小肠经</span>
+    </div>
+    <p>排列规律：前缘→中间→后缘（阳明在前、少阳在中、太阳在后）</p>
+
+    <p><strong>足三阴经（下肢内侧）</strong></p>
+    <div class="meridian-card">
+      <span class="meridian-chip mc-spleen">足太阴脾经</span>
+      <span class="meridian-chip mc-liver">足厥阴肝经</span>
+      <span class="meridian-chip mc-kidney">足少阴肾经</span>
+    </div>
+
+    <p><strong>足三阳经（下肢外侧）</strong></p>
+    <div class="meridian-card">
+      <span class="meridian-chip mc-stomach">足阳明胃经</span>
+      <span class="meridian-chip mc-gb">足少阳胆经</span>
+      <span class="meridian-chip mc-bladder">足太阳膀胱经</span>
+    </div>
+
+    <p><strong>走向交接规律——核心口诀</strong></p>
+    <p>手三阴经：从<strong>胸走手</strong>（交于手三阳）<br>
+    手三阳经：从<strong>手走头</strong>（交于足三阳）<br>
+    足三阳经：从<strong>头走足</strong>（交于足三阴）<br>
+    足三阴经：从<strong>足走腹胸</strong>（交于手三阴）</p>
+    <p>阴阳经脉在四肢末端交接，构成<strong>如环无端</strong>的循环体系。</p>
+  </div>
+  <div class="formula-block">
+    <span class="f-cap">口诀</span>
+    <div>手三阴 胸→手 | 手三阳 手→头 | 足三阳 头→足 | 足三阴 足→腹</div>
+  </div>
+  <div class="takeaway">💡 记住口诀：手三阴胸到手，手三阳手到头，足三阳头到足，足三阴足到腹——如环无端，循环不息。</div>
+</div>
+
+<!-- ============ m3 ============ -->
+<div class="module" id="m3">
+  <h2><span class="m-tag">系统图解</span>十二正经流注次序<span class="m-time">~5 min</span></h2>
+  <p class="hook">十二正经并非孤立运行，而是按照特定次序如环无端地流注——这个循环约每24小时完成一次。</p>
+  <div class="content">
+    <p><strong>气血流注次序</strong></p>
+    <p>十二经脉中的气血从肺经开始，按照以下顺序逐经流注，最终回到肺经，形成一个闭合循环：</p>
+    <p><strong>手太阴肺经 → 手阳明大肠经 → 足阳明胃经 → 足太阴脾经 → 手少阴心经 → 手太阳小肠经 → 足太阳膀胱经 → 足少阴肾经 → 手厥阴心包经 → 手少阳三焦经 → 足少阳胆经 → 足厥阴肝经 → （回肺经）</strong></p>
+    <p><strong>表里关系</strong>：十二正经两两配成六对表里关系，阴经属脏络腑、阳经属腑络脏：</p>
+    <p>• 肺（太阴）↔ 大肠（阳明） &nbsp; • 心（少阴）↔ 小肠（太阳） &nbsp; • 心包（厥阴）↔ 三焦（少阳）<br>
+    • 脾（太阴）↔ 胃（阳明） &nbsp; • 肾（少阴）↔ 膀胱（太阳） &nbsp; • 肝（厥阴）↔ 胆（少阳）</p>
+    <p>表里两经在四肢末端交接，在生理上相互协调，在病理上相互影响，在治疗上相互为用。</p>
+  </div>
+  <div class="chart-wrap">
+    <div id="chart_liuzhu"></div>
+    <div class="ch-cap">图：十二正经气血流注环形图 —— 从肺经开始按顺时针方向流注，每24小时循环一次（子午流注基础）</div>
+  </div>
+  <div class="takeaway">💡 掌握流注次序是理解子午流注针法和经络辨证的基础。</div>
+</div>
+
+<!-- ============ m4 ============ -->
+<div class="module" id="m4">
+  <h2><span class="m-tag">知识表格</span>十二正经循行简表<span class="m-time">~8 min</span></h2>
+  <p class="hook">每条经络都有其独特的循行路线和所属脏腑——这是学习腧穴定位和经络辨证的前提。</p>
+  <div class="content">
+    <p>下表汇总了十二正经的关键信息，包括阴阳属性、起止穴位、体内络属和体表主要循行路线。</p>
+  </div>
+  <div class="table-container">
+    <div class="table-caption">表：十二正经循行简表</div>
+    <table>
+      <thead><tr><th>经名</th><th>阴阳</th><th>起穴→止穴</th><th>属络脏腑</th><th>体表主要循行</th><th>主要病候</th></tr></thead>
+      <tbody>
+        <tr><td><strong>手太阴肺经</strong></td><td>太阴</td><td>中府→少商</td><td>属肺，络大肠</td><td>胸前壁外上方→上肢内侧前缘→拇指桡侧</td><td>咳喘、胸闷、咽喉痛</td></tr>
+        <tr><td><strong>手阳明大肠经</strong></td><td>阳明</td><td>商阳→迎香</td><td>属大肠，络肺</td><td>食指桡侧→上肢外侧前缘→肩→颈→鼻旁</td><td>齿痛、鼻衄、咽喉肿痛</td></tr>
+        <tr><td><strong>足阳明胃经</strong></td><td>阳明</td><td>承泣→厉兑</td><td>属胃，络脾</td><td>目下→面→胸腹→下肢外侧前缘→足次趾</td><td>胃痛、腹胀、面瘫</td></tr>
+        <tr><td><strong>足太阴脾经</strong></td><td>太阴</td><td>隐白→大包</td><td>属脾，络胃</td><td>大趾内侧→下肢内侧前缘→腹→胸</td><td>腹胀、泄泻、乏力</td></tr>
+        <tr><td><strong>手少阴心经</strong></td><td>少阴</td><td>极泉→少冲</td><td>属心，络小肠</td><td>腋下→上肢内侧后缘→小指桡侧</td><td>心痛、心悸、失眠</td></tr>
+        <tr><td><strong>手太阳小肠经</strong></td><td>太阳</td><td>少泽→听宫</td><td>属小肠，络心</td><td>小指尺侧→上肢外侧后缘→肩胛→面颊→耳前</td><td>耳聋、目黄、肩臂痛</td></tr>
+        <tr><td><strong>足太阳膀胱经</strong></td><td>太阳</td><td>睛明→至阴</td><td>属膀胱，络肾</td><td>目内眦→头→项→背腰→下肢后侧→足小趾</td><td>头痛、项强、腰背痛</td></tr>
+        <tr><td><strong>足少阴肾经</strong></td><td>少阴</td><td>涌泉→俞府</td><td>属肾，络膀胱</td><td>足心→下肢内侧后缘→腹→胸</td><td>腰痛、耳鸣、水肿</td></tr>
+        <tr><td><strong>手厥阴心包经</strong></td><td>厥阴</td><td>天池→中冲</td><td>属心包，络三焦</td><td>乳头外侧→上肢内侧中间→中指端</td><td>心痛、胸闷、癫狂</td></tr>
+        <tr><td><strong>手少阳三焦经</strong></td><td>少阳</td><td>关冲→丝竹空</td><td>属三焦，络心包</td><td>无名指尺侧→上肢外侧中间→肩→耳后→眉梢</td><td>耳聋、偏头痛、目赤</td></tr>
+        <tr><td><strong>足少阳胆经</strong></td><td>少阳</td><td>瞳子髎→足窍阴</td><td>属胆，络肝</td><td>目外眦→头侧→肩→胸胁→下肢外侧中间→足四趾</td><td>偏头痛、口苦、胁痛</td></tr>
+        <tr><td><strong>足厥阴肝经</strong></td><td>厥阴</td><td>大敦→期门</td><td>属肝，络胆</td><td>大趾外侧→下肢内侧中间→腹→胁肋</td><td>胁痛、眩晕、抽搐</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="takeaway">💡 十二正经各有其循行路线和所属脏腑，分阴阳、分手足、分表里——这是腧穴归经的基础。</div>
+</div>
+
+<!-- ============ m5 ============ -->
+<div class="module" id="m5">
+  <h2><span class="m-tag">概念框架</span>奇经八脉概览<span class="m-time">~5 min</span></h2>
+  <p class="hook">如果说十二正经是城市的主干道，奇经八脉就是备用的快速通道——沟通十二正经，调节气血盈亏。</p>
+  <div class="content">
+    <p><strong>奇经八脉的名称</strong></p>
+    <p>督脉、任脉、冲脉、带脉、阴跷脉、阳跷脉、阴维脉、阳维脉——合称"奇经八脉"。"奇"意为"异于常"，指它们有别于十二正经。</p>
+    <p><strong>与十二正经的主要区别</strong></p>
+    <p>• <strong>无脏腑络属</strong>：奇经八脉不直接络属于任何脏腑<br>
+    • <strong>无表里配合</strong>：奇经八脉之间不存在阴阳表里的配对关系<br>
+    • <strong>功能特殊</strong>：主要起统率、联络和调节十二经脉气血的作用<br>
+    • <strong>除任督二脉外无专属腧穴</strong>：奇经八脉的穴位多"寄附"于十二正经</p>
+    <p><strong>四大核心奇经功能</strong></p>
+    <p>• <strong>督脉——阳脉之海</strong>：行于背部正中，总督一身之阳经，与脑、脊髓、肾密切相关。调节全身阳经气血。</p>
+    <p>• <strong>任脉——阴脉之海</strong>：行于胸腹正中，总任一身之阴经，与妊娠、生殖密切相关。调节全身阴经气血，"任主胞胎"。</p>
+    <p>• <strong>冲脉——血海/十二经之海</strong>：上至头、下至足，贯穿全身，是气血运行的要冲。调节十二经气血，与女子月经密切相关。</p>
+    <p>• <strong>带脉——约束诸经</strong>：环腰一周，状如束带，约束纵行诸经。与女性带下病和腰部功能密切相关。</p>
+  </div>
+  <div class="table-container">
+    <div class="table-caption">表：奇经八脉功能一览</div>
+    <table>
+      <thead><tr><th>经脉</th><th>别称</th><th>主要功能</th><th>循行特点</th></tr></thead>
+      <tbody>
+        <tr><td><strong>督脉</strong></td><td>阳脉之海</td><td>总督诸阳经</td><td>背正中线，起于胞中→上至头面</td></tr>
+        <tr><td><strong>任脉</strong></td><td>阴脉之海</td><td>总任诸阴经，主胞胎</td><td>腹正中线，起于胞中→上至目下</td></tr>
+        <tr><td><strong>冲脉</strong></td><td>血海、十二经之海</td><td>调节十二经气血</td><td>挟脐上行，散于胸中</td></tr>
+        <tr><td><strong>带脉</strong></td><td>约束诸经</td><td>约束纵行经脉</td><td>环腰一周</td></tr>
+        <tr><td><strong>阴跷脉</strong></td><td>—</td><td>主肢体运动、司眼睑开合</td><td>起于足跟内侧，上行至目内眦</td></tr>
+        <tr><td><strong>阳跷脉</strong></td><td>—</td><td>主肢体运动、司眼睑开合</td><td>起于足跟外侧，上行至目内眦</td></tr>
+        <tr><td><strong>阴维脉</strong></td><td>—</td><td>维系诸阴经</td><td>起于小腿内侧，上行至咽喉</td></tr>
+        <tr><td><strong>阳维脉</strong></td><td>—</td><td>维系诸阳经</td><td>起于足跟外侧，上行至项后</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="takeaway">💡 督脉总督一身之阳经（阳脉之海），任脉总任一身之阴经（阴脉之海），冲脉为十二经之海（血海）。</div>
+</div>
+
+<!-- ============ m6 ============ -->
+<div class="module" id="m6">
+  <h2><span class="m-tag">原理机制</span>经络的生理功能与应用<span class="m-time">~5 min</span></h2>
+  <p class="hook">经络不仅是运输气血的通道，更是疾病传变的路径和治疗的切入点——"经脉者，所以决死生，处百病，调虚实，不可不通"。</p>
+  <div class="content">
+    <p><strong>经络的四大生理功能</strong></p>
+    <p><strong>① 运行气血、濡养全身</strong>：经络是气血运行的通道，气血通过经络输布全身，濡养脏腑组织、皮毛筋脉。《灵枢·本脏》："经脉者，所以行血气而营阴阳，濡筋骨，利关节者也。"</p>
+    <p><strong>② 沟通表里、联络脏腑</strong>：经络将人体的五脏六腑、四肢百骸、五官九窍、皮肉筋脉连接为一个有机整体。十二正经内属脏腑外络肢节，使人体形成"脏腑-经络-体表"的统一体。</p>
+    <p><strong>③ 感应传导、调节机能</strong>：经络系统能感受内外环境的刺激，并传导至相应的脏腑组织，产生调节反应。针刺腧穴产生的"得气"感应通过经络传导至病所，是针灸治疗的生理基础。</p>
+    <p><strong>④ 抗御外邪、保卫机体</strong>：经络中的卫气行于体表，有温养肌肤、抵御外邪的功能。当外邪入侵时，经络是卫气抵御外邪的第一道防线。</p>
+
+    <p><strong>经络学说在临床中的应用</strong></p>
+    <p><strong>说明病理变化</strong>：外邪侵入人体，可沿经络由表及里传变。《素问·皮部论》："凡十二经络脉者，皮之部也。是故百病之始生也，必先于皮毛。"经络也是脏腑病变反映于体表的途径——肝病可见胁痛（肝经循行处），胃病可见足三里压痛。</p>
+    <p><strong>指导辨证归经</strong>：根据病症的部位和性质，结合经络循行和所属脏腑，判断病变属于何经。例如前额头痛属阳明经，侧头痛属少阳经，后头痛属太阳经，头顶痛属厥阴经。</p>
+    <p><strong>指导针灸治疗</strong>：循经取穴是针灸选穴的基本原则——"经脉所过，主治所及"。如胃痛选足阳明胃经的足三里，腰痛选足太阳膀胱经的委中。</p>
+  </div>
+  <div class="takeaway">💡 经络的诊断价值（循经辨证）+ 治疗价值（循经取穴）= 经络学说在临床中的双重意义。</div>
+</div>
+
+<!-- ============ m7 ============ -->
+<div class="module" id="m7">
+  <h2><span class="m-tag">概念框架</span>腧穴的概念与分类<span class="m-time">~5 min</span></h2>
+  <p class="hook">腧穴既不是孤立于体表的"点"，也不是与脏腑无关的随机位置——它是脏腑经络功能在体表的"窗口"。</p>
+  <div class="content">
+    <p><strong>腧穴的定义</strong></p>
+    <p>腧穴是<strong>脏腑经络之气输注于体表的特殊部位</strong>。"腧"通"输"，有输注、转输之意；"穴"即孔隙、凹陷。腧穴既是疾病的反应点，也是针灸治疗的刺激点。</p>
+    <p><strong>腧穴的三大分类</strong></p>
+
+    <p><strong>一、十四经穴（361个）</strong></p>
+    <p>归属于十二正经和任督二脉的腧穴，有<strong>固定的名称、明确的位置和归经</strong>。它们是针灸临床最常用的穴位，也是学习腧穴的重点内容。清代《医宗金鉴》记载361个经穴，这一数字沿用至今。</p>
+
+    <p><strong>二、经外奇穴</strong></p>
+    <p>有明确名称和定位，但<strong>未归属于十四经</strong>的有效穴位。约200余个，如太阳（主治头痛）、印堂（主治鼻病）、四缝（主治小儿疳积）、十宣（急救）等。它们是对十四经穴的重要补充。</p>
+
+    <p><strong>三、阿是穴（天应穴、不定穴）</strong></p>
+    <p><strong>无固定名称、无固定位置</strong>，以压痛点或其他反应点作为施术部位。《备急千金要方》："言人有病痛，即令捏其上，若里当其处，不问孔穴，即得便快成痛处，即云阿是，灸刺皆验。"——以痛为腧，灵活施治。</p>
+
+    <p><strong>腧穴命名规律</strong></p>
+    <p>腧穴的名称大多蕴含深意，命名依据主要包括：<strong>解剖部位</strong>（如大椎、腕骨）、<strong>功能主治</strong>（如迎香治鼻病、听宫治耳病）、<strong>自然物象</strong>（如合谷、涌泉、曲池）、<strong>阴阳五行</strong>（如阴陵泉、阳陵泉）等。</p>
+  </div>
+  <div class="formula-block">
+    <span class="f-cap">腧穴分类公式</span>
+    <div>腧穴<sub>总</sub> = 十四经穴(361) + 经外奇穴(~200) + 阿是穴(不固定)</div>
+  </div>
+  <div class="takeaway">💡 经穴→奇穴→阿是穴，从规范到灵活；361个经穴是学习重点，奇穴和阿是穴是对经穴的补充。</div>
+</div>
+
+<!-- ============ m8 ============ -->
+<div class="module" id="m8">
+  <h2><span class="m-tag">临床关联</span>腧穴治疗作用与选穴原则<span class="m-time">~6 min</span></h2>
+  <p class="hook">"肚腹三里留，腰背委中求，头项寻列缺，面口合谷收"——这首四总穴歌精准概括了腧穴远治作用的精髓。</p>
+  <div class="content">
+    <p><strong>腧穴的三大治疗作用</strong></p>
+    <p><strong>① 近治作用（腧穴所在，主治所在）</strong></p>
+    <p>所有腧穴均能治疗其所在<strong>局部</strong>及邻近组织器官的病症。如眼周的睛明穴可治疗眼病，耳周的听宫穴可治疗耳病，膝关节附近的犊鼻穴可治疗膝痛。这是腧穴最基本的治疗作用，不分经穴还是奇穴。</p>
+
+    <p><strong>② 远治作用（经脉所过，主治所及）</strong></p>
+    <p>尤其是<strong>十四经穴</strong>，不仅能治疗局部病，还能治疗本经循行所及的<strong>远隔部位</strong>的病症。这是经络学说的核心治疗价值所在——"四总穴歌"就是典型例证：足三里（膝外侧）治胃肠病、合谷（手背）治面口病、列缺（腕上）治头项病、委中（腘窝）治腰背病。</p>
+
+    <p><strong>③ 特殊作用（双向调节与相对特异性）</strong></p>
+    <p>某些腧穴对机体具有<strong>双向良性调节</strong>作用——如内关穴既能治心动过速又能治心动过缓，天枢穴既能止泻又能通便。同时，某些腧穴还具有相对<strong>特异性</strong>的治疗作用——如至阴穴矫正胎位、少泽穴通乳。</p>
+
+    <p><strong>选穴原则</strong></p>
+    <p>• <strong>近部选穴</strong>：选取病变局部或邻近部位的腧穴（如面瘫选地仓、颊车）<br>
+    • <strong>远部选穴</strong>：选取距病所较远部位的腧穴（循经取穴，如胃痛选足三里）<br>
+    • <strong>辨证选穴</strong>：根据证候类型选穴（如阴虚选太溪，气虚选气海）<br>
+    • <strong>对症选穴</strong>：针对突出症状选穴（如发热选大椎，昏迷选人中）</p>
+
+    <p><strong>配穴方法</strong></p>
+    <p>• <strong>本经配穴</strong>：同一经脉的远近穴位配合（如肺病选中府+尺泽）<br>
+    • <strong>表里配穴</strong>：表里两经穴位配合（如感冒选合谷+列缺，大肠经+肺经）<br>
+    • <strong>上下配穴</strong>：上部与下部穴位配合（如头痛选百会+太冲）<br>
+    • <strong>前后配穴</strong>：胸腹（募穴）与背腰（俞穴）配合（如胃病选中脘+胃俞）<br>
+    • <strong>左右配穴</strong>：左右两侧同名穴同时使用（如双侧足三里同用）</p>
+  </div>
+  <div class="formula-block">
+    <span class="f-cap">四总穴歌（远治作用精华）</span>
+    <div>肚腹三里留 &nbsp; 腰背委中求 &nbsp; 头项寻列缺 &nbsp; 面口合谷收</div>
+  </div>
+  <div class="takeaway">💡 选穴的核心思路：以经络学说为指导，根据病位、病性和腧穴特性，选取最适宜的穴位进行治疗。</div>
+</div>
+
+<!-- ============ m9 ============ -->
+<div class="module" id="m9">
+  <h2><span class="m-tag">知识图谱</span>特定穴分类系统<span class="m-time">~6 min</span></h2>
+  <p class="hook">特定穴是腧穴中的"精华"——理解各类特定穴的特性，是高效选穴的基础。</p>
+  <div class="content">
+    <p><strong>特定穴的概念</strong></p>
+    <p>特定穴是指十四经中具有<strong>特殊性能</strong>和<strong>特定名称</strong>的腧穴。它们是古人经过长期临床实践总结出来的一类具有特殊治疗规律和使用方式的穴位，在针灸临床上具有特别重要的地位。</p>
+
+    <p><strong>十大特定穴分类</strong></p>
+    <p><strong>1. 五输穴（井荥输经合）——共60穴</strong><br>
+    十二经脉在肘膝关节以下各有五个特定穴，分别命名为井、荥、输、经、合。从四肢末端向肘膝方向排列。《灵枢·九针十二原》："所出为井，所溜为荥，所注为输，所行为经，所入为合。"五输穴配五行，是子午流注针法的核心基础。临床应用中：井穴多用于急救，荥穴主热病。</p>
+
+    <p><strong>2. 原穴——共12穴</strong><br>
+    脏腑原气输注、经过和留止的部位。阴经原穴与输穴相同（以输代原），阳经有独立的原穴。原穴擅长治疗五脏六腑病变，有调整脏腑虚实的功能。</p>
+
+    <p><strong>3. 络穴——共15穴</strong><br>
+    络脉从经脉分出的部位的穴位。十二经各一个，加任脉络穴（鸠尾）、督脉络穴（长强）、脾之大络（大包）。络穴主治表里两经的病变。</p>
+
+    <p><strong>4. 郄穴——共16穴</strong><br>
+    经脉气血深聚之处的腧穴。十二经及阴跷、阳跷、阴维、阳维各一个。郄穴多用于治疗本经循行部位的<strong>急性病症</strong>，如胃经郄穴梁丘善治急性胃痛。</p>
+
+    <p><strong>5. 背俞穴——共12穴</strong><br>
+    脏腑之气输注于背腰部的腧穴，位于足太阳膀胱经第一侧线。如肺俞、心俞、肝俞等。主治相应脏腑病变。</p>
+
+    <p><strong>6. 募穴——共12穴</strong><br>
+    脏腑之气汇聚于胸腹部的腧穴。如肺募中府、心募巨阙、胃募中脘等。与背俞穴前后相应，俞募配穴是调节脏腑功能的经典配穴法。</p>
+
+    <p><strong>7. 八会穴——共8穴</strong><br>
+    脏、腑、气、血、筋、脉、骨、髓八种精气所聚会的腧穴。如脏会章门、腑会中脘、气会膻中、血会膈俞、筋会阳陵泉、脉会太渊、骨会大杼、髓会绝骨。</p>
+
+    <p><strong>8. 八脉交会穴——共8穴</strong><br>
+    十二正经与奇经八脉脉气相通的八个腧穴，均位于腕踝附近。如公孙通冲脉、内关通阴维脉、后溪通督脉等。</p>
+
+    <p><strong>9. 下合穴——共6穴</strong><br>
+    六腑之气下合于足三阳经的六个腧穴。主治六腑病症，如胃合足三里、大肠合上巨虚。</p>
+
+    <p><strong>10. 交会穴</strong><br>
+    两经或数经相交会合的腧穴。全身约100余个。如三阴交（足三阴经交会）、大椎（诸阳经交会）等。</p>
+  </div>
+  <div class="table-container">
+    <div class="table-caption">表：特定穴分类概览</div>
+    <table>
+      <thead><tr><th>分类</th><th>数量</th><th>代表性穴位</th><th>主要临床用途</th></tr></thead>
+      <tbody>
+        <tr><td>五输穴</td><td>60</td><td>少商(井)、鱼际(荥)、太渊(输)</td><td>井穴急救、荥穴清热、输穴治脏腑</td></tr>
+        <tr><td>原穴</td><td>12</td><td>太渊(肺)、神门(心)、太冲(肝)</td><td>调脏腑虚实</td></tr>
+        <tr><td>络穴</td><td>15</td><td>列缺(肺络)、内关(心包络)</td><td>治表里两经病</td></tr>
+        <tr><td>郄穴</td><td>16</td><td>孔最(肺郄)、梁丘(胃郄)</td><td>急症、痛症</td></tr>
+        <tr><td>背俞穴</td><td>12</td><td>肺俞、心俞、肝俞、肾俞</td><td>脏腑慢性病</td></tr>
+        <tr><td>募穴</td><td>12</td><td>中府(肺)、中脘(胃)、关元(小肠)</td><td>脏腑病（偏阳性）</td></tr>
+        <tr><td>八会穴</td><td>8</td><td>膻中(气会)、阳陵泉(筋会)</td><td>特定组织病变</td></tr>
+        <tr><td>八脉交会穴</td><td>8</td><td>内关+公孙、后溪+申脉</td><td>奇经八脉病及配穴</td></tr>
+        <tr><td>下合穴</td><td>6</td><td>足三里(胃)、阳陵泉(胆)</td><td>六腑病症</td></tr>
+        <tr><td>交会穴</td><td>~100</td><td>三阴交、大椎、百会</td><td>多经病同治</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="takeaway">💡 五输穴配五行、原穴治五脏病、郄穴治急症、俞募配穴调脏腑——各类特定穴有各自的优势和适用场景。</div>
+</div>
+
+<!-- ============ m10 ============ -->
+<div class="module" id="m10">
+  <h2><span class="m-tag">总结</span>经络腧穴学习路径与小结<span class="m-time">~3 min</span></h2>
+  <p class="hook">经络腧穴是针灸推拿的基础——不需要一次记住所有细节，建立整体框架比逐个死记更重要。</p>
+  <div class="content">
+    <p><strong>推荐学习路径（四步法）</strong></p>
+    <p><strong>第一步：记大纲</strong>——先掌握十二正经的<strong>名称</strong>和<strong>主要循行部位</strong>。熟记手三阴三阳、足三阴三阳的命名规律和走向口诀。不需要一开始就记住每条经的所有细节，但要知道每条经大概在身体的什么位置。</p>
+    <p><strong>第二步：画图</strong>——在人体简图上手绘每条经脉的<strong>体表循行路线</strong>。画图是记忆经络循行最高效的方式，反复画几次就能形成深刻的视觉记忆。</p>
+    <p><strong>第三步：记穴位</strong>——从每条经脉选取<strong>3-5个最常用穴位</strong>重点记忆（定位+主治），再逐步扩展。优先记：井穴、原穴、络穴、郄穴等特定穴。</p>
+    <p><strong>第四步：联临床</strong>——结合常见病症，理解"为什么这个病要选那个穴"。每次学一个新穴位，都问自己：这个穴在什么经上？主治哪些病？为什么能治这些病？</p>
+
+    <p><strong>推荐学习工具</strong></p>
+    <p>• <strong>人体经络模型</strong>（实体或3D应用）：可视化经络走向和穴位位置<br>
+    • <strong>经络穴位APP</strong>：如"3Dbody"、"大家中医"等，带解剖定位和主治说明<br>
+    • <strong>经络图挂图</strong>：挂在书桌前，每天看一遍，形成视觉记忆<br>
+    • <strong>针灸铜人模型</strong>（可选）：传统中医教育的经典教具</p>
+
+    <p><strong>核心要点总结</strong></p>
+    <p>① 经络系统 = 经脉（主干）+ 络脉（分支），覆盖全身<br>
+    ② 十二正经按手足+阴阳+脏腑命名，有明确的走向和交接规律<br>
+    ③ 十二正经有严格的流注次序，形成如环无端的循环<br>
+    ④ 奇经八脉与十二正经不同，无脏腑络属、无表里配合<br>
+    ⑤ 经络有运行气血、联络脏腑、感应传导、抗御外邪四大功能<br>
+    ⑥ 腧穴分为经穴(361)、奇穴和阿是穴三大类<br>
+    ⑦ 腧穴有近治、远治、特殊三大作用，选穴以经络学说为指导<br>
+    ⑧ 特定穴（五输、原络、郄、俞募等）是腧穴中的精华<br>
+    ⑨ 循经辨证+循经取穴 = 经络学说在临床中的核心应用</p>
+  </div>
+  <div class="takeaway">💡 学习方法：理解命名规律→记忆流注次序→画循行路线→选取常用腧穴逐个定位。分步走，循序渐进。</div>
+</div>
+
+</div>
+
+<footer class="journey-footer">
+  <a href="#" class="back-to-plan" onclick="event.preventDefault();goBack()">🔗 返回学习路线: 中医与养生 系统学习方案 → 中医基础理论奠基</a>
+  <p style="margin-top:12px;font-size:.72rem;color:var(--text-muted)">
+    本资料是 <strong>中医与养生 系统学习方案</strong> 中医基础理论奠基 阶段的深度研读材料（3/4）
+  </p>
+</footer>
+
+<div class="deep-floating-back">
+  <button onclick="goBack()">← 返回学习方案</button>
+</div>
+</div>
+
+<div class="dd-toast" id="toastEl"><span id="toastMsg"></span></div>
+
+<script>
+(function(){document.body.classList.remove('loading');document.body.classList.add('loaded');})();
+
+var MODULE_IDS = ['m1','m2','m3','m4','m5','m6','m7','m8','m9','m10'];
+
+var MODULE_TITLES = {
+  'm1':'01 经络的概念与组成',
+  'm2':'02 十二正经命名与走向规律',
+  'm3':'03 十二正经流注次序图',
+  'm4':'04 十二正经循行简表',
+  'm5':'05 奇经八脉概览',
+  'm6':'06 经络的生理功能与应用',
+  'm7':'07 腧穴的概念与分类',
+  'm8':'08 腧穴治疗作用与选穴原则',
+  'm9':'09 特定穴分类系统',
+  'm10':'10 经络腧穴学习路径与小结'
+};
+
+var MODULE_SNIPPETS = {
+  'm1':'经络的定义与系统组成：经脉（十二正经、奇经八脉、十二经别）与络脉（十五络脉、孙络、浮络）',
+  'm2':'十二正经命名规则（手足+阴阳+脏腑），走向交接规律口诀：手三阴胸→手→头→足→腹',
+  'm3':'十二经脉气血流注次序环形图，表里关系（肺-大肠、心-小肠、心包-三焦等六对）',
+  'm4':'十二正经循行简表：每条经的阴阳属性、起止穴、属络脏腑、体表循行、主要病候',
+  'm5':'奇经八脉概览：督脉（阳脉之海）、任脉（阴脉之海）、冲脉（血海）、带脉等',
+  'm6':'经络四大功能（运行气血、联络脏腑、感应传导、抗御外邪）与临床辨证治疗应用',
+  'm7':'腧穴定义与分类：经穴361个、经外奇穴、阿是穴；腧穴命名规律',
+  'm8':'腧穴三大治疗作用（近治、远治、特殊）与五大选穴配穴方法，四总穴歌',
+  'm9':'十大特定穴分类：五输穴、原穴、络穴、郄穴、背俞穴、募穴、八会穴等概述',
+  'm10':'经络腧穴四步学习法（大纲→画图→记穴→联临床）及核心要点总结'
+};
+
+function goBack(){
+  try{localStorage.setItem('tcm_wellness_nav',JSON.stringify({kpId:'p1_3',ts:Date.now()}));}catch(e){}
+  var w=window.open('tcm_learning.html#kc-p1_3','plan_main');
+  if(w)w.focus();
+}
+
+function buildSidebar(){
+  var nav=document.getElementById('sidebarNav');
+  MODULE_IDS.forEach(function(id){
+    var li=document.createElement('li');
+    var a=document.createElement('a');
+    a.href='#'+id;
+    a.textContent=MODULE_TITLES[id]||id;
+    a.addEventListener('click',function(e){
+      e.preventDefault();
+      document.getElementById(id).scrollIntoView({behavior:'smooth'});
+    });
+    li.appendChild(a);
+    nav.appendChild(li);
+  });
+}
+
+function toggleTheme(){
+  var b=document.body,isD=b.getAttribute('data-theme')==='dark';
+  b.setAttribute('data-theme',isD?'light':'dark');
+  try{localStorage.setItem('slm-theme',isD?'light':'dark');}catch(e){}
+  showToast('已切换至'+(isD?'浅色':'深色')+'主题');
+  setTimeout(function(){resizeAllCharts();},300);
+}
+
+function openSearch(){document.getElementById('searchOverlay').classList.add('open');setTimeout(function(){document.getElementById('searchInput').focus();},100);}
+function closeSearch(){document.getElementById('searchOverlay').classList.remove('open');document.getElementById('searchResults').innerHTML='';}
+document.getElementById('searchOverlay').addEventListener('click',function(e){if(e.target===this)closeSearch();});
+
+function doSearch(){
+  var q=document.getElementById('searchInput').value.toLowerCase(),res=document.getElementById('searchResults');
+  if(q.length<2){res.innerHTML='';return;}
+  var results=[];
+  MODULE_IDS.forEach(function(id){
+    var t=MODULE_TITLES[id]||'';
+    var s=MODULE_SNIPPETS[id]||'';
+    if(t.toLowerCase().indexOf(q)>=0||s.toLowerCase().indexOf(q)>=0){
+      results.push({id:id,title:t,snippet:s});
+    }
+  });
+  var html=results.map(function(r){
+    var title=r.title.replace(new RegExp('('+q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi'),'<strong>$1</strong>');
+    return '<div onclick="closeSearch();document.getElementById(\''+r.id+'\').scrollIntoView({behavior:\'smooth\'})">'+title+'<br><small style="color:var(--text-muted)">'+(r.snippet||'').substring(0,80)+'</small></div>';
+  }).join('');
+  res.innerHTML=html||'<div style="padding:12px;color:var(--text-muted)">未找到匹配模块</div>';
+}
+
+var TOAST_TIMEOUT;
+function showToast(msg){
+  var el=document.getElementById('toastEl'),mg=document.getElementById('toastMsg');
+  if(!el||!mg)return;mg.textContent=msg;el.style.display='block';el.classList.add('toast-in');
+  if(TOAST_TIMEOUT)clearTimeout(TOAST_TIMEOUT);
+  TOAST_TIMEOUT=setTimeout(function(){el.style.display='none';},3000);
+}
+
+(function(){
+  try{var t=localStorage.getItem('slm-theme');if(t==='light')document.body.setAttribute('data-theme','light');}catch(e){}
+})();
+
+(function(){
+  var progressBar=document.getElementById('progressBar');
+  window.addEventListener('scroll',function(){
+    var st=document.documentElement.scrollTop,dh=document.documentElement.scrollHeight-window.innerHeight;
+    var pct=dh>0?Math.min(100,(st/dh)*100):0;progressBar.style.width=pct+'%';
+  });
+})();
+
+(function(){
+  var modules=document.querySelectorAll('.module');
+  var fadeObserver=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){if(e.isIntersecting)e.target.classList.add('visible');});
+  },{threshold:.12});
+  modules.forEach(function(m){fadeObserver.observe(m);});
+
+  var navLinks=document.querySelectorAll('.sidebar-nav a');
+  var navObserver=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){
+        navLinks.forEach(function(a){a.classList.remove('active');});
+        var act=document.querySelector('.sidebar-nav a[href="#'+e.target.id+'"]');
+        if(act)act.classList.add('active');
+      }
+    });
+  },{threshold:.3});
+  modules.forEach(function(m){navObserver.observe(m);});
+})();
+
+window.addEventListener('keydown',function(e){
+  if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();openSearch();}
+  if((e.ctrlKey||e.metaKey)&&e.key==='d'){e.preventDefault();toggleTheme();}
+  if(e.key==='Escape')closeSearch();
+});
+
+var allCharts=[];
+function resizeAllCharts(){allCharts.forEach(function(c){c.resize();});}
+
+(function initCharts(){
+  if(typeof echarts==='undefined'){return;}
+
+  var domLiuzhu=document.getElementById('chart_liuzhu');
+  if(domLiuzhu){
+    var jc=echarts.init(domLiuzhu);
+    var mNames=[
+      '手太阴\n肺经','手阳明\n大肠经','足阳明\n胃经','足太阴\n脾经',
+      '手少阴\n心经','手太阳\n小肠经','足太阳\n膀胱经','足少阴\n肾经',
+      '手厥阴\n心包经','手少阳\n三焦经','足少阳\n胆经','足厥阴\n肝经'
+    ];
+    var mColors=[
+      '#5ea87a','#9e9e9e','#e6b95a','#d4a843',
+      '#d47860','#c06850','#7ec8a0','#6bbf90',
+      '#b898a0','#a88890','#4d9a6a','#3d8a5a'
+    ];
+    var pieData=mNames.map(function(n,i){return{name:n,value:1,itemStyle:{color:mColors[i]}};});
+    var cx=domLiuzhu.offsetWidth/2;
+    jc.setOption({
+      tooltip:{trigger:'item',formatter:function(p){return p.name.replace('\n','')+'<br/>流注顺序：第'+(p.dataIndex+1)+'位'}},
+      series:[{
+        type:'pie',
+        radius:['52%','85%'],
+        center:['50%','50%'],
+        avoidLabelOverlap:false,
+        itemStyle:{borderRadius:4,borderColor:'var(--bg-card)',borderWidth:2},
+        label:{show:true,position:'outside',fontSize:10,color:'var(--text-secondary)',lineHeight:14,
+          formatter:function(p){return p.name.replace('\n',' ');}},
+        labelLine:{length:20,length2:30,lineStyle:{color:'var(--border-glow)'}},
+        emphasis:{scaleSize:8,label:{fontSize:13,fontWeight:'bold'}},
+        data:pieData
+      }],
+      graphic:[{
+        type:'text',left:'center',top:'center',z:10,
+        style:{text:'流注\n循环',fill:'var(--accent-cyan)',fontSize:14,fontWeight:'bold',textAlign:'center',lineHeight:20}
+      }]
+    });
+    allCharts.push(jc);
+  }
+})();
+
+buildSidebar();
+</script>
+</body>
+</html>

@@ -1,7 +1,8 @@
-$ErrorActionPreference = 'Stop'
+$ErrorActionPreference = 'Continue'
 $srcBase = 'C:\Users\hexi\Desktop\skills'
-$srcSkills = Join-Path $srcBase ([char]0x5B66) + ([char]0x4E60) + ([char]0x8D44) + ([char]0x6599) + '\.trae\skills'
-$dstClaude = Join-Path $srcBase ([char]0x5B66) + ([char]0x4E60) + ([char]0x8D44) + ([char]0x6599) + '\.claude\skills'
+$folderName = ([char]0x5B66) + ([char]0x4E60) + ([char]0x8D44) + ([char]0x6599)
+$srcSkills = Join-Path $srcBase "$folderName\.trae\skills"
+$dstClaude = Join-Path $srcBase "$folderName\.claude\skills"
 $dstTraecn = 'C:\Users\hexi\.trae-cn\skills'
 
 Write-Host "=== Skill Sync Tool ==="

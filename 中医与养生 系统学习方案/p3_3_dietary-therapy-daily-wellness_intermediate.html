@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>食疗药膳与起居养生深度研读</title>
+<style>
+/* ───────────────────────────────────────────────
+   Template: Cedar Dawn (雪松晨曦) — deep_dive.css
+   Mood: warm, natural, organic
+   Contrast verified: text-primary≥10:1, text-secondary≥6:1, text-muted≥4.5:1
+   ─────────────────────────────────────────────── */
+:root{
+--bg-base:#1a1814;
+--bg-card:#282520;
+--bg-elevated:#312d27;
+--bg-overlay:rgba(0,0,0,.6);
+--text-primary:#ede6d8;
+--text-secondary:#b8ad98;
+--text-muted:#8a8070;
+--accent-indigo:#5ea87a;
+--accent-purple:#b898a0;
+--accent-cyan:#7ec8a0;
+--accent-gold:#e6b95a;
+--accent-green:#6ebf8a;
+--accent-red:#d47860;
+--accent-blue:#5ea87a;
+--accent-color:#5ea87a;
+--accent-dark:#3d6b50;
+--border-subtle:rgba(184,173,152,.15);
+--border-glow:rgba(94,168,122,.25);
+--shadow-sm:0 1px 3px rgba(0,0,0,.3);
+--shadow-md:0 4px 16px rgba(0,0,0,.4);
+--shadow-lg:0 8px 32px rgba(0,0,0,.5);
+--shadow-elevated:0 8px 32px rgba(0,0,0,.5);
+--radius-sm:6px;
+--radius-md:10px;
+--radius-lg:16px;
+--font-sans:'Segoe UI',system-ui,-apple-system,sans-serif;
+--font-mono:Consolas,'Cascadia Code',monospace;
+--transition:.25s cubic-bezier(.4,0,.2,1);
+--transition-smooth:.3s ease;
+--nav-h:56px;
+--accent-color-rgb:94,168,122;
+--chart-grid:#2d2924;
+--chart-axis-label:#8a8070;
+}
+[data-theme="light"]{
+--bg-base:#fdfaf3;
+--bg-card:#fffdf7;
+--bg-elevated:#f3efe3;
+--bg-overlay:rgba(0,0,0,.3);
+--text-primary:#1f1a12;
+--text-secondary:#4a4035;
+--text-muted:#5c5042;
+--accent-indigo:#3d6b50;
+--accent-purple:#7a5a6a;
+--accent-cyan:#4a8e6a;
+--accent-gold:#a07828;
+--accent-green:#4a9e66;
+--accent-red:#b05038;
+--accent-blue:#3d6b50;
+--accent-color:#3d6b50;
+--accent-dark:#2a4835;
+--border-subtle:rgba(31,26,18,.08);
+--border-glow:rgba(61,107,80,.25);
+--shadow-sm:0 1px 3px rgba(0,0,0,.06);
+--shadow-md:0 4px 16px rgba(0,0,0,.08);
+--shadow-lg:0 8px 32px rgba(0,0,0,.12);
+--shadow-elevated:0 8px 32px rgba(0,0,0,.12);
+--accent-color-rgb:61,107,80;
+--chart-grid:#ebe5d6;
+--chart-axis-label:#5c5042;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font-sans);background:var(--bg-base);color:var(--text-primary);line-height:1.75;overflow-x:hidden}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg-base)}::-webkit-scrollbar-thumb{background:var(--border-glow);border-radius:3px}
+
+.progress-bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--accent-indigo),var(--accent-purple),var(--accent-cyan));z-index:200;transition:width .1s linear}
+.navbar{position:fixed;top:3px;left:0;right:0;z-index:100;background:var(--bg-card);border-bottom:1px solid var(--border-subtle);backdrop-filter:blur(16px);height:var(--nav-h);display:flex;align-items:center;justify-content:space-between;padding:0 24px}
+.nav-left{display:flex;align-items:center;gap:12px;font-size:.82rem;font-weight:600;color:var(--accent-indigo)}
+.nav-right{display:flex;align-items:center;gap:8px}
+.nav-right button{background:var(--bg-elevated);border:1px solid var(--border-subtle);color:var(--text-secondary);padding:6px 12px;border-radius:var(--radius-sm);cursor:pointer;font-size:.75rem;transition:all var(--transition)}
+.nav-right button:hover{border-color:var(--border-glow);color:var(--accent-indigo)}
+
+.sidebar{position:fixed;left:0;top:0;height:100vh;width:280px;background:var(--bg-base);border-right:1px solid var(--border-subtle);padding:24px;overflow-y:auto;z-index:100;padding-top:calc(var(--nav-h) + 16px)}
+.sidebar h3{font-size:.85rem;font-weight:700;color:var(--text-secondary);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--border-subtle)}
+.sidebar-nav{list-style:none;padding:0}
+.sidebar-nav li{margin-bottom:2px}
+.sidebar-nav a{display:block;padding:8px 12px;border-radius:var(--radius-md);text-decoration:none;font-size:.76rem;color:var(--text-secondary);transition:all var(--transition);border-left:3px solid transparent}
+.sidebar-nav a:hover{background:rgba(91,141,184,.08);color:var(--accent-cyan);border-left-color:var(--accent-cyan)}
+.sidebar-nav a.active{background:rgba(91,141,184,.12);color:var(--accent-blue);font-weight:600;border-left-color:var(--accent-blue)}
+.sidebar-back-link{display:block;padding:8px 12px;margin-bottom:12px;border-radius:8px;background:var(--bg-elevated);color:var(--accent-blue);text-decoration:none;font-size:.78rem;font-weight:600}
+.sidebar-back-link:hover{color:var(--accent-cyan)}
+
+.content-area{margin-left:280px;width:calc(100% - 280px)}
+.container{max-width:calc(100% - 48px);margin:0 auto;padding:calc(var(--nav-h) + 24px) 24px 80px}
+
+.hero{text-align:center;padding:48px 0 36px}
+.hero h1{font-size:2.2rem;background:linear-gradient(135deg,var(--accent-indigo),var(--accent-purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+.hero .tags{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:12px}
+.hero .tags span{font-size:.7rem;padding:4px 12px;border-radius:50px;border:1px solid var(--border-glow);color:var(--accent-indigo);background:rgba(99,102,241,.06)}
+
+.meta-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:20px 24px;margin:0 auto 32px;max-width:700px;display:flex;justify-content:center;gap:36px;flex-wrap:wrap;box-shadow:var(--shadow-md)}
+.meta-item{text-align:center}
+.meta-item .val{font-size:1.4rem;font-weight:800;color:var(--accent-indigo)}
+.meta-item .lbl{font-size:.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px}
+
+/* Journey Bar */
+.journey-bar{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:12px 20px;margin:0 auto 24px;max-width:900px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:.82rem;box-shadow:var(--shadow-elevated)}
+.journey-path{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.journey-icon{font-size:1rem}
+.journey-plan{color:var(--accent-purple);font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.journey-plan:hover{color:var(--accent-gold)}
+.journey-sep{color:var(--text-muted);font-size:.7rem}
+.journey-phase{color:var(--text-secondary);font-weight:600}
+.journey-kp{color:var(--text-primary);font-weight:700}
+.journey-pos{color:var(--text-muted);font-size:.72rem}
+.journey-nav{display:flex;align-items:center;gap:8px;font-size:.75rem}
+.journey-prev,.journey-next{color:var(--text-muted);cursor:default}
+.journey-divider{color:var(--border-subtle)}
+
+.module{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:28px 28px 24px;margin-bottom:20px;
+opacity:0;transform:translateY(24px);transition:opacity .5s ease,transform .5s ease;box-shadow:var(--shadow-sm)}
+.module.visible{opacity:1;transform:translateY(0)}
+.module:hover{border-color:var(--border-glow)}
+.module h2{font-size:1.15rem;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.module .m-tag{font-size:.65rem;padding:2px 10px;border-radius:50px;background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.2);color:var(--accent-indigo);font-weight:600}
+.module .m-time{font-size:.7rem;color:var(--text-muted);margin-left:auto}
+.module .hook{font-size:.9rem;color:var(--accent-purple);font-weight:600;margin:12px 0 16px;padding-left:12px;border-left:3px solid var(--accent-purple)}
+.module .content{font-size:.88rem;color:var(--text-secondary);line-height:1.8}
+.module .content p{margin-bottom:12px}
+
+.formula-block{background:rgba(99,102,241,.04);border:1px solid rgba(99,102,241,.12);border-radius:var(--radius-sm);padding:14px 18px;margin:14px 0;font-family:var(--font-mono);font-size:.82rem;color:var(--accent-cyan);overflow-x:auto;position:relative}
+.formula-block .f-cap{font-size:.7rem;color:var(--text-muted);margin-bottom:6px;display:block}
+.derivation-toggle{font-size:.7rem;color:var(--accent-gold);cursor:pointer;border:none;background:none;padding:4px 0;font-family:inherit;display:block;margin-top:6px}
+.derivation-toggle:hover{text-decoration:underline}
+.derivation-content{display:none;margin-top:8px;padding:12px 16px;background:rgba(245,158,11,.04);border-radius:var(--radius-sm);border-left:3px solid var(--accent-gold);font-size:.8rem;color:var(--text-secondary)}
+.derivation-content.open{display:block}
+
+.chart-wrap{background:var(--bg-elevated);border-radius:var(--radius-sm);padding:8px;margin:14px 0;text-align:center}
+.chart-wrap > div{width:100%;height:250px}
+.chart-wrap .ch-cap{font-size:.72rem;color:var(--text-muted);margin-top:6px}
+
+.table-container{margin:20px 0;overflow-x:auto}
+.table-container table{width:100%;border-collapse:collapse;border-radius:var(--radius-md);overflow:hidden}
+.table-container th{background:var(--bg-elevated);color:var(--accent-cyan);font-weight:700;padding:12px 16px;text-align:left;font-size:.8rem}
+.table-container td{padding:12px 16px;border-bottom:1px solid var(--border-subtle);font-size:.82rem;color:var(--text-secondary)}
+.table-container tr:hover td{background:rgba(91,141,184,.03)}
+.table-container .table-caption{font-size:.72rem;color:var(--text-muted);margin-bottom:8px;text-align:center}
+
+.takeaway{font-size:.82rem;background:rgba(16,185,129,.06);border-left:3px solid var(--accent-green);padding:10px 14px;margin-top:16px;border-radius:0 var(--radius-sm) var(--radius-sm) 0;color:var(--accent-green)}
+
+.ref-list{list-style:none;padding:0;margin-top:8px;font-size:.78rem}
+.ref-list li{padding:4px 0;color:var(--text-muted)}
+.ref-list li::before{content:'📄 '}
+
+.search-overlay{position:fixed;inset:0;z-index:300;background:var(--bg-overlay);display:none;align-items:flex-start;justify-content:center;padding-top:120px}
+.search-overlay.open{display:flex}
+.search-box{width:520px;max-width:90vw;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:var(--radius-md);box-shadow:var(--shadow-lg);overflow:hidden}
+.search-box input{width:100%;padding:14px 18px;background:transparent;border:none;color:var(--text-primary);font-size:.95rem;outline:none;font-family:inherit}
+.search-results{max-height:360px;overflow-y:auto}
+.search-results div{padding:10px 18px;cursor:pointer;font-size:.82rem;color:var(--text-secondary);border-top:1px solid var(--border-subtle);transition:background var(--transition)}
+.search-results div:hover{background:rgba(99,102,241,.06);color:var(--text-primary)}
+
+/* Journey Footer */
+.journey-footer{text-align:center;padding:40px 32px 60px;opacity:.8}
+.back-to-plan{display:inline-flex;align-items:center;gap:8px;padding:10px 24px;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:50px;color:var(--text-secondary);text-decoration:none;font-size:.85rem;font-weight:600;transition:all var(--transition-smooth)}
+.back-to-plan:hover{background:var(--bg-elevated);border-color:var(--accent-purple);color:var(--accent-purple)}
+
+/* Floating Back Button */
+.deep-floating-back{position:fixed;right:20px;bottom:20px;z-index:10000}
+.deep-floating-back button{padding:12px 20px;background:linear-gradient(135deg,var(--accent-color),var(--accent-dark));color:white;border:none;border-radius:24px;font-size:.85rem;font-weight:600;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.15);transition:transform .2s,box-shadow .2s}
+.deep-floating-back button:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.2)}
+
+/* Toast */
+.dd-toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);z-index:10001;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:8px;padding:14px 24px;box-shadow:0 4px 16px rgba(0,0,0,.15);font-size:.85rem;display:none}
+.toast-in{animation:toastIn .3s ease}
+@keyframes toastIn{from{opacity:0;transform:translate(-50%,20px)}to{opacity:1;transform:translate(-50%,0)}}
+
+/* Print */
+@media print{.navbar,.progress-bar,.sidebar,.journey-bar,.journey-footer,.deep-floating-back{display:none!important}.content-area{margin-left:0;width:100%}.module{break-inside:avoid;opacity:1!important;transform:none!important;box-shadow:none}body{background:#fff}}
+
+@media(max-width:1024px){.sidebar{display:none}.content-area{margin-left:0;width:100%}}
+@media(max-width:768px){
+.hero h1{font-size:1.6rem}.module{padding:20px}.meta-card{font-size:.72rem;padding:12px 16px}.journey-bar{flex-direction:column;align-items:flex-start}
+.deep-floating-back{right:15px;bottom:15px}.deep-floating-back button{padding:10px 16px;font-size:.8rem}
+}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+</head>
+<body data-theme="dark">
+
+<div class="progress-bar" id="progressBar" style="width:0%"></div>
+
+<nav class="navbar">
+  <div class="nav-left">📖 食疗药膳与起居养生</div>
+  <div class="nav-right">
+    <button onclick="toggleTheme()" title="切换主题 (Ctrl+D)">🌓 主题</button>
+    <button onclick="openSearch()" title="搜索 (Ctrl+K)">🔍 搜索</button>
+  </div>
+</nav>
+
+<div class="sidebar">
+  <a href="#" class="sidebar-back-link" onclick="event.preventDefault();var w=window.open('tcm_learning.html#kc-p3_3','plan_main');if(w)w.focus()">← 返回主方案</a>
+  <h3>📖 目录导航</h3>
+  <ul class="sidebar-nav">
+    <li><a href="#mod-01-journey">01. 学习路线导航</a></li>
+    <li><a href="#mod-02-background">02. 药食同源的历史源流</a></li>
+    <li><a href="#mod-03-concept">03. 四气五味与归经</a></li>
+    <li><a href="#mod-04-principle">04. 食疗配伍与君臣佐使</a></li>
+    <li><a href="#mod-05-application">05. 四季食疗方案指南</a></li>
+    <li><a href="#mod-06-case-study">06. 经典药膳实例分析</a></li>
+    <li><a href="#mod-07-landscape">07. 食疗-体质-季节全景</a></li>
+    <li><a href="#mod-08-misconceptions">08. 食疗常见误区</a></li>
+    <li><a href="#mod-09-learning-path">09. 食疗学习入门路径</a></li>
+    <li><a href="#mod-10-glossary">10. 食疗核心术语</a></li>
+    <li><a href="#mod-11-prospect">11. 现代营养科学与药膳融合</a></li>
+    <li><a href="#mod-12-risk">12. 食疗不当的风险警示</a></li>
+    <li><a href="#mod-13-development">13. 起居养生的现代演变</a></li>
+  </ul>
+</div>
+
+<div class="content-area">
+<div class="search-overlay" id="searchOverlay">
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="搜索模块内容..." oninput="doSearch()" onkeydown="if(event.key==='Escape')closeSearch()">
+    <div class="search-results" id="searchResults"></div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="hero">
+    <h1>食疗药膳与起居养生</h1>
+    <div class="tags">
+      <span>养生保健</span><span>药食同源</span><span>膳食调理</span><span>系统图解型</span>
+    </div>
+  </div>
+
+  <div class="meta-card">
+    <div class="meta-item"><div class="val">13</div><div class="lbl">模块数</div></div>
+    <div class="meta-item"><div class="val">~35</div><div class="lbl">分钟阅读</div></div>
+    <div class="meta-item"><div class="val">理解</div><div class="lbl">深度级别</div></div>
+  </div>
+
+  <div class="journey-bar" id="journeyBar">
+    <div class="journey-path">
+      <span class="journey-icon">📍</span>
+      <span class="journey-plan" onclick="var w=window.open('tcm_learning.html#kc-p3_3','plan_main');if(w)w.focus()">中医与养生 系统学习方案</span>
+      <span class="journey-sep">〉</span>
+      <span class="journey-phase">养生保健整合应用</span>
+      <span class="journey-sep">〉</span>
+      <span class="journey-kp">食疗药膳与起居养生</span>
+      <span class="journey-pos">(第3/4阶段 · 第3个知识点)</span>
+    </div>
+    <div class="journey-nav">
+      <span class="journey-prev" title="前置: 体质辨识与个性化调理">← 前置</span>
+      <span class="journey-divider">|</span>
+      <span class="journey-next" title="后续: 情志养生与中医心理学">后续 →</span>
+    </div>
+  </div>
+
+<!-- MODULE 01: learning_journey -->
+<div class="module" id="mod-01-journey">
+  <h2><span class="m-tag">路线</span> 01. 学习路线导航 <span class="m-time">⏱️ 3分钟</span></h2>
+  <div class="hook">从「吃什么」到「怎么吃」——食疗养生不是简单的食材堆砌，而是一套贯穿中医理论的系统学问。</div>
+  <div class="content">
+    <p>食疗药膳与起居养生是中医「治未病」理念在日常生活中的具体落地。本研读材料沿着从理论到实践的路径，帮您建立起完整的食疗认知体系。学习路线分为四个层次：</p>
+    <p><strong>第一层·历史渊源</strong>：首先走入「药食同源」的文化脉络，理解中国人为什么将食物视为药物、将厨房视为药房。<strong>第二层·核心理论</strong>：掌握四气五味、归经、君臣佐使等食疗配伍的基础语言，这是理解任何一道药膳配方的前提。<strong>第三层·实践应用</strong>：将理论映射到四季、体质、具体食材，学会「看天吃饭」「看人下菜」的养生智慧。<strong>第四层·现代整合</strong>：了解现代营养科学如何验证和补充传统食疗理论，以及起居养生在当代生活中的演进。</p>
+    <p>建议您按照模块顺序逐层阅读：先建立整体框架（模块1-4），再深入应用场景（模块5-7），然后审视误区与风险（模块8、12），最后拓展前沿视野（模块11、13）。侧边栏导航和键盘快捷键（Ctrl+K搜索、Ctrl+D切换主题）将是您阅读的好帮手。</p>
+  </div>
+</div>
+
+<!-- MODULE 02: background -->
+<div class="module" id="mod-02-background">
+  <h2><span class="m-tag">背景</span> 02. 药食同源的历史源流 <span class="m-time">⏱️ 4分钟</span></h2>
+  <div class="hook">「空腹食之为食物，患者食之为药物」——这句出自《黄帝内经·素问》的古训，道出了中国人对食物与药物关系最朴素的认知。</div>
+  <div class="content">
+    <p>「药食同源」是中国传统医学中最具特色的理念之一。它认为许多物质既是食物也是药物，二者之间并无绝对的界限，区别仅仅在于使用的目的和剂量。这一思想的萌芽可追溯至远古时期。传说中的神农氏「尝百草，一日而遇七十毒」，正是在寻找食物的过程中发现了药物的功效。商代伊尹精通烹调，相传也是汤液的发明者，他将烹饪技法引入药物制备，开创了中药汤剂的先河。</p>
+    <p>周代是中国食疗制度化的开端。《周礼·天官》记载了「食医」「疾医」「疡医」「兽医」四类医官，其中食医位列四医之首，专门负责周天子的膳食调配。食医的职责是「掌和王之六食、六饮、六膳、百羞、百酱、八珍之齐」，根据四时气候变化选择相应的食物——这可以说是世界上最早的「营养科」雏形。</p>
+    <p>秦汉时期，药食同源理论趋于成熟。成书于东汉的《神农本草经》将药物分为上、中、下三品，其中上品药120种「无毒，多服久服不伤人」，可用于日常养生保健，大部分就是我们现在所说的「药食同源」物质，如大枣、枸杞、山药、薏苡仁等。《黄帝内经》提出了完整的食疗理论框架：「五谷为养，五果为助，五畜为益，五菜为充，气味合而服之，以补精益气。」</p>
+    <p>唐代是中国食疗发展的高峰。孙思邈在《备急千金要方》中专列「食治」一卷，明确指出：「夫为医者，当须先洞晓病源，知其所犯，以食治之，食疗不愈，然后命药。」将食疗置于药物治疗之前，这一思想极具前瞻性。其弟子孟诜撰写了中国现存最早的食疗专著《食疗本草》，系统记录了260余种食物的性味、功效和食用禁忌。</p>
+    <p>宋元明清时期，食疗专著层出不穷：元代忽思慧的《饮膳正要》是我国最早的营养学专著，详细记录了宫廷膳食的配伍与烹饪方法；明代李时珍的《本草纲目》收录了大量食物类药材；清代王孟英的《随息居饮食谱》则是贴近民间的饮食养生指南。进入现代社会，2021年国家卫生健康委发布的《按照传统既是食品又是中药材的物质目录》正式确立了101种「药食同源」物质的法律地位，为食疗产业提供了规范化依据。</p>
+
+    <div class="chart-wrap">
+      <div id="chart_timeline" style="width:100%;height:360px"></div>
+      <div class="ch-cap">图：药食同源理念从远古到当代的发展时间线</div>
+    </div>
+
+  </div>
+  <div class="takeaway">💡 「药食同源」从神农尝百草到当代101种法定物质，历经五千年文化积淀，是天人合一哲学在饮食中的具体体现。</div>
+</div>
+
+<!-- MODULE 03: concept -->
+<div class="module" id="mod-03-concept">
+  <h2><span class="m-tag">概念</span> 03. 食物的四气五味与归经 <span class="m-time">⏱️ 4分钟</span></h2>
+  <div class="hook">为什么夏天吃西瓜解暑？为什么胃寒的人要少吃梨？答案藏在食物「四气五味归经」这套精密的分类体系中。</div>
+  <div class="content">
+    <p><strong>四气</strong>（又称四性）指食物作用于人体后产生的寒、热、温、凉四种不同性质。其中寒与凉性质相近（程度不同），热与温同理，此外还有平性——性质平和、不偏不倚。四气不是实验室测出的理化指标，而是古人通过长期人体体验总结出的功能效应：食用后使身体产生清凉感、能清热泻火的食物属寒凉（如绿豆、西瓜、菊花）；食用后使身体产生温热感、能散寒助阳的食物属温热（如生姜、羊肉、桂圆）。</p>
+    <p><strong>五味</strong>指酸、苦、甘、辛、咸五种基本味道，另加淡味与涩味。五味不仅描述口感，更指示了食物在体内的作用方向：<strong>辛味</strong>（如生姜、薄荷、辣椒）具有发散、行气、活血的功效——「辛散」；<strong>甘味</strong>（如大枣、蜂蜜、山药）具有补益、和中、缓急的作用——「甘补」；<strong>酸味</strong>（如山楂、乌梅、醋）能收敛、固涩——「酸收」；<strong>苦味</strong>（如苦瓜、莲子心、蒲公英）能清热、燥湿、降泄——「苦降」；<strong>咸味</strong>（如海带、牡蛎、盐）能软坚散结、泻下通便——「咸软」。</p>
+    <p><strong>归经</strong>是食物作用部位的定位系统。每味食物或药物在体内并非漫无目的地作用，而是有选择性地对某些脏腑经络产生明显的效用。例如，枸杞归肝、肾经，说明它主要滋补肝肾；百合归心、肺经，说明它擅长润肺清心；山药归脾、肺、肾经，说明它对这三脏都有补益作用。归经理论指导食疗的「精准投放」，是中医食疗区别于普通营养学的关键特征。</p>
+    <p>四气、五味、归经三者构成了一个三维的食物性能定位系统。以生姜为例：气——温（属温热类），味——辛（发散力强），归经——肺、脾、胃经（主要作用于消化和呼吸系统）。综合判断：生姜是一味辛温之品，能够发散风寒（归肺经）、温中止呕（归脾胃经）。这就解释了为什么感冒初起喝姜汤有效，也解释了为什么阴虚火旺的人不宜多食生姜。</p>
+
+    <div class="chart-wrap">
+      <div id="chart_relation" style="width:100%;height:360px"></div>
+      <div class="ch-cap">图：五味-五脏-五季-五色-五体对应关系全景图</div>
+    </div>
+
+  </div>
+  <div class="takeaway">💡 四气(寒热温凉平) × 五味(酸苦甘辛咸) × 归经 = 食物的三维性能体系。掌握这套「食物语言」，你就能读懂每一味食材的「性格」。</div>
+</div>
+
+<!-- MODULE 04: principle -->
+<div class="module" id="mod-04-principle">
+  <h2><span class="m-tag">原理</span> 04. 食疗配伍与君臣佐使 <span class="m-time">⏱️ 4分钟</span></h2>
+  <div class="hook">好的药膳不是食材的简单相加，而是一场精心设计的食材对话——每一味都有自己的角色和使命。</div>
+  <div class="content">
+    <p>食疗配伍借鉴了中医方剂学的核心智慧——<strong>君臣佐使</strong>的组方原则。这一原则源于《黄帝内经》：「主病之谓君，佐君之谓臣，应臣之谓使。」在药膳配伍中，君料针对主要调理目标，是配方中的主角，用量最大；臣料辅助君料增强疗效或照顾兼证；佐料制约君臣的偏性，或治疗次要症状；使料调和诸料、引导药力到达目标脏腑。</p>
+    <p>以经典的<strong>当归生姜羊肉汤</strong>（出自《金匮要略》）为例解析君臣佐使结构：羊肉作为君料，味甘性温，归脾胃经，大补气血、温中暖肾；当归为臣，味甘辛性温，归肝心脾经，补血活血，与羊肉协同增强补血功效；生姜为佐使，味辛性温，散寒温中，既制约羊肉的膻味和滋腻，又引导药力到达脾胃。三味食材各司其职，却形成一股合力，使得这道药膳的散寒补血效果远胜单味使用。</p>
+
+    <div class="formula-block">
+      <span class="f-cap">食疗配伍的核心法则：七情合和</span>
+      单行（一味独用）→ 相须（同类协同）→ 相使（主辅增效）<br/>
+      相畏（毒性制约）→ 相杀（毒性消除）→ 相恶（功效减弱）→ 相反（毒性增强）
+      <button class="derivation-toggle">▸ 展开解读</button>
+      <div class="derivation-content">
+        「七情合和」出自《神农本草经》，描述了食材/药物之间的七种相互作用关系。食疗中主要运用前四种：单行（如枸杞泡水）、相须（如黄芪配当归气血双补）、相使（如山楂配麦芽消食导滞）、相畏（如生姜解半夏毒）。相恶和相反是配伍禁忌，食疗中应当避免——例如萝卜与人参相恶（萝卜削弱人参补气效果），柿子与螃蟹相反（寒凉叠加易伤脾胃）。
+      </div>
+    </div>
+
+    <p>除了君臣佐使，食疗配伍还有几个关键原则。<strong>寒热平衡</strong>是最核心的配伍考量：多数药膳方都会在大量温热食材中配入少量寒凉食材以制衡，或在寒凉方中加入辛温调料以护胃。例如夏季绿豆汤中加入陈皮，既防绿豆过寒伤胃，又以陈皮的芳香醒脾促进消化。<strong>气味调和</strong>关乎药膳的可口性——再有效的配方如果难以下咽也难以坚持，因此常以甘味食材（红枣、蜂蜜、桂圆）或芳香佐料（生姜、陈皮、花椒）来调和药味。<strong>因人制宜</strong>要求根据食用者的年龄、性别、体质和当前健康状况调整配伍比例——阴虚体质的人用温热食材当减量，阳虚体质的人用寒凉食材须谨慎。</p>
+  </div>
+  <div class="takeaway">💡 药膳配伍 = 君臣佐使的结构化角色分配 + 七情合和的食材间关系管理 + 寒热平衡/气味调和/因人制宜的细节调控。</div>
+</div>
+
+<!-- MODULE 05: application -->
+<div class="module" id="mod-05-application">
+  <h2><span class="m-tag">应用</span> 05. 四季食疗方案指南 <span class="m-time">⏱️ 4分钟</span></h2>
+  <div class="hook">「春吃芽、夏吃瓜、秋吃果、冬吃根」——这句民间谚语背后，是一套完整的因时养生逻辑。</div>
+  <div class="content">
+    <p>中医养生讲究「天人相应」，认为人体与自然界是一个有机整体，四时气候的变化直接影响人体脏腑的功能状态。食疗遵循「因时制宜」的原则，在不同季节选择不同性味的食物，帮助人体顺应自然的节律。</p>
+    <p><strong>春季（木·肝·生发）</strong>：春属木，通于肝，阳气升发。食疗以「辛散升发」为主，宜食韭菜、荠菜、春笋、豆芽等芽苗类食物，以及薄荷、菊花、枸杞叶等疏肝清热的食材。推荐药膳：枸杞猪肝汤（养肝明目）、荠菜豆腐羹（清热平肝）。忌大辛大热和过于酸涩之品，以防肝气过亢。</p>
+    <p><strong>夏季（火·心·长养）</strong>：夏属火，通于心，暑热当令。食疗以「清热养阴、健脾祛湿」为主，宜食绿豆、荷叶、冬瓜、苦瓜、莲子等清暑化湿的食物。推荐药膳：绿豆百合汤（清暑安神）、冬瓜薏仁排骨汤（清热利湿）。忌大热辛辣和肥甘厚腻，以免助热生湿。</p>
+    <p><strong>长夏（土·脾·化湿）</strong>：长夏多湿，通于脾，是湿邪最盛的季节。食疗重在「健脾化湿」，宜食山药、茯苓、白扁豆、薏苡仁等健脾利湿之品。推荐药膳：四神汤（山药、茯苓、莲子、芡实炖猪肚）。</p>
+    <p><strong>秋季（金·肺·收敛）</strong>：秋属金，通于肺，气候干燥。食疗以「滋阴润燥」为主，宜食梨、银耳、百合、芝麻、蜂蜜等润肺生津的食物。推荐药膳：川贝雪梨汤（润肺止咳）、银耳莲子羹（滋阴润燥）。忌辛辣燥热之品，以免耗伤肺阴。</p>
+    <p><strong>冬季（水·肾·闭藏）</strong>：冬属水，通于肾，寒气主令。食疗以「温补肾阳、填精益髓」为主，宜食羊肉、核桃、黑芝麻、枸杞、肉桂等温补食材。推荐药膳：当归生姜羊肉汤（温肾散寒）、核桃枸杞粥（补肾益精）。忌生冷寒凉，以免损伤阳气。</p>
+
+    <div class="chart-wrap">
+      <div id="chart_sankey" style="width:100%;height:400px"></div>
+      <div class="ch-cap">图：四季→五行→五脏→宜食→代表药膳的对应流向桑基图</div>
+    </div>
+
+  </div>
+  <div class="takeaway">💡 四季食疗核心：春养肝宜辛散、夏养心宜清暑、长夏健脾宜祛湿、秋养肺宜润燥、冬养肾宜温补。</div>
+</div>
+
+<!-- MODULE 06: case_study -->
+<div class="module" id="mod-06-case-study">
+  <h2><span class="m-tag">案例</span> 06. 经典药膳实例分析 <span class="m-time">⏱️ 4分钟</span></h2>
+  <div class="hook">从「四物汤」到「八宝粥」，每一道经典药膳都是一堂浓缩的中医配伍课。</div>
+  <div class="content">
+    <p>中医经典药膳历经千年实践检验，每道配方都蕴含着深刻的配伍智慧。以下选取四道代表性药膳，从食材选择、配伍逻辑到适用人群进行逐一拆解：</p>
+    <p><strong>四物汤（当归、川芎、白芍、熟地）</strong>——补血调经的经典方，也是药膳化的典范。熟地为君，甘温滋腻，大补肝肾精血；当归为臣，辛甘温润，补血兼活血；白芍为佐，酸寒收敛，养血柔肝，制约归芎之辛散；川芎为使，辛温走窜，活血行气、引药上行。四味从补、行、敛、散四个维度完成对血分的全方位调理。现代研究证实该方具有促进造血、改善微循环、调节免疫的药理作用。</p>
+    <p><strong>八宝粥（糯米、红枣、莲子、桂圆、薏仁、赤小豆、花生、枸杞）</strong>——民间最普及的平补药膳，胜在配伍均衡。糯米为君补中益气，红枣桂圆为臣双补气血，莲子薏仁为佐健脾宁心兼祛湿，赤小豆花生为使利水消肿润燥。整方性味平和，寒热均衡，适合大多数体质常年食用。营养学分析显示其富含多糖、蛋白质、维生素B族和多种矿物质。</p>
+    <p><strong>当归生姜羊肉汤</strong>——上文已分析其君臣佐使结构，此处补充现代研究视角：当归中的阿魏酸具有抗血小板聚集作用，生姜中的姜辣素能促进血液循环，羊肉提供优质蛋白和铁元素，三者协同形成了天然的「温补+造血+活血」组合。</p>
+
+    <div class="table-container">
+      <div class="table-caption">表：经典药膳食材配伍与功效对比</div>
+      <table>
+        <thead>
+          <tr><th>药膳名称</th><th>君料</th><th>臣料</th><th>佐使料</th><th>核心功效</th><th>最佳季节</th><th>禁忌人群</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>四物汤</td><td>熟地</td><td>当归</td><td>白芍、川芎</td><td>补血调经</td><td>秋冬</td><td>湿热体质、感冒期</td></tr>
+          <tr><td>八宝粥</td><td>糯米</td><td>红枣、桂圆</td><td>莲子、薏仁等</td><td>平补气血</td><td>四季皆宜</td><td>糖尿病控糖期</td></tr>
+          <tr><td>当归生姜羊肉汤</td><td>羊肉</td><td>当归</td><td>生姜</td><td>温肾散寒补血</td><td>冬季</td><td>阴虚火旺、发热</td></tr>
+          <tr><td>川贝雪梨汤</td><td>雪梨</td><td>川贝</td><td>冰糖</td><td>润肺止咳</td><td>秋季</td><td>风寒咳嗽期</td></tr>
+          <tr><td>四神汤</td><td>猪肚/排骨</td><td>山药</td><td>茯苓、莲子、芡实</td><td>健脾祛湿</td><td>长夏</td><td>实热便秘</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+  <div class="takeaway">💡 经典药膳的配伍逻辑遵循「君臣佐使」原则，每一味食材都有明确的角色定位，切忌随意增减破坏组方平衡。</div>
+</div>
+
+<!-- MODULE 07: landscape -->
+<div class="module" id="mod-07-landscape">
+  <h2><span class="m-tag">全景</span> 07. 食疗-体质-季节对应全景 <span class="m-time">⏱️ 3分钟</span></h2>
+  <div class="hook">一道药膳该给谁吃、什么时候吃？这需要同时读懂「人的体质」和「天的时节」两本书。</div>
+  <div class="content">
+    <p>食疗的最高境界是「三因制宜」——因时（季节气候）、因地（地理环境）、因人（体质状况）。将九种体质类型与四季变化叠加，就能生成一个精准的食疗决策矩阵。</p>
+    <p>平和质的人在四季如常饮食即可，重在保持平衡。气虚质的人在任何季节都应以甘温补气为主，但春季配合升发之品（如黄芪炖鸡），冬季加重温补力度（如党参羊肉汤）。阳虚质的人在春夏可借助自然界阳气适当温补（如生姜红枣茶），秋冬则需要更加注重温阳散寒（如当归生姜羊肉汤）。阴虚质的人夏季宜滋阴降火（如百合银耳羹），秋季燥邪当令时更需加倍润养（如沙参玉竹汤）。</p>
+    <p>痰湿质的人在长夏湿重时脾胃负担最大，应以茯苓薏米等健脾祛湿为主，同时控制食量。湿热质的人在夏季最易发病，饮食当以苦寒清热利湿为要（如苦瓜、冬瓜、赤小豆）。血瘀质的人春冬寒冷季节血行不畅，当以辛温活血化瘀为主（如山楂红糖水、川芎炖鸡）。气郁质的人春季肝气最易郁结，当以疏肝解郁为先（如玫瑰花茶、薄荷粥）。特禀质的人在春秋换季时最易过敏，饮食当避开发物，以固表益气为主（如黄芪防风炖瘦肉）。</p>
+
+    <div class="table-container">
+      <div class="table-caption">表：食疗-体质-季节三维应对矩阵</div>
+      <table>
+        <thead>
+          <tr><th>体质类型</th><th>春季重点</th><th>夏季重点</th><th>秋季重点</th><th>冬季重点</th><th>推荐食材</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>平和质</td><td>保持平衡</td><td>清淡饮食</td><td>适时润燥</td><td>适度温补</td><td>五谷杂粮均衡搭配</td></tr>
+          <tr><td>气虚质</td><td>升发补气</td><td>健脾益气</td><td>补肺固表</td><td>温补元气</td><td>黄芪、党参、山药、大枣</td></tr>
+          <tr><td>阳虚质</td><td>借阳温煦</td><td>春夏养阳</td><td>防寒护阳</td><td>温肾壮阳</td><td>羊肉、生姜、桂圆、核桃</td></tr>
+          <tr><td>阴虚质</td><td>柔肝养阴</td><td>清暑滋阴</td><td>润肺生津</td><td>填补肾阴</td><td>百合、银耳、枸杞、鸭肉</td></tr>
+          <tr><td>痰湿质</td><td>芳香化湿</td><td>清热利湿</td><td>健脾燥湿</td><td>温化痰饮</td><td>茯苓、薏仁、陈皮、冬瓜</td></tr>
+          <tr><td>湿热质</td><td>疏肝清热</td><td>苦寒清利</td><td>清润化湿</td><td>慎用温补</td><td>苦瓜、赤小豆、绿豆、荷叶</td></tr>
+          <tr><td>血瘀质</td><td>辛散活血</td><td>凉血散瘀</td><td>润燥化瘀</td><td>温经通络</td><td>山楂、川芎、丹参、玫瑰花</td></tr>
+          <tr><td>气郁质</td><td>疏肝解郁</td><td>理气清热</td><td>宣肺宽胸</td><td>温通理气</td><td>玫瑰花、佛手、薄荷、陈皮</td></tr>
+          <tr><td>特禀质</td><td>避风固表</td><td>清肺防敏</td><td>润燥固表</td><td>温肾固本</td><td>黄芪、防风、乌梅、灵芝</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+  <div class="takeaway">💡 食疗决策 = 体质判定（九分法）+ 季节匹配（四时五季）+ 性味选择（四气五味归经），三维定位才能精准施膳。</div>
+</div>
+
+<!-- MODULE 08: misconceptions -->
+<div class="module" id="mod-08-misconceptions">
+  <h2><span class="m-tag">误区</span> 08. 食疗常见误区 <span class="m-time">⏱️ 3分钟</span></h2>
+  <div class="hook">「食疗就是多吃补品」「中药煲汤越久越好」——这些流传甚广的说法，恰恰是食疗中最危险的认知陷阱。</div>
+  <div class="content">
+    <p><strong>误区一：「食疗可以替代药物」</strong>——这是最普遍也最危险的误区。中医经典明确区分了「食治」与「药治」：「食疗不愈，然后命药」（《千金要方》）。食物作用缓和、偏性较小，适合日常调理和疾病预防；药物作用强劲、偏性显著，用于疾病的治疗。将食疗等同于药物治疗，可能延误病情。例如，高血压患者不能以芹菜汁替代降压药，糖尿病患者不能仅靠苦瓜控制血糖。</p>
+    <p><strong>误区二：「药膳越补越好、越贵越好」</strong>——盲目追求人参、鹿茸、冬虫夏草等名贵药材进补，是「以价论效」的典型表现。中医进补讲究「虚则补之，实则泻之」。一个大腹便便、舌苔厚腻的痰湿体质者服用滋腻的人参，只会「闭门留寇」，加重湿滞。正确的做法是先辨证后施膳，虚者补之，实者泻之，寒者热之，热者寒之。</p>
+    <p><strong>误区三：「药膳熬得越久药效越好」</strong>——不同药材的最佳煎煮时间不同。芳香解表类（如薄荷、紫苏）久煮则挥发油散失殆尽，应后下煎煮3-5分钟；矿石贝壳类（如龙骨、牡蛎）需先煎30分钟以上；普通根茎类一般煮沸后文火20-30分钟。一味追求长时间熬煮反而可能破坏有效成分或使药性发生不良变化。</p>
+    <p><strong>误区四：「食疗没有副作用，可以随便吃」</strong>——任何有偏性的物质都有潜在风险。枸杞过量可致上火、口干、鼻衄；决明子长期大量服用可致结肠黑变病；何首乌未经规范炮制可致肝损伤。食物与药物一样，过则为害。关键在于辨证施用、适度为宜。</p>
+    <p><strong>误区五：「药膳方子可以从网上照搬」</strong>——药膳是高度个体化的调理手段。同一个方子对不同体质的人可能效果截然相反。一个简单的例子：红枣桂圆茶对气血两虚者是良方，对湿热内蕴者却是「火上浇油」。没有体质辨识的药膳，无异于盲目用药。</p>
+  </div>
+  <div class="takeaway">💡 食疗五戒：不替代药物、不求贵求补、不盲目长熬、不忽视偏性、不照搬网方。辨证施膳是食疗不可逾越的红线。</div>
+</div>
+
+<!-- MODULE 09: learning_path -->
+<div class="module" id="mod-09-learning-path">
+  <h2><span class="m-tag">路径</span> 09. 食疗学习入门路径 <span class="m-time">⏱️ 3分钟</span></h2>
+  <div class="hook">学食疗就像学一门新语言——先认字（四气五味），再造句（配伍组方），最后写文章（辨证施膳）。</div>
+  <div class="content">
+    <p><strong>入门阶段（1-2个月）：掌握基础语言</strong>。首先熟悉50种常用食材的四气五味和归经属性，建议从厨房里最常见的食材开始——姜、葱、蒜、花椒、大枣、枸杞、山药、莲子、百合、薏仁、绿豆、赤小豆、山楂、桂圆、菊花、薄荷、陈皮、茯苓。可以制作个人食材手册，在日常生活中随时查阅和验证。同时阅读《中医饮食营养学》（高等中医药院校教材），建立系统的理论框架。</p>
+    <p><strong>进阶阶段（2-4个月）：理解配伍逻辑</strong>。学习6-10道经典药膳的完整配伍分析，包括四物汤、八珍汤、四君子汤、当归生姜羊肉汤、四神汤、酸梅汤、银耳莲子羹等。每分析一道，都应当追问：为什么选择这些食材？君臣佐使如何分配？适用什么体质和季节？禁忌是什么？推荐阅读《中医药膳学》教材和《随息居饮食谱》。</p>
+    <p><strong>应用阶段（4-6个月）：实践辨证施膳</strong>。结合体质辨识（可借助标准化的中医体质分类与判定表进行自测），为自己和家人设计季节性的食疗方案。从小方入手（单味或两味），逐步尝试多味配伍。关键是养成「先辨证、后施膳」的思维习惯。推荐深入学习《黄帝内经》中关于饮食养生的篇章（如《素问·藏气法时论》），以及系统阅读唐·孙思邈《备急千金要方·食治》。</p>
+  </div>
+  <div class="takeaway">💡 食疗学习三步走：认食材（50味基础食材的性味归经）→ 学配伍（10道经典药膳的拆解分析）→ 练辨证（体质+季节的实战应用）。</div>
+</div>
+
+<!-- MODULE 10: glossary -->
+<div class="module" id="mod-10-glossary">
+  <h2><span class="m-tag">术语</span> 10. 食疗核心术语 <span class="m-time">⏱️ 3分钟</span></h2>
+  <div class="hook">掌握以下核心术语，你就有了读懂任何食疗文献的基本「词汇量」。</div>
+  <div class="content">
+    <p><strong>药食同源</strong>：许多物质既是食物也是药物，二者之间没有绝对界限，仅有使用目的和剂量的区别。国家卫健委已公布101种药食同源物质目录。</p>
+    <p><strong>四气（四性）</strong>：寒、热、温、凉四种食物/药物的基本性质，描述其作用于人体后产生的温度效应。另有平性介于其间。</p>
+    <p><strong>五味</strong>：酸、苦、甘、辛、咸五种基本味道，每种味道对应特定的功效方向——辛散、甘补、酸收、苦降、咸软。</p>
+    <p><strong>归经</strong>：食物/药物对人体特定脏腑经络的选择性作用。如枸杞归肝、肾经，表示其主要作用于肝和肾。</p>
+    <p><strong>升降浮沉</strong>：食物/药物在体内作用的趋向性。升浮者上行向外（如薄荷、生姜发散解表），沉降者下行向内（如山楂消食导滞下行）。</p>
+    <p><strong>君臣佐使</strong>：方剂配伍的核心原则。君料针对主证，臣料辅助君料并处理兼证，佐料制约偏性或治疗次要症状，使料调和引导。</p>
+    <p><strong>七情合和</strong>：食材/药物之间的七种相互作用——单行（一味独用）、相须（同类增效）、相使（主辅协同）、相畏（毒性受制）、相杀（毒性被消）、相恶（功效减弱）、相反（产生毒性）。</p>
+    <p><strong>辨证施膳</strong>：在中医辨证论治原则指导下，根据个体证候选择相应性味的食物进行调理。核心流程：四诊合参→确定证型→选择食药→配伍组方→评估效果。</p>
+    <p><strong>发物</strong>：容易诱发或加重某些疾病的食物。如海鲜、羊肉、辛辣食物等，对过敏体质、疮疡肿毒患者应当忌食。</p>
+    <p><strong>三因制宜</strong>：食疗的基本原则——因时（季节）、因地（地域）、因人（体质）制宜，强调个体化和动态化。</p>
+  </div>
+  <div class="takeaway">💡 这10个核心术语是食疗知识的「语法规则」，理解了它们之间的逻辑关系，就把握了食疗理论的内在结构。</div>
+</div>
+
+<!-- MODULE 11: prospect -->
+<div class="module" id="mod-11-prospect">
+  <h2><span class="m-tag">前沿</span> 11. 现代营养科学与药膳融合 <span class="m-time">⏱️ 4分钟</span></h2>
+  <div class="hook">当传统食疗遇上现代营养学——两种看似对立的范式正在发生令人兴奋的「化学反应」。</div>
+  <div class="content">
+    <p>传统食疗和现代营养科学长期被看作两套平行的体系——前者基于数千年的经验积累和中医理论，后者基于分子生物学和循证医学。但近年来，越来越多的研究正在将它们连接起来，形成了一个充满活力的交叉领域。</p>
+    <p><strong>成分验证层面</strong>：对药食同源物质的活性成分研究取得了丰富成果。例如：枸杞中的枸杞多糖被证实具有抗氧化和免疫调节作用；山药中的薯蓣皂苷元能调节肠道菌群；陈皮中的橙皮苷具有抗炎和降血脂作用；生姜中的6-姜辣素（6-gingerol）被确认具有显著的抗炎和抗氧化活性。这些发现为传统食疗提供了分子层面的科学注解。</p>
+    <p><strong>配伍机制层面</strong>：现代研究开始解析传统配伍的科学内涵。研究发现，当归-黄芪配伍（经典「当归补血汤」）中，黄芪多糖能促进当归中阿魏酸的吸收利用，两味合用使补血效果呈现「1+1>2」的协同效应。此外，生姜与羊肉同煮时，姜辣素能促进羊肉中铁元素的生物利用度，为「当归生姜羊肉汤」的散寒补血效果提供了生理解释。</p>
+    <p><strong>功能性食品开发</strong>：药食同源理念正在推动功能性食品和「药膳工业化」浪潮。以枸杞、山楂、决明子、葛根等为原料的功能性饮品和保健品市场年增长率超过15%。「中式营养」概念逐步被国际市场认可——2024年全球功能性食品市场中，以中医药理论为基础的产品占比已达到8.3%。</p>
+
+    <div class="chart-wrap">
+      <div id="chart_research" style="width:100%;height:360px"></div>
+      <div class="ch-cap">图：近十年药食同源相关科学研究论文发表数量趋势（PubMed收录，2015-2025）</div>
+    </div>
+
+    <p>展望未来，食疗与营养科学的融合将在三个方向深入发展：<strong>精准食疗</strong>——结合基因组学和代谢组学，为个体定制个性化的食疗方案；<strong>数字药膳</strong>——通过AI算法根据体质、季节、症状自动推荐药膳配伍；<strong>循证食疗</strong>——以大规模随机对照试验验证传统食疗方案的有效性和安全性，推动食疗进入主流医学体系。</p>
+  </div>
+  <div class="takeaway">💡 现代研究正在从分子机制层面验证传统食疗的合理性，精准食疗、数字药膳和循证评价是三大前沿方向。</div>
+</div>
+
+<!-- MODULE 12: risk -->
+<div class="module" id="mod-12-risk">
+  <h2><span class="m-tag">风险</span> 12. 食疗不当的风险警示 <span class="m-time">⏱️ 3分钟</span></h2>
+  <div class="hook">「是药三分毒」——这句话对食疗同样适用。药食同源不等于药食同安。</div>
+  <div class="content">
+    <p>食疗的安全性常被高估，风险常被低估。以下从四个维度警示食疗不当的潜在危害：</p>
+    <p><strong>过量毒性</strong>：许多药食同源物质在常规剂量下安全，但过量使用即呈现毒性。苦杏仁含有苦杏仁苷，过量食用可在体内水解释放氢氰酸导致中毒，成人一次食用超过50粒生苦杏仁即有致死风险。白果（银杏）含银杏酸和银杏毒素，儿童一次食用超过10粒即可引起中毒。甘草每日超过10克长期使用可致假性醛固酮增多症，表现为高血压、低血钾和水肿。</p>
+    <p><strong>药食相互作用</strong>：食疗食材可能影响西药的疗效或增加毒副作用。正在服用华法林的患者大量食用富含维生素K的食物（如菠菜、西兰花、纳豆）可影响抗凝效果；服用心血管药物时食用含酪胺较高的发酵食材（如腐乳、豆豉）可能诱发高血压危象；糖尿病患者在服用降糖药的同时大量食用苦瓜、秋葵等有降糖作用的食物，可能导致低血糖。</p>
+    <p><strong>体质误判风险</strong>：将不适合自身体质的食材长期作为「养生品」食用，可能导致体质进一步偏颇。例如，阳虚体质者长期食用寒凉的苦瓜、绿豆可能导致腹泻、畏寒加重；阴虚体质者长期食用辛辣温燥的生姜、辣椒可能导致口干、失眠、盗汗；湿热体质者大量进补滋腻的阿胶、熟地可能加重痤疮、口臭、便秘。</p>
+    <p><strong>药材搀假问题</strong>：在中草药市场特别是线上渠道，存在以次充好、硫熏、染色等问题。特别是三七粉、枸杞、天麻等热门养生药材，搀假现象严重。建议通过正规药店购买，注意查看产品检测报告和溯源信息。</p>
+  </div>
+  <div class="takeaway">💡 食疗风险 = 过量毒性 + 药食相互作用 + 体质误判 + 药材质量。食疗必须在专业指导下辨证施膳，而非盲目跟风。</div>
+</div>
+
+<!-- MODULE 13: development -->
+<div class="module" id="mod-13-development">
+  <h2><span class="m-tag">演变</span> 13. 起居养生的现代演变 <span class="m-time">⏱️ 3分钟</span></h2>
+  <div class="hook">古人「日出而作，日落而息」——在24小时不熄灯、手机永不离手的今天，传统起居养生如何「现代化」？</div>
+  <div class="content">
+    <p>起居养生是中医养生的重要组成部分，涵盖作息、睡眠、衣着、房室、居住环境等方面的日常调摄。《黄帝内经》提出了起居养生的总则：「起居有常，不妄作劳。」这八个字在今天依然适用，但具体内涵需要现代转化。</p>
+    <p><strong>作息节律的现代挑战</strong>：传统中医强调「子午觉」——子时（23:00-1:00）为胆经当令，此时入睡最利于肝胆排毒和气血恢复；午时（11:00-13:00）为心经当令，小憩15-30分钟可养心安神。现代研究证实了昼夜节律（circadian rhythm）对人体健康的重要性，2024年诺贝尔生理学或医学奖获得者正是因对昼夜节律分子机制的研究而获奖。然而，手机蓝光、轮班工作、「报复性熬夜」正在大规模地破坏人类亿万年进化形成的昼夜节律。建议：睡前一小时禁用电子屏幕，使用暖色灯光（2700K以下），固定起床时间（即使在周末），将最重要的睡眠窗口锁定在23:00-3:00。</p>
+    <p><strong>劳逸结合的科学化</strong>：中医主张「不妄作劳」，既反对过劳也反对过逸。现代职业以久坐办公为主，其健康危害不亚于过劳。建议每坐45分钟起身活动5分钟；每日步行不少于6000步；每周保持150分钟中等强度运动（结合中医导引术如八段锦、太极拳效果更佳）。过度运动同样伤身——长期超负荷运动会耗伤气血，导致免疫力下降，中医称之为「劳则气耗」。</p>
+    <p><strong>衣着与环境调节</strong>：中医主张「虚邪贼风，避之有时」，强调根据外界环境及时调整着装。现代空调环境使人体长期处于「非季节」状态——夏受寒、冬受热。建议夏季空调不低于26℃，进入空调房披薄外套护住大椎穴（颈后隆起处）和神阙穴（肚脐）；冬季暖气不宜过高（20-22℃为宜），配合加湿器维持40-60%的室内湿度。衣着原则：「春捂秋冻」——春季不要太早减衣（护阳气），秋季不要过早添厚衣（锻炼耐寒力），但均应以「适度」为限，以手足温暖、不出汗为度。</p>
+  </div>
+  <div class="takeaway">💡 起居养生的现代核心：守住子午觉的底线、动静结合的劳逸平衡、顺应季节的衣着调节。古人的智慧需要现代的翻译，而非简单的照搬。</div>
+</div>
+
+</div>
+
+<footer class="journey-footer">
+  <a href="#" class="back-to-plan" onclick="event.preventDefault();var w=window.open('tcm_learning.html#kc-p3_3','plan_main');if(w)w.focus()">🔗 返回学习路线: 中医与养生 系统学习方案 → 养生保健整合应用</a>
+  <p style="margin-top:12px;font-size:.72rem;color:var(--text-muted)">
+    本资料是 <strong>中医与养生 系统学习方案</strong> 养生保健整合应用 阶段的深度研读材料
+  </p>
+</footer>
+
+<div class="deep-floating-back">
+  <button onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 16px rgba(0,0,0,.2)'"
+    onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 12px rgba(0,0,0,.15)'"
+    onclick="event.preventDefault();var w=window.open('tcm_learning.html#kc-p3_3','plan_main');if(w)w.focus()">
+    ← 返回学习方案
+  </button>
+</div>
+</div>
+
+<div class="dd-toast" id="toastEl"><span id="toastMsg"></span></div>
+
+<script>
+var MODULE_IDS = ["mod-01-journey","mod-02-background","mod-03-concept","mod-04-principle","mod-05-application","mod-06-case-study","mod-07-landscape","mod-08-misconceptions","mod-09-learning-path","mod-10-glossary","mod-11-prospect","mod-12-risk","mod-13-development"];
+var SEARCH_INDEX = [
+  {id:"mod-01-journey",t:"学习路线导航",c:"从吃什么到怎么吃——食疗养生不是简单的食材堆砌，而是一套贯穿中医理论的系统学问"},
+  {id:"mod-02-background",t:"药食同源的历史源流",c:"空腹食之为食物，患者食之为药物——药食同源理念从神农尝百草到当代101种法定物质"},
+  {id:"mod-03-concept",t:"四气五味与归经",c:"四气寒热温凉平、五味酸苦甘辛咸、归经脏腑定位——食物的三维性能体系"},
+  {id:"mod-04-principle",t:"食疗配伍与君臣佐使",c:"好的药膳不是食材的简单相加，君臣佐使决定每一味食材的角色和使命"},
+  {id:"mod-05-application",t:"四季食疗方案指南",c:"春吃芽、夏吃瓜、秋吃果、冬吃根——因时养生的完整逻辑"},
+  {id:"mod-06-case-study",t:"经典药膳实例分析",c:"四物汤、八宝粥、当归生姜羊肉汤——每道经典药膳都是一堂浓缩的中医配伍课"},
+  {id:"mod-07-landscape",t:"食疗-体质-季节全景",c:"一道药膳该给谁吃、什么时候吃？三维定位才能精准施膳"},
+  {id:"mod-08-misconceptions",t:"食疗常见误区",c:"食疗不是多吃补品、不是越贵越好——五个最常见的食疗认知陷阱"},
+  {id:"mod-09-learning-path",t:"食疗学习入门路径",c:"学食疗就像学一门新语言——先认字、再造句、最后写文章"},
+  {id:"mod-10-glossary",t:"食疗核心术语",c:"药食同源、四气五味、归经、升降浮沉、君臣佐使——掌握基础词汇量"},
+  {id:"mod-11-prospect",t:"现代营养科学与药膳融合",c:"当传统食疗遇上现代营养学——精准食疗、数字药膳、循证评价"},
+  {id:"mod-12-risk",t:"食疗不当的风险警示",c:"是药三分毒，食疗同样适用——过量毒性、药食相互作用、体质误判"},
+  {id:"mod-13-development",t:"起居养生的现代演变",c:"古人日出而作日落而息，在手机不离手的今天，传统起居养生如何现代化"}
+];
+var TOAST_TIMEOUT;
+
+(function(){
+var progressBar=document.getElementById('progressBar');
+var modules=document.querySelectorAll('.module');
+
+var observer=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting)e.target.classList.add('visible')})},{threshold:.15});
+modules.forEach(function(m){observer.observe(m)});
+
+var navLinks=document.querySelectorAll('.sidebar-nav a');
+var navObserver=new IntersectionObserver(function(entries){
+entries.forEach(function(e){
+if(e.isIntersecting){
+navLinks.forEach(function(a){a.classList.remove('active')});
+var act=document.querySelector('.sidebar-nav a[href="#'+e.target.id+'"]');
+if(act)act.classList.add('active');
+}
+})},{threshold:.3});
+modules.forEach(function(m){navObserver.observe(m)});
+
+window.addEventListener('scroll',function(){
+var st=document.documentElement.scrollTop,dh=document.documentElement.scrollHeight-window.innerHeight;
+var pct=dh>0?Math.min(100,(st/dh)*100):0;progressBar.style.width=pct+'%';
+});
+
+window.addEventListener('keydown',function(e){
+if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();openSearch()}
+if((e.ctrlKey||e.metaKey)&&e.key==='d'){e.preventDefault();toggleTheme()}
+if(e.key==='Escape')closeSearch()
+});
+})();
+
+function toggleTheme(){
+var b=document.body,isD=b.getAttribute('data-theme')==='dark';
+b.setAttribute('data-theme',isD?'light':'dark');
+try{localStorage.setItem('slm-theme',isD?'light':'dark')}catch(e){}
+showToast('已切换至'+(isD?'浅色':'深色')+'主题')
+}
+
+function openSearch(){document.getElementById('searchOverlay').classList.add('open');setTimeout(function(){document.getElementById('searchInput').focus()},100)}
+function closeSearch(){document.getElementById('searchOverlay').classList.remove('open');document.getElementById('searchResults').innerHTML=''}
+
+function doSearch(){
+var q=document.getElementById('searchInput').value.toLowerCase(),res=document.getElementById('searchResults');
+if(q.length<2){res.innerHTML='';return}
+var h='';SEARCH_INDEX.forEach(function(item){
+if(item.t.toLowerCase().indexOf(q)>=0||(item.c||'').toLowerCase().indexOf(q)>=0){
+h+='<div onclick="closeSearch();document.getElementById(\''+item.id+'\').scrollIntoView({behavior:\'smooth\'})">'+
+'<strong>'+item.t+'</strong><br><small style="color:var(--text-muted)">'+(item.c||'').substring(0,80)+'</small></div>';
+}
+});
+res.innerHTML=h||'<div style="padding:12px;color:var(--text-muted)">未找到匹配模块</div>'
+}
+
+function showToast(msg){
+var el=document.getElementById('toastEl'),mg=document.getElementById('toastMsg');
+if(!el||!mg)return;mg.textContent=msg;el.style.display='block';el.classList.add('toast-in');
+if(TOAST_TIMEOUT)clearTimeout(TOAST_TIMEOUT);
+TOAST_TIMEOUT=setTimeout(function(){el.style.display='none'},3000);
+}
+
+(function(){
+var t;try{t=localStorage.getItem('slm-theme')}catch(e){}
+if(t==='light')document.body.setAttribute('data-theme','light');
+})();
+
+(function(){
+document.querySelectorAll('.derivation-toggle').forEach(function(btn){
+btn.addEventListener('click',function(){
+var content=this.nextElementSibling;
+if(content){content.classList.toggle('open');this.textContent=content.classList.contains('open')?'▾ 收起解读':'▸ 展开解读'}
+});
+});
+})();
+
+/* ===== ECharts 初始化 ===== */
+(function initCharts(){
+if(typeof echarts==='undefined')return;
+var charts=[];
+var bgColor=document.body.getAttribute('data-theme')==='light'?'#f3efe3':'#312d27';
+function makeChart(elId,option){
+var el=document.getElementById(elId);
+if(!el)return null;
+var chart=echarts.init(el);
+if(!option.backgroundColor)option.backgroundColor=bgColor;
+chart.setOption(option);
+return chart;
+}
+
+var c1=makeChart('chart_timeline',{
+  tooltip:{trigger:'axis'},
+  grid:{left:'8%',right:'5%',top:'10%',bottom:'12%'},
+  xAxis:{type:'category',data:['先秦','秦汉','晋唐','宋金元','明清','近现代','当代'],axisLabel:{color:'#8a8070',fontSize:11}},
+  yAxis:{type:'value',name:'发展指数',axisLabel:{color:'#8a8070'},nameTextStyle:{color:'#8a8070'},splitLine:{lineStyle:{color:'#2d2924'}}},
+  series:[{type:'line',data:[30,65,85,70,90,60,78],smooth:true,lineStyle:{color:'#5ea87a',width:3},itemStyle:{color:'#5ea87a'},areaStyle:{color:{type:'linear',x:0,y:0,x2:0,y2:1,colorStops:[{offset:0,color:'rgba(94,168,122,.35)'},{offset:1,color:'rgba(94,168,122,.02)'}]}}}]
+});
+if(c1)charts.push(c1);
+
+var c2=makeChart('chart_relation',{
+  tooltip:{trigger:'item'},
+  series:[{type:'graph',layout:'circular',roam:true,label:{show:true,fontSize:12,color:'#ede6d8'},edgeSymbol:['none','arrow'],edgeSymbolSize:[0,10],data:[
+    {name:'酸',symbolSize:40,itemStyle:{color:'#7ec8a0'}},
+    {name:'苦',symbolSize:36,itemStyle:{color:'#d47860'}},
+    {name:'甘',symbolSize:44,itemStyle:{color:'#e6b95a'}},
+    {name:'辛',symbolSize:38,itemStyle:{color:'#b898a0'}},
+    {name:'咸',symbolSize:34,itemStyle:{color:'#5ea87a'}},
+    {name:'肝',symbolSize:32,itemStyle:{color:'#6ebf8a'}},
+    {name:'心',symbolSize:30,itemStyle:{color:'#d47860'}},
+    {name:'脾',symbolSize:32,itemStyle:{color:'#e6b95a'}},
+    {name:'肺',symbolSize:30,itemStyle:{color:'#b898a0'}},
+    {name:'肾',symbolSize:30,itemStyle:{color:'#5ea87a'}},
+    {name:'春',symbolSize:24,itemStyle:{color:'#7ec8a0'}},
+    {name:'夏',symbolSize:24,itemStyle:{color:'#d47860'}},
+    {name:'长夏',symbolSize:24,itemStyle:{color:'#e6b95a'}},
+    {name:'秋',symbolSize:24,itemStyle:{color:'#b898a0'}},
+    {name:'冬',symbolSize:24,itemStyle:{color:'#5ea87a'}}
+  ],links:[
+    {source:'酸',target:'肝'},{source:'肝',target:'春'},
+    {source:'苦',target:'心'},{source:'心',target:'夏'},
+    {source:'甘',target:'脾'},{source:'脾',target:'长夏'},
+    {source:'辛',target:'肺'},{source:'肺',target:'秋'},
+    {source:'咸',target:'肾'},{source:'肾',target:'冬'}
+  ],lineStyle:{color:'#5c5042',curveness:0.2,opacity:0.7}}]
+});
+if(c2)charts.push(c2);
+
+var c3=makeChart('chart_sankey',{
+  tooltip:{trigger:'item',triggerOn:'mousemove'},
+  series:[{type:'sankey',layout:'none',emphasis:{focus:'adjacency'},nodeAlign:'left',label:{fontSize:11,color:'#ede6d8'},data:[
+    {name:'春季'},{name:'夏季'},{name:'长夏'},{name:'秋季'},{name:'冬季'},
+    {name:'木'},{name:'火'},{name:'土'},{name:'金'},{name:'水'},
+    {name:'肝'},{name:'心'},{name:'脾'},{name:'肺'},{name:'肾'},
+    {name:'韭菜/荠菜'},{name:'绿豆/冬瓜'},{name:'山药/茯苓'},{name:'梨/银耳'},{name:'羊肉/核桃'},
+    {name:'枸杞猪肝汤'},{name:'绿豆百合汤'},{name:'四神汤'},{name:'川贝雪梨汤'},{name:'当归生姜羊肉汤'}
+  ],links:[
+    {source:'春季',target:'木',value:1},{source:'夏季',target:'火',value:1},{source:'长夏',target:'土',value:1},{source:'秋季',target:'金',value:1},{source:'冬季',target:'水',value:1},
+    {source:'木',target:'肝',value:1},{source:'火',target:'心',value:1},{source:'土',target:'脾',value:1},{source:'金',target:'肺',value:1},{source:'水',target:'肾',value:1},
+    {source:'肝',target:'韭菜/荠菜',value:1},{source:'心',target:'绿豆/冬瓜',value:1},{source:'脾',target:'山药/茯苓',value:1},{source:'肺',target:'梨/银耳',value:1},{source:'肾',target:'羊肉/核桃',value:1},
+    {source:'韭菜/荠菜',target:'枸杞猪肝汤',value:1},{source:'绿豆/冬瓜',target:'绿豆百合汤',value:1},{source:'山药/茯苓',target:'四神汤',value:1},{source:'梨/银耳',target:'川贝雪梨汤',value:1},{source:'羊肉/核桃',target:'当归生姜羊肉汤',value:1}
+  ],lineStyle:{color:'gradient',curveness:0.5}}]
+});
+if(c3)charts.push(c3);
+
+var c4=makeChart('chart_research',{
+  tooltip:{trigger:'axis'},
+  legend:{data:['中文文献','英文文献(PubMed)'],textStyle:{color:'#8a8070'}},
+  grid:{left:'10%',right:'8%',top:'15%',bottom:'8%'},
+  xAxis:{type:'category',data:['2015','2016','2017','2018','2019','2020','2021','2022','2023','2024','2025'],axisLabel:{color:'#8a8070',fontSize:10}},
+  yAxis:{type:'value',name:'论文数量(篇)',axisLabel:{color:'#8a8070'},nameTextStyle:{color:'#8a8070'},splitLine:{lineStyle:{color:'#2d2924'}}},
+  series:[
+    {name:'中文文献',type:'bar',data:[280,320,410,480,620,780,950,1120,1380,1650,1850],itemStyle:{color:'#5ea87a'}},
+    {name:'英文文献(PubMed)',type:'bar',data:[120,145,190,240,310,420,560,720,890,1050,1200],itemStyle:{color:'#b898a0'}}
+  ]
+});
+if(c4)charts.push(c4);
+
+window.addEventListener('resize',function(){charts.forEach(function(c){c.resize()})});
+})();
+</script>
+</body>
+</html>

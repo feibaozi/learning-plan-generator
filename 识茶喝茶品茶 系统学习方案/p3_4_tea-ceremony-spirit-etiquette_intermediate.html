@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>茶道精神与礼仪 — 深度研读</title>
+<style>
+/* ───────────────────────────────────────────────
+   Template: Cedar Dawn (雪松晨曦) — deep_dive.css
+   Mood: warm, natural, organic
+   Contrast verified: text-primary≥10:1, text-secondary≥6:1, text-muted≥4.5:1
+   ─────────────────────────────────────────────── */
+:root{
+--bg-base:#1a1814;
+--bg-card:#282520;
+--bg-elevated:#312d27;
+--bg-overlay:rgba(0,0,0,.6);
+--text-primary:#ede6d8;
+--text-secondary:#b8ad98;
+--text-muted:#8a8070;
+--accent-indigo:#5ea87a;
+--accent-purple:#b898a0;
+--accent-cyan:#7ec8a0;
+--accent-gold:#e6b95a;
+--accent-green:#6ebf8a;
+--accent-red:#d47860;
+--accent-blue:#5ea87a;
+--accent-color:#5ea87a;
+--accent-dark:#3d6b50;
+--border-subtle:rgba(184,173,152,.15);
+--border-glow:rgba(94,168,122,.25);
+--shadow-sm:0 1px 3px rgba(0,0,0,.3);
+--shadow-md:0 4px 16px rgba(0,0,0,.4);
+--shadow-lg:0 8px 32px rgba(0,0,0,.5);
+--shadow-elevated:0 8px 32px rgba(0,0,0,.5);
+--radius-sm:6px;
+--radius-md:10px;
+--radius-lg:16px;
+--font-sans:'Segoe UI',system-ui,-apple-system,sans-serif;
+--font-mono:Consolas,'Cascadia Code',monospace;
+--transition:.25s cubic-bezier(.4,0,.2,1);
+--transition-smooth:.3s ease;
+--nav-h:56px;
+--accent-color-rgb:94,168,122;
+--chart-grid:#2d2924;
+--chart-axis-label:#8a8070;
+}
+[data-theme="light"]{
+--bg-base:#fdfaf3;
+--bg-card:#fffdf7;
+--bg-elevated:#f3efe3;
+--bg-overlay:rgba(0,0,0,.3);
+--text-primary:#1f1a12;
+--text-secondary:#4a4035;
+--text-muted:#5c5042;
+--accent-indigo:#3d6b50;
+--accent-purple:#7a5a6a;
+--accent-cyan:#4a8e6a;
+--accent-gold:#a07828;
+--accent-green:#4a9e66;
+--accent-red:#b05038;
+--accent-blue:#3d6b50;
+--accent-color:#3d6b50;
+--accent-dark:#2a4835;
+--border-subtle:rgba(31,26,18,.08);
+--border-glow:rgba(61,107,80,.25);
+--shadow-sm:0 1px 3px rgba(0,0,0,.06);
+--shadow-md:0 4px 16px rgba(0,0,0,.08);
+--shadow-lg:0 8px 32px rgba(0,0,0,.12);
+--shadow-elevated:0 8px 32px rgba(0,0,0,.12);
+--accent-color-rgb:61,107,80;
+--chart-grid:#ebe5d6;
+--chart-axis-label:#5c5042;
+}
+
+/* ===== Layout & Base ===== */
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font-sans);background:var(--bg-base);color:var(--text-primary);line-height:1.75;overflow-x:hidden}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg-base)}::-webkit-scrollbar-thumb{background:var(--border-glow);border-radius:3px}
+
+/* ===== Navbar ===== */
+.progress-bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--accent-indigo),var(--accent-purple),var(--accent-cyan));z-index:200;transition:width .1s linear}
+.navbar{position:fixed;top:3px;left:0;right:0;z-index:100;background:var(--bg-card);border-bottom:1px solid var(--border-subtle);backdrop-filter:blur(16px);height:var(--nav-h);display:flex;align-items:center;justify-content:space-between;padding:0 24px}
+.nav-left{display:flex;align-items:center;gap:12px;font-size:.82rem;font-weight:600;color:var(--accent-indigo)}
+.nav-right{display:flex;align-items:center;gap:8px}
+.nav-right button{background:var(--bg-elevated);border:1px solid var(--border-subtle);color:var(--text-secondary);padding:6px 12px;border-radius:var(--radius-sm);cursor:pointer;font-size:.75rem;transition:all var(--transition)}
+.nav-right button:hover{border-color:var(--border-glow);color:var(--accent-indigo)}
+
+/* ===== Sidebar ===== */
+.sidebar{position:fixed;left:0;top:0;height:100vh;width:280px;background:var(--bg-base);border-right:1px solid var(--border-subtle);padding:24px;overflow-y:auto;z-index:100;padding-top:calc(var(--nav-h) + 16px)}
+.sidebar h3{font-size:.85rem;font-weight:700;color:var(--text-secondary);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--border-subtle)}
+.sidebar-nav{list-style:none;padding:0}
+.sidebar-nav li{margin-bottom:2px}
+.sidebar-nav a{display:block;padding:8px 12px;border-radius:var(--radius-md);text-decoration:none;font-size:.76rem;color:var(--text-secondary);transition:all var(--transition);border-left:3px solid transparent}
+.sidebar-nav a:hover{background:rgba(91,141,184,.08);color:var(--accent-cyan);border-left-color:var(--accent-cyan)}
+.sidebar-nav a.active{background:rgba(91,141,184,.12);color:var(--accent-blue);font-weight:600;border-left-color:var(--accent-blue)}
+.sidebar-back-link{display:block;padding:8px 12px;margin-bottom:12px;border-radius:8px;background:var(--bg-elevated);color:var(--accent-blue);text-decoration:none;font-size:.78rem;font-weight:600}
+.sidebar-back-link:hover{color:var(--accent-cyan)}
+
+/* ===== Content Area — Fluid Layout ===== */
+.content-area{margin-left:280px;width:calc(100% - 280px)}
+.container{max-width:calc(100% - 48px);margin:0 auto;padding:calc(var(--nav-h) + 24px) 24px 80px}
+
+/* ===== Hero ===== */
+.hero{text-align:center;padding:48px 0 36px}
+.hero h1{font-size:2.2rem;background:linear-gradient(135deg,var(--accent-indigo),var(--accent-purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+.hero .tags{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:12px}
+.hero .tags span{font-size:.7rem;padding:4px 12px;border-radius:50px;border:1px solid var(--border-glow);color:var(--accent-indigo);background:rgba(99,102,241,.06)}
+
+/* ===== Meta Card ===== */
+.meta-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:20px 24px;margin:0 auto 32px;max-width:700px;display:flex;justify-content:center;gap:36px;flex-wrap:wrap;box-shadow:var(--shadow-md)}
+.meta-item{text-align:center}
+.meta-item .val{font-size:1.4rem;font-weight:800;color:var(--accent-indigo)}
+.meta-item .lbl{font-size:.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px}
+
+/* ===== Journey Bar ===== */
+.journey-bar{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:12px 20px;margin:0 auto 24px;max-width:900px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:.82rem;box-shadow:var(--shadow-elevated)}
+.journey-path{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.journey-icon{font-size:1rem}
+.journey-plan{color:var(--accent-purple);font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.journey-plan:hover{color:var(--accent-gold)}
+.journey-sep{color:var(--text-muted);font-size:.7rem}
+.journey-phase{color:var(--text-secondary);font-weight:600}
+.journey-kp{color:var(--text-primary);font-weight:700}
+.journey-pos{color:var(--text-muted);font-size:.72rem}
+.journey-nav{display:flex;align-items:center;gap:8px;font-size:.75rem}
+.journey-prev,.journey-next{color:var(--text-muted);cursor:default}
+.journey-divider{color:var(--border-subtle)}
+
+/* ===== Module Card ===== */
+.module{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:28px 28px 24px;margin-bottom:20px;opacity:0;transform:translateY(24px);transition:opacity .5s ease,transform .5s ease;box-shadow:var(--shadow-sm)}
+.module.visible{opacity:1;transform:translateY(0)}
+.module:hover{border-color:var(--border-glow)}
+.module h2{font-size:1.15rem;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.module .m-tag{font-size:.65rem;padding:2px 10px;border-radius:50px;background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.2);color:var(--accent-indigo);font-weight:600}
+.module .m-time{font-size:.7rem;color:var(--text-muted);margin-left:auto}
+.module .hook{font-size:.9rem;color:var(--accent-purple);font-weight:600;margin:12px 0 16px;padding-left:12px;border-left:3px solid var(--accent-purple)}
+.module .content{font-size:.88rem;color:var(--text-secondary);line-height:1.8}
+.module .content p{margin-bottom:12px}
+.module .content strong{color:var(--text-primary);font-weight:600}
+.module .content em{color:var(--accent-gold);font-style:normal}
+
+/* ===== Formula Block ===== */
+.formula-block{background:rgba(99,102,241,.04);border:1px solid rgba(99,102,241,.12);border-radius:var(--radius-sm);padding:14px 18px;margin:14px 0;font-family:var(--font-mono);font-size:.82rem;color:var(--accent-cyan);overflow-x:auto;position:relative}
+.formula-block .f-cap{font-size:.7rem;color:var(--text-muted);margin-bottom:6px;display:block}
+.derivation-toggle{font-size:.7rem;color:var(--accent-gold);cursor:pointer;border:none;background:none;padding:4px 0;font-family:inherit;display:block;margin-top:6px}
+.derivation-toggle:hover{text-decoration:underline}
+.derivation-content{display:none;margin-top:8px;padding:12px 16px;background:rgba(245,158,11,.04);border-radius:var(--radius-sm);border-left:3px solid var(--accent-gold);font-size:.8rem;color:var(--text-secondary)}
+.derivation-content.open{display:block}
+
+/* ===== Chart ===== */
+.chart-wrap{background:rgba(99,102,241,.03);border-radius:var(--radius-sm);padding:8px;margin:14px 0;text-align:center}
+.chart-canvas{width:100%;height:280px}
+.chart-wrap .ch-cap{font-size:.72rem;color:var(--text-muted);margin-top:6px}
+
+/* ===== Table ===== */
+.table-container{margin:20px 0;overflow-x:auto}
+.table-container table{width:100%;border-collapse:collapse;border-radius:var(--radius-md);overflow:hidden}
+.table-container th{background:var(--bg-elevated);color:var(--accent-cyan);font-weight:700;padding:12px 16px;text-align:left;font-size:.8rem}
+.table-container td{padding:12px 16px;border-bottom:1px solid var(--border-subtle);font-size:.82rem;color:var(--text-secondary)}
+.table-container tr:hover td{background:rgba(91,141,184,.03)}
+.table-container .table-caption{font-size:.72rem;color:var(--text-muted);margin-bottom:8px;text-align:center}
+
+/* ===== Callout ===== */
+.callout{padding:14px 18px;border-radius:var(--radius-md);margin:16px 0;font-size:.82rem}
+.callout-info{background:rgba(94,168,122,.06);border-left:3px solid var(--accent-indigo);color:var(--text-secondary)}
+.callout-warn{background:rgba(230,185,90,.06);border-left:3px solid var(--accent-gold);color:var(--text-secondary)}
+.callout-tip{background:rgba(184,152,160,.06);border-left:3px solid var(--accent-purple);color:var(--text-secondary)}
+.callout strong{color:var(--text-primary)}
+
+/* ===== Compare Grid ===== */
+.compare-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin:16px 0}
+.compare-card{background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:18px 20px}
+.compare-card h4{font-size:.85rem;color:var(--accent-indigo);margin-bottom:8px}
+.compare-card p{font-size:.78rem;color:var(--text-muted);line-height:1.7}
+
+/* ===== Timeline ===== */
+.timeline{position:relative;padding-left:30px;margin:16px 0}
+.timeline::before{content:'';position:absolute;left:8px;top:0;bottom:0;width:2px;background:var(--border-glow)}
+.timeline-item{position:relative;margin-bottom:18px;font-size:.82rem}
+.timeline-item::before{content:'';position:absolute;left:-26px;top:6px;width:10px;height:10px;border-radius:50%;background:var(--accent-indigo);border:2px solid var(--border-glow)}
+.timeline-year{font-weight:700;color:var(--accent-cyan);min-width:80px;display:inline-block}
+.timeline-text{color:var(--text-secondary)}
+
+/* ===== Process Flow ===== */
+.process-flow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:20px 0;justify-content:center}
+.process-step{background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:12px 18px;text-align:center;font-size:.76rem;min-width:80px}
+.process-step .psn{font-weight:800;color:var(--accent-indigo);font-size:.9rem;margin-bottom:4px}
+.process-step .psl{color:var(--text-muted);font-size:.68rem}
+.process-arrow{color:var(--accent-cyan);font-size:1.1rem;font-weight:700}
+
+/* ===== Term Grid ===== */
+.term-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;margin:16px 0}
+.term-card{background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:var(--radius-sm);padding:12px 16px;transition:all var(--transition)}
+.term-card:hover{border-color:var(--border-glow)}
+.term-card .tn{font-size:.8rem;font-weight:700;color:var(--accent-indigo)}
+.term-card .td{font-size:.72rem;color:var(--text-muted);margin-top:4px;line-height:1.6}
+
+/* ===== Takeaway ===== */
+.takeaway{font-size:.82rem;background:rgba(16,185,129,.06);border-left:3px solid var(--accent-green);padding:10px 14px;margin-top:16px;border-radius:0 var(--radius-sm) var(--radius-sm) 0;color:var(--accent-green)}
+
+/* ===== Ref List ===== */
+.ref-list{list-style:none;padding:0;margin-top:8px;font-size:.78rem}
+.ref-list li{padding:4px 0;color:var(--text-muted)}
+.ref-list li::before{content:'📄 '}
+
+/* ===== Search Overlay ===== */
+.search-overlay{position:fixed;inset:0;z-index:300;background:var(--bg-overlay);display:none;align-items:flex-start;justify-content:center;padding-top:120px}
+.search-overlay.open{display:flex}
+.search-box{width:520px;max-width:90vw;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:var(--radius-md);box-shadow:var(--shadow-lg);overflow:hidden}
+.search-box input{width:100%;padding:14px 18px;background:transparent;border:none;color:var(--text-primary);font-size:.95rem;outline:none;font-family:inherit}
+.search-results{max-height:360px;overflow-y:auto}
+.search-results div{padding:10px 18px;cursor:pointer;font-size:.82rem;color:var(--text-secondary);border-top:1px solid var(--border-subtle);transition:background var(--transition)}
+.search-results div:hover{background:rgba(99,102,241,.06);color:var(--text-primary)}
+
+/* ===== Footer ===== */
+.journey-footer{text-align:center;padding:40px 32px 60px;opacity:.8}
+.back-to-plan{display:inline-flex;align-items:center;gap:8px;padding:10px 24px;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:50px;color:var(--text-secondary);text-decoration:none;font-size:.85rem;font-weight:600;transition:all var(--transition-smooth)}
+.back-to-plan:hover{background:var(--bg-elevated);border-color:var(--accent-purple);color:var(--accent-purple)}
+
+/* ===== Floating Back ===== */
+.deep-floating-back{position:fixed;right:20px;bottom:20px;z-index:10000}
+.deep-floating-back button{padding:12px 20px;background:linear-gradient(135deg,var(--accent-color),var(--accent-dark));color:white;border:none;border-radius:24px;font-size:.85rem;font-weight:600;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.15);transition:transform .2s,box-shadow .2s}
+.deep-floating-back button:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.2)}
+
+/* ===== Toast ===== */
+.dd-toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);z-index:10001;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:8px;padding:14px 24px;box-shadow:0 4px 16px rgba(0,0,0,.15);font-size:.85rem;display:none}
+.toast-in{animation:toastIn .3s ease}
+@keyframes toastIn{from{opacity:0;transform:translate(-50%,20px)}to{opacity:1;transform:translate(-50%,0)}}
+
+/* ===== Print ===== */
+@media print{.navbar,.progress-bar,.sidebar,.journey-bar,.journey-footer,.deep-floating-back{display:none!important}.content-area{margin-left:0;width:100%}.module{break-inside:avoid;opacity:1!important;transform:none!important;box-shadow:none}body{background:#fff!important}}
+
+/* ===== Responsive ≤1024px ===== */
+@media(max-width:1024px){.sidebar{display:none}.content-area{margin-left:0;width:100%}}
+
+/* ===== Responsive ≤768px ===== */
+@media(max-width:768px){
+.hero h1{font-size:1.6rem}.module{padding:20px}.meta-card{font-size:.72rem;padding:12px 16px}.journey-bar{flex-direction:column;align-items:flex-start}
+.deep-floating-back{right:15px;bottom:15px}.deep-floating-back button{padding:10px 16px;font-size:.8rem}
+}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+</head>
+<body data-theme="dark">
+
+<div class="progress-bar" id="progressBar" style="width:0%"></div>
+
+<nav class="navbar">
+  <div class="nav-left">📖 茶道精神与礼仪</div>
+  <div class="nav-right">
+    <button onclick="toggleTheme()" title="切换主题 (Ctrl+D)">🌓 主题</button>
+    <button onclick="openSearch()" title="搜索 (Ctrl+K)">🔍 搜索</button>
+  </div>
+</nav>
+
+<div class="sidebar">
+  <a href="#" class="sidebar-back-link" onclick="event.preventDefault();var w=window.open('tea_learning.html#kc-p3_4','plan_main');if(w)w.focus()">← 返回主方案</a>
+  <h3>📖 目录导航</h3>
+  <ul class="sidebar-nav">
+    <li><a href="#mod-learning_journey">📍 学习路线导航</a></li>
+<li><a href="#mod-concept">📘 核心概念 — 和敬清寂</a></li>
+<li><a href="#mod-principle">🔬 核心原理 — 茶道精神的古今演变</a></li>
+<li><a href="#mod-application">🎯 应用场景 — 茶会礼仪实操</a></li>
+<li><a href="#mod-landscape">🗺️ 中日茶道比较</a></li>
+<li><a href="#mod-case-study">📋 现代生活中的茶道践行</a></li>
+<li><a href="#mod-misconceptions">⚠️ 常见误区</a></li>
+  </ul>
+</div>
+
+<div class="content-area">
+<div class="search-overlay" id="searchOverlay">
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="搜索模块内容..." oninput="doSearch()" onkeydown="if(event.key==='Escape')closeSearch()">
+    <div class="search-results" id="searchResults"></div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="hero">
+    <h1>茶道精神与礼仪</h1>
+    <div class="tags">
+      <span>茶文化</span><span>精神修养</span><span>整合应用</span>
+    </div>
+  </div>
+
+  <div class="meta-card">
+    <div class="meta-item"><div class="val">7</div><div class="lbl">模块</div></div><div class="meta-item"><div class="val">~18min</div><div class="lbl">阅读时间</div></div><div class="meta-item"><div class="val">理解×标准</div><div class="lbl">深度</div></div>
+  </div>
+
+  <div class="journey-bar" id="journeyBar">
+    <div class="journey-path">
+      <span class="journey-icon">📍</span>
+      <span class="journey-plan" onclick="var w=window.open('tea_learning.html#kc-p3_4','plan_main');if(w)w.focus()">识茶·喝茶·品茶 系统学习方案</span>
+      <span class="journey-sep">〉</span>
+      <span class="journey-phase">品茶之道</span>
+      <span class="journey-sep">〉</span>
+      <span class="journey-kp">茶道精神与礼仪</span>
+      <span class="journey-pos">(第4/4个知识点)</span>
+    </div>
+    <div class="journey-nav">
+      <span class="journey-prev" title="前置: 茶食搭配艺术">← 前置</span>
+      <span class="journey-divider">|</span>
+      <span class="journey-next" title="后续: 山头茶与风土概念">后续 →</span>
+    </div>
+  </div>
+
+  <div class="module" id="mod-learning_journey">
+    <h2><span class="m-tag">模块1</span> 📍 学习路线导航 <span class="m-time">⏱ ~2min</span></h2>
+    <div class="hook">从技法到心法——品茶之道的收官之作，茶道精神的最高升华</div>
+    <div class="content">
+      <p>恭喜你来到<strong>「品茶之道」阶段</strong>的最后一个知识点！这是整个阶段的<strong>第 4/4 个知识点</strong>：茶道精神与礼仪。如果说前三个知识点（茶的风味轮、茶食搭配艺术）重在「技法」，那么茶道精神与礼仪就是带你从「技法」走向「心法」的桥梁。</p>
+      <p>品茶之道阶段共包含 <strong>4 个知识点</strong>，你现在学习的是收官之作。品茶不仅是对茶汤的感官判断，更是一种精神修养和社交礼仪的综合体现。</p>
+      <div class="callout callout-info">
+        <strong>📍 学习路线概览：</strong><br>
+        识茶入门 → 喝茶进阶 → 品茶之道（当前阶段，第4/4知识点）→ 茶道精进
+      </div>
+      <p><strong>前置知识：</strong>茶食搭配艺术 — 在掌握了如何用食物衬托茶的风味之后，我们需要进一步理解品茶的精神内核和社交礼仪。</p>
+      <p><strong>后续学习：</strong>在下一阶段<strong>「茶道精进」</strong>中，你将探索更深入的主题——山头茶与风土概念、茶叶储存与陈化科学。</p>
+      <p><strong>建议投入时间：</strong>约 18 分钟。茶道精神需要静心体会，建议找一个安静的时间段，泡上一杯茶，边品边读。</p>
+    </div>
+    <div class="takeaway">💡 关键收获：品茶之道阶段的收官之作——从这里开始，品茶不再只是技术，而是一种生活态度</div>
+  </div>
+
+  <div class="module" id="mod-concept">
+    <h2><span class="m-tag">模块2</span> 📘 核心概念 — 和敬清寂 <span class="m-time">⏱ ~3min</span></h2>
+    <div class="hook">一壶沸水、一把茶叶、一个动作——有时最简单的动作里藏着最深的哲学</div>
+    <div class="content">
+      <p>中国茶道精神的核心可归结为四个字：<strong>和、敬、清、寂</strong>。这四个字不仅是泡茶时的行为准则，更是一种生活哲学——从茶席延伸到日常，从技法通向心法。</p>
+
+      <div class="term-grid">
+        <div class="term-card">
+          <div class="tn">和 Harmony</div>
+          <div class="td">人与自然之和（顺应时令饮茶）、人与人之和（以茶会友，以茶化干戈）、心与身之和（品茶时放下杂念，回归当下）。经典体现：茶席布置讲究天人合一，茶具摆放顺应自然。</div>
+        </div>
+        <div class="term-card">
+          <div class="tn">敬 Respect</div>
+          <div class="td">敬茶（对茶叶本身的敬意，不浪费）、敬器（对茶具的爱护与尊重）、敬客（以礼相待）。经典体现：双手奉茶、先客后主、叩手礼。</div>
+        </div>
+        <div class="term-card">
+          <div class="tn">清 Purity</div>
+          <div class="td">心清（品茶时清空杂念）、茶清（追求茶的纯净本味）、境清（茶室整洁清雅）。经典体现：茶席简洁不繁复，茶具洁净无垢。</div>
+        </div>
+        <div class="term-card">
+          <div class="tn">寂 Tranquility</div>
+          <div class="td">在宁静中感受当下，不追求外在的热闹，而追求内心的安宁。经典体现：一人独饮是修行，三五知己小聚亦是修行。品茶不语，以茶传心。</div>
+        </div>
+      </div>
+
+      <div class="chart-wrap">
+        <div id="chart-concept-01" class="chart-canvas" style="height:360px"></div>
+        <div class="ch-cap">图1：中日茶道「和敬清寂」四维度对比雷达图</div>
+      </div>
+
+      <div class="callout callout-info">
+        <strong>📜 历史溯源：</strong>和敬清寂并非日本茶道独有——这四个字最先由中国僧人在宋代提出，后传入日本。中国茶道精神更强调「和」的社会性——以茶会友、以茶联谊。而日本茶道在吸收后，将其与禅宗深度融合，发展出「一期一会」的独特仪式美学。
+      </div>
+
+      <p>理解这四字精神的精髓在于：<strong>它们不是独立的规则，而是一个有机的整体</strong>。和是目的，敬是态度，清是方法，寂是境界。从和出发，以敬待人待物，以清修养身心，最终抵达寂的精神安宁。</p>
+    </div>
+    <div class="takeaway">💡 关键收获：和敬清寂——中国茶道精神的四大支柱，既是泡茶的准则，也是做人的哲学</div>
+  </div>
+
+  <div class="module" id="mod-principle">
+    <h2><span class="m-tag">模块3</span> 🔬 核心原理 — 茶道精神的古今演变 <span class="m-time">⏱ ~3min</span></h2>
+    <div class="hook">一千年前陆羽写下「精行俭德」——这四个字至今仍是中国茶道精神的灵魂</div>
+    <div class="content">
+      <p>茶道精神并非一成不变的教条，而是在中国千年茶史中不断丰富和演变的活的文化基因。从唐代的「精行俭德」到当代的「日常茶道」，每一段历史都赋予了茶道新的内涵。</p>
+
+      <div class="timeline">
+        <div class="timeline-item">
+          <span class="timeline-year">唐代</span>
+          <span class="timeline-text">陆羽《茶经》——「精行俭德」为茶道精神的首提，强调茶人应精于行事、俭朴立德。茶从解渴之物升华为修身之道。</span>
+        </div>
+        <div class="timeline-item">
+          <span class="timeline-year">宋代</span>
+          <span class="timeline-text">斗茶文化盛行，「和敬」精神融入茶宴社交。宋徽宗《大观茶论》提出「致清导和」，将品茶与心性修养明确关联。</span>
+        </div>
+        <div class="timeline-item">
+          <span class="timeline-year">明代</span>
+          <span class="timeline-text">紫砂壶兴起，散茶冲泡取代点茶，「清寂」之趣成为文人茶道的主流审美。文震亨《长物志》将茶寮列为文人书房标配。</span>
+        </div>
+        <div class="timeline-item">
+          <span class="timeline-year">清代至今</span>
+          <span class="timeline-text">茶道走向民间，「和敬清寂」在工夫茶中得到了最完整的实践传承。潮汕工夫茶的「关公巡城」「韩信点兵」将礼仪与技艺合为一体。</span>
+        </div>
+        <div class="timeline-item">
+          <span class="timeline-year">当代</span>
+          <span class="timeline-text">茶道回归生活，强调「日常茶道」——不追求形式华丽，追求内心的平和。在快节奏的现代生活中，茶道成为一种对抗焦虑的精神资源。</span>
+        </div>
+      </div>
+
+      <p><strong>三种茶道形态比较：</strong></p>
+      <div class="compare-grid">
+        <div class="compare-card">
+          <h4>🎓 文人士大夫茶道</h4>
+          <p><strong>方式：</strong>独饮/雅集<br><strong>目的：</strong>以茶修身<br><strong>风格：</strong>重意境，轻形式<br><strong>空间：</strong>茶寮/书房/山林<br>以茶为媒介，追求精神自由和审美情趣。</p>
+        </div>
+        <div class="compare-card">
+          <h4>🏠 民间工夫茶</h4>
+          <p><strong>方式：</strong>分享/待客<br><strong>目的：</strong>以茶会友<br><strong>风格：</strong>重人情，讲礼仪<br><strong>空间：</strong>厅堂/街头巷尾<br>「茶三酒四」——三五好友围坐，在推杯换盏间传递人情温度。</p>
+        </div>
+        <div class="compare-card">
+          <h4>☕ 当代生活茶道</h4>
+          <p><strong>方式：</strong>日常/碎片化<br><strong>目的：</strong>身心调节<br><strong>风格：</strong>重实用，简化仪式<br><strong>空间：</strong>办公室/家中<br>不必全套茶具，只需一颗愿意慢下来的心。</p>
+        </div>
+      </div>
+
+    </div>
+    <div class="takeaway">💡 关键收获：从「精行俭德」到「日常茶道」——茶道精神千年不变的核心是「通过一杯茶遇见更好的自己」</div>
+  </div>
+
+  <div class="module" id="mod-application">
+    <h2><span class="m-tag">模块4</span> 🎯 应用场景 — 茶会礼仪实操 <span class="m-time">⏱ ~4min</span></h2>
+    <div class="hook">茶桌上的一个手势、一个动作，传递的不只是茶——更是修养和尊重</div>
+    <div class="content">
+
+      <p><strong>一、叩手礼的来历与用法</strong></p>
+      <p>传说乾隆微服私访时给随从倒茶，随从不便行跪礼，以手指叩桌代替磕头。这一礼节流传至今，已成为中国茶文化中最具辨识度的礼仪之一。</p>
+      <div class="table-container">
+        <div class="table-caption">叩手礼三种场景对照</div>
+        <table>
+          <thead>
+            <tr><th>场景</th><th>行礼方式</th><th>含义</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>长辈给晚辈倒茶</td><td>晚辈食指中指弯曲，叩桌面<strong>两下</strong></td><td>双膝跪地谢恩之意</td></tr>
+            <tr><td>平辈相互倒茶</td><td>食指中指并拢，轻叩桌面<strong>两下</strong></td><td>抱拳作揖感谢之意</td></tr>
+            <tr><td>晚辈给长辈倒茶</td><td>长辈食指<strong>单叩</strong>桌面一下</td><td>点头示意、表示收到</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p><strong>二、奉茶礼</strong></p>
+      <ul style="margin:8px 0 8px 24px;font-size:.84rem;color:var(--text-secondary);line-height:1.9">
+        <li><strong>双手捧杯：</strong>右手持杯身、左手托杯底，表示对客人的最大尊重</li>
+        <li><strong>先客后主：</strong>第一杯茶永远先给客人，最后才是主人</li>
+        <li><strong>先长后幼：</strong>在场有长辈时，按年龄长幼顺序依次奉茶</li>
+        <li><strong>茶杯七分满：</strong>「茶满欺人」——茶倒七分满，留下三分是人情</li>
+        <li><strong>提示用茶：</strong>如果客人在聊天，轻轻说「请用茶」提示但不打断</li>
+      </ul>
+
+      <p><strong>三、续茶礼</strong></p>
+      <ul style="margin:8px 0 8px 24px;font-size:.84rem;color:var(--text-secondary);line-height:1.9">
+        <li>客人杯中茶少于<strong>1/3</strong>时主动续茶——不可让客人喝到杯底</li>
+        <li>续茶时从客人<strong>右侧</strong>进行</li>
+        <li>先续客杯再续主杯——客人永远是第一位</li>
+        <li>客人如不想再喝，将杯盖<strong>斜放</strong>或轻轻表示「够了」</li>
+      </ul>
+
+      <p><strong>四、茶会组织要点</strong></p>
+      <ul style="margin:8px 0 8px 24px;font-size:.84rem;color:var(--text-secondary);line-height:1.9">
+        <li><strong>茶序由淡到浓：</strong>清饮（绿茶/白茶）→浓饮（乌龙/普洱），让味蕾渐入佳境</li>
+        <li><strong>人数3-5人最佳：</strong>保证每个人都能充分品到每一泡茶</li>
+        <li><strong>时长90分钟为佳：</strong>太短意犹未尽，太长注意力涣散</li>
+        <li><strong>座位安排：</strong>让泡茶者面朝门或窗，既有「迎客」之意，也便于通风</li>
+      </ul>
+
+      <p><strong>五、品茶仪态</strong></p>
+      <ul style="margin:8px 0 8px 24px;font-size:.84rem;color:var(--text-secondary);line-height:1.9">
+        <li>坐姿端正但不僵硬——放松而专注</li>
+        <li>持杯稳而轻柔——小茶杯用拇指和食指轻捏杯沿</li>
+        <li>小口啜饮，不发出「啧啧」声响</li>
+        <li>品茶时目光在茶汤上，而非东张西望</li>
+        <li>不当众评论茶的好坏——可私下与泡茶者交流感受</li>
+      </ul>
+
+      <p><strong>茶会全流程：</strong></p>
+      <div class="process-flow">
+        <div class="process-step"><div class="psn">①</div><div class="psl">迎客<br>寒暄入座</div></div>
+        <div class="process-arrow">→</div>
+        <div class="process-step"><div class="psn">②</div><div class="psl">温壶<br>展示茶器</div></div>
+        <div class="process-arrow">→</div>
+        <div class="process-step"><div class="psn">③</div><div class="psl">赏茶<br>传看干茶</div></div>
+        <div class="process-arrow">→</div>
+        <div class="process-step"><div class="psn">④</div><div class="psl">冲泡<br>保持安静</div></div>
+        <div class="process-arrow">→</div>
+        <div class="process-step"><div class="psn">⑤</div><div class="psl">分茶<br>礼仪到位</div></div>
+        <div class="process-arrow">→</div>
+        <div class="process-step"><div class="psn">⑥</div><div class="psl">品饮<br>三口为品</div></div>
+        <div class="process-arrow">→</div>
+        <div class="process-step"><div class="psn">⑦</div><div class="psl">交流<br>先赞美后建议</div></div>
+        <div class="process-arrow">→</div>
+        <div class="process-step"><div class="psn">⑧</div><div class="psl">送客<br>感谢光临</div></div>
+      </div>
+
+    </div>
+    <div class="takeaway">💡 关键收获：茶会礼仪的本质不是规则——而是通过每一个细节传递「敬」和「真诚」</div>
+  </div>
+
+  <div class="module" id="mod-landscape">
+    <h2><span class="m-tag">模块5</span> 🗺️ 中日茶道比较 <span class="m-time">⏱ ~2min</span></h2>
+    <div class="hook">同样的四个字「和敬清寂」，两种截然不同的表达——读懂中日茶道，读懂两种文明</div>
+    <div class="content">
+
+      <div class="table-container">
+        <div class="table-caption">中日茶道全方位对比</div>
+        <table>
+          <thead>
+            <tr><th>维度</th><th>中国茶道</th><th>日本茶道</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>核心理念</strong></td><td>和敬清寂（社会性+个人修养）</td><td>和敬清寂/一期一会（仪式性+禅宗）</td></tr>
+            <tr><td><strong>茶类</strong></td><td>各类茶均可</td><td>抹茶为主</td></tr>
+            <tr><td><strong>空间</strong></td><td>灵活（茶室/户外/家中）</td><td>严格（标准化茶室）</td></tr>
+            <tr><td><strong>流程</strong></td><td>相对自由，重在精神</td><td>高度仪式化，动作标准化</td></tr>
+            <tr><td><strong>交流</strong></td><td>鼓励交流</td><td>强调静默</td></tr>
+            <tr><td><strong>哲学底色</strong></td><td>儒家（和）+道家（自然）+禅宗（寂）</td><td>禅宗为主</td></tr>
+            <tr><td><strong>代表性形式</strong></td><td>工夫茶/盖碗茶/大碗茶</td><td>茶道（抹茶道/煎茶道）</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout callout-tip">
+        <strong>🧘 理解中日茶道差异的关键：</strong>中国茶道「<em>活</em>」——法无定法，随心而变，茶是生活的延伸；日本茶道「<em>定</em>」——以不变应万变，在重复中修行，茶是修行的法门。两者殊途同归——都在一杯茶中寻找内心的安宁。
+      </div>
+
+      <p>更深层来看，中日茶道的差异根植于两种文明的特质：中国文化是「圆融」的，茶道也因此灵活多变，不拘一格；日本文化是「极致」的，茶道也因此高度仪式化，将每一个动作做到极致。理解这种差异，不是为了比较孰优孰劣，而是为了更好地理解茶道的多元可能性。</p>
+
+    </div>
+    <div class="takeaway">💡 关键收获：中国茶道「活」，日本茶道「定」——两种路径，同一个目的地：在茶中找到内心的安宁</div>
+  </div>
+
+  <div class="module" id="mod-case-study">
+    <h2><span class="m-tag">模块6</span> 📋 现代生活中的茶道践行 <span class="m-time">⏱ ~3min</span></h2>
+    <div class="hook">没有茶室、没有全套茶具、每天忙到飞起——普通人还能「修行」茶道吗？</div>
+    <div class="content">
+      <p>答案是<strong>当然可以</strong>。茶道的核心不是形式，而是「心在茶中」。以下是五种将茶道精神融入日常生活的实用方法：</p>
+
+      <div class="timeline">
+        <div class="timeline-item">
+          <span class="timeline-year">晨间一杯</span>
+          <span class="timeline-text"><strong>5分钟仪式感：</strong>早起为自己泡一杯茶，在这个动作中与一天和解。不必全套功夫茶，挂耳茶包也行——重要的是「心在茶中」。看着热水注入杯中，闻着茶香升起，这5分钟是你送给自己的礼物。</span>
+        </div>
+        <div class="timeline-item">
+          <span class="timeline-year">办公室茶道</span>
+          <span class="timeline-text"><strong>3分钟正念：</strong>下午3点，放下手机，冲泡一杯茶，什么都不看，就盯着茶汤3分钟。这是一种「微型冥想」——让茶水从舌尖流过，感受温度和滋味的每一层变化，让大脑从信息洪流中短暂解脱。</span>
+        </div>
+        <div class="timeline-item">
+          <span class="timeline-year">以茶待客</span>
+          <span class="timeline-text"><strong>人情的温度：</strong>客人来访，亲手泡茶远胜递一瓶饮料。水温的等待、浸泡时间的控制，这些看似「麻烦」的过程本身，就是一种「敬」的表达——我愿意为你花时间。</span>
+        </div>
+        <div class="timeline-item">
+          <span class="timeline-year">周末茶席</span>
+          <span class="timeline-text"><strong>深度放松：</strong>周末布置一个简单的茶席——一块茶巾、一把壶、两个杯——与家人、朋友或自己享用。不需要昂贵的器具，只需要一颗愿意慢下来的心。</span>
+        </div>
+        <div class="timeline-item">
+          <span class="timeline-year">旅行茶具</span>
+          <span class="timeline-text"><strong>随身携带的安宁：</strong>带一套旅行便携茶具，在陌生城市的酒店房间里泡一杯熟悉的味道。茶是漂泊中的锚——无论身在何处，一杯熟悉的茶就能让你瞬间「回家」。</span>
+        </div>
+      </div>
+
+      <p><strong>21天茶道习惯养成计划：</strong></p>
+      <div class="process-flow">
+        <div class="process-step"><div class="psn">第1周</div><div class="psl">每天一次正念泡茶<br>不看手机，专注5分钟</div></div>
+        <div class="process-arrow">→</div>
+        <div class="process-step"><div class="psn">第2周</div><div class="psl">邀请1人共品<br>体验以茶会友的乐趣</div></div>
+        <div class="process-arrow">→</div>
+        <div class="process-step"><div class="psn">第3周</div><div class="psl">布置一次完整茶席<br>从茶巾到茶杯，沉浸体验</div></div>
+      </div>
+
+      <p>在这个过程中你会发现：<strong>茶道给你最大的礼物不是一杯好茶——而是在这个信息过载的时代，帮你重新学会「专注」和「慢」的能力。</strong></p>
+
+    </div>
+    <div class="takeaway">💡 关键收获：茶道不在茶室里，而在每一个愿意用一杯茶安顿自己的时刻里</div>
+  </div>
+
+  <div class="module" id="mod-misconceptions">
+    <h2><span class="m-tag">模块7</span> ⚠️ 常见误区 — 破除茶道迷思 <span class="m-time">⏱ ~2min</span></h2>
+    <div class="hook">「我不会功夫茶，所以不懂茶道」——这句话本身，就是对茶道最大的误解</div>
+    <div class="content">
+
+      <div class="callout callout-warn">
+        <strong>⚠️ 误区1：茶道 = 复杂仪式</strong><br>
+        茶道的核心是「<strong>道</strong>」（精神）而非「术」（仪式）。一个真诚的双手递茶杯，胜过一百个繁复的动作。茶道不是表演——它是你如何看待茶、如何对待人的内心态度。
+      </div>
+
+      <div class="callout callout-warn">
+        <strong>⚠️ 误区2：必须有茶室才能修茶道</strong><br>
+        茶道在「<strong>心</strong>」不在「境」。一张桌子、一把壶、一颗静下来的心，便是茶道。千利休的茶室不过两张榻榻米大小——茶道的空间不是物理的，是精神的。
+      </div>
+
+      <div class="callout callout-warn">
+        <strong>⚠️ 误区3：叩手礼必须标准化</strong><br>
+        叩手礼的精髓是「<strong>表达感谢</strong>」，动作是否标准是次要的。心意到了，礼就到了。不必纠结手指弯几度、叩几下——过度关注形式反而失去了叩手礼的本意。
+      </div>
+
+      <div class="callout callout-warn">
+        <strong>⚠️ 误区4：品茶时不能说话</strong><br>
+        中国茶道不禁止交流，但讲究「<strong>话不离茶</strong>」。讨论的是茶的风味和感受，而非家长里短。品茶不是开会——交流应该围绕茶本身展开。
+      </div>
+
+      <div class="callout callout-warn">
+        <strong>⚠️ 误区5：茶道是老年人的事</strong><br>
+        越年轻越该学茶道。在这个信息过载的时代，茶道提供的「<strong>慢</strong>」和「<strong>专注</strong>」是稀缺的精神免疫力。年轻人比任何人都更需要对抗碎片化和焦虑感——茶道是最好的「精神疫苗」。
+      </div>
+
+      <div class="callout callout-warn">
+        <strong>⚠️ 误区6：学了茶道要「显摆」</strong><br>
+        真正修茶道的人，喝茶时安静谦和。茶道是<strong>向内看</strong>的修行，不是向外展示的标签。如果你发现自己在茶桌上想「展示」什么——停下来，你的茶道还没有开始。
+      </div>
+
+      <div class="takeaway" style="margin-top:20px;font-size:.9rem;font-weight:600;color:var(--accent-gold);border-left-color:var(--accent-gold);background:rgba(230,185,90,.06)">
+        🍵 茶道的终极目的不是泡一杯好茶——而是通过泡茶，成为一个更好的人。
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<footer class="journey-footer">
+  <a href="#" class="back-to-plan" onclick="event.preventDefault();var w=window.open('tea_learning.html#kc-p3_4','plan_main');if(w)w.focus()">🔗 返回学习路线: 识茶·喝茶·品茶 系统学习方案 → 品茶之道</a>
+  <p style="margin-top:12px;font-size:.72rem;color:var(--text-muted)">
+    本资料是 <strong>识茶·喝茶·品茶 系统学习方案</strong> 品茶之道 阶段的深度研读材料
+  </p>
+</footer>
+
+<div class="deep-floating-back">
+  <button onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 16px rgba(0,0,0,.2)'"
+    onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 12px rgba(0,0,0,.15)'"
+    onclick="event.preventDefault();var w=window.open('tea_learning.html#kc-p3_4','plan_main');if(w)w.focus()">
+    ← 返回学习方案
+  </button>
+</div>
+</div>
+
+<div class="dd-toast" id="toastEl"><span id="toastMsg"></span></div>
+
+<script>
+var MODULE_IDS = ["mod-learning_journey","mod-concept","mod-principle","mod-application","mod-landscape","mod-case-study","mod-misconceptions"];
+var SEARCH_INDEX = [{"id":"mod-learning_journey","t":"学习路线导航","c":"品茶之道阶段最后一个知识点 从技法到心法 前置茶食搭配艺术 后续茶道精进"},{"id":"mod-concept","t":"核心概念 和敬清寂","c":"和敬清寂 中国茶道精神四大支柱 和 harmony 敬 respect 清 purity 寂 tranquility"},{"id":"mod-principle","t":"核心原理 茶道精神古今演变","c":"精行俭德 陆羽茶经 唐代宋代明代清代当代 文人士大夫 民间工夫茶 当代生活茶道"},{"id":"mod-application","t":"应用场景 茶会礼仪实操","c":"叩手礼 奉茶礼 续茶礼 茶会组织 品茶仪态 茶满欺人 三口为品 茶序由淡到浓"},{"id":"mod-landscape","t":"中日茶道比较","c":"中国茶道vs日本茶道 和敬清寂 一期一会 工夫茶 抹茶道 活与定 圆融与极致"},{"id":"mod-case-study","t":"现代生活茶道践行","c":"晨间一杯 办公室茶道 以茶待客 周末茶席 旅行茶具 21天习惯养成 正念泡茶"},{"id":"mod-misconceptions","t":"常见误区","c":"破除茶道迷思 茶道不等于复杂仪式 不需要茶室 叩手礼重在心意 品茶可以交流 年轻人也学茶道"}];
+var TOAST_TIMEOUT;
+
+(function(){
+var progressBar=document.getElementById('progressBar');
+var modules=document.querySelectorAll('.module');
+
+var observer=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting)e.target.classList.add('visible')})},{threshold:.15});
+modules.forEach(function(m){observer.observe(m)});
+
+var navLinks=document.querySelectorAll('.sidebar-nav a');
+var navObserver=new IntersectionObserver(function(entries){
+entries.forEach(function(e){
+if(e.isIntersecting){
+navLinks.forEach(function(a){a.classList.remove('active')});
+var act=document.querySelector('.sidebar-nav a[href="#'+e.target.id+'"]');
+if(act)act.classList.add('active');
+}
+})},{threshold:.3});
+modules.forEach(function(m){navObserver.observe(m)});
+
+window.addEventListener('scroll',function(){
+var st=document.documentElement.scrollTop,dh=document.documentElement.scrollHeight-window.innerHeight;
+var pct=dh>0?Math.min(100,(st/dh)*100):0;progressBar.style.width=pct+'%';
+});
+
+window.addEventListener('keydown',function(e){
+if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();openSearch()}
+if((e.ctrlKey||e.metaKey)&&e.key==='d'){e.preventDefault();toggleTheme()}
+if(e.key==='Escape')closeSearch()
+});
+})();
+
+function toggleTheme(){
+var b=document.body,isD=b.getAttribute('data-theme')==='dark';
+b.setAttribute('data-theme',isD?'light':'dark');
+try{localStorage.setItem('slm-theme',isD?'light':'dark')}catch(e){}
+showToast('已切换至'+(isD?'浅色':'深色')+'主题')
+}
+
+function openSearch(){document.getElementById('searchOverlay').classList.add('open');setTimeout(function(){document.getElementById('searchInput').focus()},100)}
+function closeSearch(){document.getElementById('searchOverlay').classList.remove('open');document.getElementById('searchResults').innerHTML=''}
+
+function doSearch(){
+var q=document.getElementById('searchInput').value.toLowerCase(),res=document.getElementById('searchResults');
+if(q.length<2){res.innerHTML='';return}
+var h='';SEARCH_INDEX.forEach(function(item){
+if(item.t.toLowerCase().indexOf(q)>=0||(item.c||'').toLowerCase().indexOf(q)>=0){
+h+='<div onclick="closeSearch();document.getElementById(\''+item.id+'\').scrollIntoView({behavior:\'smooth\'})">'+
+'<strong>'+item.t+'</strong><br><small style="color:var(--text-muted)">'+(item.c||'').substring(0,80)+'</small></div>';
+}
+});
+res.innerHTML=h||'<div style="padding:12px;color:var(--text-muted)">未找到匹配模块</div>'
+}
+
+function showToast(msg){
+var el=document.getElementById('toastEl'),mg=document.getElementById('toastMsg');
+if(!el||!mg)return;mg.textContent=msg;el.style.display='block';el.classList.add('toast-in');
+if(TOAST_TIMEOUT)clearTimeout(TOAST_TIMEOUT);
+TOAST_TIMEOUT=setTimeout(function(){el.style.display='none'},3000);
+}
+
+(function(){
+var t;try{t=localStorage.getItem('slm-theme')}catch(e){}
+if(t==='light')document.body.setAttribute('data-theme','light');
+})();
+
+(function(){
+document.querySelectorAll('.derivation-toggle').forEach(function(btn){
+btn.addEventListener('click',function(){
+var content=this.nextElementSibling;
+if(content){content.classList.toggle('open');this.textContent=content.classList.contains('open')?'▾ 收起推导':'▸ 展开推导'}
+});
+});
+})();
+
+/* ===== ECharts 初始化模板 ===== */
+(function initCharts(){
+if(typeof echarts==='undefined')return;
+var charts=[];
+function makeChart(elId,option){
+var el=document.getElementById(elId);
+if(!el)return null;
+var chart=echarts.init(el);
+chart.setOption(option);
+return chart;
+}
+var c1=makeChart('chart-concept-01',{
+  tooltip:{trigger:'item'},
+  legend:{
+    bottom:'0%',
+    textStyle:{color:'#8a8070'},
+    data:['中国茶道','日本茶道']
+  },
+  radar:{
+    center:['50%','48%'],
+    radius:'65%',
+    indicator:[
+      {name:'和 (Harmony)',max:100},
+      {name:'敬 (Respect)',max:100},
+      {name:'清 (Purity)',max:100},
+      {name:'寂 (Tranquility)',max:100}
+    ],
+    axisName:{color:'#8a8070',fontSize:11},
+    shape:'polygon',
+    splitArea:{areaStyle:{color:['transparent']}},
+    axisLine:{lineStyle:{color:'#2d2924'}},
+    splitLine:{lineStyle:{color:'#2d2924'}}
+  },
+  series:[{
+    type:'radar',
+    data:[
+      {value:[95,85,80,70],name:'中国茶道',symbol:'circle',symbolSize:6,
+        lineStyle:{color:'#5ea87a',width:2},
+        areaStyle:{color:'rgba(94,168,122,.15)'},
+        itemStyle:{color:'#5ea87a'}},
+      {value:[70,95,90,95],name:'日本茶道',symbol:'circle',symbolSize:6,
+        lineStyle:{color:'#b898a0',width:2},
+        areaStyle:{color:'rgba(184,152,160,.15)'},
+        itemStyle:{color:'#b898a0'}}
+    ]
+  }]
+});
+if(c1)charts.push(c1);
+window.addEventListener('resize',function(){charts.forEach(function(c){c.resize()})});
+})();
+</script>
+</body>
+</html>

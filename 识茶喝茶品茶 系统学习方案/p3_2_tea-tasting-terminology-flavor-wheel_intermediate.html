@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>品茶术语与风味轮 — 深度研读</title>
+<style>
+/* ───────────────────────────────────────────────
+   Template: Cedar Dawn (雪松晨曦) — deep_dive.css
+   Mood: warm, natural, organic
+   Contrast verified: text-primary≥10:1, text-secondary≥6:1, text-muted≥4.5:1
+   ─────────────────────────────────────────────── */
+:root{
+--bg-base:#1a1814;
+--bg-card:#282520;
+--bg-elevated:#312d27;
+--bg-overlay:rgba(0,0,0,.6);
+--text-primary:#ede6d8;
+--text-secondary:#b8ad98;
+--text-muted:#8a8070;
+--accent-indigo:#5ea87a;
+--accent-purple:#b898a0;
+--accent-cyan:#7ec8a0;
+--accent-gold:#e6b95a;
+--accent-green:#6ebf8a;
+--accent-red:#d47860;
+--accent-blue:#5ea87a;
+--accent-color:#5ea87a;
+--accent-dark:#3d6b50;
+--border-subtle:rgba(184,173,152,.15);
+--border-glow:rgba(94,168,122,.25);
+--shadow-sm:0 1px 3px rgba(0,0,0,.3);
+--shadow-md:0 4px 16px rgba(0,0,0,.4);
+--shadow-lg:0 8px 32px rgba(0,0,0,.5);
+--shadow-elevated:0 8px 32px rgba(0,0,0,.5);
+--radius-sm:6px;
+--radius-md:10px;
+--radius-lg:16px;
+--font-sans:'Segoe UI',system-ui,-apple-system,sans-serif;
+--font-mono:Consolas,'Cascadia Code',monospace;
+--transition:.25s cubic-bezier(.4,0,.2,1);
+--transition-smooth:.3s ease;
+--nav-h:56px;
+--accent-color-rgb:94,168,122;
+--chart-grid:#2d2924;
+--chart-axis-label:#8a8070;
+}
+[data-theme="light"]{
+--bg-base:#fdfaf3;
+--bg-card:#fffdf7;
+--bg-elevated:#f3efe3;
+--bg-overlay:rgba(0,0,0,.3);
+--text-primary:#1f1a12;
+--text-secondary:#4a4035;
+--text-muted:#5c5042;
+--accent-indigo:#3d6b50;
+--accent-purple:#7a5a6a;
+--accent-cyan:#4a8e6a;
+--accent-gold:#a07828;
+--accent-green:#4a9e66;
+--accent-red:#b05038;
+--accent-blue:#3d6b50;
+--accent-color:#3d6b50;
+--accent-dark:#2a4835;
+--border-subtle:rgba(31,26,18,.08);
+--border-glow:rgba(61,107,80,.25);
+--shadow-sm:0 1px 3px rgba(0,0,0,.06);
+--shadow-md:0 4px 16px rgba(0,0,0,.08);
+--shadow-lg:0 8px 32px rgba(0,0,0,.12);
+--shadow-elevated:0 8px 32px rgba(0,0,0,.12);
+--accent-color-rgb:61,107,80;
+--chart-grid:#ebe5d6;
+--chart-axis-label:#5c5042;
+}
+
+/* ===== Layout & Base ===== */
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font-sans);background:var(--bg-base);color:var(--text-primary);line-height:1.75;overflow-x:hidden}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg-base)}::-webkit-scrollbar-thumb{background:var(--border-glow);border-radius:3px}
+
+/* ===== Navbar ===== */
+.progress-bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--accent-indigo),var(--accent-purple),var(--accent-cyan));z-index:200;transition:width .1s linear}
+.navbar{position:fixed;top:3px;left:0;right:0;z-index:100;background:var(--bg-card);border-bottom:1px solid var(--border-subtle);backdrop-filter:blur(16px);height:var(--nav-h);display:flex;align-items:center;justify-content:space-between;padding:0 24px}
+.nav-left{display:flex;align-items:center;gap:12px;font-size:.82rem;font-weight:600;color:var(--accent-indigo)}
+.nav-right{display:flex;align-items:center;gap:8px}
+.nav-right button{background:var(--bg-elevated);border:1px solid var(--border-subtle);color:var(--text-secondary);padding:6px 12px;border-radius:var(--radius-sm);cursor:pointer;font-size:.75rem;transition:all var(--transition)}
+.nav-right button:hover{border-color:var(--border-glow);color:var(--accent-indigo)}
+
+/* ===== Sidebar ===== */
+.sidebar{position:fixed;left:0;top:0;height:100vh;width:280px;background:var(--bg-base);border-right:1px solid var(--border-subtle);padding:24px;overflow-y:auto;z-index:100;padding-top:calc(var(--nav-h) + 16px)}
+.sidebar h3{font-size:.85rem;font-weight:700;color:var(--text-secondary);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--border-subtle)}
+.sidebar-nav{list-style:none;padding:0}
+.sidebar-nav li{margin-bottom:2px}
+.sidebar-nav a{display:block;padding:8px 12px;border-radius:var(--radius-md);text-decoration:none;font-size:.76rem;color:var(--text-secondary);transition:all var(--transition);border-left:3px solid transparent}
+.sidebar-nav a:hover{background:rgba(91,141,184,.08);color:var(--accent-cyan);border-left-color:var(--accent-cyan)}
+.sidebar-nav a.active{background:rgba(91,141,184,.12);color:var(--accent-blue);font-weight:600;border-left-color:var(--accent-blue)}
+.sidebar-back-link{display:block;padding:8px 12px;margin-bottom:12px;border-radius:8px;background:var(--bg-elevated);color:var(--accent-blue);text-decoration:none;font-size:.78rem;font-weight:600}
+.sidebar-back-link:hover{color:var(--accent-cyan)}
+
+/* ===== Content Area — Fluid Layout ===== */
+.content-area{margin-left:280px;width:calc(100% - 280px)}
+.container{max-width:calc(100% - 48px);margin:0 auto;padding:calc(var(--nav-h) + 24px) 24px 80px}
+
+/* ===== Hero ===== */
+.hero{text-align:center;padding:48px 0 36px}
+.hero h1{font-size:2.2rem;background:linear-gradient(135deg,var(--accent-indigo),var(--accent-purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+.hero .tags{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:12px}
+.hero .tags span{font-size:.7rem;padding:4px 12px;border-radius:50px;border:1px solid var(--border-glow);color:var(--accent-indigo);background:rgba(99,102,241,.06)}
+
+/* ===== Meta Card ===== */
+.meta-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:20px 24px;margin:0 auto 32px;max-width:700px;display:flex;justify-content:center;gap:36px;flex-wrap:wrap;box-shadow:var(--shadow-md)}
+.meta-item{text-align:center}
+.meta-item .val{font-size:1.4rem;font-weight:800;color:var(--accent-indigo)}
+.meta-item .lbl{font-size:.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px}
+
+/* ===== Journey Bar ===== */
+.journey-bar{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:12px 20px;margin:0 auto 24px;max-width:900px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:.82rem;box-shadow:var(--shadow-elevated)}
+.journey-path{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.journey-icon{font-size:1rem}
+.journey-plan{color:var(--accent-purple);font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.journey-plan:hover{color:var(--accent-gold)}
+.journey-sep{color:var(--text-muted);font-size:.7rem}
+.journey-phase{color:var(--text-secondary);font-weight:600}
+.journey-kp{color:var(--text-primary);font-weight:700}
+.journey-pos{color:var(--text-muted);font-size:.72rem}
+.journey-nav{display:flex;align-items:center;gap:8px;font-size:.75rem}
+.journey-prev,.journey-next{color:var(--text-muted);cursor:default}
+.journey-divider{color:var(--border-subtle)}
+
+/* ===== Module Card ===== */
+.module{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:28px 28px 24px;margin-bottom:20px;opacity:0;transform:translateY(24px);transition:opacity .5s ease,transform .5s ease;box-shadow:var(--shadow-sm)}
+.module.visible{opacity:1;transform:translateY(0)}
+.module:hover{border-color:var(--border-glow)}
+.module h2{font-size:1.15rem;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.module .m-tag{font-size:.65rem;padding:2px 10px;border-radius:50px;background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.2);color:var(--accent-indigo);font-weight:600}
+.module .m-time{font-size:.7rem;color:var(--text-muted);margin-left:auto}
+.module .hook{font-size:.9rem;color:var(--accent-purple);font-weight:600;margin:12px 0 16px;padding-left:12px;border-left:3px solid var(--accent-purple)}
+.module .content{font-size:.88rem;color:var(--text-secondary);line-height:1.8}
+.module .content p{margin-bottom:12px}
+.module .content strong{color:var(--text-primary);font-weight:600}
+.module .content em{color:var(--accent-gold);font-style:normal}
+
+/* ===== Formula Block ===== */
+.formula-block{background:rgba(99,102,241,.04);border:1px solid rgba(99,102,241,.12);border-radius:var(--radius-sm);padding:14px 18px;margin:14px 0;font-family:var(--font-mono);font-size:.82rem;color:var(--accent-cyan);overflow-x:auto;position:relative}
+.formula-block .f-cap{font-size:.7rem;color:var(--text-muted);margin-bottom:6px;display:block}
+.derivation-toggle{font-size:.7rem;color:var(--accent-gold);cursor:pointer;border:none;background:none;padding:4px 0;font-family:inherit;display:block;margin-top:6px}
+.derivation-toggle:hover{text-decoration:underline}
+.derivation-content{display:none;margin-top:8px;padding:12px 16px;background:rgba(245,158,11,.04);border-radius:var(--radius-sm);border-left:3px solid var(--accent-gold);font-size:.8rem;color:var(--text-secondary)}
+.derivation-content.open{display:block}
+
+/* ===== Chart ===== */
+.chart-wrap{background:rgba(99,102,241,.03);border-radius:var(--radius-sm);padding:8px;margin:14px 0;text-align:center}
+.chart-canvas{width:100%;height:280px}
+.chart-wrap .ch-cap{font-size:.72rem;color:var(--text-muted);margin-top:6px}
+
+/* ===== Table ===== */
+.table-container{margin:20px 0;overflow-x:auto}
+.table-container table{width:100%;border-collapse:collapse;border-radius:var(--radius-md);overflow:hidden}
+.table-container th{background:var(--bg-elevated);color:var(--accent-cyan);font-weight:700;padding:12px 16px;text-align:left;font-size:.8rem}
+.table-container td{padding:12px 16px;border-bottom:1px solid var(--border-subtle);font-size:.82rem;color:var(--text-secondary)}
+.table-container tr:hover td{background:rgba(91,141,184,.03)}
+.table-container .table-caption{font-size:.72rem;color:var(--text-muted);margin-bottom:8px;text-align:center}
+
+/* ===== Callout ===== */
+.callout{padding:14px 18px;border-radius:var(--radius-md);margin:16px 0;font-size:.82rem}
+.callout-info{background:rgba(94,168,122,.06);border-left:3px solid var(--accent-indigo);color:var(--text-secondary)}
+.callout-warn{background:rgba(230,185,90,.06);border-left:3px solid var(--accent-gold);color:var(--text-secondary)}
+.callout-tip{background:rgba(184,152,160,.06);border-left:3px solid var(--accent-purple);color:var(--text-secondary)}
+.callout strong{color:var(--text-primary)}
+
+/* ===== Compare Grid ===== */
+.compare-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin:16px 0}
+.compare-card{background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:18px 20px}
+.compare-card h4{font-size:.85rem;color:var(--accent-indigo);margin-bottom:8px}
+.compare-card p{font-size:.78rem;color:var(--text-muted);line-height:1.7}
+
+/* ===== Process Flow ===== */
+.process-flow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:20px 0;justify-content:center}
+.process-step{background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:12px 18px;text-align:center;font-size:.76rem;min-width:80px}
+.process-step .psn{font-weight:800;color:var(--accent-indigo);font-size:.9rem;margin-bottom:4px}
+.process-step .psl{color:var(--text-muted);font-size:.68rem}
+.process-arrow{color:var(--accent-cyan);font-size:1.1rem;font-weight:700}
+
+/* ===== Term Grid ===== */
+.term-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;margin:16px 0}
+.term-card{background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:var(--radius-sm);padding:12px 16px;transition:all var(--transition)}
+.term-card:hover{border-color:var(--border-glow)}
+.term-card .tn{font-size:.8rem;font-weight:700;color:var(--accent-indigo)}
+.term-card .td{font-size:.72rem;color:var(--text-muted);margin-top:4px;line-height:1.6}
+
+/* ===== Takeaway ===== */
+.takeaway{font-size:.82rem;background:rgba(16,185,129,.06);border-left:3px solid var(--accent-green);padding:10px 14px;margin-top:16px;border-radius:0 var(--radius-sm) var(--radius-sm) 0;color:var(--accent-green)}
+
+/* ===== Ref List ===== */
+.ref-list{list-style:none;padding:0;margin-top:8px;font-size:.78rem}
+.ref-list li{padding:4px 0;color:var(--text-muted)}
+.ref-list li::before{content:'📄 '}
+
+/* ===== Search Overlay ===== */
+.search-overlay{position:fixed;inset:0;z-index:300;background:var(--bg-overlay);display:none;align-items:flex-start;justify-content:center;padding-top:120px}
+.search-overlay.open{display:flex}
+.search-box{width:520px;max-width:90vw;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:var(--radius-md);box-shadow:var(--shadow-lg);overflow:hidden}
+.search-box input{width:100%;padding:14px 18px;background:transparent;border:none;color:var(--text-primary);font-size:.95rem;outline:none;font-family:inherit}
+.search-results{max-height:360px;overflow-y:auto}
+.search-results div{padding:10px 18px;cursor:pointer;font-size:.82rem;color:var(--text-secondary);border-top:1px solid var(--border-subtle);transition:background var(--transition)}
+.search-results div:hover{background:rgba(99,102,241,.06);color:var(--text-primary)}
+
+/* ===== Footer ===== */
+.journey-footer{text-align:center;padding:40px 32px 60px;opacity:.8}
+.back-to-plan{display:inline-flex;align-items:center;gap:8px;padding:10px 24px;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:50px;color:var(--text-secondary);text-decoration:none;font-size:.85rem;font-weight:600;transition:all var(--transition-smooth)}
+.back-to-plan:hover{background:var(--bg-elevated);border-color:var(--accent-purple);color:var(--accent-purple)}
+
+/* ===== Floating Back ===== */
+.deep-floating-back{position:fixed;right:20px;bottom:20px;z-index:10000}
+.deep-floating-back button{padding:12px 20px;background:linear-gradient(135deg,var(--accent-color),var(--accent-dark));color:white;border:none;border-radius:24px;font-size:.85rem;font-weight:600;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.15);transition:transform .2s,box-shadow .2s}
+.deep-floating-back button:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.2)}
+
+/* ===== Toast ===== */
+.dd-toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);z-index:10001;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:8px;padding:14px 24px;box-shadow:0 4px 16px rgba(0,0,0,.15);font-size:.85rem;display:none}
+.toast-in{animation:toastIn .3s ease}
+@keyframes toastIn{from{opacity:0;transform:translate(-50%,20px)}to{opacity:1;transform:translate(-50%,0)}}
+
+/* ===== Print ===== */
+@media print{.navbar,.progress-bar,.sidebar,.journey-bar,.journey-footer,.deep-floating-back{display:none!important}.content-area{margin-left:0;width:100%}.module{break-inside:avoid;opacity:1!important;transform:none!important;box-shadow:none}body{background:#fff!important}}
+
+/* ===== Responsive ≤1024px ===== */
+@media(max-width:1024px){.sidebar{display:none}.content-area{margin-left:0;width:100%}}
+
+/* ===== Responsive ≤768px ===== */
+@media(max-width:768px){
+.hero h1{font-size:1.6rem}.module{padding:20px}.meta-card{font-size:.72rem;padding:12px 16px}.journey-bar{flex-direction:column;align-items:flex-start}
+.deep-floating-back{right:15px;bottom:15px}.deep-floating-back button{padding:10px 16px;font-size:.8rem}
+}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+</head>
+<body data-theme="dark">
+
+<div class="progress-bar" id="progressBar" style="width:0%"></div>
+
+<nav class="navbar">
+  <div class="nav-left">📖 品茶术语与风味轮</div>
+  <div class="nav-right">
+    <button onclick="toggleTheme()" title="切换主题 (Ctrl+D)">🌓 主题</button>
+    <button onclick="openSearch()" title="搜索 (Ctrl+K)">🔍 搜索</button>
+  </div>
+</nav>
+
+<div class="sidebar">
+  <a href="#" class="sidebar-back-link" onclick="event.preventDefault();var w=window.open('tea_learning.html#kc-p3_2','plan_main');if(w)w.focus()">← 返回主方案</a>
+  <h3>📖 目录导航</h3>
+  <ul class="sidebar-nav">
+    <li><a href="#mod-learning_journey">📍 学习路线导航</a></li>
+<li><a href="#mod-concept">📘 核心概念 — 风味轮体系</a></li>
+<li><a href="#mod-principle">🔬 核心原理 — 术语规范与来源</a></li>
+<li><a href="#mod-application">🎯 应用场景 — 如何描述一杯茶</a></li>
+<li><a href="#mod-landscape">🗺️ 香气术语大全</a></li>
+<li><a href="#mod-case-study">🧪 滋味术语大全</a></li>
+<li><a href="#mod-misconceptions">⚠️ 常见误区 — 术语滥用</a></li>
+  </ul>
+</div>
+
+<div class="content-area">
+<div class="search-overlay" id="searchOverlay">
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="搜索模块内容..." oninput="doSearch()" onkeydown="if(event.key==='Escape')closeSearch()">
+    <div class="search-results" id="searchResults"></div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="hero">
+    <h1>品茶术语与风味轮</h1>
+    <div class="tags">
+      <span>茶文化</span><span>感官语言</span><span>整合应用</span>
+    </div>
+  </div>
+
+  <div class="meta-card">
+    <div class="meta-item"><div class="val">7</div><div class="lbl">模块</div></div><div class="meta-item"><div class="val">~18min</div><div class="lbl">阅读时间</div></div><div class="meta-item"><div class="val">理解×标准</div><div class="lbl">深度</div></div>
+  </div>
+
+  <div class="journey-bar" id="journeyBar">
+    <div class="journey-path">
+      <span class="journey-icon">📍</span>
+      <span class="journey-plan" onclick="var w=window.open('tea_learning.html#kc-p3_2','plan_main');if(w)w.focus()">识茶·喝茶·品茶 系统学习方案</span>
+      <span class="journey-sep">〉</span>
+      <span class="journey-phase">品茶之道</span>
+      <span class="journey-sep">〉</span>
+      <span class="journey-kp">品茶术语与风味轮</span>
+      <span class="journey-pos">(第2/4个知识点)</span>
+    </div>
+    <div class="journey-nav">
+      <span class="journey-prev" title="前置: 感官品评方法论">← 前置</span>
+      <span class="journey-divider">|</span>
+      <span class="journey-next" title="后续: 茶食搭配艺术">后续 →</span>
+    </div>
+  </div>
+
+  <div class="module" id="mod-learning_journey">
+    <h2><span class="m-tag">模块1</span> 📍 学习路线导航 <span class="m-time">⏱ ~2min</span></h2>
+    <div class="hook">品茶最关键的一步——你尝到了什么，你得能说出来</div>
+    <div class="content">
+      <p>欢迎来到「品茶之道」阶段的第二个知识点。你现在正处于整个学习路线的<strong>「品茶之道」阶段</strong>，这是从"喝茶"到"品茶"的关键跨越。</p>
+      <p>品茶之道阶段共包含 <strong>4 个知识点</strong>，你现在学习的是 <strong>第 2/4 个知识点</strong>：品茶术语与风味轮。这里你将学习茶的<strong>语言</strong>——没有术语，你就无法准确描述你所品尝到的味道。</p>
+      <div class="callout callout-info">
+        <strong>📍 学习路线概览：</strong><br>
+        识茶入门 → 喝茶进阶 → 品茶之道（当前阶段）→ 茶道实践
+      </div>
+      <p><strong>前置知识：</strong>感官品评方法论 — 你已经了解了五步品评法，有了感知茶叶风味的基本框架。现在我们要为这些感知建立语言。</p>
+      <p><strong>后续学习：</strong>茶食搭配艺术 — 掌握了品茶术语后，你将学习如何将茶与食物进行艺术性的搭配，理解茶与食之间的味觉对话。</p>
+      <p><strong>建议投入时间：</strong>约 18 分钟。建议一次性读完 7 个模块，建立完整的品茶术语体系。</p>
+    </div>
+    <div class="takeaway">💡 关键收获：明确术语与风味轮在整个品茶体系中的核心地位——它是从"感觉"到"表达"的桥梁</div>
+  </div>
+
+  <div class="module" id="mod-concept">
+    <h2><span class="m-tag">模块2</span> 📘 核心概念 — 风味轮体系 <span class="m-time">⏱ ~3min</span></h2>
+    <div class="hook">"这茶好香啊"——然后呢？从"好香"到"兰花香带蜜韵"，差的是一个风味轮的认知距离</div>
+    <div class="content">
+      <p>茶叶风味轮（Tea Flavor Wheel）是一套<strong>层级化的茶叶香气与滋味分类体系</strong>。它将茶叶的各种风味特征按层次组织，从最外层的大类到最内层的具体描述词，形成一个"由粗到精"的定位系统。</p>
+
+      <div class="formula-block">
+        <span class="f-cap">🍵 风味轮结构：</span>
+        外层（大类）→ 中层（亚类）→ 内层（具体描述词）<br>
+        例：花香类 → 兰花香 → 铁观音特有的清幽兰花香
+      </div>
+
+      <p><strong>茶叶风味轮的七大分类：</strong></p>
+      <ul style="margin:8px 0 8px 24px;font-size:.84rem;color:var(--text-secondary);line-height:1.9">
+        <li><strong>花香类：</strong>兰花、桂花、茉莉、栀子、玫瑰——茶叶中最受推崇的香气类型</li>
+        <li><strong>果香类：</strong>桃香、梨香、柑橘、荔枝、龙眼——赋予茶汤甜美的水果韵味</li>
+        <li><strong>甜香类：</strong>蜜香、焦糖、巧克力、奶香——温暖而令人愉悦的甜润气息</li>
+        <li><strong>草木类：</strong>青草、海苔、竹叶、木质——来自茶叶本身植物属性的清新与自然</li>
+        <li><strong>烘焙类：</strong>炒米、烤红薯、焦香、坚果、可可——工艺赋予的美拉德反应风味</li>
+        <li><strong>陈化类：</strong>陈香、药香、菌香、樟香、参香——时间赋予的深沉与复杂</li>
+        <li><strong>特殊类：</strong>岩韵、喉韵、丛味、清凉感——顶级茶独有的品质标志</li>
+      </ul>
+
+      <div class="chart-wrap">
+        <div id="chart-concept-01" class="chart-canvas"></div>
+        <div class="ch-cap">图1：茶叶风味轮层级结构（七大香型大类）</div>
+      </div>
+
+      <div class="callout callout-tip">
+        <strong>🧭 风味轮的使用口诀：</strong>从外到内，逐级定位——先定大类，再找亚类，最后锁定具体描述词。例如喝到一泡铁观音：先判断"花香类"→ 再锁定"兰花香"→ 最后描述"清幽雅致的兰花香，带一丝奶香尾韵"。
+      </div>
+
+      <p>风味轮的价值不仅在于提供描述词汇，更在于<strong>建立一套共享的味觉语言</strong>。当你说"这茶有兰花香"，听懂风味轮的人能在大脑中调出对应的气味记忆——这就是专业交流的基础。</p>
+
+    </div>
+    <div class="takeaway">💡 关键收获：风味轮是品茶语言的坐标系——从七大品类出发，逐级定位，精准描述</div>
+  </div>
+
+  <div class="module" id="mod-principle">
+    <h2><span class="m-tag">模块3</span> 🔬 核心原理 — 术语规范与来源 <span class="m-time">⏱ ~3min</span></h2>
+    <div class="hook">"醇厚"和"浓烈"是一回事吗？在茶桌上，这两个词可能被混用，但在专业审评中，它们指向完全不同的品质特征</div>
+    <div class="content">
+      <p>茶叶审评术语并非凭空创造，它来自<strong>四个主要来源</strong>，形成了多层次的术语体系：</p>
+
+      <ul style="margin:8px 0 8px 24px;font-size:.84rem;color:var(--text-secondary);line-height:1.9">
+        <li><strong>① 中国传统品茶用语：</strong>如"岩韵"、"喉韵"、"回甘"、"生津"等，这些词汇承载了数百年茶文化的审美经验，是中国茶文化独有的术语体系</li>
+        <li><strong>② 现代食品感官科学：</strong>如"收敛性"、"鲜味"等，这些跨领域术语将茶学与现代食品科学连接起来，使品茶评语有了科学依据</li>
+        <li><strong>③ 国家标准 GB/T 14487：</strong>《茶叶感官审评术语》是中国茶叶审评领域的纲领性标准，包含了近 200 个标准化术语，涵盖了外形、汤色、香气、滋味、叶底五大维度的规范用语</li>
+        <li><strong>④ 国际风味轮：</strong>如 World Tea Flavor Wheel（世界茶叶风味轮），将各国茶叶风味统一纳入一个全球化框架，便于国际交流和标准化审评</li>
+      </ul>
+
+      <p><strong>核心区分：描述性术语 vs 评价性术语</strong></p>
+
+      <div class="compare-grid">
+        <div class="compare-card">
+          <h4>📝 描述性术语（客观）</h4>
+          <p>描述茶汤的客观特征，不带主观判断。如"花香"、"回甘"、"收敛性"、"醇厚"。这些词回答的是"这是什么味道/质感"。</p>
+        </div>
+        <div class="compare-card">
+          <h4>⭐ 评价性术语（主观）</h4>
+          <p>表达个人偏好和判断。如"好喝"、"难喝"、"高级"、"一般"。这些词回答的是"我喜欢/不喜欢它"。</p>
+        </div>
+        <div class="compare-card">
+          <h4>🎯 专业审评规则</h4>
+          <p>专业茶叶审评师在正式审评中<strong>只使用描述性术语</strong>。他们描述"这茶有兰花香、入口微涩后生津明显"，而不说"这茶很好喝"。</p>
+        </div>
+        <div class="compare-card">
+          <h4>🤔 为什么这样区分？</h4>
+          <p>评价性术语因人而异（你喜欢的茶别人可能不喜欢），不具备跨评鉴员的一致性。而描述性术语可以建立共识，是专业交流的"通用货币"。</p>
+        </div>
+      </div>
+
+      <div class="callout callout-info">
+        <strong>📌 GB/T 14487 的核心价值：</strong>该标准将术语按"外形、汤色、香气、滋味、叶底"五维度分类，每个维度下又有数十个标准化用词。例如香气维度下包含"清香"、"栗香"、"花香"、"甜香"、"陈香"等标准表述，并附有明确的定义和使用边界。这套术语体系是茶叶审评员资格考试的必考内容。
+      </div>
+
+    </div>
+    <div class="takeaway">💡 关键收获：区分描述性术语与评价性术语是专业品茶的第一步——只说"是什么"，不说"好不好"</div>
+  </div>
+
+  <div class="module" id="mod-application">
+    <h2><span class="m-tag">模块4</span> 🎯 应用场景 — 如何描述一杯茶 <span class="m-time">⏱ ~3min</span></h2>
+    <div class="hook">给你一杯不知名的茶，你能用 5 句话让一个没喝过的人"闻到"它的香气吗？</div>
+    <div class="content">
+      <p>描述一杯茶，不是罗列术语，而是<strong>有结构地还原感官体验</strong>。我们推荐使用 <strong>FIBS 方法</strong>（Flavor-Intensity-Body-Sensation），这是一个四维描述框架：</p>
+
+      <div class="compare-grid">
+        <div class="compare-card">
+          <h4>🌸 F — Flavor（香气类型+层次）</h4>
+          <p>描述你闻到了什么、喝到了什么。包括干茶香、湿香、汤中香、杯底香。例如：干茶有炒米香，冲泡后转为兰花香，杯底留蜜香。</p>
+        </div>
+        <div class="compare-card">
+          <h4>📊 I — Intensity（强度）</h4>
+          <p>描述香气的浓度和层次。高香（浓郁扑鼻）、幽香（清雅持久）、平（香气不突出）。例如：这是一泡高香型铁观音，香气贯穿始终。</p>
+        </div>
+        <div class="compare-card">
+          <h4>🧱 B — Body（滋味质感）</h4>
+          <p>描述茶汤在口腔中的"重量"和"质地"。醇厚（饱满有质感）、清薄（轻盈柔和）、饱满（内容丰富）。例如：茶汤入口醇厚饱满，如丝绸般顺滑。</p>
+        </div>
+        <div class="compare-card">
+          <h4>🌊 S — Sensation（触感与余韵）</h4>
+          <p>描述茶汤入喉后的身体感受。回甘（苦后返甜）、生津（分泌唾液）、收敛性（涩感化开）、喉韵（喉部舒适感）。例如：入喉后有清凉感，回甘悠长，两颊生津不断。</p>
+        </div>
+      </div>
+
+      <div class="chart-wrap">
+        <div id="chart-application-01" class="chart-canvas"></div>
+        <div class="ch-cap">图2：一泡铁观音的风味雷达图（花香90/果香70/蜜香60/鲜爽80/醇厚85/回甘90）</div>
+      </div>
+
+      <p><strong>品茶记录的完整流程：</strong></p>
+      <div class="process-flow">
+        <div class="process-step"><div class="psn">①</div><div class="psl">观察外形色泽</div></div>
+        <div class="process-arrow">→</div>
+        <div class="process-step"><div class="psn">②</div><div class="psl">闻干茶香→湿香</div></div>
+        <div class="process-arrow">→</div>
+        <div class="process-step"><div class="psn">③</div><div class="psl">品滋味与质感</div></div>
+        <div class="process-arrow">→</div>
+        <div class="process-step"><div class="psn">④</div><div class="psl">记录 FIBS 维度</div></div>
+        <div class="process-arrow">→</div>
+        <div class="process-step"><div class="psn">⑤</div><div class="psl">对照风味轮定位</div></div>
+      </div>
+
+      <div class="callout callout-tip">
+        <strong>📋 品茶记录模板示例：</strong><br>
+        茶品：铁观音（清香型）<br>
+        F-香气：干茶炒米香→冲泡兰花香→杯底蜜香，层次分明<br>
+        I-强度：高香型，香气穿透力强<br>
+        B-滋味：醇厚饱满，有"观音韵"特有的矿物质感<br>
+        S-余韵：回甘迅速（3秒内），两颊生津持久，喉韵清凉<br>
+        风味轮定位：花香类→兰花香→带蜜韵
+      </div>
+
+    </div>
+    <div class="takeaway">💡 关键收获：FIBS 四维描述法是品茶记录的利器——有结构地还原感官体验，避免"无话可说"</div>
+  </div>
+
+  <div class="module" id="mod-landscape">
+    <h2><span class="m-tag">模块5</span> 🗺️ 香气术语大全 <span class="m-time">⏱ ~3min</span></h2>
+    <div class="hook">一杯茶能有多少种香气？答案是——数千种挥发性化合物，但你可以用 6 大类来精准定位</div>
+    <div class="content">
+      <p>茶叶中的香气物质超过 <strong>700 种</strong>（已鉴定），它们以不同比例组合，形成了千变万化的茶香。以下是按风味轮框架整理的<strong>六大香气类别</strong>及代表性术语与茶品对照：</p>
+
+      <div class="table-container">
+        <div class="table-caption">表1：茶叶香气术语大全（六大类×代表性茶品）</div>
+        <table>
+          <thead>
+            <tr><th>大类</th><th>具体术语</th><th>代表性茶品/说明</th></tr>
+          </thead>
+          <tbody>
+            <tr><td rowspan="5"><strong>🌸 花香类</strong></td><td>兰花香</td><td>铁观音、武夷岩茶的顶级香型，清幽高雅</td></tr>
+            <tr><td>桂花香</td><td>优质乌龙茶，甜中带清，秋季韵味</td></tr>
+            <tr><td>茉莉花香</td><td>茉莉花茶的灵魂，鲜灵芬芳</td></tr>
+            <tr><td>栀子花香</td><td>凤凰单丛（如鸭屎香），浓郁持久</td></tr>
+            <tr><td>玫瑰花香</td><td>祁门红茶"祁门香"的标志性香型</td></tr>
+            <tr><td rowspan="4"><strong>🍑 果香类</strong></td><td>桃香</td><td>凤凰单丛蜜兰香，甜美不腻</td></tr>
+            <tr><td>荔枝香</td><td>高品质红茶，热带水果般的甜香</td></tr>
+            <tr><td>柑橘香</td><td>新会柑普茶，果香与茶香交融</td></tr>
+            <tr><td>龙眼/桂圆香</td><td>正山小种（传统松烟熏工艺），甜润温暖</td></tr>
+            <tr><td rowspan="4"><strong>🍯 甜香类</strong></td><td>蜜香</td><td>东方美人、白毫银针，小绿叶蝉叮咬产生的独特甜香</td></tr>
+            <tr><td>焦糖香</td><td>足火乌龙茶，美拉德反应的香甜气息</td></tr>
+            <tr><td>奶香</td><td>金萱乌龙（台湾特色），天然乳香令人陶醉</td></tr>
+            <tr><td>巧克力香</td><td>深度发酵或陈化的红茶/黑茶</td></tr>
+            <tr><td rowspan="3"><strong>🌿 草木类</strong></td><td>青草/海苔香</td><td>蒸青绿茶（抹茶、玉露），清新如雨后草地</td></tr>
+            <tr><td>竹叶香</td><td>优质龙井，清雅如竹林微风</td></tr>
+            <tr><td>木质香</td><td>陈年普洱、老白茶，岁月沉淀的木质感</td></tr>
+            <tr><td rowspan="3"><strong>🔥 烘焙类</strong></td><td>炒米香/炒豆香</td><td>龙井茶的标志性香气，锅炒工艺赋予</td></tr>
+            <tr><td>烤红薯香</td><td>滇红茶，温暖甜蜜的烘焙气息</td></tr>
+            <tr><td>坚果香/可可香</td><td>武夷岩茶中足火烘焙，如烤杏仁</td></tr>
+            <tr><td rowspan="4"><strong>📜 陈化类</strong></td><td>陈香</td><td>老普洱、老六堡，干净陈放后的醇和香气</td></tr>
+            <tr><td>药香</td><td>老白茶（10年以上），类似中药房的草本气息</td></tr>
+            <tr><td>樟香</td><td>老生普（20年以上），特有的樟木清凉香</td></tr>
+            <tr><td>参香</td><td>顶级老生普（30年以上），人参般的温润气息</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="term-grid">
+        <div class="term-card"><div class="tn">🌸 兰花香</div><div class="td">公认的茶叶最高级香型之一，多见于铁观音和武夷岩茶的优质批次</div></div>
+        <div class="term-card"><div class="tn">🍑 蜜兰香</div><div class="td">花香与果香的完美融合，凤凰单丛的经典香型</div></div>
+        <div class="term-card"><div class="tn">🍯 蜜香</div><div class="td">甜润但不腻，东方美人的标志性香气，源自小绿叶蝉的"虫咬反应"</div></div>
+        <div class="term-card"><div class="tn">🥛 奶香</div><div class="td">台湾金萱乌龙独有的天然乳香，非人工添加</div></div>
+        <div class="term-card"><div class="tn">🔥 炒豆香</div><div class="td">龙井茶锅炒工艺的经典香气，豆香中带清甜</div></div>
+        <div class="term-card"><div class="tn">📜 陈香</div><div class="td">老茶的核心香气，干净陈放后产生的醇和气息，不是霉味</div></div>
+      </div>
+
+    </div>
+    <div class="takeaway">💡 关键收获：六大香气大类覆盖了 700+ 种茶香化合物——掌握这个框架，你就有一张精确的"茶香地图"</div>
+  </div>
+
+  <div class="module" id="mod-case-study">
+    <h2><span class="m-tag">模块6</span> 🧪 滋味术语大全 <span class="m-time">⏱ ~3min</span></h2>
+    <div class="hook">滋味是茶汤在口腔中的"物理存在"——它不仅是味道，更是一种触感与时间的体验</div>
+    <div class="content">
+      <p>茶汤的滋味可以从<strong>五个维度</strong>进行系统化描述。每个维度都有明确的专业术语和对应用法：</p>
+
+      <div class="table-container">
+        <div class="table-caption">表2：滋味术语五维度对照表</div>
+        <table>
+          <thead>
+            <tr><th>维度</th><th>术语</th><th>定义</th><th>代表茶品/说明</th></tr>
+          </thead>
+          <tbody>
+            <tr><td rowspan="3"><strong>浓淡度</strong></td><td>浓烈</td><td>滋味强劲、冲击力强</td><td>普洱生茶新茶、浓香型乌龙</td></tr>
+            <tr><td>醇厚</td><td>饱满有质感，茶汤有"重量"</td><td>老白茶、优质普洱熟茶</td></tr>
+            <tr><td>清薄</td><td>清淡柔和，轻盈如水</td><td>高档绿茶明前茶、白毫银针</td></tr>
+            <tr><td rowspan="3"><strong>鲜甜度</strong></td><td>鲜爽</td><td>氨基酸带来的鲜味，令人愉悦</td><td>明前龙井、安吉白茶</td></tr>
+            <tr><td>甘甜</td><td>回甘+生津的甜润体验</td><td>优质乌龙茶、老茶</td></tr>
+            <tr><td>甜醇</td><td>入口甜润，醇和温暖</td><td>红茶（如金骏眉、滇红）</td></tr>
+            <tr><td rowspan="3"><strong>收敛性</strong></td><td>涩口（死涩）</td><td>不愉悦的涩感，久久不化</td><td>品质差的夏茶或工艺缺陷</td></tr>
+            <tr><td>收敛（活涩）</td><td>适度涩感，化开后转为生津</td><td>优质普洱生茶的标志</td></tr>
+            <tr><td>无收敛</td><td>滋味过于平淡，缺乏层次</td><td>过度陈放或品质较低的茶</td></tr>
+            <tr><td rowspan="3"><strong>特殊滋味</strong></td><td>岩韵</td><td>武夷正岩茶特有的矿物质风味</td><td>大红袍、肉桂、水仙等正岩茶</td></tr>
+            <tr><td>喉韵</td><td>茶汤入喉后的舒适感与清凉感</td><td>顶级茶的稀缺体验，持久为上</td></tr>
+            <tr><td>水味</td><td>茶味淡如水，冲泡过度或品质差</td><td>品质问题的标志</td></tr>
+            <tr><td rowspan="2"><strong>余味</strong></td><td>回甘</td><td>苦后返甜，越快越强越持久越好</td><td>顶级乌龙和普洱的核心品质指标</td></tr>
+            <tr><td>生津</td><td>两颊分泌唾液，"舌底鸣泉"</td><td>持久为上，是茶汤活力的体现</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout callout-warn">
+        <strong>⚠️ 常见术语混淆：</strong><br>
+        ① <strong>"醇厚"≠"浓烈"</strong>——醇厚是质感（茶汤的"重量"和"滑度"），浓烈是强度（滋味的冲击力）。一杯茶可以醇厚但不浓烈（如老白茶），也可以浓烈但不醇厚（如劣质夏茶）。<br><br>
+        ② <strong>"回甘"≠"甜"</strong>——回甘是先苦后甜的过程体验，甜是入口即有的直接甜味。回甘是一种动态的、时间的感受；甜是静态的、瞬时的味觉。两者是截然不同的体验。
+      </div>
+
+      <div class="term-grid">
+        <div class="term-card"><div class="tn">🧱 醇厚</div><div class="td">茶汤在口腔中有"存在感"和"重量"，像喝了一口饱满的汤汁而非清水</div></div>
+        <div class="term-card"><div class="tn">🌊 回甘</div><div class="td">判断茶品质的关键指标——回甘越迅速、越明显、越持久，茶越好</div></div>
+        <div class="term-card"><div class="tn">🏔️ 岩韵</div><div class="td">武夷正岩茶独有的矿物质感+花香+清凉感的复合体验，不可复制</div></div>
+        <div class="term-card"><div class="tn">💧 生津</div><div class="td">茶汤刺激两颊唾液分泌，顶端体验为"舌底鸣泉"，是茶汤活力的标志</div></div>
+      </div>
+
+    </div>
+    <div class="takeaway">💡 关键收获：滋味术语从五个维度精准描述茶汤——浓淡×鲜甜×收敛×特殊×余味，每一维都有标准语言</div>
+  </div>
+
+  <div class="module" id="mod-misconceptions">
+    <h2><span class="m-tag">模块7</span> ⚠️ 常见误区 — 术语滥用 <span class="m-time">⏱ ~2min</span></h2>
+    <div class="hook">术语多了不等于专业——用对地方比用得多重要 100 倍</div>
+    <div class="content">
+
+      <div class="callout callout-warn">
+        <strong>⚠️ 误区 1：滥用"岩韵"</strong><br>
+        "岩韵"特指<strong>武夷正岩茶</strong>的矿物质风味体验，不是所有乌龙茶都有岩韵。它是武夷山独特的丹霞地貌土壤（红色砂砾岩风化土）赋予茶叶的特殊风味——一种融合了矿物质感、花香和清凉感的复合体验。当你喝到一款非武夷山的乌龙茶说它有"岩韵"时，你是在误用一个有严格产地限制的术语。
+      </div>
+
+      <div class="callout callout-warn">
+        <strong>⚠️ 误区 2："回甘"和"甜"混用</strong><br>
+        这两个词在茶桌上被混用的频率之高令人惊讶。回甘 = <strong>苦后返甜</strong>（动态时间过程），甜 = <strong>入口即有的甜感</strong>（瞬时味觉）。说"这茶回甘很甜"是可以的，但说"这茶喝起来有回甘"来形容入口的甜味是错误的。回甘需要先有微苦，再转化为甜——这是许多顶级好茶的核心品质特征。
+      </div>
+
+      <div class="callout callout-warn">
+        <strong>⚠️ 误区 3：术语越多越好</strong><br>
+        堆砌术语不如<strong>精准使用</strong>。说清一个茶有"蜜兰花香"比罗列 7-8 个香型更专业。品茶不是术语考试——你的目标是<strong>准确传达感官体验</strong>，而不是展示词汇量。一个精准的"兰花香带奶韵"胜过"花香果香甜香草木香"的冗长堆砌。
+      </div>
+
+      <div class="callout callout-warn">
+        <strong>⚠️ 误区 4："喉韵"被泛化</strong><br>
+        喉韵指茶汤入喉后持久不退的<strong>舒适感+清凉感</strong>，是顶级茶的稀缺体验。不是所有的茶都有喉韵——它要求茶内质极其丰富，茶汤入喉后仍在释放能量。很多中低端茶喝完喉咙没有任何感觉（这是正常的），强行说它有"喉韵"既是术语滥用，也降低了这个术语的价值。
+      </div>
+
+      <div class="callout callout-warn">
+        <strong>⚠️ 误区 5：盲目使用负面术语判断</strong><br>
+        "涩"不总是坏事——需要区分<strong>"活涩化开"</strong>和<strong>"死涩不化"</strong>。优质普洱生茶入口有收敛感（微涩），但几秒内化开转为生津回甘——这是品质的标志。而劣质茶的涩感如胶水黏在上颚，久久不退——这才是真正的缺陷。
+      </div>
+
+      <p>掌握品茶术语的最终目的，不是成为术语的奴隶，而是让术语成为你<strong>表达和分享</strong>茶之美的工具。精准胜于堆砌，理解胜于记忆。</p>
+
+    </div>
+    <div class="takeaway">💡 关键收获：术语的精准使用比数量更重要——一套精准的 5-6 个词胜过散乱的 20 个词</div>
+  </div>
+</div>
+
+<footer class="journey-footer">
+  <a href="#" class="back-to-plan" onclick="event.preventDefault();var w=window.open('tea_learning.html#kc-p3_2','plan_main');if(w)w.focus()">🔗 返回学习路线: 识茶·喝茶·品茶 系统学习方案 → 品茶之道</a>
+  <p style="margin-top:12px;font-size:.72rem;color:var(--text-muted)">
+    本资料是 <strong>识茶·喝茶·品茶 系统学习方案</strong> 品茶之道 阶段的深度研读材料
+  </p>
+</footer>
+
+<div class="deep-floating-back">
+  <button onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 16px rgba(0,0,0,.2)'"
+    onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 12px rgba(0,0,0,.15)'"
+    onclick="event.preventDefault();var w=window.open('tea_learning.html#kc-p3_2','plan_main');if(w)w.focus()">
+    ← 返回学习方案
+  </button>
+</div>
+</div>
+
+<div class="dd-toast" id="toastEl"><span id="toastMsg"></span></div>
+
+<script>
+var MODULE_IDS = ["mod-learning_journey","mod-concept","mod-principle","mod-application","mod-landscape","mod-case-study","mod-misconceptions"];
+var SEARCH_INDEX = [{"id":"mod-learning_journey","t":"学习路线导航","c":"品茶之道第2个知识点 品茶术语与风味轮 前置感官品评方法论 后续茶食搭配艺术"},{"id":"mod-concept","t":"核心概念","c":"风味轮体系 七大香型分类 花香果香甜香草木烘焙陈化特殊 从外到内逐级定位"},{"id":"mod-principle","t":"核心原理","c":"术语规范来源 GB/T14487 描述性术语vs评价性术语 中国传统品茶用语 食品感官科学"},{"id":"mod-application","t":"应用场景","c":"FIBS方法描述一杯茶 Flavor香气 Intensity强度 Body滋味质感 Sensation触感余韵 品茶记录模板 铁观音风味雷达图"},{"id":"mod-landscape","t":"香气术语大全","c":"六大香气类别 兰花香桂花香茉莉花香 果香桃香荔枝香 蜜香焦糖香奶香 草木青草海苔竹叶 烘焙炒米烤红薯坚果 陈化陈香药香樟香参香"},{"id":"mod-case-study","t":"滋味术语大全","c":"浓淡度醇厚浓烈清薄 鲜甜度鲜爽甘甜甜醇 收敛性涩口收敛无收敛 特殊滋味岩韵喉韵水味 余味回甘生津"},{"id":"mod-misconceptions","t":"常见误区","c":"术语滥用 岩韵仅限武夷正岩 回甘不等于甜 术语精准胜于堆砌 喉韵不要泛化 涩要区分活涩化开和死涩不化"}];
+var TOAST_TIMEOUT;
+
+(function(){
+var progressBar=document.getElementById('progressBar');
+var modules=document.querySelectorAll('.module');
+
+var observer=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting)e.target.classList.add('visible')})},{threshold:.15});
+modules.forEach(function(m){observer.observe(m)});
+
+var navLinks=document.querySelectorAll('.sidebar-nav a');
+var navObserver=new IntersectionObserver(function(entries){
+entries.forEach(function(e){
+if(e.isIntersecting){
+navLinks.forEach(function(a){a.classList.remove('active')});
+var act=document.querySelector('.sidebar-nav a[href="#'+e.target.id+'"]');
+if(act)act.classList.add('active');
+}
+})},{threshold:.3});
+modules.forEach(function(m){navObserver.observe(m)});
+
+window.addEventListener('scroll',function(){
+var st=document.documentElement.scrollTop,dh=document.documentElement.scrollHeight-window.innerHeight;
+var pct=dh>0?Math.min(100,(st/dh)*100):0;progressBar.style.width=pct+'%';
+});
+
+window.addEventListener('keydown',function(e){
+if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();openSearch()}
+if((e.ctrlKey||e.metaKey)&&e.key==='d'){e.preventDefault();toggleTheme()}
+if(e.key==='Escape')closeSearch()
+});
+})();
+
+function toggleTheme(){
+var b=document.body,isD=b.getAttribute('data-theme')==='dark';
+b.setAttribute('data-theme',isD?'light':'dark');
+try{localStorage.setItem('slm-theme',isD?'light':'dark')}catch(e){}
+showToast('已切换至'+(isD?'浅色':'深色')+'主题')
+}
+
+function openSearch(){document.getElementById('searchOverlay').classList.add('open');setTimeout(function(){document.getElementById('searchInput').focus()},100)}
+function closeSearch(){document.getElementById('searchOverlay').classList.remove('open');document.getElementById('searchResults').innerHTML=''}
+
+function doSearch(){
+var q=document.getElementById('searchInput').value.toLowerCase(),res=document.getElementById('searchResults');
+if(q.length<2){res.innerHTML='';return}
+var h='';SEARCH_INDEX.forEach(function(item){
+if(item.t.toLowerCase().indexOf(q)>=0||(item.c||'').toLowerCase().indexOf(q)>=0){
+h+='<div onclick="closeSearch();document.getElementById(\''+item.id+'\').scrollIntoView({behavior:\'smooth\'})">'+
+'<strong>'+item.t+'</strong><br><small style="color:var(--text-muted)">'+(item.c||'').substring(0,80)+'</small></div>';
+}
+});
+res.innerHTML=h||'<div style="padding:12px;color:var(--text-muted)">未找到匹配模块</div>'
+}
+
+function showToast(msg){
+var el=document.getElementById('toastEl'),mg=document.getElementById('toastMsg');
+if(!el||!mg)return;mg.textContent=msg;el.style.display='block';el.classList.add('toast-in');
+if(TOAST_TIMEOUT)clearTimeout(TOAST_TIMEOUT);
+TOAST_TIMEOUT=setTimeout(function(){el.style.display='none'},3000);
+}
+
+(function(){
+var t;try{t=localStorage.getItem('slm-theme')}catch(e){}
+if(t==='light')document.body.setAttribute('data-theme','light');
+})();
+
+(function(){
+document.querySelectorAll('.derivation-toggle').forEach(function(btn){
+btn.addEventListener('click',function(){
+var content=this.nextElementSibling;
+if(content){content.classList.toggle('open');this.textContent=content.classList.contains('open')?'▾ 收起推导':'▸ 展开推导'}
+});
+});
+})();
+
+/* ===== ECharts ===== */
+(function initCharts(){
+if(typeof echarts==='undefined')return;
+var charts=[];
+
+function makeChart(elId,option){
+var el=document.getElementById(elId);
+if(!el)return null;
+var chart=echarts.init(el);
+chart.setOption(option);
+return chart;
+}
+
+/* Chart 1 — 风味轮饼图 (七大香型大类) */
+var c1=makeChart('chart-concept-01',{
+tooltip:{trigger:'item',formatter:'{b}: {c} ({d}%)'},
+series:[{type:'pie',radius:['30%','60%'],center:['50%','50%'],
+label:{color:getComputedStyle(document.body).getPropertyValue('--chart-axis-label').trim()||'#8a8070',fontSize:10},
+itemStyle:{borderColor:getComputedStyle(document.body).getPropertyValue('--bg-card').trim()||'#282520',borderWidth:2},
+data:[
+{value:18,name:'花香类',itemStyle:{color:'#e88db1'}},
+{value:14,name:'果香类',itemStyle:{color:'#f0a878'}},
+{value:13,name:'甜香类',itemStyle:{color:'#e6b95a'}},
+{value:12,name:'草木类',itemStyle:{color:'#7ec8a0'}},
+{value:16,name:'烘焙类',itemStyle:{color:'#d47860'}},
+{value:15,name:'陈化类',itemStyle:{color:'#b898a0'}},
+{value:12,name:'特殊类',itemStyle:{color:'#5ea87a'}}
+]}]});
+
+/* Chart 2 — 铁观音风味雷达图 */
+var c2=makeChart('chart-application-01',{
+radar:{center:['50%','55%'],radius:'65%',
+indicator:[
+{name:'花香',max:100},{name:'果香',max:100},{name:'蜜香',max:100},
+{name:'鲜爽',max:100},{name:'醇厚',max:100},{name:'回甘',max:100}
+],
+axisName:{color:getComputedStyle(document.body).getPropertyValue('--chart-axis-label').trim()||'#8a8070',fontSize:10},
+splitArea:{areaStyle:{color:[getComputedStyle(document.body).getPropertyValue('--chart-grid').trim()||'#2d2924','transparent']}},
+splitLine:{lineStyle:{color:getComputedStyle(document.body).getPropertyValue('--border-subtle').trim()||'rgba(184,173,152,.15)'}},
+axisLine:{lineStyle:{color:getComputedStyle(document.body).getPropertyValue('--border-subtle').trim()||'rgba(184,173,152,.15)'}}
+},
+tooltip:{trigger:'item'},
+series:[{type:'radar',
+data:[{value:[90,70,60,80,85,90],name:'铁观音',areaStyle:{color:'rgba(94,168,122,.15)'},
+lineStyle:{color:'#5ea87a',width:2},itemStyle:{color:'#5ea87a'},
+symbol:'circle',symbolSize:6
+}]
+}]
+});
+
+if(c1)charts.push(c1);
+if(c2)charts.push(c2);
+
+window.addEventListener('resize',function(){charts.forEach(function(c){c.resize()})});
+})();
+</script>
+</body>
+</html></ezparameter>
+</ezinvoke>
+</eztool_calls

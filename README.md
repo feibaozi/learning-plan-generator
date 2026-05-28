@@ -23,7 +23,7 @@
     ▼
 ┌─────────────────────────────────────┐
 │  learning-plan-generator             │
-│  (.claude v3.8.1 / .trae v3.8.0)    │
+│  (.claude v3.9.0 / .trae v3.9.0)    │
 │  · 主题自动分类 (60主题库)             │
 │  · 4D画像分析 (抽象/系统/数学/演化)    │
 │  · 纹理选择 (G1-G8)                   │
@@ -35,12 +35,14 @@
            ▼
 ┌─────────────────────────────────────┐
 │  smart-learning-materials            │
-│  (v3.7.0)                            │
+│  (v3.8.0)                            │
 │  · 接收 context_plan 上下文标记       │
 │  · 模块评分 → 编排 (16核心+8可选)     │
 │  · 纹理感知内容生成 (G1-G8风格)       │
 │  · 左侧侧边栏目录导航 (280px)        │
 │  · ECharts 5.x 动态图表              │
+│  · %TEMPLATE_CSS% 占位符注入机制    │
+│  · deep_dive.css 外部引用（6主题）   │
 │  · 图表/公式/案例/文献 多模态输出     │
 │  · 生成深度研读 HTML + 回写 manifest  │
 └──────────┬──────────────────────────┘
@@ -67,7 +69,7 @@
 
 ---
 
-## Skill 1: learning-plan-generator (v3.8.1)
+## Skill 1: learning-plan-generator (v3.9.0)
 
 **生成自适应、纹理感知的学习方案（Markdown + 交互式 HTML），适用于任意领域。**
 
@@ -99,7 +101,7 @@
 
 ---
 
-## Skill 2: smart-learning-materials (v3.7.0)
+## Skill 2: smart-learning-materials (v3.8.1)
 
 **针对单个知识点/概念/术语，生成结构化、多层级、多模态的高质量深度研读资料。**
 
@@ -109,6 +111,7 @@
 - **3×3 深度×广度矩阵**：概览/理解/精通 × 核心/标准/全景，共 9 档
 - **模块智能编排**：28 个预定义模块，按相关度评分自动筛选和排序（必选≥0.80，可选0.40-0.80）
 - **纹理感知写作**：根据 G1-G8 纹理自动调整每个模块的内容比例（公式/图表/案例/代码）
+- **CSS 模板化注入 (v3.8)**：`%TEMPLATE_CSS%` 占位符机制，base_deep_dive.html 骨架零硬编码 CSS，deep_dive.css 作为 6 主题样式的单一权威源，生成时读取并注入
 - **左侧侧边栏目录导航 (v3.7)**：280px 固定宽度，模块名全量显示，IntersectionObserver 自动追踪高亮，≤1024px 隐藏
 - **ECharts 5.x 动态图表 (v3.7)**：CDN 加载，tooltip/图例切换/响应式 resize/深浅主题联动，替代 Canvas 静态绘制
 - **表格样式统一 (v3.7)**：`.table-container` 模式，深色卡片风表头 + 青色标题 + hover 行高亮
@@ -267,47 +270,58 @@ Claude Code 自动调用 smart-learning-materials：
 ## 文件结构
 
 ```
-.claude/skills/
-├── _shared/
-│   ├── templates/
-│   │   ├── manifest.json              # 6套视觉模板注册表
-│   │   ├── indigo-night/              # 靛蓝之夜
-│   │   ├── cedar-dawn/                # 雪松晨曦
-│   │   ├── graphite-studio/           # 石墨工作室
-│   │   ├── ocean-depth/               # 深海碧波
-│   │   ├── sunset-amber/              # 琥珀日暮
-│   │   └── arctic-frost/              # 极光冰霜
-│   │       ├── plan.css               #   方案页 CSS 变量
-│   │       └── deep_dive.css          #   深度资料 CSS 变量
-│   ├── manifest_schema.json           # 共享文件清单格式
-│   └── linking_guide.md               # 联动指南
+学习资料/
+├── README.md                          # 本文档
+├── validate_templates.ps1             # 模板校验脚本（流体布局/响应断点/ECharts resize）
+├── sync_skills.ps1                    # Skill 同步脚本（.trae → .claude + .trae-cn）
+├── .trae/
+│   ├── rules/
+│   │   └── project_rules.md           # 项目规范（SSOT 单一真相源 + HTML 生成强制规范）
+│   └── skills/                        # ★ 单一真相源 — 所有 Skill 文档的唯一权威副本
+│       ├── _shared/
+│       │   ├── templates/
+│       │   │   ├── manifest.json      # 6套视觉模板注册表
+│       │   │   ├── indigo-night/      # 靛蓝之夜
+│       │   │   ├── cedar-dawn/        # 雪松晨曦
+│       │   │   ├── graphite-studio/   # 石墨工作室
+│       │   │   ├── ocean-depth/       # 深海碧波
+│       │   │   ├── sunset-amber/      # 琥珀日暮
+│       │   │   └── arctic-frost/      # 极光冰霜
+│       │   │       ├── plan.css       #   方案页 CSS 变量
+│       │   │       └── deep_dive.css  #   深度资料完整 CSS（CSS 变量+布局+组件+响应式）
+│       │   ├── manifest_schema.json   # 共享文件清单格式
+│       │   └── linking_guide.md       # 联动指南
+│       ├── learning-plan-generator/
+│       │   ├── SKILL.md               # Skill 定义
+│       │   └── resources/
+│       │       ├── plan_params.json   # 方案动态参数引擎
+│       │       └── templates/
+│       │           └── base_plan.html # HTML 骨架模板
+│       └── smart-learning-materials/
+│           ├── SKILL.md               # Skill 定义（v3.8.0）
+│           ├── resources/
+│           │   ├── topic_profiles.json    # 60主题4D画像库
+│           │   ├── heuristic_rules.json   # R1-R8启发式推理
+│           │   ├── texture_templates.json # G1-G8纹理模板
+│           │   ├── module_weights.json    # 模块权重与评分
+│           │   ├── module-mapping.json    # 模块定义与排序
+│           │   └── templates/
+│           │       └── base_deep_dive.html # 深度资料 HTML 骨架（%TEMPLATE_CSS% 注入零硬编码）
+│           ├── modules/
+│           │   ├── common/            # 通用模块 (16个)
+│           │   ├── finance/           # 金融专属模块 (6个)
+│           │   └── ai-tech/           # AI专属模块 (6个)
+│           └── test/
+│               └── test_template.html # 模板验证测试页面（6主题+12组件）
 │
-├── learning-plan-generator/
-│   ├── SKILL.md                       # Skill 定义（本文档来源）
-│   └── resources/
-│       ├── plan_params.json           # 方案动态参数引擎
-│       └── templates/
-│           └── base_plan.html         # HTML 骨架模板
+├── .claude/skills/                    # Claude IDE 运行时读取（仅通过 sync_skills.ps1 同步，禁止直接修改）
+├── .trae-cn/skills/                   # Trae IDE 运行时读取（仅通过 sync_skills.ps1 同步，禁止直接修改）
 │
-└── smart-learning-materials/
-    ├── SKILL.md                       # Skill 定义（本文档来源）
-    ├── resources/
-    │   ├── topic_profiles.json        # 60主题4D画像库
-    │   ├── heuristic_rules.json       # R1-R8启发式推理
-    │   ├── texture_templates.json     # G1-G8纹理模板
-    │   ├── module_weights.json        # 模块权重与评分
-    │   ├── module-mapping.json        # 模块定义与排序
-    │   └── templates/
-    │       └── base_deep_dive.html    # 深度资料 HTML 骨架
-    ├── modules/
-    │   ├── common/                    # 通用模块 (16个)
-    │   ├── finance/                   # 金融专属模块 (6个)
-    │   └── ai-tech/                   # AI专属模块 (6个)
-    ├── examples/                      # 输入输出示例
-    └── templates/
-        ├── web-mode-a/                # Web 模板 A
-        ├── web-mode-b/                # Web 模板 B
-        └── pdf/                       # PDF 生成模板 (LaTeX)
+├── [学习主题]/                         # 各领域学习方案目录
+│   ├── [主题]学习方案.md               # Markdown 格式方案
+│   ├── [缩写]_learning.html           # 交互式 HTML 学习方案
+│   ├── manifest.json                  # 方案注册清单
+│   └── p*_*_*_*.html                 # 深度研读 HTML 资料
 ```
 
 ---
@@ -316,6 +330,9 @@ Claude Code 自动调用 smart-learning-materials：
 
 | 版本 | 日期 | 关键变更 |
 |------|------|----------|
+| learning-plan-generator v3.9.0 | 2026-05-28 | 三模块交互化改造：知识图谱 Canvas→ECharts 交互式导航仪表盘（语义布局、节点可点击、连线分类型、状态同步）；方法论静态HTML→纹理感知交互式学习画布（G1-G8自适应、步骤可勾选、关联板块跳转）；图表指南名称列表→视觉知识画廊（SVG预览、类型筛选、lightbox放大、深度资料联动）；新增占位符 %GRAPH_DATA%/%METHOD_STEPS%；废弃 %METHOD_STEPS_HTML%；新增 plan_params.json method_texture_templates/drawing_type_taxonomy；6模板plan.css同步新增graph/method/gallery/lightbox样式；ECharts CDN(v5.5.0)引入主方案 |
+| smart-learning-materials v3.8.1 | 2026-05-28 | 图表容器选择器精确化：修复 `.chart-wrap > div` 泛选择器导致 `.ch-cap` 标题 div 被强制 height:280px 产生大量留白；新增 `.chart-canvas` 专用 class 按语义精确选择图表容器；6 个模板 deep_dive.css 同步更新；图表容器 HTML 规范更新为 `<div id="chart-xxx" class="chart-canvas">` |
+| smart-learning-materials v3.8.0 | 2026-05-27 | CSS 模板化注入完整落地：`%TEMPLATE_CSS%` 占位符机制，base_deep_dive.html 移除全部硬编码 CSS，deep_dive.css 作为 6 主题样式的单一权威源（含完整布局/组件/响应式规则，每主题 200+ 行）；project_rules.md 深度研读 HTML 生成强制规范；validate_templates.ps1 校验脚本加强（流体布局检测/响应断点检测/ECharts resize 检测）；文档管理 SSOT 规范建立（.trae/skills/ 单一真相源 + sync_skills.ps1 同步） |
 | smart-learning-materials v3.7.0 | 2026-05-26 | 侧边栏目录导航+ECharts 5.x 动态图表+表格样式统一+流体铺满布局模板化 |
 | smart-learning-materials .trae v1.1.0 / .claude v3.4.1 | 2026-05-25 | Web模板稳健性加固：CDN脚本异步(`defer`)、`body.loading`安全超时兜底、初始化双路径(`readyState`+`DOMContentLoaded`)、ECharts重试机制(10次×500ms)、全局初始化时序约束、主题闪烁消除；修复`applyTheme()` TypeError；两个环境模板与文档完全同步 |
 | smart-learning-materials v3.4.1 | 2026-05-25 | 表格数据结构约束：table_schema定义 + Step 5.0表格校验 + SKILL.md规范章节 |

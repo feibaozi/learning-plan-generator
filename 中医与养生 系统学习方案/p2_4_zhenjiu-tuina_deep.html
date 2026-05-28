@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>针灸推拿基础技法 — 深度研读</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap&font-display=swap" rel="stylesheet">
+<style>
+/* cedar-dawn deep_dive.css */
+:root{
+--bg-base:#1a1814;
+--bg-card:#282520;
+--bg-elevated:#312d27;
+--bg-overlay:rgba(0,0,0,.6);
+--text-primary:#ede6d8;
+--text-secondary:#b8ad98;
+--text-muted:#8a8070;
+--accent-indigo:#5ea87a;
+--accent-purple:#b898a0;
+--accent-cyan:#7ec8a0;
+--accent-gold:#e6b95a;
+--accent-green:#6ebf8a;
+--accent-red:#d47860;
+--accent-blue:#5ea87a;
+--accent-color:#5ea87a;
+--accent-dark:#3d6b50;
+--border-subtle:rgba(184,173,152,.15);
+--border-glow:rgba(94,168,122,.25);
+--shadow-sm:0 1px 3px rgba(0,0,0,.3);
+--shadow-md:0 4px 16px rgba(0,0,0,.4);
+--shadow-lg:0 8px 32px rgba(0,0,0,.5);
+--shadow-elevated:0 8px 32px rgba(0,0,0,.5);
+--radius-sm:6px;
+--radius-md:10px;
+--radius-lg:16px;
+--font-sans:'Inter','Noto Sans SC','Segoe UI',system-ui,-apple-system,sans-serif;
+--font-mono:'JetBrains Mono',Consolas,'Cascadia Code',monospace;
+--transition:.25s cubic-bezier(.4,0,.2,1);
+--transition-smooth:.3s ease;
+--nav-h:56px;
+--accent-color-rgb:94,168,122;
+--chart-grid:#2d2924;
+--chart-axis-label:#8a8070;
+}
+[data-theme="light"]{
+--bg-base:#fdfaf3;
+--bg-card:#fffdf7;
+--bg-elevated:#f3efe3;
+--bg-overlay:rgba(0,0,0,.3);
+--text-primary:#1f1a12;
+--text-secondary:#4a4035;
+--text-muted:#5c5042;
+--accent-indigo:#3d6b50;
+--accent-purple:#7a5a6a;
+--accent-cyan:#4a8e6a;
+--accent-gold:#a07828;
+--accent-green:#4a9e66;
+--accent-red:#b05038;
+--accent-blue:#3d6b50;
+--accent-color:#3d6b50;
+--accent-dark:#2a4835;
+--border-subtle:rgba(31,26,18,.08);
+--border-glow:rgba(61,107,80,.25);
+--shadow-sm:0 1px 3px rgba(0,0,0,.06);
+--shadow-md:0 4px 16px rgba(0,0,0,.08);
+--shadow-lg:0 8px 32px rgba(0,0,0,.12);
+--shadow-elevated:0 8px 32px rgba(0,0,0,.12);
+--accent-color-rgb:61,107,80;
+--chart-grid:#ebe5d6;
+--chart-axis-label:#5c5042;
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font-sans);background:var(--bg-base);color:var(--text-primary);line-height:1.75;overflow-x:hidden}
+body.loading{opacity:0}body.loaded{opacity:1;transition:opacity .4s ease}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg-base)}::-webkit-scrollbar-thumb{background:var(--border-glow);border-radius:3px}
+
+.progress-bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--accent-indigo),var(--accent-purple),var(--accent-cyan));z-index:200;transition:width .1s linear}
+.navbar{position:fixed;top:3px;left:0;right:0;z-index:100;background:var(--bg-card);border-bottom:1px solid var(--border-subtle);backdrop-filter:blur(16px);height:var(--nav-h);display:flex;align-items:center;justify-content:space-between;padding:0 24px}
+.nav-left{display:flex;align-items:center;gap:12px;font-size:.82rem;font-weight:600;color:var(--accent-indigo)}
+.nav-right{display:flex;align-items:center;gap:8px}
+.nav-right button{background:var(--bg-elevated);border:1px solid var(--border-subtle);color:var(--text-secondary);padding:6px 12px;border-radius:var(--radius-sm);cursor:pointer;font-size:.75rem;transition:all var(--transition);font-family:inherit}
+.nav-right button:hover{border-color:var(--border-glow);color:var(--accent-indigo)}
+
+.sidebar{position:fixed;left:0;top:0;height:100vh;width:280px;background:var(--bg-base);border-right:1px solid var(--border-subtle);padding:24px;overflow-y:auto;z-index:100;padding-top:calc(var(--nav-h) + 16px)}
+.sidebar h3{font-size:.85rem;font-weight:700;color:var(--text-secondary);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--border-subtle)}
+.sidebar-nav{list-style:none;padding:0}
+.sidebar-nav li{margin-bottom:2px}
+.sidebar-nav a{display:block;padding:8px 12px;border-radius:var(--radius-md);text-decoration:none;font-size:.76rem;color:var(--text-secondary);transition:all var(--transition);border-left:3px solid transparent}
+.sidebar-nav a:hover{background:rgba(94,168,122,.08);color:var(--accent-cyan);border-left-color:var(--accent-cyan)}
+.sidebar-nav a.active{background:rgba(94,168,122,.12);color:var(--accent-blue);font-weight:600;border-left-color:var(--accent-blue)}
+.sidebar-back-link{display:block;padding:8px 12px;margin-bottom:12px;border-radius:8px;background:var(--bg-elevated);color:var(--accent-blue);text-decoration:none;font-size:.78rem;font-weight:600}
+.sidebar-back-link:hover{color:var(--accent-cyan)}
+
+.content-area{margin-left:280px;width:calc(100% - 280px)}
+.container{max-width:calc(100% - 48px);margin:0 auto;padding:calc(var(--nav-h) + 24px) 24px 80px}
+
+.hero{text-align:center;padding:48px 0 36px}
+.hero h1{font-size:2.2rem;background:linear-gradient(135deg,var(--accent-indigo),var(--accent-purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+.hero .tags{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:12px}
+.hero .tags span{font-size:.7rem;padding:4px 12px;border-radius:50px;border:1px solid var(--border-glow);color:var(--accent-indigo);background:rgba(94,168,122,.06)}
+
+.meta-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:20px 24px;margin:0 auto 32px;max-width:700px;display:flex;justify-content:center;gap:36px;flex-wrap:wrap;box-shadow:var(--shadow-md)}
+.meta-item{text-align:center}
+.meta-item .val{font-size:1.4rem;font-weight:800;color:var(--accent-indigo)}
+.meta-item .lbl{font-size:.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px}
+
+.journey-bar{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:12px 20px;margin:0 auto 24px;max-width:900px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:.82rem;box-shadow:var(--shadow-elevated)}
+.journey-path{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.journey-icon{font-size:1rem}
+.journey-plan{color:var(--accent-purple);font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.journey-plan:hover{color:var(--accent-gold)}
+.journey-sep{color:var(--text-muted);font-size:.7rem}
+.journey-phase{color:var(--text-secondary);font-weight:600}
+.journey-kp{color:var(--text-primary);font-weight:700}
+.journey-pos{color:var(--text-muted);font-size:.72rem}
+.journey-nav{display:flex;align-items:center;gap:8px;font-size:.75rem}
+.journey-prev,.journey-next{color:var(--text-muted);cursor:pointer}
+.journey-prev:hover,.journey-next:hover{color:var(--accent-cyan)}
+.journey-divider{color:var(--border-subtle)}
+
+.module{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:28px 28px 24px;margin-bottom:20px;opacity:0;transform:translateY(24px);transition:opacity .5s ease,transform .5s ease;box-shadow:var(--shadow-sm)}
+.module.visible{opacity:1;transform:translateY(0)}
+.module:hover{border-color:var(--border-glow)}
+.module h2{font-size:1.15rem;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.module .m-tag{font-size:.65rem;padding:2px 10px;border-radius:50px;background:rgba(94,168,122,.1);border:1px solid rgba(94,168,122,.2);color:var(--accent-indigo);font-weight:600}
+.module .m-time{font-size:.7rem;color:var(--text-muted);margin-left:auto}
+.module .hook{font-size:.9rem;color:var(--accent-purple);font-weight:600;margin:12px 0 16px;padding-left:12px;border-left:3px solid var(--accent-purple)}
+.module .content{font-size:.88rem;color:var(--text-secondary);line-height:1.8}
+.module .content p{margin-bottom:12px}
+.module .content strong{color:var(--text-primary)}
+
+.formula-block{background:rgba(94,168,122,.04);border:1px solid rgba(94,168,122,.12);border-radius:var(--radius-sm);padding:14px 18px;margin:14px 0;font-family:var(--font-mono);font-size:.82rem;color:var(--accent-cyan);overflow-x:auto;position:relative}
+.formula-block .f-cap{font-size:.7rem;color:var(--text-muted);margin-bottom:6px;display:block}
+.derivation-toggle{font-size:.7rem;color:var(--accent-gold);cursor:pointer;border:none;background:none;padding:4px 0;font-family:inherit;display:block;margin-top:6px}
+.derivation-toggle:hover{text-decoration:underline}
+.derivation-content{display:none;margin-top:8px;padding:12px 16px;background:rgba(230,185,90,.04);border-radius:var(--radius-sm);border-left:3px solid var(--accent-gold);font-size:.8rem;color:var(--text-secondary);font-family:var(--font-sans)}
+.derivation-content.open{display:block}
+
+.chart-wrap{background:rgba(94,168,122,.03);border-radius:var(--radius-sm);padding:8px;margin:14px 0;text-align:center}
+.chart-wrap>div{width:100%;height:360px}
+.chart-wrap .ch-cap{font-size:.72rem;color:var(--text-muted);margin-top:6px}
+
+.table-container{margin:20px 0;overflow-x:auto}
+.table-container table{width:100%;border-collapse:collapse;border-radius:var(--radius-md);overflow:hidden}
+.table-container th{background:var(--bg-elevated);color:var(--accent-cyan);font-weight:700;padding:12px 16px;text-align:left;font-size:.8rem}
+.table-container td{padding:12px 16px;border-bottom:1px solid var(--border-subtle);font-size:.82rem;color:var(--text-secondary)}
+.table-container tr:hover td{background:rgba(94,168,122,.03)}
+.table-container .table-caption{font-size:.72rem;color:var(--text-muted);margin-bottom:8px;text-align:center}
+
+.takeaway{font-size:.82rem;background:rgba(110,191,138,.06);border-left:3px solid var(--accent-green);padding:10px 14px;margin-top:16px;border-radius:0 var(--radius-sm) var(--radius-sm) 0;color:var(--accent-green)}
+
+.ref-list{list-style:none;padding:0;margin-top:8px;font-size:.78rem}
+.ref-list li{padding:4px 0;color:var(--text-muted);font-family:var(--font-sans)}
+
+.search-overlay{position:fixed;inset:0;z-index:300;background:var(--bg-overlay);display:none;align-items:flex-start;justify-content:center;padding-top:120px}
+.search-overlay.open{display:flex}
+.search-box{width:520px;max-width:90vw;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:var(--radius-md);box-shadow:var(--shadow-lg);overflow:hidden}
+.search-box input{width:100%;padding:14px 18px;background:transparent;border:none;color:var(--text-primary);font-size:.95rem;outline:none;font-family:inherit}
+.search-box input::placeholder{color:var(--text-muted)}
+.search-results{max-height:360px;overflow-y:auto}
+.search-results div{padding:10px 18px;cursor:pointer;font-size:.82rem;color:var(--text-secondary);border-top:1px solid var(--border-subtle);transition:background var(--transition)}
+.search-results div:hover{background:rgba(94,168,122,.06);color:var(--text-primary)}
+.search-results div strong{color:var(--text-primary)}
+
+.journey-footer{text-align:center;padding:40px 32px 60px;opacity:.8}
+.back-to-plan{display:inline-flex;align-items:center;gap:8px;padding:10px 24px;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:50px;color:var(--text-secondary);text-decoration:none;font-size:.85rem;font-weight:600;transition:all var(--transition-smooth);font-family:inherit}
+.back-to-plan:hover{background:var(--bg-elevated);border-color:var(--accent-purple);color:var(--accent-purple)}
+
+.deep-floating-back{position:fixed;right:20px;bottom:20px;z-index:10000}
+.deep-floating-back button{padding:12px 20px;background:linear-gradient(135deg,var(--accent-color),var(--accent-dark));color:white;border:none;border-radius:24px;font-size:.85rem;font-weight:600;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.15);transition:transform .2s,box-shadow .2s;font-family:inherit}
+.deep-floating-back button:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.2)}
+
+.dd-toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);z-index:10001;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:8px;padding:14px 24px;box-shadow:0 4px 16px rgba(0,0,0,.15);font-size:.85rem;display:none}
+.toast-in{animation:toastIn .3s ease}
+@keyframes toastIn{from{opacity:0;transform:translate(-50%,20px)}to{opacity:1;transform:translate(-50%,0)}}
+
+@media print{.navbar,.progress-bar,.sidebar,.journey-bar,.journey-footer,.deep-floating-back{display:none!important}.content-area{margin-left:0;width:100%}.module{break-inside:avoid;opacity:1!important;transform:none!important;box-shadow:none}body{background:#fff}}
+@media(max-width:1024px){.sidebar{display:none}.content-area{margin-left:0;width:100%}}
+@media(max-width:768px){
+.hero h1{font-size:1.6rem}.module{padding:20px}.meta-card{font-size:.72rem;padding:12px 16px}.journey-bar{flex-direction:column;align-items:flex-start}
+.deep-floating-back{right:15px;bottom:15px}.deep-floating-back button{padding:10px 16px;font-size:.8rem}.chart-wrap>div{height:280px}
+}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+</head>
+<body data-theme="dark" class="loading">
+
+<div class="progress-bar" id="progressBar" style="width:0%"></div>
+
+<nav class="navbar">
+  <div class="nav-left">🪡 针灸推拿基础技法</div>
+  <div class="nav-right">
+    <button onclick="toggleTheme()" title="切换主题 (Ctrl+D)">🌓 主题</button>
+    <button onclick="openSearch()" title="搜索 (Ctrl+K)">🔍 搜索</button>
+  </div>
+</nav>
+
+<aside class="sidebar" id="sidebar">
+  <a href="#" class="sidebar-back-link" onclick="event.preventDefault();goBack()">← 返回主方案</a>
+  <h3>📖 目录导航</h3>
+  <ul class="sidebar-nav" id="sidebarNav"></ul>
+</aside>
+
+<div class="content-area">
+<div class="search-overlay" id="searchOverlay">
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="搜索模块内容..." oninput="doSearch()" onkeydown="if(event.key==='Escape')closeSearch()">
+    <div class="search-results" id="searchResults"></div>
+  </div>
+</div>
+
+<div class="container">
+
+<div class="hero">
+  <h1>针灸推拿基础技法</h1>
+  <div class="tags">
+    <span>🔧 方法</span>
+    <span>📍 经络腧穴</span>
+    <span>🪡 刺灸技法</span>
+    <span>💆 推拿手法</span>
+  </div>
+</div>
+
+<div class="meta-card">
+  <div class="meta-item"><div class="val">15</div><div class="lbl">模块</div></div>
+  <div class="meta-item"><div class="val">~35</div><div class="lbl">分钟</div></div>
+  <div class="meta-item"><div class="val">5</div><div class="lbl">图表</div></div>
+  <div class="meta-item"><div class="val">6</div><div class="lbl">数据表</div></div>
+  <div class="meta-item"><div class="val">3</div><div class="lbl">公式</div></div>
+</div>
+
+<div class="journey-bar" id="journeyBar">
+  <div class="journey-path">
+    <span class="journey-icon">📍</span>
+    <span class="journey-plan" onclick="goBack()">中医与养生 系统学习方案</span>
+    <span class="journey-sep">〉</span>
+    <span class="journey-phase">Phase 2: 诊法与方技核心</span>
+    <span class="journey-sep">〉</span>
+    <span class="journey-kp">针灸推拿基础技法</span>
+    <span class="journey-pos">(4/4)</span>
+  </div>
+</div>
+
+<!-- 00 总览 -->
+<div class="module" id="mod-00">
+  <h2><span class="m-tag">总览</span>针灸推拿——中医外治法的三大支柱</h2>
+  <p class="hook">一根银针、一炷艾绒、一双手——这三样看似简单的工具，构成了中医两千年来最核心的外治体系。</p>
+  <div class="content">
+    <p><strong>针灸推拿</strong>是中医学中以经络腧穴理论为基础，通过物理刺激调节人体功能的三大外治技术。与内服药物不同，它们通过体表刺激激发人体自愈能力，具有"<strong>不药而治</strong>"的特点。</p>
+    <p><strong>针刺（Acupuncture）</strong>：以毫针刺入特定腧穴，通过提插捻转等手法激发经气，调节脏腑功能。其核心在于<strong>得气</strong>——针尖到达一定深度后产生的酸、麻、胀、重等经气感应。</p>
+    <p><strong>艾灸（Moxibustion）</strong>：以艾绒燃烧产生的温热刺激作用于腧穴或患处。艾叶性温，能通十二经，具有温经散寒、扶阳固脱、消瘀散结的功效。《黄帝内经》云："<strong>针所不为，灸之所宜</strong>"。</p>
+    <p><strong>推拿（Tuina/Massage）</strong>：运用各种手法作用于人体体表，通过力学刺激调节机体功能。其手法体系包括按、摩、推、拿、揉、捏、颤、打八种基本手法及复合手法，具有舒筋活络、行气活血、整复关节的功效。</p>
+    <p><strong>三者关系</strong>：针法偏于"泻"，灸法偏于"补"，推拿偏于"通"。临床常针灸并用、针推结合，取长补短。本模块将系统介绍腧穴定位、刺灸技法和推拿手法三大核心内容。</p>
+  </div>
+  <div class="takeaway">💡 针灸推拿是中医外治法的三大支柱：针刺调气、艾灸温补、推拿通络——三者均以经络腧穴理论为基础，通过体表刺激激发人体自愈能力。</div>
+</div>
+
+<!-- 01 背景 -->
+<div class="module" id="mod-01">
+  <h2><span class="m-tag">背景</span>从砭石到现代针灸——千年外治法的演进</h2>
+  <p class="hook">新石器时代的先民用尖锐的石片刺破脓疡，他们没有想到，这个简单的动作会在五千年后演变成一套精密的经络医学体系。</p>
+  <div class="content">
+    <p><strong>砭石时代（新石器时代）</strong></p>
+    <p>针灸的起源可以追溯到<strong>砭石</strong>（biān shí）——新石器时代人们使用的尖锐石片。《说文解字》："砭，以石刺病也。"最初主要用于切开排脓、放血等简单的外科操作。湖南马王堆汉墓出土的《足臂十一脉灸经》是现存最早的经脉学文献（约公元前168年），其中记载了十一条经脉的循行和灸法，但尚未提及腧穴和针法。</p>
+    <p><strong>《黄帝内经》时代（战国-秦汉）</strong></p>
+    <p>《黄帝内经》特别是<strong>《灵枢经》</strong>（又称《针经》），系统阐述了经络理论、腧穴定位、九种针具（九针）、刺法和灸法。它标志着针灸从经验积累走向<strong>理论体系化</strong>。《灵枢·九针十二原》开篇即言："余欲勿使被毒药，无用砭石，欲以微针通其经脉，调其血气。"</p>
+    <p><strong>里程碑人物与著作</strong></p>
+    <p>• <strong>皇甫谧（215-282）</strong>：《针灸甲乙经》——现存最早的针灸学专著，系统整理了349个腧穴的定位和主治<br>
+    • <strong>孙思邈（581-682）</strong>：《千金要方》——提出"阿是穴"概念，绘制彩色经络图<br>
+    • <strong>王惟一（987-1067）</strong>：铸造两具<strong>针灸铜人</strong>，体表刻有穴位名称，作为教学和考试工具<br>
+    • <strong>杨继洲（1522-1620）</strong>：《针灸大成》——集明代以前针灸学之大成，至今仍是针灸经典教材</p>
+    <p><strong>现代国际化</strong>：2010年，<strong>中医针灸</strong>被列入联合国教科文组织人类非物质文化遗产代表作名录。WHO已确认针灸对<strong>43种疾病</strong>有确切疗效。</p>
+  </div>
+  <ul class="ref-list">
+    <li>《黄帝内经·灵枢经》（约公元前1世纪）</li>
+    <li>皇甫谧《针灸甲乙经》（公元259年）</li>
+    <li>杨继洲《针灸大成》（1601年）</li>
+    <li>WHO Acupuncture: Review and Analysis of Reports on Controlled Clinical Trials (2002)</li>
+  </ul>
+  <div class="takeaway">💡 针灸从砭石起源，经《灵枢》体系化，到《针灸大成》集大成，形成了以经络腧穴为核心、刺灸技法为手段的完整外治体系。</div>
+</div>
+
+<!-- 02 核心概念 -->
+<div class="module" id="mod-02">
+  <h2><span class="m-tag">核心概念</span>经络·腧穴·得气——针灸推拿的三大基石</h2>
+  <p class="hook">如果把人体比作一座城市，经络就是道路网，腧穴就是关键枢纽，而得气——就是你在枢纽按下了正确的开关。</p>
+  <div class="content">
+    <p><strong>经络系统复习</strong></p>
+    <p>经络是运行气血、联络脏腑肢节、沟通上下内外的通道系统。核心组成包括：<strong>十二正经</strong>（手三阴三阳+足三阴三阳）、<strong>奇经八脉</strong>（任脉、督脉、冲脉、带脉、阴跷脉、阳跷脉、阴维脉、阳维脉）、<strong>十二经别</strong>、<strong>十五络脉</strong>等。经络"<strong>内属于腑脏，外络于肢节</strong>"，将人体连接为一个有机整体。</p>
+    <p><strong>腧穴分类</strong></p>
+    <p>腧穴是人体脏腑经络之气输注于体表的特殊部位。分为三大类：</p>
+    <p>• <strong>十四经穴</strong>（361个）：归属于十二正经和任督二脉的腧穴，有固定的名称、定位和归经，是针灸临床最常用的穴位<br>
+    • <strong>经外奇穴</strong>：有固定名称和定位，但未归属于十四经的有效穴位，如太阳、印堂、四缝、十宣等<br>
+    • <strong>阿是穴</strong>（天应穴）：以压痛点或反应点作为施术部位，无固定名称和定位，"<strong>以痛为腧</strong>"</p>
+    <p><strong>得气——针刺的灵魂</strong></p>
+    <p><strong>得气</strong>（又称"针感"）是针刺部位产生的经气感应。对患者而言表现为<strong>酸、麻、胀、重</strong>的感觉，有时沿经络传导；对医者而言表现为针下沉紧涩滞的感觉（"<strong>如鱼吞钩饵之浮沉</strong>"）。《灵枢·九针十二原》云："刺之要，气至而有效。"得气是针刺取效的关键前提。</p>
+    <p><strong>留针时间</strong>：通常为<strong>15-30分钟</strong>，期间可行针1-2次以维持针感。某些病症可适当延长或缩短。</p>
+  </div>
+  <div class="formula-block">
+    <span class="f-cap">腧穴分类公式</span>
+    <div>腧穴<sub>总</sub> = 十四经穴(361) + 经外奇穴 + 阿是穴</div>
+  </div>
+  <div class="formula-block">
+    <span class="f-cap">得气判断标准</span>
+    <div>得气 = 患者(酸麻胀重感) ∧ 医者(针下沉紧感)</div>
+  </div>
+  <div class="takeaway">💡 经络是通道、腧穴是节点、得气是开关——三者缺一不可，构成针灸推拿的理论与实践基石。</div>
+</div>
+
+<!-- 03 常用腧穴-头面颈项部 -->
+<div class="module" id="mod-03">
+  <h2><span class="m-tag">腧穴</span>常用腧穴·头面颈项部</h2>
+  <p class="hook">头为诸阳之会——全身阳气汇聚之处，头面颈项部的穴位是治疗头痛、五官疾病和神志病的要穴。</p>
+  <div class="content">
+    <p>头面颈项部腧穴多属<strong>阳经</strong>（手三阳、足三阳经），具有疏散风热、清利头目、开窍醒神的作用。以下为临床最常用的头面颈项部腧穴：</p>
+  </div>
+  <div class="table-container">
+    <div class="table-caption">表：头面颈项部常用腧穴定位主治表</div>
+    <table>
+      <thead><tr><th>穴位名</th><th>归经</th><th>定位</th><th>主治</th><th>针刺方法</th></tr></thead>
+      <tbody>
+        <tr><td><strong>百会</strong></td><td>督脉</td><td>头顶正中，前发际直上5寸（两耳尖连线中点）</td><td>头痛眩晕、失眠健忘、脱肛、子宫脱垂</td><td>平刺0.5-0.8寸</td></tr>
+        <tr><td><strong>太阳</strong></td><td>经外奇穴</td><td>眉梢与外眼角之间，向后约一横指凹陷处</td><td>偏正头痛、目赤肿痛、面瘫</td><td>直刺或斜刺0.3-0.5寸</td></tr>
+        <tr><td><strong>风池</strong></td><td>足少阳胆经</td><td>枕骨下，胸锁乳突肌与斜方肌之间凹陷处</td><td>头痛项强、感冒发热、眩晕、目疾</td><td>向鼻尖方向斜刺0.8-1.2寸</td></tr>
+        <tr><td><strong>迎香</strong></td><td>手阳明大肠经</td><td>鼻翼外缘中点旁，鼻唇沟中</td><td>鼻塞流涕、鼻衄、面瘫口歪</td><td>平刺或斜刺0.3-0.5寸</td></tr>
+        <tr><td><strong>人中（水沟）</strong></td><td>督脉</td><td>人中沟上1/3与下2/3交点处</td><td>昏迷急救、癫狂痫症、急性腰扭伤</td><td>向上斜刺0.3-0.5寸</td></tr>
+        <tr><td><strong>翳风</strong></td><td>手少阳三焦经</td><td>耳垂后方，乳突与下颌角之间凹陷处</td><td>耳鸣耳聋、面瘫、牙关紧闭</td><td>直刺0.5-1寸</td></tr>
+        <tr><td><strong>印堂</strong></td><td>经外奇穴</td><td>两眉头连线的中点</td><td>头痛眩晕、鼻塞、失眠、小儿惊风</td><td>平刺0.3-0.5寸</td></tr>
+        <tr><td><strong>头维</strong></td><td>足阳明胃经</td><td>额角发际直上0.5寸，距正中线4.5寸</td><td>偏正头痛、目眩、眼睑瞤动</td><td>平刺0.5-1寸</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="takeaway">💡 百会升阳举陷、风池祛风通络、人中醒神开窍——头面部腧穴以阳经为主，善治头面五官及神志疾病。</div>
+</div>
+
+<!-- 04 常用腧穴-胸腹腰背部 -->
+<div class="module" id="mod-04">
+  <h2><span class="m-tag">腧穴</span>常用腧穴·胸腹腰背部</h2>
+  <p class="hook">胸腹藏五脏，腰背系命门——躯干部穴位直接关联脏腑功能，是内病外治的核心区域。</p>
+  <div class="content">
+    <p>胸腹部以<strong>任脉</strong>和足三阴经、足阳明胃经为主，多与脏腑之气直接相通。腰背部以<strong>督脉</strong>和足太阳膀胱经为主，<strong>背俞穴</strong>是脏腑之气输注于背部的特殊穴位群，是诊断和治疗对应脏腑疾病的重要部位。</p>
+  </div>
+  <div class="table-container">
+    <div class="table-caption">表：胸腹腰背部常用腧穴定位主治表</div>
+    <table>
+      <thead><tr><th>穴位名</th><th>归经</th><th>定位</th><th>主治</th><th>针刺方法</th></tr></thead>
+      <tbody>
+        <tr><td><strong>膻中</strong></td><td>任脉</td><td>两乳头连线中点（男性），平第4肋间隙</td><td>胸闷胸痛、咳喘、心悸、产后少乳</td><td>平刺0.3-0.5寸</td></tr>
+        <tr><td><strong>中脘</strong></td><td>任脉</td><td>脐上4寸（胸剑联合至脐连线中点）</td><td>胃痛腹胀、呕吐吞酸、食欲不振</td><td>直刺1-1.5寸</td></tr>
+        <tr><td><strong>气海</strong></td><td>任脉</td><td>脐下1.5寸</td><td>腹痛腹泻、遗尿遗精、月经不调、气虚乏力</td><td>直刺1-1.5寸</td></tr>
+        <tr><td><strong>关元</strong></td><td>任脉</td><td>脐下3寸</td><td>泌尿生殖疾患、虚劳羸瘦、元气亏虚</td><td>直刺1-1.5寸，排空膀胱</td></tr>
+        <tr><td><strong>大椎</strong></td><td>督脉</td><td>第7颈椎棘突下凹陷处</td><td>感冒发热、咳嗽气喘、项背强痛</td><td>直刺0.5-1寸</td></tr>
+        <tr><td><strong>命门</strong></td><td>督脉</td><td>第2腰椎棘突下凹陷处</td><td>腰痛、阳痿遗精、月经不调、五更泻</td><td>直刺0.5-1寸</td></tr>
+        <tr><td><strong>肾俞</strong></td><td>足太阳膀胱经</td><td>第2腰椎棘突下旁开1.5寸</td><td>肾虚腰痛、耳鸣耳聋、遗精阳痿</td><td>直刺0.5-1寸</td></tr>
+        <tr><td><strong>肺俞</strong></td><td>足太阳膀胱经</td><td>第3胸椎棘突下旁开1.5寸</td><td>咳嗽气喘、潮热盗汗、背痛</td><td>斜刺0.5-0.8寸</td></tr>
+        <tr><td><strong>天枢</strong></td><td>足阳明胃经</td><td>脐旁开2寸</td><td>腹痛腹胀、便秘腹泻、月经不调</td><td>直刺1-1.5寸</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="takeaway">💡 膻中为气会、中脘为腑会、关元为元气之根——躯干部腧穴直接关联脏腑，是调理内伤杂病的要塞。</div>
+</div>
+
+<!-- 05 常用腧穴-上肢部 -->
+<div class="module" id="mod-05">
+  <h2><span class="m-tag">腧穴</span>常用腧穴·上肢部</h2>
+  <p class="hook">手三阴从胸走手，手三阳从手走头——上肢穴位既能治局部病痛，更能远达脏腑、上通头面。</p>
+  <div class="content">
+    <p>上肢部腧穴涵盖了手三阴经（肺、心包、心）和手三阳经（大肠、三焦、小肠）的诸多要穴。位于肘膝关节以下的<strong>五输穴</strong>和<strong>原穴</strong>临床应用极为广泛，具有远端调节脏腑功能的特殊作用。</p>
+  </div>
+  <div class="table-container">
+    <div class="table-caption">表：上肢部常用腧穴定位主治表</div>
+    <table>
+      <thead><tr><th>穴位名</th><th>归经</th><th>定位</th><th>主治</th><th>针刺方法</th></tr></thead>
+      <tbody>
+        <tr><td><strong>合谷</strong></td><td>手阳明大肠经</td><td>手背第1-2掌骨间，约平第2掌骨桡侧中点</td><td>头痛牙痛、面瘫、感冒发热、腹痛</td><td>直刺0.5-1寸</td></tr>
+        <tr><td><strong>曲池</strong></td><td>手阳明大肠经</td><td>屈肘成直角，肘横纹外侧端凹陷处</td><td>发热咽痛、上肢不遂、高血压、皮肤瘙痒</td><td>直刺1-1.5寸</td></tr>
+        <tr><td><strong>内关</strong></td><td>手厥阴心包经</td><td>腕横纹上2寸，掌长肌腱与桡侧腕屈肌腱之间</td><td>心悸胸闷、胃痛呕吐、失眠、晕车</td><td>直刺0.5-1寸</td></tr>
+        <tr><td><strong>外关</strong></td><td>手少阳三焦经</td><td>腕背横纹上2寸，尺骨与桡骨之间</td><td>偏头痛、耳聋耳鸣、上肢痿痹、感冒发热</td><td>直刺0.5-1寸</td></tr>
+        <tr><td><strong>列缺</strong></td><td>手太阴肺经</td><td>腕横纹上1.5寸，桡骨茎突上方</td><td>咳嗽气喘、头痛项强、手腕无力</td><td>向上斜刺0.3-0.5寸</td></tr>
+        <tr><td><strong>后溪</strong></td><td>手太阳小肠经</td><td>握拳，第5掌指关节后尺侧横纹头赤白肉际</td><td>落枕、急性腰扭伤、头项强痛、耳聋</td><td>直刺0.5-1寸</td></tr>
+        <tr><td><strong>神门</strong></td><td>手少阴心经</td><td>腕掌侧横纹尺侧端，尺侧腕屈肌腱桡侧凹陷</td><td>失眠健忘、心悸怔忡、心烦、癫狂</td><td>直刺0.3-0.5寸</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="takeaway">💡 "面口合谷收、腰背后溪求"——上肢肘膝以下穴位具有强大的远端调节作用，是针灸取穴的核心区域。</div>
+</div>
+
+<!-- 06 常用腧穴-下肢部 -->
+<div class="module" id="mod-06">
+  <h2><span class="m-tag">腧穴</span>常用腧穴·下肢部</h2>
+  <p class="hook">"肚腹三里留，腰背委中求"——下肢穴位藏着一半以上的临床要穴，是调理脾胃和全身气血的关键区域。</p>
+  <div class="content">
+    <p>下肢部腧穴以足三阴经（肝、脾、肾）和足三阳经（胃、胆、膀胱）为主。<strong>足三里、三阴交、太冲</strong>是临床应用频率最高的穴位之一。足部腧穴还能通过足底反射区理论指导推拿保健。</p>
+  </div>
+  <div class="table-container">
+    <div class="table-caption">表：下肢部常用腧穴定位主治表</div>
+    <table>
+      <thead><tr><th>穴位名</th><th>归经</th><th>定位</th><th>主治</th><th>针刺方法</th></tr></thead>
+      <tbody>
+        <tr><td><strong>足三里</strong></td><td>足阳明胃经</td><td>犊鼻穴（外膝眼）下3寸，胫骨前嵴外一横指</td><td>胃痛腹胀、呕吐呃逆、虚劳羸瘦、膝痛</td><td>直刺1-2寸</td></tr>
+        <tr><td><strong>三阴交</strong></td><td>足太阴脾经</td><td>内踝尖上3寸，胫骨内侧缘后方</td><td>月经不调、遗精阳痿、腹胀泄泻、失眠</td><td>直刺1-1.5寸</td></tr>
+        <tr><td><strong>太冲</strong></td><td>足厥阴肝经</td><td>足背第1-2跖骨结合部前方凹陷处</td><td>头痛眩晕、胁痛、月经不调、小儿惊风</td><td>直刺0.5-0.8寸</td></tr>
+        <tr><td><strong>涌泉</strong></td><td>足少阴肾经</td><td>足底前1/3凹陷处，蜷足时足心最凹陷处</td><td>头痛眩晕、失眠健忘、昏厥急救、小便不利</td><td>直刺0.5-1寸</td></tr>
+        <tr><td><strong>阳陵泉</strong></td><td>足少阳胆经</td><td>腓骨小头前下方凹陷处</td><td>胁痛口苦、半身不遂、下肢痿痹、小儿惊风</td><td>直刺1-1.5寸</td></tr>
+        <tr><td><strong>委中</strong></td><td>足太阳膀胱经</td><td>腘横纹中点，股二头肌腱与半腱肌腱之间</td><td>腰背痛、下肢痿痹、小便不利、丹毒</td><td>直刺1-1.5寸</td></tr>
+        <tr><td><strong>丰隆</strong></td><td>足阳明胃经</td><td>外踝尖上8寸，胫骨前嵴外二横指</td><td>咳嗽痰多、头痛眩晕、癫狂、下肢痿痹</td><td>直刺1-1.5寸</td></tr>
+        <tr><td><strong>太溪</strong></td><td>足少阴肾经</td><td>内踝尖与跟腱之间凹陷处</td><td>肾虚腰痛、耳鸣耳聋、月经不调、消渴</td><td>直刺0.5-1寸</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="takeaway">💡 足三里健脾益气、三阴交调理肝脾肾、太冲疏肝理气——下肢腧穴是调理全身脏腑气血的重要枢纽。</div>
+</div>
+
+<!-- 07 腧穴定位方法 -->
+<div class="module" id="mod-07">
+  <h2><span class="m-tag">方法</span>腧穴定位方法——找到穴位的三种"尺子"</h2>
+  <p class="hook">同样是"腕横纹上2寸"，不同身高的人2寸的位置完全不同——这就是为什么中医发展出了三种精妙的定位系统。</p>
+  <div class="content">
+    <p><strong>一、骨度分寸法（最常用）</strong></p>
+    <p><strong>骨度分寸法</strong>是将人体各部位的长度或宽度折量成若干等分（每一等分为1寸），以此作为腧穴定位的标准。这是<strong>最准确、最常用</strong>的定位方法，不受个体高矮胖瘦的影响。</p>
+  </div>
+  <div class="table-container">
+    <div class="table-caption">表：常用骨度分寸标准</div>
+    <table>
+      <thead><tr><th>部位</th><th>起止点</th><th>分寸</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td>头部</td><td>前发际 → 后发际</td><td>12寸</td><td>前后发际不明者，眉心→大椎穴为18寸</td></tr>
+        <tr><td>头部</td><td>前发际 → 大椎</td><td>15寸</td><td>前发际→大椎共15寸（发际→后发际12寸+后发际→大椎3寸）</td></tr>
+        <tr><td>头部</td><td>耳后两完骨（乳突）之间</td><td>9寸</td><td>用于头部横寸</td></tr>
+        <tr><td>胸腹部</td><td>胸剑联合 → 脐中</td><td>8寸</td><td>腹部纵向定位常用</td></tr>
+        <tr><td>胸腹部</td><td>脐中 → 耻骨联合上缘</td><td>5寸</td><td>下腹部纵向定位</td></tr>
+        <tr><td>背部</td><td>肩胛骨内侧缘 → 后正中线</td><td>3寸</td><td>用于背俞穴等横向定位</td></tr>
+        <tr><td>上肢</td><td>腋前纹头 → 肘横纹</td><td>9寸</td><td>上臂纵向定位</td></tr>
+        <tr><td>上肢</td><td>肘横纹 → 腕横纹</td><td>12寸</td><td>前臂纵向定位</td></tr>
+        <tr><td>下肢</td><td>股骨大转子 → 腘横纹</td><td>19寸</td><td>大腿外侧纵向定位</td></tr>
+        <tr><td>下肢</td><td>腘横纹 → 外踝尖</td><td>16寸</td><td>小腿外侧纵向定位</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="content">
+    <p><strong>二、体表标志法</strong></p>
+    <p>利用人体体表的自然标志定位：</p>
+    <p>• <strong>固定标志</strong>：如两眉之间定印堂、脐中定神阙、第7颈椎棘突下定大椎<br>
+    • <strong>活动标志</strong>：如屈肘时肘横纹外侧端定曲池、张口时耳屏前凹陷定听宫</p>
+    <p><strong>三、手指同身寸法</strong></p>
+    <p>以患者本人的手指作为尺子量取穴位：</p>
+    <p>• <strong>中指同身寸</strong>：中指屈曲时，中节内侧两端纹头之间为1寸<br>
+    • <strong>拇指同身寸</strong>：拇指指间关节的宽度为1寸<br>
+    • <strong>横指同身寸（一夫法）</strong>：食、中、无名、小指并拢时，以中指中节横纹为准，四指宽度为3寸</p>
+    <p><strong>定位原则</strong>：三种方法结合使用，以骨度分寸法为主，体表标志法和手指同身寸法为辅，相互印证，力求准确。</p>
+  </div>
+  <div class="formula-block">
+    <span class="f-cap">腧穴定位准确度</span>
+    <div>定位准确度 = 骨度分寸基准 × 体表标志参考 × 手指同身寸辅助</div>
+  </div>
+  <div class="takeaway">💡 骨度分寸法是最准确的腧穴定位方法——它将人体各部位折量为固定等分，彻底解决了"因人而异"的标准化问题。</div>
+</div>
+
+<!-- 08 毫针刺法 -->
+<div class="module" id="mod-08">
+  <h2><span class="m-tag">技法</span>毫针刺法——进针·行针·补泻</h2>
+  <p class="hook">一根直径仅0.25mm的毫针，在医者手中可以产生提插、捻转、补泻数十种变化——这是中医最精微的操作技艺。</p>
+  <div class="content">
+    <p><strong>毫针构造</strong>：现代毫针多为不锈钢材质，由针尖、针身、针根、针柄、针尾五部分组成。常用规格为<strong>直径0.25-0.35mm</strong>，<strong>长度1-3寸</strong>（25-75mm）。</p>
+    <p><strong>一、进针手法</strong></p>
+    <p>进针是针刺的第一步，要求快速透皮以减少疼痛。《标幽赋》云："<strong>左手重而多按，欲令气散；右手轻而徐入，不痛之因</strong>"（押手与刺手配合）。</p>
+    <p>• <strong>指切进针法</strong>：左手拇指甲切压穴位旁，右手持针沿指甲边缘刺入——适用于短针<br>
+    • <strong>夹持进针法</strong>：左手拇食指夹持针身下端，右手持针柄，双手配合刺入——适用于长针<br>
+    • <strong>舒张进针法</strong>：左手拇食指向两侧撑开皮肤，右手持针刺入——适用于皮肤松弛处（如腹部）<br>
+    • <strong>提捏进针法</strong>：左手拇食指捏起皮肤，右手持针刺入——适用于皮肉浅薄处（如面部）</p>
+    <p><strong>二、行针手法</strong></p>
+    <p>进针后在针下得气的基础上进行的操作：</p>
+    <p>• <strong>提插法</strong>：将针由浅入深（插）、由深出浅（提）反复操作。提插幅度大、频率快则刺激强。<br>
+    • <strong>捻转法</strong>：将针左右来回捻转。捻转角度大、频率快则刺激强。一般捻转角度在<strong>180°-360°</strong>之间。</p>
+    <p><strong>三、补泻手法</strong></p>
+    <p>补法是鼓舞人体正气、使低下的功能恢复旺盛的方法；泻法是疏泄病邪、使亢进的功能恢复正常的方法。</p>
+  </div>
+  <div class="table-container">
+    <div class="table-caption">表：常用针刺补泻手法对比</div>
+    <table>
+      <thead><tr><th>补泻类型</th><th>补法操作</th><th>泻法操作</th><th>应用</th></tr></thead>
+      <tbody>
+        <tr><td><strong>捻转补泻</strong></td><td>捻转角度小、用力轻、频率慢（拇指向前、食指向后）</td><td>捻转角度大、用力重、频率快（拇指向后、食指向前）</td><td>最常用</td></tr>
+        <tr><td><strong>提插补泻</strong></td><td>重插轻提、幅度小、频率慢</td><td>轻插重提、幅度大、频率快</td><td>配合捻转使用</td></tr>
+        <tr><td><strong>疾徐补泻</strong></td><td>慢进针、快出针</td><td>快进针、慢出针</td><td>控制进针出针速度</td></tr>
+        <tr><td><strong>迎随补泻</strong></td><td>针尖顺经脉循行方向刺入</td><td>针尖逆经脉循行方向刺入</td><td>需知经络走向</td></tr>
+        <tr><td><strong>呼吸补泻</strong></td><td>患者呼气时进针、吸气时出针</td><td>患者吸气时进针、呼气时出针</td><td>配合患者呼吸</td></tr>
+        <tr><td><strong>开阖补泻</strong></td><td>出针后速按针孔</td><td>出针时摇大针孔、不按</td><td>出针时操作</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="content">
+    <p><strong>针刺注意事项与禁忌</strong></p>
+    <p>• 过饥、过饱、醉酒、过度疲劳时不宜针刺<br>
+    • 孕妇腹部、腰骶部及合谷、三阴交、昆仑等穴禁针<br>
+    • 皮肤感染、溃疡、瘢痕或肿瘤部位禁针<br>
+    • 小儿囟门未合时头顶部禁针<br>
+    • 重要脏器及大血管附近应严格掌握角度和深度<br>
+    • 自发性出血或凝血功能障碍者禁针</p>
+  </div>
+  <div class="takeaway">💡 进针求快以减少疼痛，行针求得气以取效，补泻求平衡以调虚实——毫针刺法的三个层次层层递进。</div>
+</div>
+
+<!-- 09 艾灸疗法 -->
+<div class="module" id="mod-09">
+  <h2><span class="m-tag">技法</span>艾灸疗法——以温热之力温通经络</h2>
+  <p class="hook">"药之不及，针之不到，必须灸之"——《医学入门》的这句话道出了灸法的不可替代性。</p>
+  <div class="content">
+    <p><strong>艾叶与艾绒</strong></p>
+    <p>艾灸以<strong>艾叶</strong>（菊科植物艾的干燥叶）为原料，加工成<strong>艾绒</strong>使用。艾叶性温、味辛苦，归肝脾肾经，具有温经止血、散寒止痛的功效。《本草纲目》："艾叶能灸百病。"艾绒以陈久者为佳——"<strong>七年之病，求三年之艾</strong>"。</p>
+    <p><strong>灸法分类</strong></p>
+  </div>
+  <div class="table-container">
+    <div class="table-caption">表：灸法分类及特点对比</div>
+    <table>
+      <thead><tr><th>类别</th><th>具体方法</th><th>操作特点</th><th>适应症</th></tr></thead>
+      <tbody>
+        <tr><td rowspan="2"><strong>艾炷灸</strong></td><td><strong>直接灸</strong>（瘢痕灸/无瘢痕灸）</td><td>艾炷直接置于皮肤上点燃，化脓灸可形成瘢痕</td><td>慢性顽固性疾病（哮喘、胃脘痛）</td></tr>
+        <tr><td><strong>间接灸</strong>（隔姜灸/隔蒜灸/隔盐灸）</td><td>艾炷与皮肤之间放置姜片/蒜片/盐粒等</td><td>隔姜灸用于虚寒证；隔蒜灸用于痈疽肿毒；隔盐灸用于回阳救逆</td></tr>
+        <tr><td rowspan="2"><strong>艾条灸</strong></td><td><strong>温和灸</strong></td><td>艾条保持距皮肤2-3cm，固定不动</td><td>虚寒性胃痛、痛经、风湿痹痛</td></tr>
+        <tr><td><strong>雀啄灸</strong></td><td>艾条像鸟雀啄食一样上下移动</td><td>昏厥急救、局部麻木</td></tr>
+        <tr><td><strong>温针灸</strong></td><td>针刺+艾灸</td><td>毫针刺入得气后在针柄上装艾绒点燃</td><td>寒湿痹痛、关节冷痛</td></tr>
+        <tr><td><strong>温灸器灸</strong></td><td>灸盒/灸筒</td><td>将艾绒放入温灸器中点燃，置于施灸部位</td><td>面积较大的部位（腰背、腹部）</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="content">
+    <p><strong>灸法适应症</strong></p>
+    <p>灸法主要适用于<strong>虚证、寒证</strong>，核心功效包括：</p>
+    <p>• <strong>温经散寒</strong>：风寒湿痹、胃寒腹痛、寒性痛经<br>
+    • <strong>扶阳固脱</strong>：阳气虚脱、大汗亡阳、虚寒泄泻<br>
+    • <strong>消瘀散结</strong>：乳痈初起、瘰疬痰核、疮疡久不收口<br>
+    • <strong>防病保健</strong>：常灸足三里、关元、气海等穴可增强体质</p>
+    <p><strong>灸法注意事项</strong></p>
+    <p>• 实热证、阴虚发热者（面红目赤、口干舌燥、脉数有力）慎灸<br>
+    • 颜面部、大血管处、关节活动部位不宜直接灸<br>
+    • 孕妇腹部及腰骶部禁灸<br>
+    • 施灸顺序：先阳后阴、先上后下、先少后多<br>
+    • 施灸后局部出现微红灼热属正常现象，如出现水疱小者可自行吸收，大者需消毒处理</p>
+  </div>
+  <div class="takeaway">💡 灸法以温补见长，核心功效是温经散寒、扶阳固脱——"虚寒之证，灸之为上"；实热阴虚禁用灸法。</div>
+</div>
+
+<!-- 10 推拿基础手法 -->
+<div class="module" id="mod-10">
+  <h2><span class="m-tag">技法</span>推拿基础手法——以手代针的外治艺术</h2>
+  <p class="hook">一双手掌可以产生上百种力学变化——按、摩、推、拿、揉、捏、颤、打，每一种都是对人体最精微的物理调节。</p>
+  <div class="content">
+    <p><strong>推拿八法</strong></p>
+    <p>推拿手法体系以<strong>八种基本手法</strong>为核心，在此基础上衍生出复合手法。基本手法的施力方向、力度和作用层次各有不同。</p>
+  </div>
+  <div class="table-container">
+    <div class="table-caption">表：推拿八法分类及操作要点</div>
+    <table>
+      <thead><tr><th>手法</th><th>操作方式</th><th>作用层次</th><th>功效</th><th>适应症</th></tr></thead>
+      <tbody>
+        <tr><td><strong>按法</strong></td><td>以指或掌着力于体表，逐渐向下按压</td><td>深达肌肉筋骨</td><td>通经活络、开通闭塞</td><td>腰背疼痛、头痛、胃脘痛</td></tr>
+        <tr><td><strong>摩法</strong></td><td>以掌面或指面附着于体表，做环形有节律的抚摩</td><td>皮肤及皮下浅层</td><td>理气和中、消积导滞</td><td>脘腹胀满、消化不良</td></tr>
+        <tr><td><strong>推法</strong></td><td>以指、掌或肘部着力，做单向直线推动</td><td>皮下至肌肉</td><td>舒筋活络、行气活血</td><td>肌肉酸痛、肢体麻木</td></tr>
+        <tr><td><strong>拿法</strong></td><td>拇指与其余四指相对用力，提捏或揉捏肌肤</td><td>肌肉肌腱</td><td>祛风散寒、开窍止痛</td><td>颈项强痛、肩背酸痛</td></tr>
+        <tr><td><strong>揉法</strong></td><td>以指或掌吸附于体表，做轻柔缓和的回旋揉动</td><td>皮下至肌肉层</td><td>宽胸理气、消积化瘀</td><td>软组织损伤、腹痛腹胀</td></tr>
+        <tr><td><strong>捏法</strong></td><td>拇食指或拇食中指相对用力，捏挤肌肤</td><td>皮肤及皮下</td><td>调整阴阳、疏通气血</td><td>小儿疳积、消化不良</td></tr>
+        <tr><td><strong>颤法</strong></td><td>以指或掌着力于体表，做连续快速的震颤</td><td>渗透至深层组织</td><td>放松肌肉、调理气机</td><td>肌肉痉挛、脏腑功能紊乱</td></tr>
+        <tr><td><strong>打法（拍法）</strong></td><td>以虚掌或拳背有节奏地拍打体表</td><td>肌肉层</td><td>行气活血、消除疲劳</td><td>肌肉劳损、运动疲劳</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="content">
+    <p><strong>常见复合手法</strong></p>
+    <p>• <strong>按揉法</strong>：按法与揉法的结合，边按边揉——适用于全身各部位，最为常用<br>
+    • <strong>拿揉法</strong>：拿法与揉法的结合——适用于颈肩部肌肉劳损<br>
+    • <strong>滚法</strong>：以小鱼际和手背尺侧着力，做往返滚动——推拿科最具代表性的手法<br>
+    • <strong>一指禅推法</strong>：以拇指端着力，通过腕关节摆动带动拇指做持续推按——需长期练习</p>
+    <p><strong>推拿操作原则</strong></p>
+    <p>• 手法应<strong>均匀、柔和、持久、有力</strong>——以达"<strong>深透</strong>"为目的<br>
+    • 操作顺序：一般<strong>由轻到重→由浅入深→由慢到快</strong>→结束前逐渐减轻<br>
+    • 推拿介质：常用滑石粉、按摩油、姜汁、冬青膏等减少摩擦、增强疗效<br>
+    • 每次推拿时间一般为<strong>15-30分钟</strong>，每日或隔日一次</p>
+  </div>
+  <div class="takeaway">💡 按法深透、摩法缓柔、推法通利、拿法舒筋、揉法和中——八法各有所长，复合使用方显推拿之妙。</div>
+</div>
+
+<!-- 11 常见病症的针灸推拿方案 -->
+<div class="module" id="mod-11">
+  <h2><span class="m-tag">应用</span>常见病症的针灸推拿方案</h2>
+  <p class="hook">掌握了穴位和手法之后，真正的考验在于——面对一个头痛患者，你选哪几个穴？用什么手法？</p>
+  <div class="content">
+    <p>以下为临床常见病症的基本选穴处方，体现"<strong>循经取穴、局部取穴、对症取穴</strong>"的配穴原则。</p>
+  </div>
+  <div class="table-container">
+    <div class="table-caption">表：常见病症针灸推拿选穴方案</div>
+    <table>
+      <thead><tr><th>病症</th><th>主穴</th><th>配穴</th><th>操作方法</th><th>推拿辅助</th></tr></thead>
+      <tbody>
+        <tr><td><strong>头痛（外感）</strong></td><td>风池、太阳、合谷</td><td>风寒+列缺，风热+曲池，巅顶痛+百会</td><td>毫针刺用泻法，留针20分钟</td><td>按揉太阳、风池，拿颈项</td></tr>
+        <tr><td><strong>失眠</strong></td><td>神门、三阴交、百会</td><td>心脾两虚+心俞脾俞，阴虚+太溪</td><td>毫针刺用补法或平补平泻，留针30分钟</td><td>睡前按揉涌泉、内关各5分钟</td></tr>
+        <tr><td><strong>颈椎病</strong></td><td>风池、颈夹脊、后溪</td><td>肩痛+肩井，上肢麻木+曲池外关</td><td>毫针刺平补平泻，可加温针灸</td><td>拿揉颈项、按揉风池和颈夹脊</td></tr>
+        <tr><td><strong>腰痛</strong></td><td>肾俞、委中、阿是穴</td><td>寒湿+腰阳关，肾虚+命门太溪</td><td>毫针刺用平补平泻，寒湿可加灸</td><td>按揉肾俞和腰部、点按委中</td></tr>
+        <tr><td><strong>胃痛</strong></td><td>中脘、内关、足三里</td><td>寒邪+胃俞（灸），肝气犯胃+太冲</td><td>毫针刺平补平泻，寒证加灸中脘</td><td>摩腹、按揉中脘</td></tr>
+        <tr><td><strong>痛经</strong></td><td>三阴交、关元、次髎</td><td>寒湿+灸关元气海，气滞+太冲</td><td>经前3-5天开始针刺，寒证重用灸法</td><td>经前摩腹、按揉三阴交</td></tr>
+        <tr><td><strong>面瘫</strong></td><td>翳风、地仓、颊车、合谷</td><td>鼻唇沟变浅+迎香，额纹消失+阳白</td><td>毫针刺平补平泻，可加电针，发病1-2周内轻刺激</td><td>轻揉患侧面部（急性期禁重按）</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="content">
+    <p><strong>配穴原则（"针灸处方"思维）</strong></p>
+    <p>• <strong>近部取穴</strong>：在病变局部或邻近取穴——如胃痛取中脘、目疾取睛明<br>
+    • <strong>远道取穴</strong>：在远离病变的部位取穴，遵循"经脉所过，主治所及"——如头痛取合谷、胃痛取足三里<br>
+    • <strong>对症取穴</strong>：根据特定穴位的特殊作用——如发热取大椎、昏迷取人中<br>
+    • <strong>辨证取穴</strong>：根据证型加减——如肝阳上亢加太冲、气血不足加足三里</p>
+  </div>
+  <div class="takeaway">💡 选穴处方遵循"近部+远道+辨证+对症"的多维原则——好的针灸处方如同好的中药方剂，讲究君臣佐使的配伍艺术。</div>
+</div>
+
+<!-- 12 临床安全与注意事项 -->
+<div class="module" id="mod-12">
+  <h2><span class="m-tag">安全</span>临床安全与注意事项</h2>
+  <p class="hook">针灸推拿整体安全性很高——但前提是你知道什么情况下绝对不能针、什么情况下必须立即拔针。</p>
+  <div class="content">
+    <p><strong>一、晕针的预防与处理</strong></p>
+    <p><strong>晕针</strong>是针刺过程中患者出现的晕厥现象，多见于初次接受针刺、精神紧张、体质虚弱者。表现为：头晕眼花、面色苍白、心慌气短、恶心欲吐、出冷汗，严重者可突然昏倒、四肢厥冷。</p>
+    <p><strong>处理</strong>：立即停止针刺，将所有针起出。让患者平卧，头部放低，松解衣带，注意保暖。饮温开水或糖水。轻者休息片刻即可恢复，重者掐按人中、针刺内关。若仍不省人事应立即采取急救措施。<br>
+    <strong>预防</strong>：初诊患者取卧位，手法宜轻，随时观察患者面色和反应。</p>
+    <p><strong>二、禁针穴位与慎针部位</strong></p>
+    <p>• <strong>绝对禁针</strong>：孕妇的合谷、三阴交、昆仑、至阴及腹部腰骶部穴位<br>
+    • <strong>小儿禁针</strong>：囟门未合时头顶部（百会等）禁针<br>
+    • <strong>慎针部位</strong>：眼区、颈前（人迎等）、胸背部（需严格掌握角度和深度以免伤及重要脏器）<br>
+    • <strong>禁深刺</strong>：靠近大血管、肘窝、腘窝等部位</p>
+    <p><strong>三、推拿禁忌症</strong></p>
+    <p>• 急性传染病、高热患者<br>
+    • 皮肤破损、感染、溃疡或肿瘤部位<br>
+    • 骨折、脱位、严重骨质疏松<br>
+    • 出血性疾病（血小板减少、血友病等）<br>
+    • 严重心、脑、肾疾病急性期<br>
+    • 孕妇腹部及腰骶部（特别是怀孕早期）<br>
+    • 醉酒、过饥过饱者</p>
+    <p><strong>四、针灸推拿的一般注意事项</strong></p>
+    <p>• 针具必须严格消毒或使用一次性无菌针具<br>
+    • 推拿前修剪指甲以免划伤皮肤<br>
+    • 治疗环境应保持温暖安静<br>
+    • 治疗后适当休息，避免立即剧烈运动或冷水浴<br>
+    • 推拿后局部出现轻度酸痛属正常反应，1-2天可自行缓解</p>
+  </div>
+  <div class="takeaway">💡 安全底线：孕妇腹腰骶禁针、重要脏器区域慎深刺、晕针立即拔针平卧——宁可少治一病，不可多伤一分。</div>
+</div>
+
+<!-- 13 现代研究与学习路径 -->
+<div class="module" id="mod-13">
+  <h2><span class="m-tag">前沿</span>现代研究与学习路径</h2>
+  <p class="hook">从fMRI证实穴位刺激改变脑功能连接，到WHO推荐针灸治疗43种疾病——古老的针灸正在被现代科学重新"发现"。</p>
+  <div class="content">
+    <p><strong>现代科学研究进展</strong></p>
+    <p>• <strong>神经影像学</strong>：fMRI研究证实，针刺特定穴位可引起对应脑区的激活或抑制。例如针刺足三里可激活岛叶、下丘脑等内脏调节中枢；针刺太冲可调节边缘系统活动。<br>
+    • <strong>神经递质机制</strong>：针刺镇痛与内源性阿片肽（β-内啡肽、脑啡肽）的释放密切相关，针刺信号通过脊髓-脑干-丘脑通路抑制疼痛信号传导。<br>
+    • <strong>结缔组织机制</strong>：研究发现针刺可引起结缔组织（筋膜）的机械性缠绕和细胞信号传导，从生物力学角度解释了得气和针感的产生。<br>
+    • <strong>循证医学</strong>：大量RCT研究证实针灸对慢性疼痛（腰痛、颈痛、膝骨关节炎）、偏头痛、化疗后恶心呕吐等有确切疗效。</p>
+    <p><strong>推荐学习路径</strong></p>
+    <p><strong>第一阶段（入门1-2周）</strong>：掌握经络循行概况和30个最常用穴位的定位（参照骨度分寸法），理解得气的概念和判断标准。练习持针姿势和基本进针手法（用纸垫或棉团练习）。<br>
+    <strong>第二阶段（基础1-2个月）</strong>：系统学习十二正经和任督二脉的循行和穴位。练习各种行针和补泻手法，体会不同手法下的针感差异。学习灸法的各种操作方式和推拿八法。<br>
+    <strong>第三阶段（提高3-6个月）</strong>：学习常见病的选穴处方和临床方案。在有经验的指导下进行临床实践。研读《针灸甲乙经》和《针灸大成》等经典著作的部分章节。</p>
+  </div>
+  <ul class="ref-list">
+    <li>Maeda Y et al. (2013). "Acupuncture Evoked Response in Contralateral Somatosensory Cortex." NeuroImage</li>
+    <li>Langevin HM et al. (2002). "Evidence of Connective Tissue Involvement in Acupuncture." FASEB Journal</li>
+    <li>WHO (2002). Acupuncture: Review and Analysis of Reports on Controlled Clinical Trials</li>
+    <li>Vickers AJ et al. (2018). "Acupuncture for Chronic Pain: Update of an Individual Patient Data Meta-Analysis." Journal of Pain</li>
+  </ul>
+  <div class="takeaway">💡 现代研究从神经影像、神经递质和结缔组织力学三个维度验证了针灸的科学性——古老的技法正在与现代科学体系融合。</div>
+</div>
+
+<!-- 14 术语表 -->
+<div class="module" id="mod-14">
+  <h2><span class="m-tag">术语</span>关键术语表</h2>
+  <p class="hook">得气、阿是穴、骨度分寸、补泻——这些术语是进入针灸推拿世界的"通行证"。</p>
+  <div class="content"></div>
+  <div class="table-container">
+    <div class="table-caption">表：针灸推拿关键术语表</div>
+    <table>
+      <thead><tr><th>术语</th><th>定义</th><th>类别</th></tr></thead>
+      <tbody>
+        <tr><td><strong>得气</strong></td><td>针刺部位产生的经气感应——患者感酸麻胀重，医者感针下沉紧</td><td>针法</td></tr>
+        <tr><td><strong>腧穴</strong></td><td>脏腑经络之气输注于体表的特殊部位，是针灸施术的刺激点</td><td>基础</td></tr>
+        <tr><td><strong>阿是穴</strong></td><td>以压痛点或反应点作为施术部位，无固定名称和定位，又称"天应穴""不定穴"</td><td>腧穴</td></tr>
+        <tr><td><strong>骨度分寸</strong></td><td>将人体各部位折量成等分，以此为标准量取腧穴的定位方法</td><td>定位</td></tr>
+        <tr><td><strong>同身寸</strong></td><td>以患者本人的手指作为标准量取穴位的方法（中指同身寸/拇指同身寸/一夫法）</td><td>定位</td></tr>
+        <tr><td><strong>补法</strong></td><td>能鼓舞人体正气、使低下的功能恢复旺盛的针刺手法</td><td>针法</td></tr>
+        <tr><td><strong>泻法</strong></td><td>能疏泄病邪、使亢进的功能恢复正常的针刺手法</td><td>针法</td></tr>
+        <tr><td><strong>艾炷</strong></td><td>将艾绒制成圆锥形的小团，一个艾炷称为"一壮"</td><td>灸法</td></tr>
+        <tr><td><strong>温和灸</strong></td><td>艾条保持距皮肤2-3cm固定施灸，使局部有温热感而无灼痛</td><td>灸法</td></tr>
+        <tr><td><strong>温针灸</strong></td><td>针刺得气后在针柄上装艾绒点燃，使温热通过针身传入体内</td><td>灸法</td></tr>
+        <tr><td><strong>五输穴</strong></td><td>十二经在肘膝关节以下的井、荥、输、经、合五类穴位，共60穴</td><td>腧穴</td></tr>
+        <tr><td><strong>背俞穴</strong></td><td>脏腑之气输注于背腰部的穴位，位于足太阳膀胱经第一侧线</td><td>腧穴</td></tr>
+        <tr><td><strong>九针</strong></td><td>《灵枢》记载的九种古代针具：镵针、圆针、鍉针、锋针、铍针、圆利针、毫针、长针、大针</td><td>针具</td></tr>
+        <tr><td><strong>晕针</strong></td><td>针刺过程中患者出现的晕厥现象，需立即拔针、平卧处理</td><td>安全</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="takeaway">💡 掌握得气、腧穴、阿是穴、骨度分寸、补泻五个核心术语，就能把握针灸推拿的学习主线。</div>
+</div>
+
+</div>
+
+<div class="chart-wrap">
+  <div id="chart-1"></div>
+  <div class="ch-cap">图1：常用穴位人体分布概览——按头面、躯干、上肢、下肢四大区域划分</div>
+</div>
+
+<div class="chart-wrap">
+  <div id="chart-2"></div>
+  <div class="ch-cap">图2：十二正经与任督二脉经络系统网络图</div>
+</div>
+
+<div class="chart-wrap">
+  <div id="chart-3"></div>
+  <div class="ch-cap">图3：推拿手法分类结构——从八种基本手法到复合手法的层级关系</div>
+</div>
+
+<div class="table-container" style="max-width:900px;margin:32px auto">
+  <div class="table-caption">表：针刺与艾灸核心区别对比</div>
+  <table>
+    <thead><tr><th>对比维度</th><th>针刺</th><th>艾灸</th></tr></thead>
+    <tbody>
+      <tr><td>作用机制</td><td>机械刺激激发经气</td><td>温热刺激温通经络</td></tr>
+      <tr><td>适应症</td><td>实证、热证、痛证</td><td>虚证、寒证</td></tr>
+      <tr><td>最佳深度</td><td>得气为度，深浅因病而异</td><td>皮肤表面感温即可</td></tr>
+      <tr><td>核心功效</td><td>通经活络、调节虚实</td><td>温经散寒、扶阳固脱</td></tr>
+      <tr><td>留针/留灸</td><td>15-30分钟</td><td>每穴5-15分钟</td></tr>
+      <tr><td>主要禁忌</td><td>孕妇、出血体质、过饥过饱</td><td>实热证、阴虚发热</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<footer class="journey-footer">
+  <a href="#" class="back-to-plan" onclick="event.preventDefault();goBack()">🔗 返回学习路线: 中医与养生 系统学习方案 → Phase 2: 诊法与方技核心</a>
+  <p style="margin-top:12px;font-size:.72rem;color:var(--text-muted)">
+    本资料是 <strong>中医与养生 系统学习方案</strong> Phase 2: 诊法与方技核心 阶段的深度研读材料（4/4）
+  </p>
+</footer>
+
+<div class="deep-floating-back">
+  <button onclick="goBack()">← 返回学习方案</button>
+</div>
+
+<div class="dd-toast" id="toastEl"><span id="toastMsg"></span></div>
+</div>
+
+<script>
+(function(){document.body.classList.remove('loading');document.body.classList.add('loaded');})();
+
+var MODULE_IDS = ['mod-00','mod-01','mod-02','mod-03','mod-04','mod-05','mod-06','mod-07','mod-08','mod-09','mod-10','mod-11','mod-12','mod-13','mod-14'];
+
+var MODULE_TITLES = {
+  'mod-00':'00 总览',
+  'mod-01':'01 背景与缘起',
+  'mod-02':'02 核心概念',
+  'mod-03':'03 常用腧穴·头面颈项部',
+  'mod-04':'04 常用腧穴·胸腹腰背部',
+  'mod-05':'05 常用腧穴·上肢部',
+  'mod-06':'06 常用腧穴·下肢部',
+  'mod-07':'07 腧穴定位方法',
+  'mod-08':'08 毫针刺法',
+  'mod-09':'09 艾灸疗法',
+  'mod-10':'10 推拿基础手法',
+  'mod-11':'11 常见病症针灸推拿方案',
+  'mod-12':'12 临床安全与注意事项',
+  'mod-13':'13 现代研究与学习路径',
+  'mod-14':'14 术语表'
+};
+
+var MODULE_SNIPPETS = {
+  'mod-00':'针灸推拿三大外治法概览：针刺、艾灸、推拿的核心概念与关系',
+  'mod-01':'从砭石到现代针灸，黄帝内经灵枢经与针灸发展里程碑',
+  'mod-02':'经络系统复习，腧穴分类（十四经穴361个、经外奇穴、阿是穴），得气概念',
+  'mod-03':'百会、太阳、风池、迎香、人中、翳风、印堂、头维等头面颈项部常用腧穴',
+  'mod-04':'膻中、中脘、气海、关元、大椎、命门、肾俞、肺俞等躯干部常用腧穴',
+  'mod-05':'合谷、曲池、内关、外关、列缺、后溪、神门等上肢部常用腧穴',
+  'mod-06':'足三里、三阴交、太冲、涌泉、阳陵泉、委中、丰隆、太溪等下肢部常用腧穴',
+  'mod-07':'骨度分寸法、体表标志法、手指同身寸法三种腧穴定位方法详解',
+  'mod-08':'进针手法（指切/夹持/舒张/提捏）、行针手法（提插/捻转）、六种补泻手法',
+  'mod-09':'艾炷灸（直接/间接）、艾条灸（温和灸/雀啄灸）、温针灸、温灸器灸',
+  'mod-10':'按/摩/推/拿/揉/捏/颤/打八法及复合手法，推拿操作原则',
+  'mod-11':'头痛、失眠、颈椎病、腰痛、胃痛、痛经、面瘫的针灸推拿选穴方案',
+  'mod-12':'晕针处理、禁针禁灸穴位、推拿禁忌症、针灸推拿一般安全注意事项',
+  'mod-13':'fMRI研究、神经递质机制、结缔组织研究，推荐三阶段学习路径',
+  'mod-14':'得气、腧穴、阿是穴、骨度分寸、补泻、灸法、温针灸等核心术语定义'
+};
+
+function goBack(){
+  try{localStorage.setItem('tcm_wellness_nav',JSON.stringify({kpId:'p2_4',ts:Date.now()}));}catch(e){}
+  var w=window.open('tcm_learning.html#kc-p2_4','plan_main');
+  if(w)w.focus();
+}
+
+function buildSidebar(){
+  var nav=document.getElementById('sidebarNav');
+  MODULE_IDS.forEach(function(id){
+    var li=document.createElement('li');
+    var a=document.createElement('a');
+    a.href='#'+id;
+    a.textContent=MODULE_TITLES[id]||id;
+    a.addEventListener('click',function(e){
+      e.preventDefault();
+      document.getElementById(id).scrollIntoView({behavior:'smooth'});
+    });
+    li.appendChild(a);
+    nav.appendChild(li);
+  });
+}
+
+function toggleTheme(){
+  var b=document.body,isD=b.getAttribute('data-theme')==='dark';
+  b.setAttribute('data-theme',isD?'light':'dark');
+  try{localStorage.setItem('slm-theme',isD?'light':'dark');}catch(e){}
+  showToast('已切换至'+(isD?'浅色':'深色')+'主题');
+  setTimeout(function(){resizeAllCharts();},300);
+}
+
+function openSearch(){document.getElementById('searchOverlay').classList.add('open');setTimeout(function(){document.getElementById('searchInput').focus();},100);}
+function closeSearch(){document.getElementById('searchOverlay').classList.remove('open');document.getElementById('searchResults').innerHTML='';}
+document.getElementById('searchOverlay').addEventListener('click',function(e){if(e.target===this)closeSearch();});
+
+function doSearch(){
+  var q=document.getElementById('searchInput').value.toLowerCase(),res=document.getElementById('searchResults');
+  if(q.length<2){res.innerHTML='';return;}
+  var results=[];
+  MODULE_IDS.forEach(function(id){
+    var t=MODULE_TITLES[id]||'';
+    var s=MODULE_SNIPPETS[id]||'';
+    if(t.toLowerCase().indexOf(q)>=0||s.toLowerCase().indexOf(q)>=0){
+      results.push({id:id,title:t,snippet:s});
+    }
+  });
+  var html=results.map(function(r){
+    var title=r.title.replace(new RegExp('('+q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi'),'<strong>$1</strong>');
+    return '<div onclick="closeSearch();document.getElementById(\''+r.id+'\').scrollIntoView({behavior:\'smooth\'})">'+title+'<br><small style="color:var(--text-muted)">'+(r.snippet||'').substring(0,80)+'</small></div>';
+  }).join('');
+  res.innerHTML=html||'<div style="padding:12px;color:var(--text-muted)">未找到匹配模块</div>';
+}
+
+var TOAST_TIMEOUT;
+function showToast(msg){
+  var el=document.getElementById('toastEl'),mg=document.getElementById('toastMsg');
+  if(!el||!mg)return;mg.textContent=msg;el.style.display='block';el.classList.add('toast-in');
+  if(TOAST_TIMEOUT)clearTimeout(TOAST_TIMEOUT);
+  TOAST_TIMEOUT=setTimeout(function(){el.style.display='none';},3000);
+}
+
+(function(){
+  try{var t=localStorage.getItem('slm-theme');if(t==='light')document.body.setAttribute('data-theme','light');}catch(e){}
+})();
+
+(function(){
+  var progressBar=document.getElementById('progressBar');
+  window.addEventListener('scroll',function(){
+    var st=document.documentElement.scrollTop,dh=document.documentElement.scrollHeight-window.innerHeight;
+    var pct=dh>0?Math.min(100,(st/dh)*100):0;progressBar.style.width=pct+'%';
+  });
+})();
+
+(function(){
+  var modules=document.querySelectorAll('.module');
+  var fadeObserver=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){if(e.isIntersecting)e.target.classList.add('visible');});
+  },{threshold:.12});
+  modules.forEach(function(m){fadeObserver.observe(m);});
+
+  var navLinks=document.querySelectorAll('.sidebar-nav a');
+  var navObserver=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){
+        navLinks.forEach(function(a){a.classList.remove('active');});
+        var act=document.querySelector('.sidebar-nav a[href="#'+e.target.id+'"]');
+        if(act)act.classList.add('active');
+      }
+    });
+  },{threshold:.3});
+  modules.forEach(function(m){navObserver.observe(m);});
+})();
+
+window.addEventListener('keydown',function(e){
+  if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();openSearch();}
+  if((e.ctrlKey||e.metaKey)&&e.key==='d'){e.preventDefault();toggleTheme();}
+  if(e.key==='Escape')closeSearch();
+});
+
+var allCharts=[];
+function resizeAllCharts(){allCharts.forEach(function(c){c.resize();});}
+
+(function initCharts(){
+  if(typeof echarts==='undefined'){return;}
+
+  var isDark=document.body.getAttribute('data-theme')!=='light';
+  var chartText=isDark?'#b8ad98':'#4a4035';
+  var chartGrid=isDark?'#2d2924':'#ebe5d6';
+  var chartAccent=isDark?'#5ea87a':'#3d6b50';
+
+  var dom1=document.getElementById('chart-1');
+  if(dom1){
+    var c1=echarts.init(dom1);
+    c1.setOption({
+      tooltip:{trigger:'item',formatter:'{b}: {c}个穴位'},
+      series:[{
+        type:'treemap',roam:false,width:'96%',height:'85%',
+        label:{show:true,fontSize:14,fontWeight:'bold',color:'#fff'},
+        upperLabel:{show:true,height:30,fontSize:12},
+        itemStyle:{borderColor:chartGrid,borderWidth:2},
+        levels:[{itemStyle:{borderWidth:0,gapWidth:3},upperLabel:{show:true,height:26}},
+          {colorSaturation:[0.35,0.55],itemStyle:{borderColorSaturation:0.4,gapWidth:2}}],
+        data:[
+          {name:'头面颈项部\n(8穴)',value:8,itemStyle:{color:'#5ea87a'},children:[
+            {name:'百会',value:1,itemStyle:{color:'#4a8e6a'}},{name:'太阳',value:1},{name:'风池',value:1},
+            {name:'迎香',value:1},{name:'人中',value:1},{name:'翳风',value:1},{name:'印堂',value:1},{name:'头维',value:1}
+          ]},
+          {name:'胸腹腰背部\n(9穴)',value:9,itemStyle:{color:'#7ec8a0'},children:[
+            {name:'膻中',value:1,itemStyle:{color:'#6ebf8a'}},{name:'中脘',value:1},{name:'气海',value:1},
+            {name:'关元',value:1},{name:'大椎',value:1},{name:'命门',value:1},{name:'肾俞',value:1},
+            {name:'肺俞',value:1},{name:'天枢',value:1}
+          ]},
+          {name:'上肢部\n(7穴)',value:7,itemStyle:{color:'#b898a0'},children:[
+            {name:'合谷',value:1,itemStyle:{color:'#a07868'}},{name:'曲池',value:1},{name:'内关',value:1},
+            {name:'外关',value:1},{name:'列缺',value:1},{name:'后溪',value:1},{name:'神门',value:1}
+          ]},
+          {name:'下肢部\n(8穴)',value:8,itemStyle:{color:'#e6b95a'},children:[
+            {name:'足三里',value:1,itemStyle:{color:'#d4984a'}},{name:'三阴交',value:1},{name:'太冲',value:1},
+            {name:'涌泉',value:1},{name:'阳陵泉',value:1},{name:'委中',value:1},{name:'丰隆',value:1},{name:'太溪',value:1}
+          ]}
+        ]
+      }]
+    });
+    allCharts.push(c1);
+  }
+
+  var dom2=document.getElementById('chart-2');
+  if(dom2){
+    var c2=echarts.init(dom2);
+    var meridianNodes=[
+      {name:'手太阴肺经',x:150,y:80,itemStyle:{color:'#5ea87a'},symbolSize:32},
+      {name:'手阳明大肠经',x:300,y:30,itemStyle:{color:'#6ebf8a'},symbolSize:32},
+      {name:'足阳明胃经',x:480,y:40,itemStyle:{color:'#7ec8a0'},symbolSize:32},
+      {name:'足太阴脾经',x:600,y:120,itemStyle:{color:'#5ea87a'},symbolSize:32},
+      {name:'手少阴心经',x:150,y:180,itemStyle:{color:'#b898a0'},symbolSize:32},
+      {name:'手太阳小肠经',x:350,y:170,itemStyle:{color:'#d49898'},symbolSize:32},
+      {name:'足太阳膀胱经',x:550,y:180,itemStyle:{color:'#e6b95a'},symbolSize:32},
+      {name:'足少阴肾经',x:650,y:260,itemStyle:{color:'#b898a0'},symbolSize:32},
+      {name:'手厥阴心包经',x:100,y:280,itemStyle:{color:'#d47860'},symbolSize:32},
+      {name:'手少阳三焦经',x:300,y:320,itemStyle:{color:'#7ec8a0'},symbolSize:32},
+      {name:'足少阳胆经',x:500,y:300,itemStyle:{color:'#6ebf8a'},symbolSize:32},
+      {name:'足厥阴肝经',x:650,y:380,itemStyle:{color:'#5ea87a'},symbolSize:32},
+      {name:'任脉',x:380,y:400,itemStyle:{color:'#e6b95a'},symbolSize:38},
+      {name:'督脉',x:420,y:430,itemStyle:{color:'#b898a0'},symbolSize:38}
+    ];
+    var meridianLinks=[
+      {source:'手太阴肺经',target:'手阳明大肠经',label:{show:true,formatter:'表里',fontSize:10,color:chartText}},
+      {source:'手阳明大肠经',target:'足阳明胃经',label:{show:true,formatter:'同名',fontSize:10,color:chartText}},
+      {source:'足阳明胃经',target:'足太阴脾经',label:{show:true,formatter:'表里',fontSize:10,color:chartText}},
+      {source:'足太阴脾经',target:'手少阴心经',label:{show:true,formatter:'交接',fontSize:10,color:chartText}},
+      {source:'手少阴心经',target:'手太阳小肠经',label:{show:true,formatter:'表里',fontSize:10,color:chartText}},
+      {source:'手太阳小肠经',target:'足太阳膀胱经',label:{show:true,formatter:'同名',fontSize:10,color:chartText}},
+      {source:'足太阳膀胱经',target:'足少阴肾经',label:{show:true,formatter:'表里',fontSize:10,color:chartText}},
+      {source:'足少阴肾经',target:'手厥阴心包经',label:{show:true,formatter:'交接',fontSize:10,color:chartText}},
+      {source:'手厥阴心包经',target:'手少阳三焦经',label:{show:true,formatter:'表里',fontSize:10,color:chartText}},
+      {source:'手少阳三焦经',target:'足少阳胆经',label:{show:true,formatter:'同名',fontSize:10,color:chartText}},
+      {source:'足少阳胆经',target:'足厥阴肝经',label:{show:true,formatter:'表里',fontSize:10,color:chartText}},
+      {source:'足厥阴肝经',target:'手太阴肺经',label:{show:true,formatter:'交接',fontSize:10,color:chartText},lineStyle:{type:'dashed'}},
+      {source:'任脉',target:'督脉',label:{show:true,formatter:'阴阳',fontSize:10,color:chartText},lineStyle:{type:'dashed',width:2}},
+      {source:'督脉',target:'足太阳膀胱经',label:{show:true,formatter:'并行',fontSize:9,color:chartText},lineStyle:{type:'dotted'}}
+    ];
+    c2.setOption({
+      tooltip:{trigger:'item'},
+      series:[{
+        type:'graph',layout:'force',roam:true,force:{repulsion:350,edgeLength:[80,200]},
+        label:{show:true,fontSize:11,color:chartText},
+        edgeSymbol:['none','arrow'],edgeSymbolSize:8,
+        data:meridianNodes,links:meridianLinks,
+        lineStyle:{color:chartGrid,curveness:0.1}
+      }]
+    });
+    allCharts.push(c2);
+  }
+
+  var dom3=document.getElementById('chart-3');
+  if(dom3){
+    var c3=echarts.init(dom3);
+    c3.setOption({
+      tooltip:{trigger:'item'},
+      series:[{
+        type:'sunburst',
+        radius:[0,'90%'],
+        label:{rotate:'radial',fontSize:12,color:'#fff'},
+        itemStyle:{borderColor:chartGrid,borderWidth:2},
+        data:[
+          {name:'推拿手法体系',itemStyle:{color:'#5ea87a'},children:[
+            {name:'按压类',itemStyle:{color:'#4a8e6a'},children:[
+              {name:'按法',value:1,itemStyle:{color:'#3d7a58'}},
+              {name:'点法',value:1},{name:'掐法',value:1}
+            ]},
+            {name:'摩擦类',itemStyle:{color:'#7ec8a0'},children:[
+              {name:'摩法',value:1,itemStyle:{color:'#6ebf8a'}},
+              {name:'推法',value:1},{name:'擦法',value:1},{name:'搓法',value:1}
+            ]},
+            {name:'捏拿类',itemStyle:{color:'#b898a0'},children:[
+              {name:'拿法',value:1,itemStyle:{color:'#a07868'}},
+              {name:'捏法',value:1},{name:'捻法',value:1},{name:'抓法',value:1}
+            ]},
+            {name:'揉动类',itemStyle:{color:'#6ebf8a'},children:[
+              {name:'揉法',value:1,itemStyle:{color:'#5ea87a'}},
+              {name:'滚法',value:1},{name:'一指禅推法',value:1}
+            ]},
+            {name:'振动类',itemStyle:{color:'#e6b95a'},children:[
+              {name:'颤法',value:1,itemStyle:{color:'#d4984a'}},
+              {name:'抖法',value:1},{name:'振法',value:1}
+            ]},
+            {name:'叩击类',itemStyle:{color:'#d47860'},children:[
+              {name:'拍法（打法）',value:1,itemStyle:{color:'#c06048'}},
+              {name:'叩法',value:1},{name:'击法',value:1}
+            ]},
+            {name:'活动关节类',itemStyle:{color:'#7ec8a0'},children:[
+              {name:'摇法',value:1,itemStyle:{color:'#6ebf8a'}},
+              {name:'扳法',value:1},{name:'拔伸法',value:1}
+            ]}
+          ]}
+        ]
+      }]
+    });
+    allCharts.push(c3);
+  }
+
+  window.addEventListener('resize',function(){allCharts.forEach(function(c){c.resize();});});
+})();
+
+(function(){
+  document.querySelectorAll('.derivation-toggle').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var content=this.nextElementSibling;
+      if(content){content.classList.toggle('open');this.textContent=content.classList.contains('open')?'▾ 收起推导':'▸ 展开推导';}
+    });
+  });
+})();
+
+buildSidebar();
+</script>
+</body>
+</html>

@@ -1,0 +1,222 @@
+{
+  "plans": [
+    {
+      "id": "tcm-wellness-learning",
+      "title": "中医与养生 系统学习方案",
+      "domain": "cross-domain",
+      "texture": "G6",
+      "depth": "标准学习",
+      "template_id": "cedar-dawn",
+      "markdown_file": "中医与养生学习方案.md",
+      "html_file": "tcm_learning.html",
+      "generated_at": "2026-05-27",
+      "topic_profile": {
+        "abstract": 0.55,
+        "systemic": 0.85,
+        "math_density": 0.15,
+        "temporal": 0.10
+      },
+      "phases": [
+        {
+          "id": "p1",
+          "title": "中医基础理论奠基",
+          "weeks": "第1-4周",
+          "kps": [
+            {"id": "p1_1", "name": "阴阳学说与五行生克", "topic_id": null, "has_deep_dive": true},
+            {"id": "p1_2", "name": "精气神与藏象学说", "topic_id": null, "has_deep_dive": true},
+            {"id": "p1_3", "name": "经络系统与腧穴总论", "topic_id": null, "has_deep_dive": true},
+            {"id": "p1_4", "name": "气血津液与病因病机", "topic_id": null, "has_deep_dive": true}
+          ]
+        },
+        {
+          "id": "p2",
+          "title": "诊法与方技核心",
+          "weeks": "第5-8周",
+          "kps": [
+            {"id": "p2_1", "name": "四诊合参：望闻问切", "topic_id": null, "has_deep_dive": true},
+            {"id": "p2_2", "name": "八纲辨证与脏腑辨证", "topic_id": null, "has_deep_dive": true},
+            {"id": "p2_3", "name": "中药基础与常用方剂", "topic_id": null, "has_deep_dive": true},
+            {"id": "p2_4", "name": "针灸推拿基础技法", "topic_id": null, "has_deep_dive": true}
+          ]
+        },
+        {
+          "id": "p3",
+          "title": "养生保健整合应用",
+          "weeks": "第9-12周",
+          "kps": [
+            {"id": "p3_1", "name": "四季养生与二十四节气", "topic_id": null, "has_deep_dive": true},
+            {"id": "p3_2", "name": "体质辨识与个性化调理", "topic_id": null, "has_deep_dive": true},
+            {"id": "p3_3", "name": "食疗药膳与起居养生", "topic_id": null, "has_deep_dive": true}
+          ]
+        },
+        {
+          "id": "p4",
+          "title": "进阶拓展与前沿趋势",
+          "weeks": "第13-14周",
+          "kps": [
+            {"id": "p4_1", "name": "情志养生与中医心理学", "topic_id": null, "has_deep_dive": true},
+            {"id": "p4_2", "name": "现代中医研究与国际化发展", "topic_id": null, "has_deep_dive": true}
+          ]
+        }
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "id": "mat_p1_1",
+      "kp_name": "阴阳学说与五行生克",
+      "belongs_to_plan": "tcm-wellness-learning",
+      "belongs_to_kp": "p1_1",
+      "depth": "理解",
+      "breadth": "标准",
+      "texture": "G6",
+      "template_id": "cedar-dawn",
+      "html_file": "p1_1_yin-yang-five-elements_intermediate.html",
+      "generated_at": "2026-05-27"
+    },
+    {
+      "id": "mat_p1_2",
+      "kp_name": "精气神与藏象学说",
+      "belongs_to_plan": "tcm-wellness-learning",
+      "belongs_to_kp": "p1_2",
+      "depth": "理解",
+      "breadth": "标准",
+      "texture": "G6",
+      "template_id": "cedar-dawn",
+      "html_file": "p1_2_jing-qi-shen-zangxiang_intermediate.html",
+      "generated_at": "2026-05-27"
+    },
+    {
+      "id": "mat_p1_3",
+      "kp_name": "经络系统与腧穴总论",
+      "belongs_to_plan": "tcm-wellness-learning",
+      "belongs_to_kp": "p1_3",
+      "depth": "理解",
+      "breadth": "标准",
+      "texture": "G6",
+      "template_id": "cedar-dawn",
+      "html_file": "p1_3_meridians-acupoints_intermediate.html",
+      "generated_at": "2026-05-27"
+    },
+    {
+      "id": "mat_p1_4",
+      "kp_name": "气血津液与病因病机",
+      "belongs_to_plan": "tcm-wellness-learning",
+      "belongs_to_kp": "p1_4",
+      "depth": "理解",
+      "breadth": "标准",
+      "texture": "G6",
+      "template_id": "cedar-dawn",
+      "html_file": "p1_4_qi-blood-bodyfluids-pathogenesis_intermediate.html",
+      "generated_at": "2026-05-27"
+    },
+    {
+      "topic": "四诊合参：望闻问切",
+      "topic_id": null,
+      "domain": "cross-domain",
+      "depth": "标准学习",
+      "level": "intermediate",
+      "belongs_to_plan": "tcm-wellness-learning",
+      "belongs_to_kp": "p2_1",
+      "html_file": "p2_1_sizhen-hecan_deep.html",
+      "template_id": "cedar-dawn",
+      "generated_at": "2026-05-27"
+    },
+    {
+      "topic": "八纲辨证与脏腑辨证",
+      "topic_id": null,
+      "domain": "cross-domain",
+      "depth": "标准学习",
+      "level": "intermediate",
+      "belongs_to_plan": "tcm-wellness-learning",
+      "belongs_to_kp": "p2_2",
+      "html_file": "p2_2_bagang-bianzheng_deep.html",
+      "template_id": "cedar-dawn",
+      "generated_at": "2026-05-27"
+    },
+    {
+      "topic": "中药基础与常用方剂",
+      "topic_id": null,
+      "domain": "cross-domain",
+      "depth": "标准学习",
+      "level": "intermediate",
+      "belongs_to_plan": "tcm-wellness-learning",
+      "belongs_to_kp": "p2_3",
+      "html_file": "p2_3_zhongyao-fangji_deep.html",
+      "template_id": "cedar-dawn",
+      "generated_at": "2026-05-27"
+    },
+    {
+      "topic": "针灸推拿基础技法",
+      "topic_id": null,
+      "domain": "cross-domain",
+      "depth": "标准学习",
+      "level": "intermediate",
+      "belongs_to_plan": "tcm-wellness-learning",
+      "belongs_to_kp": "p2_4",
+      "html_file": "p2_4_zhenjiu-tuina_deep.html",
+      "template_id": "cedar-dawn",
+      "generated_at": "2026-05-27"
+    },
+    {
+      "topic": "四季养生与二十四节气",
+      "topic_id": null,
+      "domain": "cross-domain",
+      "depth": "理解",
+      "level": "intermediate",
+      "belongs_to_plan": "tcm-wellness-learning",
+      "belongs_to_kp": "p3_1",
+      "html_file": "p3_1_four-seasons-wellness_intermediate.html",
+      "template_id": "cedar-dawn",
+      "generated_at": "2026-05-27"
+    },
+    {
+      "topic": "体质辨识与个性化调理",
+      "topic_id": null,
+      "domain": "cross-domain",
+      "depth": "理解",
+      "level": "intermediate",
+      "belongs_to_plan": "tcm-wellness-learning",
+      "belongs_to_kp": "p3_2",
+      "html_file": "p3_2_constitution-identification_intermediate.html",
+      "template_id": "cedar-dawn",
+      "generated_at": "2026-05-27"
+    },
+    {
+      "topic": "食疗药膳与起居养生",
+      "topic_id": null,
+      "domain": "cross-domain",
+      "depth": "理解",
+      "level": "intermediate",
+      "belongs_to_plan": "tcm-wellness-learning",
+      "belongs_to_kp": "p3_3",
+      "html_file": "p3_3_dietary-therapy-daily-wellness_intermediate.html",
+      "template_id": "cedar-dawn",
+      "generated_at": "2026-05-27"
+    },
+    {
+      "topic": "情志养生与中医心理学",
+      "topic_id": null,
+      "domain": "cross-domain",
+      "depth": "理解",
+      "level": "intermediate",
+      "belongs_to_plan": "tcm-wellness-learning",
+      "belongs_to_kp": "p4_1",
+      "html_file": "p4_1_emotional-wellness-tcm-psychology_intermediate.html",
+      "template_id": "cedar-dawn",
+      "generated_at": "2026-05-27"
+    },
+    {
+      "topic": "现代中医研究与国际化发展",
+      "topic_id": null,
+      "domain": "cross-domain",
+      "depth": "理解",
+      "level": "intermediate",
+      "belongs_to_plan": "tcm-wellness-learning",
+      "belongs_to_kp": "p4_2",
+      "html_file": "p4_2_modern-tcm-research-international_intermediate.html",
+      "template_id": "cedar-dawn",
+      "generated_at": "2026-05-27"
+    }
+  ]
+}
